@@ -33,6 +33,16 @@ export const web =
       environment: "jsdom",
       setupFiles: "./web/test/setup.ts",
     },
+    css: {
+      preprocessorOptions: {
+        less: {
+          javascriptEnabled: true,
+          modifyVars: {
+            "@primary-color": "#00BEBE",
+          },
+        },
+      },
+    },
   });
 
 const serverHeaders = (): Plugin => ({
