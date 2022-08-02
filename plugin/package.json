@@ -10,14 +10,17 @@
   },
   "scripts": {
     "start:datacatalog": "vite -c vite.config.datacatalog-web.ts",
+    "start:mapSetting": "vite -c vite.config.mapSetting-web.ts",
     "start:sidebar": "vite -c vite.config.sidebar-web.ts",
     "build": "run-s typecheck build:web build:plugin",
-    "build:plugin": "run-s build:sidebar build:datacatalog",
+    "build:plugin": "run-s build:sidebar build:datacatalog build:mapSetting",
+    "build:mapSetting": "vite build -c vite.config.mapSetting-web.ts",
     "build:datacatalog": "vite build -c vite.config.datacatalog.ts",
     "build:sidebar": "vite build -c vite.config.sidebar.ts",
-    "build:web": "run-s build:datacatalog-web build:sidebar-web",
+    "build:web": "run-s build:datacatalog-web build:sidebar-web build:mapSetting",
     "build:datacatalog-web": "vite build -c vite.config.datacatalog-web.ts",
     "build:sidebar-web": "vite build -c vite.config.sidebar-web.ts",
+    "build:mapSetting-web": "vite build -c vite.config.mapSetting-web.ts",
     "typecheck": "tsc",
     "test": "vitest",
     "coverage": "vitest run --coverage",
@@ -56,5 +59,13 @@
   },
   "msw": {
     "workerDirectory": "web/mock"
+  },
+  "dependencies": {
+    "@ant-design/icons": "^4.7.0",
+    "antd": "^4.21.7",
+    "less": "^4.1.3",
+    "less-loader": "^11.0.0",
+    "mini-svg-data-uri": "^1.4.4",
+    "react-svg": "^15.1.3"
   }
 }

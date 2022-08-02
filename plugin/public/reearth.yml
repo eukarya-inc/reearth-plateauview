@@ -6,3 +6,5 @@ extensions:
     type: widget
   - id: sidebar
     type: widget
+  - id: mapSetting
+    type: widget
