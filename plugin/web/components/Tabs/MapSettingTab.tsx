@@ -2,6 +2,7 @@ import { Checkbox, Divider, Radio, Slider, Space, Typography } from "antd";
 import { memo } from "react";
 
 import "../../styles/style.less";
+
 import icons from "../UI/Icon/icons";
 
 const mapViewData = ["3D Terrain", "3D smooth", "2D"];
@@ -68,7 +69,7 @@ const MapSettingTab: React.FC = () => {
             className={"imageButton"}
             type="primary"
             style={{
-              backgroundImage: `url(${icons.mapBing}) `,
+              backgroundImage: `url(${item.icon}) `,
             }}
           />
         ))}
