@@ -3,9 +3,15 @@
 
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
+import importToCDN, { autoComplete } from "vite-plugin-cdn-import";
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [
+    react(),
+    importToCDN({
+      modules: [autoComplete("antd")],
+    }),
+  ],
   test: {
     globals: true,
     environment: "jsdom",

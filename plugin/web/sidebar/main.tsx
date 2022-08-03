@@ -2,6 +2,7 @@ import ReactDOM from "react-dom";
 
 import WdLayout from "../components/layout/WdLayout";
 import startMock from "../mock";
+import "../styles/styles.less";
 
 startMock().then(async () => {
   console.log(
