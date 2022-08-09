@@ -44,6 +44,16 @@ export const web =
     build: {
       outDir: `../../dist/web/${name}`,
     },
+    css: {
+      preprocessorOptions: {
+        less: {
+          javascriptEnabled: true,
+          modifyVars: {
+            "@primary-color": "#00BEBE",
+          },
+        },
+      },
+    },
     test: {
       globals: true,
       environment: "jsdom",

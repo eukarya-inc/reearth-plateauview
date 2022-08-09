@@ -1,11 +1,16 @@
 import ReactDOM from "react-dom";
 
-import startMock from "../mock";
+import Wrapper from "../components/Wrapper";
 
-startMock().then(async () => {
-  console.log(await fetch("https://example.com/user/aaa").then(r => r.json()));
-});
+// import startMock from "../mock";
 
-ReactDOM.render(<h1>Hoge</h1>, document.body);
+// startMock().then(async () => {
+//   console.log(await fetch("https://example.com/user/aaa").then(r => r.json()));
+// });
+document.body.style.width = "370px";
+document.body.style.height = "800px";
+document.body.style.margin = "0";
+
+ReactDOM.render(<Wrapper />, document.body);
 
 export {};
