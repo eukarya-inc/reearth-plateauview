@@ -1,8 +1,11 @@
 import ReactDOM from "react-dom";
 
 import Wrapper from "../components/Wrapper";
+import startMock from "../mock";
 
-// import startMock from "../mock";
+startMock().then(async () => {
+  console.log(await fetch("https://example.com/user/aaa").then(r => r.json()));
+});
 
 // startMock().then(async () => {
 //   console.log(
