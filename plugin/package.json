@@ -15,17 +15,11 @@
     "build:plugin": "run-s build:sidebar build:datacatalog",
     "build:datacatalog": "vite build -c vite.config.datacatalog.ts",
     "build:sidebar": "vite build -c vite.config.sidebar.ts",
-<<<<<<< HEAD
-    "build:web": "run-s build:datacatalog-web build:sidebar-web ",
-    "build:datacatalog-web": "vite build -c vite.config.datacatalog-web.ts",
-    "build:sidebar-web": "vite build -c vite.config.sidebar-web.ts",
-=======
     "build:web": "run-s clean:build build:datacatalog-web build:sidebar-web --emptyOutDir false",
     "build:datacatalog-web": "vite build -c vite.config.datacatalog-web.ts --emptyOutDir false",
     "build:sidebar-web": "vite build -c vite.config.sidebar-web.ts --emptyOutDir false",
     "clean": "del dist",
     "clean:web": "del dist/web",
->>>>>>> 98e02ea4a2e5d55e7c2254d513a717f3273d1bb9
     "typecheck": "tsc",
     "test": "vitest",
     "coverage": "vitest run --coverage",
@@ -34,44 +28,6 @@
     "type": "tsc"
   },
   "devDependencies": {
-<<<<<<< HEAD
-    "@ant-design/icons": "^4.7.0",
-    "@testing-library/jest-dom": "^5.16.4",
-    "@testing-library/react": "^13.2.0",
-    "@testing-library/react-hooks": "^8.0.0",
-    "@testing-library/user-event": "^14.2.0",
-    "@types/node": "^17.0.35",
-    "@types/react": "^18.0.9",
-    "@types/react-dom": "^18.0.5",
-    "@typescript-eslint/eslint-plugin": "^5.26.0",
-    "@typescript-eslint/parser": "^5.26.0",
-    "@vitejs/plugin-react": "^1.3.2",
-    "antd": "^4.22.3",
-    "eslint": "^8.16.0",
-    "eslint-config-prettier": "^8.5.0",
-    "eslint-plugin-import": "^2.26.0",
-    "eslint-plugin-prettier": "^4.0.0",
-    "eslint-plugin-react": "^7.30.0",
-    "eslint-plugin-react-hooks": "^4.5.0",
-    "eslint-plugin-testing-library": "^5.5.1",
-    "jsdom": "^19.0.0",
-    "less": "^4.1.3",
-    "less-loader": "^11.0.0",
-    "mini-svg-data-uri": "^1.4.4",
-    "msw": "^0.41.0",
-    "npm-run-all": "^4.1.5",
-    "prettier": "^2.6.2",
-    "react": "^18.1.0",
-    "react-aria": "^3.18.0",
-    "react-dom": "^18.1.0",
-    "react-inlinesvg": "^3.0.0",
-    "typescript": "^4.7.2",
-    "vite": "^2.9.9",
-    "vite-plugin-cdn-import": "^0.3.5",
-    "vite-plugin-dts": "^1.4.1",
-    "vite-plugin-singlefile": "^0.9.0",
-    "vitest": "^0.12.9"
-=======
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^13.3.0",
     "@testing-library/react-hooks": "^8.0.1",
@@ -99,7 +55,6 @@
   "dependencies": {
     "react": "18.2.0",
     "react-dom": "18.2.0"
->>>>>>> 98e02ea4a2e5d55e7c2254d513a717f3273d1bb9
   },
   "msw": {
     "workerDirectory": "web/mock"
