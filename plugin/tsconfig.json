@@ -22,17 +22,11 @@
     "baseUrl": ".",
     "types": [
       "vite/client"
-    ],
-    "noImplicitReturns": true,
-    "pretty": true,
-    "sourceMap": true,
+    ]
   },
   "include": [
-    "src/**/*",
-    "web/**/*"
-  ],
-  "exclude": [
-    "node_modules"
+    "src",
+    "web"
   ],
   "references": [
     {

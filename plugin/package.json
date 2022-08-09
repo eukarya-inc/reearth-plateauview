@@ -58,6 +58,5 @@
   },
   "msw": {
     "workerDirectory": "web/mock"
-  },
-  "dependencies": {}
+  }
 }

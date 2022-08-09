@@ -19,16 +19,6 @@ export const plugin = (name: string): UserConfigExport => ({
       name: `ReearthPluginPV_${name}`,
       fileName: () => `${name}.js`,
     },
-    rollupOptions: {
-      external: ["react", "react-dom", "antd"],
-      output: {
-        globals: {
-          react: "React",
-          "react-dom": "ReactDOM",
-          antd: "antd",
-        },
-      },
-    },
   },
 });
 
@@ -50,7 +40,6 @@ export const web =
         }),
     ],
     publicDir: false,
-    globals: true,
     root: `./web/${name}`,
     build: {
       outDir: `../../dist/web/${name}`,
@@ -59,16 +48,6 @@ export const web =
       globals: true,
       environment: "jsdom",
       setupFiles: "./web/test/setup.ts",
-    },
-    css: {
-      preprocessorOptions: {
-        less: {
-          javascriptEnabled: true,
-          modifyVars: {
-            "@primary-color": "#00BEBE",
-          },
-        },
-      },
     },
   });
 
