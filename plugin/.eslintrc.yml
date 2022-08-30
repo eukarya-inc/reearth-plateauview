@@ -7,7 +7,7 @@ extends:
   - eslint:recommended
 rules:
   "css-modules/no-unused-class":
-    - warning
+    - warn
   "css-modules/no-undef-class":
     - error
 globals:
