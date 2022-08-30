@@ -1,5 +1,6 @@
 /// <reference types="vitest" />
 /// <reference types="vite/client" />
+/// <reference types="vite-plugin-svgr/client" />
 
 import react from "@vitejs/plugin-react";
 // import { visualizer } from "rollup-plugin-visualizer";
@@ -7,6 +8,7 @@ import type { UserConfigExport, Plugin } from "vite";
 import importToCDN, { autoComplete } from "vite-plugin-cdn-import";
 import { viteExternalsPlugin } from "vite-plugin-externals";
 import { viteSingleFile } from "vite-plugin-singlefile";
+import svgr from "vite-plugin-svgr";
 
 export const plugin = (name: string): UserConfigExport => ({
   build: {
@@ -27,8 +29,10 @@ export const web =
   ({ mode }) => ({
     plugins: [
       react(),
+      svgr(),
       serverHeaders(),
       viteSingleFile(),
+
       mode === "production" &&
         (importToCDN /* workaround */ as any as { default: typeof importToCDN }).default({
           modules: [autoComplete("react"), autoComplete("react-dom")],

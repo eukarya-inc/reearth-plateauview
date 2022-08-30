@@ -4,7 +4,7 @@ import { memo } from "react";
 
 import "../../../node_modules/antd/dist/antd.less";
 import colors from "../../styles/colors";
-import Icon from "../UI/Icon";
+import { ReactComponent as Trash } from "../UI/Icon/Icons/trash.svg";
 
 const WdFooter: React.FC = () => {
   const { Text } = Typography;
@@ -13,9 +13,8 @@ const WdFooter: React.FC = () => {
       <Button
         type="default"
         className="removeBtn"
-        icon={<Icon icon="trash" />}
-        color={colors.dark.outline.weak}
-      >
+        icon={<Trash />}
+        color={colors.dark.outline.weak}>
         Remove All
       </Button>
       <Text>DataSet x 0</Text>

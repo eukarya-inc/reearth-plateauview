@@ -1,28 +1,44 @@
  
- 
- .ant-divider ,.ant-divider-horizontal{
-     margin:24px 0px 0px 0px;
+ .mapViewSection{
+  display: flex;
+flex-direction: row;
+align-items: flex-start;
+padding: 0px;
+gap: 16px;
+width: 296px;
+height: 103px;
+
  }
- .ant-radio-button-wrapper, .ant-radio-button-wrapper:last-child, .ant-radio-button-wrapper:first-child{
-    margin: 0px 0px 12px 12px;       
-    border-radius: 4px; 
-    background: #D1D1D1;    
-    padding: 4px 8px ; 
-    width: 91px;
+ .baseMapSection{
+   display: flex;
+flex-direction: row;
+align-items: flex-start;
+padding: 0px;
+gap: 8px;
+
+width: 326px;
+height: 86px;
+ }
+ .rasterMapSection{
+display: flex;
+flex-direction: row;
+align-items: center;
+padding:0px;
+gap: 14px;
+width: 300px;
+height: 14px;
+ }
+ .radioButton{
+  
+     width: 91px;
     height: 29px;
+     border-radius: 4px; 
+    background: #D1D1D1; 
+    margin: 0px 0px 6px 6px;  
+    padding: 4px 8px ;  
+    
     
  }
-  // below are to remove the default border by the design library
- .ant-radio-button-wrapper:not(:first-child)::before{
-    border-radius: 4px;
-  }
- .ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled)::before {
-    background-color:  #00bebe00;
-}
- .ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled):hover::before { 
-     background-color:  #00bebe00;
-}
- 
   .sectionFonts{
     font-weight: 500;
     font-size: 14px;

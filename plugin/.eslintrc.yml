@@ -1,3 +1,13 @@
 root: true
+plugins:
+  - css-modules
 extends:
   - reearth
+  - plugin:css-modules/recommended
+  - eslint:recommended
+rules:
+  "css-modules/no-unused-class":
+    - error
+
+  "css-modules/no-undef-class":
+    - error

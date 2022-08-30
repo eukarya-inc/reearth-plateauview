@@ -32,9 +32,8 @@ const Icon: React.FC<Props> = ({
   ...props
 }) => {
   const src = useMemo(
-    () =>
-      icon?.startsWith("<svg ") ? svgToMiniDataURI(icon) : Icons[icon as Icons],
-    [icon]
+    () => (icon?.startsWith("<svg ") ? svgToMiniDataURI(icon) : Icons[icon as Icons]),
+    [icon],
   );
   if (!icon) return null;
 

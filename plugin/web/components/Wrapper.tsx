@@ -1,11 +1,11 @@
-import classes from "./Wrapper.module.css";
+import "./Wrapper.less";
 
 type Props = {
   className?: string;
 };
 const Wrapper: React.FC<Props> = () => {
   return (
-    <div className={classes.Wrapper}>
+    <div className={"wrapper"}>
       <h2>Hello World</h2>
     </div>
   );

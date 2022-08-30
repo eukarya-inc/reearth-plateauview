@@ -4,7 +4,12 @@ import { memo, useMemo, useState } from "react";
 
 import "../../../node_modules/antd/dist/antd.less";
 import "../../styles/style.less";
-import Icon from "../UI/Icon";
+
+import { ReactComponent as DataBase } from "../UI/Icon/Icons/dataBase.svg";
+import { ReactComponent as Info } from "../UI/Icon/Icons/info.svg";
+import { ReactComponent as Share } from "../UI/Icon/Icons/Share.svg";
+import { ReactComponent as Sliders } from "../UI/Icon/Icons/sliders.svg";
+import { ReactComponent as Template } from "../UI/Icon/Icons/template.svg";
 
 import WdContent from "./WdContent";
 import WdFooter from "./WdFooter";
@@ -13,23 +18,23 @@ import WdHeader from "./WdHeader";
 const items: MenuProps["items"] = [
   {
     key: "mapData",
-    icon: <Icon icon="dataBase" height={24} width={24} />,
+    icon: <DataBase />,
   },
   {
     key: "mapSetting",
-    icon: <Icon icon="sliders" color="#cf1322" />,
+    icon: <Sliders />,
   },
   {
     key: "shareNprint",
-    icon: <Icon icon="share" />,
+    icon: <Share />,
   },
   {
     key: "about",
-    icon: <Icon icon="info" />,
+    icon: <Info />,
   },
   {
-    key: "alignLeft",
-    icon: <Icon icon="alignLeft" />,
+    key: "template",
+    icon: <Template />,
   },
 ];
 export type Props = {
@@ -44,18 +49,14 @@ const WdLayout: React.FC<Props> = ({ className, isInsideEditor }) => {
     return !isInsideEditor ? [...items.slice(0, -1)] : [...items];
   }, [isInsideEditor]);
 
-  const handleClick: MenuProps["onClick"] = (e) => {
+  const handleClick: MenuProps["onClick"] = e => {
     console.log("click ", e.key);
     setCurrent(e.key);
   };
 
   return (
     <Layout className={className}>
-      <WdHeader
-        current={current}
-        items={headerItems}
-        onClick={(e: MenuInfo) => handleClick(e)}
-      />
+      <WdHeader current={current} items={headerItems} onClick={(e: MenuInfo) => handleClick(e)} />
       <WdContent current={current} />
       <WdFooter />
     </Layout>
