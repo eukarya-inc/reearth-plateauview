@@ -1,4 +1,4 @@
-import { AriaAttributes } from "react";
+import React,{ AriaAttributes } from "react";
 
 export function ariaProps(props: unknown): AriaAttributes {
   if (typeof props !== "object" || !props) return {};

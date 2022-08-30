@@ -1,4 +1,6 @@
+import React from "react";
 import "./Wrapper.less";
+
 
 type Props = {
   className?: string;

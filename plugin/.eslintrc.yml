@@ -10,5 +10,9 @@ rules:
     - warn
   "css-modules/no-undef-class":
     - error
+  "no-redeclare":
+    - off
+  "no-unused-vars":
+    - off
 globals:
   "globalThis": false
