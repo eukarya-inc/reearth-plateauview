@@ -7,7 +7,7 @@ import "../../styles/style.less";
 
 import { ReactComponent as DataBase } from "../UI/Icon/Icons/dataBase.svg";
 import { ReactComponent as Info } from "../UI/Icon/Icons/info.svg";
-import { ReactComponent as Share } from "../UI/Icon/Icons/Share.svg";
+import { ReactComponent as Share } from "../UI/Icon/Icons/share.svg";
 import { ReactComponent as Sliders } from "../UI/Icon/Icons/sliders.svg";
 import { ReactComponent as Template } from "../UI/Icon/Icons/template.svg";
 
