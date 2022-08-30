@@ -1,5 +1,5 @@
 import { Content } from "antd/lib/layout/layout";
-import { memo, ReactNode } from "react";
+import React,{ memo, ReactNode } from "react";
 
 import "../../../node_modules/antd/dist/antd.less";
 import InfoTab from "../Tabs/InfoTab";

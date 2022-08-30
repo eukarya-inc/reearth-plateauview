@@ -1,5 +1,5 @@
 import { Button, Divider, Form, Input, Space, Typography } from "antd";
-import { memo } from "react";
+import React,{ memo } from "react";
 
 import "../../styles/style.less";
 import { ReactComponent as PlateauLogoPrt } from "../UI/Icon/Icons/plateauLogoPrt.svg";

@@ -1,6 +1,6 @@
 import { Layout, MenuProps } from "antd";
 import { MenuInfo } from "rc-menu/lib/interface";
-import { memo, useMemo, useState } from "react";
+import React,{ memo, useMemo, useState } from "react";
 
 import "../../../node_modules/antd/dist/antd.less";
 import "../../styles/style.less";

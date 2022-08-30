@@ -1,6 +1,6 @@
 import { CopyOutlined } from "@ant-design/icons";
 import { Button, Divider, Input, Radio, Row, Space, Typography } from "antd";
-import { memo } from "react";
+import React,{ memo } from "react";
 import "../../styles/style.less";
 
 const PrintMapData = ["Download map ( png )", "Show Print View"];

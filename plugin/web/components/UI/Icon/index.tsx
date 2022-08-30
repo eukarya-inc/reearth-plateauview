@@ -1,13 +1,13 @@
 import { Image } from "antd";
 import svgToMiniDataURI from "mini-svg-data-uri";
-import { AriaAttributes, AriaRole, memo, useMemo } from "react";
+import React,{ AriaAttributes, AriaRole, memo, useMemo } from "react";
 import SVG from "react-inlinesvg";
 
 import { ariaProps } from "../../../utile/aria";
 
 import Icons from "./icons";
 
-export type Icons = keyof typeof Icons;
+export type Icon = keyof typeof Icons;
 
 export type Props = {
   className?: string;
@@ -32,7 +32,7 @@ const Icon: React.FC<Props> = ({
   ...props
 }) => {
   const src = useMemo(
-    () => (icon?.startsWith("<svg ") ? svgToMiniDataURI(icon) : Icons[icon as Icons]),
+    () => (icon?.startsWith("<svg ") ? svgToMiniDataURI(icon) : Icons[icon as Icon]),
     [icon],
   );
   if (!icon) return null;

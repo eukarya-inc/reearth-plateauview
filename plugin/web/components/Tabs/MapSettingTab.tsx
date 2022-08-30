@@ -1,5 +1,5 @@
 import { Checkbox, Divider, Radio, Row, Slider, Space, Typography } from "antd";
-import { memo } from "react";
+import React,{ memo } from "react";
 
 import "../../styles/style.less";
 

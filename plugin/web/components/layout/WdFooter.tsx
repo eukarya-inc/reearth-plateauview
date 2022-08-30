@@ -1,10 +1,9 @@
 import { Button, Typography } from "antd";
 import { Footer } from "antd/lib/layout/layout";
-import { memo } from "react";
+import React,{ memo } from "react";
 
 import "../../../node_modules/antd/dist/antd.less";
-import colors from "../../styles/colors";
-import { ReactComponent as Trash } from "../UI/Icon/Icons/trash.svg";
+ import { ReactComponent as Trash } from "../UI/Icon/Icons/trash.svg";
 
 const WdFooter: React.FC = () => {
   const { Text } = Typography;
@@ -14,7 +13,7 @@ const WdFooter: React.FC = () => {
         type="default"
         className="removeBtn"
         icon={<Trash />}
-        color={colors.dark.outline.weak}>
+        color={"#4A4A4A"}>
         Remove All
       </Button>
       <Text>DataSet x 0</Text>
