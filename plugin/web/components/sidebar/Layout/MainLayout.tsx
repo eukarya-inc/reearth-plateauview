@@ -3,7 +3,7 @@ import { Layout, MenuProps } from "antd";
 import { MenuInfo } from "rc-menu/lib/interface";
 import { memo, useMemo, useState } from "react";
 
-import { ReactComponent as DataBase } from "../../common/Icon/Icons/database.svg";
+import { ReactComponent as DataBase } from "../../common/Icon/Icons/dataBase.svg";
 import { ReactComponent as Info } from "../../common/Icon/Icons/info.svg";
 import { ReactComponent as Share } from "../../common/Icon/Icons/share.svg";
 import { ReactComponent as Sliders } from "../../common/Icon/Icons/sliders.svg";
