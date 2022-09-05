@@ -1,15 +1,11 @@
-import { Button } from "antd";
-
-import Wrapper from "../common/Wrapper";
+import MainLayout from "./Layout/MainLayout";
+import "antd/dist/antd.less";
+import "../../theme/styles/theme.less";
 
 const Sidebar: React.FC = () => {
   return (
     <>
-      {/* SIDEBAR CONTENTS GO HERE */}
-      {/* BELOW WRAPPER IS JUST AN EXAMPLE */}
-      <Wrapper>
-        <Button type="primary">Primary Button</Button>
-      </Wrapper>
+      <MainLayout isInsideEditor={false}></MainLayout>
     </>
   );
 };
