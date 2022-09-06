@@ -3,11 +3,8 @@ import { Layout, MenuProps } from "antd";
 import { MenuInfo } from "rc-menu/lib/interface";
 import { memo, useMemo, useState } from "react";
 
-import { ReactComponent as DataBase } from "../../common/Icon/Icons/dataBase.svg";
-import { ReactComponent as Info } from "../../common/Icon/Icons/info.svg";
-import { ReactComponent as Share } from "../../common/Icon/Icons/share.svg";
-import { ReactComponent as Sliders } from "../../common/Icon/Icons/sliders.svg";
-import { ReactComponent as Template } from "../../common/Icon/Icons/template.svg";
+import { styled } from "../../../theme";
+import { DataBase, Info, Share, Sliders, Template } from "../../common/Icon/icons";
 
 import LayoutContent from "./LayoutContent";
 import LayoutFooter from "./LayoutFooter";
@@ -40,8 +37,8 @@ export type Props = {
   isInsideEditor: boolean;
 };
 
-const WdLayout: React.FC<Props> = ({ className, isInsideEditor }) => {
-  const [current, setCurrent] = useState("mapData");
+const MainLayout: React.FC<Props> = ({ className, isInsideEditor }) => {
+  const [current, setCurrent] = useState("");
 
   const headerItems = useMemo(() => {
     return !isInsideEditor ? [...items.slice(0, -1)] : [...items];
@@ -52,7 +49,7 @@ const WdLayout: React.FC<Props> = ({ className, isInsideEditor }) => {
   };
 
   return (
-    <Layout className={className}>
+    <LayoutWrapper className={className}>
       <LayoutHeader
         current={current}
         items={headerItems}
@@ -60,7 +57,14 @@ const WdLayout: React.FC<Props> = ({ className, isInsideEditor }) => {
       />
       <LayoutContent current={current} />
       <LayoutFooter />
-    </Layout>
+    </LayoutWrapper>
   );
 };
-export default memo(WdLayout);
+export default memo(MainLayout);
+
+const LayoutWrapper = styled(Layout)`
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background-color: #f4f4f4;
+`;

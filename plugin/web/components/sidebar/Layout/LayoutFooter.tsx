@@ -3,7 +3,7 @@ import { Footer } from "antd/lib/layout/layout";
 import React, { memo } from "react";
 
 import { styled } from "../../../theme";
-import { ReactComponent as Trash } from "../../common/Icon/Icons/trash.svg";
+import { Trash } from "../../common/Icon/icons";
 
 const LayoutFooter: React.FC = () => {
   const { Text } = Typography;

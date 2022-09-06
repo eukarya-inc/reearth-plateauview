@@ -5,7 +5,7 @@ import { MenuInfo } from "rc-menu/lib/interface";
 import React, { memo } from "react";
 
 import { styled } from "../../../theme";
-import { ReactComponent as PlateauLogo } from "../../common/Icon/Icons/plateauLogo.svg";
+import { PlateauLogo } from "../../common/Icon/icons";
 
 type Props = {
   className?: string;
@@ -16,9 +16,9 @@ type Props = {
 
 const LayoutHeader: React.FC<Props> = ({ className, items, current, onClick }) => {
   return (
-    <Header className={className}>
+    <HeaderWrapper className={className}>
       <TopHeader>
-        <ClosWidgetbtn type="primary" icon={<CloseOutlined />} />
+        <ClosWidgetBtn type="primary" icon={<CloseOutlined />} />
       </TopHeader>
       <BottomHeader>
         <PlateauLogo height={114.25} width={100} />
@@ -30,10 +30,18 @@ const LayoutHeader: React.FC<Props> = ({ className, items, current, onClick }) =
           items={items}
         />
       </BottomHeader>
-    </Header>
+    </HeaderWrapper>
   );
 };
 export default memo(LayoutHeader);
+const HeaderWrapper = styled(Header)`
+  background-color: #ffff;
+  width: 100%;
+  height: 184px;
+  padding-left: 0px;
+  padding-right: 0px;
+  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+`;
 const TopHeader = styled(Row)`
   direction: rtl;
   align-items: flex-start;
@@ -51,8 +59,25 @@ const BottomHeader = styled(Row)`
 const NavHeader = styled(Menu)`
   height: 40px;
   width: 100%;
+  .ant-menu-item-icon {
+    margin-left: 10px;
+  }
+  .ant-menu-overflow {
+    justify-content: center;
+  }
+  .ant-menu-item-icon {
+    margin-left: 10px;
+  }
+  .ant-menu-overflow {
+    justify-content: center;
+  }
+
+  .ant-menu-horizontal:not(.ant-menu-dark) > .ant-menu-item,
+  .ant-menu-horizontal:not(.ant-menu-dark) > .ant-menu-submenu {
+    padding: 0px 15px;
+  }
 `;
-const ClosWidgetbtn = styled(Button)`
+const ClosWidgetBtn = styled(Button)`
   border-radius: 0%;
   height: 32px;
   width: 32px;
