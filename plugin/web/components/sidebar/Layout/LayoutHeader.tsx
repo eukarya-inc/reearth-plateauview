@@ -34,6 +34,7 @@ const LayoutHeader: React.FC<Props> = ({ className, items, current, onClick }) =
   );
 };
 export default memo(LayoutHeader);
+
 const HeaderWrapper = styled(Header)`
   background-color: #ffff;
   width: 100%;
@@ -42,12 +43,14 @@ const HeaderWrapper = styled(Header)`
   padding-right: 0px;
   box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
 `;
+
 const TopHeader = styled(Row)`
   direction: rtl;
   align-items: flex-start;
   height: 32px;
   width: 100%;
 `;
+
 const BottomHeader = styled(Row)`
   display: flex;
   flex-direction: row;
@@ -56,6 +59,7 @@ const BottomHeader = styled(Row)`
   padding: 0px 0px 10px 10px;
   height: 50px;
 `;
+
 const NavHeader = styled(Menu)`
   height: 40px;
   width: 100%;
@@ -77,6 +81,7 @@ const NavHeader = styled(Menu)`
     padding: 0px 15px;
   }
 `;
+
 const CloseWidgetBtn = styled(Button)`
   border-radius: 0%;
   height: 32px;
