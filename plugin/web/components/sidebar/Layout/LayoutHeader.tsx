@@ -18,7 +18,7 @@ const LayoutHeader: React.FC<Props> = ({ className, items, current, onClick }) =
   return (
     <HeaderWrapper className={className}>
       <TopHeader>
-        <ClosWidgetBtn type="primary" icon={<CloseOutlined />} />
+        <CloseWidgetBtn type="primary" icon={<CloseOutlined />} />
       </TopHeader>
       <BottomHeader>
         <PlateauLogo height={114.25} width={100} />
