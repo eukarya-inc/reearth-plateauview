@@ -77,7 +77,7 @@ const NavHeader = styled(Menu)`
     padding: 0px 15px;
   }
 `;
-const ClosWidgetBtn = styled(Button)`
+const CloseWidgetBtn = styled(Button)`
   border-radius: 0%;
   height: 32px;
   width: 32px;
