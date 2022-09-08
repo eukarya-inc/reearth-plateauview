@@ -54,7 +54,7 @@ export const web =
       }),
     ],
     publicDir: false,
-
+    emptyOutDir: false,
     root: `./web/${name}`,
     build: {
       outDir: `../../dist/web/${name}`,
