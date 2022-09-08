@@ -19,7 +19,7 @@
     "build:datacatalog-web": "vite build -c vite.config.datacatalog-web.ts",
     "build:sidebar-web": "vite build -c vite.config.sidebar-web.ts",
     "clean": "del dist",
-    "clean:web": "del dist\\web",
+    "clean:web": "del dist/web",
     "typecheck": "tsc",
     "test": "vitest",
     "coverage": "vitest run --coverage",
