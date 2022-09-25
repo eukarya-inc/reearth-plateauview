@@ -1,7 +1,9 @@
+import { styled } from "@web/theme";
 import { Content } from "antd/lib/layout/layout";
 import React, { memo, ReactNode } from "react";
 
-import { styled } from "../../../theme";
+import InfoTab from "../tabs/InfoTab";
+import ShareTab from "../tabs/ShareTab";
 
 type Props = {
   className?: string;
@@ -9,16 +11,15 @@ type Props = {
   current: string;
 };
 
-const LayoutContent: React.FC<Props> = ({ className, children }) => {
+const LayoutContent: React.FC<Props> = ({ className, children, current }) => {
   return (
     <ContentWrapper className={className}>
-      {/* {
+      {
         {
-          mapSetting: <MapSettingTab />,
           shareNprint: <ShareTab />,
           about: <InfoTab />,
         }[current]
-      } */}
+      }
       {children}
     </ContentWrapper>
   );

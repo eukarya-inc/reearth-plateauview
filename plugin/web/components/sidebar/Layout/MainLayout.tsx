@@ -1,10 +1,10 @@
 // import " antd/dist/antd.less";
+import { styled } from "@web/theme";
 import { Layout, MenuProps } from "antd";
 import { MenuInfo } from "rc-menu/lib/interface";
 import { memo, useMemo, useState } from "react";
 
-import { styled } from "../../../theme";
-import { DataBase, Info, Share, Sliders, Template } from "../../common/Icon/icons";
+import Icon from "../../common/Icon";
 
 import LayoutContent from "./LayoutContent";
 import LayoutFooter from "./LayoutFooter";
@@ -13,25 +13,26 @@ import LayoutHeader from "./LayoutHeader";
 const items: MenuProps["items"] = [
   {
     key: "mapData",
-    icon: <DataBase />,
+    icon: <Icon icon="dataBase" size={24} />,
   },
   {
     key: "mapSetting",
-    icon: <Sliders />,
+    icon: <Icon icon="sliders" size={24} />,
   },
   {
     key: "shareNprint",
-    icon: <Share />,
+    icon: <Icon icon="share" size={24} />,
   },
   {
     key: "about",
-    icon: <Info />,
+    icon: <Icon icon="info" size={24} />,
   },
   {
     key: "template",
-    icon: <Template />,
+    icon: <Icon icon="template" size={24} />,
   },
 ];
+
 export type Props = {
   className?: string;
   isInsideEditor: boolean;
