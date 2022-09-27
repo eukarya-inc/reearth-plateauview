@@ -12,11 +12,11 @@ type Icons = keyof typeof icons;
 
 const Icon: React.FC<Props> = ({ icon, size }) => {
   const sizeStr = typeof size === "number" ? `${size}px` : size;
-  const Iconele = icons[icon as Icons];
+  const IconComponent = icons[icon as Icons];
 
   return (
     <Wrapper size={sizeStr}>
-      <Iconele />
+      <IconComponent />
     </Wrapper>
   );
 };
