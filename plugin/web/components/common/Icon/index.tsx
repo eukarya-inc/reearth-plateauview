@@ -10,7 +10,7 @@ type Props = {
 
 type Icons = keyof typeof icons;
 
-const Icon: React.FC<Props> = ({ icon, size }) => {
+const Icon: React.FC<Props> = ({ icon, size = 24 }) => {
   const sizeStr = typeof size === "number" ? `${size}px` : size;
   const IconComponent = icons[icon as Icons];
 
