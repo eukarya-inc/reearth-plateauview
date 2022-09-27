@@ -1,8 +1,7 @@
+import Icon from "@web/components/common/Icon";
 import { styled } from "@web/theme";
 import { Button, Divider, Form, Input, Space, Typography } from "antd";
 import React, { memo } from "react";
-
-import Icon from "../../common/Icon";
 
 const InfoTab: React.FC = () => {
   const { Text, Paragraph } = Typography;
