@@ -1,11 +1,10 @@
 import { CloseOutlined } from "@ant-design/icons";
+import Icon from "@web/components/common/Icon";
 import { styled } from "@web/theme";
 import { Button, Menu, MenuProps, Row } from "antd";
 import { Header } from "antd/lib/layout/layout";
 import { MenuInfo } from "rc-menu/lib/interface";
 import React, { memo } from "react";
-
-import Icon from "../../common/Icon";
 
 type Props = {
   className?: string;
@@ -69,4 +68,5 @@ const CloseWidgetBtn = styled(Button)`
   border-radius: 0%;
   height: 32px;
   width: 32px;
+  margin-right: 0px;
 `;

@@ -13,23 +13,23 @@ import LayoutHeader from "./LayoutHeader";
 const items: MenuProps["items"] = [
   {
     key: "mapData",
-    icon: <Icon icon="dataBase" size={24} />,
+    icon: <Icon icon="dataBase" />,
   },
   {
     key: "mapSetting",
-    icon: <Icon icon="sliders" size={24} />,
+    icon: <Icon icon="sliders" />,
   },
   {
     key: "shareNprint",
-    icon: <Icon icon="share" size={24} />,
+    icon: <Icon icon="share" />,
   },
   {
     key: "about",
-    icon: <Icon icon="info" size={24} />,
+    icon: <Icon icon="info" />,
   },
   {
     key: "template",
-    icon: <Icon icon="template" size={24} />,
+    icon: <Icon icon="template" />,
   },
 ];
 

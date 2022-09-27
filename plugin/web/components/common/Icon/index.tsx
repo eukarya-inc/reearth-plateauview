@@ -24,8 +24,8 @@ const Icon: React.FC<Props> = ({ icon, size = 24 }) => {
 const Wrapper = styled.div<{ size: string }>`
   font-size: 0;
   display: inline-block;
-  width: ${({ size }) => size};
-  height: ${({ size }) => size};
+  width: ${({ size }: any) => size};
+  height: ${({ size }: any) => size};
 
   svg {
     width: 100%;

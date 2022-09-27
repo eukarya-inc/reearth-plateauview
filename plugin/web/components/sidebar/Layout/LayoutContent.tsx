@@ -1,9 +1,8 @@
+import InfoTab from "@web/components/sidebar/tabs/InfoTab";
+import ShareTab from "@web/components/sidebar/tabs/ShareTab";
 import { styled } from "@web/theme";
 import { Content } from "antd/lib/layout/layout";
 import React, { memo, ReactNode } from "react";
-
-import InfoTab from "../tabs/InfoTab";
-import ShareTab from "../tabs/ShareTab";
 
 type Props = {
   className?: string;

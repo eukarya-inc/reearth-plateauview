@@ -27,7 +27,7 @@ const InfoTab: React.FC = () => {
           そのユースケースを創出。さらにこれをオープンデータとして公開することで、誰もが自由に都市のデータを引き出し、活用できるようになる。
         </Paragraph>
       </Typography>
-      <PlateauButton type="default" icon={<Icon icon="plateauLogoPrt" size={24} />}>
+      <PlateauButton type="default" icon={<Icon icon="plateauLogoPart" size={24} />}>
         PLATEAU Project Website
       </PlateauButton>
       <Divider />

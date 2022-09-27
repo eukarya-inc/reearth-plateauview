@@ -4,7 +4,7 @@
 import { ReactComponent as Logo } from "./Icons/reearthLogo.svg";
 import { ReactComponent as Trash } from "./Icons/trash.svg";
 import { ReactComponent as PlateauLogo } from "./Icons/plateauLogo.svg";
-import { ReactComponent as PlateauLogoPrt } from "./Icons/plateauLogoPrt.svg";
+import { ReactComponent as PlateauLogoPart } from "./Icons/plateauLogoPrt.svg";
 import { ReactComponent as Info } from "./Icons/info.svg";
 import { ReactComponent as Share } from "./Icons/share.svg";
 import { ReactComponent as Sliders } from "./Icons/sliders.svg";
@@ -19,7 +19,7 @@ export default {
   logo: Logo,
   trash: Trash,
   plateauLogo: PlateauLogo,
-  plateauLogoPrt: PlateauLogoPrt,
+  plateauLogoPrt: PlateauLogoPart,
   info: Info,
   share: Share,
   sliders: Sliders,
