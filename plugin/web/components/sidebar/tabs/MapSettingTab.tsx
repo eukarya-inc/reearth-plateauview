@@ -1,6 +1,6 @@
-import Bgmap_darkmatter from "@web/components/common/Icon/icons/bgmap_darkmatter.svg";
-import Bgmap_gsi from "@web/components/common/Icon/icons/bgmap_gsi.svg";
-import Bgmap_tokyo from "@web/components/common/Icon/icons/bgmap_tokyo.svg";
+import bgmap_darkmatter from "@web/components/common/Icon/icons/bgmap_darkmatter.svg";
+import bgmap_gsi from "@web/components/common/Icon/icons/bgmap_gsi.svg";
+import bgmap_tokyo from "@web/components/common/Icon/icons/bgmap_tokyo.svg";
 import mapBing from "@web/components/common/Icon/icons/mapBing.svg";
 import { styled } from "@web/theme";
 import { Checkbox, Divider, Radio, Row, Slider, Space, Typography, Button } from "antd";
@@ -16,17 +16,17 @@ const baseMapData = [
   {
     key: "2",
     title: "National latest photo (seamless)",
-    icon: Bgmap_tokyo,
+    icon: bgmap_tokyo,
   },
   {
     key: "3",
     title: "GSI Maps (light color)",
-    icon: Bgmap_gsi,
+    icon: bgmap_gsi,
   },
   {
     key: "4",
     title: "Dark Matter",
-    icon: Bgmap_darkmatter,
+    icon: bgmap_darkmatter,
   },
 ];
 
