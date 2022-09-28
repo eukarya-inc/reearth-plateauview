@@ -1,4 +1,7 @@
-import Icon from "@web/components/common/Icon";
+import Bgmap_darkmatter from "@web/components/common/Icon/icons/bgmap_darkmatter.svg";
+import Bgmap_gsi from "@web/components/common/Icon/icons/bgmap_gsi.svg";
+import Bgmap_tokyo from "@web/components/common/Icon/icons/bgmap_tokyo.svg";
+import mapBing from "@web/components/common/Icon/icons/mapBing.svg";
 import { styled } from "@web/theme";
 import { Checkbox, Divider, Radio, Row, Slider, Space, Typography, Button } from "antd";
 import React, { memo } from "react";
@@ -8,22 +11,22 @@ const baseMapData = [
   {
     key: "1",
     title: "Aerial photography (Bing)",
-    icon: <Icon icon="mapBing" />,
+    icon: mapBing,
   },
   {
     key: "2",
     title: "National latest photo (seamless)",
-    icon: <Icon icon="bgmap_tokyo" />,
+    icon: Bgmap_tokyo,
   },
   {
     key: "3",
     title: "GSI Maps (light color)",
-    icon: <Icon icon="bgmap_gsi" />,
+    icon: Bgmap_gsi,
   },
   {
     key: "4",
     title: "Dark Matter",
-    icon: <Icon icon="bgmap_darkmatter" />,
+    icon: Bgmap_darkmatter,
   },
 ];
 
@@ -43,7 +46,7 @@ const MapSettingTab: React.FC = () => {
       label: <Text>performance</Text>,
     },
   };
-
+  console.log(mapBing);
   return (
     <Space direction="vertical">
       <Title level={4}>Map setting</Title>
@@ -70,10 +73,8 @@ const MapSettingTab: React.FC = () => {
               key={item.key}
               value={item.key}
               type="default"
-              icon={item.icon}
               style={{
-                //  backgroundImage: ` ${item.icon} `,
-                // backgroundImage: "url(" + item.icon + ")",
+                backgroundImage: "url(" + item.icon + ")",
                 backgroundSize: "cover",
                 backgroundRepeat: "no-repeat",
               }}
@@ -120,7 +121,7 @@ const BaseMapSection = styled(Row)`
   width: 326px;
   height: 86px;
 `;
-const ImageButton = styled(Button)`
+const ImageButton = styled(Radio.Button)`
   margin: 0px 0px 12px 12px;
   border-radius: 4px;
   background: #d1d1d1;
