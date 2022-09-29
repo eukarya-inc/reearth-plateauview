@@ -46,7 +46,7 @@ const MapSettingTab: React.FC = () => {
       label: <Text>performance</Text>,
     },
   };
-  console.log(mapBing);
+
   return (
     <Space direction="vertical">
       <Title level={4}>Map setting</Title>
