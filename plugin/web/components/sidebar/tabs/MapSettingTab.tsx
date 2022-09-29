@@ -1,51 +1,37 @@
-import bgmap_darkmatter from "@web/components/common/Icon/icons/bgmap_darkmatter.svg";
-import bgmap_gsi from "@web/components/common/Icon/icons/bgmap_gsi.svg";
-import bgmap_tokyo from "@web/components/common/Icon/icons/bgmap_tokyo.svg";
-import mapBing from "@web/components/common/Icon/icons/mapBing.svg";
+import bgmap_darkmatter from "@web/components/common/Icon/Icons/bgmap_darkmatter.svg";
+import bgmap_gsi from "@web/components/common/Icon/Icons/bgmap_gsi.svg";
+import bgmap_tokyo from "@web/components/common/Icon/Icons/bgmap_tokyo.svg";
+import mapBing from "@web/components/common/Icon/Icons/mapBing.svg";
 import { styled } from "@web/theme";
-import { Checkbox, Divider, Radio, Row, Slider, Space, Typography, Button } from "antd";
+import { Checkbox, Divider, Radio, Row, Space, Typography, Button } from "antd";
 import React, { memo } from "react";
 
-const mapViewData = ["3D Terrain", "3D smooth", "2D"];
-const baseMapData = [
-  {
-    key: "1",
-    title: "Aerial photography (Bing)",
-    icon: mapBing,
-  },
-  {
-    key: "2",
-    title: "National latest photo (seamless)",
-    icon: bgmap_tokyo,
-  },
-  {
-    key: "3",
-    title: "GSI Maps (light color)",
-    icon: bgmap_gsi,
-  },
-  {
-    key: "4",
-    title: "Dark Matter",
-    icon: bgmap_darkmatter,
-  },
-];
-
 const MapSettingTab: React.FC = () => {
+  console.log(bgmap_darkmatter);
   const { Text, Title } = Typography;
-  const marks = {
-    0: {
-      style: {
-        color: "#f50",
-      },
-      label: <Text>quality</Text>,
+  const mapViewData = ["3D Terrain", "3D smooth", "2D"];
+  const baseMapData = [
+    {
+      key: "1",
+      title: "Aerial photography (Bing)",
+      icon: mapBing,
     },
-    100: {
-      style: {
-        color: "#f50",
-      },
-      label: <Text>performance</Text>,
+    {
+      key: "2",
+      title: "National latest photo (seamless)",
+      icon: bgmap_tokyo,
     },
-  };
+    {
+      key: "3",
+      title: "GSI Maps (light color)",
+      icon: bgmap_gsi,
+    },
+    {
+      key: "4",
+      title: "Dark Matter",
+      icon: bgmap_darkmatter,
+    },
+  ];
 
   return (
     <Space direction="vertical">
@@ -82,14 +68,6 @@ const MapSettingTab: React.FC = () => {
           ))}
         </Radio.Group>
       </BaseMapSection>
-      <Divider />
-      <Title level={5}>Image optimization</Title>
-      <Checkbox>
-        <Text> use native device resolution</Text>
-      </Checkbox>
-      <Divider />
-      <Title level={5}>Raster map quality</Title>
-      <RasterMapSlider marks={marks} />
     </Space>
   );
 };
@@ -133,15 +111,4 @@ const ImageButton = styled(Radio.Button)`
   padding: 4px 8px;
   width: 64px;
   height: 64px;
-`;
-
-const RasterMapSlider = styled(Slider)`
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  padding: 0px;
-  margin-right: 3px;
-  gap: 14px;
-  width: 250px;
-  height: 14px;
 `;
