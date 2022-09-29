@@ -93,7 +93,9 @@ const MapSettingTab: React.FC = () => {
     </Space>
   );
 };
+
 export default memo(MapSettingTab);
+
 const MapViewSection = styled(Row)`
   display: flex;
   flex-direction: row;
@@ -103,6 +105,7 @@ const MapViewSection = styled(Row)`
   width: 296px;
   height: 103px;
 `;
+
 const MapViewButton = styled(Button)`
   width: 91px;
   height: 29px;
@@ -112,6 +115,7 @@ const MapViewButton = styled(Button)`
   margin: 0px 0px 6px 6px;
   padding: 4px 8px;
 `;
+
 const BaseMapSection = styled(Row)`
   display: flex;
   flex-direction: row;
@@ -121,6 +125,7 @@ const BaseMapSection = styled(Row)`
   width: 326px;
   height: 86px;
 `;
+
 const ImageButton = styled(Radio.Button)`
   margin: 0px 0px 12px 12px;
   border-radius: 4px;
@@ -129,6 +134,7 @@ const ImageButton = styled(Radio.Button)`
   width: 64px;
   height: 64px;
 `;
+
 const RasterMapSlider = styled(Slider)`
   display: flex;
   flex-direction: row;
