@@ -7,7 +7,7 @@ const Selection: React.FC = () => {
       <StyledButton
         onClick={() => alert("This is an awesome datacatalog modal!! Use me...if you can!")}>
         <StyledIcon icon="plusCircle" size={20} />
-        Explore map data
+        <ButtonText>Explore map data</ButtonText>
       </StyledButton>
     </Wrapper>
   );
@@ -23,6 +23,7 @@ const Wrapper = styled.div`
 const StyledButton = styled.button`
   display: flex;
   justify-content: center;
+  align-items: center;
   width: 100%;
   border: none;
   border-radius: 4px;
@@ -30,6 +31,10 @@ const StyledButton = styled.button`
   color: #fff;
   padding: 10px;
   cursor: pointer;
+`;
+
+const ButtonText = styled.p`
+  margin: 0;
 `;
 
 const StyledIcon = styled(Icon)`

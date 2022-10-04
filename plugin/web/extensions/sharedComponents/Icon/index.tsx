@@ -26,6 +26,10 @@ const Icon: React.FC<Props> = ({ className, icon, size = 24, color, wide, onClic
 };
 
 const Wrapper = styled.div<{ size: string; color?: string; wide?: boolean }>`
+  display: flex;
+  justify-content: center;
+  align-content: center;
+
   svg {
     width: ${({ size }) => size};
     ${({ wide, size }) => !wide && `height: ${size};`}
