@@ -1,10 +1,12 @@
-import { Checkbox, Divider, Button, Radio, Row } from "@web/extensions/sharedComponents";
+import { Checkbox, Button, Radio, Row } from "@web/extensions/sharedComponents";
 import mapBing from "@web/extensions/sidebar/assets/bgmap_bing.png";
 import bgmap_darkmatter from "@web/extensions/sidebar/assets/bgmap_darkmatter.png";
 import bgmap_gsi from "@web/extensions/sidebar/assets/bgmap_gsi.png";
 import bgmap_tokyo from "@web/extensions/sidebar/assets/bgmap_tokyo.png";
 import { styled } from "@web/theme";
 import { memo, useState } from "react";
+
+import CommonPage from "./CommonPage";
 
 type TileSelection = "tokyo" | "bing" | "gsi" | "dark-matter";
 
@@ -68,49 +70,46 @@ const MapSettings: React.FC = () => {
   // }, []);
 
   return (
-    <Wrapper>
-      <Title>Map setting</Title>
-      <Divider />
-      <SubTitle>Map View</SubTitle>
-      <MapViewSection>
-        <Radio.Group defaultValue="3D Terrain" buttonStyle="solid">
-          {mapViewData.map(item => (
-            <MapViewButton key={item} value={item} type="primary">
-              <Text style={{ color: " #FFFFFF" }}>{item}</Text>
-            </MapViewButton>
-          ))}
-        </Radio.Group>
-        <Checkbox>
-          <Text>Terrain hides underground features</Text>
-        </Checkbox>
-      </MapViewSection>
-      <Divider />
-      <Title>Base Map</Title>
-      <BaseMapSection>
-        <Radio.Group defaultValue={currentTile} onChange={e => selectTile(e.target.value)}>
-          {baseMapData.map(item => (
-            <ImageButton
-              key={item.key}
-              value={item.key}
-              type="default"
-              style={{
-                backgroundImage: "url(" + item.icon + ")",
-                backgroundSize: "cover",
-                backgroundRepeat: "no-repeat",
-              }}
-            />
-          ))}
-        </Radio.Group>
-      </BaseMapSection>
-    </Wrapper>
+    <CommonPage title="Map settings">
+      <>
+        <SubTitle>Map View</SubTitle>
+        <MapViewSection>
+          <Radio.Group defaultValue="3D Terrain" buttonStyle="solid">
+            {mapViewData.map(item => (
+              <MapViewButton key={item} value={item} type="primary">
+                <Text style={{ color: " #FFFFFF" }}>{item}</Text>
+              </MapViewButton>
+            ))}
+          </Radio.Group>
+          <Checkbox>
+            <Text>Terrain hides underground features</Text>
+          </Checkbox>
+        </MapViewSection>
+      </>
+      <>
+        <Title>Base Map</Title>
+        <BaseMapSection>
+          <Radio.Group defaultValue={currentTile} onChange={e => selectTile(e.target.value)}>
+            {baseMapData.map(item => (
+              <ImageButton
+                key={item.key}
+                value={item.key}
+                type="default"
+                style={{
+                  backgroundImage: "url(" + item.icon + ")",
+                  backgroundSize: "cover",
+                  backgroundRepeat: "no-repeat",
+                }}
+              />
+            ))}
+          </Radio.Group>
+        </BaseMapSection>
+      </>
+    </CommonPage>
   );
 };
 
 export default memo(MapSettings);
-
-const Wrapper = styled.div`
-  padding: 32px 16px;
-`;
 
 const Title = styled.p`
   font-size: 16px;
@@ -119,6 +118,7 @@ const Title = styled.p`
 const SubTitle = styled.p`
   font-size: 14px;
 `;
+
 const Text = styled.p``;
 
 const MapViewSection = styled(Row)`

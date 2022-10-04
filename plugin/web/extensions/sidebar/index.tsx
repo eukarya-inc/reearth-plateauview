@@ -1,4 +1,3 @@
-import Footer from "@web/extensions/sidebar/components/Footer";
 import Header, { Pages } from "@web/extensions/sidebar/components/Header";
 import SidebarWrapper from "@web/extensions/sidebar/components/Wrapper";
 import { memo, useCallback, useState } from "react";
@@ -44,7 +43,6 @@ const Sidebar: React.FC<Props> = ({ className, isInsideEditor }) => {
           onClick={handleClick}
         />
       }
-      footer={<Footer />}
       current={current}
       minimized={minimized}
     />

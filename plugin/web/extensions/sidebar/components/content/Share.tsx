@@ -1,75 +1,76 @@
-import {
-  Button,
-  Divider,
-  Input,
-  Radio,
-  Row,
-  Space,
-  Typography,
-  Icon,
-} from "@web/extensions/sharedComponents";
+import { Button, Input, Radio, Row, Icon } from "@web/extensions/sharedComponents";
+import CommonPage from "@web/extensions/sidebar/components/content/CommonPage";
 import { styled } from "@web/theme";
 import { memo } from "react";
 
-const PrintMapData = ["Download map ( png )", "Show Print View"];
+const PrintMapData = ["Download map (png)", "Show Print View"];
 
 const Share: React.FC = () => {
-  const { Text, Title } = Typography;
-
   return (
-    <Space direction="vertical">
-      <Title level={4}>Share / Print</Title>
-      <Divider />
-      <Title level={5}>Share URL</Title>
-      <SectionWrapper>
-        <InputGroup compact>
-          <Input
-            style={{ width: "calc(286px)" }}
-            defaultValue="Anyone with this URL will be able to access this map."
-          />
-          <StyledButton icon={<Icon icon="copy" />} />
-          <Text type="secondary">Anyone with this URL will be able to access this map.</Text>
+    <CommonPage title="Share/Print">
+      <>
+        <Subtitle>Share URL</Subtitle>
+        <InputGroup>
+          <div style={{ display: "flex", width: "100%" }}>
+            <Input defaultValue="Anyone with this URL will be able to access this map." />
+            <StyledButton icon={<Icon icon="copy" />} />
+          </div>
+          <SubText>Anyone with this URL will be able to access this map.</SubText>
         </InputGroup>
-      </SectionWrapper>
-      <Divider />
-      <Title level={5}>Print Map</Title>
-      <SectionWrapper>
-        <RadioGroup defaultValue="3D Terrain" buttonStyle="solid">
-          {PrintMapData.map(item => (
-            <RadioButton key={item} value={item}>
-              <Text>{item}</Text>
-            </RadioButton>
-          ))}
-        </RadioGroup>
-        <Text type="secondary">Open a printable version of this map.</Text>
-      </SectionWrapper>
-    </Space>
+      </>
+      <>
+        <Subtitle>Print Map</Subtitle>
+        <SectionWrapper>
+          <RadioGroup defaultValue="3D Terrain" buttonStyle="solid">
+            {PrintMapData.map(item => (
+              <RadioButton key={item} value={item}>
+                <Text>{item}</Text>
+              </RadioButton>
+            ))}
+          </RadioGroup>
+          <SubText>Open a printable version of this map.</SubText>
+        </SectionWrapper>
+      </>
+    </CommonPage>
   );
 };
 export default memo(Share);
+
+const Text = styled.p`
+  font-size: 14px;
+  margin: 0;
+`;
+
+const Subtitle = styled(Text)`
+  margin-bottom: 24px;
+`;
+
+const SubText = styled.p`
+  font-size: 10px;
+  color: #b1b1b1;
+  margin-top: 8px;
+`;
 
 const SectionWrapper = styled(Row)`
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  padding: 32px 12px;
   gap: 8px;
 `;
+
 const InputGroup = styled(Input.Group)`
   display: flex;
   flex-direction: row;
   align-items: flex-start;
+  flex-wrap: wrap;
   padding: 0px;
-  width: 326px;
-  height: 32px;
-  gap: 8px;
 `;
+
 const RadioGroup = styled(Radio.Group)`
   display: flex;
-  flex-direction: row;
-  align-items: flex-start;
   gap: 8px;
 `;
+
 const RadioButton = styled(Radio.Button)`
   display: flex;
   flex-direction: row;
@@ -84,6 +85,7 @@ const RadioButton = styled(Radio.Button)`
 const StyledButton = styled(Button)`
   background: #00bebe;
   border-color: #00bebe;
+  width: 40px;
 
   :hover {
     background: #c7c5c5;

@@ -12,28 +12,24 @@ type Props = {
   current: Pages;
   minimized?: boolean;
   header?: ReactNode;
-  footer?: ReactNode;
 };
 
-const SidebarWrapper: React.FC<Props> = ({ className, current, minimized, header, footer }) => {
+const SidebarWrapper: React.FC<Props> = ({ className, current, minimized, header }) => {
   return (
     <Wrapper minimized={minimized}>
       {header}
       {!minimized && (
-        <>
-          <ContentWrapper className={className}>
+        <ContentWrapper className={className}>
+          {
             {
-              {
-                mapData: <Selection />,
-                shareNprint: <Share />,
-                about: <Info />,
-                mapSetting: <MapSettings />,
-                template: <div>Templates</div>, // To Do
-              }[current]
-            }
-          </ContentWrapper>
-          {footer}
-        </>
+              mapData: <Selection />,
+              shareNprint: <Share />,
+              about: <Info />,
+              mapSetting: <MapSettings />,
+              template: <div>Templates</div>, // To Do
+            }[current]
+          }
+        </ContentWrapper>
       )}
     </Wrapper>
   );
