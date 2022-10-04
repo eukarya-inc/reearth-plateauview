@@ -6,8 +6,8 @@ import {
   Row,
   Space,
   Typography,
+  Icon,
 } from "@web/extensions/sharedComponents";
-import Icon from "@web/extensions/sharedComponents/Icon";
 import { styled } from "@web/theme";
 import { memo } from "react";
 

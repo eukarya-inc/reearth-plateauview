@@ -1,3 +1,3 @@
-import Divider from "antd/lib/divider";
+import { Divider } from "antd";
 
 export default Divider;

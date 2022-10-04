@@ -1,3 +1,3 @@
-import Radio from "antd/lib/radio";
+import { Radio } from "antd";
 
 export default Radio;

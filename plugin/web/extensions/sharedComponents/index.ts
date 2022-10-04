@@ -1,5 +1,6 @@
 import Button from "@web/extensions/sharedComponents/Button";
 import Checkbox from "@web/extensions/sharedComponents/Checkbox";
+import Col from "@web/extensions/sharedComponents/Col";
 import Divider from "@web/extensions/sharedComponents/Divider";
 import Form from "@web/extensions/sharedComponents/Form";
 import Icon from "@web/extensions/sharedComponents/Icon";
@@ -21,6 +22,7 @@ export {
   Footer,
   Radio,
   Row,
+  Col,
   Space,
   Typography,
 };

@@ -1,7 +1,9 @@
-import Button from "@web/extensions/sharedComponents/Button";
-import Icon from "@web/extensions/sharedComponents/Icon";
-import { Footer as FooterComponent } from "@web/extensions/sharedComponents/Layout";
-import Typography from "@web/extensions/sharedComponents/Typography";
+import {
+  Button,
+  Icon,
+  Footer as FooterComponent,
+  Typography,
+} from "@web/extensions/sharedComponents";
 import { styled } from "@web/theme";
 import React, { memo } from "react";
 

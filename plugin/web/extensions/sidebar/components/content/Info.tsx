@@ -1,12 +1,4 @@
-import {
-  Button,
-  Divider,
-  Form,
-  Icon,
-  Input,
-  Space,
-  Typography,
-} from "@web/extensions/sharedComponents";
+import { Button, Divider, Form, Icon, Input, Typography } from "@web/extensions/sharedComponents";
 import { styled } from "@web/theme";
 import { memo } from "react";
 
@@ -24,7 +16,7 @@ const Info: React.FC = () => {
   };
 
   return (
-    <Space direction="vertical">
+    <div>
       <Typography>
         <Paragraph>
           PLATEAU は、国土交通省が進める 3D都市モデル整備・活用・オープンデータ化
@@ -59,7 +51,7 @@ const Info: React.FC = () => {
           </Button>
         </FormItem>
       </FormSection>
-    </Space>
+    </div>
   );
 };
 export default memo(Info);

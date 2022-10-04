@@ -50,4 +50,5 @@ const Sidebar: React.FC<Props> = ({ className, isInsideEditor }) => {
     />
   );
 };
+
 export default memo(Sidebar);

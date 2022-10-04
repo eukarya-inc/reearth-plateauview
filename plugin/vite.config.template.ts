@@ -58,7 +58,7 @@ export const web =
     emptyOutDir: false,
     root: `./web/extensions/${name}`,
     build: {
-      outDir: `../../dist/web/${name}`,
+      outDir: `../../../dist/web/${name}`,
     },
     css: {
       preprocessorOptions: {

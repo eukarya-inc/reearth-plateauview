@@ -1,3 +1,3 @@
-import Input from "antd/lib/input";
+import { Input } from "antd";
 
 export default Input;

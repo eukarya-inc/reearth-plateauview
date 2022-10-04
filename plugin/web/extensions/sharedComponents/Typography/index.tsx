@@ -1,3 +1,3 @@
-import Typography from "antd/lib/typography";
+import { Typography } from "antd";
 
 export default Typography;

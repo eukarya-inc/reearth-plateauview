@@ -1,6 +1,5 @@
-import Icon from "@web/extensions/sharedComponents/Icon";
+import { Icon, Button, Col } from "@web/extensions/sharedComponents";
 import { styled } from "@web/theme";
-import { Button, Col } from "antd";
 import { memo, ReactNode, useMemo } from "react";
 
 export type Pages = "mapData" | "mapSetting" | "shareNprint" | "about" | "template";

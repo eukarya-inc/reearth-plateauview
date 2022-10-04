@@ -1,3 +1,3 @@
-import Checkbox from "antd/lib/checkbox";
+import { Checkbox } from "antd";
 
 export default Checkbox;

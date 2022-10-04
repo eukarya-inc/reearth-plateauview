@@ -1,3 +1,3 @@
-import Space from "antd/lib/space";
+import { Space } from "antd";
 
 export default Space;

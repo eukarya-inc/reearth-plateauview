@@ -1,43 +1,77 @@
-import { Checkbox, Divider, Space, Typography, Button } from "@web/extensions/sharedComponents";
-import bgmap_darkmatter from "@web/extensions/sharedComponents/Icon/Icons/bgmap_darkmatter.svg";
-import bgmap_gsi from "@web/extensions/sharedComponents/Icon/Icons/bgmap_gsi.svg";
-import bgmap_tokyo from "@web/extensions/sharedComponents/Icon/Icons/bgmap_tokyo.svg";
-import mapBing from "@web/extensions/sharedComponents/Icon/Icons/mapBing.svg";
+import { Checkbox, Divider, Button, Radio, Row } from "@web/extensions/sharedComponents";
+import mapBing from "@web/extensions/sidebar/assets/bgmap_bing.png";
+import bgmap_darkmatter from "@web/extensions/sidebar/assets/bgmap_darkmatter.png";
+import bgmap_gsi from "@web/extensions/sidebar/assets/bgmap_gsi.png";
+import bgmap_tokyo from "@web/extensions/sidebar/assets/bgmap_tokyo.png";
 import { styled } from "@web/theme";
-import { Radio, Row } from "antd";
-import React, { memo } from "react";
+import { memo, useState } from "react";
+
+type TileSelection = "tokyo" | "bing" | "gsi" | "dark-matter";
+
+type BaseMapData = {
+  key: TileSelection;
+  title: string;
+  icon: string;
+};
+
+export function postMsg(act: string, payload?: any) {
+  parent.postMessage(
+    {
+      act,
+      payload,
+    },
+    "*",
+  );
+}
 
 const MapSettings: React.FC = () => {
-  const { Text, Title } = Typography;
+  const [currentTile, selectTile] = useState<TileSelection>("tokyo");
+
+  // const [currentMaps, setMaps] = useState<[] | undefined>();
+
   const mapViewData = ["3D Terrain", "3D smooth", "2D"];
-  const baseMapData = [
+
+  const baseMapData: BaseMapData[] = [
     {
-      key: "1",
-      title: "Aerial photography (Bing)",
-      icon: mapBing,
-    },
-    {
-      key: "2",
+      key: "tokyo",
       title: "National latest photo (seamless)",
       icon: bgmap_tokyo,
     },
     {
-      key: "3",
+      key: "bing",
+      title: "Aerial photography (Bing)",
+      icon: mapBing,
+    },
+    {
+      key: "gsi",
       title: "GSI Maps (light color)",
       icon: bgmap_gsi,
     },
     {
-      key: "4",
+      key: "dark-matter",
       title: "Dark Matter",
       icon: bgmap_darkmatter,
     },
   ];
 
+  // useEffect(() => {
+  //   addEventListener("message", (msg: any) => {
+  //     if (msg.source !== parent) return;
+
+  //     try {
+  //       const data = typeof msg.data === "string" ? JSON.parse(msg.data) : msg.data;
+  //       setMaps(data);
+  //       // eslint-disable-next-line no-empty
+  //     } catch (error) {}
+  //   });
+  //   postMsg("getTiles");
+  // }, []);
+
   return (
-    <Space direction="vertical">
-      <Title level={4}>Map setting</Title>
+    <Wrapper>
+      <Title>Map setting</Title>
       <Divider />
-      <Title level={5}>Map View</Title>
+      <SubTitle>Map View</SubTitle>
       <MapViewSection>
         <Radio.Group defaultValue="3D Terrain" buttonStyle="solid">
           {mapViewData.map(item => (
@@ -51,9 +85,9 @@ const MapSettings: React.FC = () => {
         </Checkbox>
       </MapViewSection>
       <Divider />
-      <Title level={5}>Base Map</Title>
+      <Title>Base Map</Title>
       <BaseMapSection>
-        <Radio.Group defaultValue="1">
+        <Radio.Group defaultValue={currentTile} onChange={e => selectTile(e.target.value)}>
           {baseMapData.map(item => (
             <ImageButton
               key={item.key}
@@ -68,11 +102,24 @@ const MapSettings: React.FC = () => {
           ))}
         </Radio.Group>
       </BaseMapSection>
-    </Space>
+    </Wrapper>
   );
 };
 
 export default memo(MapSettings);
+
+const Wrapper = styled.div`
+  padding: 32px 16px;
+`;
+
+const Title = styled.p`
+  font-size: 16px;
+`;
+
+const SubTitle = styled.p`
+  font-size: 14px;
+`;
+const Text = styled.p``;
 
 const MapViewSection = styled(Row)`
   display: flex;
