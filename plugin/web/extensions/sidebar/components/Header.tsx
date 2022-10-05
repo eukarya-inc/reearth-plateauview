@@ -1,4 +1,4 @@
-import { Icon, Button, Col } from "@web/extensions/sharedComponents";
+import { Icon, Col } from "@web/extensions/sharedComponents";
 import { styled } from "@web/theme";
 import { memo, ReactNode, useMemo } from "react";
 
@@ -13,7 +13,7 @@ type Props = {
   className?: string;
   current: string;
   isInsideEditor?: boolean;
-  minimized?: boolean;
+  minimized: boolean;
   onMinimize: () => void;
   onClick: (p: Pages) => void;
 };
@@ -64,10 +64,9 @@ const Header: React.FC<Props> = ({
           wide
           onClick={() => window.open(plateauWebsiteUrl, "_blank", "noopener")}
         />
-        <MinimizeButton
-          icon={<Icon icon={minimized ? "menu" : "close"} onClick={onMinimize} />}
-          minimized={minimized}
-        />
+        <MinimizeButton minimized={minimized}>
+          <Icon icon={minimized ? "menu" : "close"} onClick={onMinimize} />
+        </MinimizeButton>
       </TopSection>
       {!minimized && (
         <Nav>
@@ -110,39 +109,26 @@ const TopSection = styled.div<{ minimized?: boolean }>`
   height: 100%;
   padding: 24px;
   border-radius: 0 8px 8px 0;
-  transition: all 1s;
 `;
 
-const MinimizeButton = styled(Button)<{ minimized?: boolean }>`
+const MinimizeButton = styled.button<{ minimized?: boolean }>`
   position: absolute;
   right: 0;
   top: 0;
   border: none;
-  border-radius: 0;
   height: 32px;
   width: 32px;
   background: #00bebe;
-  color: white;
-
-  :focus {
-    background: #00bebe;
-  }
-
-  :hover,
-  :active,
-  :checked {
-    background: #c7c5c5;
-    color: white;
-  }
+  cursor: pointer;
+  transition: background 0.3s;
 
   ${({ minimized }) => minimized && "position: static;"}
 `;
 
 const PlateauIcon = styled(Icon)<{ minimized?: boolean }>`
-  cursor: pointer;
   width: 100%;
   margin: auto;
-  text-align: center;
+  cursor: pointer;
 
   ${({ minimized }) => minimized && "text-align: left;"}
 `;

@@ -1,4 +1,4 @@
-import { Checkbox, Button, Radio, Row } from "@web/extensions/sharedComponents";
+import { Checkbox, Radio, Row } from "@web/extensions/sharedComponents";
 import mapBing from "@web/extensions/sidebar/assets/bgmap_bing.png";
 import bgmap_darkmatter from "@web/extensions/sidebar/assets/bgmap_darkmatter.png";
 import bgmap_gsi from "@web/extensions/sidebar/assets/bgmap_gsi.png";
@@ -10,10 +10,17 @@ import CommonPage from "./CommonPage";
 
 type TileSelection = "tokyo" | "bing" | "gsi" | "dark-matter";
 
+type ViewSelection = "3d-terrain" | "3d-smooth" | "2d";
+
 type BaseMapData = {
   key: TileSelection;
   title: string;
   icon: string;
+};
+
+type MapViewData = {
+  key: ViewSelection;
+  title: string;
 };
 
 export function postMsg(act: string, payload?: any) {
@@ -26,12 +33,20 @@ export function postMsg(act: string, payload?: any) {
   );
 }
 
+const mapViewData: MapViewData[] = [
+  {
+    key: "3d-terrain",
+    title: "3D Terrain",
+  },
+  { key: "3d-smooth", title: "3D smooth" },
+  { key: "2d", title: "2D" },
+];
+
 const MapSettings: React.FC = () => {
   const [currentTile, selectTile] = useState<TileSelection>("tokyo");
+  const [currentView, selectView] = useState<ViewSelection>("3d-terrain");
 
   // const [currentMaps, setMaps] = useState<[] | undefined>();
-
-  const mapViewData = ["3D Terrain", "3D smooth", "2D"];
 
   const baseMapData: BaseMapData[] = [
     {
@@ -74,13 +89,23 @@ const MapSettings: React.FC = () => {
       <>
         <SubTitle>Map View</SubTitle>
         <MapViewSection>
-          <Radio.Group defaultValue="3D Terrain" buttonStyle="solid">
-            {mapViewData.map(item => (
-              <MapViewButton key={item} value={item} type="primary">
-                <Text style={{ color: " #FFFFFF" }}>{item}</Text>
+          {/* <Radio.Group
+            options={mapViewData}
+            defaultValue="3d-terrain"
+            optionType="button"
+            buttonStyle="solid"> */}
+          <ViewWrapper>
+            {mapViewData.map(({ key, title }) => (
+              <MapViewButton
+                key={key}
+                value={key}
+                selected={currentView === key}
+                onClick={() => selectView(key)}>
+                <Text style={{ color: " #FFFFFF" }}>{title}</Text>
               </MapViewButton>
             ))}
-          </Radio.Group>
+          </ViewWrapper>
+          {/* </Radio.Group> */}
           <Checkbox>
             <Text>Terrain hides underground features</Text>
           </Checkbox>
@@ -127,18 +152,27 @@ const MapViewSection = styled(Row)`
   align-items: flex-start;
   padding: 0px;
   gap: 16px;
-  width: 296px;
-  height: 103px;
 `;
 
-const MapViewButton = styled(Button)`
+const ViewWrapper = styled.div`
+  display: flex;
+  gap: 12px;
+  width: 100%;
+`;
+
+const MapViewButton = styled.button<{ selected?: boolean }>`
   width: 91px;
   height: 29px;
+  background: ${({ selected }) => (selected ? "#00bebe" : "#d1d1d1")};
   border-radius: 4px;
-  border-color: #d1d1d1;
-  background: #d1d1d1;
-  margin: 0px 0px 6px 6px;
+  border: none;
   padding: 4px 8px;
+  cursor: pointer;
+  transition: background 0.3s;
+
+  :hover {
+    background: #00bebe;
+  }
 `;
 
 const BaseMapSection = styled(Row)`

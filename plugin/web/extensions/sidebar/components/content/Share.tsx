@@ -1,4 +1,4 @@
-import { Button, Input, Radio, Row, Icon } from "@web/extensions/sharedComponents";
+import { Input, Radio, Row, Icon } from "@web/extensions/sharedComponents";
 import CommonPage from "@web/extensions/sidebar/components/content/CommonPage";
 import { styled } from "@web/theme";
 import { memo } from "react";
@@ -13,7 +13,9 @@ const Share: React.FC = () => {
         <InputGroup>
           <div style={{ display: "flex", width: "100%" }}>
             <Input defaultValue="Anyone with this URL will be able to access this map." />
-            <StyledButton icon={<Icon icon="copy" />} />
+            <StyledButton>
+              <Icon icon="copy" />
+            </StyledButton>
           </div>
           <SubText>Anyone with this URL will be able to access this map.</SubText>
         </InputGroup>
@@ -82,14 +84,16 @@ const RadioButton = styled(Radio.Button)`
   border-radius: 4px;
 `;
 
-const StyledButton = styled(Button)`
+const StyledButton = styled.button`
   background: #00bebe;
-  border-color: #00bebe;
+  border: none;
+  border-radius: 2px;
   width: 40px;
+  cursor: pointer;
 
   :hover {
-    background: #c7c5c5;
-    border-color: #c7c5c5;
+    background: #00bebe;
+    border-color: #00bebe;
     color: white;
   }
 `;
