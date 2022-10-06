@@ -12,9 +12,9 @@ const Footer: React.FC<Props> = ({ datasets }) => {
     <FooterBan>
       <RemoveBtn onClick={() => alert("Are you sure you want to remove all?")}>
         <Icon icon="trash" />
-        Remove All
+        全てを削除
       </RemoveBtn>
-      <Text>Dataset x {datasets ?? 0}</Text>
+      <Text>データセット x {datasets ?? 0}</Text>
     </FooterBan>
   );
 };

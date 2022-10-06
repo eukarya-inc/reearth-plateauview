@@ -22,10 +22,10 @@ const SidebarWrapper: React.FC<Props> = ({ className, current, minimized, header
         <ContentWrapper className={className}>
           {
             {
-              mapData: <Selection />,
-              shareNprint: <Share />,
+              data: <Selection />,
+              map: <MapSettings />,
+              share: <Share />,
               about: <Info />,
-              mapSetting: <MapSettings />,
               template: <div>Templates</div>, // To Do
             }[current]
           }

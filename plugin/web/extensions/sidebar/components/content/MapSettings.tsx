@@ -1,10 +1,12 @@
-import { Checkbox, Radio, Row } from "@web/extensions/sharedComponents";
+import { Checkbox, Row } from "@web/extensions/sharedComponents";
 import mapBing from "@web/extensions/sidebar/assets/bgmap_bing.png";
 import bgmap_darkmatter from "@web/extensions/sidebar/assets/bgmap_darkmatter.png";
 import bgmap_gsi from "@web/extensions/sidebar/assets/bgmap_gsi.png";
 import bgmap_tokyo from "@web/extensions/sidebar/assets/bgmap_tokyo.png";
 import { styled } from "@web/theme";
-import { memo, useState } from "react";
+import { memo, useCallback, useState } from "react";
+
+import { API } from "../../types";
 
 import CommonPage from "./CommonPage";
 
@@ -14,8 +16,9 @@ type ViewSelection = "3d-terrain" | "3d-smooth" | "2d";
 
 type BaseMapData = {
   key: TileSelection;
-  title: string;
-  icon: string;
+  url: string;
+  title?: string;
+  icon?: string;
 };
 
 type MapViewData = {
@@ -36,90 +39,111 @@ export function postMsg(act: string, payload?: any) {
 const mapViewData: MapViewData[] = [
   {
     key: "3d-terrain",
-    title: "3D Terrain",
+    title: "3D地形",
   },
-  { key: "3d-smooth", title: "3D smooth" },
+  { key: "3d-smooth", title: "3D地形なし" },
   { key: "2d", title: "2D" },
 ];
 
+const baseMapData: BaseMapData[] = [
+  {
+    key: "tokyo",
+    title: "National latest photo (seamless)",
+    icon: bgmap_tokyo,
+    url: "https://cyberjapandata.gsi.go.jp/xyz/pale/{z}/{x}/{y}.png",
+  },
+  {
+    key: "bing",
+    title: "Aerial photography (Bing)",
+    icon: mapBing,
+    url: "https://cyberjapandata.gsi.go.jp/xyz/std/{z}/{x}/{y}.png",
+  },
+  {
+    key: "gsi",
+    title: "GSI Maps (light color)",
+    icon: bgmap_gsi,
+    url: "https://cyberjapandata.gsi.go.jp/xyz/english/{z}/{x}/{y}.png",
+  },
+  {
+    key: "dark-matter",
+    title: "Dark Matter",
+    icon: bgmap_darkmatter,
+    url: "https://cyberjapandata.gsi.go.jp/xyz/lcm25k_2012/{z}/{x}/{y}.png",
+  },
+];
+
 const MapSettings: React.FC = () => {
-  const [currentTile, selectTile] = useState<TileSelection>("tokyo");
+  const [currentTile, selectTile] = useState<BaseMapData>(baseMapData[0]);
   const [currentView, selectView] = useState<ViewSelection>("3d-terrain");
-
-  // const [currentMaps, setMaps] = useState<[] | undefined>();
-
-  const baseMapData: BaseMapData[] = [
-    {
-      key: "tokyo",
-      title: "National latest photo (seamless)",
-      icon: bgmap_tokyo,
+  const [currentChanges, updateCurrentChange] = useState<API>({
+    default: {
+      terrain: true,
+      sceneMode: "3d",
     },
-    {
-      key: "bing",
-      title: "Aerial photography (Bing)",
-      icon: mapBing,
-    },
-    {
-      key: "gsi",
-      title: "GSI Maps (light color)",
-      icon: bgmap_gsi,
-    },
-    {
-      key: "dark-matter",
-      title: "Dark Matter",
-      icon: bgmap_darkmatter,
-    },
-  ];
+    tiles: [
+      {
+        id: baseMapData[0].key,
+        tile_url: baseMapData[0].url,
+      },
+    ],
+  });
 
   // useEffect(() => {
   //   addEventListener("message", (msg: any) => {
   //     if (msg.source !== parent) return;
 
   //     try {
-  //       const data = typeof msg.data === "string" ? JSON.parse(msg.data) : msg.data;
-  //       setMaps(data);
-  //       // eslint-disable-next-line no-empty
-  //     } catch (error) {}
+  //       // const data = typeof msg.data === "string" ? JSON.parse(msg.data) : msg.data;
+  //       // setMaps(data);
+  //       // postMsg("setTile", data)
+  //     } catch (error) {
+  //       console.log("error: ", error);
+  //     }
   //   });
+
   //   postMsg("getTiles");
   // }, []);
 
+  const handleViewChange = useCallback((view: ViewSelection) => {
+    selectView(view);
+    postMsg("setView", view);
+  }, []);
+
+  const handleTileChange = useCallback((tile: BaseMapData) => {
+    selectTile(tile);
+    postMsg("setTile", tile.url);
+  }, []);
+
   return (
-    <CommonPage title="Map settings">
+    <CommonPage title="マップ設定">
       <>
-        <SubTitle>Map View</SubTitle>
-        <MapViewSection>
-          {/* <Radio.Group
-            options={mapViewData}
-            defaultValue="3d-terrain"
-            optionType="button"
-            buttonStyle="solid"> */}
+        <SubTitle>マップビュー</SubTitle>
+        <Section>
           <ViewWrapper>
             {mapViewData.map(({ key, title }) => (
               <MapViewButton
                 key={key}
                 value={key}
                 selected={currentView === key}
-                onClick={() => selectView(key)}>
+                onClick={() => handleViewChange(key)}>
                 <Text style={{ color: " #FFFFFF" }}>{title}</Text>
               </MapViewButton>
             ))}
           </ViewWrapper>
-          {/* </Radio.Group> */}
           <Checkbox>
-            <Text>Terrain hides underground features</Text>
+            <Text>地下を隠す</Text>
           </Checkbox>
-        </MapViewSection>
+        </Section>
       </>
       <>
-        <Title>Base Map</Title>
-        <BaseMapSection>
-          <Radio.Group defaultValue={currentTile} onChange={e => selectTile(e.target.value)}>
+        <Title>ベースマップ</Title>
+        <Section>
+          <MapWrapper>
             {baseMapData.map(item => (
               <ImageButton
                 key={item.key}
-                value={item.key}
-                type="default"
+                selected={item.key === currentTile.key}
+                onClick={() => handleTileChange(item)}
                 style={{
                   backgroundImage: "url(" + item.icon + ")",
                   backgroundSize: "cover",
@@ -127,8 +151,8 @@ const MapSettings: React.FC = () => {
                 }}
               />
             ))}
-          </Radio.Group>
-        </BaseMapSection>
+          </MapWrapper>
+        </Section>
       </>
     </CommonPage>
   );
@@ -146,11 +170,7 @@ const SubTitle = styled.p`
 
 const Text = styled.p``;
 
-const MapViewSection = styled(Row)`
-  display: flex;
-  flex-direction: row;
-  align-items: flex-start;
-  padding: 0px;
+const Section = styled(Row)`
   gap: 16px;
 `;
 
@@ -175,21 +195,19 @@ const MapViewButton = styled.button<{ selected?: boolean }>`
   }
 `;
 
-const BaseMapSection = styled(Row)`
+const MapWrapper = styled.div`
   display: flex;
-  flex-direction: row;
-  align-items: flex-start;
-  padding: 0px;
+  justify-content: start;
   gap: 8px;
-  width: 326px;
-  height: 86px;
+  width: 100%;
 `;
 
-const ImageButton = styled(Radio.Button)`
-  margin: 0px 0px 12px 12px;
-  border-radius: 4px;
-  background: #d1d1d1;
-  padding: 4px 8px;
-  width: 64px;
+const ImageButton = styled.div<{ selected?: boolean }>`
   height: 64px;
+  width: 64px;
+  background: #d1d1d1;
+  border: 2px solid ${({ selected }) => (selected ? "#00bebe" : "#d1d1d1")};
+  border-radius: 2px;
+  padding: 4px 8px;
+  cursor: pointer;
 `;

@@ -9,7 +9,7 @@ export type Props = {
 
 const Sidebar: React.FC<Props> = ({ className, isInsideEditor }) => {
   const [minimized, setMinimized] = useState(false);
-  const [current, setCurrent] = useState<Pages>("mapData");
+  const [current, setCurrent] = useState<Pages>("data");
 
   const handleClick = useCallback((p: Pages) => {
     setCurrent(p);
