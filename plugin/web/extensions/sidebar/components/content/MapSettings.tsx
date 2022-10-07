@@ -3,12 +3,11 @@ import mapBing from "@web/extensions/sidebar/assets/bgmap_bing.png";
 import bgmap_darkmatter from "@web/extensions/sidebar/assets/bgmap_darkmatter.png";
 import bgmap_gsi from "@web/extensions/sidebar/assets/bgmap_gsi.png";
 import bgmap_tokyo from "@web/extensions/sidebar/assets/bgmap_tokyo.png";
+import CommonPage from "@web/extensions/sidebar/components/content/CommonPage";
 import { styled } from "@web/theme";
-import { memo, useCallback, useState } from "react";
+import { memo, useCallback, useMemo } from "react";
 
-import { API } from "../../types";
-
-import CommonPage from "./CommonPage";
+import { ReearthApi } from "../../types";
 
 type TileSelection = "tokyo" | "bing" | "gsi" | "dark-matter";
 
@@ -25,16 +24,6 @@ type MapViewData = {
   key: ViewSelection;
   title: string;
 };
-
-export function postMsg(act: string, payload?: any) {
-  parent.postMessage(
-    {
-      act,
-      payload,
-    },
-    "*",
-  );
-}
 
 const mapViewData: MapViewData[] = [
   {
@@ -72,21 +61,20 @@ const baseMapData: BaseMapData[] = [
   },
 ];
 
-const MapSettings: React.FC = () => {
-  const [currentTile, selectTile] = useState<BaseMapData>(baseMapData[0]);
-  const [currentView, selectView] = useState<ViewSelection>("3d-terrain");
-  const [currentChanges, updateCurrentChange] = useState<API>({
+export type Props = {
+  overrides: ReearthApi;
+  onOverridesUpdate: (updatedProperties: Partial<ReearthApi>) => void;
+};
+
+const MapSettings: React.FC<Props> = ({ overrides, onOverridesUpdate }) => {
+  const {
     default: {
-      terrain: true,
-      sceneMode: "3d",
-    },
-    tiles: [
-      {
-        id: baseMapData[0].key,
-        tile_url: baseMapData[0].url,
-      },
-    ],
-  });
+      terrain: currentTerrain,
+      sceneMode: currentSceneMode,
+      depthTestAgainstTerrain: currentHideUnderground,
+    } = {},
+    tiles: currentTiles,
+  } = overrides;
 
   // useEffect(() => {
   //   addEventListener("message", (msg: any) => {
@@ -104,15 +92,51 @@ const MapSettings: React.FC = () => {
   //   postMsg("getTiles");
   // }, []);
 
-  const handleViewChange = useCallback((view: ViewSelection) => {
-    selectView(view);
-    postMsg("setView", view);
-  }, []);
+  const currentView: ViewSelection = useMemo(
+    () => (currentSceneMode === "2d" ? "2d" : !currentTerrain ? "3d-smooth" : "3d-terrain"),
+    [currentSceneMode, currentTerrain],
+  );
 
-  const handleTileChange = useCallback((tile: BaseMapData) => {
-    selectTile(tile);
-    postMsg("setTile", tile.url);
-  }, []);
+  const handleViewChange = useCallback(
+    (view: ViewSelection) => {
+      let newView: Partial<ReearthApi> = {};
+      if (view === "3d-terrain") {
+        newView = {
+          default: {
+            sceneMode: "3d",
+            terrain: true,
+          },
+        };
+      } else if (view === "3d-smooth") {
+        newView = {
+          default: {
+            sceneMode: "3d",
+            terrain: false,
+          },
+        };
+      } else if (view === "2d") {
+        newView = {
+          default: {
+            sceneMode: "2d",
+            terrain: false,
+          },
+        };
+      }
+      onOverridesUpdate(newView);
+    },
+    [onOverridesUpdate],
+  );
+
+  const handleTileChange = useCallback(
+    (tile: BaseMapData) => {
+      onOverridesUpdate({ tiles: [{ id: tile.key, tile_url: tile.url, tile_type: "url" }] });
+    },
+    [onOverridesUpdate],
+  );
+
+  const handleHideUnderGround = useCallback(() => {
+    onOverridesUpdate({ default: { depthTestAgainstTerrain: !currentHideUnderground } });
+  }, [currentHideUnderground, onOverridesUpdate]);
 
   return (
     <CommonPage title="マップ設定">
@@ -130,7 +154,7 @@ const MapSettings: React.FC = () => {
               </MapViewButton>
             ))}
           </ViewWrapper>
-          <Checkbox>
+          <Checkbox checked={!!currentHideUnderground} onClick={handleHideUnderGround}>
             <Text>地下を隠す</Text>
           </Checkbox>
         </Section>
@@ -142,7 +166,7 @@ const MapSettings: React.FC = () => {
             {baseMapData.map(item => (
               <ImageButton
                 key={item.key}
-                selected={item.key === currentTile.key}
+                selected={item.key === currentTiles?.[0].id}
                 onClick={() => handleTileChange(item)}
                 style={{
                   backgroundImage: "url(" + item.icon + ")",
