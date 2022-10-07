@@ -16,8 +16,8 @@ export default () => {
   const handleProjectShare = useCallback(() => {
     const suffix = makeUrlSuffix();
     if (!publishUrl) {
-      // To do: get available url from PLATEAU backend and set that here,
-      // OR need to add a regen if we get an error on the copy/publish button
+      // To do: hit PLATEAU backend endpoint and create project, returning
+      // publish URl or error.
       setPublishUrl(`https://plateauview.mlit.go.jp/${suffix}`);
     }
   }, []);
