@@ -1,11 +1,11 @@
-import Geolocation from "@web/extensions/geolocation";
+import LocationWrapper from "@web/extensions/location";
 import ReactDOM from "react-dom/client";
 
 (async () => {
   const element = document.getElementById("root");
   if (element) {
     const root = ReactDOM.createRoot(element);
-    root.render(<Geolocation />);
+    root.render(<LocationWrapper />);
   }
 })();
 
