@@ -10,7 +10,8 @@ import (
 )
 
 func TestHandler(t *testing.T) {
-	req := httptest.NewRequest("GET", "/api/viz/aaaa", nil)
+	// /api/viz/aaaa
+	req := httptest.NewRequest("GET", "/aaaa", nil)
 	w := httptest.NewRecorder()
 
 	NewHandler().ServeHTTP(w, req)

@@ -13,5 +13,5 @@ func NewHandler() *Handler {
 }
 
 func (*Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	panic("implemented")
+	panic("implement me")
 }
