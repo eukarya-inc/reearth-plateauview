@@ -4,6 +4,7 @@ export type Dataset = {
   hidden: boolean;
   idealZoom: Location;
   dataUrl: string;
+  tags?: { type: "location" | "data-type"; name: string }[];
   fields: Field[];
 };
 

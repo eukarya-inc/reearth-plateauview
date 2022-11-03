@@ -1,5 +1,7 @@
 import { postMsg } from "@web/extensions/sidebar/core/utils";
-import DatasetsPage from "@web/extensions/sidebar/modals/datacatalog/components/content/DatasetsPage";
+import DatasetsPage, {
+  Dataset,
+} from "@web/extensions/sidebar/modals/datacatalog/components/content/DatasetsPage";
 import YourDataPage from "@web/extensions/sidebar/modals/datacatalog/components/content/YourData";
 import { Icon } from "@web/sharedComponents";
 import { styled } from "@web/theme";
@@ -10,19 +12,11 @@ export type Tab = "dataset" | "your-data";
 const DataCatalog: React.FC = () => {
   const [currentTab, changeTabs] = useState<Tab>("dataset");
 
-  const handleDatasetAdd = useCallback(() => {
-    const id = `dataset-${Math.floor(Math.random() * 100)}`;
+  const handleDatasetAdd = useCallback((dataset: Dataset) => {
     postMsg({
       action: "msgFromModal",
       payload: {
-        dataset: {
-          id,
-          name: `建物の${id}`,
-          hidden: false,
-          idealZoom: { lat: 20, lon: 30, height: 100 },
-          dataUrl: "www.example.com",
-          fields: [],
-        },
+        dataset,
       },
     });
   }, []);
@@ -37,7 +31,7 @@ const DataCatalog: React.FC = () => {
         <Title>Data Catalogue</Title>
         <TabsWrapper>
           <Tab selected={currentTab === "dataset"} onClick={() => changeTabs("dataset")}>
-            <Icon icon="plateauLogoPart" />
+            <Logo icon="plateauLogoPart" selected={currentTab === "dataset"} />
             <TabName>PLATEAU Dataset</TabName>
           </Tab>
           <Tab selected={currentTab === "your-data"} onClick={() => changeTabs("your-data")}>
@@ -100,6 +94,10 @@ const Tab = styled.div<{ selected?: boolean }>`
   color: ${({ selected }) => (selected ? "#00BEBE" : "#898989")};
   padding: 8px 12px;
   cursor: pointer;
+`;
+
+const Logo = styled(Icon)<{ selected?: boolean }>`
+  opacity: ${({ selected }) => (selected ? 1 : 0.4)};
 `;
 
 const TabName = styled.p`

@@ -1,10 +1,12 @@
 import PageLayout from "../PageLayout";
 
 import DatasetTree from "./DatasetTree";
-import DatasetDetails from "./Details";
+import DatasetDetails, { Dataset as DatasetType } from "./Details";
+
+export type Dataset = DatasetType;
 
 export type Props = {
-  onDatasetAdd: () => void;
+  onDatasetAdd: (dataset: Dataset) => void;
 };
 
 const DatasetsPage: React.FC<Props> = ({ onDatasetAdd }) => {

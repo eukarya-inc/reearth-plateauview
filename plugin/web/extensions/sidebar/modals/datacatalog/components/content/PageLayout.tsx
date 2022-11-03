@@ -20,7 +20,7 @@ export default PageLayout;
 
 const Body = styled.div`
   display: flex;
-  flex: 1;
+  height: 705px;
 `;
 
 const FileView = styled.div`
@@ -29,10 +29,11 @@ const FileView = styled.div`
 
 const Details = styled.div`
   flex: 1;
+  height: 100%;
+  overflow: auto;
 `;
 
 const Divider = styled.div`
   border-right: 1px solid #c7c5c5;
-  padding-left: 10px;
-  margin: 24px 10px 24px 0;
+  margin: 24px 10px;
 `;
