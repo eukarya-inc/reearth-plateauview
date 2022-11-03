@@ -19,6 +19,7 @@ import { ReactComponent as ArrowDown } from "./Icons/arrowDown.svg";
 import { ReactComponent as Visible } from "./Icons/visible.svg";
 import { ReactComponent as About } from "./Icons/about.svg";
 import { ReactComponent as MapPin } from "./Icons/mapPin.svg";
+import { ReactComponent as User } from "./Icons/user.svg";
 
 export default {
   logo: Logo,
@@ -39,4 +40,5 @@ export default {
   visible: Visible,
   about: About,
   mapPin: MapPin,
+  user: User,
 };

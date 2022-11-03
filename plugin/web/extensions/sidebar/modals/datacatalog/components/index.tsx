@@ -1,11 +1,9 @@
+import { postMsg } from "@web/extensions/sidebar/core/utils";
+import DatasetsPage from "@web/extensions/sidebar/modals/datacatalog/components/content/DatasetsPage";
+import YourDataPage from "@web/extensions/sidebar/modals/datacatalog/components/content/YourData";
 import { Icon } from "@web/sharedComponents";
 import { styled } from "@web/theme";
 import { useCallback, useState } from "react";
-
-import { postMsg } from "../../../core/utils";
-
-import DatasetsPage from "./content/DatasetsPage";
-import YourDataPage from "./content/YourData";
 
 export type Tab = "dataset" | "your-data";
 
@@ -39,9 +37,11 @@ const DataCatalog: React.FC = () => {
         <Title>Data Catalogue</Title>
         <TabsWrapper>
           <Tab selected={currentTab === "dataset"} onClick={() => changeTabs("dataset")}>
+            <Icon icon="plateauLogoPart" />
             <TabName>PLATEAU Dataset</TabName>
           </Tab>
           <Tab selected={currentTab === "your-data"} onClick={() => changeTabs("your-data")}>
+            <Icon icon="user" />
             <TabName>Your Data</TabName>
           </Tab>
         </TabsWrapper>
@@ -90,6 +90,8 @@ const TabsWrapper = styled.div`
 `;
 
 const Tab = styled.div<{ selected?: boolean }>`
+  display: flex;
+  gap: 8px;
   border-width: 1px 1px 0px 1px;
   border-style: solid;
   border-color: ${({ selected }) => (selected ? "#f4f4f4" : "#c8c8c8")};
