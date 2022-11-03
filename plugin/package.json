@@ -12,7 +12,7 @@
     "start:datacatalog": "vite -c vite-configs/sidebar/modals/datacatalog/web.ts",
     "start:sidebar": "vite -c vite-configs/sidebar/web.ts",
     "build": "run-s typecheck clean build:plugin",
-    "build:plugin": "run-s build:sidebar build:datacatalog",
+    "build:plugin": "run-s build:sidebar",
     "build:sidebar": "run-s build:datacatalog-web; vite build -c vite-configs/sidebar/web.ts; vite build -c vite-configs/sidebar",
     "build:datacatalog-web": "vite build -c vite-configs/sidebar/modals/datacatalog/web.ts",
     "clean": "del dist",
