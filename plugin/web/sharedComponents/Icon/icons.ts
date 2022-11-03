@@ -21,6 +21,7 @@ import { ReactComponent as About } from "./Icons/about.svg";
 import { ReactComponent as MapPin } from "./Icons/mapPin.svg";
 import { ReactComponent as User } from "./Icons/user.svg";
 import { ReactComponent as Search } from "./Icons/search.svg";
+import { ReactComponent as Inbox } from "./Icons/inbox.svg";
 
 export default {
   logo: Logo,
@@ -43,4 +44,5 @@ export default {
   mapPin: MapPin,
   user: User,
   search: Search,
+  inbox: Inbox,
 };

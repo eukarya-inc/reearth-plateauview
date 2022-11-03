@@ -9,9 +9,9 @@ export type Props = {
 const PageLayout: React.FC<Props> = ({ left, right }) => {
   return (
     <Body>
-      <FileView>{left}</FileView>
+      <LeftPane>{left}</LeftPane>
       <Divider />
-      <Details>{right}</Details>
+      <RightPane>{right}</RightPane>
     </Body>
   );
 };
@@ -23,11 +23,11 @@ const Body = styled.div`
   height: 705px;
 `;
 
-const FileView = styled.div`
+const LeftPane = styled.div`
   width: 402px;
 `;
 
-const Details = styled.div`
+const RightPane = styled.div`
   flex: 1;
   height: 100%;
   overflow: auto;

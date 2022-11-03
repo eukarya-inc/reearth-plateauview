@@ -2,7 +2,7 @@ import { postMsg } from "@web/extensions/sidebar/core/utils";
 import DatasetsPage, {
   Dataset,
 } from "@web/extensions/sidebar/modals/datacatalog/components/content/DatasetsPage";
-import YourDataPage from "@web/extensions/sidebar/modals/datacatalog/components/content/YourData";
+import YourDataPage from "@web/extensions/sidebar/modals/datacatalog/components/content/YourDataPage";
 import { Icon } from "@web/sharedComponents";
 import { styled } from "@web/theme";
 import { useCallback, useState } from "react";
@@ -44,7 +44,7 @@ const DataCatalog: React.FC = () => {
         </MinimizeButton>
       </Header>
       {currentTab === "your-data" ? (
-        <YourDataPage />
+        <YourDataPage onDatasetAdd={handleDatasetAdd} />
       ) : (
         <DatasetsPage onDatasetAdd={handleDatasetAdd} />
       )}

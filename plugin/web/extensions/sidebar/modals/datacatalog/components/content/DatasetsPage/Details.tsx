@@ -1,14 +1,7 @@
 import { Dataset as DatasetType } from "@web/extensions/sidebar/core/components/content/Selection/DatasetCard/types";
-import { Icon } from "@web/sharedComponents";
+import DetailsComponent from "@web/extensions/sidebar/modals/datacatalog/components/content/DatasetDetails";
 import { styled } from "@web/theme";
-// import L from "leaflet";
-import "leaflet/dist/leaflet.css";
 import { useCallback } from "react";
-// import { useMemo, useRef } from "react";
-// import { MapContainer, TileLayer, Marker } from "react-leaflet";
-import { MapContainer, TileLayer } from "react-leaflet";
-
-// import iconSvg from "./icon.svg?raw";
 
 export type Dataset = DatasetType;
 
@@ -16,8 +9,6 @@ export type Props = {
   dataset?: Dataset;
   onDatasetAdd: (dataset: Dataset) => void;
 };
-
-const initialLocation = { lat: 35.70249, lng: 139.7622 };
 
 const fakeDataset = (): Dataset => {
   const id = `dataset-${Math.floor(Math.random() * 100)}`;
@@ -64,38 +55,8 @@ const DatasetDetails: React.FC<Props> = ({ dataset = fakeDataset(), onDatasetAdd
     onDatasetAdd(dataset);
   }, [dataset, onDatasetAdd]);
 
-  return dataset ? (
-    <Wrapper>
-      <MapContainer
-        style={{ height: "220px" }}
-        center={initialLocation}
-        zoom={8}
-        scrollWheelZoom={false}
-        zoomControl={false}
-        dragging={false}
-        attributionControl={false}>
-        <TileLayer url="https://cyberjapandata.gsi.go.jp/xyz/seamlessphoto/{z}/{x}/{y}.jpg" />
-        {/* {location && (
-            <Marker
-              icon={icon}
-              position={initialLocation}
-              draggable={false}
-              // eventHandlers={eventHandlers}
-              ref={markerRef}
-            />
-          )} */}
-      </MapContainer>
-      <ButtonWrapper>
-        <Button>
-          <Icon icon="share" />
-          Share this Data
-        </Button>
-        <Button onClick={handleDatasetAdd}>
-          <Icon icon="plusCircle" />
-          Add to Scene
-        </Button>
-      </ButtonWrapper>
-      <Title>{dataset.name}</Title>
+  const ContentComponent: React.FC = () => (
+    <>
       <TagWrapper>
         {dataset.tags?.map(tag => (
           <Tag key={tag.name} type={tag.type}>
@@ -117,51 +78,27 @@ const DatasetDetails: React.FC<Props> = ({ dataset = fakeDataset(), onDatasetAdd
           〔出典〕 建物図形：土地利用現況・建物現況調査（東京都）（2016年・2017年） 計測高さ：LOD1
           航空レーザー測量（国際航業株式会社）（2020年）
         </p>
+        <p>SCROLLABLE IF CONTENT LONG1111</p>
+        <p>SCROLLABLE IF CONTENT LONG</p>
+        <p>SCROLLABLE IF CONTENT LONG</p>
+        <p>SCROLLABLE IF CONTENT LONG</p>
+        <p>SCROLLABLE IF CONTENT LONG</p>
       </Content>
-      <p>SCROLLABLE IF CONTENT LONG</p>
-      <p>SCROLLABLE IF CONTENT LONG</p>
-      <p>SCROLLABLE IF CONTENT LONG</p>
-      <p>SCROLLABLE IF CONTENT LONG</p>
-      <p>SCROLLABLE IF CONTENT LONG</p>
-    </Wrapper>
+    </>
+  );
+
+  console.log(ContentComponent, "11111");
+
+  return dataset ? (
+    <DetailsComponent
+      dataset={dataset}
+      onDatasetAdd={handleDatasetAdd}
+      contentSection={ContentComponent}
+    />
   ) : null;
 };
 
 export default DatasetDetails;
-
-const Wrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  padding: 24px;
-`;
-
-const ButtonWrapper = styled.div`
-  display: flex;
-  justify-content: space-between;
-  gap: 12px;
-  margin: 12px 0 16px 0;
-`;
-
-const Button = styled.button`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 8px;
-  flex: 1;
-  height: 40px;
-  color: #00bebe;
-  font-weight: 500;
-  background: #ffffff;
-  border: 1px solid #e6e6e6;
-  border-radius: 4px;
-  cursor: pointer;
-`;
-
-const Title = styled.p`
-  font-size: 16px;
-  font-weight: 700;
-  line-height: 22px;
-`;
 
 const TagWrapper = styled.div`
   display: flex;
@@ -180,8 +117,3 @@ const Tag = styled.p<{ type?: "location" | "data-type" }>`
 const Content = styled.div`
   margin-top: 16px;
 `;
-
-// const icon = L.divIcon({
-//   className: "custom-icon",
-//   html: iconSvg,
-// });

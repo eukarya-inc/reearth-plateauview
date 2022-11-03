@@ -1,6 +1,8 @@
 export type Dataset = {
   id: string;
+  filename?: string;
   name: string;
+  description?: string;
   hidden: boolean;
   idealZoom: Location;
   dataUrl: string;
