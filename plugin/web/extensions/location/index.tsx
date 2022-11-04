@@ -1,13 +1,23 @@
 import { styled } from "@web/theme";
 import React from "react";
 
-type Props = {};
-const LocationWrapper: React.FC<Props> = () => {
+import GoogleAnalystLink from "./components/googleAnalyticsLink";
+import TerrainLink from "./components/terrainLink";
+import useHook from "./hook";
+
+const LocationWrapper: React.FC = () => {
+  const { currentPoint, handleModalChange } = useHook();
   return (
     <ContentWrapper>
-      <LatWrapper></LatWrapper>
-      <LngWrapper></LngWrapper>
-      <DistanceWrapper></DistanceWrapper>
+      <Wrapper1>
+        <LatWrapper>{currentPoint?.lat}</LatWrapper>
+        <LngWrapper>{currentPoint?.lng}</LngWrapper>
+        <DistanceWrapper>{currentPoint?.height}</DistanceWrapper>
+      </Wrapper1>
+      <Wrapper2>
+        <GoogleAnalystLink onModalChange={handleModalChange} />
+        <TerrainLink onModalChange={handleModalChange} />
+      </Wrapper2>
     </ContentWrapper>
   );
 };
@@ -26,3 +36,9 @@ const ContentWrapper = styled.div`
 const LatWrapper = styled.div``;
 const LngWrapper = styled.div``;
 const DistanceWrapper = styled.div``;
+const Wrapper1 = styled.div`
+  display: flex;
+`;
+const Wrapper2 = styled.div`
+  display: flex;
+`;
