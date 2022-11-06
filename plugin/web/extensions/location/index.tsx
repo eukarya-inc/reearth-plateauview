@@ -6,7 +6,7 @@ import TerrainLink from "./components/terrainLink";
 import useHook from "./hook";
 
 const LocationWrapper: React.FC = () => {
-  const { currentPoint, handleModalChange } = useHook();
+  const { currentPoint, handlegoogleModalChange, handleTerrainModalChange } = useHook();
   return (
     <ContentWrapper>
       <Wrapper1>
@@ -15,8 +15,8 @@ const LocationWrapper: React.FC = () => {
         <DistanceWrapper>{currentPoint?.height}</DistanceWrapper>
       </Wrapper1>
       <Wrapper2>
-        <GoogleAnalystLink onModalChange={handleModalChange} />
-        <TerrainLink onModalChange={handleModalChange} />
+        <GoogleAnalystLink onModalChange={handlegoogleModalChange} />
+        <TerrainLink onModalChange={handleTerrainModalChange} />
       </Wrapper2>
     </ContentWrapper>
   );

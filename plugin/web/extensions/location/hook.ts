@@ -23,13 +23,18 @@ export default () => {
     });
   });
 
-  const handleModalChange = useCallback(() => {
+  const handlegoogleModalChange = useCallback(() => {
     setModal(!showModal);
-    postMsg({ action: !showModal ? "modal-open" : "modal-close" });
+    postMsg({ action: !showModal ? "modal-google-open" : "modal-close" });
+  }, [showModal]);
+  const handleTerrainModalChange = useCallback(() => {
+    setModal(!showModal);
+    postMsg({ action: !showModal ? "modal-Terrain-open" : "modal-close" });
   }, [showModal]);
 
   return {
     currentPoint,
-    handleModalChange,
+    handlegoogleModalChange,
+    handleTerrainModalChange,
   };
 };

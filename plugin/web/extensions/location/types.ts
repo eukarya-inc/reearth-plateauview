@@ -7,6 +7,6 @@ export type MouseEventData = {
   layerId?: string;
   delta?: number;
 };
-type actionType = "modal-open" | "modal-close";
+type actionType = "modal-google-open" | "modal-Terrain-open" | "modal-close";
 
 export type PostMessageProps = { action: actionType; payload?: any };
