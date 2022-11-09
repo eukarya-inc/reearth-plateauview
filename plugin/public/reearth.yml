@@ -23,3 +23,6 @@ extensions:
         zone: outer
         section: right
         area: bottom
+  - id: location
+    name: location
+    type: widget

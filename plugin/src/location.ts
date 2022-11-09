@@ -16,6 +16,15 @@ reearth.on("mousemove", (mousedata: MouseEventData) => {
     },
     "*",
   );
+} );
+reearth.on("cameramove", () => {
+  reearth.ui.postMessage({
+    type: 'getLocations',
+    payload: {
+      point1: reearth.scene.getLocationFromScreenPosition(reearth.viewport.width / 2, reearth.viewport.height - 1),
+      point2: reearth.scene.getLocationFromScreenPosition(reearth.viewport.width / 2 + 1, reearth.viewport.height - 1)
+    }
+  });
 });
 reearth.on("message", ({ action }: PostMessageProps) => {
   if (action === "modal-google-open") {

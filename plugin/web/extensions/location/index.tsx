@@ -1,44 +1,79 @@
+// import { Typography } from "@web/sharedComponents";
 import { styled } from "@web/theme";
 import React from "react";
 
-import GoogleAnalystLink from "./components/googleAnalyticsLink";
-import TerrainLink from "./components/terrainLink";
 import useHook from "./hook";
 
 const LocationWrapper: React.FC = () => {
-  const { currentPoint, handlegoogleModalChange, handleTerrainModalChange } = useHook();
+  const { currentPoint,currentDistance, handlegoogleModalChange, handleTerrainModalChange } = useHook();
   return (
     <ContentWrapper>
-      <Wrapper1>
-        <LatWrapper>{currentPoint?.lat}</LatWrapper>
-        <LngWrapper>{currentPoint?.lng}</LngWrapper>
-        <DistanceWrapper>{currentPoint?.height}</DistanceWrapper>
-      </Wrapper1>
-      <Wrapper2>
-        <GoogleAnalystLink onModalChange={handlegoogleModalChange} />
-        <TerrainLink onModalChange={handleTerrainModalChange} />
-      </Wrapper2>
+      <LocationsWrapper>
+        <Text>Lat{currentPoint?.lat}° N</Text>
+        <Text>Lon{currentPoint?.lng}° E</Text>
+        <Text>{currentDistance}</Text>
+      </LocationsWrapper>
+      <ModalsWrapper>
+        <GoogleAnalystLink onClick={handlegoogleModalChange}>
+          Google Analyticsの利用について
+        </GoogleAnalystLink>
+        <TerrainLink onClick={handleTerrainModalChange}>地形データ</TerrainLink>
+      </ModalsWrapper>
     </ContentWrapper>
   );
 };
 export default LocationWrapper;
 const ContentWrapper = styled.div`
   display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
+  flex-direction: row;
   align-items: flex-start;
-  padding: 5px 12px;
-  gap: 2px;
-  position: relative;
-  width: 390px;
-  height: 24px;
+  padding: 0px;
+  width: 1680px;
+  height: 40px;
+  flex: none;
+  order: 1;
+  align-self: stretch;
+  flex-grow: 0;
 `;
-const LatWrapper = styled.div``;
-const LngWrapper = styled.div``;
-const DistanceWrapper = styled.div``;
-const Wrapper1 = styled.div`
-  display: flex;
+const Text = styled.p`
+  font-size: 10px;
+  margin: 0;
+  color: #262626;
 `;
-const Wrapper2 = styled.div`
+
+const LocationsWrapper = styled.div`
   display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0px;
+  gap: 12px;
+  width: 326px;
+  height: 14px;
+  flex: none;
+  order: 0;
+  align-self: stretch;
+  flex-grow: 0;
+`;
+const ModalsWrapper = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 0px;
+  gap: 12px;
+  width: 212px;
+  height: 14px;
+  flex: none;
+  order: 1;
+  flex-grow: 0;
+`;
+const GoogleAnalystLink = styled.a`
+  font-size: 10px;
+  color: #434343;
+  text-decoration-line: underline;
+`;
+const TerrainLink = styled.a`
+  font-size: 10px;
+  color: #434343;
+  text-decoration-line: underline;
 `;
