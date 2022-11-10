@@ -1,4 +1,4 @@
-import { PostMessageProps } from "@web/extensions/sidebar/core/types";
+import { PostMessageProps } from "@web/types";
 
 import html from "../dist/web/sidebar/core/index.html?raw";
 import dataCatalogHtml from "../dist/web/sidebar/modals/datacatalog/index.html?raw";

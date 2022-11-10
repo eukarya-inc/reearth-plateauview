@@ -1,10 +1,10 @@
-import { postMsg } from "@web/extensions/sidebar/core/utils";
 import DatasetsPage, {
   Dataset,
 } from "@web/extensions/sidebar/modals/datacatalog/components/content/DatasetsPage";
 import YourDataPage from "@web/extensions/sidebar/modals/datacatalog/components/content/YourDataPage";
 import { Icon } from "@web/sharedComponents";
 import { styled } from "@web/theme";
+import { postMsg } from "@web/utils";
 import { useCallback, useState } from "react";
 
 export type Tab = "dataset" | "your-data";

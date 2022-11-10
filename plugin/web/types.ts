@@ -3,5 +3,7 @@ type actionType =
   | "screenshot"
   | "screenshot-save"
   | "modal-open"
-  | "modal-close";
+  | "modal-close"
+  | "msgFromModal"
+  | "minimize";
 export type PostMessageProps = { action: actionType; payload?: any };
