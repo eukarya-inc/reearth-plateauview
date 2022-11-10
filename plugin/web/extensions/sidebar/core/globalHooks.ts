@@ -1,8 +1,8 @@
+import { mergeProperty, postMsg } from "@web/utils";
 import { useCallback, useEffect, useState } from "react";
 
 import { useCurrentOverrides } from "./state";
 import { ReearthApi } from "./types";
-import { mergeProperty, postMsg } from "./utils";
 
 export default () => {
   const [overrides, updateOverrides] = useCurrentOverrides();
