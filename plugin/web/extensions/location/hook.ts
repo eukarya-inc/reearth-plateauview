@@ -20,6 +20,7 @@ export default () => {
     setShowGoogleModal(!showGoogleModal);
     postMsg({ action: !showGoogleModal ? "modal-google-open" : "modal-close" });
   }, [showGoogleModal]);
+
   const handleTerrainModalChange = useCallback(() => {
     setShowTerrainModal(!showTerraineModal);
     postMsg({ action: !showTerraineModal ? "modal-terrain-open" : "modal-close" });
@@ -46,7 +47,7 @@ export default () => {
         }
       }
     });
-  });
+  }, []);
 
   const DistanceLabel = useMemo<string>(() => {
     const maxBarWidth = 100;
