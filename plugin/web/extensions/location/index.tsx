@@ -36,6 +36,7 @@ const ContentWrapper = styled.div`
   align-self: stretch;
   flex-grow: 0;
 `;
+
 const Text = styled.p`
   font-size: 10px;
   margin: 0;
