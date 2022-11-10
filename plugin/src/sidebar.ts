@@ -5,7 +5,7 @@ import dataCatalogHtml from "../dist/web/sidebar/modals/datacatalog/index.html?r
 
 const reearth = (globalThis as any).reearth;
 
-reearth.ui.show(html);
+reearth.ui.show(html, { extended: true });
 
 reearth.on("message", ({ action, payload }: PostMessageProps) => {
   if (action === "updateOverrides") {
@@ -15,10 +15,18 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
       type: action,
       payload: reearth.scene.captureScreen(),
     });
+  } else if (action === "msgFromModal") {
+    reearth.ui.postMessage({ type: action, payload });
   } else if (action === "modal-open") {
-    reearth.modal.show(dataCatalogHtml);
+    reearth.modal.show(dataCatalogHtml, { background: "transparent" });
   } else if (action === "modal-close") {
     reearth.modal.close();
+  } else if (action === "minimize") {
+    if (payload) {
+      reearth.ui.resize(undefined, undefined, false);
+    } else {
+      reearth.ui.resize(347, undefined, true);
+    }
   }
 });
 
