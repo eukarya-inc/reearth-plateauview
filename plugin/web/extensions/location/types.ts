@@ -1,6 +1,6 @@
 export type MouseEventData = {
   lat?: number;
-  lng?: number;  
+  lng?: number;
 };
 type actionType = "modal-google-open" | "modal-Terrain-open" | "modal-close";
 

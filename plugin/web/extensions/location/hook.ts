@@ -47,7 +47,6 @@ export default () => {
                 e.data.payload.point2.lat,
                 e.data.payload.point2.lng,
               ) * 1000;
-            // getLabel( pixelDistance );
           }
         }
       }
