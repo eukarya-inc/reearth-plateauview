@@ -22,7 +22,7 @@ export default () => {
   }, [showGoogleModal]);
   const handleTerrainModalChange = useCallback(() => {
     setShowTerrainModal(!showTerraineModal);
-    postMsg({ action: !showTerraineModal ? "modal-Terrain-open" : "modal-close" });
+    postMsg({ action: !showTerraineModal ? "modal-terrain-open" : "modal-close" });
   }, [showTerraineModal]);
 
   useEffect(() => {

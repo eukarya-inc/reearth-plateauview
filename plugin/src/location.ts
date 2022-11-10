@@ -35,7 +35,7 @@ reearth.on("cameramove", () => {
 reearth.on("message", ({ action }: PostMessageProps) => {
   if (action === "modal-google-open") {
     reearth.modal.show(GoogleAnalyticstModal);
-  } else if (action === "modal-Terrain-open") {
+  } else if (action === "modal-terrain-open") {
     reearth.modal.show(TerrainModal);
   } else if (action === "modal-close") {
     reearth.modal.close();
