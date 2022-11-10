@@ -22,7 +22,9 @@ const LocationWrapper: React.FC = () => {
     </ContentWrapper>
   );
 };
+
 export default LocationWrapper;
+
 const ContentWrapper = styled.div`
   display: flex;
   flex-direction: row;
