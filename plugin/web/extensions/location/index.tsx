@@ -1,12 +1,11 @@
-// import { Typography } from "@web/sharedComponents";
 import { styled } from "@web/theme";
 import React from "react";
 
-import useHook from "./hook";
+import useHooks from "./hook";
 
 const LocationWrapper: React.FC = () => {
   const { currentPoint, currentDistance, handlegoogleModalChange, handleTerrainModalChange } =
-    useHook();
+    useHooks();
   return (
     <ContentWrapper>
       <LocationsWrapper>
@@ -15,9 +14,9 @@ const LocationWrapper: React.FC = () => {
         <Text>{currentDistance}</Text>
       </LocationsWrapper>
       <ModalsWrapper>
-        <GoogleAnalystLink onClick={handlegoogleModalChange}>
+        <GoogleAnalyticsLink onClick={handlegoogleModalChange}>
           Google Analyticsの利用について
-        </GoogleAnalystLink>
+        </GoogleAnalyticsLink>
         <TerrainLink onClick={handleTerrainModalChange}>地形データ</TerrainLink>
       </ModalsWrapper>
     </ContentWrapper>
@@ -68,7 +67,7 @@ const ModalsWrapper = styled.div`
   order: 1;
   flex-grow: 0;
 `;
-const GoogleAnalystLink = styled.a`
+const GoogleAnalyticsLink = styled.a`
   font-size: 10px;
   color: #434343;
   text-decoration-line: underline;

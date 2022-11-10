@@ -1,28 +1,29 @@
 <title></title>
 <style>
-    html, body{
-        background: transparent;
-    }
-    .root{
-        background: #fff;
-        border-radius: 0 0 8px 0;
-    }
-    html, body, .root {
-        width: 1680px;
-        height: 40px;
-        transition: height 0.5s, width 0.5s;
-        border-radius: 0;
-    }
-    .extended{
-        height: 100%;
-    }
-    .minimized{
-        width: 226px;
-        height: 80px;
-        border-radius: 0 0 8px 0;
-    }
+  html,
+  body {
+    background: transparent;
+  }
+  .root {
+    background: #fff;
+    border-radius: 0 0 8px 0;
+  }
+  html,
+  body,
+  .root {
+    width: 350px;
+    height: 40px;
+  }
+  .extended {
+    height: 100%;
+  }
+  .minimized {
+    width: 350px;
+    height: 40px;
+    border-radius: 0 0 8px 0;
+  }
 </style>
 <body>
-    <div class="root" id="root"></div>
+  <div class="root" id="root"></div>
 </body>
 <script type="module" src="./main.tsx"></script>

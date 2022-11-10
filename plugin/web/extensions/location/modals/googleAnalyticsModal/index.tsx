@@ -1,11 +1,11 @@
-import useHook from "@web/extensions/location/hook";
+import useHooks from "@web/extensions/location/hook";
 import { Typography } from "@web/sharedComponents";
 import { styled } from "@web/theme";
 
 import CommonModalWrapper from "../commonModalWrapper";
 
 const GoogleAnalyticstModal: React.FC = () => {
-  const { handlegoogleModalChange } = useHook();
+  const { handlegoogleModalChange } = useHooks();
 
   const { Link } = Typography;
 

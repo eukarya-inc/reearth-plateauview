@@ -1,10 +1,10 @@
-import useHook from "@web/extensions/location/hook";
+import useHooks from "@web/extensions/location/hook";
 import { styled } from "@web/theme";
 
 import CommonModalWrapper from "../commonModalWrapper";
 
 const TerrainModal: React.FC = () => {
-  const { handleTerrainModalChange } = useHook();
+  const { handleTerrainModalChange } = useHooks();
 
   return (
     <CommonModalWrapper title="地形データ" onModalChange={handleTerrainModalChange}>

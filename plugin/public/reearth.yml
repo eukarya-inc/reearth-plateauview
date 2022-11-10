@@ -22,5 +22,5 @@ extensions:
         section: right
         area: bottom
   - id: location
-    name: location
+    name: Location Footer
     type: widget
