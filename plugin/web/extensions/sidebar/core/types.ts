@@ -1,3 +1,14 @@
+import { postMsg } from "@web/utils";
+
+export type actionType =
+  | "updateOverrides"
+  | "screenshot"
+  | "screenshot-save"
+  | "modal-open"
+  | "modal-close"
+  | "msgFromModal"
+  | "minimize";
+
 export type ReearthApi = {
   default?: {
     camera?: Camera;
@@ -8,7 +19,9 @@ export type ReearthApi = {
   };
   tiles?: Tile[];
 };
-
+export const sidebarPostMsg = (action: actionType, payload?: any) => {
+  postMsg({ action, payload });
+};
 export type SceneMode = "3d" | "2d";
 
 type Tile = {

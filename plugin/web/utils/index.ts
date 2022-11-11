@@ -2,7 +2,7 @@ import { cloneDeep, mergeWith } from "lodash";
 
 import { PostMessageProps } from "../types";
 
-export function postMsg({ action, payload }: PostMessageProps) {
+export function postMsg({ action, payload }: PostMessageProps<unknown>) {
   parent.postMessage(
     {
       action,
