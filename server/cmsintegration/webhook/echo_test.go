@@ -20,7 +20,7 @@ func TestEchoMiddleware(t *testing.T) {
 
 	h := EchoMiddleware(secret)(func(c echo.Context) error {
 		payload := GetPayload(c.Request().Context())
-		return c.String(http.StatusOK, payload.Type+","+payload.Data.(string))
+		return c.String(http.StatusOK, payload.Type+","+payload.Data.ID)
 	})
 
 	tests := []struct {
@@ -36,7 +36,7 @@ func TestEchoMiddleware(t *testing.T) {
 			name:     "valid",
 			time:     time.Now(),
 			version:  "v1",
-			payload:  `{"type":"asset.update","data":"aaaa"}`,
+			payload:  `{"type":"asset.update","data":{"id":"aaaa"}}`,
 			wantCode: http.StatusOK,
 			wantBody: "asset.update,aaaa",
 		},
@@ -44,7 +44,7 @@ func TestEchoMiddleware(t *testing.T) {
 			name:     "valid (old webhook)",
 			time:     time.Now().Add(-time.Minute * 50),
 			version:  "v1",
-			payload:  `{"type":"asset.update","data":"aaaa"}`,
+			payload:  `{"type":"asset.update","data":{"id":"aaaa"}}`,
 			wantCode: http.StatusOK,
 			wantBody: "asset.update,aaaa",
 		},
@@ -52,7 +52,7 @@ func TestEchoMiddleware(t *testing.T) {
 			name:     "invalid timestamp",
 			time:     time.Now().Add(-time.Minute * 60),
 			version:  "v0",
-			payload:  `{"type":"asset.update","data":"aaaa"}`,
+			payload:  `{"type":"asset.update","data":{"id":"aaaa"}}`,
 			wantCode: http.StatusUnauthorized,
 			wantBody: `"unauthorized"`,
 		},
@@ -60,7 +60,7 @@ func TestEchoMiddleware(t *testing.T) {
 			name:     "invalid version",
 			time:     time.Now(),
 			version:  "v0",
-			payload:  `{"type":"asset.update","data":"aaaa"}`,
+			payload:  `{"type":"asset.update","data":{"id":"aaaa"}}`,
 			wantCode: http.StatusUnauthorized,
 			wantBody: `"unauthorized"`,
 		},
@@ -77,7 +77,7 @@ func TestEchoMiddleware(t *testing.T) {
 			time:             time.Now(),
 			version:          "v1",
 			invalidSignature: true,
-			payload:          `{"type":"asset.update","data":"aaaa"}`,
+			payload:          `{"type":"asset.update","data":{"id":"aaaa"}}`,
 			wantCode:         http.StatusUnauthorized,
 			wantBody:         `"unauthorized"`,
 		},
@@ -88,7 +88,7 @@ func TestEchoMiddleware(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			payload := []byte(tc.payload)
 			req := httptest.NewRequest(http.MethodGet, "/", bytes.NewReader(payload))
-			sig := Sign(payload, secret, tc.time, tc.version)
+			sig := sign(payload, secret, tc.time, tc.version)
 			if tc.invalidSignature {
 				sig += ":::"
 			}
