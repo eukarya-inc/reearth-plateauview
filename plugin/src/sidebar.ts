@@ -1,3 +1,4 @@
+import { actionType } from "@web/extensions/sidebar/core/types";
 import { PostMessageProps } from "@web/types";
 
 import html from "../dist/web/sidebar/core/index.html?raw";
@@ -7,7 +8,7 @@ const reearth = (globalThis as any).reearth;
 
 reearth.ui.show(html, { extended: true });
 
-reearth.on("message", ({ action, payload }: PostMessageProps) => {
+reearth.on("message", ({ action, payload }: PostMessageProps<actionType>) => {
   if (action === "updateOverrides") {
     reearth.visualizer.overrideProperty(payload);
   } else if (action === "screenshot" || action === "screenshot-save") {

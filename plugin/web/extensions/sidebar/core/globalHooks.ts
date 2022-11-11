@@ -3,7 +3,7 @@ import { useCallback, useEffect, useState } from "react";
 
 import { Dataset } from "./components/content/Selection/DatasetCard";
 import { useCurrentOverrides } from "./state";
-import { ReearthApi, sidebarPostMsg } from "./types";
+import { ReearthApi } from "./types";
 
 export default () => {
   // ****************************************
@@ -28,7 +28,7 @@ export default () => {
 
   useEffect(() => {
     setTimeout(() => {
-      sidebarPostMsg("minimize", minimized);
+      postMsg({ action: "minimize", payload: minimized });
     }, 250);
   }, [minimized]);
   // ****************************************
