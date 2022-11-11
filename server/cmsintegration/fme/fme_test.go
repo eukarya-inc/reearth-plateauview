@@ -12,21 +12,22 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+var _ Interface = (*FME)(nil)
+
 func TestFME(t *testing.T) {
 	httpmock.Activate()
 	defer httpmock.Deactivate()
 
 	ctx := context.Background()
 	wantReq := Request{
-		ID:        "xxx",
-		Target:    "target",
-		ResultURL: "https://example.com",
-		PRCS:      "000",
+		ID:     "xxx",
+		Target: "target",
+		PRCS:   "000",
 	}
 
 	// valid
-	calls := mockFMEServer("http://fme.example.com", "TOKEN", wantReq)
-	f := lo.Must(New("http://fme.example.com", "TOKEN"))
+	calls := mockFMEServer("http://fme.example.com", "TOKEN", wantReq, "https://example.com")
+	f := lo.Must(New("http://fme.example.com", "TOKEN", "https://example.com"))
 	req := wantReq
 	assert.NoError(t, f.CheckQuality(ctx, req))
 	assert.NoError(t, f.ConvertAll(ctx, req))
@@ -37,8 +38,8 @@ func TestFME(t *testing.T) {
 
 	// invalid token
 	httpmock.Reset()
-	calls = mockFMEServer("http://fme.example.com", "TOKEN", wantReq)
-	f = lo.Must(New("http://fme.example.com", "TOKEN2"))
+	calls = mockFMEServer("http://fme.example.com", "TOKEN", wantReq, "https://example.com")
+	f = lo.Must(New("http://fme.example.com", "TOKEN2", "https://example.com"))
 	req = wantReq
 	assert.ErrorContains(t, f.CheckQuality(ctx, req), "failed to request: code=401")
 	assert.ErrorContains(t, f.ConvertAll(ctx, req), "failed to request: code=401")
@@ -49,13 +50,12 @@ func TestFME(t *testing.T) {
 
 	// invalid queries
 	httpmock.Reset()
-	calls = mockFMEServer("http://fme.example.com", "TOKEN", wantReq)
-	f = lo.Must(New("http://fme.example.com", "TOKEN"))
+	calls = mockFMEServer("http://fme.example.com", "TOKEN", wantReq, "https://example.com")
+	f = lo.Must(New("http://fme.example.com", "TOKEN", "https://example.com"))
 	req = Request{
-		ID:        wantReq.ID,
-		Target:    "target!",
-		ResultURL: wantReq.ResultURL,
-		PRCS:      wantReq.PRCS,
+		ID:     wantReq.ID,
+		Target: "target!",
+		PRCS:   wantReq.PRCS,
 	}
 	assert.ErrorContains(t, f.CheckQuality(ctx, req), "failed to request: code=400")
 	assert.ErrorContains(t, f.ConvertAll(ctx, req), "failed to request: code=400")
@@ -65,7 +65,7 @@ func TestFME(t *testing.T) {
 	assert.Equal(t, 1, calls("quality-check-and-convert-all"))
 }
 
-func mockFMEServer(host, token string, r Request) func(string) int {
+func mockFMEServer(host, token string, r Request, resultURL string) func(string) int {
 	u := host + "/fmejobsubmitter/plateau2022-cms/"
 
 	responder := func(req *http.Request) (*http.Response, error) {
@@ -79,7 +79,11 @@ func mockFMEServer(host, token string, r Request) func(string) int {
 		}
 
 		q := req.URL.Query()
-		if q.Get("opt_servicemode") != "async" || r.ID != q.Get("id") || r.PRCS != q.Get("prcs") || r.ResultURL != q.Get("resultUrl") || r.Target != q.Get("target") {
+		if q.Get("opt_servicemode") != "async" ||
+			r.ID != q.Get("id") ||
+			r.PRCS != q.Get("prcs") ||
+			resultURL != q.Get("resultUrl") ||
+			r.Target != q.Get("target") {
 			return httpmock.NewJsonResponse(http.StatusBadRequest, map[string]any{
 				"statusInfo": map[string]any{
 					"message": "failure",

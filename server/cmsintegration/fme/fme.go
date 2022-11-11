@@ -8,30 +8,37 @@ import (
 	"net/url"
 )
 
-type FME struct {
-	base   *url.URL
-	token  string
-	client *http.Client
+type Interface interface {
+	CheckQuality(ctx context.Context, r Request) error
+	ConvertAll(ctx context.Context, r Request) error
+	CheckQualityAndConvertAll(ctx context.Context, r Request) error
 }
 
-func New(baseUrl, token string) (*FME, error) {
+type FME struct {
+	base      *url.URL
+	token     string
+	resultURL string
+	client    *http.Client
+}
+
+func New(baseUrl, token, resultURL string) (*FME, error) {
 	b, err := url.Parse(baseUrl)
 	if err != nil {
 		return nil, fmt.Errorf("invalid base url: %w", err)
 	}
 
 	return &FME{
-		base:   b,
-		token:  token,
-		client: http.DefaultClient,
+		base:      b,
+		token:     token,
+		resultURL: resultURL,
+		client:    http.DefaultClient,
 	}, nil
 }
 
 type Request struct {
-	ID        string
-	Target    string
-	ResultURL string
-	PRCS      string
+	ID     string
+	Target string
+	PRCS   string
 }
 
 func (s *FME) CheckQuality(ctx context.Context, r Request) error {
@@ -82,7 +89,7 @@ func (s *FME) url(w string, r Request) string {
 	q.Set("opt_servicemode", "async")
 	q.Set("id", r.ID)
 	q.Set("target", r.Target)
-	q.Set("resultUrl", r.ResultURL)
+	q.Set("resultUrl", s.resultURL)
 	if r.PRCS != "" {
 		q.Set("prcs", r.PRCS)
 	}
