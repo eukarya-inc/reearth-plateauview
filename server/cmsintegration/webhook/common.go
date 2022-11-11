@@ -32,7 +32,7 @@ func GetPayload(ctx context.Context) *Payload {
 	return nil
 }
 
-func Sign(payload, secret []byte, t time.Time, v string) string {
+func sign(payload, secret []byte, t time.Time, v string) string {
 	mac := hmac.New(sha256.New, secret)
 	_, _ = mac.Write([]byte(fmt.Sprintf("%s:%d:", v, t.Unix())))
 	_, _ = mac.Write(payload)
@@ -61,6 +61,6 @@ func validateSignature(actualSig string, payload, secret []byte) bool {
 		return false
 	}
 
-	expectedSig := Sign(payload, secret, timestamp, version)
+	expectedSig := sign(payload, secret, timestamp, version)
 	return actualSig == expectedSig
 }
