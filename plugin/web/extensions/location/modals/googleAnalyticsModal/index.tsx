@@ -1,18 +1,19 @@
-import useHooks from "@web/extensions/location/hook";
 import { Typography } from "@web/sharedComponents";
 import { styled } from "@web/theme";
+import { useCallback } from "react";
 
+import { postMsg } from "../../utils";
 import CommonModalWrapper from "../commonModalWrapper";
 
 const GoogleAnalyticstModal: React.FC = () => {
-  const { handlegoogleModalChange } = useHooks();
-
   const { Link } = Typography;
 
+  const handleClose = useCallback(() => {
+    postMsg({ action: "modal-close" });
+  }, []);
+
   return (
-    <CommonModalWrapper
-      title="Google Analytics の利用について"
-      onModalChange={handlegoogleModalChange}>
+    <CommonModalWrapper title="Google Analytics の利用について" onModalChange={handleClose}>
       <Paragraph>
         当サイトでは、サービス向上やウェブサイトの改善のためにGoogle
         Inc.の提供するアクセス分析のツールであるGoogle Analyticsを利用した計測を行っております。

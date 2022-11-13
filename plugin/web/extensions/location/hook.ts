@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 
-import { useShowGoogleModal } from "./state";
 import { MouseEventData } from "./types";
 import { postMsg } from "./utils";
 
@@ -15,8 +14,8 @@ export default () => {
 
   const [currentPoint, setCurrentPoint] = useState<MouseEventData>();
   const [currentDistance, setCurrentDistance] = useState("0 Km");
-  const [showGoogleModal, setShowGoogleModal] = useShowGoogleModal();
-  const [showTerraineModal, setShowTerrainModal] = useShowGoogleModal();
+  const [showGoogleModal, setShowGoogleModal] = useState(false);
+  const [showTerraineModal, setShowTerrainModal] = useState(false);
 
   const updateCurrentPoint = useCallback((mousedata: MouseEventData) => {
     setCurrentPoint(mousedata);
