@@ -48,6 +48,7 @@ const GoogleAnalyticstModal: React.FC = () => {
   );
 };
 export default GoogleAnalyticstModal;
+
 const Paragraph = styled.p`
   font-size: 12px;
 `;

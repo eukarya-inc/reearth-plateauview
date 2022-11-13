@@ -15,6 +15,7 @@ const TerrainModal: React.FC = () => {
   );
 };
 export default TerrainModal;
+
 const Paragraph = styled.p`
   font-size: 12px;
 `;

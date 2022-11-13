@@ -41,11 +41,13 @@ const Wrapper = styled.div`
 const Title = styled.p`
   font-size: 16px;
 `;
+
 const CloseButton = styled(Button)`
   margin-right: 0px;
   width: 16px;
   height: 16px;
 `;
+
 const HeaderWrapper = styled.div`
   display: flex;
   flex-direction: row;
@@ -62,6 +64,7 @@ const HeaderWrapper = styled.div`
   align-self: stretch;
   flex-grow: 0;
 `;
+
 const ContentWrapper = styled.div`
   display: flex;
   flex-direction: column;
@@ -75,6 +78,7 @@ const ContentWrapper = styled.div`
   align-self: stretch;
   flex-grow: 0;
 `;
+
 const FooterWrapper = styled.div`
   display: flex;
   flex-direction: row;
@@ -91,6 +95,7 @@ const FooterWrapper = styled.div`
   align-self: stretch;
   flex-grow: 0;
 `;
+
 const OkButton = styled(Button)`
   display: flex;
   flex-direction: row;
