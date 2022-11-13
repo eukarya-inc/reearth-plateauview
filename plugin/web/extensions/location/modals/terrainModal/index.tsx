@@ -8,11 +8,9 @@ const TerrainModal: React.FC = () => {
 
   return (
     <CommonModalWrapper title="地形データ" onModalChange={handleTerrainModalChange}>
-      <>
-        <Paragraph>
-          基盤地図標高モデルから作成 （測量法に基づく国土地理院長承認（使用） R 3JHs 778）
-        </Paragraph>
-      </>
+      <Paragraph>
+        基盤地図標高モデルから作成 （測量法に基づく国土地理院長承認（使用） R 3JHs 778）
+      </Paragraph>
     </CommonModalWrapper>
   );
 };

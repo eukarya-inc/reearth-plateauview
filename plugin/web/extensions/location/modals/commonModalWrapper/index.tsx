@@ -1,6 +1,6 @@
 import { Divider, Button, Icon } from "@web/sharedComponents";
 import { styled } from "@web/theme";
-import { Children, Fragment, ReactNode } from "react";
+import { ReactNode } from "react";
 
 export type Props = {
   title?: string;
@@ -9,8 +9,6 @@ export type Props = {
 };
 
 const CommonModalWrapper: React.FC<Props> = ({ title, children, onModalChange }) => {
-  const childArray = Children.toArray(children);
-
   return (
     <Wrapper>
       {title && (
@@ -24,13 +22,7 @@ const CommonModalWrapper: React.FC<Props> = ({ title, children, onModalChange })
           <Divider />
         </>
       )}
-      {childArray.map((child, idx) => (
-        <FragmentWrapper key={idx}>
-          {child}
-          {idx + 1 !== childArray.length && <span />}
-        </FragmentWrapper>
-      ))}
-
+      <ContentWrapper>{children}</ContentWrapper>
       <FooterWrapper>
         <OkButton>
           <Icon icon="close" onClick={onModalChange} />
@@ -70,7 +62,7 @@ const HeaderWrapper = styled.div`
   align-self: stretch;
   flex-grow: 0;
 `;
-const FragmentWrapper = styled(Fragment)`
+const ContentWrapper = styled.div`
   display: flex;
   flex-direction: column;
   align-items: flex-start;
