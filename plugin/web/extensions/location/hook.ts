@@ -33,7 +33,7 @@ export default () => {
   }, [showTerraineModal]);
 
   useEffect(() => {
-    (globalThis as any).addEventListener("message", (e: any) => {
+    const eventListenerCallback = (e: MessageEvent<any>) => {
       if (e.source !== parent) return;
       if (e.data.type) {
         if (e.data.type === "mousedata") {
@@ -52,7 +52,11 @@ export default () => {
           }
         }
       }
-    });
+    };
+    addEventListener("message", e => eventListenerCallback(e));
+    return () => {
+      removeEventListener("message", eventListenerCallback);
+    };
   }, []);
 
   const DistanceLabel = useMemo<string>(() => {
