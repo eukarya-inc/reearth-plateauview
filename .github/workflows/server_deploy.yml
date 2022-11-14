@@ -6,7 +6,7 @@ on:
     branches: [main]
 env:
   IMAGE: ghcr.io/eukarya-inc/reearth-plateauview
-  IMAGE_GCP: us.gcr.io/reearth-oss/reearth-plateauview:nightly
+  IMAGE_GCP: us.gcr.io/reearth-oss/reearth-plateauview
   GCP_REGION: us-central1
 jobs:
   deploy_server:
@@ -19,10 +19,8 @@ jobs:
     steps:
       - uses: google-github-actions/auth@v0
         with:
-          credentials_json: ${{ secrets.GCP_SA_KEY }}
-      #   with:
-      #     workload_identity_provider: ${{ env.GCP_WORKLOAD_IDENTITY_PROVIDER }}
-      #     service_account: ${{ env.GCP_SERVICE_ACCOUNT }}
+          workload_identity_provider: ${{ env.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ env.GCP_SERVICE_ACCOUNT }}
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v0
       - name: Configure docker
