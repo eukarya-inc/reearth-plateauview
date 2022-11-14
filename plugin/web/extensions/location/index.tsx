@@ -58,6 +58,7 @@ const LocationsWrapper = styled.div`
   align-self: stretch;
   flex-grow: 0;
 `;
+
 const ModalsWrapper = styled.div`
   display: flex;
   flex-direction: row;
@@ -70,11 +71,13 @@ const ModalsWrapper = styled.div`
   order: 1;
   flex-grow: 0;
 `;
+
 const GoogleAnalyticsLink = styled.a`
   font-size: 10px;
   color: #434343;
   text-decoration-line: underline;
 `;
+
 const TerrainLink = styled.a`
   font-size: 10px;
   color: #434343;
