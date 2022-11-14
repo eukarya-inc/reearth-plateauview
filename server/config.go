@@ -13,13 +13,16 @@ import (
 const configPrefix = "REEARTH_PLATEAUVIEW_"
 
 type Config struct {
-	Port               uint   `default:"8080" envconfig:"PORT"`
-	Host               string `default:"http://localhost:8080"`
-	CMS_Webhook_Secret string
-	FME_Token          string
-	CMS_BaseURL        string
-	CMS_Token          string
-	Secret             string
+	Port                uint   `default:"8080" envconfig:"PORT"`
+	Host                string `default:"http://localhost:8080"`
+	CMS_Webhook_Secret  string
+	CMS_ModelID         string
+	CMS_CityGMLFieldKey string
+	CMS_BldgFieldKey    string
+	FME_Token           string
+	CMS_BaseURL         string
+	CMS_Token           string
+	Secret              string
 }
 
 func NewConfig() (*Config, error) {
@@ -42,12 +45,15 @@ func (c *Config) Print() string {
 
 func (c *Config) CMSIntegration() cmsintegration.Config {
 	return cmsintegration.Config{
-		FMEBaseURL:       c.FME_Token,
-		FMEToken:         c.FME_Token,
-		FMEResultURL:     c.Host,
-		CMSBaseURL:       c.CMS_BaseURL,
-		CMSToken:         c.CMS_Token,
-		CMSWebhookSecret: c.CMS_Webhook_Secret,
-		Secret:           c.Secret,
+		FMEBaseURL:         c.FME_Token,
+		FMEToken:           c.FME_Token,
+		FMEResultURL:       c.Host,
+		CMSModelID:         c.CMS_ModelID,
+		CMSCityGMLFieldKey: c.CMS_CityGMLFieldKey,
+		CMSBldgFieldKey:    c.CMS_BldgFieldKey,
+		CMSBaseURL:         c.CMS_BaseURL,
+		CMSToken:           c.CMS_Token,
+		CMSWebhookSecret:   c.CMS_Webhook_Secret,
+		Secret:             c.Secret,
 	}
 }

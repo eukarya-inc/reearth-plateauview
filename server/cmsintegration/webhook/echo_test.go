@@ -20,7 +20,7 @@ func TestEchoMiddleware(t *testing.T) {
 
 	h := EchoMiddleware(secret)(func(c echo.Context) error {
 		payload := GetPayload(c.Request().Context())
-		return c.String(http.StatusOK, payload.Type+","+payload.Data.ID)
+		return c.String(http.StatusOK, payload.Type)
 	})
 
 	tests := []struct {
@@ -38,7 +38,7 @@ func TestEchoMiddleware(t *testing.T) {
 			version:  "v1",
 			payload:  `{"type":"asset.update","data":{"id":"aaaa"}}`,
 			wantCode: http.StatusOK,
-			wantBody: "asset.update,aaaa",
+			wantBody: "asset.update",
 		},
 		{
 			name:     "valid (old webhook)",
@@ -46,7 +46,7 @@ func TestEchoMiddleware(t *testing.T) {
 			version:  "v1",
 			payload:  `{"type":"asset.update","data":{"id":"aaaa"}}`,
 			wantCode: http.StatusOK,
-			wantBody: "asset.update,aaaa",
+			wantBody: "asset.update",
 		},
 		{
 			name:     "invalid timestamp",

@@ -8,13 +8,16 @@ import (
 )
 
 type Config struct {
-	FMEBaseURL       string
-	FMEToken         string
-	FMEResultURL     string
-	CMSBaseURL       string
-	CMSToken         string
-	CMSWebhookSecret string
-	Secret           string
+	FMEBaseURL         string
+	FMEToken           string
+	FMEResultURL       string
+	CMSModelID         string
+	CMSCityGMLFieldKey string
+	CMSBldgFieldKey    string
+	CMSBaseURL         string
+	CMSToken           string
+	CMSWebhookSecret   string
+	Secret             string
 }
 
 type Services struct {

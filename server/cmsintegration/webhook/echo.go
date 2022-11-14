@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	"github.com/labstack/echo/v4"
+	"github.com/reearth/reearthx/log"
 )
 
 func EchoMiddleware(secret []byte) echo.MiddlewareFunc {
@@ -20,6 +21,8 @@ func EchoMiddleware(secret []byte) echo.MiddlewareFunc {
 			if !validateSignature(c.Request().Header.Get(header), body, secret) {
 				return c.JSON(http.StatusUnauthorized, "unauthorized")
 			}
+
+			log.Infof("webhook: received: %s", body)
 
 			p := &Payload{}
 			if err := json.Unmarshal(body, p); err != nil {
