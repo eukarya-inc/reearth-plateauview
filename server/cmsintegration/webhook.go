@@ -25,17 +25,14 @@ func WebhookHandler(f fme.Interface, secret string) echo.HandlerFunc {
 			return nil
 		}
 
-		// TODO: get these values from body
-		id := ID{
-			ItemID:  "",
-			AssetID: "",
-		}.String(secret)
-		var target, prcs string
-
 		if err := f.CheckQualityAndConvertAll(c.Request().Context(), fme.Request{
-			ID:     id,
-			Target: target,
-			PRCS:   prcs,
+			ID: ID{
+				// TODO: get these values from body
+				ItemID:  "",
+				AssetID: "",
+			}.String(secret),
+			Target: "",
+			PRCS:   "6669", // TODO2: accept prcs code from webhook
 		}); err != nil {
 			log.Errorf("webhook: failed to request fme: %w", err)
 			return nil

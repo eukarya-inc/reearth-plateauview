@@ -2,7 +2,6 @@ package cmsintegration
 
 import (
 	"fmt"
-	"io"
 	"net/http"
 
 	"github.com/eukarya-inc/reearth-plateauview/server/cmsintegration/cms"
@@ -10,17 +9,33 @@ import (
 	"github.com/reearth/reearthx/log"
 )
 
-type fmeResultBody struct {
-	Type    string            `json:"type"`
-	Status  string            `json:"status"`
-	ID      string            `json:"id"`
-	LogURL  string            `json:"logUrl"`
+type fmeResult struct {
+	Type   string `json:"type"`
+	Status string `json:"status"`
+	ID     string `json:"id"`
+	LogURL string `json:"logUrl"`
+	// 建築物 (bldg) : 3D Tiles
+	// 道路 (tran) : MVT (LOD1, LOD2）, 3D Tiles (LOD3)
+	// 都市設備  (frn) : 3D Tiles
+	// 植生(veg) : 3D Tiles
+	// 浸水想定区域（洪水、津波、高潮、内水）(fld, tnum, htd, ifld) : 3D Tiles
+	// 土地利用 (luse) : MVT
+	// 都市計画決定情報 (urf) : MVT
+	// 土砂災害警戒区域 (lsld) : MVT
 	Results map[string]string `json:"results"`
 }
 
-func FMEResultHandler(cms cms.Interface, secret string) echo.HandlerFunc {
+func (b fmeResult) GetResult(key string) string {
+	r, ok := b.Results[key]
+	if !ok {
+		return ""
+	}
+	return r
+}
+
+func NotifyHandler(cms cms.Interface, secret string) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		var b fmeResultBody
+		var b fmeResult
 		if err := c.Bind(b); err != nil {
 			return c.JSON(http.StatusBadRequest, "invalid payload")
 		}
@@ -52,18 +67,24 @@ func FMEResultHandler(cms cms.Interface, secret string) echo.HandlerFunc {
 			return nil
 		}
 
-		// TODO: upload asset
-		var r io.Reader
+		// TODO2: support multiple files
+		// TODO2: add retry
+		upload := b.GetResult("bldg")
+		if upload == "" {
+			log.Errorf("notify: not uploaded due to missing result bldg")
+			return nil
+		}
 
-		assetID, err := cms.UploadAsset(c.Request().Context(), r)
+		assetID, err := cms.UploadAsset(c.Request().Context(), upload)
 		if err != nil {
 			log.Errorf("notify: failed to upload asset: %w", err)
 			return nil
 		}
 
 		fields := map[string]any{
-			// TODO: build fields
-			"asset": assetID,
+			"fields": map[string]string{
+				"asset": assetID, // TODO: field id
+			},
 		}
 
 		if err := cms.UpdateItem(c.Request().Context(), id.ItemID, fields); err != nil {

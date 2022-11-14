@@ -22,9 +22,9 @@ func TestCMS(t *testing.T) {
 	// valid
 	call := mockCMS("http://fme.example.com", "TOKEN")
 	f := lo.Must(New("http://fme.example.com", "TOKEN"))
-	assetID, err := f.UploadAsset(ctx, nil)
+	assetID, err := f.UploadAsset(ctx, "aaa")
 	assert.NoError(t, err)
-	assert.Equal(t, "", assetID)
+	assert.Equal(t, "idid", assetID)
 	assert.NoError(t, f.UpdateItem(ctx, "a", map[string]any{}))
 	assert.NoError(t, f.Comment(ctx, "c", "comment"))
 	assert.Equal(t, 1, call("POST /api/assets"))
@@ -35,7 +35,7 @@ func TestCMS(t *testing.T) {
 	httpmock.Reset()
 	call = mockCMS("http://fme.example.com", "TOKEN")
 	f = lo.Must(New("http://fme.example.com", "TOKEN2"))
-	assetID, err = f.UploadAsset(ctx, nil)
+	assetID, err = f.UploadAsset(ctx, "aaa")
 	assert.ErrorContains(t, err, "failed to request: code=401")
 	assert.Equal(t, "", assetID)
 	assert.ErrorContains(t, f.UpdateItem(ctx, "a", map[string]any{}), "failed to request: code=401")
@@ -51,7 +51,13 @@ func mockCMS(host, token string) func(string) int {
 			return httpmock.NewJsonResponse(http.StatusUnauthorized, map[string]any{})
 		}
 
-		return httpmock.NewJsonResponse(http.StatusOK, map[string]any{})
+		res := map[string]string{}
+		p := req.URL.Path
+		if p == "/api/assets" {
+			res["id"] = "idid"
+		}
+
+		return httpmock.NewJsonResponse(http.StatusOK, res)
 	}
 
 	httpmock.RegisterResponder("PATCH", host+"/api/items/a", responder)

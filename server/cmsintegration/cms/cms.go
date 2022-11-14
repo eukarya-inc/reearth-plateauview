@@ -8,10 +8,12 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+
+	"github.com/reearth/reearthx/log"
 )
 
 type Interface interface {
-	UploadAsset(ctx context.Context, r io.Reader) (string, error)
+	UploadAsset(ctx context.Context, url string) (string, error)
 	UpdateItem(ctx context.Context, itemID string, fields map[string]any) error
 	Comment(ctx context.Context, assetID, content string) error
 }
@@ -35,23 +37,32 @@ func New(base, token string) (*CMS, error) {
 	}, nil
 }
 
-func (c *CMS) UploadAsset(ctx context.Context, r io.Reader) (string, error) {
-	rb := map[string]string{}
+func (c *CMS) UploadAsset(ctx context.Context, url string) (string, error) {
+	rb := map[string]string{
+		"url": url,
+	}
 
 	b, err := c.send(ctx, http.MethodPost, []string{"api", "assets"}, rb)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("failed to upload an asset: %w", err)
 	}
 	defer func() { _ = b.Close() }()
 
-	var res map[string]any
-	if err := json.NewDecoder(b).Decode(&res); err != nil {
+	body, err := io.ReadAll(b)
+	if err != nil {
+		return "", fmt.Errorf("failed to read body: %w", err)
+	}
+
+	var res map[string]string
+	if err := json.Unmarshal(body, &res); err != nil {
 		return "", fmt.Errorf("failed to parse body: %w", err)
 	}
 
-	// do
+	if id, ok := res["id"]; !ok || id == "" {
+		return "", fmt.Errorf("invalid body: %s", string(body))
+	}
 
-	return "", nil
+	return res["id"], nil
 }
 
 func (c *CMS) UpdateItem(ctx context.Context, itemID string, fields map[string]any) error {
@@ -61,16 +72,9 @@ func (c *CMS) UpdateItem(ctx context.Context, itemID string, fields map[string]a
 
 	b, err := c.send(ctx, http.MethodPatch, []string{"api", "items", itemID}, rb)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to update an item: %w", err)
 	}
 	defer func() { _ = b.Close() }()
-
-	var res map[string]any
-	if err := json.NewDecoder(b).Decode(&res); err != nil {
-		return fmt.Errorf("failed to parse body: %w", err)
-	}
-
-	// do
 
 	return nil
 }
@@ -82,7 +86,7 @@ func (c *CMS) Comment(ctx context.Context, assetID, content string) error {
 
 	b, err := c.send(ctx, http.MethodPost, []string{"api", "threads", assetID, "comments"}, rb)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to comment: %w", err)
 	}
 	defer func() { _ = b.Close() }()
 
@@ -94,6 +98,8 @@ func (c *CMS) send(ctx context.Context, m string, p []string, body any) (io.Read
 	if err != nil {
 		return nil, err
 	}
+
+	log.Infof("CMS: request: %s %s body=%+v", req.Method, req.URL, body)
 
 	res, err := c.client.Do(req)
 	if err != nil {

@@ -38,7 +38,8 @@ func New(baseUrl, token, resultURL string) (*FME, error) {
 type Request struct {
 	ID     string
 	Target string
-	PRCS   string
+	// JGD2011平面直角座標第1～19系のEPSGコード（6669〜6687）
+	PRCS string
 }
 
 func (s *FME) CheckQuality(ctx context.Context, r Request) error {

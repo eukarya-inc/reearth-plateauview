@@ -16,6 +16,6 @@ func Echo(g *echo.Group, c Config) error {
 }
 
 func initEcho(g *echo.Group, c Config, s Services) {
-	g.POST("/notify", FMEResultHandler(s.CMS, c.Secret))
+	g.POST("/notify", NotifyHandler(s.CMS, c.Secret))
 	g.POST("/webhook", WebhookHandler(s.FME, c.Secret), webhook.EchoMiddleware([]byte(c.CMSWebhookSecret)))
 }
