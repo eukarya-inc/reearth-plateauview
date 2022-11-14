@@ -1,6 +1,6 @@
-import GoogleAnalyticstModal from "@web/extensions/location/modals/googleAnalyticsModal";
-import TerrainModal from "@web/extensions/location/modals/terrainModal";
-import { PostMessageProps, MouseEventData } from "@web/extensions/location/types";
+import GoogleAnalyticstModal from "@web/extensions/location/core/modals/googleAnalyticsModal";
+import TerrainModal from "@web/extensions/location/core/modals/terrainModal";
+import { PostMessageProps, MouseEventData } from "@web/extensions/location/core/types";
 
 import html from "../dist/web/location/core/index.html?raw";
 
