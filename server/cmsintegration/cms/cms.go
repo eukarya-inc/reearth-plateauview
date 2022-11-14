@@ -14,6 +14,7 @@ import (
 )
 
 type Interface interface {
+	Asset(ctx context.Context, id string) (*Asset, error)
 	UploadAsset(ctx context.Context, url string) (string, error)
 	UpdateItem(ctx context.Context, itemID string, fields map[string]any) error
 	Comment(ctx context.Context, assetID, content string) error
@@ -66,6 +67,21 @@ func (c *CMS) UploadAsset(ctx context.Context, url string) (string, error) {
 	return res["id"], nil
 }
 
+func (c *CMS) Asset(ctx context.Context, assetID string) (*Asset, error) {
+	b, err := c.send(ctx, http.MethodGet, []string{"api", "assets", assetID}, nil)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get an asset: %w", err)
+	}
+	defer func() { _ = b.Close() }()
+
+	a := &Asset{}
+	if err := json.NewDecoder(b).Decode(a); err != nil {
+		return nil, fmt.Errorf("failed to parse an asset: %w", err)
+	}
+
+	return a, nil
+}
+
 func (c *CMS) UpdateItem(ctx context.Context, itemID string, fields map[string]any) error {
 	type F struct {
 		ID    string `json:"id"`
@@ -105,7 +121,7 @@ func (c *CMS) Comment(ctx context.Context, assetID, content string) error {
 }
 
 func (c *CMS) send(ctx context.Context, m string, p []string, body any) (io.ReadCloser, error) {
-	req, err := c.request(ctx, m, p, map[string]string{})
+	req, err := c.request(ctx, m, p, body)
 	if err != nil {
 		return nil, err
 	}
@@ -148,4 +164,9 @@ func (c *CMS) request(ctx context.Context, m string, p []string, body any) (*htt
 
 	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", c.token))
 	return req, nil
+}
+
+type Asset struct {
+	ID  string `json:"id"`
+	URL string `json:"url"`
 }

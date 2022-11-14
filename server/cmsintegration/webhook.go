@@ -10,9 +10,10 @@ import (
 	"github.com/reearth/reearthx/log"
 )
 
-func WebhookHandler(f fme.Interface, cms cms.Interface, modelID, citygmlFieldKey, bldgFieldKey, secret string) echo.HandlerFunc {
+func WebhookHandler(f fme.Interface, cms cms.Interface, modelID, cityGMLFieldID, bldgFieldID, secret string) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		w := webhook.GetPayload(c.Request().Context())
+		ctx := c.Request().Context()
+		w := webhook.GetPayload(ctx)
 		if w == nil {
 			return c.JSON(http.StatusUnauthorized, "unauthorized")
 		}
@@ -31,33 +32,43 @@ func WebhookHandler(f fme.Interface, cms cms.Interface, modelID, citygmlFieldKey
 			return nil
 		}
 
-		assetFieldID := w.Data.Schema.FieldIDByKey(citygmlFieldKey)
-		assetField := w.Data.Item.Field(assetFieldID)
+		assetField := w.Data.Item.Field(cityGMLFieldID)
 		if assetField == nil {
-			log.Infof("webhook: field not found: fieldId=%s", assetFieldID)
-			return nil
-		}
-		asset := assetField.Value
-		if asset == nil || asset.ID == "" || asset.URL == "" {
-			log.Infof("webhook: invalid citygml field value: %+v", assetField)
+			log.Infof("webhook: field not found: fieldId=%s", cityGMLFieldID)
 			return nil
 		}
 
-		if err := cms.Comment(c.Request().Context(), asset.ID, "品質検査及び3D Tilesへの変換を開始しました。"); err != nil {
-			log.Errorf("notify: failed to comment: %w", err)
+		assetID, ok := assetField.Value.(string)
+		if !ok {
+			log.Infof("webhook: invalid field value: %+v", assetField)
 			return nil
 		}
 
-		if err := f.CheckQualityAndConvertAll(c.Request().Context(), fme.Request{
+		asset, err := cms.Asset(ctx, assetID)
+		if err != nil || asset == nil || asset.ID == "" {
+			log.Infof("webhook: cannot fetch asset: %w", err)
+			return nil
+		}
+
+		req := fme.Request{
 			ID: ID{
 				ItemID:       w.Data.Item.ID,
 				AssetID:      asset.ID,
-				TilesFieldID: bldgFieldKey,
+				TilesFieldID: bldgFieldID,
 			}.String(secret),
 			Target: asset.URL,
 			PRCS:   "6669", // TODO2: accept prcs code from webhook
-		}); err != nil {
+		}
+
+		if f == nil {
+			log.Infof("webhook: fme mocked: %+v", req)
+		} else if err := f.CheckQualityAndConvertAll(ctx, req); err != nil {
 			log.Errorf("webhook: failed to request fme: %w", err)
+			return nil
+		}
+
+		if err := cms.Comment(ctx, asset.ID, "CityGMLの品質検査及び3D Tilesへの変換を開始しました。"); err != nil {
+			log.Errorf("webhook: failed to comment: %w", err)
 			return nil
 		}
 

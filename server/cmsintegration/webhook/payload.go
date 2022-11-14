@@ -21,8 +21,9 @@ type Item struct {
 type Field struct {
 	ID    string `json:"id"`
 	Type  string `json:"type"`
-	Value *Asset `json:"value"`
+	Value any    `json:"value"`
 }
+
 type Schema struct {
 	ID     string        `json:"id"`
 	Fields []SchemaField `json:"fields"`
@@ -32,11 +33,6 @@ type SchemaField struct {
 	ID   string `json:"id"`
 	Type string `json:"type"`
 	Key  string `json:"key"`
-}
-
-type Asset struct {
-	ID  string `json:"id"`
-	URL string `json:"url"`
 }
 
 func (d Item) Field(fid string) *Field {

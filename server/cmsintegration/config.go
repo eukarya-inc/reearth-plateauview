@@ -8,16 +8,17 @@ import (
 )
 
 type Config struct {
-	FMEBaseURL         string
-	FMEToken           string
-	FMEResultURL       string
-	CMSModelID         string
-	CMSCityGMLFieldKey string
-	CMSBldgFieldKey    string
-	CMSBaseURL         string
-	CMSToken           string
-	CMSWebhookSecret   string
-	Secret             string
+	FMEMock           bool
+	FMEBaseURL        string
+	FMEToken          string
+	FMEResultURL      string
+	CMSModelID        string
+	CMSCityGMLFieldID string
+	CMSBldgFieldID    string
+	CMSBaseURL        string
+	CMSToken          string
+	CMSWebhookSecret  string
+	Secret            string
 }
 
 type Services struct {
@@ -25,16 +26,20 @@ type Services struct {
 	CMS cms.Interface
 }
 
-func NewServices(c Config) (Services, error) {
-	fme, err := fme.New(c.FMEBaseURL, c.FMEToken, c.FMEResultURL+"/notify")
-	if err != nil {
-		return Services{}, fmt.Errorf("failed to init fme: %w", err)
+func NewServices(c Config) (s Services, _ error) {
+	if !c.FMEMock {
+		fme, err := fme.New(c.FMEBaseURL, c.FMEToken, c.FMEResultURL+"/notify")
+		if err != nil {
+			return Services{}, fmt.Errorf("failed to init fme: %w", err)
+		}
+		s.FME = fme
 	}
 
 	cms, err := cms.New(c.CMSBaseURL, c.CMSToken)
 	if err != nil {
 		return Services{}, fmt.Errorf("failed to init cms: %w", err)
 	}
+	s.CMS = cms
 
-	return Services{FME: fme, CMS: cms}, nil
+	return
 }

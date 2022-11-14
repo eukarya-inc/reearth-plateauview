@@ -13,16 +13,18 @@ import (
 const configPrefix = "REEARTH_PLATEAUVIEW_"
 
 type Config struct {
-	Port                uint   `default:"8080" envconfig:"PORT"`
-	Host                string `default:"http://localhost:8080"`
-	CMS_Webhook_Secret  string
-	CMS_ModelID         string
-	CMS_CityGMLFieldKey string
-	CMS_BldgFieldKey    string
-	FME_Token           string
-	CMS_BaseURL         string
-	CMS_Token           string
-	Secret              string
+	Port               uint   `default:"8080" envconfig:"PORT"`
+	Host               string `default:"http://localhost:8080"`
+	CMS_Webhook_Secret string
+	CMS_ModelID        string
+	CMS_CityGMLFieldID string
+	CMS_BldgFieldID    string
+	CMS_BaseURL        string
+	CMS_Token          string
+	FME_BaseURL        string
+	FME_Mock           bool
+	FME_Token          string
+	Secret             string
 }
 
 func NewConfig() (*Config, error) {
@@ -45,15 +47,16 @@ func (c *Config) Print() string {
 
 func (c *Config) CMSIntegration() cmsintegration.Config {
 	return cmsintegration.Config{
-		FMEBaseURL:         c.FME_Token,
-		FMEToken:           c.FME_Token,
-		FMEResultURL:       c.Host,
-		CMSModelID:         c.CMS_ModelID,
-		CMSCityGMLFieldKey: c.CMS_CityGMLFieldKey,
-		CMSBldgFieldKey:    c.CMS_BldgFieldKey,
-		CMSBaseURL:         c.CMS_BaseURL,
-		CMSToken:           c.CMS_Token,
-		CMSWebhookSecret:   c.CMS_Webhook_Secret,
-		Secret:             c.Secret,
+		FMEMock:           c.FME_Mock,
+		FMEBaseURL:        c.FME_BaseURL,
+		FMEToken:          c.FME_Token,
+		FMEResultURL:      c.Host,
+		CMSModelID:        c.CMS_ModelID,
+		CMSCityGMLFieldID: c.CMS_CityGMLFieldID,
+		CMSBldgFieldID:    c.CMS_BldgFieldID,
+		CMSBaseURL:        c.CMS_BaseURL,
+		CMSToken:          c.CMS_Token,
+		CMSWebhookSecret:  c.CMS_Webhook_Secret,
+		Secret:            c.Secret,
 	}
 }
