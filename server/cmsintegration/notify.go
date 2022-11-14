@@ -58,9 +58,7 @@ func NotifyHandler(cms cms.Interface, secret string) echo.HandlerFunc {
 		}
 
 		fields := map[string]any{
-			"fields": map[string]string{
-				"asset": assetID, // TODO: field id
-			},
+			"____": assetID, // TODO: field id
 		}
 
 		if err := cms.UpdateItem(c.Request().Context(), id.ItemID, fields); err != nil {

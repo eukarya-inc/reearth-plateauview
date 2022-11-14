@@ -10,6 +10,7 @@ import (
 	"net/url"
 
 	"github.com/reearth/reearthx/log"
+	"github.com/samber/lo"
 )
 
 type Interface interface {
@@ -66,8 +67,18 @@ func (c *CMS) UploadAsset(ctx context.Context, url string) (string, error) {
 }
 
 func (c *CMS) UpdateItem(ctx context.Context, itemID string, fields map[string]any) error {
+	type F struct {
+		ID    string `json:"id"`
+		Value any    `json:"value"`
+	}
+
 	rb := map[string]any{
-		"fields": fields,
+		"fields": lo.MapToSlice(fields, func(k string, v any) F {
+			return F{
+				ID:    k,
+				Value: v,
+			}
+		}),
 	}
 
 	b, err := c.send(ctx, http.MethodPatch, []string{"api", "items", itemID}, rb)
