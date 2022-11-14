@@ -1,5 +1,4 @@
 import { styled } from "@web/theme";
-import React from "react";
 
 import useHooks from "./hook";
 
