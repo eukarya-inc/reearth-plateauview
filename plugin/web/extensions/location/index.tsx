@@ -6,6 +6,7 @@ import useHooks from "./hook";
 const LocationWrapper: React.FC = () => {
   const { currentPoint, currentDistance, handlegoogleModalChange, handleTerrainModalChange } =
     useHooks();
+
   return (
     <ContentWrapper>
       <LocationsWrapper>
