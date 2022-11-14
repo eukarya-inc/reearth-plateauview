@@ -1,8 +1,8 @@
-import GoogleAnalyticstModal from "@web/extensions/location/core/modals/googleAnalyticsModal";
-import TerrainModal from "@web/extensions/location/core/modals/terrainModal";
 import { PostMessageProps, MouseEventData } from "@web/extensions/location/core/types";
 
 import html from "../dist/web/location/core/index.html?raw";
+import GoogleAnalyticsHtml from "../dist/web/location/modals/googleAnalytics/index.html?raw";
+import TerrainHtml from "../dist/web/location/modals/terrain/index.html?raw";
 
 const reearth = (globalThis as any).reearth;
 
@@ -34,9 +34,9 @@ reearth.on("cameramove", () => {
 });
 reearth.on("message", ({ action }: PostMessageProps) => {
   if (action === "modal-google-open") {
-    reearth.modal.show(GoogleAnalyticstModal);
+    reearth.modal.show(GoogleAnalyticsHtml, { background: "transparent" });
   } else if (action === "modal-terrain-open") {
-    reearth.modal.show(TerrainModal);
+    reearth.modal.show(TerrainHtml, { background: "transparent" });
   } else if (action === "modal-close") {
     reearth.modal.close();
   }
