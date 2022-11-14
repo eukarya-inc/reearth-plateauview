@@ -1,6 +1,6 @@
 module github.com/eukarya-inc/reearth-plateauview/server
 
-go 1.18
+go 1.19
 
 require (
 	github.com/jarcoal/httpmock v1.2.0
