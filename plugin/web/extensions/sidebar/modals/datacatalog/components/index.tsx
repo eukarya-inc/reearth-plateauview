@@ -57,8 +57,8 @@ export default DataCatalog;
 const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
-  width: 1155px;
-  height: 753px;
+  width: 904px;
+  height: 589px;
   background: #f4f4f4;
 `;
 

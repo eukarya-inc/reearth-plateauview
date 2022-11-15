@@ -55,7 +55,7 @@ const DatasetDetails: React.FC<Props> = ({
   return dataset ? (
     <Wrapper>
       <MapContainer
-        style={{ height: "220px" }}
+        style={{ height: "164px" }}
         center={initialLocation}
         zoom={8}
         scrollWheelZoom={false}
