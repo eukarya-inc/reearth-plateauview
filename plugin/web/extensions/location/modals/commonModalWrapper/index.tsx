@@ -15,8 +15,8 @@ const CommonModalWrapper: React.FC<Props> = ({ title, children, onModalChange })
         <>
           <HeaderWrapper>
             <Title>{title}</Title>
-            <CloseButton>
-              <Icon size={32} icon="close" color="grey" onClick={onModalChange} />
+            <CloseButton type="default">
+              <Icon size={32} icon="close" color="#00000073" onClick={onModalChange} />
             </CloseButton>
           </HeaderWrapper>
         </>
@@ -26,7 +26,7 @@ const CommonModalWrapper: React.FC<Props> = ({ title, children, onModalChange })
 
       <FooterWrapper>
         <OkButton type="primary" onClick={onModalChange}>
-          ok
+          <Text>ok</Text>
         </OkButton>
       </FooterWrapper>
     </Wrapper>
@@ -75,8 +75,6 @@ const ContentWrapper = styled.div`
   align-items: flex-start;
   padding: 24px;
   gap: 10px;
-  width: 572px;
-  height: 562px;
   flex: none;
   order: 1;
   align-self: stretch;
@@ -92,7 +90,7 @@ const FooterWrapper = styled.div`
   padding: 10px 16px;
   gap: 8px;
   width: 572px;
-  height: 52px;
+  height: 40px;
   background: #ffffff;
   box-shadow: inset 0px 1px 0px #f0f0f0;
   flex: none;
@@ -102,17 +100,15 @@ const FooterWrapper = styled.div`
 `;
 
 const OkButton = styled(Button)`
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
   padding: 5px 16px;
   width: 51px;
   height: 32px;
   background: #1890ff;
   box-shadow: 0px 2px 0px rgba(0, 0, 0, 0.043);
   border-radius: 2px;
-  flex: none;
-  order: 0;
-  flex-grow: 0;
+  text-align: center;
+`;
+
+const Text = styled.p`
+  font-size: 14px;
 `;
