@@ -12,18 +12,22 @@ export type Tab = "dataset" | "your-data";
 const DataCatalog: React.FC = () => {
   const [currentTab, changeTabs] = useState<Tab>("dataset");
 
-  const handleDatasetAdd = useCallback((dataset: Dataset) => {
-    postMsg({
-      action: "msgFromModal",
-      payload: {
-        dataset,
-      },
-    });
-  }, []);
-
   const handleClose = useCallback(() => {
     postMsg({ action: "modal-close" });
   }, []);
+
+  const handleDatasetAdd = useCallback(
+    (dataset: Dataset) => {
+      postMsg({
+        action: "msgFromModal",
+        payload: {
+          dataset,
+        },
+      });
+      handleClose();
+    },
+    [handleClose],
+  );
 
   return (
     <Wrapper>
@@ -60,6 +64,8 @@ const Wrapper = styled.div`
   width: 904px;
   height: 589px;
   background: #f4f4f4;
+  box-shadow: 0px 3px 6px -4px rgba(0, 0, 0, 0.12), 0px 6px 16px rgba(0, 0, 0, 0.08),
+    0px 9px 28px 8px rgba(0, 0, 0, 0.05);
 `;
 
 const Header = styled.div`
