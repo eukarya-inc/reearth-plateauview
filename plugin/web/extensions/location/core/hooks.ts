@@ -55,7 +55,7 @@ export default () => {
     return () => {
       (globalThis as any).removeEventListener("message", eventListenerCallback);
     };
-  });
+  }, []);
 
   const DistanceLabel = useMemo<string>(() => {
     const maxBarWidth = 100;
