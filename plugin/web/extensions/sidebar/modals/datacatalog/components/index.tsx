@@ -61,8 +61,8 @@ export default DataCatalog;
 const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
-  width: 904px;
-  height: 589px;
+  width: 905px;
+  height: 590px;
   background: #f4f4f4;
   box-shadow: 0px 3px 6px -4px rgba(0, 0, 0, 0.12), 0px 6px 16px rgba(0, 0, 0, 0.08),
     0px 9px 28px 8px rgba(0, 0, 0, 0.05);

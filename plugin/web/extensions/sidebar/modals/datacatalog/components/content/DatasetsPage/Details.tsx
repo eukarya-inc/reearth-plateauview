@@ -87,8 +87,6 @@ const DatasetDetails: React.FC<Props> = ({ dataset = fakeDataset(), onDatasetAdd
     </>
   );
 
-  console.log(ContentComponent, "11111");
-
   return dataset ? (
     <DetailsComponent
       dataset={dataset}
