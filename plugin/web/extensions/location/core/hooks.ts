@@ -38,7 +38,6 @@ export default () => {
         if (e.data.type === "mousedata") {
           updateCurrentPoint(e.data);
         }
-        console.log(e.data);
         if (e.data.type === "getLocations") {
           if (e.data.payload.point1 && e.data.payload.point2) {
             pixelDistance =
