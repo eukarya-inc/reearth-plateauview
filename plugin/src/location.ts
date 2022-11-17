@@ -1,12 +1,12 @@
 import { PostMessageProps, MouseEventData } from "@web/extensions/location/core/types";
 
 import html from "../dist/web/location/core/index.html?raw";
-import GoogleAnalyticsHtml from "../dist/web/location/modals/googleAnalytics/index.html?raw";
-import TerrainHtml from "../dist/web/location/modals/terrain/index.html?raw";
+import googleAnalyticsHtml from "../dist/web/location/modals/googleAnalytics/index.html?raw";
+import terrainHtml from "../dist/web/location/modals/terrain/index.html?raw";
 
 const reearth = (globalThis as any).reearth;
 
-reearth.ui.show(html);
+reearth.ui.show(html, { width: 350, height: 45 });
 
 reearth.on("mousemove", (mousedata: MouseEventData) => {
   reearth.ui.postMessage(
@@ -34,9 +34,13 @@ reearth.on("cameramove", () => {
 });
 reearth.on("message", ({ action }: PostMessageProps) => {
   if (action === "modal-google-open") {
-    reearth.modal.show(GoogleAnalyticsHtml, { background: "transparent" });
+    reearth.modal.show(googleAnalyticsHtml, { background: "transparent", width: 572, height: 670 });
   } else if (action === "modal-terrain-open") {
-    reearth.modal.show(TerrainHtml, { background: "transparent" });
+    reearth.modal.show(terrainHtml, {
+      background: "transparent",
+      width: 572,
+      height: 222,
+    });
   } else if (action === "modal-close") {
     reearth.modal.close();
   }

@@ -32,12 +32,13 @@ export default () => {
   }, [showTerraineModal]);
 
   useEffect(() => {
-    const eventListenerCallback = (e: MessageEvent<any>) => {
+    const eventListenerCallback = (e: any) => {
       if (e.source !== parent) return;
       if (e.data.type) {
         if (e.data.type === "mousedata") {
           updateCurrentPoint(e.data);
         }
+        console.log(e.data);
         if (e.data.type === "getLocations") {
           if (e.data.payload.point1 && e.data.payload.point2) {
             pixelDistance =
@@ -51,11 +52,11 @@ export default () => {
         }
       }
     };
-    addEventListener("message", e => eventListenerCallback(e));
+    (globalThis as any).addEventListener("message", (e: any) => eventListenerCallback(e));
     return () => {
-      removeEventListener("message", eventListenerCallback);
+      (globalThis as any).removeEventListener("message", eventListenerCallback);
     };
-  }, []);
+  });
 
   const DistanceLabel = useMemo<string>(() => {
     const maxBarWidth = 100;

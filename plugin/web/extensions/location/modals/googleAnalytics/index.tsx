@@ -13,7 +13,7 @@ const GoogleAnalytics: React.FC = () => {
   }, []);
 
   return (
-    <CommonModalWrapper title="Google Analytics の利用について" onModalChange={handleClose}>
+    <CommonModalWrapper title="Google Analytics の利用について" onModalClose={handleClose}>
       <Paragraph>
         当サイトでは、サービス向上やウェブサイトの改善のためにGoogle
         Inc.の提供するアクセス分析のツールであるGoogle Analyticsを利用した計測を行っております。

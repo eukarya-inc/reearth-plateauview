@@ -5,28 +5,26 @@ import { ReactNode } from "react";
 export type Props = {
   title?: string;
   children?: ReactNode;
-  onModalChange: () => void;
+  onModalClose: () => void;
 };
 
-const CommonModalWrapper: React.FC<Props> = ({ title, children, onModalChange }) => {
+const CommonModalWrapper: React.FC<Props> = ({ title, children, onModalClose }) => {
   return (
     <Wrapper>
       {title && (
-        <>
-          <HeaderWrapper>
-            <Title>{title}</Title>
-            <CloseButton type="default">
-              <Icon size={32} icon="close" color="#00000073" onClick={onModalChange} />
-            </CloseButton>
-          </HeaderWrapper>
-        </>
+        <HeaderWrapper>
+          <Title>{title}</Title>
+          <CloseButton type="default">
+            <Icon size={32} icon="close" color="#00000073" onClick={onModalClose} />
+          </CloseButton>
+        </HeaderWrapper>
       )}
 
       <ContentWrapper>{children}</ContentWrapper>
 
       <FooterWrapper>
-        <OkButton type="primary" onClick={onModalChange}>
-          <Text>ok</Text>
+        <OkButton type="primary" onClick={onModalClose}>
+          <Text>OK</Text>
         </OkButton>
       </FooterWrapper>
     </Wrapper>
@@ -36,19 +34,27 @@ const CommonModalWrapper: React.FC<Props> = ({ title, children, onModalChange })
 export default CommonModalWrapper;
 
 const Wrapper = styled.div`
-  padding: 32px 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 0px;
+  background: #ffffff;
+  box-shadow: 0px 3px 6px -4px rgba(0, 0, 0, 0.12), 0px 6px 16px rgba(0, 0, 0, 0.08),
+    0px 9px 28px 8px rgba(0, 0, 0, 0.05);
+  border-radius: 2px;
+  height: 100%;
 `;
-
 const Title = styled.p`
   font-size: 16px;
 `;
 
 const CloseButton = styled(Button)`
-  right: 0;
+  margin-right: 0;
   border: none;
   height: 48px;
   width: 48px;
   cursor: pointer;
+  shadow: none;
   transition: background 0.3s;
 `;
 
@@ -57,9 +63,8 @@ const HeaderWrapper = styled.div`
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
-  padding: 16px 24px;
+  padding: 16px;
   gap: 36px;
-  width: 572px;
   height: 56px;
   background: #ffffff;
   box-shadow: inset 0px -1px 0px #f0f0f0;
@@ -74,12 +79,8 @@ const ContentWrapper = styled.div`
   flex-direction: column;
   align-items: flex-start;
   padding: 24px;
-  gap: 10px;
-  flex: none;
-  order: 1;
-  align-self: stretch;
-  flex-grow: 0;
-  padding-bottom: 0px;
+  gap: 3px;
+  height: 100%;
 `;
 
 const FooterWrapper = styled.div`
@@ -87,9 +88,8 @@ const FooterWrapper = styled.div`
   flex-direction: row;
   justify-content: flex-end;
   align-items: center;
-  padding: 10px 16px;
+  padding: 16px;
   gap: 8px;
-  width: 572px;
   height: 40px;
   background: #ffffff;
   box-shadow: inset 0px 1px 0px #f0f0f0;

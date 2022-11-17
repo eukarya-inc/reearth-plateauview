@@ -24,3 +24,8 @@ extensions:
   - id: location
     name: Location Footer
     type: widget
+    widgetLayout:
+      defaultLocation:
+        zone: outer
+        section: left
+        area: bottom

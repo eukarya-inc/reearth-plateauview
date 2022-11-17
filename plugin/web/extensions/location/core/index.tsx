@@ -32,12 +32,8 @@ const ContentWrapper = styled.div`
   align-items: flex-start;
   padding: 4px 12px;
   gap: 4px;
-  width: 350px;
-  height: 40px;
   background: #dcdcdc;
-  flex: none;
-  order: 0;
-  flex-grow: 0;
+  height: 100%;
 `;
 
 const Text = styled.p`
@@ -53,8 +49,7 @@ const LocationsWrapper = styled.div`
   align-items: center;
   padding: 0px;
   gap: 12px;
-  width: 326px;
-  height: 14px;
+  height: 50%;
   flex: none;
   order: 0;
   align-self: stretch;
@@ -67,8 +62,8 @@ const ModalsWrapper = styled.div`
   align-items: center;
   padding: 0px;
   gap: 12px;
-  width: 212px;
-  height: 14px;
+  width: 100%
+  height: 50%;
   flex: none;
   order: 1;
   flex-grow: 0;
