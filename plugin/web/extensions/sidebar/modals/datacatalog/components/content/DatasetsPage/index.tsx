@@ -1,9 +1,9 @@
+import { Data } from "@web/extensions/sidebar/modals/datacatalog/types";
 import { useCallback, useState } from "react";
 
 import PageLayout from "../PageLayout";
 
 import DatasetTree from "./DatasetTree";
-import { Data } from "./DatasetTree/FileTree";
 import { TEST_CATALOG_DATA } from "./DatasetTree/TEST_catalog_data";
 import DatasetDetails, { Tag } from "./Details";
 

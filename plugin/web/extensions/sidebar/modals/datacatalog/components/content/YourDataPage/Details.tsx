@@ -1,8 +1,7 @@
 import DetailsComponent from "@web/extensions/sidebar/modals/datacatalog/components/content/DatasetDetails";
+import { Data as DataType } from "@web/extensions/sidebar/modals/datacatalog/types";
 import { styled } from "@web/theme";
 import { useCallback } from "react";
-
-import { Data as DataType } from "../DatasetsPage/DatasetTree/FileTree";
 
 export type Data = DataType;
 

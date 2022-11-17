@@ -4,11 +4,10 @@ import DatasetsPage from "@web/extensions/sidebar/modals/datacatalog/components/
 //   Dataset,
 // } from "@web/extensions/sidebar/modals/datacatalog/components/content/DatasetsPage";
 import YourDataPage from "@web/extensions/sidebar/modals/datacatalog/components/content/YourDataPage";
+import { Data } from "@web/extensions/sidebar/modals/datacatalog/types";
 import { Icon } from "@web/sharedComponents";
 import { styled } from "@web/theme";
 import { useCallback, useState } from "react";
-
-import { Data } from "./content/DatasetsPage/DatasetTree/FileTree";
 
 export type Tab = "dataset" | "your-data";
 

@@ -1,10 +1,11 @@
+import { Catalog, Data, FilterType, Tag } from "@web/extensions/sidebar/modals/datacatalog/types";
 import { Icon, Input, Tabs } from "@web/sharedComponents";
 import { styled } from "@web/theme";
 import { useCallback, useState } from "react";
 
 import Tags from "../Tags";
 
-import FileTree, { Catalog, Data, FilterType, Tag } from "./FileTree";
+import FileTree from "./FileTree";
 
 export type Props = {
   catalog?: Catalog;
@@ -27,20 +28,26 @@ const DatasetTree: React.FC<Props> = ({ catalog, selectedTags, onTagSelect, onOp
 
   return (
     <Wrapper>
-      <StyledInput
-        placeholder="input search text"
-        value={searchTerm}
-        onChange={handleSearch}
-        addonAfter={<Icon icon="search" size={15} />}
-      />
-      {searchTerm.length > 0 && <p>Results</p>}
-      {selectedTags && <Tags tags={selectedTags} onTagSelect={onTagSelect} />}
+      {!selectedTags?.length && (
+        <StyledInput
+          placeholder="input search text"
+          value={searchTerm}
+          onChange={handleSearch}
+          addonAfter={<Icon icon="search" size={15} />}
+        />
+      )}
+      {selectedTags && selectedTags.length > 0 && (
+        <Tags tags={selectedTags} onTagSelect={onTagSelect} />
+      )}
+      {searchTerm.length > 0 && <p style={{ margin: "0", alignSelf: "center" }}>検索結果</p>}
       <StyledTabs
         defaultActiveKey="prefecture"
-        tabBarStyle={searchTerm.length > 0 ? { display: "none" } : undefined}
+        tabBarStyle={
+          searchTerm.length > 0 || selectedTags?.length ? { display: "none" } : undefined
+        }
         onChange={active => handleFilter(active as FilterType)}>
         <Tabs.TabPane key="prefecture" tab="Prefecture">
-          <FileTree filter="prefecture" catalog={catalog} onOpenDetails={onOpenDetails} />
+          <FileTree filter={filterType} catalog={catalog} onOpenDetails={onOpenDetails} />
         </Tabs.TabPane>
         <Tabs.TabPane key="type" tab="Type">
           <FileTree filter={filterType} catalog={catalog} onOpenDetails={onOpenDetails} />

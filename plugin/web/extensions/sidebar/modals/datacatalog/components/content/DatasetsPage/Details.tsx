@@ -1,9 +1,9 @@
 import DetailsComponent from "@web/extensions/sidebar/modals/datacatalog/components/content/DatasetDetails";
+import { Data, Tag as TagType } from "@web/extensions/sidebar/modals/datacatalog/types";
 import { Icon } from "@web/sharedComponents";
 import { styled } from "@web/theme";
 import { useCallback, useMemo } from "react";
 
-import { Data, Tag as TagType } from "./DatasetTree/FileTree";
 import Tags from "./Tags";
 
 export type Tag = TagType;

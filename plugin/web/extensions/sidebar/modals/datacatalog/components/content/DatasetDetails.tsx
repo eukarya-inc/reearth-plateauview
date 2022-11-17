@@ -6,7 +6,7 @@ import { MapContainer, TileLayer } from "react-leaflet";
 // import L from "leaflet";
 // import { MapContainer, TileLayer, Marker } from "react-leaflet";
 
-import { Data } from "./DatasetsPage/DatasetTree/FileTree";
+import { Data } from "../../types";
 
 // import iconSvg from "./icon.svg?raw";
 

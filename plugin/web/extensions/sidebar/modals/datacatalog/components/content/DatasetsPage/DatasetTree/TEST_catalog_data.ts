@@ -1,4 +1,4 @@
-import { Catalog } from "./FileTree";
+import { Catalog } from "@web/extensions/sidebar/modals/datacatalog/types";
 
 export const TEST_CATALOG_DATA: Catalog = [
   {
