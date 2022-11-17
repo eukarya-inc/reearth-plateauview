@@ -25,6 +25,8 @@ import { ReactComponent as Inbox } from "./Icons/inbox.svg";
 import { ReactComponent as Folder } from "./Icons/folder.svg";
 import { ReactComponent as FolderOpen } from "./Icons/folderOpen.svg";
 import { ReactComponent as File } from "./Icons/file.svg";
+import { ReactComponent as Empty } from "./Icons/empty.svg";
+import { ReactComponent as NewPage } from "./Icons/newPage.svg";
 
 export default {
   logo: Logo,
@@ -51,4 +53,6 @@ export default {
   folder: Folder,
   folderOpen: FolderOpen,
   file: File,
+  empty: Empty,
+  newPage: NewPage,
 };

@@ -17,6 +17,7 @@ export const TEST_CATALOG_DATA: Catalog = [
             name: "A name",
             type: "3d-tiles",
             url: "www.google.ca",
+            tags: [{ name: "全球", type: "location" }], // TAG FIELD IS NEW. NOT A PART OF PLATEAU V1's JSON FILE LIKE THE OTHER VALUES.
             description:
               "PLATEAU VIEWではAPIから利用可能なリアルタイムデータ（CSV形式）の重畳テストのため、本データの登録、表示を行っています。<br/>\n本データは、米国地質調査所（USGS）から配信されている地震モニタリングデータです。米国議会によって設立された国家地震災害軽減プログラム（NEHRP）の一環として提供されています。<br/>\nデータ時点：過去３０日に観測されたマグニチュード2.5以上の地震情報を1分間隔で更新<br/>\n出典：米国地質調査所（USGS）国家地震災害軽減プログラム（NEHRP）<br/>\nhttps://earthquake.usgs.gov/earthquakes/feed/v1.0/csv.php\n",
             customProperties: {
@@ -48,6 +49,7 @@ export const TEST_CATALOG_DATA: Catalog = [
             name: "NASA推定降水量データ（Global/IMERG_30Min）",
             type: "wms-no-description",
             url: "https://gibs.earthdata.nasa.gov/wms/epsg3857/best/wms.cgi",
+            tags: [{ name: "全球", type: "location" }], // TAG FIELD IS NEW. NOT A PART OF PLATEAU V1's JSON FILE LIKE THE OTHER VALUES.
             customProperties: {
               initialCamera: {
                 east: 159.10274514267203,
@@ -93,6 +95,10 @@ export const TEST_CATALOG_DATA: Catalog = [
                 name: "建物モデル（千代田区）",
                 type: "3d-tiles",
                 url: "https://d2jfi34fqvxlsc.cloudfront.net/main/data/3d-tiles/bldg/13100_tokyo/13101_chiyoda-ku/notexture/tileset.json?20220331",
+                tags: [
+                  { name: "東京都", type: "location" },
+                  { name: "建物モデル", type: "data-type" },
+                ], // TAG FIELD IS NEW. NOT A PART OF PLATEAU V1's JSON FILE LIKE THE OTHER VALUES.
                 customProperties: {
                   initialCamera: {
                     east: 139.778615077544,

@@ -1,34 +1,49 @@
 import { Icon, Input, Tabs } from "@web/sharedComponents";
 import { styled } from "@web/theme";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 
-import FileTree, { Catalog } from "./FileTree";
+import Tags from "../Tags";
+
+import FileTree, { Catalog, Data, FilterType, Tag } from "./FileTree";
 
 export type Props = {
   catalog?: Catalog;
-  onOpenDetails?: (id: string) => void;
+  selectedTags?: Tag[];
+  onTagSelect: (tag: Tag) => void;
+  onOpenDetails?: (data?: Data) => void;
 };
 
-const DatasetTree: React.FC<Props> = ({ catalog, onOpenDetails }) => {
+const DatasetTree: React.FC<Props> = ({ catalog, selectedTags, onTagSelect, onOpenDetails }) => {
+  const [filterType, setFilterType] = useState<FilterType>("fileType");
   const [searchTerm, setSearchTerm] = useState("");
+
+  const handleSearch = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(e.currentTarget.value);
+  }, []);
+
+  const handleFilter = useCallback((filter: FilterType) => {
+    setFilterType(filter);
+  }, []);
 
   return (
     <Wrapper>
       <StyledInput
         placeholder="input search text"
         value={searchTerm}
-        onChange={e => setSearchTerm(e.currentTarget.value)}
+        onChange={handleSearch}
         addonAfter={<Icon icon="search" size={15} />}
       />
       {searchTerm.length > 0 && <p>Results</p>}
+      {selectedTags && <Tags tags={selectedTags} onTagSelect={onTagSelect} />}
       <StyledTabs
         defaultActiveKey="prefecture"
-        tabBarStyle={searchTerm.length > 0 ? { display: "none" } : undefined}>
+        tabBarStyle={searchTerm.length > 0 ? { display: "none" } : undefined}
+        onChange={active => handleFilter(active as FilterType)}>
         <Tabs.TabPane key="prefecture" tab="Prefecture">
           <FileTree filter="prefecture" catalog={catalog} onOpenDetails={onOpenDetails} />
         </Tabs.TabPane>
         <Tabs.TabPane key="type" tab="Type">
-          <FileTree filter="fileType" catalog={catalog} onOpenDetails={onOpenDetails} />
+          <FileTree filter={filterType} catalog={catalog} onOpenDetails={onOpenDetails} />
         </Tabs.TabPane>
       </StyledTabs>
     </Wrapper>

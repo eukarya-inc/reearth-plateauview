@@ -3,35 +3,46 @@ import { useCallback, useState } from "react";
 import PageLayout from "../PageLayout";
 
 import DatasetTree from "./DatasetTree";
+import { Data } from "./DatasetTree/FileTree";
 import { TEST_CATALOG_DATA } from "./DatasetTree/TEST_catalog_data";
-import DatasetDetails, { Dataset as DatasetType } from "./Details";
-
-export type Dataset = DatasetType;
+import DatasetDetails, { Tag } from "./Details";
 
 export type Props = {
-  onDatasetAdd: (dataset: Dataset) => void;
+  onDatasetAdd: (dataset: Data) => void;
 };
 
 const DatasetsPage: React.FC<Props> = ({ onDatasetAdd }) => {
   const catalog = TEST_CATALOG_DATA;
-  const [selectedDataset, setDataset] = useState<Dataset>();
+  const [selectedDataset, setDataset] = useState<Data>();
+  const [selectedTags, selectTags] = useState<Tag[]>([]);
 
-  const handleOpenDetails = useCallback(() => {
-    //HERE HANDLE SETTING DATASET ID
-    setDataset(undefined); // Gotta do a lot to get this working
-    /*
-    Needs:
-    title
-    description
-    tags
-    etc.
-    */
+  const handleOpenDetails = useCallback((data?: Data) => {
+    setDataset(data);
   }, []);
+
+  const handleTagSelect = useCallback(
+    (tag: Tag) =>
+      selectTags(tags => (tags.includes(tag) ? [...tags.filter(t => t !== tag)] : [...tags, tag])),
+    [],
+  );
 
   return (
     <PageLayout
-      left={<DatasetTree catalog={catalog} onOpenDetails={handleOpenDetails} />}
-      right={<DatasetDetails dataset={selectedDataset} onDatasetAdd={onDatasetAdd} />}
+      left={
+        <DatasetTree
+          catalog={catalog}
+          selectedTags={selectedTags}
+          onTagSelect={handleTagSelect}
+          onOpenDetails={handleOpenDetails}
+        />
+      }
+      right={
+        <DatasetDetails
+          dataset={selectedDataset}
+          onTagSelect={handleTagSelect}
+          onDatasetAdd={onDatasetAdd}
+        />
+      }
     />
   );
 };

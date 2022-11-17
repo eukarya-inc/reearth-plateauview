@@ -1,11 +1,14 @@
 import { postMsg } from "@web/extensions/sidebar/core/utils";
-import DatasetsPage, {
-  Dataset,
-} from "@web/extensions/sidebar/modals/datacatalog/components/content/DatasetsPage";
+import DatasetsPage from "@web/extensions/sidebar/modals/datacatalog/components/content/DatasetsPage";
+// import DatasetsPage, {
+//   Dataset,
+// } from "@web/extensions/sidebar/modals/datacatalog/components/content/DatasetsPage";
 import YourDataPage from "@web/extensions/sidebar/modals/datacatalog/components/content/YourDataPage";
 import { Icon } from "@web/sharedComponents";
 import { styled } from "@web/theme";
 import { useCallback, useState } from "react";
+
+import { Data } from "./content/DatasetsPage/DatasetTree/FileTree";
 
 export type Tab = "dataset" | "your-data";
 
@@ -17,7 +20,7 @@ const DataCatalog: React.FC = () => {
   }, []);
 
   const handleDatasetAdd = useCallback(
-    (dataset: Dataset) => {
+    (dataset: Data) => {
       postMsg({
         action: "msgFromModal",
         payload: {

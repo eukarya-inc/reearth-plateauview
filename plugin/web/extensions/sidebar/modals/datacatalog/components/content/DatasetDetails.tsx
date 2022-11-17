@@ -1,21 +1,19 @@
-import { Dataset as DatasetType } from "@web/extensions/sidebar/core/components/content/Selection/DatasetCard/types";
 import { Icon } from "@web/sharedComponents";
 import { styled } from "@web/theme";
-// import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { ComponentType, useCallback } from "react";
-// import { useMemo, useRef } from "react";
-// import { MapContainer, TileLayer, Marker } from "react-leaflet";
 import { MapContainer, TileLayer } from "react-leaflet";
+// import L from "leaflet";
+// import { MapContainer, TileLayer, Marker } from "react-leaflet";
+
+import { Data } from "./DatasetsPage/DatasetTree/FileTree";
 
 // import iconSvg from "./icon.svg?raw";
 
-export type Dataset = DatasetType;
-
 export type Props = {
-  dataset?: Dataset;
+  dataset: Data;
   contentSection?: ComponentType;
-  onDatasetAdd: (dataset: Dataset) => void;
+  onDatasetAdd: (dataset: Data) => void;
 };
 
 const initialLocation = { lat: 35.70249, lng: 139.7622 };
@@ -52,7 +50,7 @@ const DatasetDetails: React.FC<Props> = ({
     onDatasetAdd(dataset);
   }, [dataset, onDatasetAdd]);
 
-  return dataset ? (
+  return (
     <Wrapper>
       <MapContainer
         style={{ height: "164px" }}
@@ -86,7 +84,7 @@ const DatasetDetails: React.FC<Props> = ({
       <Title>{dataset.name}</Title>
       {ContentSection && <ContentSection />}
     </Wrapper>
-  ) : null;
+  );
 };
 
 export default DatasetDetails;
