@@ -1,6 +1,6 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
-import { MouseEventData } from "./types";
+import { MouseEvent } from "./types";
 import { postMsg } from "./utils";
 
 export const distances = [
@@ -12,13 +12,29 @@ export const distances = [
 export default () => {
   let pixelDistance = 0;
 
-  const [currentPoint, setCurrentPoint] = useState<MouseEventData>();
+  const [currentPoint, setCurrentPoint] = useState<MouseEvent>();
   const [currentDistance, setCurrentDistance] = useState("0 Km");
   const [showGoogleModal, setShowGoogleModal] = useState(false);
   const [showTerraineModal, setShowTerrainModal] = useState(false);
 
-  const updateCurrentPoint = useCallback((mousedata: MouseEventData) => {
+  const updateCurrentPoint = useCallback((mousedata: MouseEvent) => {
     setCurrentPoint(mousedata);
+  }, []);
+
+  const updateDistanceLabel = useCallback((pixelDistance: number) => {
+    const maxBarWidth = 100;
+    let distance = 0;
+    for (let i = distances.length - 1; !distance && i >= 0; --i) {
+      if (distances[i] / pixelDistance < maxBarWidth) {
+        distance = distances[i];
+      }
+    }
+
+    if (distance >= 1000) {
+      setCurrentDistance((distance / 1000).toString() + " km");
+    } else {
+      setCurrentDistance(distance.toString() + " m");
+    }
   }, []);
 
   const handlegoogleModalChange = useCallback(() => {
@@ -36,7 +52,7 @@ export default () => {
       if (e.source !== parent) return;
       if (e.data.type) {
         if (e.data.type === "mousedata") {
-          updateCurrentPoint(e.data);
+          updateCurrentPoint(e.data.payload);
         }
         if (e.data.type === "getLocations") {
           if (e.data.payload.point1 && e.data.payload.point2) {
@@ -47,6 +63,7 @@ export default () => {
                 e.data.payload.point2.lat,
                 e.data.payload.point2.lng,
               ) * 1000;
+            updateDistanceLabel(pixelDistance);
           }
         }
       }
@@ -56,26 +73,6 @@ export default () => {
       (globalThis as any).removeEventListener("message", eventListenerCallback);
     };
   }, []);
-
-  const DistanceLabel = useMemo<string>(() => {
-    const maxBarWidth = 100;
-    let distance = 0;
-    for (let i = distances.length - 1; !distance && i >= 0; --i) {
-      if (distances[i] / pixelDistance < maxBarWidth) {
-        distance = distances[i];
-      }
-    }
-
-    if (distance >= 1000) {
-      return (distance / 1000).toString() + " km";
-    } else {
-      return distance.toString() + " m";
-    }
-  }, []);
-
-  useEffect(() => {
-    setCurrentDistance(DistanceLabel);
-  }, [DistanceLabel]);
 
   return {
     currentPoint,

@@ -1,4 +1,4 @@
-export type MouseEventData = {
+export type MouseEvent = {
   lat?: number;
   lng?: number;
 };

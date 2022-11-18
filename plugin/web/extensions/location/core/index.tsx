@@ -9,9 +9,9 @@ const LocationWrapper: React.FC = () => {
   return (
     <ContentWrapper>
       <LocationsWrapper>
-        <Text>Lat{currentPoint?.lat}° N</Text>
-        <Text>Lon{currentPoint?.lng}° E</Text>
-        <Text>{currentDistance}</Text>
+        <Text>Lat {currentPoint?.lat} ° N</Text>
+        <Text>Lon {currentPoint?.lng} ° E</Text>
+        <UnderLinedText>{currentDistance}</UnderLinedText>
       </LocationsWrapper>
       <ModalsWrapper>
         <GoogleAnalyticsLink onClick={handlegoogleModalChange}>
@@ -40,6 +40,13 @@ const Text = styled.p`
   font-size: 10px;
   margin: 0;
   color: #262626;
+`;
+
+const UnderLinedText = styled.p`
+  font-size: 10px;
+  margin: 0;
+  color: #262626;
+  text-decoration: underline;
 `;
 
 const LocationsWrapper = styled.div`
