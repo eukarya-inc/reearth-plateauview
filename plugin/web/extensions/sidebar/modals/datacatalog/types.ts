@@ -20,7 +20,7 @@ export type Group = {
   members?: Data[]; // if type is "group"
 };
 
-type Item = {
+export type Item = {
   type: "3d-tiles" | "wms-no-description"; // Many types... like "wms-no-description". So might need to make multiple possible individual Item types
   url?: string;
   description?: string;

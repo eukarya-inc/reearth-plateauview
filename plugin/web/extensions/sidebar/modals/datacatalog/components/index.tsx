@@ -1,8 +1,5 @@
 import { postMsg } from "@web/extensions/sidebar/core/utils";
 import DatasetsPage from "@web/extensions/sidebar/modals/datacatalog/components/content/DatasetsPage";
-// import DatasetsPage, {
-//   Dataset,
-// } from "@web/extensions/sidebar/modals/datacatalog/components/content/DatasetsPage";
 import YourDataPage from "@web/extensions/sidebar/modals/datacatalog/components/content/YourDataPage";
 import { Data } from "@web/extensions/sidebar/modals/datacatalog/types";
 import { Icon } from "@web/sharedComponents";
@@ -13,6 +10,8 @@ export type Tab = "dataset" | "your-data";
 
 const DataCatalog: React.FC = () => {
   const [currentTab, changeTabs] = useState<Tab>("dataset");
+
+  const addedDatasets = undefined; // Need to pass from Sidebar when Datacatalog is opened
 
   const handleClose = useCallback(() => {
     postMsg({ action: "modal-close" });
@@ -45,14 +44,14 @@ const DataCatalog: React.FC = () => {
             <TabName>Your Data</TabName>
           </Tab>
         </TabsWrapper>
-        <MinimizeButton>
+        <CloseButton>
           <Icon size={32} icon="close" onClick={handleClose} />
-        </MinimizeButton>
+        </CloseButton>
       </Header>
       {currentTab === "your-data" ? (
         <YourDataPage onDatasetAdd={handleDatasetAdd} />
       ) : (
-        <DatasetsPage onDatasetAdd={handleDatasetAdd} />
+        <DatasetsPage addedDatasets={addedDatasets} onDatasetAdd={handleDatasetAdd} />
       )}
     </Wrapper>
   );
@@ -113,13 +112,12 @@ const TabName = styled.p`
   user-select: none;
 `;
 
-const MinimizeButton = styled.button`
+const CloseButton = styled.button`
   position: absolute;
   right: 0;
-  border: none;
   height: 48px;
   width: 48px;
+  border: none;
   background: #00bebe;
   cursor: pointer;
-  transition: background 0.3s;
 `;

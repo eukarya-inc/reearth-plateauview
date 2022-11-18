@@ -29,7 +29,7 @@ const TreeBuilder: React.FC<{
   return data.type === "group" ? (
     <Folder key={data.id} isOpen={isOpen}>
       <FolderItem nestLevel={nestLevel} onClick={() => open(!isOpen)}>
-        <StyledIcon icon={isOpen ? "folderOpen" : "folder"} size={20} />
+        <Icon icon={isOpen ? "folderOpen" : "folder"} size={20} />
         <Name>{data.name}</Name>
       </FolderItem>
       {data.members?.map(m =>
@@ -38,7 +38,7 @@ const TreeBuilder: React.FC<{
     </Folder>
   ) : (
     <FolderItem key={data.id} nestLevel={nestLevel} selected={selected} onClick={handleOpenDetails}>
-      <StyledIcon icon={"file"} size={20} />
+      <Icon icon={"file"} size={20} />
       <Name>{data.name}</Name>
     </FolderItem>
   );
@@ -46,12 +46,13 @@ const TreeBuilder: React.FC<{
 
 const FileTree: React.FC<Props> = ({ filter, catalog, onOpenDetails }) => {
   const [selectedId, select] = useState<string>();
-  console.log(filter, "filter");
   const plateauDatasets = (catalog?.[0] as Group).members;
 
   const handleSelect = useCallback((id?: string) => {
     select(id);
   }, []);
+
+  console.log(filter, "filter"); // DELETE ONCE FILTER IS IMPLEMENTED
 
   return (
     <Tree>
@@ -79,7 +80,13 @@ const Tree = styled.div`
 
 const Folder = styled.div<{ isOpen?: boolean }>`
   width: 100%;
-  ${({ isOpen }) => (isOpen ? "height: 100%;" : "overflow: hidden; height: 29px;")}
+  ${({ isOpen }) =>
+    isOpen
+      ? "height: 100%;"
+      : `
+  height: 29px; 
+  overflow: hidden;
+  `}
 `;
 
 const FolderItem = styled.div<{ nestLevel: number; selected?: boolean }>`
@@ -109,5 +116,3 @@ const Name = styled.p`
   margin: 0;
   user-select: none;
 `;
-
-const StyledIcon = styled(Icon)``;
