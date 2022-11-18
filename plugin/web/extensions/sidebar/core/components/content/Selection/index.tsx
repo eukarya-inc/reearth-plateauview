@@ -1,4 +1,5 @@
 import Footer from "@web/extensions/sidebar/core/components/Footer";
+import { Data } from "@web/extensions/sidebar/modals/datacatalog/types";
 import { Icon } from "@web/sharedComponents";
 import { styled } from "@web/theme";
 
@@ -10,13 +11,15 @@ export type Props = {
   onDatasetRemoveAll: () => void;
   onModalOpen?: () => void;
 };
+const TEST: Data[] = [{ id: "asdljkf", name: "HAHAH", type: "3d-tiles" }];
 
 const Selection: React.FC<Props> = ({
-  selectedDatasets,
+  selectedDatasets = TEST,
   onDatasetRemove,
   onDatasetRemoveAll,
   onModalOpen,
 }) => {
+  console.log(selectedDatasets);
   return (
     <Wrapper>
       <InnerWrapper>
@@ -24,7 +27,7 @@ const Selection: React.FC<Props> = ({
           <StyledIcon icon="plusCircle" size={20} />
           <ButtonText>カタログから検索する</ButtonText>
         </StyledButton>
-        {selectedDatasets
+        {([{ id: "asdljkf", name: "HAHAH", type: "3d-tiles" }] as Data[])
           .map(d => <DatasetWrapper key={d.id} dataset={d} onRemove={onDatasetRemove} />)
           .reverse()}
       </InnerWrapper>
