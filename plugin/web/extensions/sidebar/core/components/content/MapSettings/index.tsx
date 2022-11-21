@@ -124,4 +124,9 @@ const ImageButton = styled.div<{ selected?: boolean }>`
   border-radius: 2px;
   padding: 4px 8px;
   cursor: pointer;
+  transition: border-color 0.2s;
+
+  :hover {
+    border-color: #00bebe;
+  }
 `;

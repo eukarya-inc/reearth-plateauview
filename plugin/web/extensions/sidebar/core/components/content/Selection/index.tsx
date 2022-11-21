@@ -40,6 +40,7 @@ const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  color: #4a4a4a;
 `;
 
 const InnerWrapper = styled.div`
@@ -59,6 +60,11 @@ const StyledButton = styled.button`
   color: #fff;
   padding: 10px;
   cursor: pointer;
+  transition: background 0.2s;
+
+  :hover {
+    background: #4cc2c2;
+  }
 `;
 
 const ButtonText = styled.p`

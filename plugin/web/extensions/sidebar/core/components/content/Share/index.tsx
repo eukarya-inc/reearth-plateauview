@@ -39,9 +39,9 @@ const Share: React.FC = () => {
               <ShareTextWrapper>
                 <ShareText>{publishUrl}</ShareText>
               </ShareTextWrapper>
-              <StyledButton onClick={() => handleCopyToClipboard("url", publishUrl)}>
+              <IconButton onClick={() => handleCopyToClipboard("url", publishUrl)}>
                 <Icon icon={copiedUrl ? "check" : "copy"} />
-              </StyledButton>
+              </IconButton>
             </FlexWrapper>
             <SubText>このURLを使えば誰でもこのマップにアクセスできます。</SubText>
             <Subtitle>HTMLページへの埋め込みは下記のコードをお使いください：</Subtitle>
@@ -49,9 +49,9 @@ const Share: React.FC = () => {
               <ShareTextWrapper>
                 <ShareText>{iframeCode}</ShareText>
               </ShareTextWrapper>
-              <StyledButton onClick={() => handleCopyToClipboard("iframe", iframeCode)}>
+              <IconButton onClick={() => handleCopyToClipboard("iframe", iframeCode)}>
                 <Icon icon={copiedIframe ? "check" : "copy"} />
-              </StyledButton>
+              </IconButton>
             </FlexWrapper>
             <SubText>このURLを使えば誰でもこのマップにアクセスできます。</SubText>
           </>
@@ -61,8 +61,8 @@ const Share: React.FC = () => {
         <Subtitle>印刷</Subtitle>
         <SectionWrapper>
           <ButtonWrapper>
-            <Button onClick={handleScreenshotSave}>Download map (png)</Button>
-            <Button onClick={handleScreenshotShow}>Show Print View</Button>
+            <StyledButton onClick={handleScreenshotSave}>Download map (png)</StyledButton>
+            <StyledButton onClick={handleScreenshotShow}>Show Print View</StyledButton>
           </ButtonWrapper>
           <SubText>このマップを印刷できる状態で表示</SubText>
         </SectionWrapper>
@@ -114,6 +114,11 @@ const ShareButton = styled.button<{ disabled?: boolean }>`
   border-radius: 2px;
   margin-bottom: 15px;
   cursor: ${({ disabled }) => (disabled ? "not-allowed" : "pointer")};
+  transition: background 0.2s;
+
+  :hover {
+    background: #4cc2c2;
+  }
 `;
 
 const FlexWrapper = styled.div`
@@ -125,9 +130,21 @@ const FlexWrapper = styled.div`
 
 const ButtonWrapper = styled(FlexWrapper)`
   gap: 8px;
+
+  * > &:hover {
+    background: #e6e3e3;
+  }
 `;
 
-const StyledButton = styled.button`
+const StyledButton = styled(Button)`
+  transition: background 0.2s;
+
+  :hover {
+    background: #f7f7f7;
+  }
+`;
+
+const IconButton = styled.button`
   background: #00bebe;
   border: none;
   border-radius: 2px;

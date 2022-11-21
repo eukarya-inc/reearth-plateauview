@@ -43,9 +43,16 @@ const RemoveBtn = styled.button`
   gap: 10px;
   width: 131px;
   height: 32px;
-  border: 1px solid #c7c5c5;
+  border: 1px solid;
+  border-color: #c7c5c5;
   border-radius: 4px;
   background-color: inherit;
   padding: 4px 10px;
   cursor: pointer;
+  transition: color 0.3s, border-color 0.3s;
+
+  :hover {
+    color: #00bebe;
+    border-color: #00bebe;
+  }
 `;

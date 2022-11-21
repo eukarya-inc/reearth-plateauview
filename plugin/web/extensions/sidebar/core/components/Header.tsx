@@ -120,7 +120,11 @@ const MinimizeButton = styled.button<{ minimized?: boolean }>`
   width: 32px;
   background: #00bebe;
   cursor: pointer;
-  transition: background 0.3s;
+  transition: background 0.2s;
+
+  :hover {
+    background: #4cc2c2;
+  }
 
   ${({ minimized }) => minimized && "position: static;"}
 `;
