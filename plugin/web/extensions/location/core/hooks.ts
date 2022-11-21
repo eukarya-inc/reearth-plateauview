@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 
-import { MouseEvent } from "./types";
+import { MouseEvent, DistanceLegend } from "./types";
 import { postMsg } from "./utils";
 
 export const distances = [
@@ -8,12 +8,17 @@ export const distances = [
   50000, 100000, 200000, 300000, 500000, 1000000, 2000000, 3000000, 5000000, 10000000, 20000000,
   30000000, 50000000,
 ];
+const defaultDistance: DistanceLegend = {
+  label: "0 Km",
+  uniteLine: 0,
+};
 
 export default () => {
   let pixelDistance = 0;
 
   const [currentPoint, setCurrentPoint] = useState<MouseEvent>();
-  const [currentDistance, setCurrentDistance] = useState("0 Km");
+  const [currentDistance, setCurrentDistance] = useState<DistanceLegend>(defaultDistance);
+
   const [showGoogleModal, setShowGoogleModal] = useState(false);
   const [showTerraineModal, setShowTerrainModal] = useState(false);
 
@@ -29,12 +34,14 @@ export default () => {
         distance = distances[i];
       }
     }
-
+    const uniteLine = distance / pixelDistance;
+    let label = "0 km";
     if (distance >= 1000) {
-      setCurrentDistance((distance / 1000).toString() + " km");
+      label = (distance / 1000).toString() + " km";
     } else {
-      setCurrentDistance(distance.toString() + " m");
+      label = distance.toString() + " m";
     }
+    setCurrentDistance({ label, uniteLine });
   }, []);
 
   const handlegoogleModalChange = useCallback(() => {

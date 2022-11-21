@@ -9,9 +9,12 @@ const LocationWrapper: React.FC = () => {
   return (
     <ContentWrapper>
       <LocationsWrapper>
-        <Text>Lat {currentPoint?.lat} ° N</Text>
-        <Text>Lon {currentPoint?.lng} ° E</Text>
-        <UnderLinedText>{currentDistance}</UnderLinedText>
+        <Text>Lat {Math.round(currentPoint?.lat ?? 0 * 100000) / 100000} ° N</Text>
+        <Text>Lon {Math.round(currentPoint?.lng ?? 0 * 100000) / 100000} ° E</Text>
+        <DistanceLegend>
+          <Text>{currentDistance.label}</Text>
+          <UnderLinedText uniteLine={currentDistance.uniteLine} />
+        </DistanceLegend>
       </LocationsWrapper>
       <ModalsWrapper>
         <GoogleAnalyticsLink onClick={handlegoogleModalChange}>
@@ -36,17 +39,24 @@ const ContentWrapper = styled.div`
   height: 100%;
 `;
 
+const DistanceLegend = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 0;
+`;
+
 const Text = styled.p`
   font-size: 10px;
   margin: 0;
   color: #262626;
 `;
 
-const UnderLinedText = styled.p`
-  font-size: 10px;
-  margin: 0;
+const UnderLinedText = styled.div<{ uniteLine?: number }>`
+  height: 2px;
+  background: #000;
   color: #262626;
-  text-decoration: underline;
+  width: ${({ uniteLine }) => uniteLine + "px"};
 `;
 
 const LocationsWrapper = styled.div`
