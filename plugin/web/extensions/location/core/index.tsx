@@ -3,24 +3,24 @@ import { styled } from "@web/theme";
 import useHooks from "./hooks";
 
 const LocationWrapper: React.FC = () => {
-  const { currentPoint, currentDistance, handlegoogleModalChange, handleTerrainModalChange } =
+  const { currentPoint, currentDistance, handleGoogleModalOpen, handleTerrainModalOpen } =
     useHooks();
 
   return (
     <ContentWrapper>
       <LocationsWrapper>
-        <Text>Lat {Math.round(currentPoint?.lat ?? 0 * 100000) / 100000} ° N</Text>
-        <Text>Lon {Math.round(currentPoint?.lng ?? 0 * 100000) / 100000} ° E</Text>
+        <Text>Lat {currentPoint?.lat?.toFixed(5)} ° N</Text>
+        <Text>Lon {currentPoint?.lng?.toFixed(5)} ° E</Text>
         <DistanceLegend>
-          <Text>{currentDistance.label}</Text>
-          <UnderLinedText uniteLine={currentDistance.uniteLine} />
+          <DistanceLegendLabel>{currentDistance.label}</DistanceLegendLabel>
+          <Line uniteLine={currentDistance.uniteLine} />
         </DistanceLegend>
       </LocationsWrapper>
       <ModalsWrapper>
-        <GoogleAnalyticsLink onClick={handlegoogleModalChange}>
+        <GoogleAnalyticsLink onClick={handleGoogleModalOpen}>
           Google Analyticsの利用について
         </GoogleAnalyticsLink>
-        <TerrainLink onClick={handleTerrainModalChange}>地形データ</TerrainLink>
+        <TerrainLink onClick={handleTerrainModalOpen}>地形データ</TerrainLink>
       </ModalsWrapper>
     </ContentWrapper>
   );
@@ -34,9 +34,25 @@ const ContentWrapper = styled.div`
   justify-content: center;
   align-items: flex-start;
   padding: 4px 12px;
-  gap: 4px;
   background: #dcdcdc;
   height: 100%;
+  width: 100%;
+`;
+
+const LocationsWrapper = styled.div`
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: center;
+  padding: 0px;
+  gap: 35px;
+`;
+
+const ModalsWrapper = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 12px;
 `;
 
 const DistanceLegend = styled.div`
@@ -48,42 +64,22 @@ const DistanceLegend = styled.div`
 
 const Text = styled.p`
   font-size: 10px;
+  width: 84px;
   margin: 0;
   color: #262626;
 `;
 
-const UnderLinedText = styled.div<{ uniteLine?: number }>`
-  height: 2px;
+const DistanceLegendLabel = styled.p`
+  font-size: 10px;
+  margin: 0;
+  color: #262626;
+`;
+
+const Line = styled.div<{ uniteLine?: number }>`
+  height: 1px;
   background: #000;
   color: #262626;
   width: ${({ uniteLine }) => uniteLine + "px"};
-`;
-
-const LocationsWrapper = styled.div`
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0px;
-  gap: 12px;
-  height: 50%;
-  flex: none;
-  order: 0;
-  align-self: stretch;
-  flex-grow: 0;
-`;
-
-const ModalsWrapper = styled.div`
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  padding: 0px;
-  gap: 12px;
-  width: 100%
-  height: 50%;
-  flex: none;
-  order: 1;
-  flex-grow: 0;
 `;
 
 const GoogleAnalyticsLink = styled.a`

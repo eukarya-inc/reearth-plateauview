@@ -63,7 +63,7 @@ const HeaderWrapper = styled.div`
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
-  padding: 16px;
+  padding: 16px 24px;
   gap: 36px;
   height: 56px;
   background: #ffffff;
@@ -78,8 +78,7 @@ const ContentWrapper = styled.div`
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  padding: 24px;
-  gap: 3px;
+  padding: 24px 24px;
   height: 100%;
 `;
 
@@ -88,9 +87,8 @@ const FooterWrapper = styled.div`
   flex-direction: row;
   justify-content: flex-end;
   align-items: center;
-  padding: 16px;
-  gap: 8px;
-  height: 40px;
+  padding: 10px 16px;
+  height: 52px;
   background: #ffffff;
   box-shadow: inset 0px 1px 0px #f0f0f0;
   flex: none;

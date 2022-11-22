@@ -6,7 +6,7 @@ import terrainHtml from "../dist/web/location/modals/terrain/index.html?raw";
 
 const reearth = (globalThis as any).reearth;
 
-reearth.ui.show(html, { width: 350, height: 45 });
+reearth.ui.show(html, { width: 350, height: 40 });
 
 reearth.on("mousemove", (mousedata: MouseEvent) => {
   reearth.ui.postMessage(

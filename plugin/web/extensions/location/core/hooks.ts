@@ -19,9 +19,6 @@ export default () => {
   const [currentPoint, setCurrentPoint] = useState<MouseEvent>();
   const [currentDistance, setCurrentDistance] = useState<DistanceLegend>(defaultDistance);
 
-  const [showGoogleModal, setShowGoogleModal] = useState(false);
-  const [showTerraineModal, setShowTerrainModal] = useState(false);
-
   const updateCurrentPoint = useCallback((mousedata: MouseEvent) => {
     setCurrentPoint(mousedata);
   }, []);
@@ -44,15 +41,13 @@ export default () => {
     setCurrentDistance({ label, uniteLine });
   }, []);
 
-  const handlegoogleModalChange = useCallback(() => {
-    setShowGoogleModal(!showGoogleModal);
-    postMsg({ action: !showGoogleModal ? "modal-google-open" : "modal-close" });
-  }, [showGoogleModal]);
+  const handleGoogleModalOpen = useCallback(() => {
+    postMsg({ action: "modal-google-open" });
+  }, []);
 
-  const handleTerrainModalChange = useCallback(() => {
-    setShowTerrainModal(!showTerraineModal);
-    postMsg({ action: !showTerraineModal ? "modal-terrain-open" : "modal-close" });
-  }, [showTerraineModal]);
+  const handleTerrainModalOpen = useCallback(() => {
+    postMsg({ action: "modal-terrain-open" });
+  }, []);
 
   useEffect(() => {
     const eventListenerCallback = (e: any) => {
@@ -84,8 +79,8 @@ export default () => {
   return {
     currentPoint,
     currentDistance,
-    handlegoogleModalChange,
-    handleTerrainModalChange,
+    handleGoogleModalOpen,
+    handleTerrainModalOpen,
   };
 };
 
