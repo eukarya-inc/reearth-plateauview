@@ -180,7 +180,10 @@ func ReadTilesetFeatures(ts *tiles.Tileset, indexesConfig IndexesConfig, tileset
 			computedFeaturePositions := []Cartographic{}
 			gltf := b3dm.GetModel()
 			if gltf != nil {
-				rtcTransform := getRtcTransform(&featureTableView, gltf)
+				rtcTransform, err := getRtcTransform(&featureTableView, gltf)
+				if err != nil {
+					return fmt.Errorf("failed to getRtcTransform: %v", err)
+				}
 				toZUpTransform := getZUpTransform(tileset)
 				computedFeaturePositions, err = computeFeaturePositionsFromGltfVertices(
 					gltf,

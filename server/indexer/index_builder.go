@@ -56,7 +56,9 @@ func writeValueIndex(fileId int, valueId int, ids []Ids, outDir string) (*EnumVa
 	w := csv.NewWriter(f)
 	defer w.Flush()
 
-	w.Write([]string{"dataRowId"})
+	if err := w.Write([]string{"dataRowId"}); err != nil {
+		return nil, fmt.Errorf("error writing header for csv: %v", err)
+	}
 	for _, record := range ids {
 		row := []string{strconv.Itoa(record.DataRowId)}
 		if err := w.Write(row); err != nil {
@@ -82,9 +84,7 @@ func createIndexBuilder(property string, indexConfig IndexConfig) interface{} {
 	return nil
 }
 
-/**
- * Write indexes using the index builders and returns a `IndexRoot.indexes` map
- */
+// Write indexes using the index builders and returns a `IndexRoot.indexes` map
 func writeIndexes(indexBuilders []interface{}, outDir string) (map[string]interface{}, error) {
 	indexes := make(map[string]interface{})
 	count := 0
@@ -105,9 +105,7 @@ func writeIndexes(indexBuilders []interface{}, outDir string) (map[string]interf
 	return indexes, nil
 }
 
-/**
-* Writes the data.csv file under `outDir` and returns its path.
- */
+// Writes the data.csv file under `outDir` and returns its path.
 func writeResultsData(data []map[string]string, outDir string) (string, error) {
 	fileName := "resultsData.csv"
 	filePath := filepath.Join(outDir, fileName)
@@ -129,7 +127,9 @@ func writeResultsData(data []map[string]string, outDir string) (string, error) {
 
 	sort.Sort(sort.Reverse(sort.StringSlice(keys)))
 
-	w.Write(keys)
+	if err := w.Write(keys); err != nil {
+		return "", fmt.Errorf("error writing header for csv: %v", err)
+	}
 	for _, record := range data {
 		row := make([]string, 0, 1+len(keys))
 

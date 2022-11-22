@@ -16,18 +16,20 @@ type CesiumRTC struct {
 	Center []float64
 }
 
-func getRtcTransform(ft *b3dms.B3dmFeatureTable, gltf *gltf.Document) *mat.Dense {
+func getRtcTransform(ft *b3dms.B3dmFeatureTable, gltf *gltf.Document) (*mat.Dense, error) {
 	rtcCenter := ft.RtcCenter
 	if len(rtcCenter) == 0 {
 		var temp CesiumRTC
-		json.Unmarshal(gltf.Extensions["CESIUM_RTC"].(json.RawMessage), &temp)
+		if err := json.Unmarshal(gltf.Extensions["CESIUM_RTC"].(json.RawMessage), &temp); err != nil {
+			return nil, fmt.Errorf("unmarshal failed for cesium_rtc: %v", err)
+		}
 		rtcCenter = temp.Center
 	}
 	rtcTransform := eyeMat(4)
 	if len(rtcCenter) > 0 {
 		rtcTransform = mat4FromCartesian(cartesianFromSlice(rtcCenter))
 	}
-	return rtcTransform
+	return rtcTransform, nil
 }
 
 // Creates a rotation matrix around the x-axis.
