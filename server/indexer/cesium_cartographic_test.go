@@ -1,16 +1,5 @@
 package indexer
 
-// WorldPosition:  Cartesian3 {
-// 	x: -3962987.9740489936,
-// 	y: 3361559.5611439403,
-// 	z: 3685745.6979325633
-//   }
-//   Cartographic:  Cartographic {
-// 	longitude: 2.4381220341286984,
-// 	latitude: 0.6200812555240751,
-// 	height: 78.32792784513339
-//   }
-
 import (
 	"errors"
 	"testing"
