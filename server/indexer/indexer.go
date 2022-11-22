@@ -198,8 +198,8 @@ func ReadTilesetFeatures(ts *tiles.Tileset, indexesConfig IndexesConfig, tileset
 				batchProperties := make(map[string]interface{})
 				for name, values := range batchTableProperties {
 					batchProperties[name] = nil
-					if len(values) > 0 {
-						batchProperties[name] = values[batchId]
+					if len(values.([]interface{})) > 0 {
+						batchProperties[name] = values.([]interface{})[batchId]
 					}
 				}
 				position := computedFeaturePositions[batchId]
