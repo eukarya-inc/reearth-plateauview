@@ -8,7 +8,6 @@ import (
 
 	"github.com/qmuntal/gltf"
 	b3dms "github.com/reearth/go3dtiles/b3dm"
-	tiles "github.com/reearth/go3dtiles/tileset"
 	"gonum.org/v1/gonum/mat"
 )
 
@@ -57,7 +56,7 @@ func getYUpToZUp() *mat.Dense {
 	return mat.NewDense(4, 4, d)
 }
 
-func getZUpTransform(ts *tiles.Tileset) *mat.Dense {
+func getZUpTransform() *mat.Dense {
 	// discuss if we need gltfAxisUpAxis
 	upAxis := AXIS_Y
 	transform := eyeMat(4)

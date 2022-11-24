@@ -184,7 +184,7 @@ func ReadTilesetFeatures(ts *tiles.Tileset, indexesConfig IndexesConfig, tileset
 				if err != nil {
 					return fmt.Errorf("failed to getRtcTransform: %v", err)
 				}
-				toZUpTransform := getZUpTransform(tileset)
+				toZUpTransform := getZUpTransform()
 				computedFeaturePositions, err = computeFeaturePositionsFromGltfVertices(
 					gltf,
 					computedTransform,
