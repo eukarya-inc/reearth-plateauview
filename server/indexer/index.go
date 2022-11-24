@@ -14,5 +14,4 @@ type EnumIndex struct {
 type EnumValue struct {
 	Count      int
 	Url        string
-	DataRowIds []int
 }

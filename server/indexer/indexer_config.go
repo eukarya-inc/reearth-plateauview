@@ -7,13 +7,13 @@ import (
 	"os"
 )
 
-type IndexConfig struct {
+type Index struct {
 	Kind string `json:"kind"`
 }
 
 type IndexesConfig struct {
 	IdProperty string                 `json:"idProperty"`
-	Indexes    map[string]IndexConfig `json:"indexes"`
+	Indexes    map[string]Index `json:"indexes"`
 }
 
 func IndexerConfigFromJson(data io.Reader) (*IndexesConfig, error) {

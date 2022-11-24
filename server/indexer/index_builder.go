@@ -12,7 +12,7 @@ import (
 
 type EnumIndexBuilder struct {
 	Property string
-	Config   IndexConfig
+	Config   Index
 	ValueIds map[string][]Ids
 }
 
@@ -72,7 +72,7 @@ func writeValueIndex(fileId int, valueId int, ids []Ids, outDir string) (*EnumVa
 	}, nil
 }
 
-func createIndexBuilder(property string, indexConfig IndexConfig) interface{} {
+func createIndexBuilder(property string, indexConfig Index) interface{} {
 	switch indexConfig.Kind {
 	case "enum":
 		return EnumIndexBuilder{
