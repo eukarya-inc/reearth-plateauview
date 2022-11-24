@@ -8,12 +8,12 @@ const (
 	_EPSILON1           = 0.1
 	_EPSILON12          = 0.000000000001
 	_EPSILON14          = 0.00000000000001
-	_DEGREES_PER_RADIAN = 180.0 / _PI
 )
 
 const (
 	_PI     = math.Pi
 	_TWO_PI = 2 * math.Pi
+	_DEGREES_PER_RADIAN = 180.0 / math.Pi
 )
 
 func zeroToTwoPi(angle float64) float64 {

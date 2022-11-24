@@ -154,8 +154,6 @@ func scaleToGeodeticSurface(cartesian *Cartesian3, oneOverRadii *Cartesian3, one
 	gradient.Y = intersection.Y * oneOverRadiiSquaredY * 2.0
 	gradient.Z = intersection.Z * oneOverRadiiSquaredZ * 2.0
 
-	// fmt.Println("cartesianMag: ", cartesian.magnitude())
-
 	// Compute the initial guess at the normal vector multiplier, lambda.
 	lambda := ((1.0 - ratio) * cartesian.magnitude()) / (0.5 * gradient.magnitude())
 	correction := 0.0
@@ -173,7 +171,6 @@ func scaleToGeodeticSurface(cartesian *Cartesian3, oneOverRadii *Cartesian3, one
 	var zMultiplier3 float64
 
 	for ok := true; ok; ok = (math.Abs(funcX) > _EPSILON12) {
-		// fmt.Println("funcX: ", funcX)
 		lambda -= correction
 
 		xMultiplier = 1.0 / (1.0 + lambda*oneOverRadiiSquaredX)

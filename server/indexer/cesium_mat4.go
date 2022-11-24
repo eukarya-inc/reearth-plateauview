@@ -4,12 +4,6 @@ import (
 	"gonum.org/v1/gonum/mat"
 )
 
-const (
-	AXIS_X = 0
-	AXIS_Y = 1
-	AXIS_Z = 2
-)
-
 func eyeMat(n int) *mat.Dense {
 	d := make([]float64, n*n)
 	for i := 0; i < n*n; i += n + 1 {
