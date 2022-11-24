@@ -100,7 +100,7 @@ func computeFeaturePositionsFromGltfVertices(gltf *gltf.Document, tileTransform,
 		minHeight, maxHeight := minMaxOfSlice(height)
 		featureHeight := maxHeight - minHeight
 		rectangle := rectangleFromCartographicArray(positions)
-		position := rectangle.Center()
+		position := rectangle.center()
 		position.Height = featureHeight
 
 		featurePositions = append(featurePositions, *position)

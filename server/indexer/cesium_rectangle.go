@@ -11,7 +11,7 @@ type Rectangle struct {
 	North float64
 }
 
-func (rectangle *Rectangle) Center() *Cartographic {
+func (rectangle *Rectangle) center() *Cartographic {
 	east := rectangle.East
 	west := rectangle.West
 
