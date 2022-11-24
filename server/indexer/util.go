@@ -12,6 +12,12 @@ import (
 	"gonum.org/v1/gonum/mat"
 )
 
+const (
+	_AXIS_X = 0
+	_AXIS_Y = 1
+	_AXIS_Z = 2
+)
+
 type CesiumRTC struct {
 	Center []float64
 }
@@ -59,9 +65,9 @@ func getYUpToZUp() *mat.Dense {
 
 func getZUpTransform(ts *tiles.Tileset) *mat.Dense {
 	// discuss if we need gltfAxisUpAxis
-	upAxis := AXIS_Y
+	upAxis := _AXIS_Y
 	transform := eyeMat(4)
-	if upAxis == AXIS_Y {
+	if upAxis == _AXIS_Y {
 		transform = getYUpToZUp()
 	}
 	return transform
