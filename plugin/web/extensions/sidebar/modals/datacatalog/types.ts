@@ -20,8 +20,17 @@ export type Group = {
   members?: Data[]; // if type is "group"
 };
 
+export type DataItemType =
+  | "3d-tiles"
+  | "csv"
+  | "czml"
+  | "mvt"
+  | "composite" // Might not need composite
+  | "geojson"
+  | "wms-no-description"; // Many types... like "wms-no-description". So might need to make multiple possible individual Item types
+
 export type Item = {
-  type: "3d-tiles" | "wms-no-description"; // Many types... like "wms-no-description". So might need to make multiple possible individual Item types
+  type: DataItemType;
   url?: string;
   description?: string;
   tags?: Tag[];

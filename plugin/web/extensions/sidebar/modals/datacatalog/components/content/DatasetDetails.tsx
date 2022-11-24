@@ -1,7 +1,7 @@
 import { Icon } from "@web/sharedComponents";
 import { styled } from "@web/theme";
 import "leaflet/dist/leaflet.css";
-import { ComponentType, useCallback } from "react";
+import { ComponentType, useCallback, useMemo } from "react";
 import { MapContainer, TileLayer } from "react-leaflet";
 // import L from "leaflet";
 // import { MapContainer, TileLayer, Marker } from "react-leaflet";
@@ -17,7 +17,24 @@ export type Props = {
   onDatasetAdd: (dataset: Data) => void;
 };
 
-const initialLocation = { lat: 35.70249, lng: 139.7622 };
+const convertRectangleToCartographic = (camera: {
+  east: number;
+  north: number;
+  south: number;
+  west: number;
+}) => {
+  const { east, north, south, west } = camera;
+  return {
+    lat: (north + south) / 2,
+    lng: (east + west) / 2,
+    // height: 8,
+  };
+};
+
+// const convertCartesianToCartographic = (camera: { x: number; y: number; z: number }) => {
+//   // L.CRS.Simple()
+//   console.log(camera);
+// };
 
 const DatasetDetails: React.FC<Props> = ({
   dataset,
@@ -25,6 +42,11 @@ const DatasetDetails: React.FC<Props> = ({
   contentSection: ContentSection,
   onDatasetAdd,
 }) => {
+  const initialCameraPosition = useMemo(() => {
+    if (dataset.type !== "group" && dataset.customProperties?.initialCamera) {
+      return convertRectangleToCartographic(dataset.customProperties.initialCamera);
+    }
+  }, [dataset]);
   // const markerRef = useRef<L.Marker<any>>(null);
 
   // const handleChange = useCallback(
@@ -56,11 +78,11 @@ const DatasetDetails: React.FC<Props> = ({
     <Wrapper>
       <MapContainer
         style={{ height: "164px" }}
-        center={initialLocation}
-        zoom={8}
-        scrollWheelZoom={false}
+        center={initialCameraPosition}
+        zoom={9}
         zoomControl={false}
-        dragging={false}
+        // scrollWheelZoom={false}
+        // dragging={false}
         attributionControl={false}>
         <TileLayer url="https://cyberjapandata.gsi.go.jp/xyz/seamlessphoto/{z}/{x}/{y}.jpg" />
         {/* {location && (
