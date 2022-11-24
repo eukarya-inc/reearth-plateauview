@@ -12,7 +12,7 @@ import (
 )
 
 type CesiumRTC struct {
-	Center []float64
+	Center [3]float64
 }
 
 func getRtcTransform(ft *b3dms.B3dmFeatureTable, gltf *gltf.Document) (*mat.Dense, error) {
@@ -26,7 +26,7 @@ func getRtcTransform(ft *b3dms.B3dmFeatureTable, gltf *gltf.Document) (*mat.Dens
 	}
 	rtcTransform := eyeMat(4)
 	if len(rtcCenter) > 0 {
-		rtcTransform = mat4FromCartesian(cartesianFromSlice(rtcCenter))
+		rtcTransform = mat4FromCartesian(cartesianFromSlice(rtcCenter[:]))
 	}
 	return rtcTransform, nil
 }

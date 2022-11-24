@@ -35,8 +35,8 @@ github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZb
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/qmuntal/gltf v0.23.1 h1:R8vkbJXmARbD/oI+Yn3252I2qDQ8mljsc88BJJEdYMY=
 github.com/qmuntal/gltf v0.23.1/go.mod h1:7FR0CRHoOehIgKTBVq/QVyvPn0i6tzp2AdIghb2bPg4=
-github.com/reearth/go3dtiles v0.0.0-20221117100413-a72170d079ee h1:dZN3lKmmseQ1IxcH5P84NEoCNYkGURr3vgMBpTh1w3k=
-github.com/reearth/go3dtiles v0.0.0-20221117100413-a72170d079ee/go.mod h1:1t1DVYZ2BsGajt9XGsgs0ShSRckeO9M/ojb//hYrVzE=
+github.com/reearth/go3dtiles v0.0.0-20221124123814-d15bf96a3513 h1:EcCKhaaiM/eQrs/pwSv/4iyBTt9mIOzZmCM1yoTaLCo=
+github.com/reearth/go3dtiles v0.0.0-20221124123814-d15bf96a3513/go.mod h1:1t1DVYZ2BsGajt9XGsgs0ShSRckeO9M/ojb//hYrVzE=
 github.com/reearth/reearthx v0.0.0-20221109022045-dd54f4626639 h1:qGHbGg2CsQinp9YcjRbmyCbTYgID+5qCrzvzx8D1veM=
 github.com/reearth/reearthx v0.0.0-20221109022045-dd54f4626639/go.mod h1:YZMXO1RhQ5fFL0GIOFvJq2GNskW7w+xoW4Zfu2QUXhw=
 github.com/samber/lo v1.33.0 h1:2aKucr+rQV6gHpY3bpeZu69uYoQOzVhGT3J22Op6Cjk=

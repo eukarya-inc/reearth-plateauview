@@ -61,14 +61,14 @@ func computeFeaturePositionsFromGltfVertices(gltf *gltf.Document, tileTransform,
 				if _BATCHID == 0 {
 					batchIdValue = 0
 				} else {
-					batchIdValue = readValueAt(gltf, _BATCHID, i)[0]
+					batchIdValue = b3dms.ReadGltfValueAt(gltf, _BATCHID, i)[0]
 				}
 
 				batchId, err := getInt(batchIdValue)
 				if err != nil {
 					return nil, fmt.Errorf("getInt failed: %w", err)
 				}
-				result := readValueAt(gltf, POSITION, i)
+				result := b3dms.ReadGltfValueAt(gltf, POSITION, i)
 				points, err := Map(result, getFloat)
 				if err != nil {
 					return nil, fmt.Errorf("map failed: %w", err)
@@ -180,7 +180,7 @@ func ReadTilesetFeatures(ts *tiles.Tileset, indexesConfig IndexesConfig, tileset
 			computedFeaturePositions := []Cartographic{}
 			gltf := b3dm.GetModel()
 			if gltf != nil {
-				rtcTransform, err := getRtcTransform(&featureTableView, gltf)
+				rtcTransform, err := getRtcTransform(featureTableView, gltf)
 				if err != nil {
 					return fmt.Errorf("failed to getRtcTransform: %v", err)
 				}
@@ -201,8 +201,8 @@ func ReadTilesetFeatures(ts *tiles.Tileset, indexesConfig IndexesConfig, tileset
 				batchProperties := make(map[string]interface{})
 				for name, values := range batchTableProperties {
 					batchProperties[name] = nil
-					if len(values.([]interface{})) > 0 {
-						batchProperties[name] = values.([]interface{})[batchId]
+					if len(values) > 0 {
+						batchProperties[name] = values[batchId]
 					}
 				}
 				position := computedFeaturePositions[batchId]
