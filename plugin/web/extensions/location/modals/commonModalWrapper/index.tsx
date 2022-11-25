@@ -46,10 +46,11 @@ const Wrapper = styled.div`
 `;
 const Title = styled.p`
   font-size: 16px;
+  margin-bottom: 0;
 `;
 
 const CloseButton = styled(Button)`
-  margin-right: 0;
+  margin-right: -24px;
   border: none;
   height: 48px;
   width: 48px;
