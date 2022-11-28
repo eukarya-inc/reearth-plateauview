@@ -21,9 +21,18 @@ type CesiumRTC struct {
 	Center [3]float64
 }
 
+func isRtcCenterEmpty(arr [3]float64) bool {
+	for _, val := range arr {
+		if val != 0 {
+			return false
+		}
+	}
+	return true
+}
+
 func getRtcTransform(ft *b3dms.B3dmFeatureTable, gltf *gltf.Document) (*mat.Dense, error) {
 	rtcCenter := ft.RtcCenter
-	if len(rtcCenter) == 0 {
+	if isRtcCenterEmpty(rtcCenter) {
 		var temp CesiumRTC
 		if err := json.Unmarshal(gltf.Extensions["CESIUM_RTC"].(json.RawMessage), &temp); err != nil {
 			return nil, fmt.Errorf("unmarshal failed for cesium_rtc: %v", err)
