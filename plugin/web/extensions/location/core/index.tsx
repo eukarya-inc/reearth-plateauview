@@ -35,6 +35,7 @@ const ContentWrapper = styled.div`
   align-items: flex-start;
   padding: 4px 12px;
   background: #dcdcdc;
+  line-height: 15spx;
   height: 100%;
   width: 100%;
 `;
