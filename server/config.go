@@ -5,6 +5,8 @@ import (
 	"os"
 
 	"github.com/eukarya-inc/reearth-plateauview/server/cmsintegration"
+	"github.com/eukarya-inc/reearth-plateauview/server/opinion"
+	"github.com/eukarya-inc/reearth-plateauview/server/share"
 	"github.com/joho/godotenv"
 	"github.com/kelseyhightower/envconfig"
 	"github.com/reearth/reearthx/log"
@@ -15,16 +17,22 @@ const configPrefix = "REEARTH_PLATEAUVIEW"
 type Config struct {
 	Port                 uint   `default:"8080" envconfig:"PORT"`
 	Host                 string `default:"http://localhost:8080"`
+	Origin               []string
 	CMS_Webhook_Secret   string
 	CMS_ModelID          string
 	CMS_CityGMLFieldID   string
 	CMS_BldgFieldID      string
 	CMS_BaseURL          string
 	CMS_Token            string
+	CMS_ShareModelID     string
+	CMS_ShareDataFieldID string
 	FME_BaseURL          string
 	FME_Mock             bool
 	FME_Token            string
 	FME_SkipQualityCheck bool
+	SendGrid_APIKey      string
+	Opinion_Email        string
+	Opinion_ToName       string
 	Secret               string
 }
 
@@ -60,5 +68,22 @@ func (c *Config) CMSIntegration() cmsintegration.Config {
 		CMSToken:            c.CMS_Token,
 		CMSWebhookSecret:    c.CMS_Webhook_Secret,
 		Secret:              c.Secret,
+	}
+}
+
+func (c *Config) Share() share.Config {
+	return share.Config{
+		CMSBase:        c.CMS_BaseURL,
+		CMSToken:       c.CMS_Token,
+		CMSModelID:     c.CMS_ShareModelID,
+		CMSDataFieldID: c.CMS_ShareDataFieldID,
+	}
+}
+
+func (c *Config) Opinion() opinion.Config {
+	return opinion.Config{
+		SendGridAPIKey: c.SendGrid_APIKey,
+		Email:          c.Opinion_Email,
+		ToName:         c.Opinion_ToName,
 	}
 }
