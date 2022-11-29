@@ -1,17 +1,17 @@
 package indexer
 
 type IndexRoot struct {
-	ResultDataUrl string
-	IdProperty    string
-	Indexes       map[string]interface{}
+	ResultDataUrl string                 `json:"resultDataUrl"`
+	IdProperty    string                 `json:"idProperty"`
+	Indexes       map[string]interface{} `json:"indexes"`
 }
 
 type EnumIndex struct {
-	Kind   string
-	Values map[string]*EnumValue
+	Kind   string                `json:"kind"`
+	Values map[string]*EnumValue `json:"values"`
 }
 
 type EnumValue struct {
-	Count      int
-	Url        string
+	Count int    `json:"count"`
+	Url   string `json:"url"`
 }
