@@ -3,6 +3,7 @@ package indexer
 import (
 	"errors"
 	"fmt"
+	"io/fs"
 	"path/filepath"
 	"strconv"
 	"strings"
@@ -10,8 +11,159 @@ import (
 	"github.com/qmuntal/gltf"
 	b3dms "github.com/reearth/go3dtiles/b3dm"
 	tiles "github.com/reearth/go3dtiles/tileset"
+	"github.com/reearth/reearthx/log"
+	"github.com/reearth/reearthx/util"
 	"gonum.org/v1/gonum/mat"
 )
+
+type Indexer struct{}
+
+func NewIndexer() *Indexer {
+	return &Indexer{}
+}
+
+type Fs interface {
+	Open(string) (fs.File, error)
+}
+
+type ResultData []map[string]string
+
+func (indexer *Indexer) GenerateIndexes(config *Config, tilesetPath string, fsys Fs) (indexBuilders []IndexBuilder, resultData ResultData, errMsg error) {
+	basePath := strings.Split(tilesetPath, "tileset.json")[0]
+	ts, err := fsys.Open(tilesetPath)
+	if err != nil {
+		errMsg = fmt.Errorf("failed to open the tileset: %w", err)
+		return
+	}
+	reader := tiles.NewTilsetReader(ts)
+	tileset := new(tiles.Tileset)
+	if err := reader.Decode(tileset); err != nil {
+		errMsg = fmt.Errorf("failed to decode the tileset: %w", err)
+		return
+	}
+
+	for property, config := range config.Indexes {
+		indexBuilders = append(indexBuilders, createIndexBuilder(property, config))
+	}
+
+	features, err := ReadTilesetFeatures(tileset, config, basePath, fsys)
+	if err != nil {
+		errMsg = fmt.Errorf("failed to read features: %w", err)
+		return
+	}
+
+	featureCount := len(features)
+	log.Debugln("Number of features counted: ", featureCount)
+
+	for idValue, tilsetFeature := range features {
+		// taking all positionProperties map entries as string for better writing experience
+		positionProperties := map[string]string{
+			config.IdProperty: idValue,
+			"Longitude":       strconv.FormatFloat(roundFloat(toDegrees(tilsetFeature.Position.Longitude), 5), 'g', -1, 64),
+			"Latitude":        strconv.FormatFloat(roundFloat(toDegrees(tilsetFeature.Position.Latitude), 5), 'g', -1, 64),
+			"Height":          strconv.FormatFloat(roundFloat(tilsetFeature.Position.Height, 3), 'g', -1, 64),
+		}
+		resultData = append(resultData, positionProperties)
+		length := len(resultData)
+		dataRowId := length - 1
+		for _, b := range indexBuilders {
+			switch t := b.(type) {
+			case EnumIndexBuilder:
+				if val, ok := tilsetFeature.Properties[t.Property]; ok && val != nil {
+					t.AddIndexValue(dataRowId, val.(string))
+				}
+			default:
+				continue
+			}
+		}
+	}
+	return
+}
+
+type TilesetFeature struct {
+	Properties map[string]interface{}
+	Position   Cartographic
+}
+
+func ReadTilesetFeatures(ts *tiles.Tileset, config *Config, basePath string, fsys Fs) (map[string]TilesetFeature, error) {
+	uniqueFeatures := make(map[string]TilesetFeature)
+	tilesetQueue := []*tiles.Tileset{ts}
+
+	for _, tileset := range tilesetQueue {
+
+		tilesetIterFn := func(tile *tiles.Tile, computedTransform *mat.Dense) error {
+			tileUri, err := tile.Uri()
+			if err != nil {
+				return fmt.Errorf("failed to fetch uri of tile: %v", err)
+			}
+			contentPath := filepath.Join(basePath, tileUri)
+			log.Debugln(tileUri)
+			if strings.HasSuffix(tileUri, ".json") {
+				childTileset, _ := tiles.Open(tileUri)
+				tilesetQueue = append(tilesetQueue, childTileset)
+				return nil
+			}
+
+			b3dmFile, err := fsys.Open(contentPath)
+			if err != nil {
+				return fmt.Errorf("failed to open b3dm file: %v", err)
+			}
+			reader := b3dms.NewB3dmReader(b3dmFile)
+			b3dm := new(b3dms.B3dm)
+			if err := reader.Decode(b3dm); err != nil {
+				return err
+			}
+			featureTable := b3dm.GetFeatureTable()
+			batchLength := featureTable.GetBatchLength()
+			featureTableView := b3dm.GetFeatureTableView()
+			batchTable := b3dm.GetBatchTable()
+			batchTableProperties := batchTable.Data
+			computedFeaturePositions := []Cartographic{}
+			gltf := b3dm.GetModel()
+			if gltf != nil {
+				rtcTransform, err := getRtcTransform(featureTableView, gltf)
+				if err != nil {
+					return fmt.Errorf("failed to getRtcTransform: %v", err)
+				}
+				toZUpTransform := getZUpTransform()
+				computedFeaturePositions, err = computeFeaturePositionsFromGltfVertices(
+					gltf,
+					computedTransform,
+					rtcTransform,
+					toZUpTransform,
+					batchLength,
+				)
+				if err != nil {
+					return fmt.Errorf("failed to open b3dm file: %v", err)
+				}
+			}
+
+			for batchId := 0; batchId < batchLength; batchId++ {
+				batchProperties := make(map[string]interface{})
+				for name, values := range batchTableProperties {
+					batchProperties[name] = nil
+					if len(values) > 0 {
+						batchProperties[name] = values[batchId]
+					}
+				}
+				position := computedFeaturePositions[batchId]
+				idValue := batchProperties[config.IdProperty].(string)
+				uniqueFeatures[idValue] = TilesetFeature{
+					Position:   position,
+					Properties: batchProperties,
+				}
+			}
+
+			return nil
+		}
+		err := ForEachTile(tileset, tilesetIterFn)
+		if err != nil {
+			return nil, fmt.Errorf("something went wrong at iterTile: %v", err)
+		}
+	}
+
+	return uniqueFeatures, nil
+}
 
 func computeFeaturePositionsFromGltfVertices(gltf *gltf.Document, tileTransform, rtcTransform, toZUpTransform *mat.Dense, batchLength int) ([]Cartographic, error) {
 	nodes := gltf.Nodes
@@ -69,7 +221,7 @@ func computeFeaturePositionsFromGltfVertices(gltf *gltf.Document, tileTransform,
 					return nil, fmt.Errorf("getInt failed: %w", err)
 				}
 				result := b3dms.ReadGltfValueAt(gltf, POSITION, i)
-				points, err := Map(result, getFloat)
+				points, err := util.TryMap(result, getFloat)
 				if err != nil {
 					return nil, fmt.Errorf("map failed: %w", err)
 				}
@@ -109,11 +261,6 @@ func computeFeaturePositionsFromGltfVertices(gltf *gltf.Document, tileTransform,
 	return featurePositions, nil
 }
 
-type TilesetFeature struct {
-	Properties map[string]interface{}
-	Position   Cartographic
-}
-
 type TileIterFn func(*tiles.Tile, *mat.Dense) error
 
 func ForEachTile(ts *tiles.Tileset, iterFn func(tile *tiles.Tile, computedTransform *mat.Dense) error) error {
@@ -145,157 +292,6 @@ func ForEachTile(ts *tiles.Tileset, iterFn func(tile *tiles.Tile, computedTransf
 	if err != nil {
 		return fmt.Errorf("something went wrong at iterTile: %v", err)
 	}
-
-	return nil
-}
-
-func ReadTilesetFeatures(ts *tiles.Tileset, indexesConfig IndexesConfig, tilesetDir, outDir string) (map[string]TilesetFeature, error) {
-	uniqueFeatures := make(map[string]TilesetFeature)
-	tilesetQueue := []*tiles.Tileset{ts}
-
-	for _, tileset := range tilesetQueue {
-
-		tilesetIterFn := func(tile *tiles.Tile, computedTransform *mat.Dense) error {
-			tileUri, err := tile.Uri()
-			if err != nil {
-				return fmt.Errorf("failed to fetch uri of tile: %v", err)
-			}
-			contentPath := filepath.Join(tilesetDir, tileUri)
-			fmt.Println(contentPath)
-
-			if strings.HasSuffix(contentPath, ".json") {
-				childTileset, _ := tiles.Open(contentPath)
-				tilesetQueue = append(tilesetQueue, childTileset)
-				return nil
-			}
-			b3dm, err := b3dms.Open(contentPath)
-			if err != nil {
-				return fmt.Errorf("failed to open b3dm file: %v", err)
-			}
-			featureTable := b3dm.GetFeatureTable()
-			batchLength := featureTable.GetBatchLength()
-			featureTableView := b3dm.GetFeatureTableView()
-			batchTable := b3dm.GetBatchTable()
-			batchTableProperties := batchTable.Data
-			computedFeaturePositions := []Cartographic{}
-			gltf := b3dm.GetModel()
-			if gltf != nil {
-				rtcTransform, err := getRtcTransform(featureTableView, gltf)
-				if err != nil {
-					return fmt.Errorf("failed to getRtcTransform: %v", err)
-				}
-				toZUpTransform := getZUpTransform()
-				computedFeaturePositions, err = computeFeaturePositionsFromGltfVertices(
-					gltf,
-					computedTransform,
-					rtcTransform,
-					toZUpTransform,
-					batchLength,
-				)
-				if err != nil {
-					return fmt.Errorf("failed to open b3dm file: %v", err)
-				}
-			}
-
-			for batchId := 0; batchId < batchLength; batchId++ {
-				batchProperties := make(map[string]interface{})
-				for name, values := range batchTableProperties {
-					batchProperties[name] = nil
-					if len(values) > 0 {
-						batchProperties[name] = values[batchId]
-					}
-				}
-				position := computedFeaturePositions[batchId]
-				idValue := batchProperties[indexesConfig.IdProperty].(string)
-				uniqueFeatures[idValue] = TilesetFeature{
-					Position:   position,
-					Properties: batchProperties,
-				}
-			}
-
-			return nil
-		}
-		err := ForEachTile(tileset, tilesetIterFn)
-		if err != nil {
-			return nil, fmt.Errorf("something went wrong at iterTile: %v", err)
-		}
-	}
-
-	return uniqueFeatures, nil
-
-}
-
-func Indexer(tilesetFile, indexConfigFile, outDir string) error {
-	tileset, err := tiles.Open(tilesetFile)
-	if err != nil {
-		return fmt.Errorf("failed to parse tileset: %w", err)
-	}
-	indexesConfig, err := ParseIndexerConfigFile(indexConfigFile)
-	if err != nil {
-		return fmt.Errorf("failed to parse indexerConfig: %w", err)
-
-	}
-
-	var indexBuilders []interface{}
-	for property, config := range indexesConfig.Indexes {
-		indexBuilders = append(indexBuilders, createIndexBuilder(property, config))
-	}
-
-	tilesetDir := filepath.Dir(tilesetFile)
-	features, err := ReadTilesetFeatures(tileset, *indexesConfig, tilesetDir, outDir)
-	if err != nil {
-		return fmt.Errorf("failed to read features: %w", err)
-	}
-
-	featureCount := len(features)
-	fmt.Println("Number of features counted: ", featureCount)
-
-	var res []map[string]string
-	for idValue, tilsetFeature := range features {
-		// taking all positionProperties map entries as string to write in the result csv
-		positionProperties := map[string]string{
-			indexesConfig.IdProperty: idValue,
-			"Longitude":              strconv.FormatFloat(roundFloat(toDegrees(tilsetFeature.Position.Longitude), 5), 'g', -1, 64),
-			"Latitude":               strconv.FormatFloat(roundFloat(toDegrees(tilsetFeature.Position.Latitude), 5), 'g', -1, 64),
-			"Height":                 strconv.FormatFloat(roundFloat(tilsetFeature.Position.Height, 3), 'g', -1, 64),
-		}
-		res = append(res, positionProperties)
-		length := len(res)
-		dataRowId := length - 1
-		for _, b := range indexBuilders {
-			switch t := b.(type) {
-			case EnumIndexBuilder:
-				if val, ok := tilsetFeature.Properties[t.Property]; ok && val != nil {
-					t.AddIndexValue(dataRowId, val.(string))
-				}
-			default:
-				continue
-			}
-		}
-	}
-
-	fmt.Println("Writing Indexes...")
-	indexes, err := writeIndexes(indexBuilders, outDir)
-	if err != nil {
-		return fmt.Errorf("failed to writeIndexes: %v", err)
-	}
-	fmt.Println("Writing resultData...")
-	resultsDataUrl, err := writeResultsData(res, outDir)
-	if err != nil {
-		return fmt.Errorf("failed to resultData: %v", err)
-	}
-	fmt.Println("Writing IndexRoot...")
-	indexRoot := IndexRoot{
-		ResultDataUrl: resultsDataUrl,
-		IdProperty:    indexesConfig.IdProperty,
-		Indexes:       indexes,
-	}
-	err = writeIndexRoot(indexRoot, outDir)
-	if err != nil {
-		return fmt.Errorf("failed to writeIndexRoot: %v", err)
-	}
-	fmt.Println("Indexes written to ", outDir)
-	fmt.Println("Done.")
 
 	return nil
 }
