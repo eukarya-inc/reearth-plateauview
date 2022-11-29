@@ -48,7 +48,7 @@ const Header: React.FC<Props> = ({
       },
       {
         key: "template",
-        icon: <StyledIcon icon="template" />,
+        icon: <StyledIcon icon="templates" />,
       },
     ];
 

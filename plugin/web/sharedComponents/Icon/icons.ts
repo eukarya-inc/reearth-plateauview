@@ -9,10 +9,11 @@ import { ReactComponent as Info } from "./Icons/info.svg";
 import { ReactComponent as Share } from "./Icons/share.svg";
 import { ReactComponent as Sliders } from "./Icons/sliders.svg";
 import { ReactComponent as DataBase } from "./Icons/dataBase.svg";
-import { ReactComponent as Template } from "./Icons/template.svg";
+import { ReactComponent as Templates } from "./Icons/templates.svg";
 import { ReactComponent as Menu } from "./Icons/hamburgerMenu.svg";
 import { ReactComponent as Close } from "./Icons/close.svg";
 import { ReactComponent as Copy } from "./Icons/copy.svg";
+import { ReactComponent as Plus } from "./Icons/plus.svg";
 import { ReactComponent as PlusCircle } from "./Icons/plusCircle.svg";
 import { ReactComponent as Check } from "./Icons/check.svg";
 import { ReactComponent as ArrowDown } from "./Icons/arrowDown.svg";
@@ -37,10 +38,11 @@ export default {
   share: Share,
   sliders: Sliders,
   dataBase: DataBase,
-  template: Template,
+  templates: Templates,
   menu: Menu,
   close: Close,
   copy: Copy,
+  plus: Plus,
   plusCircle: PlusCircle,
   check: Check,
   arrowDown: ArrowDown,

@@ -29,6 +29,7 @@ const Wrapper = styled.div<{ size: string; color?: string; wide?: boolean }>`
   display: flex;
   justify-content: center;
   align-content: center;
+  stroke-width: 4px;
 
   svg {
     width: ${({ size }) => size};
