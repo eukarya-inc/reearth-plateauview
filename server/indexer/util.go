@@ -12,9 +12,9 @@ import (
 )
 
 const (
-	_AXIS_X = 0
-	_AXIS_Y = 1
-	_AXIS_Z = 2
+	AxisX = 0
+	AxisY = 1
+	AxisZ = 2
 )
 
 type CesiumRTC struct {
@@ -73,9 +73,9 @@ func getYUpToZUp() *mat.Dense {
 
 func getZUpTransform() *mat.Dense {
 	// discuss if we need gltfAxisUpAxis
-	upAxis := _AXIS_Y
+	upAxis := AxisY
 	transform := eyeMat(4)
-	if upAxis == _AXIS_Y {
+	if upAxis == AxisY {
 		transform = getYUpToZUp()
 	}
 	return transform
