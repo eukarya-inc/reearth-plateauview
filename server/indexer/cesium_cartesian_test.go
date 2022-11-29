@@ -29,9 +29,9 @@ func TestScaleGeodeticSurface(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			oneOverRadii := _wgs84OneOverRadii
-			oneOverRadiiSquared := _wgs84OneOverRadiiSquared
-			centerToleranceSquared := _wgs84CenterToleranceSquared
+			oneOverRadii := Wgs84OneOverRadii
+			oneOverRadiiSquared := Wgs84OneOverRadiiSquared
+			centerToleranceSquared := Wgs84CenterToleranceSquared
 			got, err := scaleToGeodeticSurface(tt.input, &oneOverRadii, &oneOverRadiiSquared, centerToleranceSquared)
 			if tt.wantErr {
 				if assert.Error(t, err) {

@@ -16,7 +16,7 @@ func (rectangle *Rectangle) center() *Cartographic {
 	west := rectangle.West
 
 	if east < west {
-		east += _TWO_PI
+		east += TwoPi
 	}
 
 	longitude := negativePiToPi((west + east) * 0.5)
@@ -45,7 +45,7 @@ func rectangleFromCartographicArray(cartographic []Cartographic) *Rectangle {
 		south = math.Min(south, position.Latitude)
 		north = math.Max(north, position.Latitude)
 
-		lonAdjusted := position.Longitude + _TWO_PI
+		lonAdjusted := position.Longitude + TwoPi
 		if position.Longitude >= 0 {
 			lonAdjusted = position.Longitude
 		}
@@ -58,11 +58,11 @@ func rectangleFromCartographicArray(cartographic []Cartographic) *Rectangle {
 		west = westOverIDL
 		east = eastOverIDL
 
-		if east > _PI {
-			east = east - _TWO_PI
+		if east > Pi {
+			east = east - TwoPi
 		}
-		if west > _PI {
-			west = west - _TWO_PI
+		if west > Pi {
+			west = west - TwoPi
 		}
 	}
 

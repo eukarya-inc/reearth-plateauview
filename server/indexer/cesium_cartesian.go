@@ -68,7 +68,6 @@ func sign(value float64) float64 {
 	return 0
 }
 
-// According to https://github.com/CesiumGS/cesium/blob/1.99/Source/Core/Matrix4.js#L2283
 func multiplyMat4ByPoint(matrix *mat.Dense, cartesian *Cartesian3) *Cartesian3 {
 	res := Cartesian3{}
 
@@ -106,7 +105,7 @@ func multiplyCartesian3Components(left *Cartesian3, right *Cartesian3) *Cartesia
 }
 
 var (
-	_scaleToGeodeticSurfaceGradient = &Cartesian3{}
+	ScaleToGeodeticSurfaceGradient = &Cartesian3{}
 )
 
 func scaleToGeodeticSurface(cartesian *Cartesian3, oneOverRadii *Cartesian3, oneOverRadiiSquared *Cartesian3, centerToleranceSquared float64) (*Cartesian3, error) {
@@ -149,7 +148,7 @@ func scaleToGeodeticSurface(cartesian *Cartesian3, oneOverRadii *Cartesian3, one
 
 	// Use the gradient at the intersection point in place of the true unit normal.
 	// The difference in magnitude will be absorbed in the multiplier.
-	gradient := _scaleToGeodeticSurfaceGradient
+	gradient := ScaleToGeodeticSurfaceGradient
 	gradient.X = intersection.X * oneOverRadiiSquaredX * 2.0
 	gradient.Y = intersection.Y * oneOverRadiiSquaredY * 2.0
 	gradient.Z = intersection.Z * oneOverRadiiSquaredZ * 2.0
@@ -170,7 +169,7 @@ func scaleToGeodeticSurface(cartesian *Cartesian3, oneOverRadii *Cartesian3, one
 	var yMultiplier3 float64
 	var zMultiplier3 float64
 
-	for ok := true; ok; ok = (math.Abs(funcX) > _EPSILON12) {
+	for ok := true; ok; ok = (math.Abs(funcX) > Epsilon12) {
 		lambda -= correction
 
 		xMultiplier = 1.0 / (1.0 + lambda*oneOverRadiiSquaredX)

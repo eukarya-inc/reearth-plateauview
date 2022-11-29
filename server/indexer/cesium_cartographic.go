@@ -6,17 +6,17 @@ import (
 )
 
 var (
-	_wgs84OneOverRadii = Cartesian3{
+	Wgs84OneOverRadii = Cartesian3{
 		X: 1.0 / 6378137.0,
 		Y: 1.0 / 6378137.0,
 		Z: 1.0 / 6356752.3142451793,
 	}
-	_wgs84OneOverRadiiSquared = Cartesian3{
+	Wgs84OneOverRadiiSquared = Cartesian3{
 		X: 1.0 / (6378137.0 * 6378137.0),
 		Y: 1.0 / (6378137.0 * 6378137.0),
 		Z: 1.0 / (6356752.3142451793 * 6356752.3142451793),
 	}
-	_wgs84CenterToleranceSquared = _EPSILON1
+	Wgs84CenterToleranceSquared = Epsilon1
 )
 
 type Cartographic struct {
@@ -26,9 +26,9 @@ type Cartographic struct {
 }
 
 func cartographicFromCartesian3(cs *Cartesian3) (*Cartographic, error) {
-	oneOverRadii := _wgs84OneOverRadii
-	oneOverRadiiSquared := _wgs84OneOverRadiiSquared
-	centerToleranceSquared := _wgs84CenterToleranceSquared
+	oneOverRadii := Wgs84OneOverRadii
+	oneOverRadiiSquared := Wgs84OneOverRadiiSquared
+	centerToleranceSquared := Wgs84CenterToleranceSquared
 
 	p, err := scaleToGeodeticSurface(cs, &oneOverRadii, &oneOverRadiiSquared, centerToleranceSquared)
 
