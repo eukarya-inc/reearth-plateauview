@@ -35,18 +35,19 @@ const ContentWrapper = styled.div`
   align-items: flex-start;
   padding: 4px 12px;
   background: #dcdcdc;
-  line-height: 15spx;
+  line-height: 15px;
   height: 100%;
   width: 100%;
 `;
 
 const LocationsWrapper = styled.div`
   display: flex;
+  width:100%;
   flex-direction: row;
-  justify-content: flex-start;
+  justify-content: space-between;
   align-items: center;
   padding: 0px;
-  gap: 35px;
+  
 `;
 
 const ModalsWrapper = styled.div`
@@ -60,12 +61,14 @@ const DistanceLegend = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
+  text-align:center;
+  width:100px;
   margin: 0;
 `;
 
 const Text = styled.p`
   font-size: 10px;
-  width: 84px;
+  flex:1;
   margin: 0;
   color: #262626;
 `;
@@ -77,7 +80,7 @@ const DistanceLegendLabel = styled.p`
 `;
 
 const Line = styled.div<{ uniteLine?: number }>`
-  height: 1px;
+  height: 0.5px;
   background: #000;
   color: #262626;
   width: ${({ uniteLine }) => uniteLine + "px"};
