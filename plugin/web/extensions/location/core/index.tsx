@@ -42,12 +42,11 @@ const ContentWrapper = styled.div`
 
 const LocationsWrapper = styled.div`
   display: flex;
-  width:100%;
+  width: 100%;
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
   padding: 0px;
-  
 `;
 
 const ModalsWrapper = styled.div`
@@ -61,14 +60,14 @@ const DistanceLegend = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  text-align:center;
-  width:100px;
+  text-align: center;
+  width: 100px;
   margin: 0;
 `;
 
 const Text = styled.p`
   font-size: 10px;
-  flex:1;
+  flex: 1;
   margin: 0;
   color: #262626;
 `;
