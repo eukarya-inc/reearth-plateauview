@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 
-import { Dataset } from "./components/content/Selection/DatasetCard";
+import { Dataset } from "./components/content/common/DatasetCard";
 import { useCurrentOverrides } from "./state";
 import { ReearthApi } from "./types";
 import { mergeProperty, postMsg } from "./utils";

@@ -3,44 +3,78 @@ import { Icon } from "@web/sharedComponents";
 import { styled } from "@web/theme";
 import { useCallback, useState } from "react";
 
-type Template = {
-  name: string;
-};
+import type { Template } from "../common/types";
+
+/*
+[
+    { name: "建物モデル", fields: [{ title: "Filter" }] },
+    { name: "ランドマーク", fields: [{ title: "Display" }, { title: "search" }] },
+  ] 
+  */
 
 const Templates: React.FC = () => {
-  const [addedTemplates, changeTemplates] = useState<Template[]>([
-    { name: "建物モデル" },
-    { name: "ランドマーク" },
-  ]);
+  const [templates, changeTemplates] = useState<Template[]>([]);
 
-  //   const handleTemplateAdd = useCallback(
-  //     (template: Template) => {
-  //       if (addedTemplates.includes(template)) return;
-  //       changeTemplates([...addedTemplates, template]);
-  //     },
-  //     [addedTemplates],
-  //   );
+  const [selected, changeSelected] = useState<Template>();
+
+  const handleTemplateAdd = useCallback(() => {
+    const newTemplate = { id: crypto.randomUUID(), name: "New Template" };
+    // NEED TO HANDLE ACTUAL SAVING TO BACKENDDDDDDDD
+    // NEED TO HANDLE ACTUAL SAVING TO BACKENDDDDDDDD
+    changeTemplates([...templates, newTemplate]);
+    changeSelected(newTemplate);
+  }, [templates]);
 
   const handleTemplateRemove = useCallback(
     (template: Template) => {
-      if (!addedTemplates.includes(template)) return;
-      changeTemplates(addedTemplates.filter(t => t !== template));
+      if (!templates.includes(template)) return;
+      changeTemplates(templates.filter(t => t !== template));
     },
-    [addedTemplates],
+    [templates],
   );
+
+  const handleTemplateSelect = useCallback((template?: Template) => {
+    changeSelected(template);
+  }, []);
+
+  const handleBack = useCallback(() => {
+    changeSelected(undefined);
+  }, []);
 
   return (
     <CommonPage>
       <Content>
-        <Title>Template Editor</Title>
-        <TemplateAddButton>
-          <Icon icon="plus" size={16} /> New Template
-        </TemplateAddButton>
-        {addedTemplates.map((t, idx) => (
-          <TemplateComponent key={idx}>
-            {t.name} <StyledIcon icon="trash" size={16} onClick={() => handleTemplateRemove(t)} />
-          </TemplateComponent>
-        ))}
+        {selected ? (
+          <TemplateEditWrapper>
+            <div style={{ height: "36px" }}>
+              <BackButton icon="arrowLeft" size={20} onClick={handleBack} />
+            </div>
+            <TemplateComponent>
+              <p style={{ margin: 0 }}>{selected.name}</p>
+            </TemplateComponent>
+          </TemplateEditWrapper>
+        ) : (
+          <>
+            <Title>Template Editor</Title>
+            <TemplateAddButton onClick={handleTemplateAdd}>
+              <Icon icon="plus" size={16} /> New Template
+            </TemplateAddButton>
+            {templates.length > 0 &&
+              templates.map((t, idx) => (
+                <TemplateComponent key={idx} onClick={() => handleTemplateSelect(t)}>
+                  {t.name}
+                  <StyledIcon
+                    icon="trash"
+                    size={16}
+                    onClick={e => {
+                      e?.stopPropagation();
+                      handleTemplateRemove(t);
+                    }}
+                  />
+                </TemplateComponent>
+              ))}
+          </>
+        )}
       </Content>
     </CommonPage>
   );
@@ -74,6 +108,7 @@ const TemplateWrapper = styled.div`
 `;
 
 const TemplateAddButton = styled(TemplateWrapper)`
+  user-select: none;
   justify-content: center;
   gap: 8px;
 `;
@@ -82,6 +117,14 @@ const TemplateComponent = styled(TemplateWrapper)`
   justify-content: space-between;
   padding-left: 12px;
   padding-right: 10px;
+`;
+
+const TemplateEditWrapper = styled.div`
+  width: 100%;
+`;
+
+const BackButton = styled(Icon)`
+  cursor: pointer;
 `;
 
 const StyledIcon = styled(Icon)`
