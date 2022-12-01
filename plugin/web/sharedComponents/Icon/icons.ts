@@ -17,6 +17,7 @@ import { ReactComponent as Plus } from "./Icons/plus.svg";
 import { ReactComponent as PlusCircle } from "./Icons/plusCircle.svg";
 import { ReactComponent as Check } from "./Icons/check.svg";
 import { ReactComponent as ArrowDown } from "./Icons/arrowDown.svg";
+import { ReactComponent as ArrowLeft } from "./Icons/arrowLeft.svg";
 import { ReactComponent as Visible } from "./Icons/visible.svg";
 import { ReactComponent as About } from "./Icons/about.svg";
 import { ReactComponent as MapPin } from "./Icons/mapPin.svg";
@@ -28,6 +29,7 @@ import { ReactComponent as FolderOpen } from "./Icons/folderOpen.svg";
 import { ReactComponent as File } from "./Icons/file.svg";
 import { ReactComponent as Empty } from "./Icons/empty.svg";
 import { ReactComponent as NewPage } from "./Icons/newPage.svg";
+import { ReactComponent as Edit } from "./Icons/edit.svg";
 
 export default {
   logo: Logo,
@@ -46,6 +48,7 @@ export default {
   plusCircle: PlusCircle,
   check: Check,
   arrowDown: ArrowDown,
+  arrowLeft: ArrowLeft,
   visible: Visible,
   about: About,
   mapPin: MapPin,
@@ -57,4 +60,5 @@ export default {
   file: File,
   empty: Empty,
   newPage: NewPage,
+  edit: Edit,
 };
