@@ -83,8 +83,8 @@ func getZUpTransform() *mat.Dense {
 
 var floatType = reflect.TypeOf(float64(0))
 
-func getFloat(unk interface{}) (float64, error) {
-	v := reflect.ValueOf(unk)
+func getFloat(value float32) (float64, error) {
+	v := reflect.ValueOf(value)
 	v = reflect.Indirect(v)
 	if !v.Type().ConvertibleTo(floatType) {
 		return 0, fmt.Errorf("cannot convert %v to float64", v.Type())
@@ -95,8 +95,8 @@ func getFloat(unk interface{}) (float64, error) {
 
 var intType = reflect.TypeOf(int(0))
 
-func getInt(unk interface{}) (int64, error) {
-	v := reflect.ValueOf(unk)
+func getInt(value interface{}) (int64, error) {
+	v := reflect.ValueOf(value)
 	v = reflect.Indirect(v)
 	if !v.Type().ConvertibleTo(intType) {
 		return 0, fmt.Errorf("cannot convert %v to int", v.Type())

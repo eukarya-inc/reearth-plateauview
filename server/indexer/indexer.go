@@ -8,11 +8,13 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/qmuntal/draco-go/gltf/draco"
 	"github.com/qmuntal/gltf"
 	b3dms "github.com/reearth/go3dtiles/b3dm"
 	tiles "github.com/reearth/go3dtiles/tileset"
 	"github.com/reearth/reearthx/log"
 	"github.com/reearth/reearthx/util"
+	"golang.org/x/exp/slices"
 	"gonum.org/v1/gonum/mat"
 )
 
@@ -98,6 +100,7 @@ func ReadTilesetFeatures(ts *tiles.Tileset, config *Config, basePath string, fsy
 			}
 			contentPath := filepath.Join(basePath, tileUri)
 			log.Debugln(tileUri)
+			fmt.Println(contentPath)
 			if strings.HasSuffix(tileUri, ".json") {
 				childTileset, _ := tiles.Open(tileUri)
 				tilesetQueue = append(tilesetQueue, childTileset)
@@ -119,15 +122,15 @@ func ReadTilesetFeatures(ts *tiles.Tileset, config *Config, basePath string, fsy
 			batchTable := b3dm.GetBatchTable()
 			batchTableProperties := batchTable.Data
 			computedFeaturePositions := []Cartographic{}
-			gltf := b3dm.GetModel()
-			if gltf != nil {
-				rtcTransform, err := getRtcTransform(featureTableView, gltf)
+			doc := b3dm.GetModel()
+			if doc != nil {
+				rtcTransform, err := getRtcTransform(featureTableView, doc)
 				if err != nil {
 					return fmt.Errorf("failed to getRtcTransform: %v", err)
 				}
 				toZUpTransform := getZUpTransform()
 				computedFeaturePositions, err = computeFeaturePositionsFromGltfVertices(
-					gltf,
+					doc,
 					computedTransform,
 					rtcTransform,
 					toZUpTransform,
@@ -165,25 +168,24 @@ func ReadTilesetFeatures(ts *tiles.Tileset, config *Config, basePath string, fsy
 	return uniqueFeatures, nil
 }
 
-func computeFeaturePositionsFromGltfVertices(gltf *gltf.Document, tileTransform, rtcTransform, toZUpTransform *mat.Dense, batchLength int) ([]Cartographic, error) {
-	nodes := gltf.Nodes
+func computeFeaturePositionsFromGltfVertices(doc *gltf.Document, tileTransform, rtcTransform, toZUpTransform *mat.Dense, batchLength int) ([]Cartographic, error) {
+	nodes := doc.Nodes
 	if nodes == nil {
 		return nil, errors.New("nodes are nil")
 	}
-	meshes := gltf.Meshes
+	meshes := doc.Meshes
 	if meshes == nil {
 		return nil, errors.New("meshes are nil")
 	}
-	accessors := gltf.Accessors
+	accessors := doc.Accessors
 	if accessors == nil {
 		return nil, errors.New("accesors are nil")
 	}
-	bufferViews := gltf.BufferViews
-	if bufferViews == nil {
-		return nil, errors.New("bufferViews are nil")
-	}
 
 	batchIdPositions := make([][]Cartographic, batchLength)
+
+	extensionsUsed := doc.ExtensionsUsed
+	dracoCompressionUsed := slices.Contains(extensionsUsed, draco.ExtensionName)
 
 	for _, node := range nodes {
 		mesh := meshes[*node.Mesh]
@@ -200,28 +202,57 @@ func computeFeaturePositionsFromGltfVertices(gltf *gltf.Document, tileTransform,
 		modelMatrix = mat4MultiplyTransformation(modelMatrix, nodeMatrix)
 
 		for _, primitive := range primitives {
-			attributes := primitive.Attributes
-			_BATCHID := attributes["_BATCHID"]
-			POSITION := attributes["POSITION"]
+			var batchIds []uint16
+			var positions [][3]float32
 
-			count := accessors[POSITION].Count
-			for i := uint32(0); i < count; i++ {
-				// If the gltf vertices are tagged with BATCHID, store the positions at
-				// the respective BATCHID. Otherwise store everything under a single
-				// BATCHID=0
-				var batchIdValue interface{}
-				if _BATCHID == 0 {
-					batchIdValue = 0
-				} else {
-					batchIdValue = b3dms.ReadGltfValueAt(gltf, _BATCHID, i)[0]
-				}
-
-				batchId, err := getInt(batchIdValue)
+			if dracoCompressionUsed == true {
+				primitiveExt := primitive.Extensions[draco.ExtensionName].(*draco.PrimitiveExt)
+				pd, err := draco.UnmarshalMesh(doc, doc.BufferViews[primitiveExt.BufferView])
 				if err != nil {
-					return nil, fmt.Errorf("getInt failed: %w", err)
+					return nil, fmt.Errorf("error while unmarshalling mesh: %v", err)
 				}
-				result := b3dms.ReadGltfValueAt(gltf, POSITION, i)
-				points, err := util.TryMap(result, getFloat)
+				bi, _ := pd.ReadAttr(primitive, "_BATCHID", nil)
+				if err != nil {
+					return nil, fmt.Errorf("failed to read batchIds: %v", err)
+				}
+				pos, err := pd.ReadAttr(primitive, "POSITION", nil)
+				if err != nil {
+					return nil, fmt.Errorf("failed to read Positions: %v", err)
+				}
+				positions = pos.([][3]float32)
+
+				for _, batch := range bi.([]uint8) {
+					batchIds = append(batchIds, uint16(batch))
+				}
+
+			} else {
+				bi, err := GetGltfAttribute(primitive, doc, "_BATCHID")
+				if err != nil {
+					return nil, fmt.Errorf("failed to read batchIds: %v", err)
+				}
+				pos, err := GetGltfAttribute(primitive, doc, "POSITION")
+				if err != nil {
+					return nil, fmt.Errorf("failed to read Positions: %v", err)
+				}
+
+				for _, ps := range pos {
+					var temp [3]float32
+					for i, x := range ps.([]interface{}) {
+						temp[i] = x.(float32)
+					}
+					positions = append(positions, temp)
+				}
+
+				for _, bit := range bi {
+					for _, x := range bit.([]interface{}) {
+						v, _ := getInt(x)
+						batchIds = append(batchIds, uint16(v))
+					}
+				}
+			}
+
+			for i, pointFloat32Array := range positions {
+				points, err := util.TryMap(pointFloat32Array[:], getFloat)
 				if err != nil {
 					return nil, fmt.Errorf("map failed: %w", err)
 				}
@@ -231,12 +262,12 @@ func computeFeaturePositionsFromGltfVertices(gltf *gltf.Document, tileTransform,
 				if err != nil {
 					return nil, fmt.Errorf("failed to convert cartesian to cartographic: %w", err)
 				}
-				if batchIdPositions[batchId] == nil {
-					batchIdPositions[batchId] = []Cartographic{}
+				if batchIdPositions[batchIds[i]] == nil {
+					batchIdPositions[batchIds[i]] = []Cartographic{}
 				}
 
 				if cartographic != nil {
-					batchIdPositions[batchId] = append(batchIdPositions[batchId], *cartographic)
+					batchIdPositions[batchIds[i]] = append(batchIdPositions[batchIds[i]], *cartographic)
 				}
 			}
 		}

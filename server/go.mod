@@ -28,6 +28,8 @@ require (
 	github.com/mattn/go-isatty v0.0.14 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
+	github.com/qmuntal/draco-go v0.4.0 // indirect
+	github.com/qmuntal/draco-go/gltf/draco v0.1.0
 	github.com/qmuntal/gltf v0.23.1
 	github.com/sendgrid/rest v2.6.9+incompatible // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
@@ -36,7 +38,7 @@ require (
 	go.uber.org/multierr v1.8.0 // indirect
 	go.uber.org/zap v1.21.0 // indirect
 	golang.org/x/crypto v0.0.0-20220622213112-05595931fe9d // indirect
-	golang.org/x/exp v0.0.0-20220706164943-b4a6d9510983 // indirect
+	golang.org/x/exp v0.0.0-20220706164943-b4a6d9510983
 	golang.org/x/sys v0.2.0 // indirect
 	golang.org/x/text v0.4.0 // indirect
 	golang.org/x/time v0.0.0-20201208040808-7e3f01d25324 // indirect
