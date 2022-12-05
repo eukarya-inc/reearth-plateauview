@@ -100,7 +100,6 @@ func ReadTilesetFeatures(ts *tiles.Tileset, config *Config, basePath string, fsy
 			}
 			contentPath := filepath.Join(basePath, tileUri)
 			log.Debugln(tileUri)
-			fmt.Println(contentPath)
 			if strings.HasSuffix(tileUri, ".json") {
 				childTileset, _ := tiles.Open(tileUri)
 				tilesetQueue = append(tilesetQueue, childTileset)
@@ -205,7 +204,7 @@ func computeFeaturePositionsFromGltfVertices(doc *gltf.Document, tileTransform, 
 			var batchIds []uint16
 			var positions [][3]float32
 
-			if dracoCompressionUsed == true {
+			if dracoCompressionUsed {
 				primitiveExt := primitive.Extensions[draco.ExtensionName].(*draco.PrimitiveExt)
 				pd, err := draco.UnmarshalMesh(doc, doc.BufferViews[primitiveExt.BufferView])
 				if err != nil {
