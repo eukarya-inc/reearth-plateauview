@@ -8,6 +8,7 @@ import (
 	"github.com/eukarya-inc/reearth-plateauview/server/cmsintegration"
 	"github.com/eukarya-inc/reearth-plateauview/server/opinion"
 	"github.com/eukarya-inc/reearth-plateauview/server/share"
+	"github.com/eukarya-inc/reearth-plateauview/server/visualizer"
 	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -42,6 +43,7 @@ func main() {
 	})
 
 	lo.Must0(cmsintegration.Echo(e.Group(""), conf.CMSIntegration()))
+	lo.Must0(visualizer.Echo(e.Group(""), conf.Visualizer()))
 	lo.Must0(share.Echo(e.Group("/share"), conf.Share()))
 	opinion.Echo(e.Group("/opinion"), conf.Opinion())
 

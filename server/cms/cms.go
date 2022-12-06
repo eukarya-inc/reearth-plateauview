@@ -14,6 +14,7 @@ import (
 )
 
 type Interface interface {
+	GetItems(ctx context.Context, modelID string) ([]*Item, error)
 	GetItem(ctx context.Context, itemID string) (*Item, error)
 	CreateItem(ctx context.Context, modelID string, fields []Field) (*Item, error)
 	UpdateItem(ctx context.Context, itemID string, fields []Field) (*Item, error)
@@ -45,6 +46,23 @@ func New(base, token string) (*CMS, error) {
 		token:  token,
 		client: http.DefaultClient,
 	}, nil
+}
+
+func (c *CMS) GetItems(ctx context.Context, modelID string) ([]*Item, error) {
+	b, err := c.send(ctx, http.MethodGet, []string{"api", "models", modelID, "items"}, nil)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get items: %w", err)
+	}
+
+	defer func() { _ = b.Close() }()
+
+	var items []*Item
+
+	if err := json.NewDecoder(b).Decode(&items); err != nil {
+		return nil, fmt.Errorf("failed to parse items: %w", err)
+	}
+
+	return items, nil
 }
 
 func (c *CMS) GetItem(ctx context.Context, itemID string) (*Item, error) {

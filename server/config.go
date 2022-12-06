@@ -7,6 +7,7 @@ import (
 	"github.com/eukarya-inc/reearth-plateauview/server/cmsintegration"
 	"github.com/eukarya-inc/reearth-plateauview/server/opinion"
 	"github.com/eukarya-inc/reearth-plateauview/server/share"
+	"github.com/eukarya-inc/reearth-plateauview/server/visualizer"
 	"github.com/joho/godotenv"
 	"github.com/kelseyhightower/envconfig"
 	"github.com/reearth/reearthx/log"
@@ -68,6 +69,14 @@ func (c *Config) CMSIntegration() cmsintegration.Config {
 		CMSToken:            c.CMS_Token,
 		CMSWebhookSecret:    c.CMS_Webhook_Secret,
 		Secret:              c.Secret,
+	}
+}
+
+func (c *Config) Visualizer() visualizer.Config {
+	return visualizer.Config{
+		CMSModelID: c.CMS_ModelID,
+		CMSBaseURL: c.CMS_BaseURL,
+		CMSToken:   c.CMS_Token,
 	}
 }
 
