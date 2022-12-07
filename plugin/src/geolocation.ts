@@ -13,27 +13,23 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
       payload.currentLocation.longitude !== undefined &&
       payload.currentLocation.altitude !== undefined
     ) {
-      reearth.layers.add(
-        {
-          extensionId: "marker",
-          isVisible: true,
-          title: "myLocation",
-          property: {
-            default: {
-              location: {
-                lat: payload.currentLocation.latitude,
-                lng: payload.currentLocation.longitude,
-              },
-              pointColor: "#12BDE2",
-              style: "point",
+      reearth.layers.add({
+        extensionId: "marker",
+        isVisible: true,
+        title: "myLocation",
+        property: {
+          default: {
+            location: {
+              lat: payload.currentLocation.latitude,
+              lng: payload.currentLocation.longitude,
             },
-            customs: {
-              id: "myLocation",
-            },
+            style: "point",
+            pointColor: "#12BDE2",
+            pointOutlineWidth: 4,
+            pointOutlineColor: "#FFFFFF",
           },
         },
-        false,
-      );
+      });
 
       const initCameraPos = reearth.camera.position;
 
