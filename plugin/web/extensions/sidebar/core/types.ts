@@ -16,10 +16,19 @@ export type PostMessageProps = { action: ActionType; payload?: any };
 export type ReearthApi = {
   default?: {
     camera?: Camera;
-    terrain?: boolean;
     sceneMode?: SceneMode;
     depthTestAgainstTerrain?: boolean;
     allowEnterGround?: boolean;
+  };
+  terrain?: {
+    terrain?: boolean;
+    terrainType?: "cesiumion";
+    terrainCesiumIonAsset?: string;
+    terrainCesiumIonAccessToken?: string;
+    terrainCesiumIonUrl?: string;
+    terrainExaggeration?: number;
+    terrainExaggerationRelativeHeight?: number;
+    depthTestAgainstTerrain?: boolean;
   };
   tiles?: Tile[];
 };

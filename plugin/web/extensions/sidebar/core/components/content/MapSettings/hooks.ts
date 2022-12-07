@@ -51,11 +51,11 @@ export type Props = {
 export default ({ overrides, onOverridesUpdate }: Props) => {
   const {
     default: {
-      terrain: currentTerrain,
       sceneMode: currentSceneMode,
       depthTestAgainstTerrain: currentHideUnderground,
       allowEnterGround: currentAllowEnterGround,
     } = {},
+    terrain: { terrain: currentTerrain } = {},
     tiles: currentTiles,
   } = overrides;
 
@@ -71,13 +71,19 @@ export default ({ overrides, onOverridesUpdate }: Props) => {
         newView = {
           default: {
             sceneMode: "3d",
+          },
+          terrain: {
             terrain: true,
+            terrainType: "cesiumion",
+            terrainCesiumIonAsset: "1",
           },
         };
       } else if (view === "3d-smooth") {
         newView = {
           default: {
             sceneMode: "3d",
+          },
+          terrain: {
             terrain: false,
           },
         };
@@ -85,6 +91,8 @@ export default ({ overrides, onOverridesUpdate }: Props) => {
         newView = {
           default: {
             sceneMode: "2d",
+          },
+          terrain: {
             terrain: false,
           },
         };

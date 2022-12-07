@@ -4,9 +4,13 @@ import { ReearthApi } from "../types";
 
 export const defaultSettings: ReearthApi = {
   default: {
-    terrain: true,
     sceneMode: "3d",
     depthTestAgainstTerrain: false,
+  },
+  terrain: {
+    terrain: true,
+    terrainType: "cesiumion",
+    terrainCesiumIonAsset: "1",
   },
   tiles: [
     {
