@@ -2,7 +2,7 @@ import { Icon, Col } from "@web/sharedComponents";
 import { styled } from "@web/theme";
 import { memo, ReactNode, useMemo } from "react";
 
-export type Pages = "data" | "map" | "share" | "about" | "template";
+export type Pages = "data" | "map" | "share" | "help" | "about" | "template";
 
 export type TabProps = {
   key: Pages;
@@ -43,8 +43,12 @@ const Header: React.FC<Props> = ({
         icon: <StyledIcon icon="share" />,
       },
       {
+        key: "help",
+        icon: <StyledIcon icon="help" />,
+      },
+      {
         key: "about",
-        icon: <StyledIcon icon="info" />,
+        icon: <StyledIcon icon="feedback" />,
       },
       {
         key: "template",

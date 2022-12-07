@@ -73,6 +73,11 @@ const Sidebar: React.FC<Props> = ({ className }) => {
               ),
               map: <MapSettings overrides={overrides} onOverridesUpdate={handleOverridesUpdate} />,
               share: <Share />,
+              help: (
+                <div>
+                  <h1>Help page</h1>
+                </div>
+              ),
               about: <Info />,
               template: <Templates />,
             }[current]
