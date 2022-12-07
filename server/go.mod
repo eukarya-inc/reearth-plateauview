@@ -8,7 +8,7 @@ require (
 	github.com/joho/godotenv v1.4.0
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/labstack/echo/v4 v4.7.2
-	github.com/reearth/go3dtiles v0.0.0-20221124123814-d15bf96a3513
+	github.com/reearth/go3dtiles v0.0.0-20221207041852-493e7e51cca9
 	github.com/reearth/reearthx v0.0.0-20221109022045-dd54f4626639
 	github.com/samber/lo v1.33.0
 	github.com/sendgrid/sendgrid-go v3.12.0+incompatible

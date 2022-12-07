@@ -225,11 +225,11 @@ func computeFeaturePositionsFromGltfVertices(doc *gltf.Document, tileTransform, 
 				}
 
 			} else {
-				bi, err := GetGltfAttribute(primitive, doc, "_BATCHID")
+				bi, err := b3dms.GetGltfAttribute(primitive, doc, "_BATCHID")
 				if err != nil {
 					return nil, fmt.Errorf("failed to read batchIds: %v", err)
 				}
-				pos, err := GetGltfAttribute(primitive, doc, "POSITION")
+				pos, err := b3dms.GetGltfAttribute(primitive, doc, "POSITION")
 				if err != nil {
 					return nil, fmt.Errorf("failed to read Positions: %v", err)
 				}
