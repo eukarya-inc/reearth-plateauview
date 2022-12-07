@@ -92,6 +92,9 @@ const TabName = styled.p`
 `;
 
 const CloseButton = styled.button`
+  display: flex;
+  justify-content: center;
+  align-items: center;
   position: absolute;
   right: 0;
   height: 48px;

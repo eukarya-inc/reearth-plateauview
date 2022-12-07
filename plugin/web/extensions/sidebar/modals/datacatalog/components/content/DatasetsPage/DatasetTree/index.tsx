@@ -33,7 +33,7 @@ const DatasetTree: React.FC<Props> = ({ catalog, selectedTags, onTagSelect, onOp
           placeholder="input search text"
           value={searchTerm}
           onChange={handleSearch}
-          addonAfter={<Icon icon="search" size={15} />}
+          addonAfter={<StyledIcon icon="search" size={15} />}
         />
       )}
       {selectedTags && selectedTags.length > 0 && (
@@ -76,6 +76,9 @@ const StyledInput = styled(Input)`
   .ant-input-group-addon {
     width: 32px;
     padding: 0;
+    :hover {
+      cursor: pointer;
+    }
   }
 `;
 
@@ -93,4 +96,8 @@ const StyledTabs = styled(Tabs)`
   .ant-tabs-tab.ant-tabs-tab-active .ant-tabs-tab-btn {
     color: #00bebe;
   }
+`;
+
+const StyledIcon = styled(Icon)`
+  margin: 0 auto;
 `;
