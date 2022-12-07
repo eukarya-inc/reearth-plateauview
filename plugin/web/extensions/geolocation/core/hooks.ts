@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 
 import { CurrentLocationInfo } from "./types";
 import { postMsg } from "./utils";
@@ -7,12 +7,8 @@ export default () => {
   const [currentLocation, setCurrentLocation] = useState<CurrentLocationInfo>();
 
   const handleFlyToCurrentLocation = useCallback(() => {
-    postMsg({ action: "flyTo", payload: { currentLocation } });
-  }, []);
-
-  useEffect(() => {
     if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
+      navigator.geolocation.watchPosition(
         function (position) {
           setCurrentLocation({
             latitude: position.coords.latitude,
@@ -25,7 +21,8 @@ export default () => {
         },
       );
     }
-  }, [currentLocation]);
+    postMsg({ action: "flyTo", payload: { currentLocation } });
+  }, []);
 
   return {
     handleFlyToCurrentLocation,
