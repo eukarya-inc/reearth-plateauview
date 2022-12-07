@@ -22,6 +22,11 @@ import { ReactComponent as MapPin } from "./Icons/mapPin.svg";
 import { ReactComponent as User } from "./Icons/user.svg";
 import { ReactComponent as Search } from "./Icons/search.svg";
 import { ReactComponent as Inbox } from "./Icons/inbox.svg";
+import { ReactComponent as CornersOut } from "./Icons/cornersOut.svg";
+import { ReactComponent as Pencil } from "./Icons/pencil.svg";
+import { ReactComponent as Play } from "./Icons/play.svg";
+import { ReactComponent as Cross } from "./Icons/cross.svg";
+import { ReactComponent as PaperPlane } from "./Icons/paperPlane.svg";
 
 export default {
   logo: Logo,
@@ -45,4 +50,9 @@ export default {
   user: User,
   search: Search,
   inbox: Inbox,
+  cornersOut: CornersOut,
+  pencil: Pencil,
+  play: Play,
+  cross: Cross,
+  paperPlane: PaperPlane,
 };

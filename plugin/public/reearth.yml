@@ -13,13 +13,13 @@ extensions:
         zone: outer
         section: left
         area: middle
-  - id: storytelling
-    name: PLATEAU Storytelling
+  - id: storyeditor
+    name: PLATEAU Storyeditor
     type: widget
     widgetLayout:
       defaultLocation:
-        zone: outer
-        section: right
+        zone: inner
+        section: center
         area: bottom
   - id: location
     name: Location Footer
