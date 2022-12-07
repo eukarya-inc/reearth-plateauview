@@ -2,7 +2,7 @@ import { Icon, Col } from "@web/sharedComponents";
 import { styled } from "@web/theme";
 import { memo, ReactNode, useMemo } from "react";
 
-export type Pages = "data" | "map" | "share" | "help" | "about" | "template";
+export type Pages = "data" | "map" | "share" | "help" | "feedback" | "template";
 
 export type TabProps = {
   key: Pages;
@@ -32,7 +32,7 @@ const Header: React.FC<Props> = ({
     const items: TabProps[] = [
       {
         key: "data",
-        icon: <StyledIcon icon="dataBase" />,
+        icon: <StyledIcon icon="database" />,
       },
       {
         key: "map",
@@ -47,7 +47,7 @@ const Header: React.FC<Props> = ({
         icon: <StyledIcon icon="help" />,
       },
       {
-        key: "about",
+        key: "feedback",
         icon: <StyledIcon icon="feedback" />,
       },
       {

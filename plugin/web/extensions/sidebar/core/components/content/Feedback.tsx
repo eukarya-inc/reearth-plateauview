@@ -1,12 +1,11 @@
 import CommonPage from "@web/extensions/sidebar/core/components/content/CommonPage";
-import { Button, Form, Icon, Input, Typography } from "@web/sharedComponents";
+import { Button, Form, Icon, Input, Checkbox } from "@web/sharedComponents";
 import { styled } from "@web/theme";
 import { memo } from "react";
 
 const plateauWebsiteUrl = "https://www.mlit.go.jp/plateau/";
 
-const Info: React.FC = () => {
-  const { Text } = Typography;
+const Feedback: React.FC = () => {
   const [form] = Form.useForm();
 
   const handleCancel = () => {
@@ -15,11 +14,15 @@ const Info: React.FC = () => {
 
   const handleSend = (values: any) => {
     console.log(values);
+    if (values.screenshot) {
+      // Do screenshot
+    }
+    // Send to backend API
     form.resetFields();
   };
 
   return (
-    <CommonPage title="会社内容">
+    <CommonPage>
       <>
         <Paragraph>
           PLATEAU は、国土交通省が進める 3D都市モデル整備・活用・オープンデータ化
@@ -33,8 +36,7 @@ const Info: React.FC = () => {
         </PlateauButton>
       </>
       <>
-        <Subtitle>ご意見・ご要望</Subtitle>
-        <Text>ご意見をお聞かせください。</Text>
+        <Subtitle>ご意見をお聞かせください。</Subtitle>
         <Form form={form} name="feedback" onFinish={handleSend} layout="vertical">
           <FormItems name="name" label="お名前（任意）">
             <Input />
@@ -42,11 +44,16 @@ const Info: React.FC = () => {
           <FormItems
             name="email"
             label="メールアドレス（任意）"
-            help={<Text type="secondary">メールアドレスがない場合は返信できません</Text>}>
+            help={<LightText>メールアドレスがない場合は返信できません</LightText>}>
             <Input />
           </FormItems>
           <FormItems name="comment" label="コメントまたは質問">
             <Input.TextArea />
+          </FormItems>
+          <FormItems name="screenshot" valuePropName="checked">
+            <Checkbox>
+              <Text>マッププレビューを添付する</Text>
+            </Checkbox>
           </FormItems>
           <FormButtons>
             <Button htmlType="button" onClick={handleCancel}>
@@ -61,19 +68,26 @@ const Info: React.FC = () => {
     </CommonPage>
   );
 };
-export default memo(Info);
+export default memo(Feedback);
+
+const Subtitle = styled.p`
+  margin: 0;
+  font-size: 16px;
+  color: inherit;
+`;
 
 const Text = styled.p`
-  font-size: 14px;
   margin: 0;
 `;
 
-const Subtitle = styled(Text)`
-  margin-bottom: 24px;
+const LightText = styled.p`
+  display: block;
+  margin-bottom: 8px;
 `;
 
 const Paragraph = styled.p`
   font-size: 12px;
+  line-height: 18px;
 `;
 
 const PlateauButton = styled.button`
@@ -86,6 +100,7 @@ const PlateauButton = styled.button`
   width: 100%;
   background: transparent;
   border: 1px solid #c7c5c5;
+  margin: 24px 0;
   border-radius: 4px;
   cursor: pointer;
   transition: background 0.3s;
@@ -95,7 +110,10 @@ const PlateauButton = styled.button`
   }
 `;
 
-const FormItems = styled(Form.Item)``;
+const FormItems = styled(Form.Item)`
+  margin-bottom: 8px;
+  color: red;
+`;
 
 const FormButtons = styled(Form.Item)`
   display: flex;
