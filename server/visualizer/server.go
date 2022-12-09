@@ -33,9 +33,6 @@ func authMiddleware(secret string) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) (err error) {
 			req := c.Request()
-			ctx := req.Context()
-
-			// TODO: ここでbearer tokenを取得
 			header := req.Header.Get("Authorization")
 			token := strings.TrimPrefix(header, "bearer ")
 			if token != secret {

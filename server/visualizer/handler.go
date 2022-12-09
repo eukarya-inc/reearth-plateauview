@@ -1,7 +1,6 @@
 package visualizer
 
 import (
-	"errors"
 	"fmt"
 	"io"
 
@@ -61,7 +60,7 @@ func createDataHandler(CMS cms.Interface) func(c echo.Context) error {
 		ctx := c.Request().Context()
 		b, err := io.ReadAll(c.Request().Body)
 		if err != nil {
-			return err //エラーきれいにする
+			return fmt.Errorf("occur an unexpected EOF error: %w", err)
 		}
 
 		fields := []cms.Field{{
@@ -77,8 +76,7 @@ func createDataHandler(CMS cms.Interface) func(c echo.Context) error {
 			return fieldId == i.ID
 		})
 		if !found {
-			//TODO: エラーハンドリングをきれいにする
-			return errors.New("err")
+			return fmt.Errorf("not found elements in slice : %w", err)
 		}
 
 		res := Data{
@@ -96,7 +94,7 @@ func updateDataHandler(CMS cms.Interface) func(c echo.Context) error {
 
 		b, err := io.ReadAll(c.Request().Body)
 		if err != nil {
-			return err //エラーきれいにする
+			return fmt.Errorf("occur an unexpected EOF error: %w", err)
 		}
 
 		fields := []cms.Field{{
@@ -113,8 +111,7 @@ func updateDataHandler(CMS cms.Interface) func(c echo.Context) error {
 			return fieldId == i.ID
 		})
 		if !found {
-			//TODO: エラーハンドリングをきれいにする
-			return fmt.Errorf("not found a fields data: %w", err)
+			return fmt.Errorf("not found elements in slice : %w", err)
 		}
 
 		res := Data{

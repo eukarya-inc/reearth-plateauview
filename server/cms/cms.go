@@ -50,24 +50,20 @@ func New(base, token string) (*CMS, error) {
 
 func (c *CMS) GetItems(ctx context.Context, modelID string) ([]*Item, error) {
 	b, err := c.send(ctx, http.MethodGet, []string{"api", "models", modelID, "items"}, nil)
-	hoge, err := io.ReadAll(b)
-	fmt.Print(hoge)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get an items: %w", err)
+		return nil, fmt.Errorf("failed to send an request: %w", err)
+	}
+	byte, err := io.ReadAll(b)
+	if err != nil {
+		return nil, fmt.Errorf("occur an unexpected EOF error: %w", err)
 	}
 
 	defer func() { _ = b.Close() }()
 
 	var items Items
-
-	// if err := json.NewDecoder(b).Decode(&items); err != nil {
-	// 	return nil, fmt.Errorf("failed to parse an items: %w", err)
-	// }
-
-	if err := json.Unmarshal(hoge, &items); err != nil {
+	if err := json.Unmarshal(byte, &items); err != nil {
 		return nil, err
 	}
-
 	return items.Items, nil
 }
 
