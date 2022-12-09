@@ -8,7 +8,7 @@ const reearth = (globalThis as any).reearth;
 
 let addedDatasets: string | undefined = undefined;
 
-const doNotShowWelcome = false; // Make let, and then modify based on storage value when Storage API available
+const doNotShowWelcome = true; // Make it `let doNotShowWelcome: boolean = false`, and then modify based on storage value when Storage API available
 
 reearth.ui.show(html, { extended: true });
 
