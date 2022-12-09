@@ -32,6 +32,25 @@ func ToComponent(i cms.Item) Component {
 }
 
 func ToRoot(templates []*cms.Item, data []*cms.Item) Root {
-	// TODO: ここでRootに変換
-	return Root{}
+	// TODO: ここで templates を Root に変換
+	templateArray := []Template{}
+	componentArray := []Component{}
+	for i, t := range templates {
+		templateArray = append(templateArray,
+			Template{
+				ID:       string(i),
+				template: t.Fields[i].Value,
+			})
+	}
+	for i, c := range data {
+		componentArray = append(componentArray,
+			Component{
+				ID:        string(i),
+				Component: c.Fields[i].Value,
+			})
+	}
+	return Root{
+		Templates:  templateArray,
+		Components: componentArray,
+	}
 }

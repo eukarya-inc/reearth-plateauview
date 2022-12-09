@@ -2,6 +2,7 @@ package visualizer
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/eukarya-inc/reearth-plateauview/server/cms"
 	"github.com/labstack/echo/v4"
@@ -15,38 +16,35 @@ var (
 	templateModelId = ""
 )
 
+// GET | /viz/:id
 func fetchRoot(CMS cms.Interface) func(c echo.Context) error {
 	return func(c echo.Context) error {
 		ctx := c.Request().Context()
-
+		// projectIDが必要な場合使う
 		_ = c.Param("pid")
-
-		data, err := CMS.GetItems(ctx, dataModelId) //modelID: "plateau-view-data"
+		data, err := CMS.GetItems(ctx, dataModelId) // modelID: "plateau-view-data"
 		if err != nil {
 			return err
 		}
-
-		templates, err := CMS.GetItem(ctx, templateModelId) //modelID: "templates"
+		templates, err := CMS.GetItems(ctx, templateModelId) // modelID: "templates"
 		if err != nil {
 			return err
 		}
-
 		root := ToRoot(templates, data)
-
 		return c.JSON(200, &root)
 	}
 }
 
-// /viz/:pid/data
-func createDataHandler(CMS cms.Interface) func(c echo.Context) error {
+// GET | /viz/:pid/data
+func getDataHandler(CMS cms.Interface) func(c echo.Context) error {
 	return func(c echo.Context) error {
 		ctx := c.Request().Context()
-
-		_ = c.Param("pid") //projectIDが必要な場合使う
-
+		//projectIDが必要な場合使う
+		_ = c.Param("pid")
 		var data any
 		if err := c.Bind(&data); err != nil {
-			return err //TODO: 後でエラーハンドリングをきれいにする
+			//TODO: エラーハンドリングをきれいにする
+			return fmt.Errorf("failed to bind a data: %w", err)
 		}
 
 		fields := []cms.Field{{
@@ -62,7 +60,8 @@ func createDataHandler(CMS cms.Interface) func(c echo.Context) error {
 			return fieldId == i.ID
 		})
 		if !found {
-			return errors.New("err") //TODO: きれいにする
+			//TODO: エラーハンドリングをきれいにする
+			return errors.New("err")
 		}
 
 		res := Component{
@@ -73,16 +72,53 @@ func createDataHandler(CMS cms.Interface) func(c echo.Context) error {
 	}
 }
 
-// /viz/:pid/data
+// POST | /viz/:pid/data
+func createDataHandler(CMS cms.Interface) func(c echo.Context) error {
+	return func(c echo.Context) error {
+		ctx := c.Request().Context()
+		//projectIDが必要な場合使う
+		_ = c.Param("pid")
+		var data any
+		if err := c.Bind(&data); err != nil {
+			//TODO: エラーハンドリングをきれいにする
+			return fmt.Errorf("failed to bind a data: %w", err)
+		}
+
+		fields := []cms.Field{{
+			ID:    fieldId,
+			Value: data,
+		}}
+		item, err := CMS.CreateItem(ctx, dataModelId, fields) //modelID: "plateau-view-data"
+		if err != nil {
+			return err
+		}
+
+		field, found := lo.Find(item.Fields, func(i cms.Field) bool {
+			return fieldId == i.ID
+		})
+		if !found {
+			//TODO: エラーハンドリングをきれいにする
+			return errors.New("err")
+		}
+
+		res := Component{
+			ID:        item.ID,
+			Component: field.Value,
+		}
+		return c.JSON(200, &res)
+	}
+}
+
+// PATCH | /viz/:pid/data/:did
 func updateDataHandler(CMS cms.Interface) func(c echo.Context) error {
 	return func(c echo.Context) error {
 		ctx := c.Request().Context()
-
-		_ = c.Param("pid") //projectIDが必要な場合使う
-
+		//projectIDが必要な場合使う
+		_ = c.Param("pid")
 		var data any
 		if err := c.Bind(&data); err != nil {
-			return err //TODO: 後でエラーハンドリングをきれいにする
+			//TODO: エラーハンドリングをきれいにする
+			return fmt.Errorf("failed to bind a data: %w", err)
 		}
 
 		fields := []cms.Field{{
@@ -98,7 +134,8 @@ func updateDataHandler(CMS cms.Interface) func(c echo.Context) error {
 			return fieldId == i.ID
 		})
 		if !found {
-			return errors.New("err") //TODO: きれいにする
+			//TODO: エラーハンドリングをきれいにする
+			return fmt.Errorf("not found a fields data: %w", err)
 		}
 
 		res := Component{
@@ -109,22 +146,24 @@ func updateDataHandler(CMS cms.Interface) func(c echo.Context) error {
 	}
 }
 
-// /viz/:pid/templates
+// POST | /viz/:pid/templates
 func createTemplateHandler(CMS cms.Interface) func(c echo.Context) error {
 	return func(c echo.Context) error {
 		ctx := c.Request().Context()
 		//0. プロジェクトのIDを取得する
-		// pID := c.Param("pid")
+		_ = c.Param("pid")
 		//1. FEから来たJSONを取得する
 		var data any
 		if err := c.Bind(&data); err != nil {
-			return err //TODO: 後でエラーハンドリングをきれいにする
+			//TODO: エラーハンドリングをきれいにする
+			return fmt.Errorf("failed to bind a data: %w", err)
 		}
 		//2. JSONをCMSに登録する
 		//2-1. CMSにわたすデータを作成する
 		fields := []cms.Field{}
 		//2-2. CMSにわたす
-		item, err := CMS.CreateItem(ctx, "template", fields) //TODO: モデルのIDを後で設定から読み込むように変更する
+		//TODO: モデルのIDを後で設定から読み込むように変更する
+		item, err := CMS.CreateItem(ctx, "template", fields)
 		if err != nil {
 			return err
 		}

@@ -51,7 +51,7 @@ func New(base, token string) (*CMS, error) {
 func (c *CMS) GetItems(ctx context.Context, modelID string) ([]*Item, error) {
 	b, err := c.send(ctx, http.MethodGet, []string{"api", "models", modelID, "items"}, nil)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get items: %w", err)
+		return nil, fmt.Errorf("failed to get an items: %w", err)
 	}
 
 	defer func() { _ = b.Close() }()
@@ -59,7 +59,7 @@ func (c *CMS) GetItems(ctx context.Context, modelID string) ([]*Item, error) {
 	var items []*Item
 
 	if err := json.NewDecoder(b).Decode(&items); err != nil {
-		return nil, fmt.Errorf("failed to parse items: %w", err)
+		return nil, fmt.Errorf("failed to parse an items: %w", err)
 	}
 
 	return items, nil
