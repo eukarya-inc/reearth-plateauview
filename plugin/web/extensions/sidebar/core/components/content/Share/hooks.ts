@@ -6,7 +6,7 @@ export default () => {
   const [publishUrl, setPublishUrl] = usePublishUrl();
 
   const handleScreenshotShow = useCallback(() => {
-    postMsg({ action: "screenshot" });
+    postMsg({ action: "screenshot-preview" });
   }, []);
 
   const handleScreenshotSave = useCallback(() => {
@@ -33,7 +33,7 @@ export default () => {
 addEventListener("message", e => {
   if (e.source !== parent) return;
   if (e.data.type) {
-    if (e.data.type === "screenshot") {
+    if (e.data.type === "screenshot-preview") {
       generatePrintView(e.data.payload);
     } else if (e.data.type === "screenshot-save") {
       const link = document.createElement("a");

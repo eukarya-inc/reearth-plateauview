@@ -2,6 +2,7 @@ type ActionType =
   | "init"
   | "updateOverrides"
   | "screenshot"
+  | "screenshot-preview"
   | "screenshot-save"
   | "initDatasetCatalog"
   | "addDatasetToScene"

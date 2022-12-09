@@ -17,10 +17,14 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
     reearth.visualizer.overrideProperty(payload);
   } else if (action === "addDatasetToScene") {
     // NEED TO HANDLE ADDING TO SCENE WHEN ABLE
-  } else if (action === "screenshot" || action === "screenshot-save") {
+  } else if (
+    action === "screenshot" ||
+    action === "screenshot-preview" ||
+    action === "screenshot-save"
+  ) {
     reearth.ui.postMessage({
       type: action,
-      payload: reearth.scene.captureScreen(),
+      payload: reearth.scene.captureScreen(undefined, 0.01),
     });
   } else if (action === "msgFromModal") {
     reearth.ui.postMessage({ type: action, payload });

@@ -1,29 +1,27 @@
 import CommonPage from "@web/extensions/sidebar/core/components/content/CommonPage";
-import { Button, Form, Icon, Input, Checkbox } from "@web/sharedComponents";
+import { Button, Form, Icon, Input, Checkbox, message } from "@web/sharedComponents";
 import { styled } from "@web/theme";
 import { memo } from "react";
+
+import useHooks from "./hooks";
 
 const plateauWebsiteUrl = "https://www.mlit.go.jp/plateau/";
 
 const Feedback: React.FC = () => {
   const [form] = Form.useForm();
+  const addScreenshot: boolean = Form.useWatch("screenshot", form);
+  const [messageApi, contextHolder] = message.useMessage();
 
-  const handleCancel = () => {
-    form.resetFields();
-  };
-
-  const handleSend = (values: any) => {
-    console.log(values);
-    if (values.screenshot) {
-      // Do screenshot
-    }
-    // Send to backend API
-    form.resetFields();
-  };
+  const { validateMessages, handleSend, handleCancel } = useHooks({
+    form,
+    addScreenshot,
+    messageApi,
+  });
 
   return (
     <CommonPage>
       <>
+        {contextHolder}
         <Paragraph>
           PLATEAU は、国土交通省が進める 3D都市モデル整備・活用・オープンデータ化
           のリーディングプロジェクトである。都市活動のプラットフォームデータとして
@@ -32,22 +30,27 @@ const Feedback: React.FC = () => {
         </Paragraph>
         <PlateauButton onClick={() => window.open(plateauWebsiteUrl, "_blank", "noopener")}>
           <Icon icon="plateauLogoPart" />
-          PLATEAU Project Website
+          PLATEAUプロジェクトサイト
         </PlateauButton>
       </>
       <>
         <Subtitle>ご意見をお聞かせください。</Subtitle>
-        <Form form={form} name="feedback" onFinish={handleSend} layout="vertical">
+        <Form
+          form={form}
+          name="feedback"
+          onFinish={handleSend}
+          layout="vertical"
+          validateMessages={validateMessages}>
           <FormItems name="name" label="お名前（任意）">
             <Input />
           </FormItems>
           <FormItems
             name="email"
-            label="メールアドレス（任意）"
-            help={<LightText>メールアドレスがない場合は返信できません</LightText>}>
+            rules={[{ type: "email", required: true, validateTrigger: "onSubmit" }]}
+            label="メールアドレス">
             <Input />
           </FormItems>
-          <FormItems name="comment" label="コメントまたは質問">
+          <FormItems name="comment" label="コメントまたは質問" rules={[{ required: true }]}>
             <Input.TextArea />
           </FormItems>
           <FormItems name="screenshot" valuePropName="checked">
@@ -78,11 +81,6 @@ const Subtitle = styled.p`
 
 const Text = styled.p`
   margin: 0;
-`;
-
-const LightText = styled.p`
-  display: block;
-  margin-bottom: 8px;
 `;
 
 const Paragraph = styled.p`
