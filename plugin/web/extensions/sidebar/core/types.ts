@@ -39,7 +39,7 @@ export type SceneMode = "3d" | "2d";
 
 type Tile = {
   id: string;
-  tile_url: string;
+  tile_url?: string;
   tile_type: string;
 };
 
