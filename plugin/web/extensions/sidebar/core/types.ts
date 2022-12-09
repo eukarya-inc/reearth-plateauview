@@ -8,8 +8,9 @@ type ActionType =
   | "addDatasetToScene"
   | "msgFromSidebar"
   | "msgFromModal"
-  | "modal-open"
   | "modal-close"
+  | "datacatalog-modal-open"
+  | "welcome-modal-open"
   | "minimize";
 
 export type PostMessageProps = { action: ActionType; payload?: any };
