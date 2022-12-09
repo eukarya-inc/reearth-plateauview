@@ -35,6 +35,7 @@ type Config struct {
 	Opinion_Email        string
 	Opinion_ToName       string
 	Secret               string
+	VisualizerToken      string
 }
 
 func NewConfig() (*Config, error) {
@@ -77,6 +78,7 @@ func (c *Config) Visualizer() visualizer.Config {
 		CMSModelID: c.CMS_ModelID,
 		CMSBaseURL: c.CMS_BaseURL,
 		CMSToken:   c.CMS_Token,
+		VToken:     c.VisualizerToken,
 	}
 }
 

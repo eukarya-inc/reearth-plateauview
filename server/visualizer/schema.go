@@ -1,56 +1,49 @@
 package visualizer
 
-import "github.com/eukarya-inc/reearth-plateauview/server/cms"
+import (
+	"github.com/eukarya-inc/reearth-plateauview/server/cms"
+	"github.com/samber/lo"
+)
 
 type Template struct {
 	ID       string `json:"id"`
-	template any    `json:"template`
+	Template any    `json:"template"`
 }
 
-type Component struct {
+type Data struct {
 	ID        string `json:"id"`
 	Component any    `json:"component"`
 }
 
 type Root struct {
-	Templates  []Template  `json:"templates"`
-	Components []Component `json::components"`
+	Templates  []Template `json:"templates"`
+	Components []Data     `json:"data"`
 }
 
 func ToTemplate(i cms.Item) Template {
 	return Template{
 		ID:       i.ID,
-		template: i.Fields[0].Value,
+		Template: i.Fields[0].Value,
 	}
 }
 
-func ToComponent(i cms.Item) Component {
-	return Component{
+func ToComponent(i cms.Item) Data {
+	return Data{
 		ID:        i.ID,
 		Component: i.Fields[0].Value,
 	}
 }
 
-func ToRoot(templates []*cms.Item, data []*cms.Item) Root {
-	// TODO: ここで templates を Root に変換
-	templateArray := []Template{}
-	componentArray := []Component{}
-	for i, t := range templates {
-		templateArray = append(templateArray,
-			Template{
-				ID:       string(i),
-				template: t.Fields[i].Value,
-			})
-	}
-	for i, c := range data {
-		componentArray = append(componentArray,
-			Component{
-				ID:        string(i),
-				Component: c.Fields[i].Value,
-			})
-	}
-	return Root{
-		Templates:  templateArray,
-		Components: componentArray,
+func ToRoot(t []*cms.Item, d []*cms.Item) *Root {
+	templates := lo.Map(t, func(i *cms.Item, _ int) Template {
+		return ToTemplate(*i)
+	})
+
+	components := lo.Map(d, func(i *cms.Item, _ int) Data {
+		return ToComponent(*i)
+	})
+	return &Root{
+		Components: components,
+		Templates:  templates,
 	}
 }

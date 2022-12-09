@@ -11,6 +11,7 @@ type Config struct {
 	CMSModelID string
 	CMSBaseURL string
 	CMSToken   string
+	VToken     string
 }
 
 type Services struct {

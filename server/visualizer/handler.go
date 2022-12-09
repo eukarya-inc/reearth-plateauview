@@ -3,6 +3,7 @@ package visualizer
 import (
 	"errors"
 	"fmt"
+	"io"
 
 	"github.com/eukarya-inc/reearth-plateauview/server/cms"
 	"github.com/labstack/echo/v4"
@@ -13,7 +14,7 @@ import (
 var (
 	fieldId         = "01gkjdq9h2t4c4x300fewj98zq"
 	dataModelId     = "01gkjdpwkh478tysj1xc4wj3cc"
-	templateModelId = ""
+	templateModelId = "01gkjdqz7v6ffqb9qgx4r9y023"
 )
 
 // GET | /viz/:id
@@ -31,44 +32,26 @@ func fetchRoot(CMS cms.Interface) func(c echo.Context) error {
 			return err
 		}
 		root := ToRoot(templates, data)
-		return c.JSON(200, &root)
+		return c.JSON(200, root)
 	}
 }
 
 // GET | /viz/:pid/data
 func getDataHandler(CMS cms.Interface) func(c echo.Context) error {
 	return func(c echo.Context) error {
-		ctx := c.Request().Context()
-		//projectIDが必要な場合使う
-		_ = c.Param("pid")
-		var data any
-		if err := c.Bind(&data); err != nil {
-			//TODO: エラーハンドリングをきれいにする
-			return fmt.Errorf("failed to bind a data: %w", err)
-		}
+		// ctx := c.Request().Context()
 
-		fields := []cms.Field{{
-			ID:    fieldId,
-			Value: data,
-		}}
-		item, err := CMS.CreateItem(ctx, dataModelId, fields) //modelID: "plateau-view-data"
-		if err != nil {
-			return err
-		}
+		// item, err := CMS.GetItems(ctx, dataModelId ) //modelID: "plateau-view-data"
+		// if err != nil {
+		// 	return err
+		// }
 
-		field, found := lo.Find(item.Fields, func(i cms.Field) bool {
-			return fieldId == i.ID
-		})
-		if !found {
-			//TODO: エラーハンドリングをきれいにする
-			return errors.New("err")
-		}
-
-		res := Component{
-			ID:        item.ID,
-			Component: field.Value,
-		}
-		return c.JSON(200, &res)
+		// res := Component{
+		// 	ID:        item.ID,
+		// 	Component: field.Value,
+		// }
+		// return c.JSON(200, &res)
+		return c.JSON(200, nil)
 	}
 }
 
@@ -76,17 +59,14 @@ func getDataHandler(CMS cms.Interface) func(c echo.Context) error {
 func createDataHandler(CMS cms.Interface) func(c echo.Context) error {
 	return func(c echo.Context) error {
 		ctx := c.Request().Context()
-		//projectIDが必要な場合使う
-		_ = c.Param("pid")
-		var data any
-		if err := c.Bind(&data); err != nil {
-			//TODO: エラーハンドリングをきれいにする
-			return fmt.Errorf("failed to bind a data: %w", err)
+		b, err := io.ReadAll(c.Request().Body)
+		if err != nil {
+			return err //エラーきれいにする
 		}
 
 		fields := []cms.Field{{
 			ID:    fieldId,
-			Value: data,
+			Value: string(b),
 		}}
 		item, err := CMS.CreateItem(ctx, dataModelId, fields) //modelID: "plateau-view-data"
 		if err != nil {
@@ -101,7 +81,7 @@ func createDataHandler(CMS cms.Interface) func(c echo.Context) error {
 			return errors.New("err")
 		}
 
-		res := Component{
+		res := Data{
 			ID:        item.ID,
 			Component: field.Value,
 		}
@@ -113,18 +93,17 @@ func createDataHandler(CMS cms.Interface) func(c echo.Context) error {
 func updateDataHandler(CMS cms.Interface) func(c echo.Context) error {
 	return func(c echo.Context) error {
 		ctx := c.Request().Context()
-		//projectIDが必要な場合使う
-		_ = c.Param("pid")
-		var data any
-		if err := c.Bind(&data); err != nil {
-			//TODO: エラーハンドリングをきれいにする
-			return fmt.Errorf("failed to bind a data: %w", err)
+
+		b, err := io.ReadAll(c.Request().Body)
+		if err != nil {
+			return err //エラーきれいにする
 		}
 
 		fields := []cms.Field{{
 			ID:    fieldId,
-			Value: data,
+			Value: string(b),
 		}}
+
 		item, err := CMS.UpdateItem(ctx, dataModelId, fields) //modelID: "plateau-view-data"
 		if err != nil {
 			return err
@@ -138,7 +117,7 @@ func updateDataHandler(CMS cms.Interface) func(c echo.Context) error {
 			return fmt.Errorf("not found a fields data: %w", err)
 		}
 
-		res := Component{
+		res := Data{
 			ID:        item.ID,
 			Component: field.Value,
 		}
@@ -168,7 +147,7 @@ func createTemplateHandler(CMS cms.Interface) func(c echo.Context) error {
 			return err
 		}
 		//3. 結果を返す
-		res := Component{
+		res := Data{
 			ID:        item.ID,
 			Component: item.Fields[0].Value,
 		}
