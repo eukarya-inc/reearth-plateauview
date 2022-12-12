@@ -1,4 +1,5 @@
 import Feedback from "@web/extensions/sidebar/core/components/content/Feedback";
+import Help from "@web/extensions/sidebar/core/components/content/Help";
 import MapSettings from "@web/extensions/sidebar/core/components/content/MapSettings";
 import Selection from "@web/extensions/sidebar/core/components/content/Selection";
 import Share from "@web/extensions/sidebar/core/components/content/Share";
@@ -71,11 +72,7 @@ const Sidebar: React.FC<Props> = ({ className }) => {
               ),
               map: <MapSettings overrides={overrides} onOverridesUpdate={handleOverridesUpdate} />,
               share: <Share overrides={overrides} />,
-              help: (
-                <div>
-                  <h1>あないページ（実装中）</h1>
-                </div>
-              ),
+              help: <Help />,
               feedback: <Feedback />,
               template: <Templates />,
             }[current]
