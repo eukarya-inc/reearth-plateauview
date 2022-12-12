@@ -4,49 +4,41 @@ import html from "../dist/web/geolocation/core/index.html?raw";
 
 const reearth = (globalThis as any).reearth;
 
-reearth.ui.show(html, { width: 44, height: 44 });
+reearth.ui.show(html);
 
 reearth.on("message", ({ action, payload }: PostMessageProps) => {
   if (action === "flyTo") {
-    if (
-      payload.currentLocation.latitude !== undefined &&
-      payload.currentLocation.longitude !== undefined &&
-      payload.currentLocation.altitude !== undefined
-    ) {
-      reearth.layers.add({
-        extensionId: "marker",
-        isVisible: true,
-        title: "myLocation",
-        property: {
-          default: {
-            location: {
-              lat: payload.currentLocation.latitude,
-              lng: payload.currentLocation.longitude,
-            },
-            style: "point",
-            pointColor: "#12BDE2",
-            pointOutlineWidth: 4,
-            pointOutlineColor: "#FFFFFF",
+    reearth.layers.add({
+      extensionId: "marker",
+      isVisible: true,
+      title: "myLocation",
+      property: {
+        default: {
+          location: {
+            lat: payload.currentLocation.latitude,
+            lng: payload.currentLocation.longitude,
           },
+          style: "point",
+          pointColor: "#12BDE2",
+          pointOutlineWidth: 4,
+          pointOutlineColor: "#FFFFFF",
         },
-      });
+      },
+    });
 
-      const initCameraPos = reearth.camera.position;
-
-      reearth.camera.flyTo(
-        {
-          lat: payload.currentLocation.latitude,
-          lng: payload.currentLocation.longitude,
-          height: payload.currentLocation.altitude,
-          heading: initCameraPos?.heading ?? 0,
-          pitch: -Math.PI / 2,
-          roll: 0,
-          fov: initCameraPos?.fov ?? 0.75,
-        },
-        {
-          duration: 2,
-        },
-      );
-    }
+    reearth.camera.flyTo(
+      {
+        lat: payload.currentLocation.latitude,
+        lng: payload.currentLocation.longitude,
+        height: payload.currentLocation.altitude,
+        heading: reearth.camera.position?.heading ?? 0,
+        pitch: -Math.PI / 2,
+        roll: 0,
+        fov: reearth.camera.position?.fov ?? 0.75,
+      },
+      {
+        duration: 2,
+      },
+    );
   }
 });

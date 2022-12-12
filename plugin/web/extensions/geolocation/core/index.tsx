@@ -7,24 +7,22 @@ const GeolocationWrapper: React.FC = () => {
   const { handleFlyToCurrentLocation } = useHooks();
 
   return (
-    <Wrapper width={44} height={44}>
-      <Icon icon="sun" size={20} onClick={handleFlyToCurrentLocation} />
+    <Wrapper>
+      <Icon icon="bullseye" size={20} color="#262626" onClick={handleFlyToCurrentLocation} />
     </Wrapper>
   );
 };
 
 export default GeolocationWrapper;
 
-const Wrapper = styled.div<{ width?: number; height?: number }>`
+const Wrapper = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
   cursor: pointer;
-  overflow: hidden;
-  position: relative;
-  width: ${({ width }) => width}px;
-  height: ${({ height }) => height}px;
+  width: 44px;
+  height: 44px;
   background: #ececec;
   border-radius: 4px;
   color: #c7c5c5;

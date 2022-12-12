@@ -31,6 +31,6 @@ extensions:
     type: widget
     widgetLayout:
       defaultLocation:
-        zone: outer
+        zone: inner
         section: right
         area: middle
