@@ -136,9 +136,15 @@ const Maps = styled.div`
 const ImageButton = styled.div<{ selected?: boolean }>`
   height: 64px;
   width: 64px;
-  background: #d1d1d1;
-  border: 2px solid ${({ selected }) => (selected ? "#00bebe" : "#d1d1d1")};
+  border-width: 2px;
+  border-style: solid;
+  border-color: ${({ selected }) => (selected ? "#00bebe" : "transparent")};
   border-radius: 2px;
   padding: 4px 8px;
   cursor: pointer;
+  transition: border-color 0.2s;
+
+  :hover {
+    border-color: #00bebe;
+  }
 `;
