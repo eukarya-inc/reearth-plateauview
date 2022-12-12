@@ -19,14 +19,14 @@ func Echo(g *echo.Group, c Config) error {
 
 func initEcho(g *echo.Group, c Config, s Services) {
 	g.GET("/viz/:pid", fetchRoot(s.CMS), authMiddleware(c.VToken))
-	g.GET("/viz/:pid/data", getDataHandler(s.CMS))
-	g.POST("/viz/:pid/data", createDataHandler(s.CMS))
-	g.PATCH("/viz/:pid/data/:did", updateDataHandler(s.CMS))
-	g.DELETE("/vis/:pid/data/:did", deleteDataHandler(s.CMS))
-	g.GET("/viz/:pid/templates", exampleHandler)
-	g.POST("/viz/:pid/templates", createTemplateHandler(s.CMS))
-	g.PATCH("/viz/:pid/templates/:tid", exampleHandler)
-	g.DELETE("/viz/:pid/templates/:tid", exampleHandler)
+	g.GET("/viz/:pid/data", getDataHandler(s.CMS), authMiddleware(c.VToken))
+	g.POST("/viz/:pid/data", createDataHandler(s.CMS), authMiddleware(c.VToken))
+	g.PATCH("/viz/:pid/data/:did", updateDataHandler(s.CMS), authMiddleware(c.VToken))
+	g.DELETE("/vis/:pid/data/:did", deleteDataHandler(s.CMS), authMiddleware(c.VToken))
+	g.GET("/viz/:pid/templates", fetchTemplate(s.CMS), authMiddleware(c.VToken))
+	g.POST("/viz/:pid/templates", createTemplateHandler(s.CMS), authMiddleware(c.VToken))
+	g.PATCH("/viz/:pid/templates/:tid", updateTemplateHandler(s.CMS), authMiddleware(c.VToken))
+	g.DELETE("/viz/:pid/templates/:tid", deleteTemplateHandler(s.CMS), authMiddleware(c.VToken))
 }
 
 func authMiddleware(secret string) echo.MiddlewareFunc {

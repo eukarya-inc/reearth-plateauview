@@ -20,8 +20,6 @@ var (
 func fetchRoot(CMS cms.Interface) func(c echo.Context) error {
 	return func(c echo.Context) error {
 		ctx := c.Request().Context()
-		// projectIDが必要な場合使う
-		_ = c.Param("pid")
 		data, err := CMS.GetItems(ctx, dataModelId) // modelID: "plateau-view-data"
 		if err != nil {
 			return err
@@ -146,6 +144,19 @@ func deleteDataHandler(CMS cms.Interface) func(c echo.Context) error {
 	}
 }
 
+// GET | /viz/:id/templates
+func fetchTemplate(CMS cms.Interface) func(c echo.Context) error {
+	return func(c echo.Context) error {
+		ctx := c.Request().Context()
+		templates, err := CMS.GetItem(ctx, templateModelId) // modelID: "templates"
+		if err != nil {
+			return err
+		}
+		template := ToTemplate(*templates)
+		return c.JSON(200, template)
+	}
+}
+
 // POST | /viz/:pid/templates
 func createTemplateHandler(CMS cms.Interface) func(c echo.Context) error {
 	return func(c echo.Context) error {
@@ -175,6 +186,20 @@ func createTemplateHandler(CMS cms.Interface) func(c echo.Context) error {
 			}
 			return c.JSON(200, &res)
 		*/
+		return c.JSON(200, nil) // TODO: delete this line
+	}
+}
+
+// PATCH | /viz/:id/templates/:itemId
+func updateTemplateHandler(CMS cms.Interface) func(c echo.Context) error {
+	return func(c echo.Context) error {
+		return c.JSON(200, nil) // TODO: delete this line
+	}
+}
+
+// DELETE | /viz/:id/templates/:itemId
+func deleteTemplateHandler(CMS cms.Interface) func(c echo.Context) error {
+	return func(c echo.Context) error {
 		return c.JSON(200, nil) // TODO: delete this line
 	}
 }
