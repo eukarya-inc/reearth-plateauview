@@ -74,8 +74,8 @@ const Share: React.FC<Props> = ({ overrides }) => {
         <Subtitle>印刷</Subtitle>
         <SectionWrapper>
           <ButtonWrapper>
-            <Button onClick={handleScreenshotSave}>地図をダウンロード</Button>
-            <Button onClick={handleScreenshotShow}>プリントビューを表示</Button>
+            <Button onClick={handleScreenshotSave}>ダウンロード</Button>
+            <Button onClick={handleScreenshotShow}>プリントビュー</Button>
           </ButtonWrapper>
           <SubText>このマップを印刷できる状態で表示</SubText>
         </SectionWrapper>
