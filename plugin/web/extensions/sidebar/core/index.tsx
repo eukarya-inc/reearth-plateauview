@@ -70,10 +70,10 @@ const Sidebar: React.FC<Props> = ({ className }) => {
                 />
               ),
               map: <MapSettings overrides={overrides} onOverridesUpdate={handleOverridesUpdate} />,
-              share: <Share />,
+              share: <Share overrides={overrides} />,
               help: (
                 <div>
-                  <h1>Help page</h1>
+                  <h1>あないページ（実装中）</h1>
                 </div>
               ),
               feedback: <Feedback />,
