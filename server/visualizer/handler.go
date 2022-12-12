@@ -122,32 +122,59 @@ func updateDataHandler(CMS cms.Interface) func(c echo.Context) error {
 	}
 }
 
-// POST | /viz/:pid/templates
-func createTemplateHandler(CMS cms.Interface) func(c echo.Context) error {
+// DELETE | /viz/:pid/data/:did
+func deleteDataHandler(CMS cms.Interface) func(c echo.Context) error {
 	return func(c echo.Context) error {
 		ctx := c.Request().Context()
-		//0. プロジェクトのIDを取得する
-		_ = c.Param("pid")
-		//1. FEから来たJSONを取得する
-		var data any
-		if err := c.Bind(&data); err != nil {
-			//TODO: エラーハンドリングをきれいにする
-			return fmt.Errorf("failed to bind a data: %w", err)
-		}
-		//2. JSONをCMSに登録する
-		//2-1. CMSにわたすデータを作成する
-		fields := []cms.Field{}
-		//2-2. CMSにわたす
-		//TODO: モデルのIDを後で設定から読み込むように変更する
-		item, err := CMS.CreateItem(ctx, "template", fields)
+		item, err := CMS.DeleteItem(ctx, dataModelId) //modelID: "plateau-view-data"
 		if err != nil {
 			return err
 		}
-		//3. 結果を返す
+
+		_, found := lo.Find(item.Fields, func(i cms.Field) bool {
+			return fieldId == i.ID
+		})
+		if !found {
+			return fmt.Errorf("not found elements in slice : %w", err)
+		}
+
 		res := Data{
 			ID:        item.ID,
-			Component: item.Fields[0].Value,
+			Component: nil,
 		}
 		return c.JSON(200, &res)
+	}
+}
+
+// POST | /viz/:pid/templates
+func createTemplateHandler(CMS cms.Interface) func(c echo.Context) error {
+	return func(c echo.Context) error {
+		/*
+			ctx := c.Request().Context()
+			//0. プロジェクトのIDを取得する
+			_ = c.Param("pid")
+			//1. FEから来たJSONを取得する
+			var data any
+			if err := c.Bind(&data); err != nil {
+				//TODO: エラーハンドリングをきれいにする
+				return fmt.Errorf("failed to bind a data: %w", err)
+			}
+			//2. JSONをCMSに登録する
+			//2-1. CMSにわたすデータを作成する
+			fields := []cms.Field{}
+			//2-2. CMSにわたす
+			//TODO: モデルのIDを後で設定から読み込むように変更する
+			item, err := CMS.CreateItem(ctx, "template", fields)
+			if err != nil {
+				return err
+			}
+			//3. 結果を返す
+			res := Data{
+				ID:        item.ID,
+				Component: item.Fields[0].Value,
+			}
+			return c.JSON(200, &res)
+		*/
+		return c.JSON(200, nil) // TODO: delete this line
 	}
 }

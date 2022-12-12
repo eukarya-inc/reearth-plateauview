@@ -22,7 +22,7 @@ func initEcho(g *echo.Group, c Config, s Services) {
 	g.GET("/viz/:pid/data", getDataHandler(s.CMS))
 	g.POST("/viz/:pid/data", createDataHandler(s.CMS))
 	g.PATCH("/viz/:pid/data/:did", updateDataHandler(s.CMS))
-	g.DELETE("/vis/:pid/data/:did", exampleHandler)
+	g.DELETE("/vis/:pid/data/:did", deleteDataHandler(s.CMS))
 	g.GET("/viz/:pid/templates", exampleHandler)
 	g.POST("/viz/:pid/templates", createTemplateHandler(s.CMS))
 	g.PATCH("/viz/:pid/templates/:tid", exampleHandler)
