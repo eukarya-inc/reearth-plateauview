@@ -61,6 +61,7 @@ const Title = styled.p`
   font-weight: 700;
   margin: 0 12px;
   color: #4a4a4a;
+  user-select: none;
 `;
 
 const TabsWrapper = styled.div`

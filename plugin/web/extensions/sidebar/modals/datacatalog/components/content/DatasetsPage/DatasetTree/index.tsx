@@ -43,7 +43,11 @@ const DatasetTree: React.FC<Props> = ({ catalog, selectedTags, onTagSelect, onOp
       <StyledTabs
         defaultActiveKey="prefecture"
         tabBarStyle={
-          searchTerm.length > 0 || selectedTags?.length ? { display: "none" } : undefined
+          searchTerm.length > 0 || selectedTags?.length
+            ? { display: "none" }
+            : {
+                userSelect: "none",
+              }
         }
         onChange={active => handleFilter(active as FilterType)}>
         <Tabs.TabPane key="prefecture" tab="都道府県">
