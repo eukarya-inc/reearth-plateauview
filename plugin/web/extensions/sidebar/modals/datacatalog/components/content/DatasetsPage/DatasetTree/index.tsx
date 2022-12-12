@@ -30,7 +30,7 @@ const DatasetTree: React.FC<Props> = ({ catalog, selectedTags, onTagSelect, onOp
     <Wrapper>
       {!selectedTags?.length && (
         <StyledInput
-          placeholder="input search text"
+          placeholder="検索"
           value={searchTerm}
           onChange={handleSearch}
           addonAfter={<StyledIcon icon="search" size={15} />}
@@ -46,10 +46,10 @@ const DatasetTree: React.FC<Props> = ({ catalog, selectedTags, onTagSelect, onOp
           searchTerm.length > 0 || selectedTags?.length ? { display: "none" } : undefined
         }
         onChange={active => handleFilter(active as FilterType)}>
-        <Tabs.TabPane key="prefecture" tab="Prefecture">
+        <Tabs.TabPane key="prefecture" tab="都道府県">
           <FileTree filter={filterType} catalog={catalog} onOpenDetails={onOpenDetails} />
         </Tabs.TabPane>
-        <Tabs.TabPane key="type" tab="Type">
+        <Tabs.TabPane key="type" tab="種類">
           <FileTree filter={filterType} catalog={catalog} onOpenDetails={onOpenDetails} />
         </Tabs.TabPane>
       </StyledTabs>

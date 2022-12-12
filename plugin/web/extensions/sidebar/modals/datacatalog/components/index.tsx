@@ -12,15 +12,15 @@ const DataCatalog: React.FC = () => {
   return (
     <Wrapper>
       <Header>
-        <Title>Data Catalogue</Title>
+        <Title>データカタログ</Title>
         <TabsWrapper>
           <Tab selected={currentTab === "dataset"} onClick={() => handleTabChange("dataset")}>
             <Logo icon="plateauLogoPart" selected={currentTab === "dataset"} />
-            <TabName>PLATEAU Dataset</TabName>
+            <TabName>PLATEAUデータセット</TabName>
           </Tab>
           <Tab selected={currentTab === "your-data"} onClick={() => handleTabChange("your-data")}>
             <Icon icon="user" />
-            <TabName>Your Data</TabName>
+            <TabName>自己データ</TabName>
           </Tab>
         </TabsWrapper>
         <CloseButton>
