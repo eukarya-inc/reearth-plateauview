@@ -47,7 +47,3 @@ func authMiddleware(secret string) echo.MiddlewareFunc {
 		}
 	}
 }
-
-func exampleHandler(c echo.Context) error {
-	return nil
-}
