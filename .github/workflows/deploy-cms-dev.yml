@@ -32,13 +32,14 @@ jobs:
         uses: dawidd6/action-download-artifact@v2
         with:
           github_token: ${{ secrets.GPT }}
+          repo: reearth/reearth-cms
           workflow: ci_web.yml
           branch: release
           name: reearth-cms-web
           check_artifacts: true
           search_artifacts: true
       - name: Extract
-        run: mv web/reearth-cms-web.tar.gz . && tar -xvf reearth-cms-web.tar.gz
+        run: mv reearth-cms-web.tar.gz . && tar -xvf reearth-cms-web.tar.gz
       - name: Deploy
         run: gsutil -m -h "Cache-Control:no-store" rsync -x "^reearth_config\\.json$" -dr reearth-cms-web/ ${{ env.GCS_DEST }}
       - name: Save as artifact
