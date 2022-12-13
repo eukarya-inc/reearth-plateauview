@@ -25,5 +25,4 @@ const Wrapper = styled.div`
   height: 44px;
   background: #ececec;
   border-radius: 4px;
-  color: #c7c5c5;
 `;
