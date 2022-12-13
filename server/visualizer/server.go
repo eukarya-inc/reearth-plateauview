@@ -18,15 +18,20 @@ func Echo(g *echo.Group, c Config) error {
 }
 
 func initEcho(g *echo.Group, c Config, s Services) {
-	g.GET("/viz/:pid", fetchRoot(s.CMS), authMiddleware(c.VToken))
-	g.GET("/viz/:pid/data", getDataHandler(s.CMS), authMiddleware(c.VToken))
-	g.POST("/viz/:pid/data", createDataHandler(s.CMS), authMiddleware(c.VToken))
-	g.PATCH("/viz/:pid/data/:did", updateDataHandler(s.CMS), authMiddleware(c.VToken))
-	g.DELETE("/vis/:pid/data/:did", deleteDataHandler(s.CMS), authMiddleware(c.VToken))
-	g.GET("/viz/:pid/templates", fetchTemplate(s.CMS), authMiddleware(c.VToken))
-	g.POST("/viz/:pid/templates", createTemplateHandler(s.CMS), authMiddleware(c.VToken))
-	g.PATCH("/viz/:pid/templates/:tid", updateTemplateHandler(s.CMS), authMiddleware(c.VToken))
-	g.DELETE("/viz/:pid/templates/:tid", deleteTemplateHandler(s.CMS), authMiddleware(c.VToken))
+	h, err := NewHandler(s.CMS, c.DataModelKey, c.TemplateModelKey)
+	if err != nil {
+		panic("failed to init echo")
+	}
+	g.GET("/viz/:pid", h.fetchRoot(s.CMS), authMiddleware(c.VToken))
+	g.GET("/viz/:pid/data", h.getAllDataHandler(s.CMS), authMiddleware(c.VToken))
+	g.GET("/viz/:pid/data/:iid", h.getDataHandler(s.CMS), authMiddleware(c.VToken))
+	g.POST("/viz/:pid/data", h.createDataHandler(s.CMS), authMiddleware(c.VToken))
+	g.PATCH("/viz/:pid/data/:iid", h.updateDataHandler(s.CMS), authMiddleware(c.VToken))
+	g.DELETE("/vis/:pid/data/:iid", h.deleteDataHandler(s.CMS), authMiddleware(c.VToken))
+	g.GET("/viz/:pid/templates", h.fetchTemplate(s.CMS), authMiddleware(c.VToken))
+	g.POST("/viz/:pid/templates", h.createTemplateHandler(s.CMS), authMiddleware(c.VToken))
+	g.PATCH("/viz/:pid/templates/:iid", h.updateTemplateHandler(s.CMS), authMiddleware(c.VToken))
+	g.DELETE("/viz/:pid/templates/:iid", h.deleteTemplateHandler(s.CMS), authMiddleware(c.VToken))
 }
 
 func authMiddleware(secret string) echo.MiddlewareFunc {
@@ -34,7 +39,7 @@ func authMiddleware(secret string) echo.MiddlewareFunc {
 		return func(c echo.Context) (err error) {
 			req := c.Request()
 			header := req.Header.Get("Authorization")
-			token := strings.TrimPrefix(header, "bearer ")
+			token := strings.TrimPrefix(header, "Bearer ")
 			if token != secret {
 				return c.JSON(http.StatusUnauthorized, nil)
 			}

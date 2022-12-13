@@ -16,26 +16,28 @@ import (
 const configPrefix = "REEARTH_PLATEAUVIEW"
 
 type Config struct {
-	Port                 uint   `default:"8080" envconfig:"PORT"`
-	Host                 string `default:"http://localhost:8080"`
-	Origin               []string
-	CMS_Webhook_Secret   string
-	CMS_ModelID          string
-	CMS_CityGMLFieldID   string
-	CMS_BldgFieldID      string
-	CMS_BaseURL          string
-	CMS_Token            string
-	CMS_ShareModelID     string
-	CMS_ShareDataFieldID string
-	FME_BaseURL          string
-	FME_Mock             bool
-	FME_Token            string
-	FME_SkipQualityCheck bool
-	SendGrid_APIKey      string
-	Opinion_Email        string
-	Opinion_ToName       string
-	Secret               string
-	VisualizerToken      string
+	Port                       uint   `default:"8080" envconfig:"PORT"`
+	Host                       string `default:"http://localhost:8080"`
+	Origin                     []string
+	CMS_Webhook_Secret         string
+	CMS_ModelID                string
+	CMS_CityGMLFieldID         string
+	CMS_BldgFieldID            string
+	CMS_BaseURL                string
+	CMS_Token                  string
+	CMS_ShareModelID           string
+	CMS_ShareDataFieldID       string
+	FME_BaseURL                string
+	FME_Mock                   bool
+	FME_Token                  string
+	FME_SkipQualityCheck       bool
+	SendGrid_APIKey            string
+	Opinion_Email              string
+	Opinion_ToName             string
+	Secret                     string
+	VisualizerToken            string
+	VisualizerTemplateModelKey string `default:"plateau-view-template"`
+	VisualizerDataModelKey     string `default:"plateau-view-data"`
 }
 
 func NewConfig() (*Config, error) {
@@ -75,10 +77,12 @@ func (c *Config) CMSIntegration() cmsintegration.Config {
 
 func (c *Config) Visualizer() visualizer.Config {
 	return visualizer.Config{
-		CMSModelID: c.CMS_ModelID,
-		CMSBaseURL: c.CMS_BaseURL,
-		CMSToken:   c.CMS_Token,
-		VToken:     c.VisualizerToken,
+		CMSModelID:       c.CMS_ModelID,
+		CMSBaseURL:       c.CMS_BaseURL,
+		CMSToken:         c.CMS_Token,
+		VToken:           c.VisualizerToken,
+		DataModelKey:     c.VisualizerDataModelKey,
+		TemplateModelKey: c.VisualizerDataModelKey,
 	}
 }
 

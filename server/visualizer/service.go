@@ -8,10 +8,12 @@ import (
 )
 
 type Config struct {
-	CMSModelID string
-	CMSBaseURL string
-	CMSToken   string
-	VToken     string
+	CMSModelID       string
+	CMSBaseURL       string
+	CMSToken         string
+	VToken           string
+	DataModelKey     string
+	TemplateModelKey string
 }
 
 type Services struct {

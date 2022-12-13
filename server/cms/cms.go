@@ -18,7 +18,7 @@ type Interface interface {
 	GetItem(ctx context.Context, itemID string) (*Item, error)
 	CreateItem(ctx context.Context, modelID string, fields []Field) (*Item, error)
 	UpdateItem(ctx context.Context, itemID string, fields []Field) (*Item, error)
-	DeleteItem(ctx context.Context, itemID string) (*Item, error)
+	DeleteItem(ctx context.Context, itemID string) error
 	Asset(ctx context.Context, id string) (*Asset, error)
 	UploadAsset(ctx context.Context, projectID, url string) (string, error)
 	Comment(ctx context.Context, assetID, content string) error
@@ -121,19 +121,14 @@ func (c *CMS) UpdateItem(ctx context.Context, itemID string, fields []Field) (*I
 	return item, nil
 }
 
-func (c *CMS) DeleteItem(ctx context.Context, itemID string) (*Item, error) {
-	b, err := c.send(ctx, http.MethodPatch, []string{"api", "items", itemID}, nil)
+func (c *CMS) DeleteItem(ctx context.Context, itemID string) error {
+	b, err := c.send(ctx, http.MethodDelete, []string{"api", "items", itemID}, nil)
 	if err != nil {
-		return nil, fmt.Errorf("failed to delete an item: %w", err)
+		return fmt.Errorf("failed to delete an item: %w", err)
 	}
+
 	defer func() { _ = b.Close() }()
-
-	item := &Item{}
-	if err := json.NewDecoder(b).Decode(&item); err != nil {
-		return nil, fmt.Errorf("failed to parse an item: %w", err)
-	}
-
-	return item, nil
+	return nil
 }
 
 func (c *CMS) UploadAsset(ctx context.Context, projectID, url string) (string, error) {
