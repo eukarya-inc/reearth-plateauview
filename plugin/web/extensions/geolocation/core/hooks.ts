@@ -3,12 +3,6 @@ import { useCallback } from "react";
 import { CurrentLocation } from "./types";
 import { postMsg } from "./utils";
 
-const initialLocation: CurrentLocation = {
-  latitude: 35.68539,
-  longitude: 139.72675,
-  altitude: 219202.886,
-};
-
 export default () => {
   let currentLocation: CurrentLocation;
 
@@ -25,8 +19,6 @@ export default () => {
         },
         function (error) {
           console.error("Error Code = " + error.code + " - " + error.message);
-          currentLocation = { ...initialLocation };
-          postMsg({ action: "flyTo", payload: { currentLocation } });
         },
       );
     }
