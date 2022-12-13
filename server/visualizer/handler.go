@@ -55,10 +55,10 @@ func NewHandler(CMS cms.Interface, dKey, tKey string) (*Handler, error) {
 }
 
 // GET | /viz/:id
-func (h *Handler) fetchRoot(CMS cms.Interface) func(c echo.Context) error {
+func (h *Handler) fetchRoot() func(c echo.Context) error {
 	return func(c echo.Context) error {
 		ctx := c.Request().Context()
-		data, err := CMS.GetItems(ctx, h.DataModelKey)
+		data, err := h.CMS.GetItems(ctx, h.DataModelKey)
 		if err != nil {
 			return err
 		}
@@ -67,7 +67,7 @@ func (h *Handler) fetchRoot(CMS cms.Interface) func(c echo.Context) error {
 			return d.Field(h.DataModelDataFieldID).Value
 		})
 
-		templates, err := CMS.GetItems(ctx, h.TemplateModelKey)
+		templates, err := h.CMS.GetItems(ctx, h.TemplateModelKey)
 		if err != nil {
 			return err
 		}

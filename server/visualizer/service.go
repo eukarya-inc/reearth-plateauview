@@ -4,20 +4,18 @@ import (
 	"fmt"
 
 	"github.com/eukarya-inc/reearth-plateauview/server/cms"
-	"github.com/eukarya-inc/reearth-plateauview/server/cmsintegration/fme"
 )
 
 type Config struct {
 	CMSModelID       string
 	CMSBaseURL       string
 	CMSToken         string
-	VToken           string
+	AdminToken       string
 	DataModelKey     string
 	TemplateModelKey string
 }
 
 type Services struct {
-	FME fme.Interface
 	CMS cms.Interface
 }
 

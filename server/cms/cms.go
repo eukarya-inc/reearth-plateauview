@@ -14,8 +14,8 @@ import (
 )
 
 type Interface interface {
-	GetItems(ctx context.Context, modelID string) ([]*Item, error)
 	GetItem(ctx context.Context, itemID string) (*Item, error)
+	GetItems(ctx context.Context, modelID string) ([]*Item, error)
 	CreateItem(ctx context.Context, modelID string, fields []Field) (*Item, error)
 	UpdateItem(ctx context.Context, itemID string, fields []Field) (*Item, error)
 	DeleteItem(ctx context.Context, itemID string) error
