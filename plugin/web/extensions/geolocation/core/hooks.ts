@@ -4,9 +4,9 @@ import { CurrentLocation } from "./types";
 import { postMsg } from "./utils";
 
 const initialLocation: CurrentLocation = {
-  latitude: 5.70249,
-  longitude: 39.7622,
-  altitude: 5000,
+  latitude: 35.68539,
+  longitude: 139.72675,
+  altitude: 219202.886,
 };
 
 export default () => {
@@ -14,21 +14,22 @@ export default () => {
 
   const handleFlyToCurrentLocation = useCallback(() => {
     if (navigator.geolocation) {
-      navigator.geolocation.watchPosition(
+      navigator.geolocation.getCurrentPosition(
         function (position) {
           currentLocation = {
             latitude: position.coords.latitude,
             longitude: position.coords.longitude,
             altitude: position.coords.altitude ?? 5000,
           };
+          postMsg({ action: "flyTo", payload: { currentLocation } });
         },
         function (error) {
           console.error("Error Code = " + error.code + " - " + error.message);
           currentLocation = { ...initialLocation };
+          postMsg({ action: "flyTo", payload: { currentLocation } });
         },
       );
     }
-    postMsg({ action: "flyTo", payload: { currentLocation } });
   }, []);
 
   return {
