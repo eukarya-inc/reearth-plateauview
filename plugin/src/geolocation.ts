@@ -42,7 +42,6 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
                   item_datanum: payload.currentLocation.longitude,
                 },
               ],
-              paddingLeft: 24,
             },
           },
         ],
