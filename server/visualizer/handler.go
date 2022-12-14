@@ -106,14 +106,14 @@ func (h *Handler) getAllDataHandler(CMS cms.Interface) func(c echo.Context) erro
 }
 
 // GET | /viz/:pid/data/:iid
-func (h *Handler) getDataHandler(CMS cms.Interface) func(c echo.Context) error {
+func (h *Handler) getDataHandler() func(c echo.Context) error {
 	return func(c echo.Context) error {
 		ctx := c.Request().Context()
 		itemID := c.Param("iid")
 		if itemID == "" {
 			return c.JSON(http.StatusNotFound, nil)
 		}
-		data, err := CMS.GetItem(ctx, itemID)
+		data, err := h.CMS.GetItem(ctx, itemID)
 		if err != nil {
 			return err
 		}

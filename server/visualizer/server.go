@@ -24,7 +24,7 @@ func initEcho(g *echo.Group, c Config, s Services) {
 	}
 	g.GET("/viz/:pid", h.fetchRoot())
 	g.GET("/viz/:pid/data", h.getAllDataHandler(s.CMS))
-	g.GET("/viz/:pid/data/:iid", h.getDataHandler(s.CMS))
+	g.GET("/viz/:pid/data/:iid", h.getDataHandler())
 	g.POST("/viz/:pid/data", h.createDataHandler(s.CMS), authMiddleware(c.AdminToken))
 	g.PATCH("/viz/:pid/data/:iid", h.updateDataHandler(s.CMS), authMiddleware(c.AdminToken))
 	g.DELETE("/vis/:pid/data/:iid", h.deleteDataHandler(s.CMS), authMiddleware(c.AdminToken))

@@ -3,52 +3,84 @@ package visualizer
 import (
 	"net/http"
 	"net/http/httptest"
+	"path"
 	"strings"
 	"testing"
 
 	"github.com/eukarya-inc/reearth-plateauview/server/cms"
 	"github.com/jarcoal/httpmock"
 	"github.com/labstack/echo/v4"
+	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )
 
-func TestHandler(t *testing.T) {
-	httpmock.Activate()
-	defer httpmock.Deactivate()
-	//mockCMS(t)
+const (
+	cmsHost                      = "https://api.cms.test.reearth.dev"
+	cmsToken                     = "token"
+	dataModelKey                 = "key1"
+	templateModelKey             = "key2"
+	dataModelDataFieldID         = "df1"
+	dataModelIDFieldID           = "df2"
+	templateModelTemplateFieldID = "tf1"
+	templateModelIDFieldID       = "tf2"
+)
 
-	e := echo.New()
+// func TestHandler(t *testing.T) {
+// 	httpmock.Activate()
+// 	defer httpmock.Deactivate()
+// 	//mockCMS(t)
 
-	// ctx := context.Background()
+// 	e := echo.New()
 
-	r := httptest.NewRequest("GET", "/viz/aaa", nil)
-	w := httptest.NewRecorder()
-	e.ServeHTTP(w, r)
-	assert.Equal(t, http.StatusOK, w.Code)
+// 	// ctx := context.Background()
+
+// 	r := httptest.NewRequest("GET", "/viz/aaa", nil)
+// 	w := httptest.NewRecorder()
+// 	e.ServeHTTP(w, r)
+// 	assert.Equal(t, http.StatusOK, w.Code)
+// }
+
+func newHandler() *Handler {
+	CMS := lo.Must(cms.New(cmsHost, cmsToken))
+	return &Handler{
+		CMS:                          CMS,
+		DataModelKey:                 dataModelKey,
+		DataModelDataFieldID:         dataModelDataFieldID,
+		DataModelIDFieldID:           dataModelIDFieldID,
+		TemplateModelKey:             templateModelKey,
+		TemplateModelTemplateFieldID: templateModelTemplateFieldID,
+		TemplateModelIDFieldID:       templateModelIDFieldID,
+	}
 }
 
-func TestHandler_getAllData(t *testing.T) {
-	cmsHost := "https://api.cms.test.reearth.dev/api"
-	// CMS := lo.Must(cms.New(cmsHost, "token"))
-	/*
-		h := &Handler{
-			CMS:          CMS,
-			DataModelKey: "あとでここは考える",
-		}
-	*/
+func TestHandler_getData(t *testing.T) {
+	h := newHandler()
+	itemID := "aaa"
 	httpmock.Activate()
 	defer httpmock.Deactivate()
 
+	expected := "{'hoge':'hoge'}"
+	//Mockでやりたいこと: dataのITEMを返してほしい
 	responder := func(req *http.Request) (*http.Response, error) {
 		return httpmock.NewJsonResponse(http.StatusOK, cms.Item{
-			ID: "hoge",
+			ID: itemID,
 			Fields: []cms.Field{
-				{ID: "hoge", Type: "text", Value: "{hoge:fuga}"},
+				{ID: h.DataModelDataFieldID, Type: "TextArea", Value: expected},
 			},
 		},
 		)
 	}
-	httpmock.RegisterResponder("GET", cmsHost+"/api/items/a", responder)
+	httpmock.RegisterResponder("GET", path.Join(cmsHost, "/api/items/", itemID), responder)
+	//テストしたいこと: CMSからdataが返ってくる想定のもと、仕様どおりにデータを返せるかどうか？
+	e := echo.New()
+	p := path.Join("/viz/aaa/data/", itemID)
+	req := httptest.NewRequest(http.MethodGet, p, nil)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+
+	assert.NoError(t, h.getDataHandler()(c))
+	assert.Equal(t, http.StatusOK, rec.Result().StatusCode)
+	assert.Equal(t, expected, rec.Body.String())
 }
 
 func mockCMS(host, token string) func(string) int {
