@@ -1,0 +1,104 @@
+package visualizer
+
+import (
+	"net/http"
+	"net/http/httptest"
+	"strings"
+	"testing"
+
+	"github.com/eukarya-inc/reearth-plateauview/server/cms"
+	"github.com/jarcoal/httpmock"
+	"github.com/labstack/echo/v4"
+	"github.com/stretchr/testify/assert"
+)
+
+func TestHandler(t *testing.T) {
+	httpmock.Activate()
+	defer httpmock.Deactivate()
+	//mockCMS(t)
+
+	e := echo.New()
+
+	// ctx := context.Background()
+
+	r := httptest.NewRequest("GET", "/viz/aaa", nil)
+	w := httptest.NewRecorder()
+	e.ServeHTTP(w, r)
+	assert.Equal(t, http.StatusOK, w.Code)
+}
+
+func TestHandler_getAllData(t *testing.T) {
+	cmsHost := "https://api.cms.test.reearth.dev/api"
+	// CMS := lo.Must(cms.New(cmsHost, "token"))
+	/*
+		h := &Handler{
+			CMS:          CMS,
+			DataModelKey: "あとでここは考える",
+		}
+	*/
+	httpmock.Activate()
+	defer httpmock.Deactivate()
+
+	responder := func(req *http.Request) (*http.Response, error) {
+		return httpmock.NewJsonResponse(http.StatusOK, cms.Item{
+			ID: "hoge",
+			Fields: []cms.Field{
+				{ID: "hoge", Type: "text", Value: "{hoge:fuga}"},
+			},
+		},
+		)
+	}
+	httpmock.RegisterResponder("GET", cmsHost+"/api/items/a", responder)
+}
+
+func mockCMS(host, token string) func(string) int {
+	responder := func(req *http.Request) (*http.Response, error) {
+		if t := parseToken(req); t != token {
+			return httpmock.NewJsonResponse(http.StatusUnauthorized, "unauthorized")
+		}
+
+		if req.Header.Get("Content-Type") != "application/json" {
+			return httpmock.NewJsonResponse(http.StatusUnsupportedMediaType, "unsupported media type")
+		}
+
+		res := map[string]any{}
+		p := req.URL.Path
+		if req.Method == "POST" && p == "/api/projects/ppp/assets" {
+			res["id"] = "idid"
+		} else if req.Method == "GET" && p == "/api/assets/a" {
+			res["id"] = "a"
+			res["url"] = "url"
+		} else if req.Method == "POST" && p == "/api/models/a/items" || p == "/api/items/a" {
+			res["id"] = "a"
+			// TODO: fields あとで帰る
+			res["fields"] = []map[string]string{{"id": "f", "type": "text", "value": "t"}}
+		} else if req.Method == "PATCH" && p == "/api/models/a/items/" {
+			//TDOO: PATCHのときの処理を書く
+		} else if req.Method == "DELETE" && p == "/api/models/a/items" {
+			res = nil
+		}
+
+		return httpmock.NewJsonResponse(http.StatusOK, res)
+	}
+
+	httpmock.RegisterResponder("GET", host+"/api/items/a", responder)
+	httpmock.RegisterResponder("PATCH", host+"/api/items/a", responder)
+	httpmock.RegisterResponder("POST", host+"/api/models/a/items", responder)
+	httpmock.RegisterResponder("POST", host+"/api/projects/ppp/assets", responder)
+	httpmock.RegisterResponder("POST", host+"/api/assets/c/comments", responder)
+	httpmock.RegisterResponder("GET", host+"/api/assets/a", responder)
+
+	return func(p string) int {
+		b, a, _ := strings.Cut(p, " ")
+		return httpmock.GetCallCountInfo()[b+" "+host+a]
+	}
+}
+
+func parseToken(r *http.Request) string {
+	aut := r.Header.Get("Authorization")
+	_, token, found := strings.Cut(aut, "Bearer ")
+	if !found {
+		return ""
+	}
+	return token
+}

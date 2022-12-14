@@ -23,7 +23,7 @@ type Handler struct {
 
 func NewHandler(CMS cms.Interface, dKey, tKey string) (*Handler, error) {
 	if dKey == "" || tKey == "" {
-		return nil, fmt.Errorf("missign model keys, dataKey=%s, templateKey=%s", dKey, tKey)
+		return nil, fmt.Errorf("missing model keys, dataKey=%s, templateKey=%s", dKey, tKey)
 	}
 
 	ctx := context.Background()

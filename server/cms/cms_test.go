@@ -29,14 +29,7 @@ func TestCMS(t *testing.T) {
 		ID:     "a",
 		Fields: []Field{{ID: "f", Type: "text", Value: "t"}},
 	}, item)
-	/*
-		items, err := f.GetItems(ctx, "a")
-		assert.NoError(t, err)
-		assert.Equal(t, &Item{
-			ID:     "a",
-			Fields: []Field{{ID: "f", Type: "text", Value: "t"}},
-		}, items)
-	*/
+
 	item, err = f.CreateItem(ctx, "a", nil)
 	assert.NoError(t, err)
 	assert.Equal(t, &Item{
@@ -74,11 +67,7 @@ func TestCMS(t *testing.T) {
 	item, err = f.GetItem(ctx, "a")
 	assert.Nil(t, item)
 	assert.ErrorContains(t, err, "failed to request: code=401")
-	/*
-		items, err = f.GetItems(ctx, "a")
-		assert.Nil(t, items)
-		assert.ErrorContains(t, err, "failed to request: code=401")
-	*/
+
 	item, err = f.CreateItem(ctx, "a", nil)
 	assert.Nil(t, item)
 	assert.ErrorContains(t, err, "failed to request: code=401")
