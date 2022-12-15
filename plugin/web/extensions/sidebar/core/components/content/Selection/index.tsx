@@ -6,13 +6,20 @@ import DatasetWrapper, { Dataset } from "../common/DatasetCard";
 
 export type Props = {
   selectedDatasets: Dataset[];
+  // onDatasetUpdate?: (dataset: Dataset) => void;
   onDatasetRemove: (id: string) => void;
   onDatasetRemoveAll: () => void;
   onModalOpen?: () => void;
 };
 
+const exampleDatasets: Dataset[] = [
+  { id: "haha", name: "渋谷", type: "3d-tiles", visible: true },
+  { id: "haha2", name: "横浜", type: "3d-tiles", visible: false },
+];
+
 const Selection: React.FC<Props> = ({
   selectedDatasets,
+  // onDatasetUpdate,
   onDatasetRemove,
   onDatasetRemoveAll,
   onModalOpen,
@@ -24,7 +31,7 @@ const Selection: React.FC<Props> = ({
           <StyledIcon icon="plusCircle" size={20} />
           <ButtonText>カタログから検索する</ButtonText>
         </StyledButton>
-        {selectedDatasets
+        {(exampleDatasets ?? selectedDatasets)
           .map(d => <DatasetWrapper key={d.id} dataset={d} onRemove={onDatasetRemove} />)
           .reverse()}
       </InnerWrapper>

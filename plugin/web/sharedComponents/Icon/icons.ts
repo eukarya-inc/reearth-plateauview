@@ -20,6 +20,7 @@ import { ReactComponent as Check } from "./Icons/check.svg";
 import { ReactComponent as ArrowDown } from "./Icons/arrowDown.svg";
 import { ReactComponent as ArrowLeft } from "./Icons/arrowLeft.svg";
 import { ReactComponent as Visible } from "./Icons/visible.svg";
+import { ReactComponent as Hidden } from "./Icons/hidden.svg";
 import { ReactComponent as About } from "./Icons/about.svg";
 import { ReactComponent as MapPin } from "./Icons/mapPin.svg";
 import { ReactComponent as User } from "./Icons/user.svg";
@@ -53,6 +54,7 @@ export default {
   arrowDown: ArrowDown,
   arrowLeft: ArrowLeft,
   visible: Visible,
+  hidden: Hidden,
   about: About,
   mapPin: MapPin,
   user: User,

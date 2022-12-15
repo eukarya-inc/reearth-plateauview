@@ -1,10 +1,17 @@
 import { Icon } from "@web/sharedComponents";
 import { styled } from "@web/theme";
-import { useCallback, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
+import {
+  Accordion,
+  AccordionItem,
+  AccordionItemHeading,
+  AccordionItemButton,
+  AccordionItemPanel,
+  AccordionItemState,
+} from "react-accessible-accordion";
 
 import { Dataset as DatasetType, Field as FieldType } from "../types";
 
-import { expandSection, collapseSection } from "./accordion";
 import Field from "./Field";
 
 export type Dataset = DatasetType;
@@ -16,75 +23,94 @@ export type Props = {
   onRemove?: (id: string) => void;
 };
 
-function makeid(length: number) {
-  let result = "";
-  const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-  const charactersLength = characters.length;
-  for (let i = 0; i < length; i++) {
-    result += characters.charAt(Math.floor(Math.random() * charactersLength));
-  }
-  return result;
-}
+const baseFields: Field[] = [
+  { id: "zoom", title: "Ideal Zoom", icon: "mapPin", value: 1 },
+  { id: "about", title: "About Data", icon: "about", value: "www.plateau.org/data-url" },
+  { id: "remove", icon: "trash" },
+];
 
-const DatasetCard: React.FC<Props> = ({ dataset: { id, name }, onRemove }) => {
-  const [expanded, setExpand] = useState(false);
-  const collapseClass = useMemo(() => `collapsible-${makeid(id.length)}`, [id]);
+const DatasetCard: React.FC<Props> = ({ dataset, onRemove }) => {
+  const [visible, setVisibility] = useState(false);
 
-  const baseFields: Field[] = [
-    { id: "zoom", title: "Ideal Zoom", icon: "mapPin", value: 1 },
-    { id: "about", title: "About Data", icon: "about", value: "www.plateau.org/data-url" },
-    { id: "remove", icon: "trash" },
-  ];
-
-  const handleExpand = useCallback(() => {
-    setExpand(!expanded);
-    const contentWrapperComponent = document.querySelector(`.${collapseClass}`) as HTMLDivElement;
-    const isCollapsed = contentWrapperComponent?.getAttribute("data-collapsed") === "true";
-
-    if (isCollapsed) {
-      expandSection(contentWrapperComponent);
-      contentWrapperComponent.setAttribute("data-collapsed", "false");
-    } else {
-      collapseSection(contentWrapperComponent);
-    }
-  }, [collapseClass, expanded]);
+  useEffect(() => {
+    setVisibility(dataset.type !== "group" ? !!dataset.visible : false);
+  }, [dataset]);
 
   return (
-    <Wrapper>
-      <Main expanded={expanded} onClick={handleExpand}>
-        <LeftMain>
-          <Icon icon="visible" size={20} />
-          <Title>{name}</Title>
-        </LeftMain>
-        <ArrowIcon icon="arrowDown" size={16} expanded={expanded} />
-      </Main>
-      <ContentWrapper className={collapseClass} data-collapsed>
-        <Content>
-          {baseFields.map((field, idx) => (
-            <Field key={idx} onClick={() => field.id === "remove" && onRemove?.(id)}>
-              {field.icon && <Icon icon={field.icon} size={20} />}
-              {field.title && <FieldName>{field.title}</FieldName>}
-            </Field>
-          ))}
-          {/* {fields?.map((field, idx) => (
-            <Field key={idx}>
-              {field.icon && <Icon icon={field.icon} size={20} />}
-              {field.title}
-            </Field>
-          ))} */}
-        </Content>
-      </ContentWrapper>
-    </Wrapper>
+    <StyledAccordionComponent allowZeroExpanded allowMultipleExpanded>
+      <AccordionItem>
+        <Header>
+          <HeaderContents>
+            <LeftMain>
+              <Icon
+                icon={!visible ? "hidden" : "visible"}
+                size={20}
+                onClick={e => {
+                  e?.stopPropagation();
+                  setVisibility(!visible);
+                }}
+              />
+              <Title>{dataset.name}</Title>
+            </LeftMain>
+            <AccordionItemState>
+              {({ expanded }) => <ArrowIcon icon="arrowDown" size={16} expanded={expanded} />}
+            </AccordionItemState>
+          </HeaderContents>
+        </Header>
+        <BodyWrapper>
+          <Content>
+            {baseFields.map((field, idx) => (
+              <BaseField key={idx} onClick={() => field.id === "remove" && onRemove?.(dataset.id)}>
+                {field.icon && <Icon icon={field.icon} size={20} color="#00BEBE" />}
+                {field.title && <FieldName>{field.title}</FieldName>}
+              </BaseField>
+            ))}
+            {[
+              { id: "camera", icon: undefined, title: "Camera" },
+              { id: "legend", icon: undefined, title: "Legend" },
+            ]?.map((field, idx) => (
+              <Field key={idx} field={field} />
+            ))}
+          </Content>
+        </BodyWrapper>
+      </AccordionItem>
+    </StyledAccordionComponent>
   );
 };
 
 export default DatasetCard;
 
-const Wrapper = styled.div`
+const StyledAccordionComponent = styled(Accordion)`
   width: 100%;
-  margin: 8px 0;
   border-radius: 4px;
-  box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.15);
+  box-shadow: 1px 2px 4px rgba(0, 0, 0, 0.25);
+  margin: 8px 0;
+  background: #ffffff;
+`;
+
+const Header = styled(AccordionItemHeading)`
+  border-bottom-width: 1px;
+  border-bottom-style: solid;
+  border-bottom-color: transparent;
+  border-bottom-color: #e0e0e0;
+  display: flex;
+  height: 46px;
+`;
+
+const HeaderContents = styled(AccordionItemButton)`
+  display: flex;
+  align-items: center;
+  flex: 1;
+  padding: 0 12px;
+  outline: none;
+  cursor: pointer;
+`;
+
+const BodyWrapper = styled(AccordionItemPanel)<{ noTransition?: boolean }>`
+  width: 100%;
+  border-radius: 0px 0px 4px 4px;
+  background: #fafafa;
+  padding: 12px;
 `;
 
 const LeftMain = styled.div`
@@ -99,42 +125,30 @@ const Title = styled.p`
   font-size: 16px;
 `;
 
-const SharedAccordionStyles = styled.div`
-  padding: 12px;
-`;
-
-const Main = styled(SharedAccordionStyles)<{ expanded?: boolean }>`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  height: 46px;
-  background: #ffffff;
-  border-radius: ${({ expanded }) => (!expanded ? "4px" : "4px 4px 0px 0px")};
-  border-bottom: 1px solid #e6e6e6;
-  cursor: pointer;
-`;
-
 const Content = styled.div`
   display: flex;
   align-content: center;
   align-items: center;
   flex-wrap: wrap;
+  gap: 6px;
+  // padding-right: 12px;
+`;
+
+const BaseField = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
   gap: 8px;
+  flex: 1 0 auto;
+  // min-width: 53px;
+  padding: 8px;
+  background: #ffffff;
+  border: 1px solid #e6e6e6;
+  border-radius: 4px;
+  cursor: pointer;
 `;
 
-const ContentWrapper = styled.div`
-  background: #f0f0f0;
-  border-radius: 0px 0px 4px 4px;
-  overflow: hidden;
-  transition: height 0.3s ease-out, padding-top 0.3s ease-out, padding-bottom 0.3s ease-out;
-  height: 0;
-  padding-top: 0;
-  padding-bottom: 0;
-  padding-left: 12px;
-  padding-right: 12px;
-`;
-
-const ArrowIcon = styled(Icon)<{ expanded: boolean }>`
+const ArrowIcon = styled(Icon)<{ expanded?: boolean }>`
   transition: transform 0.15s ease;
   transform: ${({ expanded }) => !expanded && "rotate(90deg)"};
 `;
