@@ -5,10 +5,11 @@ type Props = {
   type: "idealZoom";
   title: string;
   icon?: string;
+  inEditor?: boolean;
 };
 
-const IdealZoom: React.FC<Props> = () => {
-  return (
+const IdealZoom: React.FC<Props> = ({ inEditor }) => {
+  return !inEditor ? (
     <div>
       <InnerWrapper>
         <Text>Position</Text>
@@ -31,7 +32,7 @@ const IdealZoom: React.FC<Props> = () => {
         <Button>Capture</Button>
       </ButtonWrapper>
     </div>
-  );
+  ) : null;
 };
 
 export default IdealZoom;

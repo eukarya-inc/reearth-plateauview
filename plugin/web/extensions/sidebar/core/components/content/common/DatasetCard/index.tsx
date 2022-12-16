@@ -1,6 +1,6 @@
 import { Icon } from "@web/sharedComponents";
 import { styled } from "@web/theme";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   Accordion,
   AccordionItem,
@@ -17,8 +17,11 @@ import Field from "./Field";
 export type Dataset = DatasetType;
 export type Field = FieldType;
 
+type Tabs = "default" | "edit";
+
 export type Props = {
   dataset: Dataset;
+  inEditor?: boolean;
   onRemove?: (id: string) => void;
 };
 
@@ -28,12 +31,18 @@ const baseFields: BaseFieldType[] = [
   { id: "remove", icon: "trash" },
 ];
 
-const DatasetCard: React.FC<Props> = ({ dataset, onRemove }) => {
+const DatasetCard: React.FC<Props> = ({ dataset, inEditor, onRemove }) => {
   const [visible, setVisibility] = useState(false);
+  const [currentTab, changeTab] = useState<Tabs>("default");
 
   useEffect(() => {
     setVisibility(dataset.type !== "group" ? !!dataset.visible : false);
   }, [dataset]);
+
+  const handleTabChange: React.MouseEventHandler<HTMLParagraphElement> = useCallback(e => {
+    e.stopPropagation();
+    changeTab(e.currentTarget.id as Tabs);
+  }, []);
 
   return (
     <StyledAccordionComponent allowZeroExpanded>
@@ -41,20 +50,32 @@ const DatasetCard: React.FC<Props> = ({ dataset, onRemove }) => {
         <AccordionItemState>
           {({ expanded }) => (
             <Header expanded={expanded}>
-              <HeaderContents>
-                <LeftMain>
-                  <Icon
-                    icon={!visible ? "hidden" : "visible"}
-                    size={20}
-                    onClick={e => {
-                      e?.stopPropagation();
-                      setVisibility(!visible);
-                    }}
-                  />
-                  <Title>{dataset.name}</Title>
-                </LeftMain>
-                <ArrowIcon icon="arrowDown" size={16} expanded={expanded} />
-              </HeaderContents>
+              <StyledAccordionItemButton>
+                <HeaderContents>
+                  <LeftMain>
+                    <Icon
+                      icon={!visible ? "hidden" : "visible"}
+                      size={20}
+                      onClick={e => {
+                        e?.stopPropagation();
+                        setVisibility(!visible);
+                      }}
+                    />
+                    <Title>{dataset.name}</Title>
+                  </LeftMain>
+                  <ArrowIcon icon="arrowDown" size={16} expanded={expanded} />
+                </HeaderContents>
+                {inEditor && expanded && (
+                  <TabWrapper>
+                    <Tab id="default" selected={currentTab === "default"} onClick={handleTabChange}>
+                      Interface
+                    </Tab>
+                    <Tab id="edit" selected={currentTab === "edit"} onClick={handleTabChange}>
+                      Settings
+                    </Tab>
+                  </TabWrapper>
+                )}
+              </StyledAccordionItemButton>
             </Header>
           )}
         </AccordionItemState>
@@ -70,7 +91,7 @@ const DatasetCard: React.FC<Props> = ({ dataset, onRemove }) => {
               { id: "camera", icon: undefined, title: "Override Ideal Zoom", type: "idealZoom" },
               { id: "legend", icon: undefined, title: "Legend", type: "legend" },
             ]?.map((field, idx) => (
-              <Field key={idx} field={field} />
+              <Field key={idx} field={field} inEditor={inEditor} />
             ))}
           </Content>
         </BodyWrapper>
@@ -94,14 +115,17 @@ const Header = styled(AccordionItemHeading)<{ expanded?: boolean }>`
   border-bottom-style: solid;
   border-bottom-color: transparent;
   ${({ expanded }) => expanded && "border-bottom-color: #e0e0e0;"}
-  display: flex;
-  height: 46px;
 `;
 
-const HeaderContents = styled(AccordionItemButton)`
+const StyledAccordionItemButton = styled(AccordionItemButton)`
+  display: flex;
+  flex-direction: column;
+`;
+
+const HeaderContents = styled.div`
   display: flex;
   align-items: center;
-  flex: 1;
+  height: 46px;
   padding: 0 12px;
   outline: none;
   cursor: pointer;
@@ -158,4 +182,20 @@ const ArrowIcon = styled(Icon)<{ expanded?: boolean }>`
 
 const FieldName = styled.p`
   margin: 0;
+`;
+
+const TabWrapper = styled.div`
+  display: flex;
+  gap: 12px;
+  padding: 0 12px;
+`;
+
+const Tab = styled.p<{ selected?: boolean }>`
+  margin: 0;
+  padding: 12px 0 10px 0;
+  border-bottom-width: 2px;
+  border-bottom-style: solid;
+  border-bottom-color: ${({ selected }) => (selected ? "#1890FF" : "transparent")};
+  color: ${({ selected }) => (selected ? "#1890FF" : "inherit")};
+  cursor: pointer;
 `;

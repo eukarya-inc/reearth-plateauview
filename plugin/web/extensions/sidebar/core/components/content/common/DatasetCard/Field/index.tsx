@@ -20,11 +20,14 @@ type Field = {
 
 export type Props = {
   field: Field;
+  inEditor?: boolean;
 };
 
-const FieldComponent: React.FC<Props> = ({ field }) => {
+const FieldComponent: React.FC<Props> = ({ field, inEditor }) => {
   const FieldContent = fields[field.type];
-  return (
+  return inEditor ? (
+    <div>In editor</div>
+  ) : (
     <StyledAccordionComponent allowZeroExpanded>
       <AccordionItem>
         <AccordionItemState>
