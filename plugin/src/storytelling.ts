@@ -1,7 +1,7 @@
-import { PostMessageProps } from "@web/extensions/storyeditor/core/types";
+import { PostMessageProps } from "@web/extensions/storytelling/core/types";
 
-import html from "../dist/web/storyeditor/core/index.html?raw";
-// import dataCatalogHtml from "../dist/web/storyeditor/modals/datacatalog/index.html?raw";
+import html from "../dist/web/storytelling/core/index.html?raw";
+// import dataCatalogHtml from "../dist/web/storytelling/modals/datacatalog/index.html?raw";
 
 const reearth = (globalThis as any).reearth;
 

@@ -6,4 +6,4 @@ import { defineConfig } from "vite";
 import { plugin } from "../../vite.config.template";
 
 // https://vitejs.dev/config/
-export default defineConfig(plugin("storyeditor"));
+export default defineConfig(plugin("storytelling"));

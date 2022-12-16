@@ -1,10 +1,10 @@
-import Editor from "@web/extensions/storyeditor/core/components/editor";
-import Header from "@web/extensions/storyeditor/core/components/header";
-import useHooks, { size } from "@web/extensions/storyeditor/core/hooks";
+import Editor from "@web/extensions/storytelling/core/components/editor";
+import Header from "@web/extensions/storytelling/core/components/header";
+import useHooks, { size } from "@web/extensions/storytelling/core/hooks";
 import { Icon } from "@web/sharedComponents";
 import { styled } from "@web/theme";
 
-const Storyeditor: React.FC = () => {
+const Storytelling: React.FC = () => {
   const { minimized, handleMinimize, mode, setMode, contentTheme } = useHooks();
 
   return (
@@ -68,4 +68,4 @@ const ContentPane = styled.div<{ minimized: boolean }>`
   transition: opacity 0.25s;
 `;
 
-export default Storyeditor;
+export default Storytelling;
