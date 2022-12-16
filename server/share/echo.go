@@ -48,7 +48,7 @@ func Echo(g *echo.Group, conf Config) error {
 			return c.JSON(http.StatusNotFound, "not found")
 		}
 
-		return c.JSONBlob(http.StatusOK, []byte(v))
+		return c.Blob(http.StatusOK, "application/json", []byte(v))
 	})
 
 	g.POST("", func(c echo.Context) error {
@@ -62,7 +62,7 @@ func Echo(g *echo.Group, conf Config) error {
 		}
 
 		res, err := cmsapi.CreateItem(c.Request().Context(), conf.CMSModelID, []cms.Field{
-			{ID: conf.CMSDataFieldID, Type: "text", Value: body},
+			{ID: conf.CMSDataFieldID, Type: "text", Value: string(body)},
 		})
 		if err != nil {
 			log.Errorf("share: failed to create an item: %s", err)

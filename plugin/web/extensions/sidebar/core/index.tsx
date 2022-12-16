@@ -1,7 +1,9 @@
-import Info from "@web/extensions/sidebar/core/components/content/Info";
+import Feedback from "@web/extensions/sidebar/core/components/content/Feedback";
+import Help from "@web/extensions/sidebar/core/components/content/Help";
 import MapSettings from "@web/extensions/sidebar/core/components/content/MapSettings";
 import Selection from "@web/extensions/sidebar/core/components/content/Selection";
 import Share from "@web/extensions/sidebar/core/components/content/Share";
+import Templates from "@web/extensions/sidebar/core/components/content/Templates";
 import Header, { Pages } from "@web/extensions/sidebar/core/components/Header";
 import useGlobalHooks from "@web/extensions/sidebar/core/globalHooks";
 import { Content } from "@web/sharedComponents";
@@ -10,14 +12,14 @@ import { memo, useCallback, useState } from "react";
 
 export type Props = {
   className?: string;
-  isInsideEditor: boolean;
 };
 
-const Sidebar: React.FC<Props> = ({ className, isInsideEditor }) => {
+const Sidebar: React.FC<Props> = ({ className }) => {
   const {
     selectedDatasets,
     overrides,
     minimized,
+    inEditor,
     setMinimize,
     handleDatasetRemove,
     handleDatasetRemoveAll,
@@ -30,8 +32,6 @@ const Sidebar: React.FC<Props> = ({ className, isInsideEditor }) => {
   const handleClick = useCallback((p: Pages) => {
     setCurrent(p);
   }, []);
-
-  // handleResize <- extending in WAS
 
   const handleMinimize = useCallback(() => {
     const html = document.querySelector("html");
@@ -53,7 +53,7 @@ const Sidebar: React.FC<Props> = ({ className, isInsideEditor }) => {
     <Wrapper className={className} minimized={minimized}>
       <Header
         current={current}
-        isInsideEditor={isInsideEditor}
+        isInsideEditor={inEditor}
         minimized={minimized}
         onMinimize={handleMinimize}
         onClick={handleClick}
@@ -71,9 +71,10 @@ const Sidebar: React.FC<Props> = ({ className, isInsideEditor }) => {
                 />
               ),
               map: <MapSettings overrides={overrides} onOverridesUpdate={handleOverridesUpdate} />,
-              share: <Share />,
-              about: <Info />,
-              template: <div>Templates</div>, // To Do
+              share: <Share overrides={overrides} />,
+              help: <Help />,
+              feedback: <Feedback />,
+              template: <Templates />,
             }[current]
           }
         </ContentWrapper>
@@ -94,7 +95,7 @@ const Wrapper = styled.div<{ minimized?: boolean }>`
 
 const ContentWrapper = styled(Content)`
   flex: 1;
-  background: #dcdcdc;
+  background: #e7e7e7;
   box-sizing: border-box;
   overflow: auto;
 `;

@@ -1,6 +1,6 @@
 name: PLATEAU Plugin
 version: 1.0.0
-id: hoge
+id: plateau-plugin
 extensions:
   - id: sidebar
     name: Sidebar
@@ -26,3 +26,11 @@ extensions:
         zone: outer
         section: left
         area: bottom
+  - id: geolocation
+    name: My Location
+    type: widget
+    widgetLayout:
+      defaultLocation:
+        zone: inner
+        section: right
+        area: middle
