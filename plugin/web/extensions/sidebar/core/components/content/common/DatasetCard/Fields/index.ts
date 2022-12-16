@@ -1,6 +1,6 @@
 import { ComponentType } from "react";
 
-import Camera from "./Camera";
+import IdealZoom from "./IdealZoom";
 import Legend from "./Legend";
 
 export type BasicFieldProps<T = any> = {
@@ -13,7 +13,7 @@ export type BasicFieldProps<T = any> = {
 export type Component<BP = any> = ComponentType<BasicFieldProps<BP>>;
 
 const fields: Record<string, Component> = {
-  camera: Camera,
+  idealZoom: IdealZoom,
   legend: Legend,
 };
 

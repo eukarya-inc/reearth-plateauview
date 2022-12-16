@@ -2,12 +2,12 @@ import { styled } from "@web/theme";
 
 type Props = {
   id: string;
-  type: "camera";
+  type: "idealZoom";
   title: string;
   icon?: string;
 };
 
-const Camera: React.FC<Props> = () => {
+const IdealZoom: React.FC<Props> = () => {
   return (
     <div>
       <InnerWrapper>
@@ -34,7 +34,7 @@ const Camera: React.FC<Props> = () => {
   );
 };
 
-export default Camera;
+export default IdealZoom;
 
 const InnerWrapper = styled.div`
   display: flex;

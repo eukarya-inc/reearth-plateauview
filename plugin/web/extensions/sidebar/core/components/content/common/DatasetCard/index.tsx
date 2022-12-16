@@ -67,7 +67,7 @@ const DatasetCard: React.FC<Props> = ({ dataset, onRemove }) => {
               </BaseField>
             ))}
             {[
-              { id: "camera", icon: undefined, title: "Camera", type: "camera" },
+              { id: "camera", icon: undefined, title: "Override Ideal Zoom", type: "idealZoom" },
               { id: "legend", icon: undefined, title: "Legend", type: "legend" },
             ]?.map((field, idx) => (
               <Field key={idx} field={field} />
