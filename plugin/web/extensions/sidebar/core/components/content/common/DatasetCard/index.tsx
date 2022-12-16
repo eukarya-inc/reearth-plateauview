@@ -10,12 +10,11 @@ import {
   AccordionItemState,
 } from "react-accessible-accordion";
 
-import { Dataset as DatasetType, Field as FieldType } from "../types";
+import { Dataset as DatasetType, Field as FieldType, BaseField as BaseFieldType } from "../types";
 
 import Field from "./Field";
 
 export type Dataset = DatasetType;
-
 export type Field = FieldType;
 
 export type Props = {
@@ -23,7 +22,7 @@ export type Props = {
   onRemove?: (id: string) => void;
 };
 
-const baseFields: Field[] = [
+const baseFields: BaseFieldType[] = [
   { id: "zoom", title: "Ideal Zoom", icon: "mapPin", value: 1 },
   { id: "about", title: "About Data", icon: "about", value: "www.plateau.org/data-url" },
   { id: "remove", icon: "trash" },
@@ -37,26 +36,28 @@ const DatasetCard: React.FC<Props> = ({ dataset, onRemove }) => {
   }, [dataset]);
 
   return (
-    <StyledAccordionComponent allowZeroExpanded allowMultipleExpanded>
+    <StyledAccordionComponent allowZeroExpanded>
       <AccordionItem>
-        <Header>
-          <HeaderContents>
-            <LeftMain>
-              <Icon
-                icon={!visible ? "hidden" : "visible"}
-                size={20}
-                onClick={e => {
-                  e?.stopPropagation();
-                  setVisibility(!visible);
-                }}
-              />
-              <Title>{dataset.name}</Title>
-            </LeftMain>
-            <AccordionItemState>
-              {({ expanded }) => <ArrowIcon icon="arrowDown" size={16} expanded={expanded} />}
-            </AccordionItemState>
-          </HeaderContents>
-        </Header>
+        <AccordionItemState>
+          {({ expanded }) => (
+            <Header expanded={expanded}>
+              <HeaderContents>
+                <LeftMain>
+                  <Icon
+                    icon={!visible ? "hidden" : "visible"}
+                    size={20}
+                    onClick={e => {
+                      e?.stopPropagation();
+                      setVisibility(!visible);
+                    }}
+                  />
+                  <Title>{dataset.name}</Title>
+                </LeftMain>
+                <ArrowIcon icon="arrowDown" size={16} expanded={expanded} />
+              </HeaderContents>
+            </Header>
+          )}
+        </AccordionItemState>
         <BodyWrapper>
           <Content>
             {baseFields.map((field, idx) => (
@@ -66,8 +67,8 @@ const DatasetCard: React.FC<Props> = ({ dataset, onRemove }) => {
               </BaseField>
             ))}
             {[
-              { id: "camera", icon: undefined, title: "Camera" },
-              { id: "legend", icon: undefined, title: "Legend" },
+              { id: "camera", icon: undefined, title: "Camera", type: "camera" },
+              { id: "legend", icon: undefined, title: "Legend", type: "legend" },
             ]?.map((field, idx) => (
               <Field key={idx} field={field} />
             ))}
@@ -88,11 +89,11 @@ const StyledAccordionComponent = styled(Accordion)`
   background: #ffffff;
 `;
 
-const Header = styled(AccordionItemHeading)`
+const Header = styled(AccordionItemHeading)<{ expanded?: boolean }>`
   border-bottom-width: 1px;
   border-bottom-style: solid;
   border-bottom-color: transparent;
-  border-bottom-color: #e0e0e0;
+  ${({ expanded }) => expanded && "border-bottom-color: #e0e0e0;"}
   display: flex;
   height: 46px;
 `;
@@ -131,7 +132,6 @@ const Content = styled.div`
   align-items: center;
   flex-wrap: wrap;
   gap: 6px;
-  // padding-right: 12px;
 `;
 
 const BaseField = styled.div`
@@ -140,12 +140,15 @@ const BaseField = styled.div`
   align-items: center;
   gap: 8px;
   flex: 1 0 auto;
-  // min-width: 53px;
   padding: 8px;
   background: #ffffff;
   border: 1px solid #e6e6e6;
   border-radius: 4px;
   cursor: pointer;
+
+  :hover {
+    background: #f4f4f4;
+  }
 `;
 
 const ArrowIcon = styled(Icon)<{ expanded?: boolean }>`

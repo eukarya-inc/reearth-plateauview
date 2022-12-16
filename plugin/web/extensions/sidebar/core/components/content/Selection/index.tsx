@@ -2,7 +2,7 @@ import Footer from "@web/extensions/sidebar/core/components/Footer";
 import { Icon } from "@web/sharedComponents";
 import { styled } from "@web/theme";
 
-import DatasetWrapper, { Dataset } from "../common/DatasetCard";
+import DatasetCard, { Dataset } from "../common/DatasetCard";
 
 export type Props = {
   selectedDatasets: Dataset[];
@@ -32,7 +32,7 @@ const Selection: React.FC<Props> = ({
           <ButtonText>カタログから検索する</ButtonText>
         </StyledButton>
         {(exampleDatasets ?? selectedDatasets)
-          .map(d => <DatasetWrapper key={d.id} dataset={d} onRemove={onDatasetRemove} />)
+          .map(d => <DatasetCard key={d.id} dataset={d} onRemove={onDatasetRemove} />)
           .reverse()}
       </InnerWrapper>
       <Footer datasetQuantity={selectedDatasets.length} onRemoveAll={onDatasetRemoveAll} />

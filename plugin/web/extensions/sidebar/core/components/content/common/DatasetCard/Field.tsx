@@ -9,8 +9,11 @@ import {
   AccordionItemState,
 } from "react-accessible-accordion";
 
+import fields from "./Fields";
+
 type Field = {
   id: string;
+  type: string;
   title: string;
   icon?: string;
 };
@@ -20,6 +23,7 @@ export type Props = {
 };
 
 const FieldComponent: React.FC<Props> = ({ field }) => {
+  const FieldContent = fields[field.type];
   return (
     <StyledAccordionComponent allowZeroExpanded>
       <AccordionItem>
@@ -34,7 +38,7 @@ const FieldComponent: React.FC<Props> = ({ field }) => {
           )}
         </AccordionItemState>
         <BodyWrapper>
-          <Content>{field.icon && <Icon icon={field.icon} size={20} />}asdf</Content>
+          {FieldContent && <FieldContent id={field.id} title={field.title} type={field.type} />}
         </BodyWrapper>
       </AccordionItem>
     </StyledAccordionComponent>
@@ -69,8 +73,7 @@ const HeaderContents = styled(AccordionItemButton)`
   cursor: pointer;
 `;
 
-const BodyWrapper = styled(AccordionItemPanel)<{ noTransition?: boolean }>`
-  width: 100%;
+const BodyWrapper = styled(AccordionItemPanel)`
   border-radius: 0px 0px 4px 4px;
   padding: 12px;
 `;
@@ -82,13 +85,4 @@ const Title = styled.p`
 const ArrowIcon = styled(Icon)<{ expanded?: boolean }>`
   transition: transform 0.15s ease;
   transform: ${({ expanded }) => !expanded && "rotate(90deg)"};
-`;
-
-const Content = styled.div`
-  display: flex;
-  align-content: center;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 6px;
-  // padding-right: 12px;
 `;

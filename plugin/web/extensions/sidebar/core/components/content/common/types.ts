@@ -17,8 +17,11 @@ export type Dataset = Data;
 export type Field = {
   id: string;
   title?: string;
-  icon?: string;
   value?: any;
+};
+
+export type BaseField = Field & {
+  icon?: string;
 };
 
 export type Location = {
