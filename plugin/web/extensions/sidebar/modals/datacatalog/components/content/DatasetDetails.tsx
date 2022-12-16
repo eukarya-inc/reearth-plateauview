@@ -1,27 +1,27 @@
-import { Dataset as DatasetType } from "@web/extensions/sidebar/core/components/content/Selection/DatasetCard/types";
 import { Icon } from "@web/sharedComponents";
 import { styled } from "@web/theme";
-// import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { ComponentType, useCallback } from "react";
-// import { useMemo, useRef } from "react";
-// import { MapContainer, TileLayer, Marker } from "react-leaflet";
 import { MapContainer, TileLayer } from "react-leaflet";
+// import L from "leaflet";
+// import { MapContainer, TileLayer, Marker } from "react-leaflet";
+
+import { Data } from "../../types";
 
 // import iconSvg from "./icon.svg?raw";
 
-export type Dataset = DatasetType;
-
 export type Props = {
-  dataset?: Dataset;
+  dataset: Data;
+  addDisabled: boolean;
   contentSection?: ComponentType;
-  onDatasetAdd: (dataset: Dataset) => void;
+  onDatasetAdd: (dataset: Data) => void;
 };
 
 const initialLocation = { lat: 35.70249, lng: 139.7622 };
 
 const DatasetDetails: React.FC<Props> = ({
   dataset,
+  addDisabled,
   contentSection: ContentSection,
   onDatasetAdd,
 }) => {
@@ -52,10 +52,10 @@ const DatasetDetails: React.FC<Props> = ({
     onDatasetAdd(dataset);
   }, [dataset, onDatasetAdd]);
 
-  return dataset ? (
+  return (
     <Wrapper>
       <MapContainer
-        style={{ height: "220px" }}
+        style={{ height: "164px" }}
         center={initialLocation}
         zoom={8}
         scrollWheelZoom={false}
@@ -76,17 +76,17 @@ const DatasetDetails: React.FC<Props> = ({
       <ButtonWrapper>
         <Button>
           <Icon icon="share" />
-          Share this Data
+          シェア
         </Button>
-        <Button onClick={handleDatasetAdd}>
-          <Icon icon="plusCircle" />
-          Add to Scene
+        <Button disabled={addDisabled} onClick={handleDatasetAdd}>
+          {!addDisabled && <Icon icon="plusCircle" />}
+          {addDisabled ? "シーンに追加済み" : "シーンに追加"}
         </Button>
       </ButtonWrapper>
       <Title>{dataset.name}</Title>
       {ContentSection && <ContentSection />}
     </Wrapper>
-  ) : null;
+  );
 };
 
 export default DatasetDetails;
@@ -104,19 +104,19 @@ const ButtonWrapper = styled.div`
   margin: 12px 0 16px 0;
 `;
 
-const Button = styled.button`
+const Button = styled.button<{ disabled?: boolean }>`
   display: flex;
   justify-content: center;
   align-items: center;
   gap: 8px;
   flex: 1;
   height: 40px;
-  color: #00bebe;
+  color: ${({ disabled }) => (disabled ? "grey" : "#00bebe")};
   font-weight: 500;
-  background: #ffffff;
+  background: ${({ disabled }) => (disabled ? "#dcdcdc" : "#ffffff")};
   border: 1px solid #e6e6e6;
   border-radius: 4px;
-  cursor: pointer;
+  ${({ disabled }) => !disabled && "cursor: pointer;"}
 `;
 
 const Title = styled.p`

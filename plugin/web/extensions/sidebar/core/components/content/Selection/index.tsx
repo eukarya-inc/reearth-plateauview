@@ -2,7 +2,7 @@ import Footer from "@web/extensions/sidebar/core/components/Footer";
 import { Icon } from "@web/sharedComponents";
 import { styled } from "@web/theme";
 
-import DatasetWrapper, { Dataset } from "./DatasetCard";
+import DatasetWrapper, { Dataset } from "../common/DatasetCard";
 
 export type Props = {
   selectedDatasets: Dataset[];
@@ -17,10 +17,6 @@ const Selection: React.FC<Props> = ({
   onDatasetRemoveAll,
   onModalOpen,
 }) => {
-  // const handleFieldRemove = useCallback((id: string) => {
-  //   updateDatasets(oldDatasets => oldDatasets.filter(d => d.id !== id));
-  // }, []);
-
   return (
     <Wrapper>
       <InnerWrapper>

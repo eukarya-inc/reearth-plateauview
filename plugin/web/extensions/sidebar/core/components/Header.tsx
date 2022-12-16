@@ -2,7 +2,7 @@ import { Icon, Col } from "@web/sharedComponents";
 import { styled } from "@web/theme";
 import { memo, ReactNode, useMemo } from "react";
 
-export type Pages = "data" | "map" | "share" | "about" | "template";
+export type Pages = "data" | "map" | "share" | "help" | "feedback" | "template";
 
 export type TabProps = {
   key: Pages;
@@ -32,7 +32,7 @@ const Header: React.FC<Props> = ({
     const items: TabProps[] = [
       {
         key: "data",
-        icon: <StyledIcon icon="dataBase" />,
+        icon: <StyledIcon icon="database" />,
       },
       {
         key: "map",
@@ -43,12 +43,16 @@ const Header: React.FC<Props> = ({
         icon: <StyledIcon icon="share" />,
       },
       {
-        key: "about",
-        icon: <StyledIcon icon="info" />,
+        key: "help",
+        icon: <StyledIcon icon="help" />,
+      },
+      {
+        key: "feedback",
+        icon: <StyledIcon icon="feedback" />,
       },
       {
         key: "template",
-        icon: <StyledIcon icon="template" />,
+        icon: <StyledIcon icon="templates" />,
       },
     ];
 
@@ -111,7 +115,10 @@ const TopSection = styled.div`
   border-radius: 0 0 8px 0;
 `;
 
-const MinimizeButton = styled.button<{ minimized?: boolean }>`
+const MinimizeButton = styled.div<{ minimized?: boolean }>`
+  display: flex;
+  justify-content: center;
+  align-items: center;
   position: absolute;
   right: 0;
   top: 0;
@@ -121,6 +128,7 @@ const MinimizeButton = styled.button<{ minimized?: boolean }>`
   background: #00bebe;
   cursor: pointer;
   transition: background 0.3s;
+  color: white;
 
   ${({ minimized }) => minimized && "position: static;"}
 `;

@@ -1,13 +1,20 @@
 import { useCallback, useEffect, useState } from "react";
 
-import { Dataset } from "./components/content/Selection/DatasetCard";
+import { Dataset } from "./components/content/common/DatasetCard";
 import { useCurrentOverrides } from "./state";
 import { ReearthApi } from "./types";
 import { mergeProperty, postMsg } from "./utils";
 
 export default () => {
   // ****************************************
-  // Override Logic
+  // Init
+  useEffect(() => {
+    postMsg({ action: "init" }); // Needed to trigger sending initialization data to sidebar
+  }, []);
+  // ****************************************
+
+  // ****************************************
+  // Override
   const [overrides, updateOverrides] = useCurrentOverrides();
 
   const handleOverridesUpdate = useCallback(
@@ -23,7 +30,7 @@ export default () => {
   // ****************************************
 
   // ****************************************
-  // Minimize Logic
+  // Minimize
   const [minimized, setMinimize] = useState(false);
 
   useEffect(() => {
@@ -34,11 +41,13 @@ export default () => {
   // ****************************************
 
   // ****************************************
-  // Dataset Logic
+  // Dataset
   const [selectedDatasets, updateDatasets] = useState<Dataset[]>([]);
+  const [inEditor, setInEditor] = useState(true);
 
   const handleDatasetAdd = useCallback((dataset: Dataset) => {
     updateDatasets(oldDatasets => [...oldDatasets, dataset]);
+    postMsg({ action: "addDatasetToScene", payload: dataset });
   }, []);
 
   const handleDatasetRemove = useCallback(
@@ -48,6 +57,13 @@ export default () => {
 
   const handleDatasetRemoveAll = useCallback(() => updateDatasets([]), []);
 
+  // ****************************************
+
+  const handleModalOpen = useCallback(() => {
+    const selectedIds = selectedDatasets.map(d => d.id);
+    postMsg({ action: "datacatalog-modal-open", payload: selectedIds });
+  }, [selectedDatasets]);
+
   useEffect(() => {
     const eventListenerCallback = (e: MessageEvent<any>) => {
       if (e.source !== parent) return;
@@ -55,6 +71,8 @@ export default () => {
         if (e.data.payload.dataset) {
           handleDatasetAdd(e.data.payload.dataset);
         }
+      } else if (e.data.type === "init") {
+        setInEditor(e.data.payload.inEditor);
       }
     };
     addEventListener("message", e => eventListenerCallback(e));
@@ -62,16 +80,12 @@ export default () => {
       removeEventListener("message", eventListenerCallback);
     };
   }, []);
-  // ****************************************
-
-  const handleModalOpen = useCallback(() => {
-    postMsg({ action: "modal-open" });
-  }, []);
 
   return {
     selectedDatasets,
     overrides,
     minimized,
+    inEditor,
     setMinimize,
     handleDatasetRemove,
     handleDatasetRemoveAll,
