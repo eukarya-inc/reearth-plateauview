@@ -1,35 +1,116 @@
+import { Camera } from "@web/extensions/sidebar/core/types";
 import { styled } from "@web/theme";
+import { useCallback, useState } from "react";
 
-type Props = {
-  id: string;
-  type: "idealZoom";
-  title: string;
+import { SharedFieldProps } from "./types";
+
+type Props = SharedFieldProps<"idealZoom"> & {
   icon?: string;
-  inEditor?: boolean;
+  onCapture?: (camera: Partial<Camera>) => void;
 };
 
-const IdealZoom: React.FC<Props> = ({ inEditor }) => {
+const initialValues = {
+  lat: 0,
+  lng: 0,
+  altitude: 0,
+  heading: 0,
+  pitch: 0,
+  roll: 0,
+};
+
+const IdealZoom: React.FC<Props> = ({ inEditor, onCapture }) => {
+  const [camera, setCamera] = useState<Camera>(initialValues);
+
+  const handleLatitudeChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    console.log(e);
+    // handleLatitudeChange
+  }, []);
+
+  const handleLongitudeChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    console.log(e);
+    // handleLongitudeChange
+  }, []);
+
+  const handleAltitudeChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    console.log(e);
+    // handleAltitudeChange
+  }, []);
+
+  const handleHeadingChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    console.log(e);
+    // handleHeadingChange
+  }, []);
+
+  const handlePitchChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    console.log(e);
+    // handlePitchChange
+  }, []);
+
+  const handleRollChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    console.log(e);
+    // handleRollChange
+  }, []);
+
+  const handleCapture = useCallback(() => {
+    if (!camera) return;
+    onCapture?.(camera);
+  }, [camera, onCapture]);
+
+  const handleClean = useCallback(() => {
+    setCamera(initialValues);
+  }, []);
+
   return !inEditor ? (
     <div>
       <InnerWrapper>
-        <Text>Position</Text>
+        <Text>位置</Text>
         <InputWrapper>
-          <Input type="number" placeholder="Latitude" />
-          <Input type="number" placeholder="Longitude" />
-          <Input type="number" placeholder="Altitude" />
+          <Input
+            type="number"
+            placeholder="緯度" // Latitude
+            value={camera.lat}
+            onChange={handleLatitudeChange}
+          />
+          <Input
+            type="number"
+            placeholder="経度" // Longitude
+            value={camera.lng}
+            onChange={handleLongitudeChange}
+          />
+          <Input
+            type="number"
+            placeholder="高度" // Altitude
+            value={camera.altitude}
+            onChange={handleAltitudeChange}
+          />
         </InputWrapper>
       </InnerWrapper>
       <InnerWrapper>
-        <Text>Pose</Text>
+        <Text>ポーズ</Text>
         <InputWrapper>
-          <Input type="number" placeholder="Heading" />
-          <Input type="number" placeholder="Pitch" />
-          <Input type="number" placeholder="Roll" />
+          <Input
+            type="number"
+            placeholder="ヘッディング" // Heading
+            value={camera.heading}
+            onChange={handleHeadingChange}
+          />
+          <Input
+            type="number"
+            placeholder="ピッチ" // Pitch
+            value={camera.pitch}
+            onChange={handlePitchChange}
+          />
+          <Input
+            type="number"
+            placeholder="ロール" // Roll
+            value={camera.roll}
+            onChange={handleRollChange}
+          />
         </InputWrapper>
       </InnerWrapper>
       <ButtonWrapper>
-        <Button>Clean</Button>
-        <Button>Capture</Button>
+        <Button onClick={handleClean}>削除</Button>
+        <Button onClick={handleCapture}>キャプチャー</Button>
       </ButtonWrapper>
     </div>
   ) : null;

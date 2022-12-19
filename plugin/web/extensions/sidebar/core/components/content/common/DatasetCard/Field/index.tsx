@@ -1,5 +1,6 @@
 import { Icon } from "@web/sharedComponents";
 import { styled } from "@web/theme";
+import { useCallback } from "react";
 import {
   Accordion,
   AccordionItem,
@@ -20,23 +21,53 @@ type Field = {
 
 export type Props = {
   field: Field;
-  inEditor?: boolean;
+  editMode?: boolean;
+  onGroupAdd?: () => void;
+  onRemove?: () => void;
 };
 
-const FieldComponent: React.FC<Props> = ({ field, inEditor }) => {
+const FieldComponent: React.FC<Props> = ({ field, editMode, onGroupAdd, onRemove }) => {
   const FieldContent = fields[field.type];
-  return inEditor ? (
-    <div>In editor</div>
-  ) : (
+
+  const handleGroupAdd = useCallback(
+    (e: React.MouseEvent<HTMLDivElement, MouseEvent> | undefined) => {
+      e?.stopPropagation();
+      onGroupAdd?.();
+    },
+    [onGroupAdd],
+  );
+
+  const handleRemove = useCallback(
+    (e: React.MouseEvent<HTMLDivElement, MouseEvent> | undefined) => {
+      e?.stopPropagation();
+      onRemove?.();
+    },
+    [onRemove],
+  );
+
+  return !editMode && field.type === "idealZoom" ? null : (
     <StyledAccordionComponent allowZeroExpanded>
       <AccordionItem>
         <AccordionItemState>
           {({ expanded }) => (
             <Header expanded={expanded}>
-              <HeaderContents>
-                <Title>{field.title}</Title>
-                <ArrowIcon icon="arrowDown" size={16} expanded={expanded} />
-              </HeaderContents>
+              {editMode ? (
+                <HeaderContents>
+                  <LeftContents>
+                    <ArrowIcon icon="arrowDown" size={16} direction="right" expanded={expanded} />
+                    <Title>{field.title}</Title>
+                  </LeftContents>
+                  <RightContents>
+                    <StyledIcon icon="group" size={16} onClick={handleGroupAdd} />
+                    <StyledIcon icon="trash" size={16} onClick={handleRemove} />
+                  </RightContents>
+                </HeaderContents>
+              ) : (
+                <HeaderContents>
+                  <Title>{field.title}</Title>
+                  <ArrowIcon icon="arrowDown" size={16} direction="left" expanded={expanded} />
+                </HeaderContents>
+              )}
             </Header>
           )}
         </AccordionItemState>
@@ -85,7 +116,25 @@ const Title = styled.p`
   margin: 0;
 `;
 
-const ArrowIcon = styled(Icon)<{ expanded?: boolean }>`
+const StyledIcon = styled(Icon)`
+  cursor: pointer;
+`;
+
+const LeftContents = styled.div`
+  display: flex;
+  align-items: center;
+`;
+
+const RightContents = styled.div`
+  display: flex;
+  gap: 4px;
+`;
+
+const ArrowIcon = styled(Icon)<{ direction: "left" | "right"; expanded?: boolean }>`
   transition: transform 0.15s ease;
-  transform: ${({ expanded }) => !expanded && "rotate(90deg)"};
+  ${({ direction, expanded }) =>
+    (direction === "right" && !expanded && "transform: rotate(-90deg);") ||
+    (direction === "left" && !expanded && "transform: rotate(90deg);") ||
+    null}
+  ${({ direction }) => (direction === "left" ? "margin: 0 -4px 0 4px;" : "margin: 0 4px 0 -4px;")}
 `;

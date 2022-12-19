@@ -26,7 +26,7 @@ export type Props = {
 };
 
 const baseFields: BaseFieldType[] = [
-  { id: "zoom", title: "Ideal Zoom", icon: "mapPin", value: 1 },
+  { id: "zoom", title: "カメラ", icon: "mapPin", value: 1 },
   { id: "about", title: "About Data", icon: "about", value: "www.plateau.org/data-url" },
   { id: "remove", icon: "trash" },
 ];
@@ -68,10 +68,10 @@ const DatasetCard: React.FC<Props> = ({ dataset, inEditor, onRemove }) => {
                 {inEditor && expanded && (
                   <TabWrapper>
                     <Tab id="default" selected={currentTab === "default"} onClick={handleTabChange}>
-                      Interface
+                      公開
                     </Tab>
                     <Tab id="edit" selected={currentTab === "edit"} onClick={handleTabChange}>
-                      Settings
+                      設定
                     </Tab>
                   </TabWrapper>
                 )}
@@ -88,12 +88,14 @@ const DatasetCard: React.FC<Props> = ({ dataset, inEditor, onRemove }) => {
               </BaseField>
             ))}
             {[
-              { id: "camera", icon: undefined, title: "Override Ideal Zoom", type: "idealZoom" },
-              { id: "legend", icon: undefined, title: "Legend", type: "legend" },
+              { id: "camera", icon: undefined, title: "カメラ（カスタム）", type: "idealZoom" },
+              { id: "legend", icon: undefined, title: "凡例", type: "legend" },
+              { id: "description", icon: undefined, title: "説明", type: "description" },
             ]?.map((field, idx) => (
-              <Field key={idx} field={field} inEditor={inEditor} />
+              <Field key={idx} field={field} editMode={inEditor && currentTab === "edit"} />
             ))}
           </Content>
+          {inEditor && currentTab === "edit" && <AddButton>フィルドを追加</AddButton>}
         </BodyWrapper>
       </AccordionItem>
     </StyledAccordionComponent>
@@ -192,10 +194,25 @@ const TabWrapper = styled.div`
 
 const Tab = styled.p<{ selected?: boolean }>`
   margin: 0;
-  padding: 12px 0 10px 0;
+  padding: 0 0 10px 0;
   border-bottom-width: 2px;
   border-bottom-style: solid;
   border-bottom-color: ${({ selected }) => (selected ? "#1890FF" : "transparent")};
   color: ${({ selected }) => (selected ? "#1890FF" : "inherit")};
   cursor: pointer;
+`;
+
+const AddButton = styled.div`
+  display: flex;
+  justify-content: center;
+  background: #ffffff;
+  border: 1px solid #d9d9d9;
+  border-radius: 2px;
+  margin-top: 12px;
+  padding: 5px;
+  cursor: pointer;
+
+  :hover {
+    background: #f4f4f4;
+  }
 `;

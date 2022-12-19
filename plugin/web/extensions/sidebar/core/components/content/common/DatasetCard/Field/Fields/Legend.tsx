@@ -1,8 +1,6 @@
-type Props = {
-  id: string;
-  type: "legend";
-  title: string;
-};
+import { SharedFieldProps } from "./types";
+
+type Props = SharedFieldProps<"legend"> & {};
 
 const Legend: React.FC<Props> = () => {
   return <p>I AM LEGEND</p>;
