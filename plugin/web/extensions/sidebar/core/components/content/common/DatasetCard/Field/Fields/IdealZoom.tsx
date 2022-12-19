@@ -2,10 +2,10 @@ import { Camera } from "@web/extensions/sidebar/core/types";
 import { styled } from "@web/theme";
 import { useCallback, useState } from "react";
 
-import { SharedFieldProps } from "./types";
+import { BaseField as BaseFieldProps } from ".";
 
-type Props = SharedFieldProps<"idealZoom"> & {
-  icon?: string;
+type Props = BaseFieldProps<"idealZoom"> & {
+  editMode?: boolean;
   onCapture?: (camera: Partial<Camera>) => void;
 };
 
@@ -18,7 +18,7 @@ const initialValues = {
   roll: 0,
 };
 
-const IdealZoom: React.FC<Props> = ({ inEditor, onCapture }) => {
+const IdealZoom: React.FC<Props> = ({ editMode, onCapture }) => {
   const [camera, setCamera] = useState<Camera>(initialValues);
 
   const handleLatitudeChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
@@ -60,7 +60,7 @@ const IdealZoom: React.FC<Props> = ({ inEditor, onCapture }) => {
     setCamera(initialValues);
   }, []);
 
-  return !inEditor ? (
+  return editMode ? (
     <div>
       <InnerWrapper>
         <Text>位置</Text>

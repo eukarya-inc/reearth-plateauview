@@ -10,13 +10,10 @@ import {
   AccordionItemState,
 } from "react-accessible-accordion";
 
-import fields from "./Fields";
+import fields, { BaseField as BaseFieldProps, FieldType } from "./Fields";
 
-type Field = {
-  id: string;
-  type: string;
-  title: string;
-  icon?: string;
+export type Field = BaseFieldProps<FieldType> & {
+  icon?: string; // MAYBE NOT NEEDED
 };
 
 export type Props = {
@@ -71,9 +68,7 @@ const FieldComponent: React.FC<Props> = ({ field, editMode, onGroupAdd, onRemove
             </Header>
           )}
         </AccordionItemState>
-        <BodyWrapper>
-          {FieldContent && <FieldContent id={field.id} title={field.title} type={field.type} />}
-        </BodyWrapper>
+        <BodyWrapper>{FieldContent && <FieldContent {...field} editMode={editMode} />}</BodyWrapper>
       </AccordionItem>
     </StyledAccordionComponent>
   );

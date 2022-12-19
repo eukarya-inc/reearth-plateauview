@@ -1,6 +1,6 @@
-import { SharedFieldProps } from "./types";
+import { BaseField as BaseFieldProps } from ".";
 
-type Props = SharedFieldProps<"legend"> & {};
+type Props = BaseFieldProps<"legend"> & {};
 
 const Legend: React.FC<Props> = () => {
   return <p>I AM LEGEND</p>;

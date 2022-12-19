@@ -10,9 +10,9 @@ import {
   AccordionItemState,
 } from "react-accessible-accordion";
 
-import { Dataset as DatasetType, Field as FieldType, BaseField as BaseFieldType } from "../types";
+import { Dataset as DatasetType, BaseField as BaseFieldType } from "../types";
 
-import Field from "./Field";
+import Field, { Field as FieldType } from "./Field";
 
 export type Dataset = DatasetType;
 export type Field = FieldType;
@@ -87,11 +87,14 @@ const DatasetCard: React.FC<Props> = ({ dataset, inEditor, onRemove }) => {
                 {field.title && <FieldName>{field.title}</FieldName>}
               </BaseField>
             ))}
-            {[
-              { id: "camera", icon: undefined, title: "カメラ（カスタム）", type: "idealZoom" },
-              { id: "legend", icon: undefined, title: "凡例", type: "legend" },
-              { id: "description", icon: undefined, title: "説明", type: "description" },
-            ]?.map((field, idx) => (
+            {(
+              [
+                { id: "camera", icon: undefined, title: "カメラ（カスタム）", type: "idealZoom" },
+                { id: "description", icon: undefined, title: "説明", type: "description" },
+                { id: "template", icon: undefined, title: "Template", type: "template" },
+                { id: "legend", icon: undefined, title: "凡例", type: "legend" },
+              ] as FieldType[]
+            )?.map((field, idx) => (
               <Field key={idx} field={field} editMode={inEditor && currentTab === "edit"} />
             ))}
           </Content>
