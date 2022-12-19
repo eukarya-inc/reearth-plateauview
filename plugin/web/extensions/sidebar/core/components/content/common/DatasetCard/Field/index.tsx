@@ -13,6 +13,7 @@ import {
 import fields, { BaseField as BaseFieldProps, FieldType } from "./Fields";
 
 export type Field = BaseFieldProps<FieldType> & {
+  value: any;
   icon?: string; // MAYBE NOT NEEDED
 };
 

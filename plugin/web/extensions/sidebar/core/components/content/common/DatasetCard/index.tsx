@@ -90,7 +90,14 @@ const DatasetCard: React.FC<Props> = ({ dataset, inEditor, onRemove }) => {
             {(
               [
                 { id: "camera", icon: undefined, title: "カメラ（カスタム）", type: "idealZoom" },
-                { id: "description", icon: undefined, title: "説明", type: "description" },
+                {
+                  id: "description",
+                  icon: undefined,
+                  title: "説明",
+                  value: "*This is my descripadsfojl.*",
+                  isMarkdown: true,
+                  type: "description",
+                },
                 { id: "template", icon: undefined, title: "Template", type: "template" },
                 { id: "legend", icon: undefined, title: "凡例", type: "legend" },
               ] as FieldType[]

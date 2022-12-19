@@ -15,7 +15,7 @@ export type BaseField<T extends FieldType> = {
   title: string;
   // icon?: string;
   // url?: string;
-  // inEditor?: boolean;
+  // onChange?: () => void;
 };
 
 export type Fields<FT extends FieldType> = {

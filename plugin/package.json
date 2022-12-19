@@ -72,13 +72,16 @@
   },
   "dependencies": {
     "@types/react-leaflet": "2.8.2",
+    "github-markdown-css": "^5.1.0",
     "jotai": "1.8.4",
     "leaflet": "1.9.2",
     "lodash": "4.17.21",
     "react": "18.2.0",
     "react-accessible-accordion": "5.0.0",
     "react-dom": "18.2.0",
-    "react-leaflet": "4.1.0"
+    "react-leaflet": "4.1.0",
+    "react-markdown": "^8.0.4",
+    "remark-gfm": "^3.0.1"
   },
   "msw": {
     "workerDirectory": "web/mock"

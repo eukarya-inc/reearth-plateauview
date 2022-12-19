@@ -10,6 +10,7 @@ import message from "@web/sharedComponents/message";
 import Row from "@web/sharedComponents/Row";
 import Select from "@web/sharedComponents/Select";
 import Space from "@web/sharedComponents/Space";
+import Switch from "@web/sharedComponents/Switch";
 import Tabs from "@web/sharedComponents/Tabs";
 import Typography from "@web/sharedComponents/Typography";
 
@@ -27,6 +28,7 @@ export {
   Space,
   Typography,
   Select,
+  Switch,
   message,
   Tabs,
 };
