@@ -1,4 +1,8 @@
 import { PostMessageProps } from "@web/extensions/sidebar/core/types";
+import basicOperationHtml from "@web/extensions/sidebar/popups/BasicOperation/index.html?raw";
+import clipFunctionHtml from "@web/extensions/sidebar/popups/ClipFunction/index.html?raw";
+import shadowFunctionHtml from "@web/extensions/sidebar/popups/ShadowFunction/index.html?raw";
+import tryMapInfoHtml from "@web/extensions/sidebar/popups/TryMapInfo/index.html?raw";
 
 import html from "../dist/web/sidebar/core/index.html?raw";
 import dataCatalogHtml from "../dist/web/sidebar/modals/datacatalog/index.html?raw";
@@ -50,6 +54,18 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
     reearth.modal.postMessage({ type: "msgFromSidebar", payload: addedDatasets });
   } else if (action === "welcome-modal-open") {
     reearth.modal.show(welcomeScreenHtml, { background: "transparent" });
+  } else if (action === "show-popup") {
+    if (payload === "Basic") {
+      reearth.popup.show({ basicOperationHtml, position: "left" });
+    } else if (payload === "map") {
+      reearth.popup.show({ tryMapInfoHtml, position: "left" });
+    } else if (payload === "shadow") {
+      reearth.popup.show({ shadowFunctionHtml, position: "left" });
+    } else if (payload === "clip") {
+      reearth.popup.show({ clipFunctionHtml, position: "left" });
+    }
+  } else if (action === "close-popup") {
+    reearth.popup.close();
   }
 });
 

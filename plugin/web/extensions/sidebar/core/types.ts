@@ -11,7 +11,9 @@ type ActionType =
   | "modal-close"
   | "datacatalog-modal-open"
   | "welcome-modal-open"
-  | "minimize";
+  | "minimize"
+  | "show-popup"
+  | "close-popup";
 
 export type PostMessageProps = { action: ActionType; payload?: any };
 

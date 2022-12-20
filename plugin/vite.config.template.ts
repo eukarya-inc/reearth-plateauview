@@ -31,7 +31,7 @@ export const web =
   }: {
     name: string;
     parent?: string;
-    type?: "modal" | "plugin" | "core";
+    type?: "modal" | "plugin" | "core" | "popup";
   }): UserConfigExport =>
   () => {
     const root =

@@ -1,5 +1,7 @@
 import { MenuProps } from "antd";
 
+import { postMsg } from "../../../utils";
+
 type MenuItem = Required<MenuProps>["items"][number];
 
 function getItem(
@@ -25,7 +27,7 @@ const items: MenuItem[] = [
 
 export default () => {
   const handleItemSelected: MenuProps["onSelect"] = e => {
-    console.log("click", e.key);
+    postMsg({ action: "show-popup", payload: e.key });
   };
   return {
     items,
