@@ -26,19 +26,19 @@ const (
 )
 
 // func TestHandler(t *testing.T) {
-// 	httpmock.Activate()
-// 	defer httpmock.Deactivate()
-// 	//mockCMS(t)
+// httpmock.Activate()
+// defer httpmock.Deactivate()
+// mockCMS(t)
 
-// 	e := echo.New()
+//  e := echo.New()
 
-// 	// ctx := context.Background()
+//	// ctx := context.Background()
 
-// 	r := httptest.NewRequest("GET", "/viz/aaa", nil)
-// 	w := httptest.NewRecorder()
-// 	e.ServeHTTP(w, r)
-// 	assert.Equal(t, http.StatusOK, w.Code)
-// }
+//	r := httptest.NewRequest("GET", "/viz/aaa", nil)
+//	w := httptest.NewRecorder()
+//	e.ServeHTTP(w, r)
+//	assert.Equal(t, http.StatusOK, w.Code)
+//}
 
 func newHandler() *Handler {
 	CMS := lo.Must(cms.New(cmsHost, cmsToken))
@@ -73,11 +73,12 @@ func TestHandler_getData(t *testing.T) {
 	httpmock.RegisterResponder("GET", path.Join(cmsHost, "/api/items/", itemID), responder)
 	//テストしたいこと: CMSからdataが返ってくる想定のもと、仕様どおりにデータを返せるかどうか？
 	e := echo.New()
-	p := path.Join("/viz/aaa/data/", itemID)
+	p := path.Join(cmsHost, "/viz/aaa/data/", itemID)
 	req := httptest.NewRequest(http.MethodGet, p, nil)
+	req.Header.Set("Content-Type", "application/json")
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
-
+	// e.ServeHTTP(rec, req)
 	assert.NoError(t, h.getDataHandler()(c))
 	assert.Equal(t, http.StatusOK, rec.Result().StatusCode)
 	assert.Equal(t, expected, rec.Body.String())
@@ -102,7 +103,7 @@ func mockCMS(host, token string) func(string) int {
 			res["url"] = "url"
 		} else if req.Method == "POST" && p == "/api/models/a/items" || p == "/api/items/a" {
 			res["id"] = "a"
-			// TODO: fields あとで帰る
+			// TODO: fields あとで変える
 			res["fields"] = []map[string]string{{"id": "f", "type": "text", "value": "t"}}
 		} else if req.Method == "PATCH" && p == "/api/models/a/items/" {
 			//TDOO: PATCHのときの処理を書く
