@@ -10,6 +10,7 @@ import {
   AccordionItemState,
 } from "react-accessible-accordion";
 
+import AddButton from "../AddButton";
 import { Dataset as DatasetType, BaseField as BaseFieldType } from "../types";
 
 import Field, { Field as FieldType } from "./Field";
@@ -89,6 +90,27 @@ const DatasetCard: React.FC<Props> = ({ dataset, inEditor, onRemove }) => {
             ))}
             {(
               [
+                {
+                  id: "legend",
+                  icon: undefined,
+                  title: "凡例",
+                  type: "legend",
+                  value: {
+                    style: "circle",
+                    items: [
+                      {
+                        title: "An item",
+                        color: "#CAD74D",
+                        url: "https://uxwing.com/wp-content/themes/uxwing/download/hand-gestures/good-icon.png", // will only show if style is icon
+                      },
+                      {
+                        title: "An item2",
+                        color: "purple",
+                        url: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSjFMDc3xdT2anLKSofsMQir0NWYJQTjFjln463UQH8rn0c2pIekG0yD31Mp6r1DzC0jmM&usqp=CAU",
+                      },
+                    ],
+                  },
+                },
                 { id: "camera", icon: undefined, title: "カメラ（カスタム）", type: "idealZoom" },
                 {
                   id: "description",
@@ -99,13 +121,14 @@ const DatasetCard: React.FC<Props> = ({ dataset, inEditor, onRemove }) => {
                   type: "description",
                 },
                 { id: "template", icon: undefined, title: "Template", type: "template" },
-                { id: "legend", icon: undefined, title: "凡例", type: "legend" },
               ] as FieldType[]
             )?.map((field, idx) => (
               <Field key={idx} field={field} editMode={inEditor && currentTab === "edit"} />
             ))}
           </Content>
-          {inEditor && currentTab === "edit" && <AddButton>フィルドを追加</AddButton>}
+          {inEditor && currentTab === "edit" && (
+            <StyledAddButton text="フィルドを追加" onClick={() => alert("ADDING SOMETHING")} />
+          )}
         </BodyWrapper>
       </AccordionItem>
     </StyledAccordionComponent>
@@ -212,17 +235,6 @@ const Tab = styled.p<{ selected?: boolean }>`
   cursor: pointer;
 `;
 
-const AddButton = styled.div`
-  display: flex;
-  justify-content: center;
-  background: #ffffff;
-  border: 1px solid #d9d9d9;
-  border-radius: 2px;
+const StyledAddButton = styled(AddButton)`
   margin-top: 12px;
-  padding: 5px;
-  cursor: pointer;
-
-  :hover {
-    background: #f4f4f4;
-  }
 `;

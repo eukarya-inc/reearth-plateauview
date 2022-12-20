@@ -18,6 +18,9 @@ import { ReactComponent as Copy } from "./Icons/copy.svg";
 import { ReactComponent as Plus } from "./Icons/plus.svg";
 import { ReactComponent as PlusCircle } from "./Icons/plusCircle.svg";
 import { ReactComponent as Check } from "./Icons/check.svg";
+import { ReactComponent as ArrowDownThin } from "./Icons/arrowDownThin.svg";
+import { ReactComponent as ArrowUpThin } from "./Icons/arrowUpThin.svg";
+import { ReactComponent as ArrowDownSimple } from "./Icons/arrowDownSimple.svg";
 import { ReactComponent as ArrowDown } from "./Icons/arrowDown.svg";
 import { ReactComponent as ArrowLeft } from "./Icons/arrowLeft.svg";
 import { ReactComponent as Visible } from "./Icons/visible.svg";
@@ -53,6 +56,9 @@ export default {
   plus: Plus,
   plusCircle: PlusCircle,
   check: Check,
+  arrowDownThin: ArrowDownThin,
+  arrowUpThin: ArrowUpThin,
+  arrowDownSimple: ArrowDownSimple,
   arrowDown: ArrowDown,
   arrowLeft: ArrowLeft,
   visible: Visible,

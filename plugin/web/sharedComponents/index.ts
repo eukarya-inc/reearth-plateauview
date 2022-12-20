@@ -2,6 +2,7 @@ import Button from "@web/sharedComponents/Button";
 import Checkbox from "@web/sharedComponents/Checkbox";
 import Col from "@web/sharedComponents/Col";
 import Divider from "@web/sharedComponents/Divider";
+import Dropdown, { Menu } from "@web/sharedComponents/Dropdown";
 import Form from "@web/sharedComponents/Form";
 import Icon from "@web/sharedComponents/Icon";
 import Input from "@web/sharedComponents/Input";
@@ -17,18 +18,20 @@ import Typography from "@web/sharedComponents/Typography";
 export {
   Button,
   Checkbox,
+  Col,
   Divider,
+  Dropdown,
+  Menu,
   Form,
   Icon,
   Input,
   Content,
   Footer,
-  Row,
-  Col,
-  Space,
-  Typography,
-  Select,
-  Switch,
   message,
+  Row,
+  Select,
+  Space,
+  Switch,
   Tabs,
+  Typography,
 };
