@@ -1,6 +1,6 @@
-import { SharedFieldProps } from "./types";
+import { BaseField as BaseFieldProps } from ".";
 
-type Props = SharedFieldProps<"template"> & {};
+type Props = BaseFieldProps<"template"> & {};
 
 const Template: React.FC<Props> = () => {
   return <p>I AM Template</p>;
