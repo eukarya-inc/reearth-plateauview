@@ -5,15 +5,29 @@ import { styled } from "@web/theme";
 import useHooks from "./hooks";
 
 const Help: React.FC = () => {
-  const { items, handleItemSelected } = useHooks();
+  const { items, handleItemClicked } = useHooks();
+  const { SubMenu } = Menu;
   return (
     <CommonPage title="使い方">
-      <MenuWrapper onSelect={handleItemSelected} selectable={true} mode="vertical" items={items} />
+      <MenuWrapper onClick={handleItemClicked} mode="vertical">
+        {items.map(item => (
+          <SubMenu
+            key={item?.key}
+            onTitleClick={item?.onclick}
+            title={
+              <span>
+                <span>{item?.label}</span>
+              </span>
+            }
+          />
+        ))}
+      </MenuWrapper>
     </CommonPage>
   );
 };
 
 export default Help;
+
 const MenuWrapper = styled(Menu)`
   display: flex;
   flex-direction: column;
@@ -22,7 +36,6 @@ const MenuWrapper = styled(Menu)`
   gap: 12px;
   background: #e7e7e7;
   width: 326px;
-
   .ant-menu-submenu-open,
   .ant-menu-submenu-active,
   .ant-menu-submenu-selected {

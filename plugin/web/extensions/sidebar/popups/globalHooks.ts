@@ -6,7 +6,12 @@ export default () => {
     postMsg({ action: "close-popup" });
   }, []);
 
+  const handleShowMapModal = useCallback(() => {
+    postMsg({ action: "show-map-modal" });
+  }, []);
+
   return {
     handleClosePopup,
+    handleShowMapModal,
   };
 };

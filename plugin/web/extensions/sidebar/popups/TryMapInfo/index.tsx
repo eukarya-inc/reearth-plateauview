@@ -5,7 +5,7 @@ import useGlobalHooks from "../globalHooks";
 import { NumberingWrapper, ParagraphItem, PopupWrapper } from "../sharedComponent";
 
 const TryMapInfo: React.FC = () => {
-  const { handleClosePopup } = useGlobalHooks();
+  const { handleClosePopup, handleShowMapModal } = useGlobalHooks();
 
   return (
     <PopupWrapper width={350} height={1049} handleClose={handleClosePopup}>
@@ -14,7 +14,7 @@ const TryMapInfo: React.FC = () => {
 
         <ContentWrapper>
           <ImgWrapper>
-            <img src={mapVideo} />
+            <img src={mapVideo} onClick={handleShowMapModal} />
           </ImgWrapper>
           <Paragraph>
             上の動画では、空間データや地図を扱うのが初めての方が、データを追加したり地図上に表現するために必要な、基本的な機能について紹介しています。
@@ -69,6 +69,7 @@ const Wrapper = styled.div`
 const ImgWrapper = styled.div`
   width: 301px;
   height: 170px;
+  cursor: pointer;
 `;
 
 const Title = styled.p`

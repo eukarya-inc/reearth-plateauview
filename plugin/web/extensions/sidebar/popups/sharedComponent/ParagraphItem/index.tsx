@@ -14,5 +14,4 @@ const Wrapper = styled.div`
   padding: 0px;
   gap: 8px;
   width: 301px;
-  height: 44px;
 `;

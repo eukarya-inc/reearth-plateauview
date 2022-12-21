@@ -1,12 +1,12 @@
 import { PostMessageProps } from "@web/extensions/sidebar/core/types";
-import basicOperationHtml from "@web/extensions/sidebar/popups/BasicOperation/index.html?raw";
-import clipFunctionHtml from "@web/extensions/sidebar/popups/ClipFunction/index.html?raw";
-import shadowFunctionHtml from "@web/extensions/sidebar/popups/ShadowFunction/index.html?raw";
-import tryMapInfoHtml from "@web/extensions/sidebar/popups/TryMapInfo/index.html?raw";
 
 import html from "../dist/web/sidebar/core/index.html?raw";
 import dataCatalogHtml from "../dist/web/sidebar/modals/datacatalog/index.html?raw";
 import welcomeScreenHtml from "../dist/web/sidebar/modals/welcomescreen/index.html?raw";
+import basicOperationHtml from "../dist/web/sidebar/popups/BasicOperation/index.html?raw";
+import clipFunctionHtml from "../dist/web/sidebar/popups/ClipFunction/index.html?raw";
+import shadowFunctionHtml from "../dist/web/sidebar/popups/ShadowFunction/index.html?raw";
+import tryMapInfoHtml from "../dist/web/sidebar/popups/TryMapInfo/index.html?raw";
 
 const reearth = (globalThis as any).reearth;
 
@@ -55,14 +55,18 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
   } else if (action === "welcome-modal-open") {
     reearth.modal.show(welcomeScreenHtml, { background: "transparent" });
   } else if (action === "show-popup") {
-    if (payload === "Basic") {
-      reearth.popup.show({ basicOperationHtml, position: "left" });
+    if (payload === "basic") {
+      reearth.popup.show(basicOperationHtml, { position: "right" });
     } else if (payload === "map") {
-      reearth.popup.show({ tryMapInfoHtml, position: "left" });
+      reearth.popup.show(tryMapInfoHtml, {
+        position: "right",
+      });
     } else if (payload === "shadow") {
-      reearth.popup.show({ shadowFunctionHtml, position: "left" });
+      reearth.popup.show(shadowFunctionHtml, {
+        position: "right",
+      });
     } else if (payload === "clip") {
-      reearth.popup.show({ clipFunctionHtml, position: "left" });
+      reearth.popup.show(clipFunctionHtml, { position: "right" });
     }
   } else if (action === "close-popup") {
     reearth.popup.close();
