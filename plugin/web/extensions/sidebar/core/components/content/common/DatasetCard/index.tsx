@@ -1,6 +1,6 @@
 import { Icon } from "@web/sharedComponents";
 import { styled } from "@web/theme";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   Accordion,
   AccordionItem,
@@ -26,24 +26,33 @@ export type Props = {
   onRemove?: (id: string) => void;
 };
 
-const baseFields: BaseFieldType[] = [
-  { id: "zoom", title: "カメラ", icon: "mapPin", value: 1 },
-  { id: "about", title: "About Data", icon: "about", value: "www.plateau.org/data-url" },
-  { id: "remove", icon: "trash" },
-];
-
 const DatasetCard: React.FC<Props> = ({ dataset, inEditor, onRemove }) => {
   const [visible, setVisibility] = useState(false);
   const [currentTab, changeTab] = useState<Tabs>("default");
 
-  useEffect(() => {
-    setVisibility(dataset.type !== "group" ? !!dataset.visible : false);
-  }, [dataset]);
+  const baseFields: BaseFieldType[] = useMemo(
+    () => [
+      {
+        id: "zoom",
+        title: "カメラ",
+        icon: "mapPin",
+        value: 1,
+        onClick: () => alert("MOVE CAMERA"),
+      },
+      { id: "about", title: "About Data", icon: "about", value: "www.plateau.org/data-url" },
+      { id: "remove", icon: "trash", onClick: () => onRemove?.(dataset.id) },
+    ],
+    [dataset.id, onRemove],
+  );
 
   const handleTabChange: React.MouseEventHandler<HTMLParagraphElement> = useCallback(e => {
     e.stopPropagation();
     changeTab(e.currentTarget.id as Tabs);
   }, []);
+
+  useEffect(() => {
+    setVisibility(dataset.type !== "group" ? !!dataset.visible : false);
+  }, [dataset]);
 
   return (
     <StyledAccordionComponent allowZeroExpanded>
@@ -83,7 +92,7 @@ const DatasetCard: React.FC<Props> = ({ dataset, inEditor, onRemove }) => {
         <BodyWrapper>
           <Content>
             {baseFields.map((field, idx) => (
-              <BaseField key={idx} onClick={() => field.id === "remove" && onRemove?.(dataset.id)}>
+              <BaseField key={idx} onClick={field.onClick}>
                 {field.icon && <Icon icon={field.icon} size={20} color="#00BEBE" />}
                 {field.title && <FieldName>{field.title}</FieldName>}
               </BaseField>

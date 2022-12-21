@@ -22,6 +22,7 @@ export type Field = {
 
 export type BaseField = Field & {
   icon?: string;
+  onClick?: () => void;
 };
 
 export type Location = {
