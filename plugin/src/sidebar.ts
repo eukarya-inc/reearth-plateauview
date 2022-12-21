@@ -3,10 +3,10 @@ import { PostMessageProps } from "@web/extensions/sidebar/core/types";
 import html from "../dist/web/sidebar/core/index.html?raw";
 import dataCatalogHtml from "../dist/web/sidebar/modals/datacatalog/index.html?raw";
 import welcomeScreenHtml from "../dist/web/sidebar/modals/welcomescreen/index.html?raw";
-import basicOperationHtml from "../dist/web/sidebar/popups/BasicOperation/index.html?raw";
-import clipFunctionHtml from "../dist/web/sidebar/popups/ClipFunction/index.html?raw";
-import shadowFunctionHtml from "../dist/web/sidebar/popups/ShadowFunction/index.html?raw";
-import tryMapInfoHtml from "../dist/web/sidebar/popups/TryMapInfo/index.html?raw";
+import basicOperationHtml from "../dist/web/sidebar/popups/basicOperation/index.html?raw";
+import clipFunctionHtml from "../dist/web/sidebar/popups/clipFunction/index.html?raw";
+import shadowFunctionHtml from "../dist/web/sidebar/popups/shadowFunction/index.html?raw";
+import tryMapInfoHtml from "../dist/web/sidebar/popups/tryMapInfo/index.html?raw";
 
 const reearth = (globalThis as any).reearth;
 

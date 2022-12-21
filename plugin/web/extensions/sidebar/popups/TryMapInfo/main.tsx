@@ -1,6 +1,6 @@
 import ReactDOM from "react-dom/client";
 
-import TryMapInfo from "./";
+import TryMapInfo from ".";
 
 (async () => {
   const element = document.getElementById("root");

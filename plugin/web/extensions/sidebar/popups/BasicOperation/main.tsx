@@ -1,6 +1,6 @@
 import ReactDOM from "react-dom/client";
 
-import BasicOperation from "./";
+import BasicOperation from ".";
 
 (async () => {
   const element = document.getElementById("root");

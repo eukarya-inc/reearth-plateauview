@@ -1,6 +1,6 @@
 import ReactDOM from "react-dom/client";
 
-import ClipFunction from "./";
+import ClipFunction from ".";
 
 (async () => {
   const element = document.getElementById("root");

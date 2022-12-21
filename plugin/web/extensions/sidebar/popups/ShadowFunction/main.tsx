@@ -1,6 +1,6 @@
 import ReactDOM from "react-dom/client";
 
-import ShadowFunction from "./";
+import ShadowFunction from ".";
 
 (async () => {
   const element = document.getElementById("root");
