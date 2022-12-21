@@ -3,8 +3,6 @@ import { styled } from "@web/theme";
 import ReactMarkdown from "react-markdown";
 import gfm from "remark-gfm";
 
-// import "github-markdown-css/github-markdown.css";
-
 import { BaseField as BaseFieldProps } from ".";
 
 type Props = BaseFieldProps<"description"> & {

@@ -72,7 +72,6 @@
   },
   "dependencies": {
     "@types/react-leaflet": "2.8.2",
-    "github-markdown-css": "^5.1.0",
     "jotai": "1.8.4",
     "leaflet": "1.9.2",
     "lodash": "4.17.21",
