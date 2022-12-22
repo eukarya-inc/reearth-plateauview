@@ -125,7 +125,9 @@ const DatasetCard: React.FC<Props> = ({ dataset, inEditor, onRemove }) => {
                   id: "description",
                   icon: undefined,
                   title: "説明",
-                  value: "*This is my descripadsfojl.*",
+                  value: `*This is my descripadsfojl.*
+                  (c) (C) (r) (R) (tm) (TM) (p) (P) +-
+                  [link text](http://google.ca)`,
                   isMarkdown: true,
                   type: "description",
                 },

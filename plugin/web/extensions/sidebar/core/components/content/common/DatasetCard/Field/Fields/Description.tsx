@@ -1,7 +1,6 @@
 import { Switch } from "@web/sharedComponents";
 import { styled } from "@web/theme";
-import ReactMarkdown from "react-markdown";
-import gfm from "remark-gfm";
+import { Remarkable } from "remarkable";
 
 import { BaseField as BaseFieldProps } from ".";
 
@@ -11,9 +10,15 @@ type Props = BaseFieldProps<"description"> & {
   editMode?: boolean;
 };
 
-const plugins = [gfm];
-
 const Description: React.FC<Props> = ({ value, isMarkdown, editMode }) => {
+  const md = new Remarkable({
+    html: false,
+    breaks: true,
+    typographer: true,
+    linkTarget: "__blank",
+  });
+  const description = value ? (isMarkdown ? md.render(value) : value) : undefined;
+
   return editMode ? (
     <div>
       <Text>内容</Text>
@@ -23,12 +28,10 @@ const Description: React.FC<Props> = ({ value, isMarkdown, editMode }) => {
         <Text>マークダウン</Text>
       </SwitchWrapper>
     </div>
-  ) : isMarkdown && value ? (
-    <ReactMarkdown remarkPlugins={plugins} linkTarget="_blank">
-      {value}
-    </ReactMarkdown>
+  ) : isMarkdown && description ? (
+    <div dangerouslySetInnerHTML={{ __html: description }} />
   ) : (
-    <div>{value}</div>
+    <div>{description}</div>
   );
 };
 

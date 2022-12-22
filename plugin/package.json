@@ -45,6 +45,7 @@
     "@types/node": "18.6.4",
     "@types/react": "18.0.15",
     "@types/react-dom": "18.0.6",
+    "@types/remarkable": "2.0.3",
     "@types/styled-components": "5.1.26",
     "@vitejs/plugin-react": "2.0.0",
     "antd": "4.22.8",
@@ -79,8 +80,7 @@
     "react-accessible-accordion": "5.0.0",
     "react-dom": "18.2.0",
     "react-leaflet": "4.1.0",
-    "react-markdown": "8.0.4",
-    "remark-gfm": "3.0.1"
+    "remarkable": "2.0.1"
   },
   "msw": {
     "workerDirectory": "web/mock"
