@@ -10,8 +10,12 @@ export default () => {
     postMsg({ action: "show-map-modal" });
   }, []);
 
+  const handleShowClipModal = useCallback(() => {
+    postMsg({ action: "show-clip-modal" });
+  }, []);
   return {
     handleClosePopup,
     handleShowMapModal,
+    handleShowClipModal,
   };
 };

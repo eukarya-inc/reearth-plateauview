@@ -5,7 +5,7 @@ import useGlobalHooks from "../globalHooks";
 import { NumberingWrapper, ParagraphItem, PopupWrapper } from "../sharedComponent";
 
 const ClipFunction: React.FC = () => {
-  const { handleClosePopup } = useGlobalHooks();
+  const { handleClosePopup, handleShowClipModal } = useGlobalHooks();
 
   return (
     <PopupWrapper width={350} height={1209} handleClose={handleClosePopup}>
@@ -14,7 +14,7 @@ const ClipFunction: React.FC = () => {
 
         <ContentWrapper>
           <ImgWrapper>
-            <img src={clip} />
+            <img src={clip} onClick={handleShowClipModal} />
           </ImgWrapper>
           <Paragraph>
             この動画では、3Dモデルの断面を表示するための、クリップボックスの使い方を紹介しています。
@@ -101,4 +101,5 @@ const Paragraph = styled.p`
 const ImgWrapper = styled.div`
   width: 301px;
   height: 144px;
+  cursor: pointer;
 `;

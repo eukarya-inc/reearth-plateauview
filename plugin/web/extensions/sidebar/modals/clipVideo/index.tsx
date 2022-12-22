@@ -4,18 +4,18 @@ import { styled } from "@web/theme";
 
 import useHooks from "./hooks";
 
-const MapVideo: React.FC = () => {
+const ClipVideo: React.FC = () => {
   const { handleClose } = useHooks();
   return (
     <div>
       <CloseButton>
         <Icon size={32} icon="close" onClick={handleClose} />
       </CloseButton>
-      <Video width="560" height="315" src="https://www.youtube.com/embed/pY2dM-eG5mA" />
+      <Video width="560" height="315" src="https://www.youtube.com/embed/HQ2lDxVnJ9A" />
     </div>
   );
 };
-export default MapVideo;
+export default ClipVideo;
 
 const CloseButton = styled(Button)`
   display: flex;

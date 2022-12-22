@@ -14,7 +14,8 @@ type ActionType =
   | "minimize"
   | "show-popup"
   | "close-popup"
-  | "show-map-modal";
+  | "show-map-modal"
+  | "show-clip-modal";
 
 export type PostMessageProps = { action: ActionType; payload?: any };
 

@@ -1,6 +1,7 @@
 import { PostMessageProps } from "@web/extensions/sidebar/core/types";
 
 import html from "../dist/web/sidebar/core/index.html?raw";
+import clipVideoHtml from "../dist/web/sidebar/modals/clipVideo/index.html?raw";
 import dataCatalogHtml from "../dist/web/sidebar/modals/datacatalog/index.html?raw";
 import mapVideoHtml from "../dist/web/sidebar/modals/mapVideo/index.html?raw";
 import welcomeScreenHtml from "../dist/web/sidebar/modals/welcomescreen/index.html?raw";
@@ -73,6 +74,8 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
     reearth.popup.close();
   } else if (action === "show-map-modal") {
     reearth.modal.show(mapVideoHtml, { background: "transparent" });
+  } else if (action === "show-clip-modal") {
+    reearth.modal.show(clipVideoHtml, { background: "transparent" });
   }
 });
 
