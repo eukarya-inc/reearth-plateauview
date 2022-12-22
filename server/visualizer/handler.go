@@ -113,6 +113,7 @@ func (h *Handler) getDataHandler() func(c echo.Context) error {
 		if itemID == "" {
 			return c.JSON(http.StatusNotFound, nil)
 		}
+
 		data, err := h.CMS.GetItem(ctx, itemID)
 		if err != nil {
 			return err

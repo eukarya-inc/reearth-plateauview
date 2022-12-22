@@ -66,20 +66,25 @@ func TestHandler_getData(t *testing.T) {
 			ID: itemID,
 			Fields: []cms.Field{
 				{ID: h.DataModelDataFieldID, Type: "TextArea", Value: expected},
+				{ID: h.DataModelIDFieldID, Type: "Text", Value: "111"},
 			},
 		},
 		)
 	}
-	httpmock.RegisterResponder("GET", path.Join(cmsHost, "/api/items/", itemID), responder)
+	httpmock.RegisterResponder("GET", cmsHost+path.Join("/api/items/", itemID), responder)
 	//テストしたいこと: CMSからdataが返ってくる想定のもと、仕様どおりにデータを返せるかどうか？
 	e := echo.New()
-	p := path.Join(cmsHost, "/viz/aaa/data/", itemID)
+	p := path.Join("/viz/aaa/data/", itemID)
 	req := httptest.NewRequest(http.MethodGet, p, nil)
 	req.Header.Set("Content-Type", "application/json")
 	rec := httptest.NewRecorder()
-	c := e.NewContext(req, rec)
-	// e.ServeHTTP(rec, req)
-	assert.NoError(t, h.getDataHandler()(c))
+	ctx := e.NewContext(req, rec)
+	ctx.SetPath("/viz/:pid/data/:iid")
+	ctx.SetParamNames("pid", "iid")
+	ctx.SetParamValues("aaa", itemID)
+	handler := h.getDataHandler()
+	res := handler(ctx)
+	assert.NoError(t, res)
 	assert.Equal(t, http.StatusOK, rec.Result().StatusCode)
 	assert.Equal(t, expected, rec.Body.String())
 }
