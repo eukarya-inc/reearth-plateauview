@@ -66,7 +66,7 @@ func TestHandler_getData(t *testing.T) {
 			ID: itemID,
 			Fields: []cms.Field{
 				{ID: h.DataModelDataFieldID, Type: "TextArea", Value: expected},
-				{ID: h.DataModelIDFieldID, Type: "Text", Value: "111"},
+				{ID: h.DataModelIDFieldID, Type: "Text", Value: expected},
 			},
 		},
 		)
@@ -86,7 +86,40 @@ func TestHandler_getData(t *testing.T) {
 	res := handler(ctx)
 	assert.NoError(t, res)
 	assert.Equal(t, http.StatusOK, rec.Result().StatusCode)
-	assert.Equal(t, expected, rec.Body.String())
+	assert.Equal(t, expected, strings.Trim(strings.TrimSpace(rec.Body.String()), "\""))
+}
+
+func TestHandler_getAllData(t *testing.T) {
+	h := newHandler()
+	httpmock.Activate()
+	defer httpmock.Deactivate()
+
+	expected := "{'hoge':'hoge'}"
+	//Mockでやりたいこと: dataのITEMを返してほしい
+	responder := func(req *http.Request) (*http.Response, error) {
+		return httpmock.NewJsonResponse(http.StatusOK, cms.Item{
+			ID: "aaa",
+			Fields: []cms.Field{
+				{ID: h.DataModelDataFieldID, Type: "TextArea", Value: expected},
+				{ID: h.DataModelIDFieldID, Type: "Text", Value: expected},
+			},
+		},
+		)
+	}
+	httpmock.RegisterResponder("GET", cmsHost+path.Join("/api/items/"), responder)
+	//テストしたいこと: CMSからdataが返ってくる想定のもと、仕様どおりにデータを返せるかどうか？
+	e := echo.New()
+	p := path.Join("/viz/aaa/data/")
+	req := httptest.NewRequest(http.MethodGet, p, nil)
+	req.Header.Set("Content-Type", "application/json")
+	rec := httptest.NewRecorder()
+	ctx := e.NewContext(req, rec)
+	ctx.SetPath("/viz/:pid/data/")
+	handler := h.getAllDataHandler(h.CMS)
+	res := handler(ctx)
+	assert.NoError(t, res)
+	assert.Equal(t, http.StatusOK, rec.Result().StatusCode)
+	assert.Equal(t, expected, strings.Trim(strings.TrimSpace(rec.Body.String()), "\""))
 }
 
 func mockCMS(host, token string) func(string) int {
