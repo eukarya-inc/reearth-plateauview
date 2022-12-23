@@ -1,7 +1,7 @@
 import { useCallback, useState, useRef, useEffect, useMemo } from "react";
 
-import type { Camera } from "./types";
-import { postMsg } from "./utils";
+import type { Camera, Story } from "./types";
+import { postMsg, generateId } from "./utils";
 
 export const size = {
   mini: {
@@ -16,16 +16,9 @@ export const size = {
 
 export type Mode = "editor" | "play";
 
-export type Story = {
-  camera: Camera;
-  title?: string;
-  description?: string;
-};
-
 export default () => {
   const [minimized, setMinimized] = useState<boolean>(true);
-  const minimizedRef = useRef<boolean>();
-  minimizedRef.current = minimized;
+  const minimizedRef = useRef<boolean>(minimized);
 
   useEffect(() => {
     if (minimized) {
@@ -47,60 +40,111 @@ export default () => {
 
   const contentTheme = useMemo(() => (mode === "editor" ? "light" : "grey"), [mode]);
 
-  // Data
+  // Stories
   const [stories, setStories] = useState<Story[]>([]);
 
   const addStory = useCallback((story: Story) => {
     setStories(stories => [...stories, story]);
   }, []);
 
-  const loadStories = useCallback((stories: Story[]) => {
+  const captureScene = useCallback(() => {
+    postMsg("captureScene");
+  }, []);
+  const handleCaptureScene = useCallback((camera: Camera) => {
+    addStory({
+      id: generateId(),
+      title: "TiTle",
+      description: "",
+      camera,
+    });
+  }, []);
+
+  const viewStory = useCallback((camera: Camera) => {
+    postMsg("viewStory", camera);
+  }, []);
+
+  const recapture = useCallback((id: string) => {
+    postMsg("recapture", id);
+  }, []);
+  const handleRecapture = useCallback(({ camera, id }: { camera: Camera; id: string }) => {
+    setStories(stories => {
+      const story = stories.find(story => story.id === id);
+      if (story) {
+        story.camera = camera;
+      }
+      return [...stories];
+    });
+  }, []);
+
+  const deleteStory = useCallback((id: string) => {
+    setStories(stories => {
+      const index = stories.findIndex(story => story.id === id);
+      if (index !== -1) {
+        stories.splice(index, 1);
+      }
+      return [...stories];
+    });
+  }, []);
+
+  const editStory = useCallback(
+    (id: string) => {
+      const story = stories.find(story => story.id === id);
+      if (story) {
+        postMsg("editStory", story);
+      }
+    },
+    [stories],
+  );
+
+  const saveStory = useCallback((storyInfo: Omit<Story, "camera">) => {
+    setStories(stories => {
+      const story = stories.find(story => story.id === storyInfo.id);
+      if (story) {
+        story.title = storyInfo.title;
+        story.description = storyInfo.description;
+      }
+      return [...stories];
+    });
+  }, []);
+
+  useEffect(() => {
+    // mock stories
+    const stories = [];
+    for (let i = 1; i < 1; i += 1) {
+      stories.push({
+        id: generateId(),
+        title: `Title Title Title Title dotsThreeVertical ${i}`,
+        description:
+          "This is the first capture. Here you can see the new building of this city. This is the first capture. Here you can see the new building of this city.",
+        camera: undefined,
+      });
+    }
     setStories(stories);
   }, []);
 
-  // mockup
-  const mockStories: Story[] = [
-    {
-      camera: {
-        lng: 139,
-        lat: 40,
-        height: 10,
-        heading: 0,
-        pitch: -90,
-        roll: 0,
-        fov: 0.5,
-      },
-      title: "1",
-      description: "Some text here.",
-    },
-  ];
-
-  useEffect(() => {
-    loadStories(mockStories);
+  const eventListenerCallback = useCallback((e: MessageEvent<any>) => {
+    if (e.source !== parent) return;
+    switch (e.data.type) {
+      case "captureScene":
+        handleCaptureScene(e.data.payload);
+        break;
+      case "recapture":
+        handleRecapture(e.data.payload);
+        break;
+      case "saveStory":
+        saveStory(e.data.payload);
+        break;
+      default:
+        break;
+    }
   }, []);
 
-  const eventListenerCallback = (e: MessageEvent<any>) => {
-    if (e.source !== parent) return;
-    if (e.data.type === "initMsg") {
-      console.log("initmsg", e.data.payload);
-    }
-  };
-
-  // useEffect(() => {
-  //   addEventListener("message", e => eventListenerCallback(e));
-  //   console.log("plugin add message event listener");
-  //   return () => {
-  //     removeEventListener("message", eventListenerCallback);
-  //   };
-  // }, []);
-
-  const [inited, setInited] = useState(false);
-
-  if (!inited) {
-    console.log("plugin add message event listener");
-    addEventListener("message", e => eventListenerCallback(e));
-    setInited(true);
-  }
+  useEffect(() => {
+    addEventListener("message", eventListenerCallback);
+    return () => {
+      removeEventListener("message", eventListenerCallback);
+    };
+  }, []);
 
   return {
     minimized,
@@ -109,6 +153,10 @@ export default () => {
     setMode,
     contentTheme,
     stories,
-    addStory,
+    captureScene,
+    viewStory,
+    recapture,
+    deleteStory,
+    editStory,
   };
 };

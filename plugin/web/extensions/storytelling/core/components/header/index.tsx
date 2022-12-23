@@ -15,7 +15,7 @@ const Header: React.FC<Props> = ({ mode, setMode, handleMinimize }) => {
   return (
     <StyledHeader>
       <HeaderMain>
-        <WidgetTitle>Story Editor</WidgetTitle>
+        <WidgetTitle>Story</WidgetTitle>
         <Tab
           mode="editor"
           icon="pencil"

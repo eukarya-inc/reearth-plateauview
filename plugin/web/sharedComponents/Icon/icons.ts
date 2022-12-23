@@ -37,6 +37,7 @@ import { ReactComponent as Pencil } from "./Icons/pencil.svg";
 import { ReactComponent as Play } from "./Icons/play.svg";
 import { ReactComponent as Cross } from "./Icons/cross.svg";
 import { ReactComponent as PaperPlane } from "./Icons/paperPlane.svg";
+import { ReactComponent as DotsThreeVertical } from "./Icons/dotsThreeVertical.svg";
 
 export default {
   logo: Logo,
@@ -63,11 +64,6 @@ export default {
   user: User,
   search: Search,
   inbox: Inbox,
-  cornersOut: CornersOut,
-  pencil: Pencil,
-  play: Play,
-  cross: Cross,
-  paperPlane: PaperPlane,
   folder: Folder,
   folderOpen: FolderOpen,
   file: File,
@@ -75,4 +71,10 @@ export default {
   newPage: NewPage,
   edit: Edit,
   bullseye: Bullseye,
+  cornersOut: CornersOut,
+  pencil: Pencil,
+  play: Play,
+  cross: Cross,
+  paperPlane: PaperPlane,
+  dotsThreeVertical: DotsThreeVertical,
 };

@@ -1,29 +1,50 @@
 import { Icon } from "@web/sharedComponents";
 import { styled } from "@web/theme";
-// import BetterScroll from "better-scroll";
-import { useMemo } from "react";
+import { useRef, useCallback, type WheelEvent } from "react";
 
-const Editor: React.FC = () => {
-  const stories = useMemo(() => [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], []);
+import type { Camera, Story as StoryType } from "../../types";
 
-  // useEffect(() => {
-  //   const bs = new BetterScroll(".wrapper", {
-  //     scrollX: true,
-  //     probeType: 3,
-  //   });
+import Story from "./story";
 
-  //   setInterval(() => {
-  //     bs.refresh();
-  //   }, 5000);
-  // }, []);
+type Props = {
+  stories: StoryType[];
+  captureScene: () => void;
+  viewStory: (camera: Camera) => void;
+  recapture: (id: string) => void;
+  deleteStory: (id: string) => void;
+  editStory: (id: string) => void;
+};
+
+const Editor: React.FC<Props> = ({
+  stories,
+  captureScene,
+  viewStory,
+  recapture,
+  deleteStory,
+  editStory,
+}) => {
+  const wrapperRef = useRef<HTMLDivElement>(null);
+
+  const handleWheel = useCallback((e: WheelEvent) => {
+    if (wrapperRef.current) {
+      wrapperRef.current.scrollLeft += e.deltaY < 0 ? -30 : 30;
+    }
+  }, []);
 
   return (
-    <Wrapper className="wrapper">
+    <Wrapper onWheel={handleWheel} ref={wrapperRef}>
       <Content>
-        {stories.map((story, index) => (
-          <Story key={index}>{story}</Story>
+        {stories?.map((story, index) => (
+          <Story
+            key={index}
+            viewStory={viewStory}
+            recapture={recapture}
+            deleteStory={deleteStory}
+            editStory={editStory}
+            {...story}
+          />
         ))}
-        <CreateStory>
+        <CreateStory onClick={captureScene}>
           <Icon icon="cornersOut" size={24} />
           <CreateText>Capture Scene</CreateText>
         </CreateStory>
@@ -35,30 +56,21 @@ const Editor: React.FC = () => {
 const Wrapper = styled.div`
   height: 100%;
   flex: 1;
-  white-space: nowrap;
+  overflow-x: auto;
+  padding: 12px;
+  scrollbar-width: thin;
 `;
 
 const Content = styled.div`
-  height: 100%;
-  padding: 12px;
   display: flex;
-  width: 2000px;
-  flex-wrap: nowrap;
-  gap: 12px;
-`;
-
-const Story = styled.div`
-  width: 170px;
   height: 100%;
-  flex-shrink: 0;
-  background: #f8f8f8;
-  border-radius: 8px;
-  border: 1px solid #c7c5c5;
+  gap: 12px;
+  float: left;
 `;
 
 const CreateStory = styled.div`
   width: 170px;
-  height: 100%;
+  height: 114px;
   flex-shrink: 0;
   background: #fff;
   border-radius: 8px;

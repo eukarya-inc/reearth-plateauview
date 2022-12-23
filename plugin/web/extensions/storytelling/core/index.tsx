@@ -5,7 +5,19 @@ import { Icon } from "@web/sharedComponents";
 import { styled } from "@web/theme";
 
 const Storytelling: React.FC = () => {
-  const { minimized, handleMinimize, mode, setMode, contentTheme } = useHooks();
+  const {
+    minimized,
+    handleMinimize,
+    mode,
+    setMode,
+    contentTheme,
+    stories,
+    captureScene,
+    viewStory,
+    recapture,
+    deleteStory,
+    editStory,
+  } = useHooks();
 
   return (
     <Wrapper minimized={minimized} theme={contentTheme}>
@@ -15,7 +27,16 @@ const Storytelling: React.FC = () => {
       </MiniPane>
       <ContentPane minimized={minimized}>
         <Header mode={mode} setMode={setMode} handleMinimize={handleMinimize} />
-        {mode === "editor" && <Editor />}
+        {mode === "editor" && (
+          <Editor
+            stories={stories}
+            captureScene={captureScene}
+            viewStory={viewStory}
+            recapture={recapture}
+            deleteStory={deleteStory}
+            editStory={editStory}
+          />
+        )}
       </ContentPane>
     </Wrapper>
   );
@@ -49,7 +70,6 @@ const MiniPane = styled.div<{ minimized: boolean }>`
 `;
 
 const MiniTitle = styled.div`
-  font-family: "Noto Sans";
   font-weight: 700;
   font-size: 14px;
   width: auto;
