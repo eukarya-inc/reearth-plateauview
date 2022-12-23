@@ -13,11 +13,6 @@ export type Props = {
   onModalOpen?: () => void;
 };
 
-const exampleDatasets: Dataset[] = [
-  { id: "haha", name: "渋谷", type: "3d-tiles", visible: true },
-  { id: "haha2", name: "横浜", type: "3d-tiles", visible: false },
-];
-
 const Selection: React.FC<Props> = ({
   inEditor,
   selectedDatasets,
@@ -33,7 +28,7 @@ const Selection: React.FC<Props> = ({
           <StyledIcon icon="plusCircle" size={20} />
           <ButtonText>カタログから検索する</ButtonText>
         </StyledButton>
-        {(exampleDatasets ?? selectedDatasets)
+        {selectedDatasets
           .map(d => (
             <DatasetCard key={d.id} dataset={d} inEditor={inEditor} onRemove={onDatasetRemove} />
           ))
