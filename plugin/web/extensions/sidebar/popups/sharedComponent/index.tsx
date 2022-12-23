@@ -3,4 +3,4 @@ import ParagraphItem from "../sharedComponent/ParagraphItem";
 
 import PopupWrapper from "./PopupWrapper";
 
-export default { ParagraphItem, NumberingWrapper, PopupWrapper };
+export { ParagraphItem, NumberingWrapper, PopupWrapper };
