@@ -9,7 +9,7 @@ const Help: React.FC = () => {
   const { SubMenu } = Menu;
   return (
     <CommonPage title="使い方">
-      <MenuWrapper onClick={handleItemClicked} mode="vertical">
+      <MenuWrapper onClick={handleItemClicked} mode="vertical" defaultSelectedKeys={["basic"]}>
         {items.map(item => (
           <SubMenu
             key={item?.key}

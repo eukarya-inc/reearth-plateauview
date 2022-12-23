@@ -1,6 +1,6 @@
 import { Icon, Button } from "@web/sharedComponents";
+import { styled } from "@web/theme";
 import { ReactNode } from "react";
-import styled from "styled-components";
 
 type Props = {
   width?: number;
