@@ -45,6 +45,7 @@ export default () => {
 
   const addStory = useCallback((story: Story) => {
     setStories(stories => [...stories, story]);
+    postMsg("editStory", { id: story.id, title: story.title, description: story.description });
   }, []);
 
   const captureScene = useCallback(() => {
@@ -53,7 +54,7 @@ export default () => {
   const handleCaptureScene = useCallback((camera: Camera) => {
     addStory({
       id: generateId(),
-      title: "TiTle",
+      title: "",
       description: "",
       camera,
     });
