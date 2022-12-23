@@ -1,25 +1,33 @@
 import CommonPage from "@web/extensions/sidebar/core/components/content/CommonPage";
-import Menu from "@web/sharedComponents/Menu";
+import { Icon } from "@web/sharedComponents";
 import { styled } from "@web/theme";
+import { useEffect } from "react";
+
+import { postMsg } from "../../../utils";
 
 import useHooks from "./hooks";
 
 const Help: React.FC = () => {
-  const { items, handleItemClicked } = useHooks();
-  const { SubMenu } = Menu;
+  const { items, selectedTab, handleItemClicked } = useHooks();
+
+  useEffect(() => {
+    postMsg({ action: "show-popup", payload: "basic" });
+    return () => {
+      postMsg({ action: "close-popup" });
+    };
+  }, []);
+
   return (
     <CommonPage title="使い方">
-      <MenuWrapper onClick={handleItemClicked} mode="vertical" defaultSelectedKeys={["basic"]}>
+      <MenuWrapper>
         {items.map(item => (
-          <SubMenu
-            key={item?.key}
-            onTitleClick={item?.onclick}
-            title={
-              <span>
-                <span>{item?.label}</span>
-              </span>
-            }
-          />
+          <MenuItem
+            key={item.key}
+            selected={item.key === selectedTab}
+            onClick={() => handleItemClicked(item.key)}>
+            <Text>{item?.label}</Text>
+            <Icon icon="arrowDown" />
+          </MenuItem>
         ))}
       </MenuWrapper>
     </CommonPage>
@@ -28,7 +36,7 @@ const Help: React.FC = () => {
 
 export default Help;
 
-const MenuWrapper = styled(Menu)`
+const MenuWrapper = styled.div`
   display: flex;
   flex-direction: column;
   align-items: space-between;
@@ -36,19 +44,24 @@ const MenuWrapper = styled(Menu)`
   gap: 12px;
   background: #e7e7e7;
   width: 326px;
-  .ant-menu-submenu-open,
-  .ant-menu-submenu-active,
-  .ant-menu-submenu-selected {
-    background: #00bebe !important;
-    color: #ffffff;
-  }
-  .ant-menu-submenu-vertical:hover,
-  .ant-menu-submenu:hover,
-  .ant-menu-submenu-title:hover {
-    color: #e7e7e7 !important;
-  }
-  .ant-menu-submenu-arrow::before,
-  .ant-menu-submenu-arrow::after {
-    background: #e7e7e7;
-  }
+`;
+
+const MenuItem = styled.div<{ selected?: boolean }>`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 42px;
+  padding: 10px 12px;
+  cursor: pointer;
+
+  ${({ selected }) =>
+    selected &&
+    `
+  background: #00BEBE;
+  color: #fff;
+  `}
+`;
+
+const Text = styled.p`
+  margin: 0;
 `;

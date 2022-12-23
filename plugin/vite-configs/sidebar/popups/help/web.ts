@@ -6,4 +6,4 @@ import { defineConfig } from "vite";
 import { web } from "../../../../vite.config.template";
 
 // https://vitejs.dev/config/
-export default defineConfig(web({ name: "tryMapInfo", parent: "sidebar", type: "popup" }));
+export default defineConfig(web({ name: "help", parent: "sidebar", type: "popup" }));

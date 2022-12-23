@@ -5,10 +5,7 @@ import clipVideoHtml from "../dist/web/sidebar/modals/clipVideo/index.html?raw";
 import dataCatalogHtml from "../dist/web/sidebar/modals/datacatalog/index.html?raw";
 import mapVideoHtml from "../dist/web/sidebar/modals/mapVideo/index.html?raw";
 import welcomeScreenHtml from "../dist/web/sidebar/modals/welcomescreen/index.html?raw";
-import basicOperationHtml from "../dist/web/sidebar/popups/basicOperation/index.html?raw";
-import clipFunctionHtml from "../dist/web/sidebar/popups/clipFunction/index.html?raw";
-import shadowFunctionHtml from "../dist/web/sidebar/popups/shadowFunction/index.html?raw";
-import tryMapInfoHtml from "../dist/web/sidebar/popups/tryMapInfo/index.html?raw";
+import helpPopupHtml from "../dist/web/sidebar/popups/help/index.html?raw";
 
 const reearth = (globalThis as any).reearth;
 
@@ -57,19 +54,9 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
   } else if (action === "welcome-modal-open") {
     reearth.modal.show(welcomeScreenHtml, { background: "transparent" });
   } else if (action === "show-popup") {
-    if (payload === "basic") {
-      reearth.popup.show(basicOperationHtml, { position: "right" });
-    } else if (payload === "map") {
-      reearth.popup.show(tryMapInfoHtml, {
-        position: "right",
-      });
-    } else if (payload === "shadow") {
-      reearth.popup.show(shadowFunctionHtml, {
-        position: "right",
-      });
-    } else if (payload === "clip") {
-      reearth.popup.show(clipFunctionHtml, { position: "right" });
-    }
+    reearth.popup.show(helpPopupHtml, { position: "right" });
+  } else if (action === "popup-message") {
+    reearth.popup.postMessage({ type: "msgFromHelp", message: payload }, "*");
   } else if (action === "close-popup") {
     reearth.popup.close();
   } else if (action === "show-map-modal") {

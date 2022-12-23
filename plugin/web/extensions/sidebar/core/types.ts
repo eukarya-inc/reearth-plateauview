@@ -13,6 +13,7 @@ type ActionType =
   | "welcome-modal-open"
   | "minimize"
   | "show-popup"
+  | "popup-message"
   | "close-popup"
   | "show-map-modal"
   | "show-clip-modal";
