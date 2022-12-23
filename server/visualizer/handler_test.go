@@ -91,6 +91,7 @@ func TestHandler_getData(t *testing.T) {
 
 func TestHandler_getAllData(t *testing.T) {
 	h := newHandler()
+	modelID := "aaa"
 	httpmock.Activate()
 	defer httpmock.Deactivate()
 
@@ -98,7 +99,7 @@ func TestHandler_getAllData(t *testing.T) {
 	//Mockでやりたいこと: dataのITEMを返してほしい
 	responder := func(req *http.Request) (*http.Response, error) {
 		return httpmock.NewJsonResponse(http.StatusOK, cms.Item{
-			ID: "aaa",
+			ID: modelID,
 			Fields: []cms.Field{
 				{ID: h.DataModelDataFieldID, Type: "TextArea", Value: expected},
 				{ID: h.DataModelIDFieldID, Type: "Text", Value: expected},
@@ -106,7 +107,7 @@ func TestHandler_getAllData(t *testing.T) {
 		},
 		)
 	}
-	httpmock.RegisterResponder("GET", cmsHost+path.Join("/api/items/"), responder)
+	httpmock.RegisterResponder("GET", cmsHost+path.Join("/api/models/", modelID, "items"), responder)
 	//テストしたいこと: CMSからdataが返ってくる想定のもと、仕様どおりにデータを返せるかどうか？
 	e := echo.New()
 	p := path.Join("/viz/aaa/data/")
@@ -115,6 +116,8 @@ func TestHandler_getAllData(t *testing.T) {
 	rec := httptest.NewRecorder()
 	ctx := e.NewContext(req, rec)
 	ctx.SetPath("/viz/:pid/data/")
+	ctx.SetParamNames("pid")
+	ctx.SetParamValues("aaa")
 	handler := h.getAllDataHandler(h.CMS)
 	res := handler(ctx)
 	assert.NoError(t, res)
