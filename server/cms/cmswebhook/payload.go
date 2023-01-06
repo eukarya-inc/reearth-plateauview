@@ -3,9 +3,34 @@ package cmswebhook
 import "github.com/samber/lo"
 
 type Payload struct {
-	Type string `json:"type"`
-	Data Data   `json:"data"`
+	Type     string   `json:"type"`
+	Data     Data     `json:"data"`
+	Operator Operator `json:"operator"`
 }
+
+type Operator struct {
+	User        *User        `json:"user,omitempty"`
+	Integration *Integration `json:"integration,omitempty"`
+	Machine     *Machine     `json:"machine,omitempty"`
+}
+
+func (o Operator) IsUser() bool {
+	return o.User != nil
+}
+
+func (o Operator) IsIntegration() bool {
+	return o.Integration != nil
+}
+
+type User struct {
+	ID string `json:"id"`
+}
+
+type Integration struct {
+	ID string `json:"id"`
+}
+
+type Machine struct{}
 
 type Data struct {
 	Item   *Item   `json:"item"`
