@@ -8,6 +8,12 @@ import (
 	"github.com/reearth/reearthx/log"
 )
 
+const (
+	modelKey        = "plateau"
+	cityGMLFieldKey = "citygml"
+	bldgFieldKey    = "bldg"
+)
+
 func WebhookHandler(c Config) (cmswebhook.Handler, error) {
 	s, err := NewServices(c)
 	if err != nil {
@@ -28,35 +34,35 @@ func WebhookHandler(c Config) (cmswebhook.Handler, error) {
 		}
 
 		if w.Data.Model.Key != modelKey {
-			log.Infof("cmsintegration webhook: invalid model id: %s", w.Data.Item.ModelID)
+			log.Infof("cmsintegration webhook: invalid model id: %s, key: %s", w.Data.Item.ModelID, w.Data.Model.Key)
 			return nil
 		}
 
-		assetField := w.Data.Item.Field(c.CMSCityGMLFieldID)
+		assetField := w.Data.FieldByKey(cityGMLFieldKey)
 		if assetField == nil || assetField.Value == nil {
 			log.Infof("cmsintegration webhook: asset field not found")
 			return nil
 		}
-		if v, ok := assetField.Value.(string); !ok || v == "" {
+		if v := assetField.ValueString(); v == nil || *v == "" {
 			log.Infof("cmsintegration webhook: asset field empty")
 			return nil
 		}
 
-		bldgField := w.Data.Item.Field(c.CMSBldgFieldID)
+		bldgField := w.Data.FieldByKey(bldgFieldKey)
 		if bldgField != nil && bldgField.Value != nil {
-			if s, ok := bldgField.Value.(string); ok && s != "" {
+			if s := bldgField.ValueStrings(); len(s) > 0 {
 				log.Infof("cmsintegration webhook: 3dtiles already converted: field=%+v", bldgField)
 				return nil
 			}
 		}
 
-		assetID, ok := assetField.Value.(string)
-		if !ok {
+		assetID := assetField.ValueString()
+		if assetID == nil || *assetID == "" {
 			log.Infof("cmsintegration webhook: invalid field value: %+v", assetField)
 			return nil
 		}
 
-		asset, err := s.CMS.Asset(ctx, assetID)
+		asset, err := s.CMS.Asset(ctx, *assetID)
 		if err != nil || asset == nil || asset.ID == "" {
 			log.Infof("cmsintegration webhook: cannot fetch asset: %w", err)
 			return nil

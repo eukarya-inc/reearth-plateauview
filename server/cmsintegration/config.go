@@ -13,9 +13,6 @@ type Config struct {
 	FMEToken            string
 	FMEResultURL        string
 	FMESkipQualityCheck bool
-	CMSModelID          string
-	CMSCityGMLFieldID   string
-	CMSBldgFieldID      string
 	CMSBaseURL          string
 	CMSToken            string
 	Secret              string

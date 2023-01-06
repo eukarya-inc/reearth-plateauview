@@ -10,22 +10,16 @@ import (
 	"net/url"
 
 	"github.com/reearth/reearthx/log"
-	"github.com/samber/lo"
 )
 
 type Interface interface {
 	GetItem(ctx context.Context, itemID string) (*Item, error)
+	GetItems(ctx context.Context, modelID string) (*Items, error)
 	CreateItem(ctx context.Context, modelID string, fields []Field) (*Item, error)
 	UpdateItem(ctx context.Context, itemID string, fields []Field) (*Item, error)
 	Asset(ctx context.Context, id string) (*Asset, error)
 	UploadAsset(ctx context.Context, projectID, url string) (string, error)
 	Comment(ctx context.Context, assetID, content string) error
-}
-
-type Field struct {
-	ID    string `json:"id"`
-	Type  string `json:"type"`
-	Value any    `json:"value"`
 }
 
 type CMS struct {
@@ -55,11 +49,26 @@ func (c *CMS) GetItem(ctx context.Context, itemID string) (*Item, error) {
 	defer func() { _ = b.Close() }()
 
 	item := &Item{}
-	if err := json.NewDecoder(b).Decode(&item); err != nil {
+	if err := json.NewDecoder(b).Decode(item); err != nil {
 		return nil, fmt.Errorf("failed to parse an item: %w", err)
 	}
 
 	return item, nil
+}
+
+func (c *CMS) GetItems(ctx context.Context, modelID string) (*Items, error) {
+	b, err := c.send(ctx, http.MethodGet, []string{"api", "models", modelID, "items"}, nil)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get items: %w", err)
+	}
+	defer func() { _ = b.Close() }()
+
+	items := &Items{}
+	if err := json.NewDecoder(b).Decode(items); err != nil {
+		return nil, fmt.Errorf("failed to parse items: %w", err)
+	}
+
+	return items, nil
 }
 
 func (c *CMS) CreateItem(ctx context.Context, modelID string, fields []Field) (*Item, error) {
@@ -202,22 +211,4 @@ func (c *CMS) request(ctx context.Context, m string, p []string, body any) (*htt
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", c.token))
 	return req, nil
-}
-
-type Asset struct {
-	ID  string `json:"id"`
-	URL string `json:"url"`
-}
-
-type Item struct {
-	ID     string  `json:"id"`
-	Fields []Field `json:"fields"`
-}
-
-func (i Item) Field(id string) *Field {
-	f, ok := lo.Find(i.Fields, func(f Field) bool { return f.ID == id })
-	if ok {
-		return &f
-	}
-	return nil
 }
