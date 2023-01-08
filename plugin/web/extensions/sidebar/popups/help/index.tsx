@@ -1,10 +1,10 @@
 import { useState } from "react";
 
 import { Tab } from "../../core/components/content/Help/hooks";
-import BasicOperation from "../basicOperation";
-import ClipFunction from "../clipFunction";
-import ShadowFunction from "../shadowFunction";
-import TryMapInfo from "../tryMapInfo";
+import BasicOperation from "../BasicOperation";
+import ClipFunction from "../ClipFunction";
+import ShadowFunction from "../ShadowFunction";
+import TryMapInfo from "../TryMapInfo";
 
 const Popup: React.FC = () => {
   const [currentPopup, setCurrentPopup] = useState<Tab>("basic");
