@@ -8,7 +8,7 @@ const ClipFunction: React.FC = () => {
   const { handleClosePopup, handleShowClipModal } = useGlobalHooks();
 
   return (
-    <PopupWrapper width={350} height={1209} handleClose={handleClosePopup}>
+    <PopupWrapper handleClose={handleClosePopup}>
       <Wrapper>
         <Title>クリップ機能について</Title>
 

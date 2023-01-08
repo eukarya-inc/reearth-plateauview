@@ -2,7 +2,7 @@ import { useCallback, useState } from "react";
 
 import { postMsg } from "../../../utils";
 
-type Tab = "basic" | "map" | "shadow" | "clip";
+export type Tab = "basic" | "map" | "shadow" | "clip";
 
 type Items = {
   label: string;

@@ -8,7 +8,7 @@ const TryMapInfo: React.FC = () => {
   const { handleClosePopup, handleShowMapModal } = useGlobalHooks();
 
   return (
-    <PopupWrapper width={350} height={1049} handleClose={handleClosePopup}>
+    <PopupWrapper handleClose={handleClosePopup}>
       <Wrapper>
         <Title>マップを使ってみる</Title>
 

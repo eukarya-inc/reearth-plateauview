@@ -1,17 +1,15 @@
 import { Icon, Button } from "@web/sharedComponents";
-import { styled } from "@web/theme";
+import { commonStyles, styled } from "@web/theme";
 import { ReactNode } from "react";
 
 type Props = {
-  width?: number;
-  height?: number;
   children?: ReactNode;
   handleClose?: () => void;
 };
 
-const PopupWrapper: React.FC<Props> = ({ width, height, children, handleClose }) => {
+const PopupWrapper: React.FC<Props> = ({ children, handleClose }) => {
   return (
-    <Wrapper width={width} height={height}>
+    <Wrapper>
       <Header>
         <CloseButton>
           <Icon size={32} icon="close" onClick={handleClose} />
@@ -24,14 +22,13 @@ const PopupWrapper: React.FC<Props> = ({ width, height, children, handleClose })
 
 export default PopupWrapper;
 
-const Wrapper = styled.div<{ width?: number; height?: number }>`
+const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   padding: 0px;
   background: #e7e7e7;
-  width: ${width => (width ? "100%" : width + "px")};
-  height: ${height => (height ? "100%" : height + "px")};
+  ${commonStyles.mainWrapper}
 `;
 const Header = styled.div`
   display: flex;

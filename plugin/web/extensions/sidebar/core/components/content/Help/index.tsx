@@ -26,7 +26,7 @@ const Help: React.FC = () => {
             selected={item.key === selectedTab}
             onClick={() => handleItemClicked(item.key)}>
             <Text>{item?.label}</Text>
-            <Icon icon="arrowDown" />
+            <Icon icon="rightArrow" size={16} />
           </MenuItem>
         ))}
       </MenuWrapper>

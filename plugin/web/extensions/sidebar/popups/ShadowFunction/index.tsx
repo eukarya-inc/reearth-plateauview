@@ -8,7 +8,7 @@ const ShadowFunction: React.FC = () => {
   const { handleClosePopup } = useGlobalHooks();
 
   return (
-    <PopupWrapper width={350} height={1049} handleClose={handleClosePopup}>
+    <PopupWrapper handleClose={handleClosePopup}>
       <Wrapper>
         <Title>日影機能について</Title>
 

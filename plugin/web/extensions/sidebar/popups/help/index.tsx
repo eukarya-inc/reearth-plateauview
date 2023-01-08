@@ -1,15 +1,29 @@
+import { useState } from "react";
+
+import { Tab } from "../../core/components/content/Help/hooks";
+import BasicOperation from "../basicOperation";
+import ClipFunction from "../clipFunction";
+import ShadowFunction from "../shadowFunction";
+import TryMapInfo from "../tryMapInfo";
+
 const Popup: React.FC = () => {
-  // Initially open Basic
+  const [currentPopup, setCurrentPopup] = useState<Tab>("basic");
+
   addEventListener("message", e => {
-    if (e.source !== parent) return;
+    if (e.source !== parent) return null;
     if (e.data.type) {
-      if (e.data.type === "msgFromHelp") {
-        console.log("POPUP MESSAGE: ", e.data.message);
+      if (e.data.type === "msgFromHelp" && e.data.message) {
+        setCurrentPopup(e.data.message);
       }
     }
   });
-  // Handle receiving message from sidebar (selectedTab)
-  return <div>I AM A POOPPP UP</div>;
+
+  return {
+    basic: <BasicOperation />,
+    map: <TryMapInfo />,
+    shadow: <ShadowFunction />,
+    clip: <ClipFunction />,
+  }[currentPopup];
 };
 
 export default Popup;
