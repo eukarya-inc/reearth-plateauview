@@ -3,6 +3,7 @@ package visualizer
 import (
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"path"
 	"strings"
 	"testing"
@@ -71,7 +72,7 @@ func TestHandler_getData(t *testing.T) {
 		},
 		)
 	}
-	httpmock.RegisterResponder("GET", cmsHost+path.Join("/api/items/", itemID), responder)
+	httpmock.RegisterResponder("GET", lo.Must(url.JoinPath("/api/items/", itemID)), responder)
 	//テストしたいこと: CMSからdataが返ってくる想定のもと、仕様どおりにデータを返せるかどうか？
 	e := echo.New()
 	p := path.Join("/viz/aaa/data/", itemID)
@@ -107,7 +108,8 @@ func TestHandler_getAllData(t *testing.T) {
 		},
 		)
 	}
-	httpmock.RegisterResponder("GET", cmsHost+path.Join("/api/models/", modelID, "items"), responder)
+	// cmsの passが間違えているのでは??
+	httpmock.RegisterResponder("GET", lo.Must(url.JoinPath(cmsHost, "/api/models/", "aaa", "items")), responder)
 	//テストしたいこと: CMSからdataが返ってくる想定のもと、仕様どおりにデータを返せるかどうか？
 	e := echo.New()
 	p := path.Join("/viz/aaa/data/")
@@ -118,7 +120,7 @@ func TestHandler_getAllData(t *testing.T) {
 	ctx.SetPath("/viz/:pid/data/")
 	ctx.SetParamNames("pid")
 	ctx.SetParamValues("aaa")
-	handler := h.getAllDataHandler(h.CMS)
+	handler := h.getAllDataHandler()
 	res := handler(ctx)
 	assert.NoError(t, res)
 	assert.Equal(t, http.StatusOK, rec.Result().StatusCode)

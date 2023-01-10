@@ -89,11 +89,11 @@ func (h *Handler) fetchRoot() func(c echo.Context) error {
 }
 
 // GET | /viz/:pid/data
-func (h *Handler) getAllDataHandler(CMS cms.Interface) func(c echo.Context) error {
+func (h *Handler) getAllDataHandler() func(c echo.Context) error {
 	return func(c echo.Context) error {
 		ctx := c.Request().Context()
 
-		data, err := CMS.GetItems(ctx, h.DataModelKey)
+		data, err := h.CMS.GetItems(ctx, h.DataModelKey)
 		if err != nil {
 			return err
 		}
@@ -123,7 +123,7 @@ func (h *Handler) getDataHandler() func(c echo.Context) error {
 }
 
 // POST | /viz/:pid/data
-func (h *Handler) createDataHandler(CMS cms.Interface) func(c echo.Context) error {
+func (h *Handler) createDataHandler() func(c echo.Context) error {
 	return func(c echo.Context) error {
 		ctx := c.Request().Context()
 		b, err := io.ReadAll(c.Request().Body)
@@ -135,7 +135,7 @@ func (h *Handler) createDataHandler(CMS cms.Interface) func(c echo.Context) erro
 			ID:    h.DataModelDataFieldID,
 			Value: string(b),
 		}}
-		item, err := CMS.CreateItem(ctx, h.DataModelKey, fields)
+		item, err := h.CMS.CreateItem(ctx, h.DataModelKey, fields)
 		if err != nil {
 			return err
 		}
@@ -145,7 +145,7 @@ func (h *Handler) createDataHandler(CMS cms.Interface) func(c echo.Context) erro
 }
 
 // PATCH | /viz/:pid/data/:did
-func (h *Handler) updateDataHandler(CMS cms.Interface) func(c echo.Context) error {
+func (h *Handler) updateDataHandler() func(c echo.Context) error {
 	return func(c echo.Context) error {
 		ctx := c.Request().Context()
 		itemID := c.Param("iid")
@@ -159,7 +159,7 @@ func (h *Handler) updateDataHandler(CMS cms.Interface) func(c echo.Context) erro
 			Value: string(b),
 		}}
 
-		item, err := CMS.UpdateItem(ctx, itemID, fields)
+		item, err := h.CMS.UpdateItem(ctx, itemID, fields)
 		if err != nil {
 			return err
 		}
@@ -169,12 +169,12 @@ func (h *Handler) updateDataHandler(CMS cms.Interface) func(c echo.Context) erro
 }
 
 // DELETE | /viz/:pid/data/:did
-func (h *Handler) deleteDataHandler(CMS cms.Interface) func(c echo.Context) error {
+func (h *Handler) deleteDataHandler() func(c echo.Context) error {
 	return func(c echo.Context) error {
 		ctx := c.Request().Context()
 		itemID := c.Param("iid")
 
-		err := CMS.DeleteItem(ctx, itemID)
+		err := h.CMS.DeleteItem(ctx, itemID)
 		if err != nil {
 			return err
 		}
@@ -184,10 +184,10 @@ func (h *Handler) deleteDataHandler(CMS cms.Interface) func(c echo.Context) erro
 }
 
 // GET | /viz/:id/templates
-func (h *Handler) fetchTemplate(CMS cms.Interface) func(c echo.Context) error {
+func (h *Handler) fetchTemplate() func(c echo.Context) error {
 	return func(c echo.Context) error {
 		ctx := c.Request().Context()
-		templates, err := CMS.GetItems(ctx, h.TemplateModelKey)
+		templates, err := h.CMS.GetItems(ctx, h.TemplateModelKey)
 		if err != nil {
 			return err
 		}
@@ -200,7 +200,7 @@ func (h *Handler) fetchTemplate(CMS cms.Interface) func(c echo.Context) error {
 }
 
 // POST | /viz/:pid/templates
-func (h *Handler) createTemplateHandler(CMS cms.Interface) func(c echo.Context) error {
+func (h *Handler) createTemplateHandler() func(c echo.Context) error {
 	return func(c echo.Context) error {
 		ctx := c.Request().Context()
 		b, err := io.ReadAll(c.Request().Body)
@@ -212,7 +212,7 @@ func (h *Handler) createTemplateHandler(CMS cms.Interface) func(c echo.Context) 
 			ID:    h.TemplateModelTemplateFieldID,
 			Value: string(b),
 		}}
-		item, err := CMS.CreateItem(ctx, h.TemplateModelKey, fields)
+		item, err := h.CMS.CreateItem(ctx, h.TemplateModelKey, fields)
 		if err != nil {
 			return err
 		}
@@ -222,7 +222,7 @@ func (h *Handler) createTemplateHandler(CMS cms.Interface) func(c echo.Context) 
 }
 
 // PATCH | /viz/:id/templates/:itemId
-func (h *Handler) updateTemplateHandler(CMS cms.Interface) func(c echo.Context) error {
+func (h *Handler) updateTemplateHandler() func(c echo.Context) error {
 	return func(c echo.Context) error {
 		ctx := c.Request().Context()
 		itemID := c.Param("iid")
@@ -236,7 +236,7 @@ func (h *Handler) updateTemplateHandler(CMS cms.Interface) func(c echo.Context) 
 			Value: string(b),
 		}}
 
-		item, err := CMS.UpdateItem(ctx, itemID, fields)
+		item, err := h.CMS.UpdateItem(ctx, itemID, fields)
 		if err != nil {
 			return err
 		}
@@ -246,12 +246,12 @@ func (h *Handler) updateTemplateHandler(CMS cms.Interface) func(c echo.Context) 
 }
 
 // DELETE | /viz/:id/templates/:itemId
-func (h *Handler) deleteTemplateHandler(CMS cms.Interface) func(c echo.Context) error {
+func (h *Handler) deleteTemplateHandler() func(c echo.Context) error {
 	return func(c echo.Context) error {
 		ctx := c.Request().Context()
 		itemID := c.Param("iid")
 
-		err := CMS.DeleteItem(ctx, itemID)
+		err := h.CMS.DeleteItem(ctx, itemID)
 		if err != nil {
 			return err
 		}

@@ -23,15 +23,15 @@ func initEcho(g *echo.Group, c Config, s Services) {
 		panic("failed to init echo")
 	}
 	g.GET("/viz/:pid", h.fetchRoot())
-	g.GET("/viz/:pid/data", h.getAllDataHandler(s.CMS))
+	g.GET("/viz/:pid/data", h.getAllDataHandler())
 	g.GET("/viz/:pid/data/:iid", h.getDataHandler())
-	g.POST("/viz/:pid/data", h.createDataHandler(s.CMS), authMiddleware(c.AdminToken))
-	g.PATCH("/viz/:pid/data/:iid", h.updateDataHandler(s.CMS), authMiddleware(c.AdminToken))
-	g.DELETE("/vis/:pid/data/:iid", h.deleteDataHandler(s.CMS), authMiddleware(c.AdminToken))
-	g.GET("/viz/:pid/templates", h.fetchTemplate(s.CMS))
-	g.POST("/viz/:pid/templates", h.createTemplateHandler(s.CMS), authMiddleware(c.AdminToken))
-	g.PATCH("/viz/:pid/templates/:iid", h.updateTemplateHandler(s.CMS), authMiddleware(c.AdminToken))
-	g.DELETE("/viz/:pid/templates/:iid", h.deleteTemplateHandler(s.CMS), authMiddleware(c.AdminToken))
+	g.POST("/viz/:pid/data", h.createDataHandler(), authMiddleware(c.AdminToken))
+	g.PATCH("/viz/:pid/data/:iid", h.updateDataHandler(), authMiddleware(c.AdminToken))
+	g.DELETE("/vis/:pid/data/:iid", h.deleteDataHandler(), authMiddleware(c.AdminToken))
+	g.GET("/viz/:pid/templates", h.fetchTemplate())
+	g.POST("/viz/:pid/templates", h.createTemplateHandler(), authMiddleware(c.AdminToken))
+	g.PATCH("/viz/:pid/templates/:iid", h.updateTemplateHandler(), authMiddleware(c.AdminToken))
+	g.DELETE("/viz/:pid/templates/:iid", h.deleteTemplateHandler(), authMiddleware(c.AdminToken))
 }
 
 func authMiddleware(secret string) echo.MiddlewareFunc {
