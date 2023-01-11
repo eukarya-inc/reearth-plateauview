@@ -1,10 +1,12 @@
 import { postMsg } from "@web/extensions/storytelling/core/utils";
+import EasyMDE from "easymde";
 import { useCallback, useEffect, useRef } from "react";
 
 export default () => {
   const storyId = useRef<string>();
   const titleRef = useRef<HTMLInputElement>(null);
   const descriptionRef = useRef<HTMLTextAreaElement>(null);
+  const easyMDE = useRef<EasyMDE | null>(null);
 
   const onCancel = useCallback(() => {
     postMsg("closeStoryEditor");
@@ -14,16 +16,35 @@ export default () => {
     postMsg("saveStory", {
       id: storyId.current,
       title: titleRef.current?.value,
-      description: descriptionRef.current?.value,
+      description: easyMDE.current?.value(),
     });
   }, []);
 
   useEffect(() => {
+    if (descriptionRef.current) {
+      easyMDE.current = new EasyMDE({
+        element: descriptionRef.current,
+        maxHeight: "158px",
+        status: false,
+        hideIcons: ["fullscreen", "side-by-side", "guide"],
+      });
+    }
+
     if ((window as any).editStory && titleRef.current && descriptionRef.current) {
       storyId.current = (window as any).editStory.id;
       titleRef.current.value = (window as any).editStory.title;
-      descriptionRef.current.value = (window as any).editStory.description;
+
+      if (easyMDE.current) {
+        easyMDE.current.value((window as any).editStory.description);
+      }
     }
+
+    return () => {
+      if (easyMDE.current) {
+        easyMDE.current.toTextArea();
+        easyMDE.current = null;
+      }
+    };
   }, []);
 
   return {
