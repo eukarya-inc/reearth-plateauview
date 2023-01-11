@@ -1,7 +1,7 @@
 import shadow from "@web/extensions/sidebar/core/assets/shadow.png";
 import { styled } from "@web/theme";
 
-import { NumberingWrapper, ParagraphItem } from "../../sharedComponent";
+import { NumberingWrapper, ParagraphItem } from "../sharedComponent";
 
 const ShadowFunction: React.FC = () => {
   return (

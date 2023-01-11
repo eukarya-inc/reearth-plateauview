@@ -1,8 +1,8 @@
 import mapVideo from "@web/extensions/sidebar/core/assets/mapVideo.png";
 import { styled } from "@web/theme";
 
-import { NumberingWrapper, ParagraphItem } from "../../sharedComponent";
 import useGlobalHooks from "../globalHooks";
+import { NumberingWrapper, ParagraphItem } from "../sharedComponent";
 
 const TryMapInfo: React.FC = () => {
   const { handleShowMapModal } = useGlobalHooks();

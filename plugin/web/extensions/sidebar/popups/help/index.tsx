@@ -1,9 +1,8 @@
-import { PopupWrapper } from "../sharedComponent";
-
 import BasicOperation from "./BasicOperation";
 import ClipFunction from "./ClipFunction";
 import useGlobalHooks from "./globalHooks";
 import ShadowFunction from "./ShadowFunction";
+import { PopupWrapper } from "./sharedComponent";
 import TryMapInfo from "./TryMapInfo";
 
 const Help: React.FC = () => {

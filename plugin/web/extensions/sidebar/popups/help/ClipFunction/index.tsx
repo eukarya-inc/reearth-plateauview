@@ -1,8 +1,8 @@
 import clip from "@web/extensions/sidebar/core/assets/clip.png";
 import { styled } from "@web/theme";
 
-import { NumberingWrapper, ParagraphItem } from "../../sharedComponent";
 import useGlobalHooks from "../globalHooks";
+import { NumberingWrapper, ParagraphItem } from "../sharedComponent";
 
 const ClipFunction: React.FC = () => {
   const { handleShowClipModal } = useGlobalHooks();
