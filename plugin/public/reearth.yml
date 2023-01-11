@@ -5,6 +5,16 @@ extensions:
   - id: sidebar
     name: Sidebar
     type: widget
+    schema:
+      groups:
+        - id: default
+          fields:
+            - id: plateauurl
+              type: string
+              title: PLATEAU Backend Base URL
+            - id: cmsurl
+              type: string
+              title: PLATEAU CMS Base URL
     widgetLayout:
       defaultLocation:
         zone: outer

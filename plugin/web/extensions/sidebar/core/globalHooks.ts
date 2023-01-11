@@ -21,7 +21,7 @@ export default () => {
     (updatedProperties: Partial<ReearthApi>) => {
       updateOverrides([overrides, updatedProperties].reduce((p, v) => mergeProperty(p, v)));
     },
-    [overrides],
+    [overrides, updateOverrides],
   );
 
   useEffect(() => {
@@ -44,6 +44,8 @@ export default () => {
   // Dataset
   const [selectedDatasets, updateDatasets] = useState<Dataset[]>([]);
   const [inEditor, setInEditor] = useState(true);
+  const [backendURL, setBackendURL] = useState<string>("");
+  const [cmsURL, setCMSURL] = useState<string>("");
 
   const handleDatasetAdd = useCallback((dataset: Dataset) => {
     updateDatasets(oldDatasets => [...oldDatasets, dataset]);
@@ -73,19 +75,23 @@ export default () => {
         }
       } else if (e.data.type === "init") {
         setInEditor(e.data.payload.inEditor);
+        setBackendURL(e.data.payload.backendURL);
+        setCMSURL(e.data.payload.cmsURL);
       }
     };
     addEventListener("message", e => eventListenerCallback(e));
     return () => {
       removeEventListener("message", eventListenerCallback);
     };
-  }, []);
+  }, [handleDatasetAdd]);
 
   return {
     selectedDatasets,
     overrides,
     minimized,
     inEditor,
+    backendURL,
+    cmsURL,
     setMinimize,
     handleDatasetRemove,
     handleDatasetRemoveAll,

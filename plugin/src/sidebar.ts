@@ -15,7 +15,14 @@ reearth.ui.show(html, { extended: true });
 reearth.on("message", ({ action, payload }: PostMessageProps) => {
   // Sidebar
   if (action === "init") {
-    reearth.ui.postMessage({ type: "init", payload: { inEditor: reearth.scene.inEditor } });
+    reearth.ui.postMessage({
+      type: "init",
+      payload: {
+        inEditor: reearth.scene.inEditor,
+        backendURL: reearth.widget.property.default.plateauurl ?? "",
+        cmsURL: reearth.widget.property.default.cmsurl ?? "",
+      },
+    });
     if (!doNotShowWelcome) {
       reearth.modal.show(welcomeScreenHtml, { background: "#000000bf" });
     }

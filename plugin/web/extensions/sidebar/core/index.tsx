@@ -20,6 +20,8 @@ const Sidebar: React.FC<Props> = ({ className }) => {
     overrides,
     minimized,
     inEditor,
+    backendURL,
+    // cmsURL,
     setMinimize,
     handleDatasetRemove,
     handleDatasetRemoveAll,
@@ -72,9 +74,9 @@ const Sidebar: React.FC<Props> = ({ className }) => {
                 />
               ),
               map: <MapSettings overrides={overrides} onOverridesUpdate={handleOverridesUpdate} />,
-              share: <Share overrides={overrides} />,
+              share: <Share overrides={overrides} backendURL={backendURL} />,
               help: <Help />,
-              feedback: <Feedback />,
+              feedback: <Feedback backendURL={backendURL} />,
               template: <Templates />,
             }[current]
           }

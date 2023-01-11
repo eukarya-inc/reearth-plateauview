@@ -5,7 +5,15 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 export type ReearthApi = ReearthApiType;
 
-export default ({ overrides, messageApi }: { overrides?: ReearthApi; messageApi: any }) => {
+export default ({
+  overrides,
+  backendURL,
+  messageApi,
+}: {
+  overrides?: ReearthApi;
+  backendURL: string;
+  messageApi: any;
+}) => {
   const [publishedUrl, setPublishedUrl] = usePublishedUrl();
   const [shareDisabled, setShareDisable] = useState(false);
   const timer = useRef<NodeJS.Timeout | null>(null);
@@ -21,7 +29,7 @@ export default ({ overrides, messageApi }: { overrides?: ReearthApi; messageApi:
   const handleProjectShare = useCallback(async () => {
     setShareDisable(true);
     if (overrides) {
-      const resp = await fetch("https://plateauview.dev.reearth.io/share", {
+      const resp = await fetch(`${backendURL}/share`, {
         headers: {
           "Content-Type": "application/json",
         },
@@ -38,13 +46,13 @@ export default ({ overrides, messageApi }: { overrides?: ReearthApi; messageApi:
         }
       } else {
         const project = await resp.json();
-        setPublishedUrl(`https://plateauview.dev.reearth.io/share/${project}`);
+        setPublishedUrl(`${backendURL}/share/${project}`);
       }
     }
     timer.current = setTimeout(() => {
       setShareDisable(false);
     }, 3000);
-  }, []);
+  }, [messageApi, backendURL, overrides, setPublishedUrl]);
 
   useEffect(() => {
     return () => {
