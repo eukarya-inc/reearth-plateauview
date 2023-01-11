@@ -69,11 +69,6 @@ export const web =
               var: "styled-components",
               path: "https://unpkg.com/styled-components/dist/styled-components.min.js",
             },
-            {
-              name: "better-scroll",
-              var: "BetterScroll",
-              path: "https://unpkg.com/better-scroll@latest/dist/better-scroll.min.js",
-            },
           ],
         }),
       ],
