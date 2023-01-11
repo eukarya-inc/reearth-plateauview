@@ -1,17 +1,11 @@
 import basicOperation from "@web/extensions/sidebar/core/assets/basicOperation.png";
 import { styled } from "@web/theme";
 
-import useGlobalHooks from "../globalHooks";
-import { PopupWrapper } from "../sharedComponent";
-
 const BasicOperation: React.FC = () => {
-  const { handleClosePopup } = useGlobalHooks();
   return (
-    <PopupWrapper handleClose={handleClosePopup}>
-      <Wrapper>
-        <img src={basicOperation} />
-      </Wrapper>
-    </PopupWrapper>
+    <Wrapper>
+      <img src={basicOperation} />
+    </Wrapper>
   );
 };
 
