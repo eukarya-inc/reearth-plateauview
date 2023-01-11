@@ -51,7 +51,3 @@ export type Camera = {
   pitch: number;
   roll: number;
 };
-
-export type PublishProject = {
-  // Here would be all fields being saved to backend
-};
