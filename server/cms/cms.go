@@ -15,11 +15,13 @@ import (
 type Interface interface {
 	GetItem(ctx context.Context, itemID string) (*Item, error)
 	GetItems(ctx context.Context, modelID string) (*Items, error)
+	GetItemsByKey(ctx context.Context, projectIDOrAlias, modelIDOrKey string) (*Items, error)
 	CreateItem(ctx context.Context, modelID string, fields []Field) (*Item, error)
 	UpdateItem(ctx context.Context, itemID string, fields []Field) (*Item, error)
 	Asset(ctx context.Context, id string) (*Asset, error)
 	UploadAsset(ctx context.Context, projectID, url string) (string, error)
-	Comment(ctx context.Context, assetID, content string) error
+	CommentToItem(ctx context.Context, assetID, content string) error
+	CommentToAsset(ctx context.Context, assetID, content string) error
 }
 
 type CMS struct {
@@ -58,6 +60,21 @@ func (c *CMS) GetItem(ctx context.Context, itemID string) (*Item, error) {
 
 func (c *CMS) GetItems(ctx context.Context, modelID string) (*Items, error) {
 	b, err := c.send(ctx, http.MethodGet, []string{"api", "models", modelID, "items"}, nil)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get items: %w", err)
+	}
+	defer func() { _ = b.Close() }()
+
+	items := &Items{}
+	if err := json.NewDecoder(b).Decode(items); err != nil {
+		return nil, fmt.Errorf("failed to parse items: %w", err)
+	}
+
+	return items, nil
+}
+
+func (c *CMS) GetItemsByKey(ctx context.Context, projectIDOrAlias, modelIDOrAlias string) (*Items, error) {
+	b, err := c.send(ctx, http.MethodGet, []string{"api", "projects", projectIDOrAlias, "models", modelIDOrAlias, "items"}, nil)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get items: %w", err)
 	}
@@ -152,14 +169,28 @@ func (c *CMS) Asset(ctx context.Context, assetID string) (*Asset, error) {
 	return a, nil
 }
 
-func (c *CMS) Comment(ctx context.Context, assetID, content string) error {
+func (c *CMS) CommentToItem(ctx context.Context, itemID, content string) error {
+	rb := map[string]string{
+		"content": content,
+	}
+
+	b, err := c.send(ctx, http.MethodPost, []string{"api", "items", itemID, "comments"}, rb)
+	if err != nil {
+		return fmt.Errorf("failed to comment to item %s: %w", itemID, err)
+	}
+	defer func() { _ = b.Close() }()
+
+	return nil
+}
+
+func (c *CMS) CommentToAsset(ctx context.Context, assetID, content string) error {
 	rb := map[string]string{
 		"content": content,
 	}
 
 	b, err := c.send(ctx, http.MethodPost, []string{"api", "assets", assetID, "comments"}, rb)
 	if err != nil {
-		return fmt.Errorf("failed to comment: %w", err)
+		return fmt.Errorf("failed to comment to asset %s: %w", assetID, err)
 	}
 	defer func() { _ = b.Close() }()
 

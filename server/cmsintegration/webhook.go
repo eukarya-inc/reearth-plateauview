@@ -86,7 +86,7 @@ func WebhookHandler(c Config) (cmswebhook.Handler, error) {
 			return nil
 		}
 
-		if err := s.CMS.Comment(ctx, asset.ID, "CityGMLの品質検査及び3D Tilesへの変換を開始しました。"); err != nil {
+		if err := s.CMS.CommentToAsset(ctx, asset.ID, "CityGMLの品質検査及び3D Tilesへの変換を開始しました。"); err != nil {
 			log.Errorf("cmsintegration webhook: failed to comment: %w", err)
 			return nil
 		}

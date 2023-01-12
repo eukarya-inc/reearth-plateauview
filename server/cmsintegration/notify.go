@@ -35,7 +35,7 @@ func NotifyHandler(cmsi cms.Interface, secret string) echo.HandlerFunc {
 		}
 
 		cc := commentContent(b.Status, b.Type, b.LogURL)
-		if err := cmsi.Comment(c.Request().Context(), id.AssetID, cc); err != nil {
+		if err := cmsi.CommentToAsset(c.Request().Context(), id.AssetID, cc); err != nil {
 			log.Errorf("notify: failed to comment: %w", err)
 			return nil
 		}
