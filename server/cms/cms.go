@@ -126,32 +126,45 @@ func (c *CMS) UpdateItem(ctx context.Context, itemID string, fields []Field) (*I
 	return item, nil
 }
 
-func (c *CMS) UploadAsset(ctx context.Context, projectID, url string) (string, error) {
+func (c *CMS) UploadAsset(ctx context.Context, projectID, url string) (_ string, err error) {
 	rb := map[string]string{
 		"url": url,
 	}
 
-	b, err := c.send(ctx, http.MethodPost, []string{"api", "projects", projectID, "assets"}, rb)
-	if err != nil {
-		return "", fmt.Errorf("failed to upload an asset: %w", err)
-	}
-	defer func() { _ = b.Close() }()
+	max := 3
+	for i := 0; i < max; i++ {
+		if i > 0 {
+			// time.Sleep(time.Second)
+			log.Infof("cms: upload asset: retry %d/%d", i, max)
+		}
 
-	body, err := io.ReadAll(b)
-	if err != nil {
-		return "", fmt.Errorf("failed to read body: %w", err)
+		b, err2 := c.send(ctx, http.MethodPost, []string{"api", "projects", projectID, "assets"}, rb)
+		if err2 != nil {
+			log.Errorf("cms: upload asset: failed to upload an asset: %s", err2)
+			err = err2
+			continue
+		}
+
+		defer func() { _ = b.Close() }()
+
+		body, err2 := io.ReadAll(b)
+		if err2 != nil {
+			return "", fmt.Errorf("failed to read body: %w", err2)
+		}
+
+		type res struct {
+			ID string `json:"id"`
+		}
+
+		r := &res{}
+		if err2 := json.Unmarshal(body, &r); err2 != nil {
+			return "", fmt.Errorf("failed to parse body: %w", err2)
+		}
+
+		return r.ID, nil
 	}
 
-	type res struct {
-		ID string `json:"id"`
-	}
-
-	r := &res{}
-	if err := json.Unmarshal(body, &r); err != nil {
-		return "", fmt.Errorf("failed to parse body: %w", err)
-	}
-
-	return r.ID, nil
+	return "", fmt.Errorf("failed to upload an asset: %w", err)
 }
 
 func (c *CMS) Asset(ctx context.Context, assetID string) (*Asset, error) {

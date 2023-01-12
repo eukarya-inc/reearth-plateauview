@@ -121,7 +121,7 @@ func TestCMS(t *testing.T) {
 	assert.ErrorContains(t, err, "failed to request: code=401")
 
 	assetID, err = f.UploadAsset(ctx, "ppp", "aaa")
-	assert.Equal(t, 1, call("POST /api/projects/ppp/assets"))
+	assert.Equal(t, 3, call("POST /api/projects/ppp/assets"))
 	assert.ErrorContains(t, err, "failed to request: code=401")
 	assert.Equal(t, "", assetID)
 
