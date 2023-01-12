@@ -1,6 +1,7 @@
 package cmsintegration
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 
@@ -11,73 +12,72 @@ import (
 
 func NotifyHandler(cmsi cms.Interface, secret string) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		var b fmeResult
-		if err := c.Bind(&b); err != nil {
-			log.Info("notify: invalid payload: %w", err)
+		ctx := c.Request().Context()
+
+		var f fmeResult
+		if err := c.Bind(&f); err != nil {
+			log.Info("cmsintegration notify: invalid payload: %w", err)
 			return c.JSON(http.StatusBadRequest, "invalid payload")
 		}
 
-		log.Infof("notify: received: %+v", b)
+		log.Infof("cmsintegration notify: received: %+v", f)
 
-		id, err := ParseID(b.ID, secret)
+		id, err := ParseID(f.ID, secret)
 		if err != nil {
 			return c.JSON(http.StatusUnauthorized, "unauthorized")
 		}
 
-		log.Errorf("notify: validate: itemID=%s, assetID=%s", id.ItemID, id.AssetID)
+		log.Errorf("cmsintegration notify: validate: itemID=%s, assetID=%s", id.ItemID, id.AssetID)
 
-		if b.Status != "ok" && b.Status != "error" {
-			return c.JSON(http.StatusBadRequest, fmt.Sprintf("invalid type: %s", b.Type))
+		if f.Status != "ok" && f.Status != "error" {
+			return c.JSON(http.StatusBadRequest, fmt.Sprintf("invalid type: %s", f.Type))
 		}
 
 		if err := c.JSON(http.StatusOK, "ok"); err != nil {
 			return err
 		}
 
-		cc := commentContent(b.Status, b.Type, b.LogURL)
-		if err := cmsi.CommentToAsset(c.Request().Context(), id.AssetID, cc); err != nil {
-			log.Errorf("notify: failed to comment: %w", err)
+		cc := commentContent(f.Status, f.Type, f.LogURL)
+		if err := cmsi.CommentToItem(c.Request().Context(), id.ItemID, cc); err != nil {
+			log.Errorf("cmsintegration notify: failed to comment: %w", err)
 			return nil
 		}
 
-		if b.Type == "error" {
+		if f.Type == "error" {
+			if _, err := cmsi.UpdateItem(ctx, id.ItemID, Item{
+				ConversionStatus:  StatusError,
+				ConversionEnabled: ConversionDisabled,
+			}.Fields()); err != nil {
+				log.Errorf("cmsintegration notify: failed to update item: %w", err)
+				return nil
+			}
+
 			return nil
 		}
 
-		// TODO2: support multiple files
-		// TODO2: add retry
-		bldg := b.GetResultFromAllLOD("bldg")
-		if bldg == "" {
-			log.Errorf("notify: not uploaded due to missing result bldg")
+		if _, err := cmsi.UpdateItem(ctx, id.ItemID, Item{
+			ConversionStatus: StatusOK,
+		}.Fields()); err != nil {
+			log.Errorf("cmsintegration notify: failed to update item: %w", err)
 			return nil
 		}
 
-		assetID, err := cmsi.UploadAsset(c.Request().Context(), id.ProjectID, bldg)
+		r, err := uploadAssets(ctx, cmsi, id.ProjectID, f)
 		if err != nil {
-			log.Errorf("notify: failed to upload asset: %w", err)
+			return err
+		}
+
+		if _, err := cmsi.UpdateItem(ctx, id.ItemID, r.Fields()); err != nil {
+			log.Errorf("cmsintegration notify: failed to update item: %w", err)
 			return nil
 		}
 
-		log.Infof("notify: asset uploaded: %s", assetID)
-
-		if _, err := cmsi.UpdateItem(c.Request().Context(), id.ItemID, []cms.Field{
-			{
-				ID:    id.BldgFieldID,
-				Type:  "asset",
-				Value: assetID,
-			},
-		}); err != nil {
-			log.Errorf("notify: failed to update item: %w", err)
-			return nil
-		}
-
-		log.Infof("notify: done")
-
+		log.Infof("cmsintegration notify: done")
 		return nil
 	}
 }
 
-func commentContent(s string, t string, logURL string) string {
+func commentContent(s, t, logURL string) string {
 	var log string
 	if logURL != "" {
 		log = fmt.Sprintf(" ログ: %s", logURL)
@@ -95,4 +95,22 @@ func commentContent(s string, t string, logURL string) string {
 	}
 
 	return fmt.Sprintf("%sでエラーが発生しました。%s", tt, log)
+}
+
+func uploadAssets(ctx context.Context, c cms.Interface, pid string, f fmeResult) (r Item, _ error) {
+	// TODO2: support multiple files
+	// TODO2: add retry
+
+	bldg := f.GetResultFromAllLOD("bldg")
+
+	assetID, err := c.UploadAsset(ctx, pid, bldg)
+	if err != nil {
+		log.Errorf("cmsintegration notify: failed to upload asset: %w", err)
+		return r, nil
+	}
+
+	log.Infof("cmsintegration notify: asset uploaded: %s", assetID)
+
+	r.Bldg = []string{assetID}
+	return
 }

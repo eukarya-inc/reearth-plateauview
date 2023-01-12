@@ -10,17 +10,22 @@ import (
 
 type Status string
 
-var (
-	StatusReady      = Status("未実行")
-	StatusProcessing = Status("実行中")
-	StatusOK         = Status("完了")
-	StatusError      = Status("エラー")
+const (
+	StatusReady      Status = "未実行"
+	StatusProcessing Status = "実行中"
+	StatusOK         Status = "完了"
+	StatusError      Status = "エラー"
 )
 
 type Conversion string
 
+const (
+	ConversionDisabled Conversion = "変換しない"
+	ConversionEnabled  Conversion = "変換する"
+)
+
 func (s Conversion) Enabled() bool {
-	return string(s) == "変換する"
+	return s == ConversionEnabled
 }
 
 type Separation string

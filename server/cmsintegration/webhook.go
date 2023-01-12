@@ -33,61 +33,73 @@ func WebhookHandler(c Config) (cmswebhook.Handler, error) {
 			return nil
 		}
 
+		if w.Data.Item == nil || w.Data.Model == nil {
+			log.Infof("cmsintegration webhook: invalid event data: %+v", w.Data)
+			return nil
+		}
+
 		if w.Data.Model.Key != modelKey {
 			log.Infof("cmsintegration webhook: invalid model id: %s, key: %s", w.Data.Item.ModelID, w.Data.Model.Key)
 			return nil
 		}
 
-		assetField := w.Data.FieldByKey(cityGMLFieldKey)
-		if assetField == nil || assetField.Value == nil {
-			log.Infof("cmsintegration webhook: asset field not found")
-			return nil
-		}
-		if v := assetField.ValueString(); v == nil || *v == "" {
-			log.Infof("cmsintegration webhook: asset field empty")
+		item := ItemFrom(*w.Data.Item)
+
+		if !item.ConversionEnabled.Enabled() {
+			log.Infof("cmsintegration webhook: convertion disabled: %+v", item)
 			return nil
 		}
 
-		bldgField := w.Data.FieldByKey(bldgFieldKey)
-		if bldgField != nil && bldgField.Value != nil {
-			if s := bldgField.ValueStrings(); len(s) > 0 {
-				log.Infof("cmsintegration webhook: 3dtiles already converted: field=%+v", bldgField)
-				return nil
-			}
-		}
-
-		assetID := assetField.ValueString()
-		if assetID == nil || *assetID == "" {
-			log.Infof("cmsintegration webhook: invalid field value: %+v", assetField)
+		if item.ConversionStatus == StatusOK {
+			log.Infof("cmsintegration webhook: convertion already done: %+v", item)
 			return nil
 		}
 
-		asset, err := s.CMS.Asset(ctx, *assetID)
+		if item.ConversionStatus == StatusProcessing {
+			log.Infof("cmsintegration webhook: convertion processing: %+v", item)
+			return nil
+		}
+
+		if item.CityGML == "" {
+			log.Infof("cmsintegration webhook: invalid field value: %+v", item)
+			return nil
+		}
+
+		asset, err := s.CMS.Asset(ctx, item.CityGML)
 		if err != nil || asset == nil || asset.ID == "" {
 			log.Infof("cmsintegration webhook: cannot fetch asset: %w", err)
 			return nil
 		}
 
-		fmeReq := fme.Request{
+		fmeReq := fme.ConversionRequest{
 			ID: ID{
-				ItemID:      w.Data.Item.ID,
-				AssetID:     asset.ID,
-				ProjectID:   w.Data.Schema.ProjectID,
-				BldgFieldID: bldgField.ID,
+				ItemID:    w.Data.Item.ID,
+				AssetID:   asset.ID,
+				ProjectID: w.Data.Schema.ProjectID,
 			}.String(c.Secret),
-			Target: asset.URL,
-			PRCS:   "6669", // TODO2: accept prcs code from webhook
+			Target:             asset.URL,
+			PRCS:               item.PRCS.ESPGCode(),
+			DevideODC:          item.DevideODC.Enabled(),
+			QualityCheckParams: item.QualityCheckParams,
+			QualityCheck:       !c.FMESkipQualityCheck,
 		}
 
 		if s.FME == nil {
 			log.Infof("webhook: fme mocked: %+v", fmeReq)
-		} else if err := s.FME.CheckQualityAndConvertAll(ctx, fmeReq); err != nil {
-			log.Errorf("cmsintegration webhook: failed to request fme: %w", err)
+		} else if err := s.FME.Request(ctx, fmeReq); err != nil {
+			log.Errorf("cmsintegration webhook: failed to request fme: %s", err)
 			return nil
 		}
 
-		if err := s.CMS.CommentToAsset(ctx, asset.ID, "CityGMLの品質検査及び3D Tilesへの変換を開始しました。"); err != nil {
-			log.Errorf("cmsintegration webhook: failed to comment: %w", err)
+		if _, err := s.CMS.UpdateItem(ctx, item.ID, Item{
+			ConversionStatus: StatusProcessing,
+		}.Fields()); err != nil {
+			log.Errorf("cmsintegration webhook: failed to update item: %w", err)
+			return nil
+		}
+
+		if err := s.CMS.CommentToItem(ctx, item.ID, "CityGMLの品質検査及び3D Tilesへの変換を開始しました。"); err != nil {
+			log.Errorf("cmsintegration webhook: failed to comment: %s", err)
 			return nil
 		}
 
