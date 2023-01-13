@@ -8,6 +8,8 @@ const reearth = (globalThis as any).reearth;
 
 let addedDatasets: string | undefined = undefined;
 
+let rawCatalog: any[] = [];
+
 const doNotShowWelcome = true; // Make it `let doNotShowWelcome: boolean = false`, and then modify based on storage value when Storage API available
 
 reearth.ui.show(html, { extended: true });
@@ -48,13 +50,17 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
       reearth.ui.resize(350, undefined, true);
     }
   } else if (action === "datacatalog-modal-open") {
-    addedDatasets = payload;
+    addedDatasets = payload.addedDatasets;
+    rawCatalog = payload.rawCatalog;
     reearth.modal.show(dataCatalogHtml, { background: "transparent" });
     // Datacatalog modal
   } else if (action === "modal-close") {
     reearth.modal.close();
   } else if (action === "initDatasetCatalog") {
-    reearth.modal.postMessage({ type: "msgFromSidebar", payload: addedDatasets });
+    reearth.modal.postMessage({
+      type: "msgFromSidebar",
+      payload: { rawCatalog, addedDatasets },
+    });
   } else if (action === "welcome-modal-open") {
     reearth.modal.show(welcomeScreenHtml, { background: "transparent" });
   }

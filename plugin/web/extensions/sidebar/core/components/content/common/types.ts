@@ -1,7 +1,3 @@
-import { Data } from "@web/extensions/sidebar/modals/datacatalog/types";
-
-export type Dataset = Data;
-
 // export type Dataset = {
 //   id: string;
 //   filename?: string;

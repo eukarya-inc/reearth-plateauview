@@ -1,5 +1,5 @@
+import { CatalogItem } from "@web/extensions/sidebar/core/processCatalog";
 import { postMsg } from "@web/extensions/sidebar/core/utils";
-import { Data } from "@web/extensions/sidebar/modals/datacatalog/types";
 import { useCallback, useEffect, useState } from "react";
 
 export type Tab = "dataset" | "your-data";
@@ -7,13 +7,14 @@ export type Tab = "dataset" | "your-data";
 export default () => {
   const [currentTab, changeTabs] = useState<Tab>("dataset");
   const [addedDatasetIds, setAddedDatasetIds] = useState<string[]>();
+  const [rawCatalog, setRawCatalog] = useState<any[]>();
 
   const handleClose = useCallback(() => {
     postMsg({ action: "modal-close" });
   }, []);
 
   const handleDatasetAdd = useCallback(
-    (dataset: Data) => {
+    (dataset: CatalogItem) => {
       postMsg({
         action: "msgFromModal",
         payload: {
@@ -33,7 +34,8 @@ export default () => {
     const eventListenerCallback = (e: MessageEvent<any>) => {
       if (e.source !== parent) return;
       if (e.data.type === "msgFromSidebar") {
-        setAddedDatasetIds(e.data.payload);
+        setAddedDatasetIds(e.data.payload.addedDatasets);
+        setRawCatalog(e.data.payload.rawCatalog);
       }
     };
     addEventListener("message", e => eventListenerCallback(e));
@@ -44,6 +46,7 @@ export default () => {
 
   return {
     currentTab,
+    rawCatalog,
     addedDatasetIds,
     handleClose,
     handleTabChange: changeTabs,

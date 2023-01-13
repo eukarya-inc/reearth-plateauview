@@ -1,6 +1,7 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { Dataset } from "./components/content/common/DatasetCard";
+import processCatalog from "./processCatalog";
 import { useCurrentOverrides } from "./state";
 import { ReearthApi } from "./types";
 import { mergeProperty, postMsg } from "./utils";
@@ -45,7 +46,31 @@ export default () => {
   const [selectedDatasets, updateDatasets] = useState<Dataset[]>([]);
   const [inEditor, setInEditor] = useState(true);
   const [backendURL, setBackendURL] = useState<string>("");
-  const [cmsURL, setCMSURL] = useState<string>("");
+  const [cmsURL, setCMSURL] = useState<string>();
+
+  const [plateauData, setPlateauData] = useState<any[]>([]);
+  const [usecaseData, setUsecaseData] = useState<any[]>([]);
+  const [datasetData, setDatasetData] = useState<any[]>([]);
+
+  useEffect(() => {
+    async function fetchRawData() {
+      const plateau = await (await fetch(`${cmsURL}/plateau`, {})).json();
+      const usecase = await (await fetch(`${cmsURL}/usecase`, {})).json();
+      const dataset = await (await fetch(`${cmsURL}/usecase`, {})).json();
+      setPlateauData(plateau);
+      setUsecaseData(usecase);
+      setDatasetData(dataset);
+    }
+    if (cmsURL) {
+      fetchRawData();
+    }
+  }, [cmsURL, setPlateauData, setUsecaseData, setDatasetData]);
+
+  // PROCESS/MERGE data as one `raw catalog` (unfiltered!)
+  const rawCatalog = useMemo(
+    () => processCatalog(plateauData, usecaseData, datasetData),
+    [plateauData, usecaseData, datasetData],
+  );
 
   const handleDatasetAdd = useCallback((dataset: Dataset) => {
     updateDatasets(oldDatasets => [...oldDatasets, dataset]);
@@ -63,8 +88,11 @@ export default () => {
 
   const handleModalOpen = useCallback(() => {
     const selectedIds = selectedDatasets.map(d => d.id);
-    postMsg({ action: "datacatalog-modal-open", payload: selectedIds });
-  }, [selectedDatasets]);
+    postMsg({
+      action: "datacatalog-modal-open",
+      payload: { addedDatasets: selectedIds, rawCatalog },
+    });
+  }, [rawCatalog, selectedDatasets]);
 
   useEffect(() => {
     const eventListenerCallback = (e: MessageEvent<any>) => {
@@ -76,7 +104,7 @@ export default () => {
       } else if (e.data.type === "init") {
         setInEditor(e.data.payload.inEditor);
         setBackendURL(e.data.payload.backendURL);
-        setCMSURL(e.data.payload.cmsURL);
+        setCMSURL(`${e.data.payload.cmsURL}/api/p/plateau-2022`);
       }
     };
     addEventListener("message", e => eventListenerCallback(e));
