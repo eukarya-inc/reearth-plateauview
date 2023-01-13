@@ -53,7 +53,8 @@ const Wrapper = styled.div<{ size: keyof typeof sizes; theme?: string }>`
   position: relative;
   display: inline-block;
   border-radius: 8px;
-  background: ${({ theme }) => (theme === "grey" ? "#F4F4F4" : "#fff")};
+  background: ${({ theme, size }) =>
+    size === "mini" ? "#fff" : theme === "grey" ? "#F4F4F4" : "#fff"};
   transition: min-width 0.5s, min-height 0.5s;
   min-width: ${({ size }) => (size === "mini" ? `${sizes.mini.width}px` : "100%")};
   min-height: ${({ size }) => `${sizes[size].height}px`};
