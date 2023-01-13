@@ -19,7 +19,7 @@ func TestItemFromUploadResult(t *testing.T) {
 		Urf:        []string{"urf"},
 		Fld:        []string{"fld"},
 		Htd:        []string{"htd"},
-		Tnum:       []string{"tnm"},
+		Tnm:        []string{"tnm"},
 		Ifld:       []string{"ifld"},
 	}, itemFromUploadResult(map[string][]string{
 		"all":        {"all"},

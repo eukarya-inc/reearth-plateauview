@@ -90,8 +90,8 @@ type Item struct {
 	Urf []string `json:"urf,omitempty"`
 	// asset[]: fld
 	Fld []string `json:"fld,omitempty"`
-	// asset[]: tnum
-	Tnum []string `json:"tnum,omitempty"`
+	// asset[]: tnm
+	Tnm []string `json:"tnm,omitempty"`
 	// asset[]: htd
 	Htd []string `json:"htd,omitempty"`
 	// asset[]: ifld
@@ -259,11 +259,11 @@ func (i Item) Fields() (fields []cms.Field) {
 		})
 	}
 
-	if i.Tnum != nil {
+	if i.Tnm != nil {
 		fields = append(fields, cms.Field{
-			Key:   "tnum",
+			Key:   "tnm",
 			Type:  "asset",
-			Value: i.Tnum,
+			Value: i.Tnm,
 		})
 	}
 
@@ -425,8 +425,8 @@ func ItemFrom(item cms.Item) (i Item) {
 		i.Fld = v
 	}
 
-	if v := item.FieldByKey("tnum").ValueStrings(); v != nil {
-		i.Tnum = v
+	if v := item.FieldByKey("tnm").ValueStrings(); v != nil {
+		i.Tnm = v
 	}
 
 	if v := item.FieldByKey("htd").ValueStrings(); v != nil {

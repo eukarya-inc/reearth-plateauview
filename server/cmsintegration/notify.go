@@ -220,7 +220,7 @@ func itemFromUploadResult(r map[string][]string) (i Item) {
 		case "fld":
 			i.Fld = v
 		case "tnm":
-			i.Tnum = v
+			i.Tnm = v
 		case "htd":
 			i.Htd = v
 		case "ifld":
