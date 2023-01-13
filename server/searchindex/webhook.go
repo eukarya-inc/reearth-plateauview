@@ -42,7 +42,7 @@ func WebhookHandler(conf Config) (cmswebhook.Handler, error) {
 		item := ItemFrom(*w.Data.Item)
 		log.Infof("searchindex webhook: item: %+v", item)
 
-		if item.SeatchIndexStatus != "" && item.SeatchIndexStatus != StatusProcessing {
+		if item.SeatchIndexStatus != "" && item.SeatchIndexStatus != StatusReady {
 			log.Infof("searchindex webhook: skipped: %s", item.SeatchIndexStatus)
 			return nil
 		}
