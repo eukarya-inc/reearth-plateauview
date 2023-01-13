@@ -1,6 +1,6 @@
 import { Carousel, Icon, Pagination } from "@web/sharedComponents";
 import { styled } from "@web/theme";
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Remarkable } from "remarkable";
 
 import type { Camera, Story as StoryType } from "../../types";
@@ -48,6 +48,14 @@ const Player: React.FC<Props> = ({ stories, viewStory }) => {
       linkTarget: "__blank",
     }),
   );
+
+  // auto view story 1 if exist when active
+  useEffect(() => {
+    if (stories[0]?.camera) {
+      viewStory(stories[0].camera);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <Wrapper>
