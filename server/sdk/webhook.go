@@ -71,6 +71,12 @@ func WebhookHandler(conf Config) (cmswebhook.Handler, error) {
 			return nil
 		}
 
+		if _, err := s.CMS.UpdateItem(ctx, item.ID, Item{
+			MaxLODStatus: StatusProcessing,
+		}.Fields()); err != nil {
+			log.Errorf("sdk webhook: failed to update item: %w", err)
+		}
+
 		log.Infof("sdk webhook: done")
 		return nil
 	}, nil
