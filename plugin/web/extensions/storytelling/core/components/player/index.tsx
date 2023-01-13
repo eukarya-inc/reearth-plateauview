@@ -57,7 +57,7 @@ const Player: React.FC<Props> = ({ stories, viewStory }) => {
       <MainContent>
         <CarouselContainer>
           <CarouselArea>
-            {stories && (
+            {stories.length > 0 && (
               <Carousel
                 beforeChange={onSlideChange}
                 dots={false}
@@ -81,16 +81,18 @@ const Player: React.FC<Props> = ({ stories, viewStory }) => {
           </CarouselArea>
         </CarouselContainer>
         <PaginationContainer>
-          <Pagination
-            current={current + 1}
-            size="small"
-            total={stories.length}
-            pageSize={1}
-            onChange={onPaginationChange}
-          />
+          {stories.length > 0 && (
+            <Pagination
+              current={current + 1}
+              size="small"
+              total={stories.length}
+              pageSize={1}
+              onChange={onPaginationChange}
+            />
+          )}
         </PaginationContainer>
       </MainContent>
-      <NavButton onClick={next} disabled={current === stories.length - 1} className="next">
+      <NavButton onClick={next} disabled={current >= stories.length - 1} className="next">
         <Icon icon="caretLeft" size={32} />
       </NavButton>
     </Wrapper>
