@@ -2,6 +2,7 @@ import { TEST_PLATEAU_DATA, TEST_USECASE_DATA, TEST_DATASET_DATA } from "./TEST_
 
 export type CatalogRawItem = {
   id: string;
+  name?: string;
   prefecture: string; // 都道府県
   cityName: string; // city_name 市区町村名
   description?: string | null;
@@ -58,23 +59,20 @@ export type CatalogItem =
 export type DataCatalog = CatalogItem[];
 
 export default (plateauData: any[], usecaseData: any[], datasetData: any[]) => {
-  console.log("FETCHED PLATEAU DATA: ", plateauData);
-  console.log("FETCHED USECASE DATA: ", usecaseData);
-  console.log("FETCHED DATASET DATA: ", datasetData);
-  const rawPlateauData = convertRaw(TEST_PLATEAU_DATA); // REMOVE TEST DATA WHEN FINISHED TESTING
-  const rawUsecaseData = convertRaw(TEST_USECASE_DATA, true); // REMOVE TEST DATA WHEN FINISHED TESTING
-  const rawDatasetData = convertRaw(TEST_DATASET_DATA); // REMOVE TEST DATA WHEN FINISHED TESTING
+  const rawPlateauData = convertRaw(plateauData ?? TEST_PLATEAU_DATA); // REMOVE TEST DATA WHEN FINISHED TESTING
+  const rawUsecaseData = convertRaw(usecaseData ?? TEST_USECASE_DATA, true); // REMOVE TEST DATA WHEN FINISHED TESTING
+  const rawDatasetData = convertRaw(datasetData ?? TEST_DATASET_DATA); // REMOVE TEST DATA WHEN FINISHED TESTING
 
-  const rawCatalog = [...rawPlateauData, ...rawUsecaseData, ...rawDatasetData];
-  console.log("Raw Catalog: ", rawCatalog);
-
-  return rawCatalog;
+  return [...rawPlateauData, ...rawUsecaseData, ...rawDatasetData];
 };
 
-function convertRaw(data: any[], isUsecase?: boolean): CatalogRawItem[] {
+function convertRaw(data?: any[], isUsecase?: boolean): CatalogRawItem[] {
+  if (!data || data.length <= 0) return [];
+
   return data.map(item => {
     const rawItem: CatalogRawItem = {
       id: item.id,
+      name: item.name,
       prefecture: item.prefecture,
       cityName: item.city_name,
       description: item.description,

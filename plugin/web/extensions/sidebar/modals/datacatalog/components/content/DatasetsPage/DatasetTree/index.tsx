@@ -11,7 +11,7 @@ import FileTree, { DataCatalog } from "./FileTree";
 type FilterType = "prefecture" | "fileType" | "tag";
 
 export type Props = {
-  rawCatalog?: any[];
+  rawCatalog?: CatalogRawItem[];
   selectedTags?: Tag[];
   onTagSelect: (tag: Tag) => void;
   onOpenDetails?: (data?: CatalogItem) => void;
@@ -59,14 +59,27 @@ function tagFilter(catalog: CatalogRawItem[]): DataCatalog {
 
 function prefectureFilter(catalog: CatalogRawItem[]): DataCatalog {
   const filteredCatalog: CatalogItem[] = prefectures.map(p => {
+    const usecase: CatalogItem = {
+      type: "group",
+      name: "ユースケース",
+      children: [],
+    };
     const items: CatalogItem[] = catalog.filter(i => {
       if (i.prefecture === p) {
+        if (i.isUsecase) {
+          usecase.children.push(i as CatalogItem);
+          return;
+        }
         return {
           type: "item",
           ...i,
         };
       }
     }) as CatalogItem[];
+
+    if (usecase.children.length > 0) {
+      items.push(usecase);
+    }
 
     return {
       type: "group",
@@ -104,7 +117,7 @@ const DatasetTree: React.FC<Props> = ({ rawCatalog, selectedTags, onTagSelect, o
   }, []);
 
   useEffect(() => {
-    if (rawCatalog) {
+    if (rawCatalog && rawCatalog.length > 0) {
       const filteredCatalog = filterCatalog(rawCatalog, filter);
       setCatalog(filteredCatalog);
     }

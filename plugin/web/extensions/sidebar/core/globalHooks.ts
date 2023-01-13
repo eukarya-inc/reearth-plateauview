@@ -54,9 +54,9 @@ export default () => {
 
   useEffect(() => {
     async function fetchRawData() {
-      const plateau = await (await fetch(`${cmsURL}/plateau`, {})).json();
-      const usecase = await (await fetch(`${cmsURL}/usecase`, {})).json();
-      const dataset = await (await fetch(`${cmsURL}/usecase`, {})).json();
+      const plateau = (await (await fetch(`${cmsURL}/plateau`, {})).json()).results;
+      const usecase = (await (await fetch(`${cmsURL}/usecase`, {})).json()).results;
+      const dataset = (await (await fetch(`${cmsURL}/usecase`, {})).json()).results;
       setPlateauData(plateau);
       setUsecaseData(usecase);
       setDatasetData(dataset);
@@ -66,7 +66,6 @@ export default () => {
     }
   }, [cmsURL, setPlateauData, setUsecaseData, setDatasetData]);
 
-  // PROCESS/MERGE data as one `raw catalog` (unfiltered!)
   const rawCatalog = useMemo(
     () => processCatalog(plateauData, usecaseData, datasetData),
     [plateauData, usecaseData, datasetData],

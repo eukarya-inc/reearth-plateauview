@@ -51,7 +51,7 @@ export const TEST_PLATEAU_DATA = [
     bldg: null,
     catalog: null,
     catalog_status: "未実行",
-    city_name: null,
+    city_name: "Some city",
     citygml: null,
     citygml_geospatialjp: null,
     conversion_division_by_ward: "する",

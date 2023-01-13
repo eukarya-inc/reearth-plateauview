@@ -47,7 +47,7 @@ const TreeBuilder: React.FC<{
   ) : (
     <FolderItem key={item.id} nestLevel={nestLevel} selected={selected} onClick={handleOpenDetails}>
       <Icon icon={"file"} size={20} />
-      <Name>{item.cityName}</Name>
+      <Name>{item.cityName ?? item.name}</Name>
     </FolderItem>
   );
 };

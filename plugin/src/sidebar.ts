@@ -1,3 +1,4 @@
+import { CatalogRawItem } from "@web/extensions/sidebar/core/processCatalog";
 import { PostMessageProps } from "@web/extensions/sidebar/core/types";
 
 import html from "../dist/web/sidebar/core/index.html?raw";
@@ -8,7 +9,7 @@ const reearth = (globalThis as any).reearth;
 
 let addedDatasets: string | undefined = undefined;
 
-let rawCatalog: any[] = [];
+let rawCatalog: CatalogRawItem[] = [];
 
 const doNotShowWelcome = true; // Make it `let doNotShowWelcome: boolean = false`, and then modify based on storage value when Storage API available
 
