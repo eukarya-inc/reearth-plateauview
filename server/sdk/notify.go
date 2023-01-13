@@ -3,7 +3,6 @@ package sdk
 import (
 	"net/http"
 
-	"github.com/eukarya-inc/reearth-plateauview/server/cms"
 	"github.com/eukarya-inc/reearth-plateauview/server/fme"
 	"github.com/labstack/echo/v4"
 	"github.com/reearth/reearthx/log"
@@ -14,7 +13,12 @@ type FMEResult struct {
 	ResultURL string `json:"resultUrl"`
 }
 
-func NotifyHandler(cmsi cms.Interface, secret string, debug bool) echo.HandlerFunc {
+func NotifyHandler(conf Config) (echo.HandlerFunc, error) {
+	s, err := NewServices(conf)
+	if err != nil {
+		return nil, err
+	}
+
 	return func(c echo.Context) error {
 		ctx := c.Request().Context()
 
@@ -26,18 +30,18 @@ func NotifyHandler(cmsi cms.Interface, secret string, debug bool) echo.HandlerFu
 
 		log.Infof("sdk notify: received: %+v", f)
 
-		id, err := fme.ParseID(f.ID, secret)
+		id, err := fme.ParseID(f.ID, conf.Secret)
 		if err != nil {
 			return c.JSON(http.StatusUnauthorized, "unauthorized")
 		}
 
 		log.Errorf("sdk notify: validate: itemID=%s, assetID=%s", id.ItemID, id.AssetID)
 
-		aid, err := cmsi.UploadAsset(ctx, id.ProjectID, f.ResultURL)
+		aid, err := s.CMS.UploadAsset(ctx, id.ProjectID, f.ResultURL)
 		if err != nil {
 			log.Errorf("sdk notify: failed to update assets: %w", err)
 
-			if _, err := cmsi.UpdateItem(ctx, id.ItemID, Item{
+			if _, err := s.CMS.UpdateItem(ctx, id.ItemID, Item{
 				MaxLODStatus: StatusError,
 			}.Fields()); err != nil {
 				log.Errorf("sdk notify: failed to update item: %w", err)
@@ -45,7 +49,7 @@ func NotifyHandler(cmsi cms.Interface, secret string, debug bool) echo.HandlerFu
 			return nil
 		}
 
-		if _, err := cmsi.UpdateItem(ctx, id.ItemID, Item{
+		if _, err := s.CMS.UpdateItem(ctx, id.ItemID, Item{
 			MaxLODStatus: StatusOK,
 			MaxLOD:       aid,
 		}.Fields()); err != nil {
@@ -55,5 +59,5 @@ func NotifyHandler(cmsi cms.Interface, secret string, debug bool) echo.HandlerFu
 
 		log.Infof("sdk notify: done")
 		return nil
-	}
+	}, nil
 }

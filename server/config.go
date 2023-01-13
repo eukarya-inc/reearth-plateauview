@@ -2,15 +2,18 @@ package main
 
 import (
 	"fmt"
+	"net/url"
 	"os"
 
 	"github.com/eukarya-inc/reearth-plateauview/server/cmsintegration"
 	"github.com/eukarya-inc/reearth-plateauview/server/geospatialjp"
 	"github.com/eukarya-inc/reearth-plateauview/server/opinion"
+	"github.com/eukarya-inc/reearth-plateauview/server/sdk"
 	"github.com/eukarya-inc/reearth-plateauview/server/share"
 	"github.com/joho/godotenv"
 	"github.com/kelseyhightower/envconfig"
 	"github.com/reearth/reearthx/log"
+	"github.com/reearth/reearthx/util"
 )
 
 const configPrefix = "REEARTH_PLATEAUVIEW"
@@ -58,12 +61,23 @@ func (c *Config) CMSIntegration() cmsintegration.Config {
 		FMEMock:             c.FME_Mock,
 		FMEBaseURL:          c.FME_BaseURL,
 		FMEToken:            c.FME_Token,
-		FMEResultURL:        c.Host,
+		FMEResultURL:        util.DR(url.JoinPath(c.Host, "notify_fme")),
 		FMESkipQualityCheck: c.FME_SkipQualityCheck,
 		CMSBaseURL:          c.CMS_BaseURL,
 		CMSToken:            c.CMS_Token,
 		Secret:              c.Secret,
 		Debug:               c.Debug,
+	}
+}
+
+func (c *Config) SDK() sdk.Config {
+	return sdk.Config{
+		FMEBaseURL:   c.FME_BaseURL,
+		FMEToken:     c.FME_Token,
+		FMEResultURL: util.DR(url.JoinPath(c.Host, "notify_sdk")),
+		CMSBase:      c.CMS_BaseURL,
+		CMSToken:     c.CMS_Token,
+		Secret:       c.Secret,
 	}
 }
 
