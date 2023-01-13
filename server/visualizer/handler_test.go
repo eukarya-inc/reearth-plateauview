@@ -72,7 +72,7 @@ func TestHandler_getData(t *testing.T) {
 		},
 		)
 	}
-	httpmock.RegisterResponder("GET", lo.Must(url.JoinPath("/api/items/", itemID)), responder)
+	httpmock.RegisterResponder("GET", lo.Must(url.JoinPath(cmsHost, "/api/items/", itemID)), responder)
 	//テストしたいこと: CMSからdataが返ってくる想定のもと、仕様どおりにデータを返せるかどうか？
 	e := echo.New()
 	p := path.Join("/viz/aaa/data/", itemID)
@@ -109,7 +109,7 @@ func TestHandler_getAllData(t *testing.T) {
 		)
 	}
 	// cmsの passが間違えているのでは??
-	httpmock.RegisterResponder("GET", lo.Must(url.JoinPath(cmsHost, "/api/models/", "aaa", "items")), responder)
+	httpmock.RegisterResponder("GET", lo.Must(url.JoinPath(cmsHost, "/api/models/", modelID, "items")), responder)
 	//テストしたいこと: CMSからdataが返ってくる想定のもと、仕様どおりにデータを返せるかどうか？
 	e := echo.New()
 	p := path.Join("/viz/aaa/data/")
