@@ -25,15 +25,21 @@ export default () => {
   const [mode, setMode] = useState<Mode>("editor");
   const [size, setSize] = useState<Mode | "mini">("mini");
   const sizeRef = useRef<Mode | "mini">(size);
+  const prevSizeRef = useRef<Mode | "mini">("mini");
 
   const handleMinimize = useCallback(() => {
+    prevSizeRef.current = size;
     setSize(size => (size === "mini" ? mode : "mini"));
-  }, [mode]);
+  }, [mode, size]);
 
-  const handleSetMode = useCallback((mode: Mode) => {
-    setMode(mode);
-    setSize(mode);
-  }, []);
+  const handleSetMode = useCallback(
+    (mode: Mode) => {
+      prevSizeRef.current = size;
+      setMode(mode);
+      setSize(mode);
+    },
+    [size],
+  );
 
   useEffect(() => {
     if (size === "mini") {
@@ -43,7 +49,15 @@ export default () => {
         }
       }, 500);
     } else if (size === "editor") {
-      postMsg("resize", [sizes.editor.width, sizes.editor.height, true]);
+      if (prevSizeRef.current === "player") {
+        setTimeout(() => {
+          if (sizeRef.current === "editor") {
+            postMsg("resize", [sizes.mini.width, sizes.mini.height, true]);
+          }
+        }, 500);
+      } else {
+        postMsg("resize", [sizes.editor.width, sizes.editor.height, true]);
+      }
     } else {
       postMsg("resize", [sizes.player.width, sizes.player.height, true]);
     }
