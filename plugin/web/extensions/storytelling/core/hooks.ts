@@ -1,42 +1,53 @@
+import { ConfigProvider } from "@web/sharedComponents";
 import { useCallback, useState, useRef, useEffect, useMemo } from "react";
 
 import type { Camera, Story } from "./types";
 import { postMsg, generateId } from "./utils";
 
-export const size = {
+export const sizes = {
   mini: {
     width: 89,
     height: 40,
   },
-  extend: {
+  editor: {
     width: undefined,
     height: 178,
   },
+  player: {
+    width: undefined,
+    height: 195,
+  },
 };
 
-export type Mode = "editor" | "play";
+export type Mode = "editor" | "player";
 
 export default () => {
-  const [minimized, setMinimized] = useState<boolean>(true);
-  const minimizedRef = useRef<boolean>(minimized);
-
-  useEffect(() => {
-    if (minimized) {
-      setTimeout(() => {
-        if (minimizedRef.current) {
-          postMsg("minimize", [size.mini.width, size.mini.height, false]);
-        }
-      }, 500);
-    } else {
-      postMsg("minimize", [size.extend.width, size.extend.height, true]);
-    }
-  }, [minimized]);
+  const [mode, setMode] = useState<Mode>("editor");
+  const [size, setSize] = useState<Mode | "mini">("mini");
+  const sizeRef = useRef<Mode | "mini">(size);
 
   const handleMinimize = useCallback(() => {
-    setMinimized(minimized => !minimized);
+    setSize(size => (size === "mini" ? mode : "mini"));
+  }, [mode]);
+
+  const handleSetMode = useCallback((mode: Mode) => {
+    setMode(mode);
+    setSize(mode);
   }, []);
 
-  const [mode, setMode] = useState<Mode>("editor");
+  useEffect(() => {
+    if (size === "mini") {
+      setTimeout(() => {
+        if (sizeRef.current === "mini") {
+          postMsg("resize", [sizes.mini.width, sizes.mini.height, false]);
+        }
+      }, 500);
+    } else if (size === "editor") {
+      postMsg("resize", [sizes.editor.width, sizes.editor.height, true]);
+    } else {
+      postMsg("resize", [sizes.player.width, sizes.player.height, true]);
+    }
+  }, [size]);
 
   const contentTheme = useMemo(() => (mode === "editor" ? "light" : "grey"), [mode]);
 
@@ -51,14 +62,17 @@ export default () => {
   const captureScene = useCallback(() => {
     postMsg("captureScene");
   }, []);
-  const handleCaptureScene = useCallback((camera: Camera) => {
-    addStory({
-      id: generateId(),
-      title: "",
-      description: "",
-      camera,
-    });
-  }, []);
+  const handleCaptureScene = useCallback(
+    (camera: Camera) => {
+      addStory({
+        id: generateId(),
+        title: "",
+        description: "",
+        camera,
+      });
+    },
+    [addStory],
+  );
 
   const viewStory = useCallback((camera: Camera) => {
     postMsg("viewStory", camera);
@@ -111,47 +125,60 @@ export default () => {
   useEffect(() => {
     // mock stories
     const stories = [];
-    for (let i = 1; i < 1; i += 1) {
+    for (let i = 1; i < 20; i += 1) {
       stories.push({
         id: generateId(),
-        title: `Title Title Title Title dotsThreeVertical ${i}`,
-        description:
-          "This is the first capture. Here you can see the new building of this city. This is the first capture. Here you can see the new building of this city.",
+        title: `Title ${i}`,
+        description: `# Header 1
+## Header 2
+### Header 3`,
         camera: undefined,
       });
     }
     setStories(stories);
+
+    // theme
+    const themeColor = "#00BEBE";
+    document.documentElement.style.setProperty("--theme-color", themeColor);
+    ConfigProvider.config({
+      theme: {
+        primaryColor: themeColor,
+      },
+    });
   }, []);
 
-  const eventListenerCallback = useCallback((e: MessageEvent<any>) => {
-    if (e.source !== parent) return;
-    switch (e.data.type) {
-      case "captureScene":
-        handleCaptureScene(e.data.payload);
-        break;
-      case "recapture":
-        handleRecapture(e.data.payload);
-        break;
-      case "saveStory":
-        saveStory(e.data.payload);
-        break;
-      default:
-        break;
-    }
-  }, []);
+  const eventListenerCallback = useCallback(
+    (e: MessageEvent<any>) => {
+      if (e.source !== parent) return;
+      switch (e.data.type) {
+        case "captureScene":
+          handleCaptureScene(e.data.payload);
+          break;
+        case "recapture":
+          handleRecapture(e.data.payload);
+          break;
+        case "saveStory":
+          saveStory(e.data.payload);
+          break;
+        default:
+          break;
+      }
+    },
+    [handleCaptureScene, handleRecapture, saveStory],
+  );
 
   useEffect(() => {
     addEventListener("message", eventListenerCallback);
     return () => {
       removeEventListener("message", eventListenerCallback);
     };
-  }, []);
+  }, [eventListenerCallback]);
 
   return {
-    minimized,
+    size,
     handleMinimize,
     mode,
-    setMode,
+    handleSetMode,
     contentTheme,
     stories,
     captureScene,
@@ -159,5 +186,6 @@ export default () => {
     recapture,
     deleteStory,
     editStory,
+    ConfigProvider,
   };
 };

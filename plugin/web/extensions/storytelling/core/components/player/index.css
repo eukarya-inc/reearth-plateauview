@@ -1,0 +1,9 @@
+.ant-pagination-prev,
+.ant-pagination-next{
+  display: none !important;
+}
+
+.ant-pagination-item-active{
+  border-color: rgba(0,0,0,0) !important;
+  background: none !important;
+}

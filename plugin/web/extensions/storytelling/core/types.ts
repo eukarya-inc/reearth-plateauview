@@ -1,4 +1,5 @@
 export type PostMessageType =
+  | "resize"
   | "minimize"
   | "captureScene"
   | "viewStory"

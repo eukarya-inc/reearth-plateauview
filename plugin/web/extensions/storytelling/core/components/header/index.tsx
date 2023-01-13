@@ -16,19 +16,15 @@ const Header: React.FC<Props> = ({ mode, setMode, handleMinimize }) => {
     <StyledHeader>
       <HeaderMain>
         <WidgetTitle>Story</WidgetTitle>
+        <Tab mode="editor" icon="pencil" text="Editor mode" currentMode={mode} onClick={setMode} />
         <Tab
-          mode="editor"
-          icon="pencil"
-          text="Editor mode"
-          currentMode={mode}
-          onClick={setMode}></Tab>
-        <Tab
-          mode="play"
+          mode="player"
           icon="play"
           text="Play mode"
           theme="grey"
           currentMode={mode}
-          onClick={setMode}></Tab>
+          onClick={setMode}
+        />
       </HeaderMain>
       <HeaderBtns>
         <IconBtn>

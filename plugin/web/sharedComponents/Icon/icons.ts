@@ -43,6 +43,7 @@ import { ReactComponent as Play } from "./Icons/play.svg";
 import { ReactComponent as Cross } from "./Icons/cross.svg";
 import { ReactComponent as PaperPlane } from "./Icons/paperPlane.svg";
 import { ReactComponent as DotsThreeVertical } from "./Icons/dotsThreeVertical.svg";
+import { ReactComponent as CaretLeft } from "./Icons/caretLeft.svg";
 
 export default {
   logo: Logo,
@@ -87,4 +88,5 @@ export default {
   cross: Cross,
   paperPlane: PaperPlane,
   dotsThreeVertical: DotsThreeVertical,
+  caretLeft: CaretLeft,
 };

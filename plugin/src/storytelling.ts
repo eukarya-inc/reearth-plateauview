@@ -9,6 +9,9 @@ reearth.ui.show(html, { width: 89, height: 40, extended: false });
 
 reearth.on("message", ({ type, payload }: PostMessageProps) => {
   switch (type) {
+    case "resize":
+      reearth.ui.resize(...payload);
+      break;
     case "minimize":
       reearth.ui.resize(...payload);
       break;
