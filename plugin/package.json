@@ -79,11 +79,14 @@
   "dependencies": {
     "@types/react-leaflet": "2.8.2",
     "easymde": "2.18.0",
+    "immutability-helper": "3.1.1",
     "jotai": "1.12.1",
     "leaflet": "1.9.2",
     "lodash": "4.17.21",
     "react": "18.2.0",
     "react-accessible-accordion": "5.0.0",
+    "react-dnd": "16.0.1",
+    "react-dnd-html5-backend": "16.0.1",
     "react-dom": "18.2.0",
     "react-leaflet": "4.1.0",
     "remarkable": "2.0.1"

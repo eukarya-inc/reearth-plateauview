@@ -1,4 +1,5 @@
 import { ConfigProvider } from "@web/sharedComponents";
+import update from "immutability-helper";
 import { useCallback, useState, useRef, useEffect, useMemo } from "react";
 
 import type { Camera, Story } from "./types";
@@ -137,10 +138,21 @@ export default () => {
     });
   }, []);
 
+  const moveStory = useCallback((dragIndex: number, hoverIndex: number) => {
+    setStories((prevStories: Story[]) =>
+      update(prevStories, {
+        $splice: [
+          [dragIndex, 1],
+          [hoverIndex, 0, prevStories[dragIndex] as Story],
+        ],
+      }),
+    );
+  }, []);
+
   useEffect(() => {
     // mock stories
     const stories = [];
-    for (let i = 1; i < 20; i += 1) {
+    for (let i = 1; i < 1; i += 1) {
       stories.push({
         id: generateId(),
         title: `Title ${i}`,
@@ -201,6 +213,7 @@ export default () => {
     recapture,
     deleteStory,
     editStory,
+    moveStory,
     ConfigProvider,
   };
 };

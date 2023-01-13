@@ -18,6 +18,7 @@ const Storytelling: React.FC = () => {
     recapture,
     deleteStory,
     editStory,
+    moveStory,
     ConfigProvider,
   } = useHooks();
 
@@ -38,6 +39,7 @@ const Storytelling: React.FC = () => {
               recapture={recapture}
               deleteStory={deleteStory}
               editStory={editStory}
+              moveStory={moveStory}
             />
           )}
           {mode === "player" && <Player stories={stories} viewStory={viewStory} />}

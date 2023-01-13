@@ -1,15 +1,18 @@
 import { Icon, Dropdown, Menu } from "@web/sharedComponents";
 import { styled } from "@web/theme";
-import { useCallback } from "react";
+import type { Identifier, XYCoord } from "dnd-core";
+import { useCallback, useRef } from "react";
+import { useDrag, useDrop } from "react-dnd";
 
 import type { Camera, Story as StoryType } from "../../types";
 
 type Props = StoryType & {
-  key: number;
+  index: number;
   viewStory: (camera: Camera) => void;
   recapture: (id: string) => void;
   deleteStory: (id: string) => void;
   editStory: (id: string) => void;
+  moveStory: (dragIndex: number, hoverIndex: number) => void;
 };
 
 const Story: React.FC<Props> = ({
@@ -17,10 +20,12 @@ const Story: React.FC<Props> = ({
   title,
   description,
   camera,
+  index,
   viewStory,
   recapture,
   deleteStory,
   editStory,
+  moveStory,
 }) => {
   const hendleView = useCallback(() => {
     if (camera) {
@@ -48,8 +53,66 @@ const Story: React.FC<Props> = ({
   ];
   const menu = <Menu items={items} />;
 
+  interface DragItem {
+    index: number;
+    id: string;
+    type: string;
+  }
+
+  const ref = useRef<HTMLDivElement>(null);
+
+  const [{ handlerId }, drop] = useDrop<DragItem, void, { handlerId: Identifier | null }>({
+    accept: "story",
+    collect(monitor) {
+      return {
+        handlerId: monitor.getHandlerId(),
+      };
+    },
+    hover(item: DragItem, monitor) {
+      if (!ref.current) {
+        return;
+      }
+      const dragIndex = item.index;
+      const hoverIndex = index;
+
+      if (dragIndex === hoverIndex) {
+        return;
+      }
+
+      const hoverBoundingRect = ref.current?.getBoundingClientRect();
+      const hoverMiddleX = (hoverBoundingRect.right - hoverBoundingRect.left) / 2;
+      const clientOffset = monitor.getClientOffset();
+      const hoverClientX = (clientOffset as XYCoord).x - hoverBoundingRect.left;
+
+      if (dragIndex < hoverIndex && hoverClientX < hoverMiddleX) {
+        return;
+      }
+
+      if (dragIndex > hoverIndex && hoverClientX > hoverMiddleX) {
+        return;
+      }
+
+      moveStory(dragIndex, hoverIndex);
+
+      item.index = hoverIndex;
+    },
+  });
+
+  const [{ isDragging }, drag] = useDrag({
+    type: "story",
+    item: () => {
+      return { id, index };
+    },
+    collect: (monitor: any) => ({
+      isDragging: monitor.isDragging(),
+    }),
+  });
+
+  const opacity = isDragging ? 0 : 1;
+  drag(drop(ref));
+
   return (
-    <StyledStory>
+    <StyledStory ref={ref} style={{ opacity }} data-handler-id={handlerId}>
       <Header>
         <Title>{title}</Title>
         <ActionsBtn>

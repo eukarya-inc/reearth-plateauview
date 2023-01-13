@@ -1,6 +1,8 @@
 import { Icon } from "@web/sharedComponents";
 import { styled } from "@web/theme";
 import { useRef, useCallback, type WheelEvent } from "react";
+import { DndProvider } from "react-dnd";
+import { HTML5Backend } from "react-dnd-html5-backend";
 
 import type { Camera, Story as StoryType } from "../../types";
 
@@ -13,6 +15,7 @@ type Props = {
   recapture: (id: string) => void;
   deleteStory: (id: string) => void;
   editStory: (id: string) => void;
+  moveStory: (dragIndex: number, hoverIndex: number) => void;
 };
 
 const Editor: React.FC<Props> = ({
@@ -22,6 +25,7 @@ const Editor: React.FC<Props> = ({
   recapture,
   deleteStory,
   editStory,
+  moveStory,
 }) => {
   const wrapperRef = useRef<HTMLDivElement>(null);
 
@@ -33,22 +37,26 @@ const Editor: React.FC<Props> = ({
 
   return (
     <Wrapper onWheel={handleWheel} ref={wrapperRef}>
-      <Content>
-        {stories?.map((story, index) => (
-          <Story
-            key={index}
-            viewStory={viewStory}
-            recapture={recapture}
-            deleteStory={deleteStory}
-            editStory={editStory}
-            {...story}
-          />
-        ))}
-        <CreateStory onClick={captureScene}>
-          <Icon icon="cornersOut" size={24} />
-          <CreateText>Capture Scene</CreateText>
-        </CreateStory>
-      </Content>
+      <DndProvider backend={HTML5Backend}>
+        <Content>
+          {stories?.map((story, index) => (
+            <Story
+              key={story.id}
+              index={index}
+              viewStory={viewStory}
+              recapture={recapture}
+              deleteStory={deleteStory}
+              editStory={editStory}
+              moveStory={moveStory}
+              {...story}
+            />
+          ))}
+          <CreateStory onClick={captureScene}>
+            <Icon icon="cornersOut" size={24} />
+            <CreateText>Capture Scene</CreateText>
+          </CreateStory>
+        </Content>
+      </DndProvider>
     </Wrapper>
   );
 };
