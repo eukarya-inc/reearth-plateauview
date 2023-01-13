@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/eukarya-inc/reearth-plateauview/server/cms"
+	"github.com/eukarya-inc/reearth-plateauview/server/fme"
 	"github.com/labstack/echo/v4"
 	"github.com/reearth/reearthx/log"
 )
@@ -23,7 +24,7 @@ func NotifyHandler(cmsi cms.Interface, secret string, debug bool) echo.HandlerFu
 
 		log.Infof("cmsintegration notify: received: %+v", f)
 
-		id, err := ParseID(f.ID, secret)
+		id, err := fme.ParseID(f.ID, secret)
 		if err != nil {
 			return c.JSON(http.StatusUnauthorized, "unauthorized")
 		}

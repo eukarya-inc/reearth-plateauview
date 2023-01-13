@@ -69,7 +69,7 @@ func WebhookHandler(c Config) (cmswebhook.Handler, error) {
 		}
 
 		fmeReq := fme.ConversionRequest{
-			ID: ID{
+			ID: fme.ID{
 				ItemID:    w.Data.Item.ID,
 				AssetID:   asset.ID,
 				ProjectID: w.Data.Schema.ProjectID,
