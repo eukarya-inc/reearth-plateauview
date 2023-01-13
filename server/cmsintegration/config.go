@@ -16,6 +16,7 @@ type Config struct {
 	CMSBaseURL          string
 	CMSToken            string
 	Secret              string
+	Debug               bool
 }
 
 type Services struct {
