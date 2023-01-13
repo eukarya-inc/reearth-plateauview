@@ -24,7 +24,8 @@ export type Mode = "editor" | "player";
 export default () => {
   const [mode, setMode] = useState<Mode>("editor");
   const [size, setSize] = useState<Mode | "mini">("mini");
-  const sizeRef = useRef<Mode | "mini">(size);
+  const sizeRef = useRef<Mode | "mini">();
+  sizeRef.current = size;
   const prevSizeRef = useRef<Mode | "mini">("mini");
 
   const handleMinimize = useCallback(() => {
@@ -52,7 +53,7 @@ export default () => {
       if (prevSizeRef.current === "player") {
         setTimeout(() => {
           if (sizeRef.current === "editor") {
-            postMsg("resize", [sizes.mini.width, sizes.mini.height, true]);
+            postMsg("resize", [sizes.editor.width, sizes.editor.height, true]);
           }
         }, 500);
       } else {
