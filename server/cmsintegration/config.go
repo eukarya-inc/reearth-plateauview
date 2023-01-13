@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/eukarya-inc/reearth-plateauview/server/cms"
-	"github.com/eukarya-inc/reearth-plateauview/server/cmsintegration/fme"
+	"github.com/eukarya-inc/reearth-plateauview/server/fme"
 )
 
 type Config struct {
