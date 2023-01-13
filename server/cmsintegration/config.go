@@ -26,7 +26,7 @@ type Services struct {
 
 func NewServices(c Config) (s Services, _ error) {
 	if !c.FMEMock {
-		fme, err := fme.New(c.FMEBaseURL, c.FMEToken, c.FMEResultURL+"/notify", c.FMESkipQualityCheck)
+		fme, err := fme.New(c.FMEBaseURL, c.FMEToken, c.FMEResultURL+"/notify")
 		if err != nil {
 			return Services{}, fmt.Errorf("failed to init fme: %w", err)
 		}
