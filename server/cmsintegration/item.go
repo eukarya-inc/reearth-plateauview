@@ -77,17 +77,17 @@ type Item struct {
 	// asset[]: bldg
 	Bldg []string `json:"bldg,omitempty"`
 	// asset: tran
-	Tran string `json:"tran,omitempty"`
+	Tran []string `json:"tran,omitempty"`
 	// asset: frn
-	Frn string `json:"frn,omitempty"`
+	Frn []string `json:"frn,omitempty"`
 	// asset: veg
-	Veg string `json:"veg,omitempty"`
+	Veg []string `json:"veg,omitempty"`
 	// asset: luse
-	Luse string `json:"luse,omitempty"`
+	Luse []string `json:"luse,omitempty"`
 	// asset: lsld
-	Lsld string `json:"lsld,omitempty"`
+	Lsld []string `json:"lsld,omitempty"`
 	// asset: urf
-	Urf string `json:"urf,omitempty"`
+	Urf []string `json:"urf,omitempty"`
 	// asset[]: fld
 	Fld []string `json:"fld,omitempty"`
 	// asset[]: tnum
@@ -203,7 +203,7 @@ func (i Item) Fields() (fields []cms.Field) {
 		})
 	}
 
-	if i.Tran != "" {
+	if i.Tran != nil {
 		fields = append(fields, cms.Field{
 			Key:   "tran",
 			Type:  "asset",
@@ -211,7 +211,7 @@ func (i Item) Fields() (fields []cms.Field) {
 		})
 	}
 
-	if i.Frn != "" {
+	if i.Frn != nil {
 		fields = append(fields, cms.Field{
 			Key:   "frn",
 			Type:  "asset",
@@ -219,7 +219,7 @@ func (i Item) Fields() (fields []cms.Field) {
 		})
 	}
 
-	if i.Veg != "" {
+	if i.Veg != nil {
 		fields = append(fields, cms.Field{
 			Key:   "veg",
 			Type:  "asset",
@@ -227,7 +227,7 @@ func (i Item) Fields() (fields []cms.Field) {
 		})
 	}
 
-	if i.Luse != "" {
+	if i.Luse != nil {
 		fields = append(fields, cms.Field{
 			Key:   "luse",
 			Type:  "asset",
@@ -235,7 +235,7 @@ func (i Item) Fields() (fields []cms.Field) {
 		})
 	}
 
-	if i.Lsld != "" {
+	if i.Lsld != nil {
 		fields = append(fields, cms.Field{
 			Key:   "lsld",
 			Type:  "asset",
@@ -243,7 +243,7 @@ func (i Item) Fields() (fields []cms.Field) {
 		})
 	}
 
-	if i.Urf != "" {
+	if i.Urf != nil {
 		fields = append(fields, cms.Field{
 			Key:   "urf",
 			Type:  "asset",
@@ -397,28 +397,28 @@ func ItemFrom(item cms.Item) (i Item) {
 		i.Bldg = v
 	}
 
-	if v := item.FieldByKey("tran").ValueString(); v != nil {
-		i.Tran = *v
+	if v := item.FieldByKey("tran").ValueStrings(); v != nil {
+		i.Tran = v
 	}
 
-	if v := item.FieldByKey("frn").ValueString(); v != nil {
-		i.Frn = *v
+	if v := item.FieldByKey("frn").ValueStrings(); v != nil {
+		i.Frn = v
 	}
 
-	if v := item.FieldByKey("veg").ValueString(); v != nil {
-		i.Veg = *v
+	if v := item.FieldByKey("veg").ValueStrings(); v != nil {
+		i.Veg = v
 	}
 
-	if v := item.FieldByKey("luse").ValueString(); v != nil {
-		i.Luse = *v
+	if v := item.FieldByKey("luse").ValueStrings(); v != nil {
+		i.Luse = v
 	}
 
-	if v := item.FieldByKey("lsld").ValueString(); v != nil {
-		i.Lsld = *v
+	if v := item.FieldByKey("lsld").ValueStrings(); v != nil {
+		i.Lsld = v
 	}
 
-	if v := item.FieldByKey("urf").ValueString(); v != nil {
-		i.Urf = *v
+	if v := item.FieldByKey("urf").ValueStrings(); v != nil {
+		i.Urf = v
 	}
 
 	if v := item.FieldByKey("fld").ValueStrings(); v != nil {
