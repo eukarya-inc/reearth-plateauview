@@ -9,6 +9,7 @@ import (
 	"github.com/eukarya-inc/reearth-plateauview/server/cmsintegration"
 	"github.com/eukarya-inc/reearth-plateauview/server/geospatialjp"
 	"github.com/eukarya-inc/reearth-plateauview/server/opinion"
+	"github.com/eukarya-inc/reearth-plateauview/server/sdk"
 	"github.com/eukarya-inc/reearth-plateauview/server/share"
 	"github.com/eukarya-inc/reearth-plateauview/server/visualizer"
 	"github.com/go-playground/validator/v10"
@@ -49,10 +50,17 @@ func main() {
 		[]byte(conf.CMS_Webhook_Secret),
 		lo.Must(cmsintegration.WebhookHandler(conf.CMSIntegration())),
 		lo.Must(geospatialjp.WebhookHandler(conf.Geospatialjp())),
+		lo.Must(sdk.WebhookHandler(conf.SDK())),
 	)
 
+<<<<<<< HEAD
 	lo.Must0(cmsintegration.Echo(e.Group(""), conf.CMSIntegration()))
 	lo.Must0(visualizer.Echo(e.Group(""), conf.Visualizer()))
+=======
+	e.POST("/notify_fme", lo.Must(cmsintegration.NotifyHandler(conf.CMSIntegration())))
+	e.POST("/notify_sdk", lo.Must(sdk.NotifyHandler(conf.SDK())))
+
+>>>>>>> main
 	lo.Must0(share.Echo(e.Group("/share"), conf.Share()))
 	opinion.Echo(e.Group("/opinion"), conf.Opinion())
 

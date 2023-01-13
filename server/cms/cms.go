@@ -4,30 +4,31 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
 	"net/url"
 
 	"github.com/reearth/reearthx/log"
-	"github.com/samber/lo"
 )
 
 type Interface interface {
 	GetItem(ctx context.Context, itemID string) (*Item, error)
+<<<<<<< HEAD
 	GetItems(ctx context.Context, modelID string) ([]*Item, error)
+=======
+	GetItems(ctx context.Context, modelID string) (*Items, error)
+	GetItemsByKey(ctx context.Context, projectIDOrAlias, modelIDOrKey string) (*Items, error)
+>>>>>>> main
 	CreateItem(ctx context.Context, modelID string, fields []Field) (*Item, error)
 	UpdateItem(ctx context.Context, itemID string, fields []Field) (*Item, error)
 	DeleteItem(ctx context.Context, itemID string) error
 	Asset(ctx context.Context, id string) (*Asset, error)
 	UploadAsset(ctx context.Context, projectID, url string) (string, error)
-	Comment(ctx context.Context, assetID, content string) error
-}
-
-type Field struct {
-	ID    string `json:"id"`
-	Type  string `json:"type"`
-	Value any    `json:"value"`
+	UploadAssetDirectly(ctx context.Context, projectID, name string, data io.Reader) (string, error)
+	CommentToItem(ctx context.Context, assetID, content string) error
+	CommentToAsset(ctx context.Context, assetID, content string) error
 }
 
 type CMS struct {
@@ -76,11 +77,41 @@ func (c *CMS) GetItem(ctx context.Context, itemID string) (*Item, error) {
 	defer func() { _ = b.Close() }()
 
 	item := &Item{}
-	if err := json.NewDecoder(b).Decode(&item); err != nil {
+	if err := json.NewDecoder(b).Decode(item); err != nil {
 		return nil, fmt.Errorf("failed to parse an item: %w", err)
 	}
 
 	return item, nil
+}
+
+func (c *CMS) GetItems(ctx context.Context, modelID string) (*Items, error) {
+	b, err := c.send(ctx, http.MethodGet, []string{"api", "models", modelID, "items"}, nil)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get items: %w", err)
+	}
+	defer func() { _ = b.Close() }()
+
+	items := &Items{}
+	if err := json.NewDecoder(b).Decode(items); err != nil {
+		return nil, fmt.Errorf("failed to parse items: %w", err)
+	}
+
+	return items, nil
+}
+
+func (c *CMS) GetItemsByKey(ctx context.Context, projectIDOrAlias, modelIDOrAlias string) (*Items, error) {
+	b, err := c.send(ctx, http.MethodGet, []string{"api", "projects", projectIDOrAlias, "models", modelIDOrAlias, "items"}, nil)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get items: %w", err)
+	}
+	defer func() { _ = b.Close() }()
+
+	items := &Items{}
+	if err := json.NewDecoder(b).Decode(items); err != nil {
+		return nil, fmt.Errorf("failed to parse items: %w", err)
+	}
+
+	return items, nil
 }
 
 func (c *CMS) CreateItem(ctx context.Context, modelID string, fields []Field) (*Item, error) {
@@ -136,15 +167,17 @@ func (c *CMS) UploadAsset(ctx context.Context, projectID, url string) (string, e
 		"url": url,
 	}
 
-	b, err := c.send(ctx, http.MethodPost, []string{"api", "projects", projectID, "assets"}, rb)
-	if err != nil {
-		return "", fmt.Errorf("failed to upload an asset: %w", err)
+	b, err2 := c.send(ctx, http.MethodPost, []string{"api", "projects", projectID, "assets"}, rb)
+	if err2 != nil {
+		log.Errorf("cms: upload asset: failed to upload an asset: %s", err2)
+		return "", fmt.Errorf("failed to upload an asset: %w", err2)
 	}
+
 	defer func() { _ = b.Close() }()
 
-	body, err := io.ReadAll(b)
-	if err != nil {
-		return "", fmt.Errorf("failed to read body: %w", err)
+	body, err2 := io.ReadAll(b)
+	if err2 != nil {
+		return "", fmt.Errorf("failed to read body: %w", err2)
 	}
 
 	type res struct {
@@ -152,11 +185,16 @@ func (c *CMS) UploadAsset(ctx context.Context, projectID, url string) (string, e
 	}
 
 	r := &res{}
-	if err := json.Unmarshal(body, &r); err != nil {
-		return "", fmt.Errorf("failed to parse body: %w", err)
+	if err2 := json.Unmarshal(body, &r); err2 != nil {
+		return "", fmt.Errorf("failed to parse body: %w", err2)
 	}
 
 	return r.ID, nil
+}
+
+func (c *CMS) UploadAssetDirectly(ctx context.Context, projectID, name string, data io.Reader) (string, error) {
+	// TODO
+	return "", errors.New("not implemented yet")
 }
 
 func (c *CMS) Asset(ctx context.Context, assetID string) (*Asset, error) {
@@ -174,14 +212,28 @@ func (c *CMS) Asset(ctx context.Context, assetID string) (*Asset, error) {
 	return a, nil
 }
 
-func (c *CMS) Comment(ctx context.Context, assetID, content string) error {
+func (c *CMS) CommentToItem(ctx context.Context, itemID, content string) error {
+	rb := map[string]string{
+		"content": content,
+	}
+
+	b, err := c.send(ctx, http.MethodPost, []string{"api", "items", itemID, "comments"}, rb)
+	if err != nil {
+		return fmt.Errorf("failed to comment to item %s: %w", itemID, err)
+	}
+	defer func() { _ = b.Close() }()
+
+	return nil
+}
+
+func (c *CMS) CommentToAsset(ctx context.Context, assetID, content string) error {
 	rb := map[string]string{
 		"content": content,
 	}
 
 	b, err := c.send(ctx, http.MethodPost, []string{"api", "assets", assetID, "comments"}, rb)
 	if err != nil {
-		return fmt.Errorf("failed to comment: %w", err)
+		return fmt.Errorf("failed to comment to asset %s: %w", assetID, err)
 	}
 	defer func() { _ = b.Close() }()
 
@@ -234,6 +286,7 @@ func (c *CMS) request(ctx context.Context, m string, p []string, body any) (*htt
 	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", c.token))
 	return req, nil
 }
+<<<<<<< HEAD
 
 type Asset struct {
 	ID  string `json:"id"`
@@ -257,3 +310,5 @@ func (i Item) Field(id string) *Field {
 	}
 	return nil
 }
+=======
+>>>>>>> main
