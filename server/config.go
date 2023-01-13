@@ -20,7 +20,6 @@ type Config struct {
 	Host                 string `default:"http://localhost:8080"`
 	Origin               []string
 	CMS_Webhook_Secret   string
-	CMS_ModelID          string
 	CMS_BaseURL          string
 	CMS_Token            string
 	CMS_ShareModelID     string
@@ -89,9 +88,7 @@ func (c *Config) Geospatialjp() geospatialjp.Config {
 	return geospatialjp.Config{
 		// CkanBase: ,
 		// CkanOrg: ,
-		CMSToken:   c.CMS_Token,
-		CMSBase:    c.CMS_BaseURL,
-		CMSModelID: c.CMS_ModelID,
-		// CMSCatalogFieldID: ,
+		CMSToken: c.CMS_Token,
+		CMSBase:  c.CMS_BaseURL,
 	}
 }
