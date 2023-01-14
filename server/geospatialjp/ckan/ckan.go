@@ -182,6 +182,13 @@ func (c *Ckan) UpdatePackage(ctx context.Context, pkg Package) (Package, error) 
 	return res.Result, nil
 }
 
+func (c *Ckan) SavePackage(ctx context.Context, pkg Package) (Package, error) {
+	if pkg.ID == "" {
+		return c.CreatePackage(ctx, pkg)
+	}
+	return c.UpdatePackage(ctx, pkg)
+}
+
 func (c *Ckan) CreateResource(ctx context.Context, resource Resource) (Resource, error) {
 	res := Response[Resource]{}
 
@@ -212,6 +219,13 @@ func (c *Ckan) UpdateResource(ctx context.Context, resource Resource) (Resource,
 	}
 
 	return res.Result, nil
+}
+
+func (c *Ckan) SaveResource(ctx context.Context, resource Resource) (Resource, error) {
+	if resource.ID == "" {
+		return c.CreateResource(ctx, resource)
+	}
+	return c.UpdateResource(ctx, resource)
 }
 
 func (c *Ckan) send(ctx context.Context, method string, path []string, queries map[string]string, body io.Reader, result any) error {
