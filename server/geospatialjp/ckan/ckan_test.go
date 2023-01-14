@@ -30,6 +30,23 @@ func TestCkan(t *testing.T) {
 		},
 	}, p)
 
+	s, err := ckan.SearchPackageByName(ctx, "plateau-tokyo23ku")
+	assert.NoError(t, err)
+	assert.Equal(t, List[Package]{
+		Count: 100,
+		Sort:  "hoge",
+		Results: []Package{
+			{
+				ID:       "xxx",
+				Name:     "plateau-tokyo23ku",
+				OwnerOrg: "yyy",
+				Resources: []Resource{
+					{ID: "a", URL: "https://example.com", PackageID: "xxx"},
+				},
+			},
+		},
+	}, s)
+
 	p, err = ckan.CreatePackage(ctx, Package{
 		Name:     "plateau-tokyo23ku",
 		OwnerOrg: "yyy",
@@ -109,6 +126,30 @@ func mockCkan(t *testing.T) {
 				OwnerOrg: "yyy",
 				Resources: []Resource{
 					{ID: "a", URL: "https://example.com", PackageID: "xxx"},
+				},
+			},
+		})
+	})
+
+	httpmock.RegisterResponderWithQuery("GET", "https://www.geospatial.jp/ckan/api/3/action/package_search", "q=name:plateau-tokyo23ku", func(req *http.Request) (*http.Response, error) {
+		if res, err := checkAuth(req); res != nil {
+			return res, err
+		}
+
+		return httpmock.NewJsonResponse(http.StatusOK, Response[List[Package]]{
+			Success: true,
+			Result: List[Package]{
+				Count: 100,
+				Sort:  "hoge",
+				Results: []Package{
+					{
+						ID:       "xxx",
+						Name:     "plateau-tokyo23ku",
+						OwnerOrg: "yyy",
+						Resources: []Resource{
+							{ID: "a", URL: "https://example.com", PackageID: "xxx"},
+						},
+					},
 				},
 			},
 		})

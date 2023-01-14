@@ -25,6 +25,14 @@ type Response[T any] struct {
 	Result  T      `json:"result,omitempty"`
 }
 
+type List[T any] struct {
+	Count   int    `json:"count,omitempty"`
+	Sort    string `json:"sort,omitempty"`
+	Results []T    `json:"results,omitempty"`
+	// facets
+	// search_facets
+}
+
 type Error struct {
 	Message string `json:"message,omitempty"`
 	Type    string `json:"__type,omitempty"`
@@ -142,6 +150,18 @@ func (c *Ckan) ShowPackage(ctx context.Context, id string) (Package, error) {
 	res := Response[Package]{}
 	err := c.send(ctx, "GET", []string{"api", "3", "action", "package_show"}, map[string]string{
 		"id": id,
+	}, nil, &res)
+	if err != nil {
+		return res.Result, fmt.Errorf("failed to get a package: %w", err)
+	}
+
+	return res.Result, nil
+}
+
+func (c *Ckan) SearchPackageByName(ctx context.Context, name string) (List[Package], error) {
+	res := Response[List[Package]]{}
+	err := c.send(ctx, "GET", []string{"api", "3", "action", "package_search"}, map[string]string{
+		"q": fmt.Sprintf("name:%s", name),
 	}, nil, &res)
 	if err != nil {
 		return res.Result, fmt.Errorf("failed to get a package: %w", err)
