@@ -63,6 +63,33 @@ type Catalog struct {
 	CustomFields map[string]any `json:"customFields,omitempty"`
 }
 
+func (c Catalog) Validate() error {
+	var errs []string
+	var missingkeys []string
+
+	if c.Title == "" {
+		missingkeys = append(missingkeys, "タイトル")
+	}
+	if c.URL == "" {
+		missingkeys = append(missingkeys, "URL")
+	}
+	if c.Description == "" {
+		missingkeys = append(missingkeys, "説明")
+	}
+	if c.Thumbnail == nil {
+		missingkeys = append(missingkeys, "サムネイル画像")
+	}
+
+	if len(missingkeys) > 0 {
+		errs = append(errs, fmt.Sprintf("%sは必須です。", strings.Join(missingkeys, "・")))
+	}
+
+	if len(errs) > 0 {
+		return errors.New(strings.Join(errs, ""))
+	}
+	return nil
+}
+
 type CatalogFile struct {
 	file *excelize.File
 }
