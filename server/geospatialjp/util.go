@@ -38,7 +38,7 @@ func catalogFinalFileName(s string) (string, error) {
 	return fmt.Sprintf("%s_final.%s", be, af), nil
 }
 
-func resources(pkg *ckan.Package, c Catalog, citygmlURL, allURL, catalogURL string, private bool) []ckan.Resource {
+func resources(pkg *ckan.Package, c Catalog, citygmlURL, allURL, catalogURL string, private bool) (res []ckan.Resource) {
 	citygml, found := lo.Find(pkg.Resources, func(r ckan.Resource) bool {
 		return r.Name == ResourceNameCityGML
 	})
@@ -48,6 +48,10 @@ func resources(pkg *ckan.Package, c Catalog, citygmlURL, allURL, catalogURL stri
 			Name:      ResourceNameCityGML,
 			Format:    "ZIP",
 		}
+	}
+	if citygml.URL != citygmlURL {
+		citygml.URL = citygmlURL
+		res = append(res, citygml)
 	}
 
 	all, found := lo.Find(pkg.Resources, func(r ckan.Resource) bool {
@@ -60,6 +64,10 @@ func resources(pkg *ckan.Package, c Catalog, citygmlURL, allURL, catalogURL stri
 			Format:    "ZIP",
 		}
 	}
+	if all.URL != allURL {
+		all.URL = allURL
+		res = append(res, all)
+	}
 
 	catalog, found := lo.Find(pkg.Resources, func(r ckan.Resource) bool {
 		return r.Name == ResourceNameCatalog
@@ -71,16 +79,12 @@ func resources(pkg *ckan.Package, c Catalog, citygmlURL, allURL, catalogURL stri
 			Format:    "XLSX",
 		}
 	}
-
-	citygml.URL = citygmlURL
-	all.URL = allURL
-	catalog.URL = catalogURL
-
-	return []ckan.Resource{
-		citygml,
-		all,
-		catalog,
+	if catalog.URL != catalogURL {
+		catalog.URL = catalogURL
+		res = append(res, catalog)
 	}
+
+	return res
 }
 
 var reFileName = regexp.MustCompile(`^([0-9]+?)_(.+?)_`)

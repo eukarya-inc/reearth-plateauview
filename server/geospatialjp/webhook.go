@@ -121,6 +121,8 @@ func (s *Services) CheckCatalog(ctx context.Context, projectID string, i Item) e
 		return err
 	}
 
+	log.Infof("geospatialjp: catalog: %+v", c)
+
 	// validate catalog
 	if err := c.Validate(); err != nil {
 		return err
@@ -160,11 +162,11 @@ func (s *Services) CheckCatalog(ctx context.Context, projectID string, i Item) e
 
 func (s *Services) RegisterCkanResources(ctx context.Context, i Item) error {
 	if i.Catalog == "" || i.CatalogFinal == "" {
-		return errors.New("目録ファイルが登録されていません。目録の検査が正常に完了しているか確認してください。")
+		return errors.New("「目録ファイル」が登録されていません。目録の検査が正常に完了しているか確認してください。")
 	}
 
 	if i.All == "" {
-		return errors.New("全データファイルが登録されていません。CityGMLの3D Tiles等への変換が正常に完了しているか確認してください。")
+		return errors.New("「全データ」が登録されていません。CityGMLの3D Tiles等への変換が正常に完了しているか確認してください。")
 	}
 
 	// get citygml asset
@@ -173,12 +175,12 @@ func (s *Services) RegisterCkanResources(ctx context.Context, i Item) error {
 		cityGMLAssetID = i.CityGML
 	}
 	if cityGMLAssetID == "" {
-		return errors.New("CityGMLデータが登録されていません。")
+		return errors.New("「CityGML」が登録されていません。")
 	}
 
 	citygmlAsset, err := s.CMS.Asset(ctx, cityGMLAssetID)
 	if err != nil {
-		return fmt.Errorf("CityGMLデータの読み込みに失敗しました。該当アセットが削除されていませんか？: %w", err)
+		return fmt.Errorf("CityGMLアセットの読み込みに失敗しました。該当アセットが削除されていませんか？: %w", err)
 	}
 
 	cityCode, cityName, err := extractCityName(citygmlAsset.URL)
@@ -186,10 +188,12 @@ func (s *Services) RegisterCkanResources(ctx context.Context, i Item) error {
 		return fmt.Errorf("CityGMLのzipファイル名から市区町村コードまたは市区町村英名を読み取ることができませんでした。ファイル名の形式が正しいか確認してください。: %w", err)
 	}
 
+	log.Infof("geospatialjp: citygml: code=%s name=%s", cityCode, cityName)
+
 	// get all url
 	allAsset, err := s.CMS.Asset(ctx, i.All)
 	if err != nil {
-		return fmt.Errorf("全データのアセットの読み込みに失敗しました。該当アセットが削除されていませんか？: %w", err)
+		return fmt.Errorf("全データアセットの読み込みに失敗しました。該当アセットが削除されていませんか？: %w", err)
 	}
 
 	// get catalog url
@@ -203,20 +207,23 @@ func (s *Services) RegisterCkanResources(ctx context.Context, i Item) error {
 		return fmt.Errorf("G空間情報センター用の目録アセットの読み込みに失敗しました。該当アセットが削除されていませんか？: %w", err)
 	}
 
-	// open catalog
+	// parse catalog
 	c, _, err := s.parseCatalog(ctx, catalogAsset.URL)
 	if err != nil {
 		return err
 	}
+	log.Infof("geospatialjp: catalog: %+v", c)
 
 	// find or create package
 	pkg, err := s.findOrCreatePackage(ctx, c, cityCode, cityName)
 	if err != nil {
 		return err
 	}
+	log.Infof("geospatialjp: find or create package: %+v", pkg)
 
 	// register resource
 	resources := resources(pkg, c, citygmlAsset.URL, allAsset.URL, catalogFinalAsset.URL, s.CkanPrivate)
+	log.Infof("geospatialjp: register resources: %+v", resources)
 	for _, r := range resources {
 		if _, err = s.Ckan.SaveResource(ctx, r); err != nil {
 			return fmt.Errorf("G空間情報センターへのリソースの登録に失敗しました。: %w", err)
