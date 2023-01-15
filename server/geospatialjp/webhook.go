@@ -215,7 +215,7 @@ func (s *Services) RegisterCkanResources(ctx context.Context, i Item) error {
 	log.Infof("geospatialjp: catalog: %+v", c)
 
 	// find or create package
-	pkg, err := s.findOrCreatePackage(ctx, c, cityCode, cityName)
+	pkg, err := s.findAndUpdateOrCreatePackage(ctx, c, cityCode, cityName)
 	if err != nil {
 		return err
 	}
@@ -260,23 +260,34 @@ func (s *Services) parseCatalog(ctx context.Context, catalogURL string) (c Catal
 	return c, cf, nil
 }
 
-func (s *Services) findOrCreatePackage(ctx context.Context, c Catalog, cityCode, cityName string) (*ckan.Package, error) {
+func (s *Services) findAndUpdateOrCreatePackage(ctx context.Context, c Catalog, cityCode, cityName string) (*ckan.Package, error) {
+	// find
 	pkg, pkgName, err := s.findPackage(ctx, cityCode, cityName)
 	if err != nil {
 		return nil, fmt.Errorf("G空間情報センターからデータセットを検索できませんでした: %w", err)
 	}
 
-	if pkg == nil {
-		log.Infof("geospartialjp: package plateau-%s-%s-202x not found", cityCode, cityName)
+	newpkg := lo.ToPtr(packageFromCatalog(c, s.CkanOrg, pkgName, s.CkanPrivate))
 
-		pkg = lo.ToPtr(packageFromCatalog(c, s.CkanOrg, pkgName, s.CkanPrivate))
-		pkg2, err := s.Ckan.CreatePackage(ctx, *pkg)
+	// create
+	if pkg == nil {
+		log.Infof("geospartialjp: package plateau-%s-%s-202x not found so new package will be created", cityCode, cityName)
+
+		pkg2, err := s.Ckan.CreatePackage(ctx, *newpkg)
 		if err != nil {
 			return nil, fmt.Errorf("G空間情報センターにデータセット %s を作成することができませんでした: %w", pkgName, err)
 		}
-		pkg = &pkg2
+		return &pkg2, nil
 	}
-	return pkg, nil
+
+	// update
+	newpkg.ID = pkg.ID
+	pkg2, err := s.Ckan.UpdatePackage(ctx, *newpkg)
+	if err != nil {
+		return nil, fmt.Errorf("G空間情報センターのデータセット %s を更新することができませんでした: %w", pkgName, err)
+	}
+
+	return &pkg2, nil
 }
 
 func (s *Services) findPackage(ctx context.Context, cityCode, cityName string) (_ *ckan.Package, n string, err error) {
