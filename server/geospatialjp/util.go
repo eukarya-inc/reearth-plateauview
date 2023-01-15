@@ -16,7 +16,7 @@ const (
 	ResourceNameCityGML = "CityGML（v2）"
 	ResourceNameAll     = "3D Tiles, MVT（v2）"
 	ResourceNameCatalog = "データ目録（v2）"
-	licenseID           = "license_id"
+	licenseID           = "plateau"
 	licenseTitle        = "PLATEAU Site Policy 「３．著作権について」に拠る"
 	licenseURL          = "https://www.mlit.go.jp/plateau/site-policy/"
 )
