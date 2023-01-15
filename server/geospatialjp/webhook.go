@@ -11,11 +11,13 @@ import (
 	"github.com/pkg/errors"
 	"github.com/reearth/reearthx/log"
 	"github.com/reearth/reearthx/util"
+	"github.com/samber/lo"
 	"github.com/xuri/excelize/v2"
 )
 
 var (
-	modelKey = "plateau"
+	modelKey    = "plateau"
+	initialYear = 2020
 )
 
 func WebhookHandler(conf Config) (cmswebhook.Handler, error) {
@@ -48,33 +50,36 @@ func WebhookHandler(conf Config) (cmswebhook.Handler, error) {
 		ctx := req.Context()
 		item := ItemFrom(*w.Data.Item)
 
-		if item.Catalog == "" {
-			log.Debugf("geospatialjp webhook: skipped: no catalog")
-			return nil
-		}
-
 		var err error
 		var act string
 		if w.Type == cmswebhook.EventItemPublish {
 			// publish event: create resources to ckan
 			act = "create resources to ckan"
-			err = s.CreateCKANResources(ctx, item)
-		} else if item.CatalogStatus == "" || item.CatalogStatus == StatusReady {
+			err = s.RegisterCkanResources(ctx, item)
+
+			if err != nil {
+				comment := fmt.Sprintf("G空間情報センターへの登録処理でエラーが発生しました。%s", err)
+				s.commentToItem(ctx, item.ID, comment)
+			} else {
+				s.commentToItem(ctx, item.ID, "G空間情報センターへの登録が完了しました")
+			}
+		} else {
 			// create or update event: check the catalog file
 			act = "check catalog"
 			err = s.CheckCatalog(ctx, w.Data.Schema.ProjectID, item)
 
-			// comment to item
-			comment := fmt.Sprintf("目録ファイルの検査でエラーが発生しました。%s", err)
-			if err2 := s.CMS.CommentToItem(ctx, item.ID, comment); err2 != nil {
-				log.Errorf("failed to comment to item %s: %s", item.ID, err2)
-			}
+			if err != nil {
+				comment := fmt.Sprintf("目録ファイルの検査でエラーが発生しました。%s", err)
+				s.commentToItem(ctx, item.ID, comment)
 
-			// update item
-			if _, err2 := s.CMS.UpdateItem(ctx, item.ID, Item{
-				CatalogStatus: StatusError,
-			}.Fields()); err2 != nil {
-				log.Errorf("failed to update item %s: %s", item.ID, err2)
+				// update item
+				if _, err2 := s.CMS.UpdateItem(ctx, item.ID, Item{
+					CatalogStatus: StatusError,
+				}.Fields()); err2 != nil {
+					log.Errorf("failed to update item %s: %s", item.ID, err2)
+				}
+			} else {
+				s.commentToItem(ctx, item.ID, "目録ファイルの検査とG空間情報センター用目録ファイルの登録が完了しました。")
 			}
 		}
 
@@ -88,10 +93,21 @@ func WebhookHandler(conf Config) (cmswebhook.Handler, error) {
 }
 
 func (s *Services) CheckCatalog(ctx context.Context, projectID string, i Item) error {
+	if i.CatalogStatus != "" && i.CatalogStatus != StatusReady {
+		return nil
+	}
+
+	// update item
+	if _, err := s.CMS.UpdateItem(ctx, i.ID, Item{
+		CatalogStatus: StatusProcessing,
+	}.Fields()); err != nil {
+		return fmt.Errorf("failed to update item %s: %w", i.ID, err)
+	}
+
 	// get catalog url
 	catalogAsset, err := s.CMS.Asset(ctx, i.Catalog)
 	if err != nil {
-		return fmt.Errorf("failed to get catalog asset: %w", err)
+		return fmt.Errorf("目録アセットの読み込みに失敗しました。該当アセットが削除されていませんか？: %w", err)
 	}
 
 	catalogFinalFileName, err := catalogFinalFileName(catalogAsset.URL)
@@ -99,42 +115,20 @@ func (s *Services) CheckCatalog(ctx context.Context, projectID string, i Item) e
 		return fmt.Errorf("invalid catalog URL: %w", err)
 	}
 
-	catalogAssetRes, err := http.DefaultClient.Do(util.DR(
-		http.NewRequestWithContext(ctx, http.MethodGet, catalogAsset.URL, nil)))
+	// parse catalog
+	c, cf, err := s.parseCatalog(ctx, catalogAsset.URL)
 	if err != nil {
-		return fmt.Errorf("failed to get catalog asset: %w", err)
-	}
-	if catalogAssetRes.StatusCode != 200 {
-		return fmt.Errorf("failed to get catalog asset: status code is %d", catalogAssetRes.StatusCode)
-	}
-
-	defer catalogAssetRes.Body.Close()
-
-	// parse
-	xf, err := excelize.OpenReader(catalogAssetRes.Body)
-	if err != nil {
-		return fmt.Errorf("failed to open catalog: %w", err)
-	}
-
-	cf := NewCatalogFile(xf)
-	c, err := cf.Parse()
-	if err != nil {
-		if err2 := s.CMS.CommentToItem(ctx, i.ID, fmt.Sprintf("%s", err)); err2 != nil {
-			return fmt.Errorf("failed to comment to %s: err = %w, content = %s", i.ID, err2, err)
-		}
 		return err
 	}
 
+	// validate catalog
 	if err := c.Validate(); err != nil {
-		if err2 := s.CMS.CommentToItem(ctx, i.ID, fmt.Sprintf("%s", err)); err != nil {
-			return fmt.Errorf("failed to comment to %s: err = %w, content = %s", i.ID, err2, err)
-		}
 		return err
 	}
 
 	// delete sheet
 	if err := cf.DeleteSheet(); err != nil {
-		return fmt.Errorf("failed to delete sheet: %w", err)
+		return fmt.Errorf("目録内のG空間情報センター用メタデータシートの削除に失敗しました。: %w", err)
 	}
 
 	// upload catalog
@@ -150,7 +144,7 @@ func (s *Services) CheckCatalog(ctx context.Context, projectID string, i Item) e
 
 	catalogFinalAsset, err := s.CMS.UploadAssetDirectly(ctx, projectID, catalogFinalFileName, pr)
 	if err != nil {
-		return fmt.Errorf("failed to upload catalog: %w", err)
+		return fmt.Errorf("G空間情報センター用目録のアップロードに失敗しました。: %w", err)
 	}
 
 	// update item
@@ -164,54 +158,13 @@ func (s *Services) CheckCatalog(ctx context.Context, projectID string, i Item) e
 	return nil
 }
 
-func (s *Services) CreateCKANResources(ctx context.Context, i Item) error {
-	// upload catalog
-	if i.Catalog != "" {
-		// get catalog url
-		catalogAsset, err := s.CMS.Asset(ctx, i.Catalog)
-		if err != nil {
-			return fmt.Errorf("failed to get catalog asset: %w", err)
-		}
-
-		catalogAssetRes, err := http.DefaultClient.Do(util.DR(
-			http.NewRequestWithContext(ctx, http.MethodGet, catalogAsset.URL, nil)))
-		if err != nil {
-			return fmt.Errorf("failed to get catalog asset: %w", err)
-		}
-		if catalogAssetRes.StatusCode != 200 {
-			return fmt.Errorf("failed to get catalog asset: status code is %d", catalogAssetRes.StatusCode)
-		}
-
-		defer catalogAssetRes.Body.Close()
-
-		// parse catalog
-		xf, err := excelize.OpenReader(catalogAssetRes.Body)
-		if err != nil {
-			return fmt.Errorf("failed to open catalog: %w", err)
-		}
-
-		c, err := NewCatalogFile(xf).Parse()
-		if err != nil {
-			if err2 := s.CMS.CommentToItem(ctx, i.ID, fmt.Sprintf("%s", err)); err2 != nil {
-				return fmt.Errorf("failed to comment to %s: err = %w, content = %s", i.ID, err2, err)
-			}
-			return fmt.Errorf("cannot parse catalog: %w", err)
-		}
-
-		if err := c.Validate(); err != nil {
-			if err2 := s.CMS.CommentToItem(ctx, i.ID, fmt.Sprintf("%s", err)); err != nil {
-				return fmt.Errorf("failed to comment to %s: err = %w, content = %s", i.ID, err2, err)
-			}
-			return fmt.Errorf("invalid catalog: %w", err)
-		}
+func (s *Services) RegisterCkanResources(ctx context.Context, i Item) error {
+	if i.Catalog == "" || i.CatalogFinal == "" {
+		return errors.New("目録ファイルが登録されていません。目録の検査が正常に完了しているか確認してください。")
 	}
 
-	return nil
-}
-
-func (s *Services) UploadCatalogToCkan(ctx context.Context, i Item) error {
-	if i.Catalog == "" || i.CatalogFinal == "" {
-		return nil
+	if i.All == "" {
+		return errors.New("全データファイルが登録されていません。CityGMLの3D Tiles等への変換が正常に完了しているか確認してください。")
 	}
 
 	// get citygml asset
@@ -220,66 +173,67 @@ func (s *Services) UploadCatalogToCkan(ctx context.Context, i Item) error {
 		cityGMLAssetID = i.CityGML
 	}
 	if cityGMLAssetID == "" {
-		return errors.New("no citygml")
-	}
-	citygmlAsset, err := s.CMS.Asset(ctx, cityGMLAssetID)
-	if err != nil {
-		return fmt.Errorf("failed to get citygml asset: %w", err)
-	}
-	pkgKey, err := packageKey(citygmlAsset.URL)
-	if err != nil {
-		return fmt.Errorf("cannot get package key: %w", err)
+		return errors.New("CityGMLデータが登録されていません。")
 	}
 
-	//  get all url
+	citygmlAsset, err := s.CMS.Asset(ctx, cityGMLAssetID)
+	if err != nil {
+		return fmt.Errorf("CityGMLデータの読み込みに失敗しました。該当アセットが削除されていませんか？: %w", err)
+	}
+
+	cityCode, cityName, err := extractCityName(citygmlAsset.URL)
+	if err != nil {
+		return fmt.Errorf("CityGMLのzipファイル名から市区町村コードまたは市区町村英名を読み取ることができませんでした。ファイル名の形式が正しいか確認してください。: %w", err)
+	}
+
+	// get all url
 	allAsset, err := s.CMS.Asset(ctx, i.All)
 	if err != nil {
-		return fmt.Errorf("failed to get all asset: %w", err)
+		return fmt.Errorf("全データのアセットの読み込みに失敗しました。該当アセットが削除されていませんか？: %w", err)
 	}
 
 	// get catalog url
 	catalogAsset, err := s.CMS.Asset(ctx, i.Catalog)
 	if err != nil {
-		return fmt.Errorf("failed to get catalog asset: %w", err)
+		return fmt.Errorf("目録アセットの読み込みに失敗しました。該当アセットが削除されていませんか？: %w", err)
 	}
 
 	catalogFinalAsset, err := s.CMS.Asset(ctx, i.CatalogFinal)
 	if err != nil {
-		return fmt.Errorf("failed to get catalog final asset: %w", err)
+		return fmt.Errorf("G空間情報センター用の目録アセットの読み込みに失敗しました。該当アセットが削除されていませんか？: %w", err)
 	}
 
 	// open catalog
-	c, err := s.catalog(ctx, catalogAsset.URL)
+	c, _, err := s.parseCatalog(ctx, catalogAsset.URL)
 	if err != nil {
 		return err
 	}
 
-	// find package
-	pkg, err := s.findPackage(ctx, pkgKey, c)
+	// find or create package
+	pkg, err := s.findOrCreatePackage(ctx, c, cityCode, cityName)
 	if err != nil {
-		return fmt.Errorf("cannot find package: %w", err)
+		return err
 	}
 
-	resources := resources(pkg, c, citygmlAsset.URL, allAsset.URL, catalogFinalAsset.URL, s.CkanPrivate)
-
 	// register resource
+	resources := resources(pkg, c, citygmlAsset.URL, allAsset.URL, catalogFinalAsset.URL, s.CkanPrivate)
 	for _, r := range resources {
 		if _, err = s.Ckan.SaveResource(ctx, r); err != nil {
-			return fmt.Errorf("failed to register resource: %w", err)
+			return fmt.Errorf("G空間情報センターへのリソースの登録に失敗しました。: %w", err)
 		}
 	}
 
 	return nil
 }
 
-func (s *Services) catalog(ctx context.Context, catalogURL string) (c Catalog, _ error) {
+func (s *Services) parseCatalog(ctx context.Context, catalogURL string) (c Catalog, cf *CatalogFile, _ error) {
 	catalogAssetRes, err := http.DefaultClient.Do(util.DR(
 		http.NewRequestWithContext(ctx, http.MethodGet, catalogURL, nil)))
 	if err != nil {
-		return c, fmt.Errorf("failed to get catalog asset: %w", err)
+		return c, cf, fmt.Errorf("アセットの取得に失敗しました: %w", err)
 	}
 	if catalogAssetRes.StatusCode != 200 {
-		return c, fmt.Errorf("failed to get catalog asset: status code is %d", catalogAssetRes.StatusCode)
+		return c, cf, fmt.Errorf("アセットの取得に失敗しました: ステータスコード %d", catalogAssetRes.StatusCode)
 	}
 
 	defer catalogAssetRes.Body.Close()
@@ -287,25 +241,57 @@ func (s *Services) catalog(ctx context.Context, catalogURL string) (c Catalog, _
 	// parse catalog
 	xf, err := excelize.OpenReader(catalogAssetRes.Body)
 	if err != nil {
-		return c, fmt.Errorf("failed to open catalog: %w", err)
+		return c, cf, fmt.Errorf("目録を開くことできませんでした: %w", err)
 	}
 
-	cf := NewCatalogFile(xf)
+	cf = NewCatalogFile(xf)
 	c, err = cf.Parse()
 	if err != nil {
-		return c, fmt.Errorf("cannot parse catalog: %w", err)
+		return c, cf, fmt.Errorf("目録の読み込みに失敗しました: %w", err)
 	}
 
-	return c, nil
+	return c, cf, nil
 }
 
-func (s *Services) findPackage(ctx context.Context, pkgKey string, c Catalog) (*ckan.Package, error) {
-	p, err := s.Ckan.ShowPackage(ctx, pkgKey)
-	if err != nil {
-		p, err = s.Ckan.CreatePackage(ctx, packageFromCatalog(c, pkgKey))
+func (s *Services) findOrCreatePackage(ctx context.Context, c Catalog, cityCode, cityName string) (*ckan.Package, error) {
+	pkg, pkgName := s.findPackage(ctx, cityCode, cityName)
+
+	if pkg == nil {
+		log.Infof("geospartialjp: package plateau-%s-%s-202x not found", cityCode, cityName)
+
+		pkg = lo.ToPtr(packageFromCatalog(c, s.CkanOrg, pkgName, s.CkanPrivate))
+		pkg2, err := s.Ckan.CreatePackage(ctx, *pkg)
 		if err != nil {
-			return nil, fmt.Errorf("cannot create package to ckan: %w", err)
+			return nil, fmt.Errorf("G空間情報センターにデータセット %s を作成することができませんでした: %w", pkgName, err)
+		}
+		pkg = &pkg2
+	}
+	return pkg, nil
+}
+
+func (s *Services) findPackage(ctx context.Context, cityCode, cityName string) (_ *ckan.Package, n string) {
+	if cityName == "tokyo23ku" {
+		pkg, err := s.Ckan.ShowPackage(ctx, "plateau-tokyo23ku")
+		if err != nil {
+			return nil, ""
+		}
+		return &pkg, "plateau-tokyo23ku"
+	}
+
+	currentYear := util.Now().Year()
+	for y := initialYear; y <= currentYear; y++ {
+		n = fmt.Sprintf("plateau-%s-%s-%d", cityCode, cityName, y)
+		p, err := s.Ckan.ShowPackage(ctx, n)
+		if err == nil {
+			return &p, n
 		}
 	}
-	return &p, nil
+
+	return nil, n
+}
+
+func (s *Services) commentToItem(ctx context.Context, itemID, comment string) {
+	if err2 := s.CMS.CommentToItem(ctx, itemID, comment); err2 != nil {
+		log.Errorf("failed to comment to item %s: %s", itemID, err2)
+	}
 }
