@@ -29,6 +29,7 @@ const Wrapper = styled.div`
   padding: 0px;
   background: #e7e7e7;
 `;
+
 const Header = styled.div`
   display: flex;
   background: #e7e7e7;

@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Tab } from "../../core/components/content/Help/hooks";
 
 export default () => {
-  const [currentPopup, setCurrentPopup] = useState<Tab>("basic");
+  const [currentPopup, setCurrentPopup] = useState<Tab>("clip");
 
   const handleClosePopup = useCallback(() => {
     postMsg({ action: "close-popup" });
