@@ -11,7 +11,7 @@ const Help: React.FC = () => {
   const { items, selectedTab, handleItemClicked } = useHooks();
 
   useEffect(() => {
-    postMsg({ action: "show-popup", payload: "basic" });
+    postMsg({ action: "show-popup" });
     return () => {
       postMsg({ action: "close-popup" });
     };

@@ -1,5 +1,5 @@
 import { Icon, Button } from "@web/sharedComponents";
-import { commonStyles, styled } from "@web/theme";
+import { styled } from "@web/theme";
 import { ReactNode } from "react";
 
 type Props = {
@@ -28,13 +28,12 @@ const Wrapper = styled.div`
   align-items: flex-start;
   padding: 0px;
   background: #e7e7e7;
-  ${commonStyles.mainWrapper}
 `;
 const Header = styled.div`
   display: flex;
   background: #e7e7e7;
   position: relative;
-  width: 350px;
+  width: 100%;
   height: 32px;
 `;
 
