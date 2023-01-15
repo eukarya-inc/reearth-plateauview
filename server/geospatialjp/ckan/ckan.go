@@ -415,7 +415,7 @@ func (c *Ckan) send(
 		}
 	}
 
-	log.Infof("ckan: ok: %s", b)
+	log.Debugf("ckan: ok: %s", b)
 
 	return nil
 }

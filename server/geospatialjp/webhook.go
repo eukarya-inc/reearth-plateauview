@@ -17,8 +17,8 @@ import (
 )
 
 var (
-	modelKey    = "plateau"
-	initialYear = 2020
+	modelKey  = "plateau"
+	tokyo23ku = "tokyo23ku"
 )
 
 func WebhookHandler(conf Config) (cmswebhook.Handler, error) {
@@ -296,26 +296,23 @@ func (s *Services) findAndUpdateOrCreatePackage(ctx context.Context, c Catalog, 
 }
 
 func (s *Services) findPackage(ctx context.Context, cityCode, cityName string) (_ *ckan.Package, n string, err error) {
-	if cityName == "tokyo23ku" {
-		p, err := s.Ckan.SearchPackageByName(ctx, "plateau-tokyo23ku")
-		if err != nil {
-			return nil, "", err
-		}
-		if !p.IsEmpty() {
-			return &p.Results[0], n, nil
-		}
+	var q string
+	if cityName == tokyo23ku {
+		q = "plateau-tokyo23ku"
+		n = q
+	} else {
+		q = fmt.Sprintf("plateau-%s-%s-*", cityCode, cityName)
+		n = fmt.Sprintf("plateau-%s-%s-%s", cityCode, cityName, util.Now().Format("2006"))
 	}
 
-	currentYear := util.Now().Year()
-	for y := initialYear; y <= currentYear; y++ {
-		n = fmt.Sprintf("plateau-%s-%s-%d", cityCode, cityName, y)
-		p, err := s.Ckan.SearchPackageByName(ctx, n)
-		if err != nil {
-			return nil, "", err
-		}
-		if !p.IsEmpty() {
-			return &p.Results[0], n, nil
-		}
+	p, err := s.Ckan.SearchPackageByName(ctx, q)
+	if err != nil {
+		return nil, "", err
+	}
+
+	if !p.IsEmpty() {
+		pkg := &p.Results[0]
+		return pkg, pkg.Name, nil
 	}
 
 	return nil, n, nil
