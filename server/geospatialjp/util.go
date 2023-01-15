@@ -158,11 +158,13 @@ func packageFromCatalog(c Catalog, org, pkgName string, private bool) ckan.Packa
 		MaintainerEmail: c.MaintainerEmail,
 		Notes:           c.Notes,
 		Version:         c.Version,
-		// Tags:            c.Tags,
+		Tags: lo.Map(c.Tags, func(t string, _ int) ckan.Tag {
+			return ckan.Tag{Name: t}
+		}),
 		OwnerOrg:         org,
 		Restriction:      c.Restriction,
 		Charge:           c.Charge,
-		RegisteredDate:   c.RegisteredDate,
+		RegisterdDate:    c.RegisteredDate,
 		LicenseAgreement: c.LicenseAgreement,
 		LicenseTitle:     licenseTitle,
 		LicenseURL:       licenseURL,
@@ -171,12 +173,12 @@ func packageFromCatalog(c Catalog, org, pkgName string, private bool) ckan.Packa
 		Quality:          c.Quality,
 		Emergency:        c.Emergency,
 		URL:              c.Source,
+		Spatial:          c.Spatial,
 		LicenseID:        licenseID,
 		ThumbnailURL:     thumbnailURL,
 		// unused:
-		// URL: c.URL
-		// ライセンス: c.License
-		// 組織: c.Organization
-		// spatial*: c.Spatial
+		// URL: c.URL (empty)
+		// ライセンス: c.License (unknown value: 独自利用規約)
+		// 組織: c.Organization (no field)
 	}
 }

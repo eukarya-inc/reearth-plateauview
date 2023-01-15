@@ -282,7 +282,7 @@ func (s *Services) findAndUpdateOrCreatePackage(ctx context.Context, c Catalog, 
 
 	// update
 	newpkg.ID = pkg.ID
-	pkg2, err := s.Ckan.UpdatePackage(ctx, *newpkg)
+	pkg2, err := s.Ckan.PatchPackage(ctx, *newpkg)
 	if err != nil {
 		return nil, fmt.Errorf("G空間情報センターのデータセット %s を更新することができませんでした: %w", pkgName, err)
 	}
