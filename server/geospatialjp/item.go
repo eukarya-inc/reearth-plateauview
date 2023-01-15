@@ -29,8 +29,6 @@ type Item struct {
 	All string `json:"all,omitempty"`
 	// select: conversion_status: 未実行, 実行中, 完了, エラー
 	ConversionStatus Status `json:"conversion_status,omitempty"`
-	// asset: catalog_final
-	CatalogFinal string `json:"catalog_final,omitempty"`
 	// select: catalog_status: 未実行, 実行中, 完了, エラー
 	CatalogStatus Status `json:"catalog_status,omitempty"`
 }
@@ -92,14 +90,6 @@ func (i Item) Fields() (fields []cms.Field) {
 		})
 	}
 
-	if i.CatalogFinal != "" {
-		fields = append(fields, cms.Field{
-			Key:   "catalog_final",
-			Type:  "asset",
-			Value: string(i.CatalogFinal),
-		})
-	}
-
 	if i.CatalogStatus != "" {
 		fields = append(fields, cms.Field{
 			Key:   "catalog_status",
@@ -140,10 +130,6 @@ func ItemFrom(item cms.Item) (i Item) {
 
 	if v := item.FieldByKey("conversion_status").ValueString(); v != nil {
 		i.ConversionStatus = Status(*v)
-	}
-
-	if v := item.FieldByKey("catalog_final").ValueString(); v != nil {
-		i.CatalogFinal = *v
 	}
 
 	if v := item.FieldByKey("catalog_status").ValueString(); v != nil {

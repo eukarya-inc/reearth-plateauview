@@ -3,8 +3,9 @@ package geospatialjp
 import (
 	"context"
 	"fmt"
-	"io"
 	"net/http"
+	"net/url"
+	"path"
 
 	"github.com/eukarya-inc/reearth-plateauview/server/cms/cmswebhook"
 	"github.com/eukarya-inc/reearth-plateauview/server/geospatialjp/ckan"
@@ -110,11 +111,6 @@ func (s *Services) CheckCatalog(ctx context.Context, projectID string, i Item) e
 		return fmt.Errorf("目録アセットの読み込みに失敗しました。該当アセットが削除されていませんか？: %w", err)
 	}
 
-	catalogFinalFileName, err := catalogFinalFileName(catalogAsset.URL)
-	if err != nil {
-		return fmt.Errorf("invalid catalog URL: %w", err)
-	}
-
 	// parse catalog
 	c, cf, err := s.parseCatalog(ctx, catalogAsset.URL)
 	if err != nil {
@@ -130,29 +126,12 @@ func (s *Services) CheckCatalog(ctx context.Context, projectID string, i Item) e
 
 	// delete sheet
 	if err := cf.DeleteSheet(); err != nil {
-		return fmt.Errorf("目録内のG空間情報センター用メタデータシートの削除に失敗しました。: %w", err)
-	}
-
-	// upload catalog
-	pr, pw := io.Pipe()
-
-	go func() {
-		var err error
-		defer func() {
-			_ = pw.CloseWithError(err)
-		}()
-		_, err = cf.File().WriteTo(pw)
-	}()
-
-	catalogFinalAsset, err := s.CMS.UploadAssetDirectly(ctx, projectID, catalogFinalFileName, pr)
-	if err != nil {
-		return fmt.Errorf("G空間情報センター用目録のアップロードに失敗しました。: %w", err)
+		return fmt.Errorf("failed to delete sheet from catalog: %w", err)
 	}
 
 	// update item
 	if _, err := s.CMS.UpdateItem(ctx, i.ID, Item{
 		CatalogStatus: StatusOK,
-		CatalogFinal:  catalogFinalAsset,
 	}.Fields()); err != nil {
 		return fmt.Errorf("failed to update item %s: %w", i.ID, err)
 	}
@@ -161,8 +140,8 @@ func (s *Services) CheckCatalog(ctx context.Context, projectID string, i Item) e
 }
 
 func (s *Services) RegisterCkanResources(ctx context.Context, i Item) error {
-	if i.Catalog == "" || i.CatalogFinal == "" {
-		return errors.New("「目録ファイル」が登録されていません。目録の検査が正常に完了しているか確認してください。")
+	if i.Catalog == "" {
+		return errors.New("「目録ファイル」が登録されていません。")
 	}
 
 	if i.All == "" {
@@ -201,14 +180,14 @@ func (s *Services) RegisterCkanResources(ctx context.Context, i Item) error {
 	if err != nil {
 		return fmt.Errorf("目録アセットの読み込みに失敗しました。該当アセットが削除されていませんか？: %w", err)
 	}
-
-	catalogFinalAsset, err := s.CMS.Asset(ctx, i.CatalogFinal)
+	catalogAssetURL, err := url.Parse(catalogAsset.URL)
 	if err != nil {
-		return fmt.Errorf("G空間情報センター用の目録アセットの読み込みに失敗しました。該当アセットが削除されていませんか？: %w", err)
+		return fmt.Errorf("目録アセットのURLが不正です: %w", err)
 	}
+	catalogFileName := path.Base(catalogAssetURL.Path)
 
 	// parse catalog
-	c, _, err := s.parseCatalog(ctx, catalogAsset.URL)
+	c, xf, err := s.parseCatalog(ctx, catalogAsset.URL)
 	if err != nil {
 		return err
 	}
@@ -221,13 +200,39 @@ func (s *Services) RegisterCkanResources(ctx context.Context, i Item) error {
 	}
 	log.Infof("geospatialjp: find or create package: %+v", pkg)
 
-	// register resource
-	resources := resources(pkg, c, citygmlAsset.URL, allAsset.URL, catalogFinalAsset.URL, s.CkanPrivate)
-	log.Infof("geospatialjp: register resources: %+v", resources)
-	for _, r := range resources {
-		if _, err = s.Ckan.SaveResource(ctx, r); err != nil {
-			return fmt.Errorf("G空間情報センターへのリソースの登録に失敗しました。: %w", err)
+	// delete sheet
+	if err := xf.DeleteSheet(); err != nil {
+		return fmt.Errorf("目録からG空間情報センター用メタデータのシートを削除できませんでした。: %w", err)
+	}
+	catalogData, err := xf.File().WriteToBuffer()
+	if err != nil {
+		return fmt.Errorf("目録ファイルの書き出しに失敗しました。: %w", err)
+	}
+
+	// save catalog resource
+	catalogResource, _ := findResource(pkg, ResourceNameCatalog, "XLSX", "", "")
+	if _, err = s.Ckan.UploadResource(ctx, catalogResource, catalogFileName, catalogData.Bytes()); err != nil {
+		return fmt.Errorf("G空間情報センターへの目録リソースの登録に失敗しました。: %w", err)
+	}
+
+	// save citygml resoruce
+	citygmlResource, needUpdate := findResource(pkg, ResourceNameCityGML, "ZIP", "", citygmlAsset.URL)
+	if needUpdate {
+		if _, err = s.Ckan.SaveResource(ctx, citygmlResource); err != nil {
+			return fmt.Errorf("G空間情報センターへのCityGMLリソースの登録に失敗しました。: %w", err)
 		}
+	} else {
+		log.Infof("geospatialjp: updating citygml resource was skipped")
+	}
+
+	// save all resource
+	allResource, needUpdate := findResource(pkg, ResourceNameAll, "ZIP", "", allAsset.URL)
+	if needUpdate {
+		if _, err = s.Ckan.SaveResource(ctx, allResource); err != nil {
+			return fmt.Errorf("G空間情報センターへの全データリソースの登録に失敗しました。: %w", err)
+		}
+	} else {
+		log.Infof("geospatialjp: updating all resource was skipped")
 	}
 
 	return nil
