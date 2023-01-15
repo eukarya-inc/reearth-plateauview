@@ -107,6 +107,19 @@ type Package struct {
 	// available values. This parameter can be made optional if the config
 	// option `ckan.auth.create_unowned_dataset` is set to True.
 	OwnerOrg string `json:"owner_org,omitempty"`
+
+	// geospatialjp
+	Restriction      string `json:"restriction,omitempty"`
+	LicenseAgreement string `json:"license_agreement,omitempty"`
+	RegisteredDate   string `json:"registered_date,omitempty"`
+	Fee              string `json:"fee,omitempty"`
+	Charge           string `json:"charge,omitempty"`
+	Area             string `json:"area,omitempty"`
+	Quality          string `json:"quality,omitempty"`
+	Emergency        string `json:"emergency,omitempty"`
+	LicenseTitle     string `json:"license_title,omitempty"`
+	ThumbnailURL     string `json:"thumbnail_url,omitempty"`
+	LicenseURL       string `json:"license_url,omitempty"`
 }
 
 type Resource struct {
