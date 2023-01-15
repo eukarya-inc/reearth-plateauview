@@ -33,6 +33,10 @@ type List[T any] struct {
 	// search_facets
 }
 
+func (l List[T]) IsEmpty() bool {
+	return len(l.Results) == 0
+}
+
 type Error struct {
 	Message string `json:"message,omitempty"`
 	Type    string `json:"__type,omitempty"`

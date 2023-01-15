@@ -261,7 +261,10 @@ func (s *Services) parseCatalog(ctx context.Context, catalogURL string) (c Catal
 }
 
 func (s *Services) findOrCreatePackage(ctx context.Context, c Catalog, cityCode, cityName string) (*ckan.Package, error) {
-	pkg, pkgName := s.findPackage(ctx, cityCode, cityName)
+	pkg, pkgName, err := s.findPackage(ctx, cityCode, cityName)
+	if err != nil {
+		return nil, fmt.Errorf("G空間情報センターからデータセットを検索できませんでした: %w", err)
+	}
 
 	if pkg == nil {
 		log.Infof("geospartialjp: package plateau-%s-%s-202x not found", cityCode, cityName)
@@ -276,25 +279,30 @@ func (s *Services) findOrCreatePackage(ctx context.Context, c Catalog, cityCode,
 	return pkg, nil
 }
 
-func (s *Services) findPackage(ctx context.Context, cityCode, cityName string) (_ *ckan.Package, n string) {
+func (s *Services) findPackage(ctx context.Context, cityCode, cityName string) (_ *ckan.Package, n string, err error) {
 	if cityName == "tokyo23ku" {
-		pkg, err := s.Ckan.ShowPackage(ctx, "plateau-tokyo23ku")
+		p, err := s.Ckan.SearchPackageByName(ctx, "plateau-tokyo23ku")
 		if err != nil {
-			return nil, ""
+			return nil, "", err
 		}
-		return &pkg, "plateau-tokyo23ku"
+		if !p.IsEmpty() {
+			return &p.Results[0], n, nil
+		}
 	}
 
 	currentYear := util.Now().Year()
 	for y := initialYear; y <= currentYear; y++ {
 		n = fmt.Sprintf("plateau-%s-%s-%d", cityCode, cityName, y)
-		p, err := s.Ckan.ShowPackage(ctx, n)
-		if err == nil {
-			return &p, n
+		p, err := s.Ckan.SearchPackageByName(ctx, n)
+		if err != nil {
+			return nil, "", err
+		}
+		if !p.IsEmpty() {
+			return &p.Results[0], n, nil
 		}
 	}
 
-	return nil, n
+	return nil, n, nil
 }
 
 func (s *Services) commentToItem(ctx context.Context, itemID, comment string) {
