@@ -15,10 +15,7 @@ import (
 )
 
 var (
-	modelKey     = "plateau"
-	createEvent  = "item.create"
-	updateEvent  = "item.update"
-	publishEvent = "item.publish"
+	modelKey = "plateau"
 )
 
 func WebhookHandler(conf Config) (cmswebhook.Handler, error) {
@@ -33,7 +30,7 @@ func WebhookHandler(conf Config) (cmswebhook.Handler, error) {
 			return nil
 		}
 
-		if w.Type != createEvent && w.Type != updateEvent && w.Type != publishEvent {
+		if w.Type != cmswebhook.EventItemCreate && w.Type != cmswebhook.EventItemUpdate && w.Type != cmswebhook.EventItemPublish {
 			log.Debugf("geospatialjp webhook: invalid event type: %s", w.Type)
 			return nil
 		}
@@ -58,7 +55,7 @@ func WebhookHandler(conf Config) (cmswebhook.Handler, error) {
 
 		var err error
 		var act string
-		if w.Type == publishEvent {
+		if w.Type == cmswebhook.EventItemPublish {
 			// publish event: create resources to ckan
 			act = "create resources to ckan"
 			err = s.CreateCKANResources(ctx, item)
