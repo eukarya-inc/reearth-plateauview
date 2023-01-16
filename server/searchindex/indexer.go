@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/eukarya-inc/reearth-plateauview/server/indexer"
+	"github.com/eukarya-inc/reearth-plateauview/server/searchindex/indexer"
 )
 
 type Indexer struct {
