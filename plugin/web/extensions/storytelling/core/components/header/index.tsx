@@ -18,7 +18,7 @@ const Header: React.FC<Props> = ({ mode, editable, shareable, setMode, share, ha
   return (
     <StyledHeader>
       <HeaderMain>
-        <WidgetTitle>scene</WidgetTitle>
+        <WidgetTitle>Story</WidgetTitle>
         {editable && (
           <Tab
             mode="editor"
