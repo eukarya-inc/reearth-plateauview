@@ -22,6 +22,7 @@ export default () => {
   const handleItemClicked = useCallback((key: Tab) => {
     changeTab(key);
     postMsg({ action: "popup-message", payload: key });
+    postMsg({ action: "show-popup" });
   }, []);
 
   return {
