@@ -1,8 +1,8 @@
 import { ConfigProvider } from "@web/sharedComponents";
 import update from "immutability-helper";
-import { useCallback, useState, useRef, useEffect, useMemo } from "react";
+import { useCallback, useState, useRef, useEffect } from "react";
 
-import type { Camera, Story } from "./types";
+import type { Camera, Story, Viewport } from "./types";
 import { postMsg, generateId } from "./utils";
 
 export const sizes = {
@@ -23,7 +23,18 @@ export const sizes = {
 export type Mode = "editor" | "player";
 
 export default () => {
-  const [mode, setMode] = useState<Mode>("editor");
+  const [isMobile, setIsMobile] = useState<boolean>(window.innerWidth <= 768);
+
+  const handleViewportResize = useCallback(
+    (viewport: Viewport) => {
+      if (viewport.isMobile !== isMobile) {
+        setIsMobile(viewport.isMobile);
+      }
+    },
+    [isMobile],
+  );
+
+  const [mode, setMode] = useState<Mode>(isMobile ? "player" : "editor");
   const [size, setSize] = useState<Mode | "mini">("mini");
   const sizeRef = useRef<Mode | "mini">();
   sizeRef.current = size;
@@ -64,8 +75,6 @@ export default () => {
       postMsg("resize", [sizes.player.width, sizes.player.height, true]);
     }
   }, [size]);
-
-  const contentTheme = useMemo(() => (mode === "editor" ? "light" : "grey"), [mode]);
 
   // Stories
   const [stories, setStories] = useState<Story[]>([]);
@@ -149,6 +158,13 @@ export default () => {
     );
   }, []);
 
+  const share = useCallback(() => {
+    postMsg("shareStoryTelling", {
+      storyTellingId: "",
+      stories,
+    });
+  }, [stories]);
+
   useEffect(() => {
     // mock stories
     const stories = [];
@@ -172,9 +188,12 @@ export default () => {
         primaryColor: themeColor,
       },
     });
+
+    // viewport
+    postMsg("getViewport");
   }, []);
 
-  const eventListenerCallback = useCallback(
+  const onMessage = useCallback(
     (e: MessageEvent<any>) => {
       if (e.source !== parent) return;
       switch (e.data.type) {
@@ -187,26 +206,28 @@ export default () => {
         case "saveStory":
           saveStory(e.data.payload);
           break;
+        case "viewport":
+          handleViewportResize(e.data.payload);
+          break;
         default:
           break;
       }
     },
-    [handleCaptureScene, handleRecapture, saveStory],
+    [handleCaptureScene, handleRecapture, saveStory, handleViewportResize],
   );
 
   useEffect(() => {
-    addEventListener("message", eventListenerCallback);
+    addEventListener("message", onMessage);
     return () => {
-      removeEventListener("message", eventListenerCallback);
+      removeEventListener("message", onMessage);
     };
-  }, [eventListenerCallback]);
+  }, [onMessage]);
 
   return {
     size,
     handleMinimize,
     mode,
     handleSetMode,
-    contentTheme,
     stories,
     captureScene,
     viewStory,
@@ -214,6 +235,8 @@ export default () => {
     deleteStory,
     editStory,
     moveStory,
+    share,
     ConfigProvider,
+    isMobile,
   };
 };

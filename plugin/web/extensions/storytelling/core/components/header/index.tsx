@@ -7,16 +7,27 @@ import Tab from "./Tab";
 
 type Props = {
   mode: Mode;
+  editable: boolean;
+  shareable: boolean;
   setMode: (m: Mode) => void;
+  share: () => void;
   handleMinimize: () => void;
 };
 
-const Header: React.FC<Props> = ({ mode, setMode, handleMinimize }) => {
+const Header: React.FC<Props> = ({ mode, editable, shareable, setMode, share, handleMinimize }) => {
   return (
     <StyledHeader>
       <HeaderMain>
         <WidgetTitle>Story</WidgetTitle>
-        <Tab mode="editor" icon="pencil" text="Editor mode" currentMode={mode} onClick={setMode} />
+        {editable && (
+          <Tab
+            mode="editor"
+            icon="pencil"
+            text="Editor mode"
+            currentMode={mode}
+            onClick={setMode}
+          />
+        )}
         <Tab
           mode="player"
           icon="play"
@@ -27,9 +38,11 @@ const Header: React.FC<Props> = ({ mode, setMode, handleMinimize }) => {
         />
       </HeaderMain>
       <HeaderBtns>
-        <IconBtn>
-          <Icon icon="paperPlane" size={24} />
-        </IconBtn>
+        {shareable && (
+          <IconBtn onClick={share}>
+            <Icon icon="paperPlane" size={24} />
+          </IconBtn>
+        )}
         <IconBtn onClick={handleMinimize}>
           <Icon icon="cross" size={24} />
         </IconBtn>

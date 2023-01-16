@@ -1,4 +1,9 @@
-import { PostMessageProps } from "@web/extensions/storytelling/core/types";
+import {
+  PostMessageProps,
+  Viewport,
+  PluginMessage,
+  PluginExtensionInstance,
+} from "@web/extensions/storytelling/core/types";
 
 import html from "../dist/web/storytelling/core/index.html?raw";
 import storyeditorHtml from "../dist/web/storytelling/modals/storyeditor/index.html?raw";
@@ -6,6 +11,22 @@ import storyeditorHtml from "../dist/web/storytelling/modals/storyeditor/index.h
 const reearth = (globalThis as any).reearth;
 
 reearth.ui.show(html, { width: 89, height: 40, extended: false });
+
+let sidebarId: string;
+const getSidebarId = () => {
+  if (sidebarId) return;
+  sidebarId = reearth.plugins.instances.find(
+    (instance: PluginExtensionInstance) => instance.extensionId === "sidebar",
+  )?.id;
+};
+getSidebarId();
+
+reearth.on("pluginmessage", (pluginMessage: PluginMessage) => {
+  reearth.ui.postMessage({
+    type: "pluginMessage",
+    payload: pluginMessage.data,
+  });
+});
 
 reearth.on("message", ({ type, payload }: PostMessageProps) => {
   switch (type) {
@@ -47,7 +68,32 @@ reearth.on("message", ({ type, payload }: PostMessageProps) => {
       });
       reearth.modal.close();
       break;
+    case "getViewport":
+      reearth.ui.postMessage({
+        type: "viewport",
+        payload: reearth.viewport,
+      });
+      break;
+    case "shareStoryTelling":
+      getSidebarId();
+      console.log("share", sidebarId, {
+        type: "shareStoryTelling",
+        payload,
+      });
+      if (!sidebarId) return;
+      reearth.plugins.postMessage(sidebarId, {
+        type: "shareStoryTelling",
+        payload,
+      });
+      break;
     default:
       break;
   }
+});
+
+reearth.on("resize", (viewport: Viewport) => {
+  reearth.ui.postMessage({
+    type: "viewport",
+    payload: viewport,
+  });
 });

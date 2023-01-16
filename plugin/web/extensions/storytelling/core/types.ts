@@ -6,7 +6,9 @@ export type PostMessageType =
   | "recapture"
   | "editStory"
   | "closeStoryEditor"
-  | "saveStory";
+  | "saveStory"
+  | "getViewport"
+  | "shareStoryTelling";
 
 export type PostMessageProps = { type: PostMessageType; payload?: any };
 
@@ -33,4 +35,23 @@ export type Story = {
   title: string;
   description: string;
   camera: Camera | undefined;
+};
+
+export type Viewport = {
+  width: number;
+  height: number;
+  isMobile: boolean;
+};
+
+export type PluginMessage = {
+  data: any;
+  sender: string;
+};
+
+export type PluginExtensionInstance = {
+  id: string;
+  pluginId: string;
+  name: string;
+  extensionId: string;
+  extensionType: "widget" | "block";
 };

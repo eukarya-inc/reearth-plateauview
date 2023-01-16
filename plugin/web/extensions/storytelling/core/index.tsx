@@ -11,7 +11,6 @@ const Storytelling: React.FC = () => {
     handleMinimize,
     mode,
     handleSetMode,
-    contentTheme,
     stories,
     captureScene,
     viewStory,
@@ -19,19 +18,28 @@ const Storytelling: React.FC = () => {
     deleteStory,
     editStory,
     moveStory,
+    share,
     ConfigProvider,
+    isMobile,
   } = useHooks();
 
   return (
     <ConfigProvider>
-      <Wrapper size={size} theme={contentTheme}>
+      <Wrapper size={size} mode={mode}>
         <MiniPane onClick={handleMinimize} size={size}>
           <Icon icon="cornersOut" color="#4A4A4A" size={24} />
           <MiniTitle>Story</MiniTitle>
         </MiniPane>
         <ContentPane size={size}>
-          <Header mode={mode} setMode={handleSetMode} handleMinimize={handleMinimize} />
-          {mode === "editor" && (
+          <Header
+            mode={mode}
+            setMode={handleSetMode}
+            share={share}
+            handleMinimize={handleMinimize}
+            editable={!isMobile}
+            shareable={!isMobile}
+          />
+          {!isMobile && mode === "editor" && (
             <Editor
               stories={stories}
               captureScene={captureScene}
@@ -49,12 +57,12 @@ const Storytelling: React.FC = () => {
   );
 };
 
-const Wrapper = styled.div<{ size: keyof typeof sizes; theme?: string }>`
+const Wrapper = styled.div<{ size: keyof typeof sizes; mode?: string }>`
   position: relative;
   display: inline-block;
   border-radius: 8px;
-  background: ${({ theme, size }) =>
-    size === "mini" ? "#fff" : theme === "grey" ? "#F4F4F4" : "#fff"};
+  background: ${({ mode, size }) =>
+    size === "mini" ? "#fff" : mode === "player" ? "#F4F4F4" : "#fff"};
   transition: min-width 0.5s, min-height 0.5s;
   min-width: ${({ size }) => (size === "mini" ? `${sizes.mini.width}px` : "100%")};
   min-height: ${({ size }) => `${sizes[size].height}px`};
