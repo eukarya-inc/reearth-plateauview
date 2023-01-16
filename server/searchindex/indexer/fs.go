@@ -1,12 +1,14 @@
 package indexer
 
 import (
+	"archive/zip"
 	"fmt"
 	"io"
 	"io/fs"
 	"net/http"
 	"net/url"
 	"os"
+	"path"
 	"path/filepath"
 )
 
@@ -21,6 +23,25 @@ type OutputFS interface {
 type WriteCloser interface {
 	io.Writer
 	io.Closer
+}
+
+type NopCloser struct {
+	w io.Writer
+}
+
+func NewNopCloser(w io.Writer) *NopCloser {
+	if w == nil {
+		return nil
+	}
+	return &NopCloser{w: w}
+}
+
+func (n *NopCloser) Write(p []byte) (int, error) {
+	return n.w.Write(p)
+}
+
+func (n *NopCloser) Close() error {
+	return nil
 }
 
 type FSFS struct {
@@ -51,12 +72,29 @@ func (f *OSOutputFS) Open(name string) (w WriteCloser, err error) {
 	return os.Create(filepath.Join(f.base, name))
 }
 
+type ZipOutputFS struct {
+	base string
+	w    *zip.Writer
+}
+
+func NewZIpOutputFS(base string, w io.Writer) *ZipOutputFS {
+	return &ZipOutputFS{base: base, w: zip.NewWriter(w)}
+}
+
+func (f *ZipOutputFS) Open(name string) (WriteCloser, error) {
+	w, err := f.w.Create(path.Join(f.base, name))
+	return NewNopCloser(w), err
+}
+
 type HTTPFS struct {
 	c    *http.Client
 	base string
 }
 
 func NewHTTPFS(c *http.Client, base string) *HTTPFS {
+	if c == nil {
+		c = http.DefaultClient
+	}
 	return &HTTPFS{c: c, base: base}
 }
 
