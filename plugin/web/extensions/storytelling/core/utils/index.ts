@@ -3,6 +3,7 @@ import { cloneDeep, mergeWith } from "lodash";
 import { PostMessageType } from "../types";
 
 export function postMsg(type: PostMessageType, payload?: any) {
+  if (parent === window) return;
   parent.postMessage({
     type,
     payload,
