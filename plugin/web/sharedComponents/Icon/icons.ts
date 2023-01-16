@@ -44,6 +44,7 @@ import { ReactComponent as Cross } from "./Icons/cross.svg";
 import { ReactComponent as PaperPlane } from "./Icons/paperPlane.svg";
 import { ReactComponent as DotsThreeVertical } from "./Icons/dotsThreeVertical.svg";
 import { ReactComponent as CaretLeft } from "./Icons/caretLeft.svg";
+import { ReactComponent as Eraser } from "./Icons/eraser.svg";
 
 export default {
   logo: Logo,
@@ -89,4 +90,5 @@ export default {
   paperPlane: PaperPlane,
   dotsThreeVertical: DotsThreeVertical,
   caretLeft: CaretLeft,
+  eraser: Eraser,
 };

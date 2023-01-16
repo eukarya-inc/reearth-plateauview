@@ -59,6 +59,13 @@ export default () => {
       prevSizeRef.current = size;
       setMode(mode);
       setSize(mode);
+      // notice sidebar cancel story play when switch to edit mode
+      if (mode === "editor" && storyId.current) {
+        postMsg("cancelPlayStory", {
+          id: storyId.current,
+        });
+        storyId.current = undefined;
+      }
     },
     [size],
   );
@@ -168,6 +175,11 @@ export default () => {
     );
   }, []);
 
+  const clearStory = useCallback(() => {
+    storyId.current = undefined;
+    setScenes([]);
+  }, []);
+
   const handleEditStory = useCallback(
     ({ id, scenes }: EditStory["payload"]) => {
       storyId.current = id;
@@ -203,14 +215,20 @@ export default () => {
     [handleSetMode],
   );
 
-  const handleCancelPlayStory = useCallback(({ id }: CancelPlayStory["payload"]) => {
-    if (storyId.current === id) {
-      storyId.current = undefined;
-      setScenes([]);
-    }
-  }, []);
+  const handleCancelPlayStory = useCallback(
+    ({ id }: CancelPlayStory["payload"]) => {
+      if (storyId.current === id) {
+        storyId.current = undefined;
+        setScenes([]);
+        if (size !== "mini") {
+          handleMinimize();
+        }
+      }
+    },
+    [size, handleMinimize],
+  );
 
-  const share = useCallback(() => {
+  const shareStory = useCallback(() => {
     postMsg("shareStory", {
       scenes: JSON.stringify(scenes),
     });
@@ -218,18 +236,18 @@ export default () => {
 
   useEffect(() => {
     // mock scenes
-    const scenes = [];
-    for (let i = 1; i < 1; i += 1) {
-      scenes.push({
-        id: generateId(),
-        title: `Title ${i}`,
-        description: `# Header 1
-## Header 2
-### Header 3`,
-        camera: undefined,
-      });
-    }
-    setScenes(scenes);
+    //     const scenes = [];
+    //     for (let i = 1; i < 1; i += 1) {
+    //       scenes.push({
+    //         id: generateId(),
+    //         title: `Title ${i}`,
+    //         description: `# Header 1
+    // ## Header 2
+    // ### Header 3`,
+    //         camera: undefined,
+    //       });
+    //     }
+    //     setScenes(scenes);
 
     // theme
     const themeColor = "#00BEBE";
@@ -313,6 +331,7 @@ export default () => {
     deleteScene,
     editScene,
     moveScene,
-    share,
+    clearStory,
+    shareStory,
   };
 };

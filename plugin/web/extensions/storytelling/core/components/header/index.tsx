@@ -10,11 +10,20 @@ type Props = {
   editable: boolean;
   shareable: boolean;
   setMode: (m: Mode) => void;
-  share: () => void;
+  shareStory: () => void;
+  clearStory: () => void;
   handleMinimize: () => void;
 };
 
-const Header: React.FC<Props> = ({ mode, editable, shareable, setMode, share, handleMinimize }) => {
+const Header: React.FC<Props> = ({
+  mode,
+  editable,
+  shareable,
+  setMode,
+  shareStory,
+  clearStory,
+  handleMinimize,
+}) => {
   return (
     <StyledHeader>
       <HeaderMain>
@@ -38,8 +47,13 @@ const Header: React.FC<Props> = ({ mode, editable, shareable, setMode, share, ha
         />
       </HeaderMain>
       <HeaderBtns>
+        {mode === "editor" && (
+          <IconBtn onClick={clearStory}>
+            <Icon icon="eraser" size={24} />
+          </IconBtn>
+        )}
         {shareable && (
-          <IconBtn onClick={share}>
+          <IconBtn onClick={shareStory}>
             <Icon icon="paperPlane" size={24} />
           </IconBtn>
         )}

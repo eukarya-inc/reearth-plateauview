@@ -5,6 +5,7 @@ import {
   PluginExtensionInstance,
   ShareStory,
   SaveStoryData,
+  CancelPlayStory,
 } from "@web/extensions/storytelling/core/types";
 
 import html from "../dist/web/storytelling/core/index.html?raw";
@@ -88,6 +89,14 @@ reearth.on("message", ({ type, payload }: PostMessageProps) => {
         type: "saveStoryData",
         payload,
       } as SaveStoryData);
+      break;
+    case "cancelPlayStory":
+      getSidebarId();
+      if (!sidebarId) return;
+      reearth.plugins.postMessage(sidebarId, {
+        type: "cancelPlayStory",
+        payload,
+      } as CancelPlayStory);
       break;
     default:
       break;

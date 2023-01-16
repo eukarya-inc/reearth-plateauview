@@ -54,8 +54,7 @@ const Player: React.FC<Props> = ({ scenes, viewScene }) => {
     if (scenes[0]?.camera) {
       viewScene(scenes[0].camera);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [scenes, viewScene]);
 
   return (
     <Wrapper>

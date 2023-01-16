@@ -20,7 +20,8 @@ const Storytelling: React.FC = () => {
     deleteScene,
     editScene,
     moveScene,
-    share,
+    clearStory,
+    shareStory,
   } = useHooks();
 
   return (
@@ -34,7 +35,8 @@ const Storytelling: React.FC = () => {
           <Header
             mode={mode}
             setMode={handleSetMode}
-            share={share}
+            shareStory={shareStory}
+            clearStory={clearStory}
             handleMinimize={handleMinimize}
             editable={!isMobile}
             shareable={!isMobile}

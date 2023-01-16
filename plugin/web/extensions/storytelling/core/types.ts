@@ -9,7 +9,8 @@ export type PostMessageType =
   | "saveScene"
   | "getViewport"
   | "shareStory"
-  | "saveStoryData";
+  | "saveStoryData"
+  | "cancelPlayStory";
 
 export type PostMessageProps = { type: PostMessageType; payload?: any };
 
@@ -59,6 +60,7 @@ export type PluginMessage = {
 
 // Communications
 
+// sidebar -> storytelling
 // story title is NOT in use by story telling widget
 export type EditStory = {
   type: "editStory";
@@ -93,6 +95,8 @@ export type PlayStory = {
   };
 };
 
+// sidebar -> storytelling
+// storytelling -> sidebar
 export type CancelPlayStory = {
   type: "cancelPlayStory";
   payload: {
