@@ -4,28 +4,28 @@ import { useRef, useCallback, type WheelEvent } from "react";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 
-import type { Camera, Story as StoryType } from "../../types";
+import type { Camera, Scene as SceneType } from "../../types";
 
-import Story from "./story";
+import Scene from "./scene";
 
 type Props = {
-  stories: StoryType[];
+  scenes: SceneType[];
   captureScene: () => void;
-  viewStory: (camera: Camera) => void;
-  recapture: (id: string) => void;
-  deleteStory: (id: string) => void;
-  editStory: (id: string) => void;
-  moveStory: (dragIndex: number, hoverIndex: number) => void;
+  viewScene: (camera: Camera) => void;
+  recaptureScene: (id: string) => void;
+  deleteScene: (id: string) => void;
+  editScene: (id: string) => void;
+  moveScene: (dragIndex: number, hoverIndex: number) => void;
 };
 
 const Editor: React.FC<Props> = ({
-  stories,
+  scenes,
   captureScene,
-  viewStory,
-  recapture,
-  deleteStory,
-  editStory,
-  moveStory,
+  viewScene,
+  recaptureScene,
+  deleteScene,
+  editScene,
+  moveScene,
 }) => {
   const wrapperRef = useRef<HTMLDivElement>(null);
 
@@ -39,16 +39,16 @@ const Editor: React.FC<Props> = ({
     <Wrapper onWheel={handleWheel} ref={wrapperRef}>
       <DndProvider backend={HTML5Backend}>
         <Content>
-          {stories?.map((story, index) => (
-            <Story
-              key={story.id}
+          {scenes?.map((scene, index) => (
+            <Scene
+              key={scene.id}
               index={index}
-              viewStory={viewStory}
-              recapture={recapture}
-              deleteStory={deleteStory}
-              editStory={editStory}
-              moveStory={moveStory}
-              {...story}
+              viewScene={viewScene}
+              recaptureScene={recaptureScene}
+              deleteScene={deleteScene}
+              editScene={editScene}
+              moveScene={moveScene}
+              {...scene}
             />
           ))}
           <CreateStory onClick={captureScene}>

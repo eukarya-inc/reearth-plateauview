@@ -3,21 +3,21 @@ import { styled } from "@web/theme";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Remarkable } from "remarkable";
 
-import type { Camera, Story as StoryType } from "../../types";
+import type { Camera, Scene as SceneType } from "../../types";
 import "./index.css";
 
 type Props = {
-  stories: StoryType[];
-  viewStory: (camera: Camera) => void;
+  scenes: SceneType[];
+  viewScene: (camera: Camera) => void;
 };
 
-const Player: React.FC<Props> = ({ stories, viewStory }) => {
+const Player: React.FC<Props> = ({ scenes, viewScene }) => {
   const [current, setCurrent] = useState(0);
   const carouselRef = useRef<any>(null);
   const onSlideChange = (oldSlide: number, currentSlide: number) => {
-    const camera = stories[currentSlide]?.camera;
+    const camera = scenes[currentSlide]?.camera;
     if (camera) {
-      viewStory(camera);
+      viewScene(camera);
     }
     setCurrent(currentSlide);
   };
@@ -49,10 +49,10 @@ const Player: React.FC<Props> = ({ stories, viewStory }) => {
     }),
   );
 
-  // auto view story 1 if exist when active
+  // auto view scene 1 if exist when active
   useEffect(() => {
-    if (stories[0]?.camera) {
-      viewStory(stories[0].camera);
+    if (scenes[0]?.camera) {
+      viewScene(scenes[0].camera);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -65,20 +65,20 @@ const Player: React.FC<Props> = ({ stories, viewStory }) => {
       <MainContent>
         <CarouselContainer>
           <CarouselArea>
-            {stories.length > 0 && (
+            {scenes.length > 0 && (
               <Carousel
                 beforeChange={onSlideChange}
                 dots={false}
                 ref={carouselRef}
                 infinite={false}
                 draggable={true}>
-                {stories.map((story, index) => (
+                {scenes.map((scene, index) => (
                   <div key={index}>
                     <StoryItem>
-                      <Title>{story.title}</Title>
+                      <Title>{scene.title}</Title>
                       <Description
                         dangerouslySetInnerHTML={{
-                          __html: md.current.render(story.description),
+                          __html: md.current.render(scene.description),
                         }}
                       />
                     </StoryItem>
@@ -89,18 +89,18 @@ const Player: React.FC<Props> = ({ stories, viewStory }) => {
           </CarouselArea>
         </CarouselContainer>
         <PaginationContainer>
-          {stories.length > 0 && (
+          {scenes.length > 0 && (
             <Pagination
               current={current + 1}
               size="small"
-              total={stories.length}
+              total={scenes.length}
               pageSize={1}
               onChange={onPaginationChange}
             />
           )}
         </PaginationContainer>
       </MainContent>
-      <NavButton onClick={next} disabled={current >= stories.length - 1} className="next">
+      <NavButton onClick={next} disabled={current >= scenes.length - 1} className="next">
         <Icon icon="caretLeft" size={32} />
       </NavButton>
     </Wrapper>

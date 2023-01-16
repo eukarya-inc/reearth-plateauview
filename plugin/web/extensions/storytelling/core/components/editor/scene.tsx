@@ -4,46 +4,46 @@ import type { Identifier, XYCoord } from "dnd-core";
 import { useCallback, useRef } from "react";
 import { useDrag, useDrop } from "react-dnd";
 
-import type { Camera, Story as StoryType } from "../../types";
+import type { Camera, Scene as SceneType } from "../../types";
 
-type Props = StoryType & {
+type Props = SceneType & {
   index: number;
-  viewStory: (camera: Camera) => void;
-  recapture: (id: string) => void;
-  deleteStory: (id: string) => void;
-  editStory: (id: string) => void;
-  moveStory: (dragIndex: number, hoverIndex: number) => void;
+  viewScene: (camera: Camera) => void;
+  recaptureScene: (id: string) => void;
+  deleteScene: (id: string) => void;
+  editScene: (id: string) => void;
+  moveScene: (dragIndex: number, hoverIndex: number) => void;
 };
 
-const Story: React.FC<Props> = ({
+const Scene: React.FC<Props> = ({
   id,
   title,
   description,
   camera,
   index,
-  viewStory,
-  recapture,
-  deleteStory,
-  editStory,
-  moveStory,
+  viewScene,
+  recaptureScene,
+  deleteScene,
+  editScene,
+  moveScene,
 }) => {
   const hendleView = useCallback(() => {
     if (camera) {
-      viewStory(camera);
+      viewScene(camera);
     }
-  }, [viewStory, camera]);
+  }, [viewScene, camera]);
 
   const handleEdit = useCallback(() => {
-    editStory(id);
-  }, [editStory, id]);
+    editScene(id);
+  }, [editScene, id]);
 
   const handleRecapture = useCallback(() => {
-    recapture(id);
-  }, [recapture, id]);
+    recaptureScene(id);
+  }, [recaptureScene, id]);
 
   const handleDelete = useCallback(() => {
-    deleteStory(id);
-  }, [deleteStory, id]);
+    deleteScene(id);
+  }, [deleteScene, id]);
 
   const items = [
     { label: "View", key: "view", onClick: hendleView },
@@ -62,7 +62,7 @@ const Story: React.FC<Props> = ({
   const ref = useRef<HTMLDivElement>(null);
 
   const [{ handlerId }, drop] = useDrop<DragItem, void, { handlerId: Identifier | null }>({
-    accept: "story",
+    accept: "scene",
     collect(monitor) {
       return {
         handlerId: monitor.getHandlerId(),
@@ -92,14 +92,14 @@ const Story: React.FC<Props> = ({
         return;
       }
 
-      moveStory(dragIndex, hoverIndex);
+      moveScene(dragIndex, hoverIndex);
 
       item.index = hoverIndex;
     },
   });
 
   const [{ isDragging }, drag] = useDrag({
-    type: "story",
+    type: "scene",
     item: () => {
       return { id, index };
     },
@@ -179,4 +179,4 @@ const Description = styled.div`
   white-space: normal;
 `;
 
-export default Story;
+export default Scene;

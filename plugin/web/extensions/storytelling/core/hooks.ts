@@ -2,7 +2,7 @@ import { ConfigProvider } from "@web/sharedComponents";
 import update from "immutability-helper";
 import { useCallback, useState, useRef, useEffect } from "react";
 
-import type { Camera, Story, Viewport } from "./types";
+import type { Camera, Scene, Viewport } from "./types";
 import { postMsg, generateId } from "./utils";
 
 export const sizes = {
@@ -76,12 +76,12 @@ export default () => {
     }
   }, [size]);
 
-  // Stories
-  const [stories, setStories] = useState<Story[]>([]);
+  // scenes
+  const [scenes, setScenes] = useState<Scene[]>([]);
 
-  const addStory = useCallback((story: Story) => {
-    setStories(stories => [...stories, story]);
-    postMsg("editStory", { id: story.id, title: story.title, description: story.description });
+  const addScene = useCallback((scene: Scene) => {
+    setScenes(scenes => [...scenes, scene]);
+    postMsg("editScene", { id: scene.id, title: scene.title, description: scene.description });
   }, []);
 
   const captureScene = useCallback(() => {
@@ -89,87 +89,87 @@ export default () => {
   }, []);
   const handleCaptureScene = useCallback(
     (camera: Camera) => {
-      addStory({
+      addScene({
         id: generateId(),
         title: "",
         description: "",
         camera,
       });
     },
-    [addStory],
+    [addScene],
   );
 
-  const viewStory = useCallback((camera: Camera) => {
-    postMsg("viewStory", camera);
+  const viewScene = useCallback((camera: Camera) => {
+    postMsg("viewScene", camera);
   }, []);
 
-  const recapture = useCallback((id: string) => {
-    postMsg("recapture", id);
+  const recaptureScene = useCallback((id: string) => {
+    postMsg("recaptureScene", id);
   }, []);
-  const handleRecapture = useCallback(({ camera, id }: { camera: Camera; id: string }) => {
-    setStories(stories => {
-      const story = stories.find(story => story.id === id);
-      if (story) {
-        story.camera = camera;
+  const handleRecaptureScene = useCallback(({ camera, id }: { camera: Camera; id: string }) => {
+    setScenes(scenes => {
+      const scene = scenes.find(scene => scene.id === id);
+      if (scene) {
+        scene.camera = camera;
       }
-      return [...stories];
+      return [...scenes];
     });
   }, []);
 
-  const deleteStory = useCallback((id: string) => {
-    setStories(stories => {
-      const index = stories.findIndex(story => story.id === id);
+  const deleteScene = useCallback((id: string) => {
+    setScenes(scenes => {
+      const index = scenes.findIndex(scene => scene.id === id);
       if (index !== -1) {
-        stories.splice(index, 1);
+        scenes.splice(index, 1);
       }
-      return [...stories];
+      return [...scenes];
     });
   }, []);
 
-  const editStory = useCallback(
+  const editScene = useCallback(
     (id: string) => {
-      const story = stories.find(story => story.id === id);
-      if (story) {
-        postMsg("editStory", story);
+      const scene = scenes.find(scene => scene.id === id);
+      if (scene) {
+        postMsg("editScene", scene);
       }
     },
-    [stories],
+    [scenes],
   );
 
-  const saveStory = useCallback((storyInfo: Omit<Story, "camera">) => {
-    setStories(stories => {
-      const story = stories.find(story => story.id === storyInfo.id);
-      if (story) {
-        story.title = storyInfo.title;
-        story.description = storyInfo.description;
+  const saveScene = useCallback((sceneInfo: Omit<Scene, "camera">) => {
+    setScenes(scenes => {
+      const scene = scenes.find(scene => scene.id === sceneInfo.id);
+      if (scene) {
+        scene.title = sceneInfo.title;
+        scene.description = sceneInfo.description;
       }
-      return [...stories];
+      return [...scenes];
     });
   }, []);
 
-  const moveStory = useCallback((dragIndex: number, hoverIndex: number) => {
-    setStories((prevStories: Story[]) =>
-      update(prevStories, {
+  const moveScene = useCallback((dragIndex: number, hoverIndex: number) => {
+    setScenes((prevScenes: Scene[]) =>
+      update(prevScenes, {
         $splice: [
           [dragIndex, 1],
-          [hoverIndex, 0, prevStories[dragIndex] as Story],
+          [hoverIndex, 0, prevScenes[dragIndex] as Scene],
         ],
       }),
     );
   }, []);
 
   const share = useCallback(() => {
-    postMsg("shareStoryTelling", {
+    postMsg("shareStory", {
       storyTellingId: "",
-      stories,
+      scenes,
     });
-  }, [stories]);
+  }, [scenes]);
 
   useEffect(() => {
-    // mock stories
-    const stories = [];
+    // mock scenes
+    const scenes = [];
     for (let i = 1; i < 1; i += 1) {
-      stories.push({
+      scenes.push({
         id: generateId(),
         title: `Title ${i}`,
         description: `# Header 1
@@ -178,7 +178,7 @@ export default () => {
         camera: undefined,
       });
     }
-    setStories(stories);
+    setScenes(scenes);
 
     // theme
     const themeColor = "#00BEBE";
@@ -200,11 +200,11 @@ export default () => {
         case "captureScene":
           handleCaptureScene(e.data.payload);
           break;
-        case "recapture":
-          handleRecapture(e.data.payload);
+        case "recaptureScene":
+          handleRecaptureScene(e.data.payload);
           break;
-        case "saveStory":
-          saveStory(e.data.payload);
+        case "saveScene":
+          saveScene(e.data.payload);
           break;
         case "viewport":
           handleViewportResize(e.data.payload);
@@ -213,7 +213,7 @@ export default () => {
           break;
       }
     },
-    [handleCaptureScene, handleRecapture, saveStory, handleViewportResize],
+    [handleCaptureScene, handleRecaptureScene, saveScene, handleViewportResize],
   );
 
   useEffect(() => {
@@ -225,18 +225,18 @@ export default () => {
 
   return {
     size,
-    handleMinimize,
     mode,
-    handleSetMode,
-    stories,
-    captureScene,
-    viewStory,
-    recapture,
-    deleteStory,
-    editStory,
-    moveStory,
-    share,
+    scenes,
     ConfigProvider,
     isMobile,
+    handleMinimize,
+    handleSetMode,
+    captureScene,
+    viewScene,
+    recaptureScene,
+    deleteScene,
+    editScene,
+    moveScene,
+    share,
   };
 };

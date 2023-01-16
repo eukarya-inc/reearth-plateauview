@@ -4,7 +4,7 @@ import useHooks from "./hooks";
 
 type Props = {};
 
-const StoryEditor: React.FC<Props> = () => {
+const SceneEditor: React.FC<Props> = () => {
   const { titleRef, descriptionRef, onSave, onCancel } = useHooks();
 
   return (
@@ -79,4 +79,4 @@ const Button = styled.div<{ primary?: boolean }>`
   cursor: pointer;
 `;
 
-export default StoryEditor;
+export default SceneEditor;

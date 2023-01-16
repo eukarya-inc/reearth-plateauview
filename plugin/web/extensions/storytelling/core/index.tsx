@@ -8,19 +8,19 @@ import { styled } from "@web/theme";
 const Storytelling: React.FC = () => {
   const {
     size,
-    handleMinimize,
     mode,
-    handleSetMode,
-    stories,
-    captureScene,
-    viewStory,
-    recapture,
-    deleteStory,
-    editStory,
-    moveStory,
-    share,
+    scenes,
     ConfigProvider,
     isMobile,
+    handleMinimize,
+    handleSetMode,
+    captureScene,
+    viewScene,
+    recaptureScene,
+    deleteScene,
+    editScene,
+    moveScene,
+    share,
   } = useHooks();
 
   return (
@@ -41,16 +41,16 @@ const Storytelling: React.FC = () => {
           />
           {!isMobile && mode === "editor" && (
             <Editor
-              stories={stories}
+              scenes={scenes}
               captureScene={captureScene}
-              viewStory={viewStory}
-              recapture={recapture}
-              deleteStory={deleteStory}
-              editStory={editStory}
-              moveStory={moveStory}
+              viewScene={viewScene}
+              recaptureScene={recaptureScene}
+              deleteScene={deleteScene}
+              editScene={editScene}
+              moveScene={moveScene}
             />
           )}
-          {mode === "player" && <Player stories={stories} viewStory={viewStory} />}
+          {mode === "player" && <Player scenes={scenes} viewScene={viewScene} />}
         </ContentPane>
       </Wrapper>
     </ConfigProvider>

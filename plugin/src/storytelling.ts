@@ -6,7 +6,7 @@ import {
 } from "@web/extensions/storytelling/core/types";
 
 import html from "../dist/web/storytelling/core/index.html?raw";
-import storyeditorHtml from "../dist/web/storytelling/modals/storyeditor/index.html?raw";
+import storyeditorHtml from "../dist/web/storytelling/modals/sceneeditor/index.html?raw";
 
 const reearth = (globalThis as any).reearth;
 
@@ -42,28 +42,28 @@ reearth.on("message", ({ type, payload }: PostMessageProps) => {
         payload: reearth.camera.position,
       });
       break;
-    case "viewStory":
+    case "viewScene":
       reearth.camera.flyTo(payload, { duration: 2 });
       break;
-    case "recapture":
+    case "recaptureScene":
       reearth.ui.postMessage({
-        type: "recapture",
+        type: "recaptureScene",
         payload: { camera: reearth.camera.position, id: payload },
       });
       break;
-    case "editStory":
+    case "editScene":
       reearth.modal.show(storyeditorHtml, { background: "transparent", width: 580, height: 320 });
       reearth.modal.postMessage({
-        type: "editStory",
+        type: "editScene",
         payload,
       });
       break;
-    case "closeStoryEditor":
+    case "closeSceneEditor":
       reearth.modal.close();
       break;
-    case "saveStory":
+    case "saveScene":
       reearth.ui.postMessage({
-        type: "saveStory",
+        type: "saveScene",
         payload,
       });
       reearth.modal.close();
@@ -74,15 +74,15 @@ reearth.on("message", ({ type, payload }: PostMessageProps) => {
         payload: reearth.viewport,
       });
       break;
-    case "shareStoryTelling":
+    case "shareStory":
       getSidebarId();
       console.log("share", sidebarId, {
-        type: "shareStoryTelling",
+        type: "shareStory",
         payload,
       });
       if (!sidebarId) return;
       reearth.plugins.postMessage(sidebarId, {
-        type: "shareStoryTelling",
+        type: "shareStory",
         payload,
       });
       break;

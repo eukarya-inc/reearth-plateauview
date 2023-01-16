@@ -2,13 +2,13 @@ export type PostMessageType =
   | "resize"
   | "minimize"
   | "captureScene"
-  | "viewStory"
-  | "recapture"
-  | "editStory"
-  | "closeStoryEditor"
-  | "saveStory"
+  | "viewScene"
+  | "recaptureScene"
+  | "editScene"
+  | "closeSceneEditor"
+  | "saveScene"
   | "getViewport"
-  | "shareStoryTelling";
+  | "shareStory";
 
 export type PostMessageProps = { type: PostMessageType; payload?: any };
 
@@ -24,13 +24,13 @@ export type Camera = {
   fov: number;
 };
 
-export type StoryTelling = {
+export type Story = {
   id?: string;
   title?: string;
-  stories: Story[];
+  scenes: Scene[];
 };
 
-export type Story = {
+export type Scene = {
   id: string;
   title: string;
   description: string;
