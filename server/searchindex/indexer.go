@@ -17,7 +17,7 @@ type Indexer struct {
 
 func NewIndexer(base string) *Indexer {
 	return &Indexer{
-		i:    indexer.NewIndexer(),
+		i:    indexer.NewIndexer(nil, nil, nil),
 		base: base,
 	}
 }
