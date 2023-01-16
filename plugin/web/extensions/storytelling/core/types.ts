@@ -8,7 +8,8 @@ export type PostMessageType =
   | "closeSceneEditor"
   | "saveScene"
   | "getViewport"
-  | "shareStory";
+  | "shareStory"
+  | "saveStoryData";
 
 export type PostMessageProps = { type: PostMessageType; payload?: any };
 
@@ -43,15 +44,74 @@ export type Viewport = {
   isMobile: boolean;
 };
 
-export type PluginMessage = {
-  data: any;
-  sender: string;
-};
-
 export type PluginExtensionInstance = {
   id: string;
   pluginId: string;
   name: string;
   extensionId: string;
   extensionType: "widget" | "block";
+};
+
+export type PluginMessage = {
+  data: EditStory | SaveStory | DeleteStory | PlayStory | CancelPlayStory;
+  sender: string;
+};
+
+// Communications
+
+// story title is NOT in use by story telling widget
+export type EditStory = {
+  type: "editStory";
+  payload: {
+    id: string;
+    scenes: string;
+    title?: string;
+  };
+};
+
+// story telling will carry back this id
+export type SaveStory = {
+  type: "saveStory";
+  payload: {
+    id: string;
+  };
+};
+
+// story telling will clear content if current editing this story
+export type DeleteStory = {
+  type: "deleteStory";
+  payload: {
+    id: string;
+  };
+};
+
+export type PlayStory = {
+  type: "playStory";
+  payload: {
+    id: string;
+    scenes: string;
+  };
+};
+
+export type CancelPlayStory = {
+  type: "cancelPlayStory";
+  payload: {
+    id: string;
+  };
+};
+
+// storytelling -> sidebar
+export type ShareStory = {
+  type: "shareStory";
+  payload: {
+    scenes: string;
+  };
+};
+
+export type SaveStoryData = {
+  type: "saveStoryData";
+  payload: {
+    id: string;
+    scenes: string;
+  };
 };

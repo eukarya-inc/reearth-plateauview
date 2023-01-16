@@ -3,6 +3,8 @@ import {
   Viewport,
   PluginMessage,
   PluginExtensionInstance,
+  ShareStory,
+  SaveStoryData,
 } from "@web/extensions/storytelling/core/types";
 
 import html from "../dist/web/storytelling/core/index.html?raw";
@@ -22,10 +24,7 @@ const getSidebarId = () => {
 getSidebarId();
 
 reearth.on("pluginmessage", (pluginMessage: PluginMessage) => {
-  reearth.ui.postMessage({
-    type: "pluginMessage",
-    payload: pluginMessage.data,
-  });
+  reearth.ui.postMessage(pluginMessage.data);
 });
 
 reearth.on("message", ({ type, payload }: PostMessageProps) => {
@@ -76,15 +75,19 @@ reearth.on("message", ({ type, payload }: PostMessageProps) => {
       break;
     case "shareStory":
       getSidebarId();
-      console.log("share", sidebarId, {
-        type: "shareStory",
-        payload,
-      });
       if (!sidebarId) return;
       reearth.plugins.postMessage(sidebarId, {
         type: "shareStory",
         payload,
-      });
+      } as ShareStory);
+      break;
+    case "saveStoryData":
+      getSidebarId();
+      if (!sidebarId) return;
+      reearth.plugins.postMessage(sidebarId, {
+        type: "saveStoryData",
+        payload,
+      } as SaveStoryData);
       break;
     default:
       break;

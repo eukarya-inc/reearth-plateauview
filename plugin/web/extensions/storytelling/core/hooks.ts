@@ -2,7 +2,16 @@ import { ConfigProvider } from "@web/sharedComponents";
 import update from "immutability-helper";
 import { useCallback, useState, useRef, useEffect } from "react";
 
-import type { Camera, Scene, Viewport } from "./types";
+import type {
+  Camera,
+  Scene,
+  Viewport,
+  EditStory,
+  SaveStory,
+  DeleteStory,
+  PlayStory,
+  CancelPlayStory,
+} from "./types";
 import { postMsg, generateId } from "./utils";
 
 export const sizes = {
@@ -34,7 +43,7 @@ export default () => {
     [isMobile],
   );
 
-  const [mode, setMode] = useState<Mode>(isMobile ? "player" : "editor");
+  const [mode, setMode] = useState<Mode>("editor");
   const [size, setSize] = useState<Mode | "mini">("mini");
   const sizeRef = useRef<Mode | "mini">();
   sizeRef.current = size;
@@ -77,6 +86,7 @@ export default () => {
   }, [size]);
 
   // scenes
+  const storyId = useRef<string>();
   const [scenes, setScenes] = useState<Scene[]>([]);
 
   const addScene = useCallback((scene: Scene) => {
@@ -158,10 +168,51 @@ export default () => {
     );
   }, []);
 
+  const handleEditStory = useCallback(
+    ({ id, scenes }: EditStory["payload"]) => {
+      storyId.current = id;
+      setScenes(scenes ? JSON.parse(scenes) : []);
+      handleSetMode("editor");
+    },
+    [handleSetMode],
+  );
+
+  const handleSaveStory = useCallback(
+    ({ id }: SaveStory["payload"]) => {
+      postMsg("saveStoryData", {
+        id,
+        scenes: JSON.stringify(scenes),
+      });
+    },
+    [scenes],
+  );
+
+  const handleDeleteStory = useCallback(({ id }: DeleteStory["payload"]) => {
+    if (storyId.current === id) {
+      storyId.current = undefined;
+      setScenes([]);
+    }
+  }, []);
+
+  const handlePlayStory = useCallback(
+    ({ id, scenes }: PlayStory["payload"]) => {
+      storyId.current = id;
+      setScenes(JSON.parse(scenes));
+      handleSetMode("player");
+    },
+    [handleSetMode],
+  );
+
+  const handleCancelPlayStory = useCallback(({ id }: CancelPlayStory["payload"]) => {
+    if (storyId.current === id) {
+      storyId.current = undefined;
+      setScenes([]);
+    }
+  }, []);
+
   const share = useCallback(() => {
     postMsg("shareStory", {
-      storyTellingId: "",
-      scenes,
+      scenes: JSON.stringify(scenes),
     });
   }, [scenes]);
 
@@ -209,11 +260,36 @@ export default () => {
         case "viewport":
           handleViewportResize(e.data.payload);
           break;
+        case "editStory":
+          handleEditStory(e.data.payload);
+          break;
+        case "saveStory":
+          handleSaveStory(e.data.payload);
+          break;
+        case "deleteStory":
+          handleDeleteStory(e.data.payload);
+          break;
+        case "playStory":
+          handlePlayStory(e.data.payload);
+          break;
+        case "cancelPlayStory":
+          handleCancelPlayStory(e.data.payload);
+          break;
         default:
           break;
       }
     },
-    [handleCaptureScene, handleRecaptureScene, saveScene, handleViewportResize],
+    [
+      handleCaptureScene,
+      handleRecaptureScene,
+      saveScene,
+      handleViewportResize,
+      handleEditStory,
+      handleSaveStory,
+      handleDeleteStory,
+      handlePlayStory,
+      handleCancelPlayStory,
+    ],
   );
 
   useEffect(() => {
