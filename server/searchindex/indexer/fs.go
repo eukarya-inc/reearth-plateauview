@@ -77,7 +77,7 @@ type ZipOutputFS struct {
 	w    *zip.Writer
 }
 
-func NewZIpOutputFS(base string, w io.Writer) *ZipOutputFS {
+func NewZipOutputFS(base string, w io.Writer) *ZipOutputFS {
 	return &ZipOutputFS{base: base, w: zip.NewWriter(w)}
 }
 
