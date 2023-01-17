@@ -16,8 +16,13 @@ var builtinConfig = &indexer.Config{
 		"名称":           {Kind: "enum"},
 		"用途":           {Kind: "enum"},
 		"住所":           {Kind: "enum"},
-		"名建物利用現況_中分類称": {Kind: "enum"},
-		"建物利用現況_小分類":   {Kind: "enum"},
+		"建物利用現況（大分類）":  {Kind: "enum"},
+		"建物利用現況（中分類）":  {Kind: "enum"},
+		"建物利用現況（小分類）":  {Kind: "enum"},
+		"建物利用現況（詳細分類）": {Kind: "enum"},
+		"構造種別":         {Kind: "enum"},
+		"構造種別（独自）":     {Kind: "enum"},
+		"耐火構造種別":       {Kind: "enum"},
 	},
 }
 
