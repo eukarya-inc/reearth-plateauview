@@ -1,6 +1,7 @@
 package searchindex
 
 import (
+	"archive/zip"
 	"context"
 	"fmt"
 	"io"
@@ -52,7 +53,7 @@ func (i *Indexer) BuildIndex(ctx context.Context, name string) (string, error) {
 		errs <- err
 	}()
 
-	zw := indexer.NewZipOutputFS("", pw)
+	zw := indexer.NewZipOutputFS(zip.NewWriter(pw), "")
 	if err := indexer.NewWriter(i.config, zw).Write(res); err != nil {
 		return "", fmt.Errorf("結果のアップロードに失敗しました。(1) %w", err)
 	}

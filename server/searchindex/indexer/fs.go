@@ -87,8 +87,8 @@ type ZipOutputFS struct {
 	w    *zip.Writer
 }
 
-func NewZipOutputFS(base string, w io.Writer) *ZipOutputFS {
-	return &ZipOutputFS{base: base, w: zip.NewWriter(w)}
+func NewZipOutputFS(w *zip.Writer, base string) *ZipOutputFS {
+	return &ZipOutputFS{base: base, w: w}
 }
 
 func (f *ZipOutputFS) Open(name string) (WriteCloser, error) {
