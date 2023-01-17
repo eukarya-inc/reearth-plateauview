@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"net/url"
 	"path"
+	"regexp"
 	"strings"
 
 	"github.com/eukarya-inc/reearth-plateauview/server/cms"
@@ -62,7 +63,7 @@ func WebhookHandler(conf Config) (cmswebhook.Handler, error) {
 			log.Errorf("searchindex webhook: failed to update item: %w", err)
 		}
 
-		log.Errorf("searchindex processing")
+		log.Errorf("searchindex webhook: start processing")
 
 		aid, err := do(ctx, c, item, pid)
 		if err != nil {
@@ -98,7 +99,6 @@ func WebhookHandler(conf Config) (cmswebhook.Handler, error) {
 
 func do(ctx context.Context, c cms.Interface, item Item, pid string) (string, error) {
 	// find asset
-	var target *cms.Asset
 	var u *url.URL
 	for _, aid := range item.Bldg {
 		a, err := c.Asset(ctx, aid)
@@ -106,26 +106,44 @@ func do(ctx context.Context, c cms.Interface, item Item, pid string) (string, er
 			return "", fmt.Errorf("failed to get an asset (%s): %s", aid, err)
 		}
 
-		u, _ = url.Parse(a.URL)
+		u2, _ := url.Parse(a.URL)
 		if strings.Contains(path.Base(u.Path), "_lod1") {
-			target = a
+			u = u2
 			break
 		}
 	}
 
-	if target == nil {
+	if u == nil {
 		return "", errors.New("LOD1の3D Tilesの建築物モデルが登録されていません。")
 	}
 
+	name := pathFileName(u.Path)
+	if name == "" {
+		return "", fmt.Errorf("URLのパスが不正です。%s", u.Path)
+	}
+
 	// build index
-	indexer := NewIndexer(c, getAssetBase(target), pid)
-	name := strings.TrimSuffix(path.Base(u.Path), path.Ext(u.Path))
-	return indexer.BuildIndex(ctx, name)
+	indexer := NewIndexer(c, getAssetBase(u), pid)
+	return indexer.BuildIndex(ctx, cityCodeAndName(name))
 }
 
-func getAssetBase(a *cms.Asset) string {
-	u, _ := url.Parse(a.URL)
-	b := path.Join(path.Dir(u.Path), strings.TrimSuffix(path.Base(u.Path), path.Ext(u.Path)))
-	u.Path = b
-	return u.String()
+func pathFileName(p string) string {
+	return strings.TrimSuffix(path.Base(p), path.Ext(p))
+}
+
+func getAssetBase(u *url.URL) string {
+	u2 := *u
+	b := path.Join(path.Dir(u.Path), pathFileName(u.Path))
+	u2.Path = b
+	return u2.String()
+}
+
+var re = regexp.MustCompile("^([0-9]+?_.+?)_")
+
+func cityCodeAndName(p string) string {
+	m := re.FindStringSubmatch(p)
+	if len(m) < 1 {
+		return p
+	}
+	return m[1]
 }
