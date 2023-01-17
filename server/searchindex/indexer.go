@@ -39,7 +39,7 @@ func NewIndexer(cms cms.Interface, pid, base string) *Indexer {
 func (i *Indexer) BuildIndex(ctx context.Context, name string) (string, error) {
 	res, err := i.i.Build()
 	if err != nil {
-		return "", fmt.Errorf("failed to build indexes: %v", err)
+		return "", fmt.Errorf("インデックスを作成できませんでした。 %w", err)
 	}
 
 	pr, pw := io.Pipe()
@@ -54,17 +54,17 @@ func (i *Indexer) BuildIndex(ctx context.Context, name string) (string, error) {
 
 	zw := indexer.NewZipOutputFS("", pw)
 	if err := indexer.NewWriter(i.config, zw).Write(res); err != nil {
-		return "", fmt.Errorf("failed to save indexes: %v", err)
+		return "", fmt.Errorf("結果のアップロードに失敗しました。(1) %w", err)
 	}
 
 	if err := pw.Close(); err != nil {
-		return "", fmt.Errorf("failed to save indexes: %v", err)
+		return "", fmt.Errorf("結果のアップロードに失敗しました。(2) %w", err)
 	}
 
 	aid := <-aids
 	err = <-errs
 	if err != nil {
-		return "", fmt.Errorf("failed to save indexes: %w", err)
+		return "", fmt.Errorf("結果のアップロードに失敗しました。(3) %w", err)
 	}
 	return aid, nil
 }

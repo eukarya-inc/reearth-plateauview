@@ -114,7 +114,7 @@ func do(ctx context.Context, c cms.Interface, item Item, pid string) (string, er
 	}
 
 	if target == nil {
-		return "", errors.New("no lod1 bldg asset")
+		return "", errors.New("LOD1の3D Tilesの建築物モデルが登録されていません。")
 	}
 
 	// build index
