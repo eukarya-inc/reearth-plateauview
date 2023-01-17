@@ -8,6 +8,11 @@ import (
 	"strconv"
 )
 
+const (
+	resultsDataCSV = "resultsData.csv"
+	indexRootJSON  = "indexRoot.json"
+)
+
 type Writer struct {
 	config *Config
 	o      OutputFS
@@ -40,7 +45,7 @@ func (w *Writer) Write(r Result) error {
 
 // Writes the data.csv file and returns its path.
 func (w *Writer) WriteResultsData(data ResultData) (string, error) {
-	fileName := "resultsData.csv"
+	fileName := resultsDataCSV
 	f, err := w.o.Open(fileName)
 	if err != nil {
 		return "", fmt.Errorf("failed to open file: %v", err)
@@ -77,7 +82,7 @@ func (w *Writer) WriteResultsData(data ResultData) (string, error) {
 }
 
 func (w *Writer) writeIndexRoot(indexRoot IndexRoot) error {
-	fileName := "indexRoot.json"
+	fileName := indexRootJSON
 
 	fw, err := w.o.Open(fileName)
 	if err != nil {
