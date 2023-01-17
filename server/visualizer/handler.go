@@ -37,7 +37,7 @@ func NewHandler(CMS cms.Interface, dKey, tKey string) (*Handler, error) {
 		return nil, err
 	}
 
-	if len(data) == 0 || len(templates) == 0 {
+	if len(data.Items) == 0 || len(templates.Items) == 0 {
 		return nil, fmt.Errorf("failed to fetch meta data")
 	}
 
@@ -45,10 +45,10 @@ func NewHandler(CMS cms.Interface, dKey, tKey string) (*Handler, error) {
 		DataModelKey:                 dKey,
 		TemplateModelKey:             tKey,
 		CMS:                          CMS,
-		DataModelIDFieldID:           data[0].Fields[0].ID,
-		DataModelDataFieldID:         data[0].Fields[1].ID,
-		TemplateModelIDFieldID:       templates[0].Fields[0].ID,
-		TemplateModelTemplateFieldID: templates[0].Fields[1].ID,
+		DataModelIDFieldID:           data.Items[0].Fields[0].ID,
+		DataModelDataFieldID:         data.Items[0].Fields[1].ID,
+		TemplateModelIDFieldID:       templates.Items[0].Fields[0].ID,
+		TemplateModelTemplateFieldID: templates.Items[0].Fields[1].ID,
 	}
 
 	return h, nil
@@ -63,7 +63,7 @@ func (h *Handler) fetchRoot() func(c echo.Context) error {
 			return err
 		}
 
-		data2 := lo.Map(data, func(d *cms.Item, _ int) any {
+		data2 := lo.Map(data.Items, func(d cms.Item, _ int) any {
 			return d.Field(h.DataModelDataFieldID).Value
 		})
 
@@ -72,7 +72,7 @@ func (h *Handler) fetchRoot() func(c echo.Context) error {
 			return err
 		}
 
-		templates2 := lo.Map(templates, func(t *cms.Item, _ int) any {
+		templates2 := lo.Map(templates.Items, func(t cms.Item, _ int) any {
 			return t.Field(h.TemplateModelTemplateFieldID).Value
 		})
 
@@ -98,7 +98,7 @@ func (h *Handler) getAllDataHandler() func(c echo.Context) error {
 			return err
 		}
 
-		data2 := lo.Map(data, func(d *cms.Item, _ int) any {
+		data2 := lo.Map(data.Items, func(d cms.Item, _ int) any {
 			return d.Field(h.DataModelDataFieldID)
 		})
 		return c.JSON(http.StatusOK, data2)
@@ -192,7 +192,7 @@ func (h *Handler) fetchTemplate() func(c echo.Context) error {
 			return err
 		}
 
-		templates2 := lo.Map(templates, func(t *cms.Item, _ int) any {
+		templates2 := lo.Map(templates.Items, func(t cms.Item, _ int) any {
 			return t.Field(h.TemplateModelTemplateFieldID).Value
 		})
 		return c.JSON(http.StatusOK, templates2)
