@@ -69,6 +69,10 @@ func NewOSOutputFS(base string) *OSOutputFS {
 }
 
 func (f *OSOutputFS) Open(name string) (w WriteCloser, err error) {
+	dir := filepath.Dir(name)
+	if dir != "" {
+		_ = os.MkdirAll(dir, os.ModePerm)
+	}
 	return os.Create(filepath.Join(f.base, name))
 }
 
