@@ -30,7 +30,6 @@ const TreeBuilder: React.FC<{
   const handleOpenDetails = useCallback(() => {
     if (item.type === "group") return;
     onOpenDetails?.(item);
-
     onSelect?.(item.id);
   }, [item, onOpenDetails, onSelect]);
 

@@ -16,13 +16,14 @@ export default ({
 }: {
   form: any;
   addScreenshot: boolean;
-  backendURL: string;
+  backendURL?: string;
   messageApi: any;
 }) => {
   const [screenshot, setScreenshot] = useState<any>();
 
   const handleSend = useCallback(
     async (values: { name: string; email: string; comment: string }) => {
+      if (!backendURL) return;
       const formData = new FormData();
       formData.append("name", values.name);
       formData.append("email", values.email);

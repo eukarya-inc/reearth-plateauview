@@ -29,7 +29,8 @@ export type Location = {
 };
 
 export type Template = {
-  id: string;
-  name: string;
+  id?: string;
+  modelId?: string;
+  name?: string;
   fields?: Field[];
 };

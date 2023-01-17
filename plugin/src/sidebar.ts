@@ -21,9 +21,11 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
     reearth.ui.postMessage({
       type: "init",
       payload: {
+        projectID: reearth.viewport.query.projectID,
         inEditor: reearth.scene.inEditor,
-        backendURL: reearth.widget.property.default.plateauurl ?? "",
-        cmsURL: reearth.widget.property.default.cmsurl ?? "",
+        backendAccessToken: reearth.widget.property.default.plateauAccessToken ?? "",
+        backendURL: reearth.widget.property.default.plateauURL ?? "",
+        cmsURL: reearth.widget.property.default.cmsURL ?? "",
       },
     });
     if (!doNotShowWelcome) {

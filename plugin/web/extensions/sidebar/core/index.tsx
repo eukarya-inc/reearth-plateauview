@@ -16,12 +16,15 @@ export type Props = {
 
 const Sidebar: React.FC<Props> = ({ className }) => {
   const {
-    selectedDatasets,
+    processedSelectedDatasets,
     overrides,
     minimized,
     inEditor,
     backendURL,
-    // cmsURL,
+    templates,
+    handleTemplateAdd,
+    handleTemplateUpdate,
+    handleTemplateRemove,
     setMinimize,
     handleDatasetRemove,
     handleDatasetRemoveAll,
@@ -67,7 +70,7 @@ const Sidebar: React.FC<Props> = ({ className }) => {
               data: (
                 <Selection
                   inEditor={inEditor}
-                  selectedDatasets={selectedDatasets}
+                  selectedDatasets={processedSelectedDatasets}
                   onDatasetRemove={handleDatasetRemove}
                   onDatasetRemoveAll={handleDatasetRemoveAll}
                   onModalOpen={handleModalOpen}
@@ -77,7 +80,14 @@ const Sidebar: React.FC<Props> = ({ className }) => {
               share: <Share overrides={overrides} backendURL={backendURL} />,
               help: <Help />,
               feedback: <Feedback backendURL={backendURL} />,
-              template: <Templates />,
+              template: (
+                <Templates
+                  templates={templates}
+                  onTemplateAdd={handleTemplateAdd}
+                  onTemplateUpdate={handleTemplateUpdate}
+                  onTemplateRemove={handleTemplateRemove}
+                />
+              ),
             }[current]
           }
         </ContentWrapper>

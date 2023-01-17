@@ -3,14 +3,13 @@ export type Root = {
   templates: Template[];
 };
 
-type Data = {
-  target:
-    | {
-        id: string;
-      }
-    | {
-        type: string;
-      };
+export type Data = {
+  id: string;
+  dataId: string;
+  type: string;
+  name?: string; // Might want to make raw type without this
+  public: boolean; // Might want to make raw type without this
+  visible?: boolean; // Might want to make raw type without this
   // either template or components
   template?: string; // user-defined template ID or builtin template ID
   components?: Component[];
@@ -75,8 +74,10 @@ type Description = {
 
 // ****** Template ******
 
-type Template = {
+export type Template = {
   id: string;
+  modelId: string;
+  name?: string;
   components?: Component[];
 };
 

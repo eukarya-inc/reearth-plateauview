@@ -9,10 +9,13 @@ extensions:
       groups:
         - id: default
           fields:
-            - id: plateauurl
+            - id: plateauAccessToken
+              type: string
+              title: PLATEAU Backend Access Token
+            - id: plateauURL
               type: string
               title: PLATEAU Backend Base URL
-            - id: cmsurl
+            - id: cmsURL
               type: string
               title: PLATEAU CMS Base URL
     widgetLayout:

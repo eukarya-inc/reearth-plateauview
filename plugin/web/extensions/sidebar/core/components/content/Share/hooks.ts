@@ -11,7 +11,7 @@ export default ({
   messageApi,
 }: {
   overrides?: ReearthApi;
-  backendURL: string;
+  backendURL?: string;
   messageApi: any;
 }) => {
   const [publishedUrl, setPublishedUrl] = usePublishedUrl();
@@ -29,6 +29,7 @@ export default ({
   const handleProjectShare = useCallback(async () => {
     setShareDisable(true);
     if (overrides) {
+      if (!backendURL) return;
       const resp = await fetch(`${backendURL}/share`, {
         headers: {
           "Content-Type": "application/json",

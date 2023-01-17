@@ -58,36 +58,41 @@ function tagFilter(catalog: CatalogRawItem[]): DataCatalog {
 }
 
 function prefectureFilter(catalog: CatalogRawItem[]): DataCatalog {
-  const filteredCatalog: CatalogItem[] = prefectures.map(p => {
-    const usecase: CatalogItem = {
-      type: "group",
-      name: "ユースケース",
-      children: [],
-    };
-    const items: CatalogItem[] = catalog.filter(i => {
-      if (i.prefecture === p) {
-        if (i.isUsecase) {
-          usecase.children.push(i as CatalogItem);
-          return;
-        }
-        return {
-          type: "item",
-          ...i,
-        };
+  return prefectures
+    .map(p => {
+      const usecase: CatalogItem = {
+        type: "group",
+        name: "ユースケース",
+        children: [],
+      };
+
+      const items: CatalogItem[] = catalog
+        .filter(i => i.prefecture === p)
+        .map(i => {
+          if (i.modelType === "usecase") {
+            usecase.children.push(i as CatalogItem);
+            return undefined;
+          }
+          return {
+            type: "item",
+            ...i,
+          };
+        })
+        .filter(i => !!i) as CatalogItem[];
+
+      if (usecase.children.length > 0) {
+        items.push(usecase);
       }
-    }) as CatalogItem[];
 
-    if (usecase.children.length > 0) {
-      items.push(usecase);
-    }
+      if (items.length < 1) return;
 
-    return {
-      type: "group",
-      name: p,
-      children: items,
-    };
-  });
-  return filteredCatalog;
+      return {
+        type: "group",
+        name: p,
+        children: items,
+      };
+    })
+    .filter(c => !!(c && c.children.length > 0)) as DataCatalog;
 }
 
 function filterCatalog(

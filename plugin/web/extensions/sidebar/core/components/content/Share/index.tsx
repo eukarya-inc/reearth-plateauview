@@ -7,7 +7,7 @@ import useHooks, { ReearthApi } from "./hooks";
 
 export type Props = {
   overrides: ReearthApi;
-  backendURL: string;
+  backendURL?: string;
 };
 
 const Share: React.FC<Props> = ({ overrides, backendURL }) => {

@@ -1,5 +1,7 @@
 import { TEST_PLATEAU_DATA, TEST_USECASE_DATA, TEST_DATASET_DATA } from "./TEST_DATA";
 
+type ModelType = "plateau" | "usecase" | "dataset";
+
 export type CatalogRawItem = {
   id: string;
   name?: string;
@@ -37,7 +39,7 @@ export type CatalogRawItem = {
   config?: string | null;
   year?: string | null;
   type?: string | null;
-  isUsecase?: boolean;
+  modelType?: ModelType;
   tags?: Tag[];
 };
 
@@ -59,14 +61,27 @@ export type CatalogItem =
 export type DataCatalog = CatalogItem[];
 
 export default (plateauData: any[], usecaseData: any[], datasetData: any[]) => {
-  const rawPlateauData = convertRaw(plateauData ?? TEST_PLATEAU_DATA); // REMOVE TEST DATA WHEN FINISHED TESTING
-  const rawUsecaseData = convertRaw(usecaseData ?? TEST_USECASE_DATA, true); // REMOVE TEST DATA WHEN FINISHED TESTING
-  const rawDatasetData = convertRaw(datasetData ?? TEST_DATASET_DATA); // REMOVE TEST DATA WHEN FINISHED TESTING
+  const rawPlateauData = convertRaw(
+    plateauData.length > 0 ? plateauData : TEST_PLATEAU_DATA,
+    "plateau",
+  ); // REMOVE TEST DATA WHEN FINISHED TESTING
+  const rawUsecaseData = convertRaw(
+    usecaseData.length > 0 ? usecaseData : TEST_USECASE_DATA,
+    "usecase",
+  ); // REMOVE TEST DATA WHEN FINISHED TESTING
+  const rawDatasetData = convertRaw(
+    datasetData.length > 0 ? datasetData : TEST_DATASET_DATA,
+    "dataset",
+  ); // REMOVE TEST DATA WHEN FINISHED TESTING
+
+  console.log("TEST PLATEAU: ", TEST_PLATEAU_DATA);
+  console.log("TEST USECASE: ", TEST_USECASE_DATA);
+  console.log("TEST DATASET: ", TEST_DATASET_DATA);
 
   return [...rawPlateauData, ...rawUsecaseData, ...rawDatasetData];
 };
 
-function convertRaw(data?: any[], isUsecase?: boolean): CatalogRawItem[] {
+function convertRaw(data?: any[], modelType?: ModelType): CatalogRawItem[] {
   if (!data || data.length <= 0) return [];
 
   return data.map(item => {
@@ -107,7 +122,7 @@ function convertRaw(data?: any[], isUsecase?: boolean): CatalogRawItem[] {
       config: item.config,
       year: item.year,
       type: item.type,
-      isUsecase,
+      modelType,
       tags: [
         { name: item.prefecture, type: "location" },
         { name: item.city_name, type: "location" },

@@ -7,7 +7,7 @@ import useHooks from "./hooks";
 
 const plateauWebsiteUrl = "https://www.mlit.go.jp/plateau/";
 
-const Feedback: React.FC<{ backendURL: string }> = ({ backendURL }) => {
+const Feedback: React.FC<{ backendURL?: string }> = ({ backendURL }) => {
   const [form] = Form.useForm();
   const addScreenshot: boolean = Form.useWatch("screenshot", form);
   const [messageApi, contextHolder] = message.useMessage();
