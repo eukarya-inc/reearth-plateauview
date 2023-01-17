@@ -69,11 +69,17 @@ func NewOSOutputFS(base string) *OSOutputFS {
 }
 
 func (f *OSOutputFS) Open(name string) (w WriteCloser, err error) {
-	dir := filepath.Dir(name)
-	if dir != "" {
-		_ = os.MkdirAll(dir, os.ModePerm)
+	if err := f.mkdir(); err != nil {
+		return nil, err
 	}
 	return os.Create(filepath.Join(f.base, name))
+}
+
+func (f *OSOutputFS) mkdir() error {
+	if f.base != "" {
+		return os.MkdirAll(f.base, os.ModePerm)
+	}
+	return nil
 }
 
 type ZipOutputFS struct {
