@@ -50,7 +50,7 @@ jobs:
           TESTDATA: ${{ secrets.TESTDATA && 'testdata=1' || 'testdata=' }}
       - name: download sample 3D Tiles data
         if: steps.testdata.outputs.testdata
-        run: curl -O $TESTDATA && mkdir -p searchindex/indexer/testdata && unzip -d searchindex/indexer/testdata "${$TESTDATA##*/}"
+        run: curl -O $TESTDATA && mkdir -p searchindex/indexer/testdata && unzip -d searchindex/indexer/testdata "${TESTDATA##*/}"
         env:
           TESTDATA: ${{ secrets.TESTDATA }}
       - name: run indexer test
