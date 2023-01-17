@@ -1,14 +1,23 @@
 package indexer
 
 import (
-	"encoding/json"
 	"os"
 	"path/filepath"
 	"testing"
 
-	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )
+
+var config = &Config{
+	IdProperty: "gml_id",
+	Indexes: map[string]Index{
+		"名称":           {Kind: "enum"},
+		"用途":           {Kind: "enum"},
+		"住所":           {Kind: "enum"},
+		"名建物利用現況_中分類称": {Kind: "enum"},
+		"建物利用現況_小分類":   {Kind: "enum"},
+	},
+}
 
 func TestIndexer(t *testing.T) {
 	dir, err := os.Stat("testdata")
@@ -18,9 +27,7 @@ func TestIndexer(t *testing.T) {
 
 	input := NewFSFS(os.DirFS("testdata"))
 	output := NewOSOutputFS(filepath.Join("testdata", "result"))
-	var config Config
-	assert.NoError(t, json.Unmarshal(lo.Must(os.ReadFile("testdata/config.json")), &config))
-	indexer := NewIndexer(&config, input, output)
+	indexer := NewIndexer(config, input, output)
 
 	err = indexer.BuildAndWrite()
 	assert.NoError(t, err)
