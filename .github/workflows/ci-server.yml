@@ -47,15 +47,35 @@ jobs:
         id: testdata
         run: echo $TESTDATA >> $GITHUB_OUTPUT
         env:
-          TESTDATA: ${{ secrets.TESTURL && 'testdata=1' || 'testdata=' }}
+          TESTDATA: ${{ secrets.TESTDATA && 'testdata=1' || 'testdata=' }}
+      - name: download test 3D Tiles data
+        if: steps.testdata.outputs.testdata
+        run: curl -O $TESTDATA && mkdir -p searchindex/indexer/testdata && unzip -d searchindex/indexer/testdata "${TESTDATA##*/}"
+        env:
+          TESTDATA: ${{ secrets.TESTDATA }}
       - name: run indexer test
         if: steps.testdata.outputs.testdata
         run: go test ./searchindex/indexer -v
-        env:
-          REEARTH_PLATEAUVIEW_TESTURL: ${{ secrets.TESTURL }}
       - name: list result files
         if: steps.testdata.outputs.testdata
         run: ls searchindex/indexer/testdata/result
       - name: cat resultsData.csv
         if: steps.testdata.outputs.testdata
         run: cat searchindex/indexer/testdata/result/resultsData.csv
+      #
+      # - name: is testdata available
+      #   id: testdata
+      #   run: echo $TESTDATA >> $GITHUB_OUTPUT
+      #   env:
+      #     TESTDATA: ${{ secrets.TESTURL && 'testdata=1' || 'testdata=' }}
+      # - name: run indexer test
+      #   if: steps.testdata.outputs.testdata
+      #   run: go test ./searchindex/indexer -v
+      #   env:
+      #     REEARTH_PLATEAUVIEW_TESTURL: ${{ secrets.TESTURL }}
+      # - name: list result files
+      #   if: steps.testdata.outputs.testdata
+      #   run: ls searchindex/indexer/testdata/result
+      # - name: cat resultsData.csv
+      #   if: steps.testdata.outputs.testdata
+      #   run: cat searchindex/indexer/testdata/result/resultsData.csv

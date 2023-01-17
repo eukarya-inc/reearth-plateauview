@@ -60,6 +60,7 @@ func TestIndexerWithHTTPFS(t *testing.T) {
 		return
 	}
 
+	t.Log(u)
 	b := bytes.NewBuffer(nil)
 	zw := zip.NewWriter(b)
 
