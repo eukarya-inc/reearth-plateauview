@@ -4,7 +4,11 @@ import { useCallback, useEffect, useState } from "react";
 import { Tab } from "../../core/components/content/Help/hooks";
 
 export default () => {
-  const [currentPopup, setCurrentPopup] = useState<Tab>("basic");
+  const [currentPopup, setCurrentPopup] = useState<Tab>();
+
+  useEffect(() => {
+    postMsg({ action: "popup-message-init" });
+  }, []);
 
   const handleClosePopup = useCallback(() => {
     postMsg({ action: "close-popup" });
@@ -31,7 +35,7 @@ export default () => {
     return () => {
       (globalThis as any).removeEventListener("message", eventListenerCallback);
     };
-  }, []);
+  });
 
   return {
     currentPopup,

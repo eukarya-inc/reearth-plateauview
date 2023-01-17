@@ -10,14 +10,13 @@ const Help: React.FC = () => {
 
   return (
     <PopupWrapper handleClose={handleClosePopup}>
-      {
+      {currentPopup &&
         {
           basic: <BasicOperation />,
           map: <TryMapInfo />,
           shadow: <ShadowFunction />,
           clip: <ClipFunction />,
-        }[currentPopup]
-      }
+        }[currentPopup]}
     </PopupWrapper>
   );
 };

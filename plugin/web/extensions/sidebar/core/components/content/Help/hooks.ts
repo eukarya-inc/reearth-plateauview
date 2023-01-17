@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import { postMsg } from "../../../utils";
 
@@ -18,6 +18,25 @@ const items: Items[] = [
 
 export default () => {
   const [selectedTab, changeTab] = useState<Tab>("basic");
+
+  useEffect(() => {
+    postMsg({ action: "popup-message", payload: selectedTab });
+  }, []);
+
+  useEffect(() => {
+    const eventListenerCallback = (e: any) => {
+      if (e.source !== parent) return null;
+      if (e.data.type) {
+        if (e.data.type === "popup-message-init") {
+          postMsg({ action: "popup-message", payload: selectedTab });
+        }
+      }
+    };
+    (globalThis as any).addEventListener("message", (e: any) => eventListenerCallback(e));
+    return () => {
+      (globalThis as any).removeEventListener("message", eventListenerCallback);
+    };
+  });
 
   const handleItemClicked = useCallback((key: Tab) => {
     changeTab(key);
