@@ -370,6 +370,7 @@ func TestHandler_deleteTemplateHandler(t *testing.T) {
 	assert.Equal(t, expected, strings.Trim(strings.TrimSpace(rec.Body.String()), "\""))
 }
 
+/*
 func mockCMS(host, token string) func(string) int {
 	responder := func(req *http.Request) (*http.Response, error) {
 		if t := parseToken(req); t != token {
@@ -421,3 +422,4 @@ func parseToken(r *http.Request) string {
 	}
 	return token
 }
+*/
