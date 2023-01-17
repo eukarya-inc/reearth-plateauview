@@ -11,6 +11,7 @@ import (
 	"github.com/eukarya-inc/reearth-plateauview/server/opinion"
 	"github.com/eukarya-inc/reearth-plateauview/server/sdk"
 	"github.com/eukarya-inc/reearth-plateauview/server/share"
+	"github.com/eukarya-inc/reearth-plateauview/server/visualizer"
 	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -54,6 +55,8 @@ func main() {
 
 	e.POST("/notify_fme", lo.Must(cmsintegration.NotifyHandler(conf.CMSIntegration())))
 	e.POST("/notify_sdk", lo.Must(sdk.NotifyHandler(conf.SDK())))
+
+	lo.Must0(visualizer.Echo(e.Group(""), conf.Visualizer()))
 
 	lo.Must0(share.Echo(e.Group("/share"), conf.Share()))
 	opinion.Echo(e.Group("/opinion"), conf.Opinion())

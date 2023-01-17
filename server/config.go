@@ -10,6 +10,7 @@ import (
 	"github.com/eukarya-inc/reearth-plateauview/server/opinion"
 	"github.com/eukarya-inc/reearth-plateauview/server/sdk"
 	"github.com/eukarya-inc/reearth-plateauview/server/share"
+	"github.com/eukarya-inc/reearth-plateauview/server/visualizer"
 	"github.com/joho/godotenv"
 	"github.com/kelseyhightower/envconfig"
 	"github.com/reearth/reearthx/log"
@@ -24,6 +25,7 @@ type Config struct {
 	Origin               []string
 	CMS_Webhook_Secret   string
 	CMS_BaseURL          string
+	CMS_ModelID          string
 	CMS_Token            string
 	CMS_ShareModelID     string
 	CMS_ShareDataFieldID string
@@ -40,6 +42,9 @@ type Config struct {
 	Opinion_ToName       string
 	Secret               string
 	Debug                bool
+	VizToken             string
+	VizTemplateModelKey  string `default:"plateau-view-template"`
+	VizDataModelKey      string `default:"plateau-view-data"`
 }
 
 func NewConfig() (*Config, error) {
@@ -82,6 +87,16 @@ func (c *Config) SDK() sdk.Config {
 		CMSBase:      c.CMS_BaseURL,
 		CMSToken:     c.CMS_Token,
 		Secret:       c.Secret,
+	}
+}
+func (c *Config) Visualizer() visualizer.Config {
+	return visualizer.Config{
+		CMSModelID:       c.CMS_ModelID,
+		CMSBaseURL:       c.CMS_BaseURL,
+		CMSToken:         c.CMS_Token,
+		AdminToken:       c.VizToken,
+		DataModelKey:     c.VizDataModelKey,
+		TemplateModelKey: c.VizDataModelKey,
 	}
 }
 
