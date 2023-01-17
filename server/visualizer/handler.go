@@ -217,7 +217,7 @@ func (h *Handler) createTemplateHandler() func(c echo.Context) error {
 			return err
 		}
 
-		return c.JSON(http.StatusOK, item.Field(h.TemplateModelTemplateFieldID).Value)
+		return c.JSON(http.StatusOK, item.Field(h.TemplateModelTemplateFieldID))
 	}
 }
 

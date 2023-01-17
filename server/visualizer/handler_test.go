@@ -263,44 +263,41 @@ func TestHandler_fetchTemplate(t *testing.T) {
 	assert.Equal(t, expected, strings.Trim(strings.TrimSpace(rec.Body.String()), "\""))
 }
 */
-
 /*
-	func TestHandler_createTemplateHandler(t *testing.T) {
-		h := newHandler()
-		modelID := "key2"
-		httpmock.Activate()
-		defer httpmock.Deactivate()
+func TestHandler_createTemplateHandler(t *testing.T) {
+	h := newHandler()
+	modelID := "key2"
+	httpmock.Activate()
+	defer httpmock.Deactivate()
 
-		expected := "[{'hoge':'hoge'}]"
-		//Mockでやりたいこと: dataのITEMを返してほしい
-		responder := func(req *http.Request) (*http.Response, error) {
-			return httpmock.NewJsonResponse(http.StatusOK, cms.Item{
-				ID: modelID,
-				Fields: []cms.Field{
-					{ID: h.DataModelDataFieldID, Type: "TextArea", Value: expected},
-					{ID: h.DataModelIDFieldID, Type: "Text", Value: expected},
-				},
+	expected := "[{'hoge':'hoge'}]"
+	responder := func(req *http.Request) (*http.Response, error) {
+		return httpmock.NewJsonResponse(http.StatusOK, cms.Item{
+			ID: modelID,
+			Fields: []cms.Field{
+				{ID: h.DataModelDataFieldID, Type: "TextArea", Value: expected},
+				{ID: h.DataModelIDFieldID, Type: "Text", Value: expected},
 			},
-			)
-		}
-		httpmock.RegisterResponder("POST", lo.Must(url.JoinPath(cmsHost, "/api/models/", modelID, "items")), responder)
-		//テストしたいこと: CMSからdataが返ってくる想定のもと、仕様どおりにデータを返せるかどうか？
-		e := echo.New()
-		p := path.Join("/viz/aaa/templates/")
-		req := httptest.NewRequest(http.MethodGet, p, nil)
-		req.Header.Set("Content-Type", "application/json")
-		rec := httptest.NewRecorder()
-		ctx := e.NewContext(req, rec)
-		ctx.SetPath("/viz/:pid/templates/")
-		ctx.SetParamNames("pid")
-		ctx.SetParamValues("aaa")
-		handler := h.createTemplateHandler()
-		// TODO: ctx nil pointer
-		res := handler(ctx)
-		assert.NoError(t, res)
-		assert.Equal(t, http.StatusOK, rec.Result().StatusCode)
-		assert.Equal(t, expected, strings.Trim(strings.TrimSpace(rec.Body.String()), "\""))
+		},
+		)
 	}
+	httpmock.RegisterResponder("POST", lo.Must(url.JoinPath(cmsHost, "/api/models/", modelID, "items")), responder)
+	e := echo.New()
+	p := path.Join("/viz/aaa/templates/")
+	req := httptest.NewRequest(http.MethodGet, p, nil)
+	req.Header.Set("Content-Type", "application/json")
+	// TODO: recのbodyが空になってしまう
+	rec := httptest.NewRecorder()
+	ctx := e.NewContext(req, rec)
+	ctx.SetPath("/viz/:pid/templates/")
+	ctx.SetParamNames("pid")
+	ctx.SetParamValues("aaa")
+	handler := h.createTemplateHandler()
+	res := handler(ctx)
+	assert.NoError(t, res)
+	assert.Equal(t, http.StatusOK, rec.Result().StatusCode)
+	assert.Equal(t, expected, strings.Trim(strings.TrimSpace(rec.Body.String()), "\""))
+}
 */
 func TestHandler_updateTemplateHandler(t *testing.T) {
 	h := newHandler()
