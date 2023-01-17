@@ -53,9 +53,14 @@ func (i *Indexer) BuildIndex(ctx context.Context, name string) (string, error) {
 		errs <- err
 	}()
 
-	zw := indexer.NewZipOutputFS(zip.NewWriter(pw), "")
-	if err := indexer.NewWriter(i.config, zw).Write(res); err != nil {
-		return "", fmt.Errorf("結果のアップロードに失敗しました。(1) %w", err)
+	zw := zip.NewWriter(pw)
+	zfs := indexer.NewZipOutputFS(zw, "")
+	if err := indexer.NewWriter(i.config, zfs).Write(res); err != nil {
+		return "", fmt.Errorf("failed to save files to zip: %w", err)
+	}
+
+	if err := zw.Close(); err != nil {
+		return "", fmt.Errorf("failed to close zip: %w", err)
 	}
 
 	if err := pw.Close(); err != nil {

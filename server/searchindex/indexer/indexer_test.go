@@ -37,6 +37,8 @@ func TestIndexer(t *testing.T) {
 
 	err = indexer.BuildAndWrite()
 	assert.NoError(t, err)
+	err = zw.Close()
+	assert.NoError(t, err)
 
 	br := bytes.NewReader(b.Bytes())
 	zr, err := zip.NewReader(br, 0)
