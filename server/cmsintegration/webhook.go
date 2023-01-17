@@ -4,14 +4,12 @@ import (
 	"net/http"
 
 	"github.com/eukarya-inc/reearth-plateauview/server/cms/cmswebhook"
-	"github.com/eukarya-inc/reearth-plateauview/server/cmsintegration/fme"
+	"github.com/eukarya-inc/reearth-plateauview/server/fme"
 	"github.com/reearth/reearthx/log"
 )
 
 const (
-	modelKey        = "plateau"
-	cityGMLFieldKey = "citygml"
-	bldgFieldKey    = "bldg"
+	modelKey = "plateau"
 )
 
 func WebhookHandler(c Config) (cmswebhook.Handler, error) {
@@ -22,27 +20,26 @@ func WebhookHandler(c Config) (cmswebhook.Handler, error) {
 
 	return func(req *http.Request, w *cmswebhook.Payload) error {
 		if !w.Operator.IsUser() {
-			log.Infof("cmsintegration webhook: invalid event operator: %+v", w.Operator)
+			log.Debugf("cmsintegration webhook: invalid event operator: %+v", w.Operator)
 			return nil
 		}
 
-		ctx := req.Context()
-
-		if w.Type != "item.update" && w.Type != "item.create" {
-			log.Infof("cmsintegration webhook: invalid event type: %s", w.Type)
+		if w.Type != cmswebhook.EventItemCreate && w.Type != cmswebhook.EventItemUpdate {
+			log.Debugf("cmsintegration webhook: invalid event type: %s", w.Type)
 			return nil
 		}
 
 		if w.Data.Item == nil || w.Data.Model == nil {
-			log.Infof("cmsintegration webhook: invalid event data: %+v", w.Data)
+			log.Debugf("cmsintegration webhook: invalid event data: %+v", w.Data)
 			return nil
 		}
 
 		if w.Data.Model.Key != modelKey {
-			log.Infof("cmsintegration webhook: invalid model id: %s, key: %s", w.Data.Item.ModelID, w.Data.Model.Key)
+			log.Debugf("cmsintegration webhook: invalid model id: %s, key: %s", w.Data.Item.ModelID, w.Data.Model.Key)
 			return nil
 		}
 
+		ctx := req.Context()
 		item := ItemFrom(*w.Data.Item)
 
 		if !item.ConversionEnabled.Enabled() {
@@ -72,7 +69,7 @@ func WebhookHandler(c Config) (cmswebhook.Handler, error) {
 		}
 
 		fmeReq := fme.ConversionRequest{
-			ID: ID{
+			ID: fme.ID{
 				ItemID:    w.Data.Item.ID,
 				AssetID:   asset.ID,
 				ProjectID: w.Data.Schema.ProjectID,

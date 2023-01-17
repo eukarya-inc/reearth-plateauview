@@ -3,8 +3,6 @@ package indexer
 import (
 	"errors"
 	"fmt"
-	"io/fs"
-	"path/filepath"
 	"strconv"
 	"strings"
 
@@ -18,25 +16,51 @@ import (
 	"gonum.org/v1/gonum/mat"
 )
 
-type Indexer struct{}
+const (
+	tilesetJSONName = "tileset.json"
+)
 
-func NewIndexer() *Indexer {
-	return &Indexer{}
+type Indexer struct {
+	config *Config
+	fs     FS
+	writer *Writer
 }
 
-type Fs interface {
-	Open(string) (fs.File, error)
+func NewIndexer(config *Config, fs FS, output OutputFS) *Indexer {
+	return &Indexer{
+		config: config,
+		fs:     fs,
+		writer: NewWriter(config, output),
+	}
+}
+
+type Result struct {
+	IndexBuilders []IndexBuilder
+	Data          ResultData
 }
 
 type ResultData []map[string]string
 
-func (indexer *Indexer) GenerateIndexes(config *Config, tilesetPath string, fsys Fs) (indexBuilders []IndexBuilder, resultData ResultData, errMsg error) {
-	basePath := strings.Split(tilesetPath, "tileset.json")[0]
-	ts, err := fsys.Open(tilesetPath)
+func (indexer *Indexer) BuildAndWrite() error {
+	res, err := indexer.Build()
+	if err != nil {
+		return err
+	}
+
+	return indexer.writer.Write(res)
+}
+
+func (indexer *Indexer) Build() (res Result, errMsg error) {
+	var indexBuilders []IndexBuilder
+	var resultData ResultData
+
+	ts, err := indexer.fs.Open(tilesetJSONName)
 	if err != nil {
 		errMsg = fmt.Errorf("failed to open the tileset: %w", err)
 		return
 	}
+	defer ts.Close()
+
 	reader := tiles.NewTilsetReader(ts)
 	tileset := new(tiles.Tileset)
 	if err := reader.Decode(tileset); err != nil {
@@ -44,30 +68,29 @@ func (indexer *Indexer) GenerateIndexes(config *Config, tilesetPath string, fsys
 		return
 	}
 
-	for property, config := range config.Indexes {
+	for property, config := range indexer.config.Indexes {
 		indexBuilders = append(indexBuilders, createIndexBuilder(property, config))
 	}
 
-	features, err := ReadTilesetFeatures(tileset, config, basePath, fsys)
+	features, err := ReadTilesetFeatures(tileset, indexer.config, indexer.fs)
 	if err != nil {
 		errMsg = fmt.Errorf("failed to read features: %w", err)
 		return
 	}
 
-	featureCount := len(features)
-	log.Debugln("Number of features counted: ", featureCount)
+	log.Debugln("Number of features counted: ", len(features))
 
 	for idValue, tilsetFeature := range features {
 		// taking all positionProperties map entries as string for better writing experience
 		positionProperties := map[string]string{
-			config.IdProperty: idValue,
-			"Longitude":       strconv.FormatFloat(roundFloat(toDegrees(tilsetFeature.Position.Longitude), 5), 'g', -1, 64),
-			"Latitude":        strconv.FormatFloat(roundFloat(toDegrees(tilsetFeature.Position.Latitude), 5), 'g', -1, 64),
-			"Height":          strconv.FormatFloat(roundFloat(tilsetFeature.Position.Height, 3), 'g', -1, 64),
+			indexer.config.IdProperty: idValue,
+			"Longitude":               strconv.FormatFloat(roundFloat(toDegrees(tilsetFeature.Position.Longitude), 5), 'g', -1, 64),
+			"Latitude":                strconv.FormatFloat(roundFloat(toDegrees(tilsetFeature.Position.Latitude), 5), 'g', -1, 64),
+			"Height":                  strconv.FormatFloat(roundFloat(tilsetFeature.Position.Height, 3), 'g', -1, 64),
 		}
 		resultData = append(resultData, positionProperties)
-		length := len(resultData)
-		dataRowId := length - 1
+		dataRowId := len(resultData) - 1
+
 		for _, b := range indexBuilders {
 			switch t := b.(type) {
 			case EnumIndexBuilder:
@@ -79,6 +102,9 @@ func (indexer *Indexer) GenerateIndexes(config *Config, tilesetPath string, fsys
 			}
 		}
 	}
+
+	res.Data = resultData
+	res.IndexBuilders = indexBuilders
 	return
 }
 
@@ -87,18 +113,17 @@ type TilesetFeature struct {
 	Position   Cartographic
 }
 
-func ReadTilesetFeatures(ts *tiles.Tileset, config *Config, basePath string, fsys Fs) (map[string]TilesetFeature, error) {
+func ReadTilesetFeatures(ts *tiles.Tileset, config *Config, fsys FS) (map[string]TilesetFeature, error) {
 	uniqueFeatures := make(map[string]TilesetFeature)
 	tilesetQueue := []*tiles.Tileset{ts}
 
 	for _, tileset := range tilesetQueue {
-
 		tilesetIterFn := func(tile *tiles.Tile, computedTransform *mat.Dense) error {
 			tileUri, err := tile.Uri()
 			if err != nil {
 				return fmt.Errorf("failed to fetch uri of tile: %v", err)
 			}
-			contentPath := filepath.Join(basePath, tileUri)
+
 			log.Debugln(tileUri)
 			if strings.HasSuffix(tileUri, ".json") {
 				childTileset, _ := tiles.Open(tileUri)
@@ -106,10 +131,15 @@ func ReadTilesetFeatures(ts *tiles.Tileset, config *Config, basePath string, fsy
 				return nil
 			}
 
-			b3dmFile, err := fsys.Open(contentPath)
+			b3dmFile, err := fsys.Open(tileUri)
 			if err != nil {
 				return fmt.Errorf("failed to open b3dm file: %v", err)
 			}
+
+			defer func() {
+				_ = b3dmFile.Close()
+			}()
+
 			reader := b3dms.NewB3dmReader(b3dmFile)
 			b3dm := new(b3dms.B3dm)
 			if err := reader.Decode(b3dm); err != nil {
@@ -158,8 +188,8 @@ func ReadTilesetFeatures(ts *tiles.Tileset, config *Config, basePath string, fsy
 
 			return nil
 		}
-		err := ForEachTile(tileset, tilesetIterFn)
-		if err != nil {
+
+		if err := ForEachTile(tileset, tilesetIterFn); err != nil {
 			return nil, fmt.Errorf("something went wrong at iterTile: %v", err)
 		}
 	}

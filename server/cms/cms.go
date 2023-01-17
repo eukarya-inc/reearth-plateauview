@@ -6,8 +6,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"mime/multipart"
 	"net/http"
 	"net/url"
+	"strings"
 
 	"github.com/reearth/reearthx/log"
 )
@@ -20,6 +22,7 @@ type Interface interface {
 	UpdateItem(ctx context.Context, itemID string, fields []Field) (*Item, error)
 	Asset(ctx context.Context, id string) (*Asset, error)
 	UploadAsset(ctx context.Context, projectID, url string) (string, error)
+	UploadAssetDirectly(ctx context.Context, projectID, name string, data io.Reader) (string, error)
 	CommentToItem(ctx context.Context, assetID, content string) error
 	CommentToAsset(ctx context.Context, assetID, content string) error
 }
@@ -44,7 +47,7 @@ func New(base, token string) (*CMS, error) {
 }
 
 func (c *CMS) GetItem(ctx context.Context, itemID string) (*Item, error) {
-	b, err := c.send(ctx, http.MethodGet, []string{"api", "items", itemID}, nil)
+	b, err := c.send(ctx, http.MethodGet, []string{"api", "items", itemID}, "", nil)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get an item: %w", err)
 	}
@@ -59,7 +62,7 @@ func (c *CMS) GetItem(ctx context.Context, itemID string) (*Item, error) {
 }
 
 func (c *CMS) GetItems(ctx context.Context, modelID string) (*Items, error) {
-	b, err := c.send(ctx, http.MethodGet, []string{"api", "models", modelID, "items"}, nil)
+	b, err := c.send(ctx, http.MethodGet, []string{"api", "models", modelID, "items"}, "", nil)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get items: %w", err)
 	}
@@ -74,7 +77,7 @@ func (c *CMS) GetItems(ctx context.Context, modelID string) (*Items, error) {
 }
 
 func (c *CMS) GetItemsByKey(ctx context.Context, projectIDOrAlias, modelIDOrAlias string) (*Items, error) {
-	b, err := c.send(ctx, http.MethodGet, []string{"api", "projects", projectIDOrAlias, "models", modelIDOrAlias, "items"}, nil)
+	b, err := c.send(ctx, http.MethodGet, []string{"api", "projects", projectIDOrAlias, "models", modelIDOrAlias, "items"}, "", nil)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get items: %w", err)
 	}
@@ -93,7 +96,7 @@ func (c *CMS) CreateItem(ctx context.Context, modelID string, fields []Field) (*
 		"fields": fields,
 	}
 
-	b, err := c.send(ctx, http.MethodPost, []string{"api", "models", modelID, "items"}, rb)
+	b, err := c.send(ctx, http.MethodPost, []string{"api", "models", modelID, "items"}, "", rb)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create an item: %w", err)
 	}
@@ -112,7 +115,7 @@ func (c *CMS) UpdateItem(ctx context.Context, itemID string, fields []Field) (*I
 		"fields": fields,
 	}
 
-	b, err := c.send(ctx, http.MethodPatch, []string{"api", "items", itemID}, rb)
+	b, err := c.send(ctx, http.MethodPatch, []string{"api", "items", itemID}, "", rb)
 	if err != nil {
 		return nil, fmt.Errorf("failed to update an item: %w", err)
 	}
@@ -131,7 +134,7 @@ func (c *CMS) UploadAsset(ctx context.Context, projectID, url string) (string, e
 		"url": url,
 	}
 
-	b, err2 := c.send(ctx, http.MethodPost, []string{"api", "projects", projectID, "assets"}, rb)
+	b, err2 := c.send(ctx, http.MethodPost, []string{"api", "projects", projectID, "assets"}, "", rb)
 	if err2 != nil {
 		log.Errorf("cms: upload asset: failed to upload an asset: %s", err2)
 		return "", fmt.Errorf("failed to upload an asset: %w", err2)
@@ -156,8 +159,52 @@ func (c *CMS) UploadAsset(ctx context.Context, projectID, url string) (string, e
 	return r.ID, nil
 }
 
+func (c *CMS) UploadAssetDirectly(ctx context.Context, projectID, name string, data io.Reader) (string, error) {
+	pr, pw := io.Pipe()
+	mw := multipart.NewWriter(pw)
+
+	go func() {
+		var err error
+		defer func() {
+			_ = mw.Close()
+			_ = pw.CloseWithError(err)
+		}()
+
+		fw, err2 := mw.CreateFormFile("file", name)
+		if err2 != nil {
+			err = err2
+			return
+		}
+		_, err = io.Copy(fw, data)
+	}()
+
+	b, err2 := c.send(ctx, http.MethodPost, []string{"api", "projects", projectID, "assets"}, mw.FormDataContentType(), pr)
+	if err2 != nil {
+		log.Errorf("cms: upload asset: failed to upload an asset with multipart: %s", err2)
+		return "", fmt.Errorf("failed to upload an asset with multipart: %w", err2)
+	}
+
+	defer func() { _ = b.Close() }()
+
+	body, err2 := io.ReadAll(b)
+	if err2 != nil {
+		return "", fmt.Errorf("failed to read body: %w", err2)
+	}
+
+	type res struct {
+		ID string `json:"id"`
+	}
+
+	r := &res{}
+	if err2 := json.Unmarshal(body, &r); err2 != nil {
+		return "", fmt.Errorf("failed to parse body: %w", err2)
+	}
+
+	return r.ID, nil
+}
+
 func (c *CMS) Asset(ctx context.Context, assetID string) (*Asset, error) {
-	b, err := c.send(ctx, http.MethodGet, []string{"api", "assets", assetID}, nil)
+	b, err := c.send(ctx, http.MethodGet, []string{"api", "assets", assetID}, "", nil)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get an asset: %w", err)
 	}
@@ -176,7 +223,7 @@ func (c *CMS) CommentToItem(ctx context.Context, itemID, content string) error {
 		"content": content,
 	}
 
-	b, err := c.send(ctx, http.MethodPost, []string{"api", "items", itemID, "comments"}, rb)
+	b, err := c.send(ctx, http.MethodPost, []string{"api", "items", itemID, "comments"}, "", rb)
 	if err != nil {
 		return fmt.Errorf("failed to comment to item %s: %w", itemID, err)
 	}
@@ -190,7 +237,7 @@ func (c *CMS) CommentToAsset(ctx context.Context, assetID, content string) error
 		"content": content,
 	}
 
-	b, err := c.send(ctx, http.MethodPost, []string{"api", "assets", assetID, "comments"}, rb)
+	b, err := c.send(ctx, http.MethodPost, []string{"api", "assets", assetID, "comments"}, "", rb)
 	if err != nil {
 		return fmt.Errorf("failed to comment to asset %s: %w", assetID, err)
 	}
@@ -199,8 +246,8 @@ func (c *CMS) CommentToAsset(ctx context.Context, assetID, content string) error
 	return nil
 }
 
-func (c *CMS) send(ctx context.Context, m string, p []string, body any) (io.ReadCloser, error) {
-	req, err := c.request(ctx, m, p, body)
+func (c *CMS) send(ctx context.Context, m string, p []string, ct string, body any) (io.ReadCloser, error) {
+	req, err := c.request(ctx, m, p, ct, body)
 	if err != nil {
 		return nil, err
 	}
@@ -226,22 +273,31 @@ func (c *CMS) send(ctx context.Context, m string, p []string, body any) (io.Read
 	return res.Body, nil
 }
 
-func (c *CMS) request(ctx context.Context, m string, p []string, body any) (*http.Request, error) {
+func (c *CMS) request(ctx context.Context, m string, p []string, ct string, body any) (*http.Request, error) {
+	if m != "GET" && ct == "" {
+		ct = "application/json"
+	}
+
 	var b io.Reader
-	if body != nil {
+	if ct == "application/json" && body != nil {
 		bb, err := json.Marshal(body)
 		if err != nil {
 			return nil, fmt.Errorf("failed to marshal JSON: %w", err)
 		}
 		b = bytes.NewReader(bb)
+	} else if strings.HasPrefix(ct, "multipart/form-data") {
+		if bb, ok := body.(io.Reader); ok {
+			b = bb
+		}
 	}
 
 	req, err := http.NewRequestWithContext(ctx, m, c.base.JoinPath(p...).String(), b)
 	if err != nil {
 		return nil, fmt.Errorf("failed to init request: %w", err)
 	}
-
-	req.Header.Set("Content-Type", "application/json")
+	if ct != "" {
+		req.Header.Set("Content-Type", ct)
+	}
 	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", c.token))
 	return req, nil
 }
