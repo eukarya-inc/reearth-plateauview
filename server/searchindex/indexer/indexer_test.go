@@ -41,7 +41,7 @@ func TestIndexer(t *testing.T) {
 	assert.NoError(t, err)
 
 	br := bytes.NewReader(b.Bytes())
-	zr, err := zip.NewReader(br, 0)
+	zr, err := zip.NewReader(br, int64(b.Len()))
 	assert.NoError(t, err)
 	err = extractZip(zr, filepath.Join("testdata", "result"))
 	assert.NoError(t, err)
