@@ -35,6 +35,16 @@ func (p *Payload) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
+func (p Payload) ProjectID() string {
+	if p.AssetData != nil {
+		return p.AssetData.ProjectID
+	}
+	if p.ItemData != nil && p.ItemData.Schema != nil {
+		return p.ItemData.Schema.ProjectID
+	}
+	return ""
+}
+
 type Operator struct {
 	User        *User        `json:"user,omitempty"`
 	Integration *Integration `json:"integration,omitempty"`

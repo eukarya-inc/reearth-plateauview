@@ -18,7 +18,7 @@ type Item struct {
 	// asset: search_index
 	SearchIndex []string `json:"search_index,omitempty" cms:"search_index,asset"`
 	// select: search_index_status: 未実行, 実行中, 完了, エラー
-	SeatchIndexStatus Status `json:"search_index_status,omitempty" cms:"search_index_status,select"`
+	SearchIndexStatus Status `json:"search_index_status,omitempty" cms:"search_index_status,select"`
 }
 
 func (i Item) Fields() (fields []cms.Field) {
