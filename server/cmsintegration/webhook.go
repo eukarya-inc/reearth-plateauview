@@ -29,18 +29,18 @@ func WebhookHandler(c Config) (cmswebhook.Handler, error) {
 			return nil
 		}
 
-		if w.Data.Item == nil || w.Data.Model == nil {
+		if w.ItemData == nil || w.ItemData.Item == nil || w.ItemData.Model == nil {
 			log.Debugf("cmsintegration webhook: invalid event data: %+v", w.Data)
 			return nil
 		}
 
-		if w.Data.Model.Key != modelKey {
-			log.Debugf("cmsintegration webhook: invalid model id: %s, key: %s", w.Data.Item.ModelID, w.Data.Model.Key)
+		if w.ItemData.Model.Key != modelKey {
+			log.Debugf("cmsintegration webhook: invalid model id: %s, key: %s", w.ItemData.Item.ModelID, w.ItemData.Model.Key)
 			return nil
 		}
 
 		ctx := req.Context()
-		item := ItemFrom(*w.Data.Item)
+		item := ItemFrom(*w.ItemData.Item)
 
 		if !item.ConversionEnabled.Enabled() {
 			log.Infof("cmsintegration webhook: convertion disabled: %+v", item)
@@ -70,9 +70,9 @@ func WebhookHandler(c Config) (cmswebhook.Handler, error) {
 
 		fmeReq := fme.ConversionRequest{
 			ID: fme.ID{
-				ItemID:    w.Data.Item.ID,
+				ItemID:    w.ItemData.Item.ID,
 				AssetID:   asset.ID,
-				ProjectID: w.Data.Schema.ProjectID,
+				ProjectID: w.ItemData.Schema.ProjectID,
 			}.String(c.Secret),
 			Target:             asset.URL,
 			PRCS:               item.PRCS.ESPGCode(),

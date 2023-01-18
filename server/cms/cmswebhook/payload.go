@@ -1,11 +1,38 @@
 package cmswebhook
 
-import "github.com/eukarya-inc/reearth-plateauview/server/cms"
+import (
+	"encoding/json"
+	"strings"
+
+	"github.com/eukarya-inc/reearth-plateauview/server/cms"
+)
 
 type Payload struct {
-	Type     string   `json:"type"`
-	Data     Data     `json:"data"`
-	Operator Operator `json:"operator"`
+	Type      string          `json:"type"`
+	Data      json.RawMessage `json:"data"`
+	AssetData *AssetData      `json:"-"`
+	ItemData  *ItemData       `json:"-"`
+	Operator  Operator        `json:"operator"`
+}
+
+func (p *Payload) UnmarshalJSON(data []byte) error {
+	type payload2 Payload
+	if err := json.Unmarshal(data, (*payload2)(p)); err != nil {
+		return err
+	}
+	if strings.HasPrefix(p.Type, "asset.") && p.Data != nil {
+		p.AssetData = &AssetData{}
+		if err := json.Unmarshal(p.Data, p.AssetData); err != nil {
+			return err
+		}
+	} else if strings.HasPrefix(p.Type, "item.") && p.Data != nil {
+		p.ItemData = &ItemData{}
+		if err := json.Unmarshal(p.Data, p.ItemData); err != nil {
+			return err
+		}
+	}
+	p.Data = nil
+	return nil
 }
 
 type Operator struct {
@@ -32,12 +59,14 @@ type Integration struct {
 
 type Machine struct{}
 
-type Data struct {
-	Item   *cms.Item   `json:"item"`
-	Model  *cms.Model  `json:"model"`
-	Schema *cms.Schema `json:"schema"`
+type ItemData struct {
+	Item   *cms.Item   `json:"item,omitempty"`
+	Model  *cms.Model  `json:"model,omitempty"`
+	Schema *cms.Schema `json:"schema,omitempty"`
 }
 
-func (d Data) FieldByKey(key string) *cms.Field {
+func (d ItemData) FieldByKey(key string) *cms.Field {
 	return d.Item.FieldByKey2(key, d.Schema)
 }
+
+type AssetData cms.Asset

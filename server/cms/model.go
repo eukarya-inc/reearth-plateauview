@@ -2,9 +2,15 @@ package cms
 
 import "github.com/samber/lo"
 
+const (
+	AssetArchiveExtractionStatusDone = "done"
+)
+
 type Asset struct {
-	ID  string `json:"id"`
-	URL string `json:"url"`
+	ID                      string `json:"id"`
+	ProjectID               string `json:"projectId"`
+	URL                     string `json:"url"`
+	ArchiveExtractionStatus string `json:"archiveExtractionStatus"`
 }
 
 type Model struct {
