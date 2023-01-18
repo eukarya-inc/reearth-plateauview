@@ -37,6 +37,7 @@ import { ReactComponent as Empty } from "./Icons/empty.svg";
 import { ReactComponent as NewPage } from "./Icons/newPage.svg";
 import { ReactComponent as Edit } from "./Icons/edit.svg";
 import { ReactComponent as Bullseye } from "./Icons/bullseye.svg";
+import { ReactComponent as ArrowRight } from "./Icons/arrowRight.svg";
 import { ReactComponent as CornersOut } from "./Icons/cornersOut.svg";
 import { ReactComponent as Pencil } from "./Icons/pencil.svg";
 import { ReactComponent as Play } from "./Icons/play.svg";
@@ -83,6 +84,7 @@ export default {
   newPage: NewPage,
   edit: Edit,
   bullseye: Bullseye,
+  arrowRight: ArrowRight,
   cornersOut: CornersOut,
   pencil: Pencil,
   play: Play,
