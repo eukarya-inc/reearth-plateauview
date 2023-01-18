@@ -7,3 +7,7 @@
   border-color: rgba(0,0,0,0) !important;
   background: none !important;
 }
+
+.slick-slide img{
+  max-width: 100%;
+}
