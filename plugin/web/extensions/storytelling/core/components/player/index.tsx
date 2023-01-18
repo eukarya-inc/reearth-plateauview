@@ -9,13 +9,13 @@ import "./index.css";
 type Props = {
   scenes: SceneType[];
   viewScene: (camera: Camera) => void;
-  handlePlayerHeight: (height: number) => void;
+  setPlayerHeight: (height: number) => void;
 };
 
 const minCarouselHeight = 131;
 const maxCarouselHeight = 331;
 
-const Player: React.FC<Props> = ({ scenes, viewScene, handlePlayerHeight }) => {
+const Player: React.FC<Props> = ({ scenes, viewScene, setPlayerHeight }) => {
   const sceneRefs = useRef<HTMLDivElement[]>([]);
   const setSceneRef = useCallback((dom: HTMLDivElement) => {
     sceneRefs.current.push(dom);
@@ -33,7 +33,7 @@ const Player: React.FC<Props> = ({ scenes, viewScene, handlePlayerHeight }) => {
 
   const updateHeight = useCallback(
     (index: number) => {
-      if (sceneRefs.current[index]) {
+      if (scenes.length > 0 && sceneRefs.current[index]) {
         let carouselHeight =
           sceneTitleRefs.current[index].clientHeight +
           sceneContentRefs.current[index].clientHeight +
@@ -49,22 +49,30 @@ const Player: React.FC<Props> = ({ scenes, viewScene, handlePlayerHeight }) => {
             : carouselHeight;
         sceneRefs.current[index].style.height = `${carouselHeight}px`;
 
-        handlePlayerHeight(carouselHeight + 24 + 40);
+        setPlayerHeight(carouselHeight + 24 + 40);
       }
     },
-    [handlePlayerHeight],
+    [scenes, setPlayerHeight],
   );
 
-  const [current, setCurrent] = useState(0);
   const carouselRef = useRef<any>(null);
-  const onSlideChange = (oldSlide: number, currentSlide: number) => {
-    const camera = scenes[currentSlide]?.camera;
-    if (camera) {
-      viewScene(camera);
-    }
-    setCurrent(currentSlide);
-    updateHeight(currentSlide);
-  };
+  const [current, setCurrent] = useState<number>(0);
+  const currentRef = useRef<number>(current);
+  currentRef.current = current;
+
+  const onSlideChange = useCallback(
+    (oldSlide: number, currentSlide: number) => {
+      if (currentSlide !== current) {
+        const camera = scenes[currentSlide]?.camera;
+        if (camera) {
+          viewScene(camera);
+        }
+        setCurrent(currentSlide);
+        updateHeight(currentSlide);
+      }
+    },
+    [scenes, viewScene, current, setCurrent, updateHeight],
+  );
 
   const prev = useCallback(() => {
     if (carouselRef.current) {
@@ -89,17 +97,36 @@ const Player: React.FC<Props> = ({ scenes, viewScene, handlePlayerHeight }) => {
       html: false,
       breaks: true,
       typographer: true,
-      linkTarget: "__blank",
+      linkTarget: "_blank",
     }),
   );
 
   useEffect(() => {
-    if (scenes[0]?.camera) {
-      viewScene(scenes[0].camera);
+    if (scenes.length === 0) {
+      sceneRefs.current = [];
+      sceneTitleRefs.current = [];
+      sceneContentRefs.current = [];
+      carouselRef.current = undefined;
+    } else {
+      if (currentRef.current !== 0) {
+        carouselRef.current.goTo(0);
+      } else {
+        if (scenes[0]?.camera) {
+          viewScene(scenes[0].camera);
+        }
+      }
     }
     updateHeight(0);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [scenes, viewScene]);
+  }, [scenes, viewScene, updateHeight]);
+
+  useEffect(() => {
+    return () => {
+      sceneRefs.current = [];
+      sceneTitleRefs.current = [];
+      sceneContentRefs.current = [];
+      carouselRef.current = undefined;
+    };
+  }, []);
 
   return (
     <Wrapper>

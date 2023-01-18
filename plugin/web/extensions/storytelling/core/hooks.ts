@@ -30,6 +30,7 @@ export const sizes = {
 };
 
 export type Mode = "editor" | "player";
+export type Size = { width: number | undefined; height: number };
 
 export default () => {
   const [isMobile, setIsMobile] = useState<boolean>(window.innerWidth <= 768);
@@ -44,82 +45,58 @@ export default () => {
   );
 
   const [mode, setMode] = useState<Mode>("editor");
-  const [size, setSize] = useState<Mode | "mini">("mini");
-  const sizeRef = useRef<Mode | "mini">();
+
+  const [minimized, setMinimized] = useState<boolean>(true);
+  const minimizedRef = useRef<boolean>(minimized);
+  minimizedRef.current = minimized;
+
+  const [size, setSize] = useState<Size>(sizes.mini);
+  const sizeRef = useRef<Size>(size);
   sizeRef.current = size;
-  const prevSizeRef = useRef<Mode | "mini">("mini");
-
-  const handleMinimize = useCallback(() => {
-    prevSizeRef.current = size;
-    setSize(size => (size === "mini" ? mode : "mini"));
-  }, [mode, size]);
-
-  const handleSetMode = useCallback(
-    (mode: Mode) => {
-      prevSizeRef.current = size;
-      setMode(mode);
-      setSize(mode);
-      // notice sidebar cancel story play when switch to edit mode
-      if (mode === "editor" && storyId.current) {
-        postMsg("cancelPlayStory", {
-          id: storyId.current,
-        });
-        storyId.current = undefined;
-      }
-      if (mode === "editor") {
-        setPlayerHeight(sizes.player.height);
-      }
-    },
-    [size],
-  );
-
-  useEffect(() => {
-    if (size === "mini") {
-      setTimeout(() => {
-        if (sizeRef.current === "mini") {
-          postMsg("resize", [sizes.mini.width, sizes.mini.height, false]);
-        }
-      }, 500);
-    } else if (size === "editor") {
-      if (prevSizeRef.current === "player") {
-        setTimeout(() => {
-          if (sizeRef.current === "editor") {
-            postMsg("resize", [sizes.editor.width, sizes.editor.height, true]);
-          }
-        }, 500);
-      } else {
-        postMsg("resize", [sizes.editor.width, sizes.editor.height, true]);
-      }
-    } else {
-      postMsg("resize", [sizes.player.width, sizes.player.height, true]);
-    }
-  }, [size]);
 
   const [playerHeight, setPlayerHeight] = useState<number>(sizes.player.height);
-  const playerHeightRef = useRef<number>();
+  const playerHeightRef = useRef<number>(playerHeight);
   playerHeightRef.current = playerHeight;
-  const playerPrevHeightRef = useRef<number>(sizes.player.height);
-  const handlePlayerHeight = useCallback(
-    (height: number) => {
-      playerPrevHeightRef.current = playerHeight;
-      setPlayerHeight(height);
-    },
-    [playerHeight],
-  );
+
+  const prevSizeRef = useRef<Size>(sizes.mini);
+
+  const handleMinimize = useCallback(() => {
+    setMinimized(minimized => !minimized);
+  }, []);
+
+  const handleSetMode = useCallback((mode: Mode) => {
+    setMode(mode);
+    if (mode === "editor" && storyId.current) {
+      postMsg("cancelPlayStory", {
+        id: storyId.current,
+      });
+      storyId.current = undefined;
+    }
+  }, []);
 
   useEffect(() => {
-    if (mode === "player") {
-      if (playerHeight > playerPrevHeightRef.current) {
-        postMsg("resize", [undefined, playerHeight, true]);
-      } else {
-        setTimeout(() => {
-          if (playerHeightRef.current === playerHeight) {
-            postMsg("resize", [undefined, playerHeight, true]);
-          }
-        }, 500);
-      }
+    prevSizeRef.current = sizeRef.current;
+    setSize(
+      minimized
+        ? sizes.mini
+        : mode === "editor"
+        ? sizes.editor
+        : { width: undefined, height: playerHeight },
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [minimized, mode, playerHeight]);
+
+  useEffect(() => {
+    if (size.height > prevSizeRef.current.height) {
+      postMsg("resize", [size.width, size.height, !minimizedRef.current]);
+    } else {
+      setTimeout(() => {
+        if (sizeRef.current === size) {
+          postMsg("resize", [size.width, size.height, !minimizedRef.current]);
+        }
+      }, 500);
     }
-  }, [playerHeight, mode]);
+  }, [size]);
 
   // scenes
   const storyId = useRef<string>();
@@ -238,10 +215,13 @@ export default () => {
   const handlePlayStory = useCallback(
     ({ id, scenes }: PlayStory["payload"]) => {
       storyId.current = id;
-      setScenes(JSON.parse(scenes));
+      setScenes(JSON.parse(scenes ?? "[]"));
       handleSetMode("player");
+      if (minimized) {
+        handleMinimize();
+      }
     },
-    [handleSetMode],
+    [handleSetMode, minimized, handleMinimize],
   );
 
   const handleCancelPlayStory = useCallback(
@@ -249,12 +229,12 @@ export default () => {
       if (storyId.current === id) {
         storyId.current = undefined;
         setScenes([]);
-        if (size !== "mini") {
+        if (!minimized) {
           handleMinimize();
         }
       }
     },
-    [size, handleMinimize],
+    [minimized, handleMinimize],
   );
 
   const shareStory = useCallback(() => {
@@ -354,11 +334,12 @@ export default () => {
   return {
     size,
     mode,
+    minimized,
     scenes,
     ConfigProvider,
     isMobile,
     playerHeight,
-    handlePlayerHeight,
+    setPlayerHeight,
     handleMinimize,
     handleSetMode,
     captureScene,
