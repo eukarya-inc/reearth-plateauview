@@ -74,10 +74,6 @@ export default (plateauData: any[], usecaseData: any[], datasetData: any[]) => {
     "dataset",
   ); // REMOVE TEST DATA WHEN FINISHED TESTING
 
-  console.log("TEST PLATEAU: ", TEST_PLATEAU_DATA);
-  console.log("TEST USECASE: ", TEST_USECASE_DATA);
-  console.log("TEST DATASET: ", TEST_DATASET_DATA);
-
   return [...rawPlateauData, ...rawUsecaseData, ...rawDatasetData];
 };
 

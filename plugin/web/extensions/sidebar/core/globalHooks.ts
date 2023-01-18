@@ -52,15 +52,10 @@ export default () => {
   // Dataset
   const [selectedDatasets, updateDatasets] = useState<CatalogRawItem[]>([]);
 
-  const handleDatasetAdd = useCallback(
-    (dataset: CatalogRawItem) => {
-      console.log("Dataset to be added: ", dataset);
-      console.log("Current datasets: ", selectedDatasets);
-      updateDatasets(oldDatasets => [...oldDatasets, dataset]);
-      postMsg({ action: "addDatasetToScene", payload: dataset });
-    },
-    [selectedDatasets],
-  );
+  const handleDatasetAdd = useCallback((dataset: CatalogRawItem) => {
+    updateDatasets(oldDatasets => [...oldDatasets, dataset]);
+    postMsg({ action: "addDatasetToScene", payload: dataset });
+  }, []);
 
   const handleDatasetRemove = useCallback(
     (id: string) => updateDatasets(oldDatasets => oldDatasets.filter(d => d.id !== id)),
@@ -170,7 +165,6 @@ export default () => {
   // ****************************************
   // Processed Data
 
-  // MIGHT NEED FIXING. MIGHT NEED FIXING. MIGHT NEED FIXING
   const [data, setData] = useState<Data[]>();
   const processedSelectedDatasets: Data[] = useMemo(() => {
     // if (!data) return data;
@@ -212,11 +206,6 @@ export default () => {
       .flat(1)
       .filter(p => p);
   }, [data, selectedDatasets]);
-  // MIGHT NEED FIXING. MIGHT NEED FIXING. MIGHT NEED FIXING
-
-  useEffect(() => {
-    console.log("Processed: ", processedSelectedDatasets);
-  }, [processedSelectedDatasets]);
   // ****************************************
 
   useEffect(() => {
