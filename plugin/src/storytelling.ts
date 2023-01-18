@@ -33,9 +33,6 @@ reearth.on("message", ({ type, payload }: PostMessageProps) => {
     case "resize":
       reearth.ui.resize(...payload);
       break;
-    case "minimize":
-      reearth.ui.resize(...payload);
-      break;
     case "captureScene":
       reearth.ui.postMessage({
         type: "captureScene",

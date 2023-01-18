@@ -1,6 +1,5 @@
 export type PostMessageType =
   | "resize"
-  | "minimize"
   | "captureScene"
   | "viewScene"
   | "recaptureScene"
@@ -14,18 +13,6 @@ export type PostMessageType =
 
 export type PostMessageProps = { type: PostMessageType; payload?: any };
 
-export type ReearthApi = {};
-
-export type Camera = {
-  lat: number;
-  lng: number;
-  height: number;
-  heading: number;
-  pitch: number;
-  roll: number;
-  fov: number;
-};
-
 export type Story = {
   id?: string;
   title?: string;
@@ -37,6 +24,17 @@ export type Scene = {
   title: string;
   description: string;
   camera: Camera | undefined;
+};
+
+// Reearth types
+export type Camera = {
+  lat: number;
+  lng: number;
+  height: number;
+  heading: number;
+  pitch: number;
+  roll: number;
+  fov: number;
 };
 
 export type Viewport = {
@@ -53,12 +51,11 @@ export type PluginExtensionInstance = {
   extensionType: "widget" | "block";
 };
 
+// Communications
 export type PluginMessage = {
   data: EditStory | SaveStory | DeleteStory | PlayStory | CancelPlayStory;
   sender: string;
 };
-
-// Communications
 
 // sidebar -> storytelling
 export type EditStory = {

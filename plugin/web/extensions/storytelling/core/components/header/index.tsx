@@ -99,7 +99,7 @@ const IconBtn = styled.div`
   height: 40px;
   align-items: center;
   justify-content: center;
-  background: #00bebe;
+  background: var(--theme-color);
   color: #fff;
   cursor: pointer;
 `;

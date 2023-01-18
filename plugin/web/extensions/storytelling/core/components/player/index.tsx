@@ -93,7 +93,6 @@ const Player: React.FC<Props> = ({ scenes, viewScene, handlePlayerHeight }) => {
     }),
   );
 
-  // auto view scene 1 if exist when active
   useEffect(() => {
     if (scenes[0]?.camera) {
       viewScene(scenes[0].camera);

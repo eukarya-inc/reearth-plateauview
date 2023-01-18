@@ -45,7 +45,7 @@ const TabContent = styled.div<{ active: boolean; theme?: string }>`
   cursor: pointer;
   background: ${({ active, theme }) =>
     active ? (theme === "grey" ? "#F4F4F4" : "#FFFFFF") : "#dfdfdf"};
-  color: ${({ active }) => (active ? "#00bebe" : "#898989")};
+  color: ${({ active }) => (active ? "var(--theme-color)" : "#898989")};
   border-width: 1px 1px 0px 1px;
   border-style: solid;
   border-color: ${({ active, theme }) =>
@@ -53,7 +53,7 @@ const TabContent = styled.div<{ active: boolean; theme?: string }>`
   border-radius: 3px 3px 0px 0px;
 
   :hover {
-    color: ${({ active }) => (active ? "#00bebe" : "#666")};
+    color: ${({ active }) => (active ? "var(--theme-color)" : "#666")};
   }
 `;
 

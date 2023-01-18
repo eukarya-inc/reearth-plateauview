@@ -82,8 +82,8 @@ const CreateStory = styled.div`
   flex-shrink: 0;
   background: #fff;
   border-radius: 8px;
-  border: 1px solid #00bebe;
-  color: #00bebe;
+  border: 1px solid var(--theme-color);
+  color: var(--theme-color);
   cursor: pointer;
   display: flex;
   flex-direction: column;

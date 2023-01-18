@@ -264,33 +264,24 @@ export default () => {
   }, [scenes]);
 
   useEffect(() => {
-    // mock scenes
-    //     const scenes = [];
-    //     for (let i = 1; i < 3; i += 1) {
-    //       scenes.push({
-    //         id: generateId(),
-    //         title: `Title ${i}`,
-    //         description: `# Header 1
-    // ## Header 2
-    // ### Header 3
-    // ### Header 4
-    // ### Header 5`,
-    //         camera: undefined,
-    //       });
-    //       scenes.push({
-    //         id: generateId(),
-    //         title: `Title ${i}`,
-    //         description: `# Header 1
-    // ## Header 2
-    // ### Header 3
-    // ### Header 4
-    // ### Header 5
-    // ### Header 6
-    // ### Header 7`,
-    //         camera: undefined,
-    //       });
-    //     }
-    //     setScenes(scenes);
+    // mock scenes, only on web dev
+    const mockScenes = false;
+    if (mockScenes) {
+      const scenes = [];
+      for (let i = 1; i <= 3; i += 1) {
+        scenes.push({
+          id: generateId(),
+          title: `Title ${i}`,
+          description: `# Header 1
+## Header 2
+### Header 3
+### Header 4
+### Header 5`,
+          camera: undefined,
+        });
+      }
+      setScenes(scenes);
+    }
 
     // theme
     const themeColor = "#00BEBE";
