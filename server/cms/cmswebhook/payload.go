@@ -65,8 +65,4 @@ type ItemData struct {
 	Schema *cms.Schema `json:"schema,omitempty"`
 }
 
-func (d ItemData) FieldByKey(key string) *cms.Field {
-	return d.Item.FieldByKey2(key, d.Schema)
-}
-
 type AssetData cms.Asset
