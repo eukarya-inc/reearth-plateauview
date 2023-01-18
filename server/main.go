@@ -50,6 +50,7 @@ func main() {
 		lo.Must(cmsintegration.WebhookHandler(conf.CMSIntegration())),
 		lo.Must(geospatialjp.WebhookHandler(conf.Geospatialjp())),
 		lo.Must(sdk.WebhookHandler(conf.SDK())),
+		// lo.Must(searchindex.WebhookHandler(conf.SearchIndex())),
 	)
 
 	e.POST("/notify_fme", lo.Must(cmsintegration.NotifyHandler(conf.CMSIntegration())))

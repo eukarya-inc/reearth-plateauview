@@ -85,6 +85,13 @@ func (c *Config) SDK() sdk.Config {
 	}
 }
 
+// func (c *Config) SearchIndex() searchindex.Config {
+// 	return searchindex.Config{
+// 		CMSBase:  c.CMS_BaseURL,
+// 		CMSToken: c.CMS_Token,
+// 	}
+// }
+
 func (c *Config) Share() share.Config {
 	return share.Config{
 		CMSBase:        c.CMS_BaseURL,
