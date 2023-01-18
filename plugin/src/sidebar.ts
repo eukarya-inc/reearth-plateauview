@@ -2,8 +2,11 @@ import { CatalogRawItem } from "@web/extensions/sidebar/core/processCatalog";
 import { PostMessageProps } from "@web/extensions/sidebar/core/types";
 
 import html from "../dist/web/sidebar/core/index.html?raw";
+import clipVideoHtml from "../dist/web/sidebar/modals/clipVideo/index.html?raw";
 import dataCatalogHtml from "../dist/web/sidebar/modals/datacatalog/index.html?raw";
+import mapVideoHtml from "../dist/web/sidebar/modals/mapVideo/index.html?raw";
 import welcomeScreenHtml from "../dist/web/sidebar/modals/welcomescreen/index.html?raw";
+import helpPopupHtml from "../dist/web/sidebar/popups/help/index.html?raw";
 
 const reearth = (globalThis as any).reearth;
 
@@ -67,6 +70,18 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
     });
   } else if (action === "welcome-modal-open") {
     reearth.modal.show(welcomeScreenHtml, { background: "transparent" });
+  } else if (action === "show-popup") {
+    reearth.popup.show(helpPopupHtml, { position: "right-start", offset: 4 });
+  } else if (action === "popup-message-init") {
+    reearth.ui.postMessage({ type: action });
+  } else if (action === "popup-message") {
+    reearth.popup.postMessage({ type: "msgFromHelp", message: payload }, "*");
+  } else if (action === "close-popup") {
+    reearth.popup.close();
+  } else if (action === "show-map-modal") {
+    reearth.modal.show(mapVideoHtml, { background: "transparent" });
+  } else if (action === "show-clip-modal") {
+    reearth.modal.show(clipVideoHtml, { background: "transparent" });
   }
 });
 
