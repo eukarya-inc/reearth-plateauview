@@ -12,6 +12,8 @@ const Storytelling: React.FC = () => {
     scenes,
     ConfigProvider,
     isMobile,
+    playerHeight,
+    handlePlayerHeight,
     handleMinimize,
     handleSetMode,
     captureScene,
@@ -26,7 +28,7 @@ const Storytelling: React.FC = () => {
 
   return (
     <ConfigProvider>
-      <Wrapper size={size} mode={mode}>
+      <Wrapper size={size} mode={mode} playerHeight={playerHeight}>
         <MiniPane onClick={handleMinimize} size={size}>
           <Icon icon="cornersOut" color="#4A4A4A" size={24} />
           <MiniTitle>Story</MiniTitle>
@@ -52,14 +54,16 @@ const Storytelling: React.FC = () => {
               moveScene={moveScene}
             />
           )}
-          {mode === "player" && <Player scenes={scenes} viewScene={viewScene} />}
+          {mode === "player" && (
+            <Player scenes={scenes} viewScene={viewScene} handlePlayerHeight={handlePlayerHeight} />
+          )}
         </ContentPane>
       </Wrapper>
     </ConfigProvider>
   );
 };
 
-const Wrapper = styled.div<{ size: keyof typeof sizes; mode?: string }>`
+const Wrapper = styled.div<{ size: keyof typeof sizes; mode?: string; playerHeight: number }>`
   position: relative;
   display: inline-block;
   border-radius: 8px;
@@ -67,7 +71,8 @@ const Wrapper = styled.div<{ size: keyof typeof sizes; mode?: string }>`
     size === "mini" ? "#fff" : mode === "player" ? "#F4F4F4" : "#fff"};
   transition: min-width 0.5s, min-height 0.5s;
   min-width: ${({ size }) => (size === "mini" ? `${sizes.mini.width}px` : "100%")};
-  min-height: ${({ size }) => `${sizes[size].height}px`};
+  min-height: ${({ size, playerHeight }) =>
+    size === "player" ? `${playerHeight}px` : `${sizes[size].height}px`};
   overflow: hidden;
 `;
 

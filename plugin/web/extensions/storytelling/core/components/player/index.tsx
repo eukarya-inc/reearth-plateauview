@@ -9,9 +9,52 @@ import "./index.css";
 type Props = {
   scenes: SceneType[];
   viewScene: (camera: Camera) => void;
+  handlePlayerHeight: (height: number) => void;
 };
 
-const Player: React.FC<Props> = ({ scenes, viewScene }) => {
+const minCarouselHeight = 131;
+const maxCarouselHeight = 331;
+
+const Player: React.FC<Props> = ({ scenes, viewScene, handlePlayerHeight }) => {
+  const sceneRefs = useRef<HTMLDivElement[]>([]);
+  const setSceneRef = useCallback((dom: HTMLDivElement) => {
+    sceneRefs.current.push(dom);
+  }, []);
+
+  const sceneTitleRefs = useRef<HTMLDivElement[]>([]);
+  const setSceneTitleRef = useCallback((dom: HTMLDivElement) => {
+    sceneTitleRefs.current.push(dom);
+  }, []);
+
+  const sceneContentRefs = useRef<HTMLDivElement[]>([]);
+  const setSceneContentRef = useCallback((dom: HTMLDivElement) => {
+    sceneContentRefs.current.push(dom);
+  }, []);
+
+  const updateHeight = useCallback(
+    (index: number) => {
+      if (sceneRefs.current[index]) {
+        let carouselHeight =
+          sceneTitleRefs.current[index].clientHeight +
+          sceneContentRefs.current[index].clientHeight +
+          8 + // gap
+          24 + // description padding bottom
+          12; // space
+
+        carouselHeight =
+          carouselHeight > maxCarouselHeight
+            ? maxCarouselHeight
+            : carouselHeight < minCarouselHeight
+            ? minCarouselHeight
+            : carouselHeight;
+        sceneRefs.current[index].style.height = `${carouselHeight}px`;
+
+        handlePlayerHeight(carouselHeight + 24 + 40);
+      }
+    },
+    [handlePlayerHeight],
+  );
+
   const [current, setCurrent] = useState(0);
   const carouselRef = useRef<any>(null);
   const onSlideChange = (oldSlide: number, currentSlide: number) => {
@@ -20,6 +63,7 @@ const Player: React.FC<Props> = ({ scenes, viewScene }) => {
       viewScene(camera);
     }
     setCurrent(currentSlide);
+    updateHeight(currentSlide);
   };
 
   const prev = useCallback(() => {
@@ -54,6 +98,8 @@ const Player: React.FC<Props> = ({ scenes, viewScene }) => {
     if (scenes[0]?.camera) {
       viewScene(scenes[0].camera);
     }
+    updateHeight(0);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [scenes, viewScene]);
 
   return (
@@ -70,16 +116,20 @@ const Player: React.FC<Props> = ({ scenes, viewScene }) => {
                 dots={false}
                 ref={carouselRef}
                 infinite={false}
-                draggable={true}>
+                draggable={true}
+                speed={250}>
                 {scenes.map((scene, index) => (
                   <div key={index}>
-                    <StoryItem>
-                      <Title>{scene.title}</Title>
-                      <Description
-                        dangerouslySetInnerHTML={{
-                          __html: md.current.render(scene.description),
-                        }}
-                      />
+                    <StoryItem ref={setSceneRef}>
+                      <Title ref={setSceneTitleRef}>{scene.title}</Title>
+                      <Description>
+                        <div
+                          ref={setSceneContentRef}
+                          dangerouslySetInnerHTML={{
+                            __html: md.current.render(scene.description),
+                          }}
+                        />
+                      </Description>
                     </StoryItem>
                   </div>
                 ))}
@@ -125,6 +175,7 @@ const NavButton = styled.a<{ disabled: boolean }>`
     transform: rotate(180deg);
   }
   color: ${({ disabled }) => (disabled ? "#ccc" : "--var(theme-color)")};
+  pointer-events: ${({ disabled }) => (disabled ? "none" : "all")};
 `;
 
 const MainContent = styled.div`
@@ -134,26 +185,31 @@ const MainContent = styled.div`
 `;
 
 const CarouselContainer = styled.div`
-  height: 107px;
+  height: 100%;
+  border: 1px solid rgba(0, 0, 0, 0.45);
+  border-radius: 6px;
+  overflow: hidden;
   width: 100%;
+  box-sizing: content-box;
 `;
 
 const CarouselArea = styled.div`
   position: absolute;
   width: 100%;
+  height: 100%;
 `;
 
 const PaginationContainer = styled.div`
-  position: relative;
+  position: absolute;
   display: flex;
   flex-direction: row-reverse;
-  top: -1px;
+  right: 6px;
+  bottom: 1px;
+  background-color: #fff;
 `;
 
 const StoryItem = styled.div`
   width: 100%;
-  height: 107px;
-  border-bottom: 1px solid #c7c5c5;
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -172,7 +228,7 @@ const Description = styled.div`
   overflow: auto;
   font-size: 12px;
   line-height: 1.5;
-  padding: 0 12px 12px;
+  padding: 0 12px 24px;
 `;
 
 export default Player;

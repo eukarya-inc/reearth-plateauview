@@ -43,7 +43,7 @@ reearth.on("message", ({ type, payload }: PostMessageProps) => {
       });
       break;
     case "viewScene":
-      reearth.camera.flyTo(payload, { duration: 2 });
+      reearth.camera.flyTo(payload, { duration: 1.5 });
       break;
     case "recaptureScene":
       reearth.ui.postMessage({

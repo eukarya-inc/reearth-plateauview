@@ -66,6 +66,9 @@ export default () => {
         });
         storyId.current = undefined;
       }
+      if (mode === "editor") {
+        setPlayerHeight(sizes.player.height);
+      }
     },
     [size],
   );
@@ -91,6 +94,32 @@ export default () => {
       postMsg("resize", [sizes.player.width, sizes.player.height, true]);
     }
   }, [size]);
+
+  const [playerHeight, setPlayerHeight] = useState<number>(sizes.player.height);
+  const playerHeightRef = useRef<number>();
+  playerHeightRef.current = playerHeight;
+  const playerPrevHeightRef = useRef<number>(sizes.player.height);
+  const handlePlayerHeight = useCallback(
+    (height: number) => {
+      playerPrevHeightRef.current = playerHeight;
+      setPlayerHeight(height);
+    },
+    [playerHeight],
+  );
+
+  useEffect(() => {
+    if (mode === "player") {
+      if (playerHeight > playerPrevHeightRef.current) {
+        postMsg("resize", [undefined, playerHeight, true]);
+      } else {
+        setTimeout(() => {
+          if (playerHeightRef.current === playerHeight) {
+            postMsg("resize", [undefined, playerHeight, true]);
+          }
+        }, 500);
+      }
+    }
+  }, [playerHeight, mode]);
 
   // scenes
   const storyId = useRef<string>();
@@ -237,13 +266,27 @@ export default () => {
   useEffect(() => {
     // mock scenes
     //     const scenes = [];
-    //     for (let i = 1; i < 1; i += 1) {
+    //     for (let i = 1; i < 3; i += 1) {
     //       scenes.push({
     //         id: generateId(),
     //         title: `Title ${i}`,
     //         description: `# Header 1
     // ## Header 2
-    // ### Header 3`,
+    // ### Header 3
+    // ### Header 4
+    // ### Header 5`,
+    //         camera: undefined,
+    //       });
+    //       scenes.push({
+    //         id: generateId(),
+    //         title: `Title ${i}`,
+    //         description: `# Header 1
+    // ## Header 2
+    // ### Header 3
+    // ### Header 4
+    // ### Header 5
+    // ### Header 6
+    // ### Header 7`,
     //         camera: undefined,
     //       });
     //     }
@@ -323,6 +366,8 @@ export default () => {
     scenes,
     ConfigProvider,
     isMobile,
+    playerHeight,
+    handlePlayerHeight,
     handleMinimize,
     handleSetMode,
     captureScene,
