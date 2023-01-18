@@ -38,7 +38,13 @@ func WebhookHandler(conf Config) (cmswebhook.Handler, error) {
 		}
 
 		ctx := req.Context()
-		st := NewStorage(c, pid, "")
+
+		stprj := conf.CMSStorageProjectID
+		if stprj == "" {
+			stprj = pid
+		}
+		st := NewStorage(c, stprj, conf.CMSStorageModelID)
+
 		item, err := getItem(ctx, c, st, w)
 		if err != nil || item.ID == "" {
 			log.Errorf("searchindex webhook: failed to get item: %v", err)

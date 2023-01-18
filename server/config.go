@@ -27,6 +27,8 @@ type Config struct {
 	CMS_Token            string
 	CMS_ShareModelID     string
 	CMS_ShareDataFieldID string
+	CMS_IndexerSysPrj    string
+	CMS_IndexerSysModel  string
 	FME_BaseURL          string
 	FME_Mock             bool
 	FME_Token            string
@@ -87,8 +89,10 @@ func (c *Config) SDK() sdk.Config {
 
 // func (c *Config) SearchIndex() searchindex.Config {
 // 	return searchindex.Config{
-// 		CMSBase:  c.CMS_BaseURL,
-// 		CMSToken: c.CMS_Token,
+// 		CMSBase:             c.CMS_BaseURL,
+// 		CMSToken:            c.CMS_Token,
+// 		CMSStorageProjectID: c.CMS_IndexerSysPrj,
+// 		CMSStorageModelID:   c.CMS_IndexerSysModel,
 // 	}
 // }
 
