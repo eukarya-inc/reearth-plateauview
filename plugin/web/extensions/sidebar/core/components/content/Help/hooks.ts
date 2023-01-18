@@ -11,7 +11,7 @@ type Items = {
 
 const items: Items[] = [
   { label: "基本操作", key: "basic" },
-  { label: "マップをつくあってみる", key: "map" },
+  { label: "マップを使ってみる", key: "map" },
   { label: "日影機能について", key: "shadow" },
   { label: "クリップ機能", key: "clip" },
 ];
