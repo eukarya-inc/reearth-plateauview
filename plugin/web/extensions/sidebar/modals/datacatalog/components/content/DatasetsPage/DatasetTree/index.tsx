@@ -70,8 +70,11 @@ function prefectureFilter(catalog: CatalogRawItem[]): DataCatalog {
         .filter(i => i.prefecture === p)
         .map(i => {
           if (i.modelType === "usecase") {
-            usecase.children.push(i as CatalogItem);
-            return undefined;
+            usecase.children.push({
+              type: "item",
+              ...i,
+            } as CatalogItem);
+            return;
           }
           return {
             type: "item",

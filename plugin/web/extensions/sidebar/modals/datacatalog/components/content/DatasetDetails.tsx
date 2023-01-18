@@ -23,17 +23,17 @@ const DatasetDetails: React.FC<Props> = ({
 
   return (
     <Wrapper>
+      <Title>{dataset.type === "item" && (dataset.cityName ?? dataset.name)}</Title>
       <ButtonWrapper>
-        <Button>
-          <Icon icon="share" />
-          シェア
-        </Button>
         <Button disabled={addDisabled} onClick={handleDatasetAdd}>
           {!addDisabled && <Icon icon="plusCircle" />}
           {addDisabled ? "シーンに追加済み" : "シーンに追加"}
         </Button>
+        <Button>
+          <Icon icon="share" />
+          シェア
+        </Button>
       </ButtonWrapper>
-      <Title>{dataset.type === "item" && dataset.cityName}</Title>
       {ContentSection && <ContentSection />}
     </Wrapper>
   );
