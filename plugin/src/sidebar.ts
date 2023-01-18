@@ -54,7 +54,7 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
   } else if (action === "welcome-modal-open") {
     reearth.modal.show(welcomeScreenHtml, { background: "transparent" });
   } else if (action === "show-popup") {
-    reearth.popup.show(helpPopupHtml, { position: "right-start", extended: true, offset: 4 });
+    reearth.popup.show(helpPopupHtml, { position: "right-start", offset: 4 });
   } else if (action === "popup-message-init") {
     reearth.ui.postMessage({ type: action });
   } else if (action === "popup-message") {

@@ -1,4 +1,4 @@
-import { Icon, Button } from "@web/sharedComponents";
+import { Icon } from "@web/sharedComponents";
 import { styled } from "@web/theme";
 import { ReactNode } from "react";
 
@@ -38,7 +38,7 @@ const Header = styled.div`
   height: 32px;
 `;
 
-const CloseButton = styled(Button)`
+const CloseButton = styled.button`
   display: flex;
   justify-content: center;
   align-items: center;

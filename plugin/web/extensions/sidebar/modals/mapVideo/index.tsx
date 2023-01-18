@@ -1,4 +1,4 @@
-import { Button, Icon } from "@web/sharedComponents";
+import { Icon } from "@web/sharedComponents";
 import Video from "@web/sharedComponents/Video";
 import { styled } from "@web/theme";
 
@@ -17,7 +17,7 @@ const MapVideo: React.FC = () => {
 };
 export default MapVideo;
 
-const CloseButton = styled(Button)`
+const CloseButton = styled.button`
   display: flex;
   justify-content: center;
   align-items: center;
