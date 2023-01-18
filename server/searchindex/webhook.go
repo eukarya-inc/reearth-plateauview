@@ -202,51 +202,29 @@ func findAsset(ctx context.Context, c cms.Interface, st *Storage, item Item, pid
 			continue
 		}
 
-		if a.ArchiveExtractionStatus != cms.AssetArchiveExtractionStatusDone {
-			// register asset ID and item ID to storage
-			assetNotDecompressed = append(assetNotDecompressed, aid)
+		u2, _ := url.Parse(a.URL)
+		if u2 == nil || !strings.Contains(path.Base(u2.Path), "_lod1") {
 			continue
 		}
 
-		urls = append(urls, u)
+		u = u2
+		break
 	}
 
-	if len(assetNotDecompressed) > 0 {
-		if err := st.Set(ctx, StorageItem{
-			ID:    siid,
-			Item:  item.ID,
-			Asset: assetNotDecompressed,
-		}); err != nil {
-			return nil, fmt.Errorf("failed to save to storage: %s", err)
-		}
-
-		return nil, errSkipped
+	if u == nil || u.String() == "" {
+		return "", errors.New("LOD1の3D Tilesの建築物モデルが登録されていません。")
 	}
 
 	if len(urls) == 0 {
 		return nil, errSkipped
 	}
 
-	return urls, nil
-}
-
-func do(ctx context.Context, c cms.Interface, pid string, u []*url.URL) ([]string, error) {
-	var results []string
-	for _, u := range u {
-		name := pathFileName(u.Path)
-		if name == "" {
-			continue
-		}
-
-		log.Infof("searchindex webhook: start processing for %s", name)
-		indexer := NewIndexer(c, getAssetBase(u), pid)
-		aid, err := indexer.BuildIndex(ctx, name)
-		if err != nil {
-			return nil, fmt.Errorf("「%s」の処理中にエラーが発生しました。%w", name, err)
-		}
-		results = append(results, aid)
-	}
-	return results, nil
+	// build index
+	base := getAssetBase(u)
+	cc := cityCodeAndName(name)
+	log.Infof("searchindex webhook: build index with base %s, name %s", base, cc)
+	indexer := NewIndexer(c, pid, base)
+	return indexer.BuildIndex(ctx, cc)
 }
 
 func pathFileName(p string) string {
@@ -255,7 +233,7 @@ func pathFileName(p string) string {
 
 func getAssetBase(u *url.URL) string {
 	u2 := *u
-	b := path.Join(path.Dir(u.Path), pathFileName(u.Path))
-	u2.Path = b
+	p := path.Join(path.Dir(u.Path), pathFileName(u.Path))
+	u2.Path = p
 	return u2.String()
 }
