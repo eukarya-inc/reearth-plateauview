@@ -59,6 +59,10 @@ func (o Operator) IsIntegration() bool {
 	return o.Integration != nil
 }
 
+func (o Operator) IsIntegrationBy(iid string) bool {
+	return o.Integration != nil && (iid == "" || o.Integration.ID == iid)
+}
+
 type User struct {
 	ID string `json:"id"`
 }

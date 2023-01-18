@@ -12,14 +12,14 @@ const (
 	modelKey = "plateau"
 )
 
-func WebhookHandler(c Config) (cmswebhook.Handler, error) {
-	s, err := NewServices(c)
+func WebhookHandler(conf Config) (cmswebhook.Handler, error) {
+	s, err := NewServices(conf)
 	if err != nil {
 		return nil, err
 	}
 
 	return func(req *http.Request, w *cmswebhook.Payload) error {
-		if !w.Operator.IsUser() {
+		if !w.Operator.IsUser() && !w.Operator.IsIntegrationBy(conf.CMSIntegration) {
 			log.Debugf("cmsintegration webhook: invalid event operator: %+v", w.Operator)
 			return nil
 		}
@@ -73,12 +73,12 @@ func WebhookHandler(c Config) (cmswebhook.Handler, error) {
 				ItemID:    w.ItemData.Item.ID,
 				AssetID:   asset.ID,
 				ProjectID: w.ItemData.Schema.ProjectID,
-			}.String(c.Secret),
+			}.String(conf.Secret),
 			Target:             asset.URL,
 			PRCS:               item.PRCS.ESPGCode(),
 			DevideODC:          item.DevideODC.Enabled(),
 			QualityCheckParams: item.QualityCheckParams,
-			QualityCheck:       !c.FMESkipQualityCheck,
+			QualityCheck:       !conf.FMESkipQualityCheck,
 		}
 
 		if s.FME == nil {

@@ -19,7 +19,7 @@ func WebhookHandler(conf Config) (cmswebhook.Handler, error) {
 	}
 
 	return func(req *http.Request, w *cmswebhook.Payload) error {
-		if !w.Operator.IsUser() {
+		if !w.Operator.IsUser() && !w.Operator.IsIntegrationBy(conf.CMSIntegration) {
 			log.Debugf("sdk webhook: invalid event operator: %+v", w.Operator)
 			return nil
 		}
