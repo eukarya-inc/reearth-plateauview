@@ -48,8 +48,9 @@ const Player: React.FC<Props> = ({ scenes, viewScene, setPlayerHeight }) => {
             ? minCarouselHeight
             : carouselHeight;
         sceneRefs.current[index].style.height = `${carouselHeight}px`;
-
         setPlayerHeight(carouselHeight + 24 + 40);
+      } else {
+        setPlayerHeight(minCarouselHeight + 24 + 40);
       }
     },
     [scenes, setPlayerHeight],
@@ -107,6 +108,7 @@ const Player: React.FC<Props> = ({ scenes, viewScene, setPlayerHeight }) => {
       sceneTitleRefs.current = [];
       sceneContentRefs.current = [];
       carouselRef.current = undefined;
+      updateHeight(0);
     } else {
       if (currentRef.current !== 0) {
         carouselRef.current.goTo(0);
@@ -114,9 +116,9 @@ const Player: React.FC<Props> = ({ scenes, viewScene, setPlayerHeight }) => {
         if (scenes[0]?.camera) {
           viewScene(scenes[0].camera);
         }
+        updateHeight(0);
       }
     }
-    updateHeight(0);
   }, [scenes, viewScene, updateHeight]);
 
   useEffect(() => {

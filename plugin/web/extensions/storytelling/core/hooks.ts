@@ -53,12 +53,11 @@ export default () => {
   const [size, setSize] = useState<Size>(sizes.mini);
   const sizeRef = useRef<Size>(size);
   sizeRef.current = size;
+  const prevSizeRef = useRef<Size>(sizes.mini);
 
   const [playerHeight, setPlayerHeight] = useState<number>(sizes.player.height);
   const playerHeightRef = useRef<number>(playerHeight);
   playerHeightRef.current = playerHeight;
-
-  const prevSizeRef = useRef<Size>(sizes.mini);
 
   const handleMinimize = useCallback(() => {
     setMinimized(minimized => !minimized);
@@ -66,16 +65,20 @@ export default () => {
 
   const handleSetMode = useCallback((mode: Mode) => {
     setMode(mode);
-    if (mode === "editor" && storyId.current) {
-      postMsg("cancelPlayStory", {
-        id: storyId.current,
-      });
-      storyId.current = undefined;
+    if (mode === "editor") {
+      setPlayerHeight(0);
+      if (storyId.current) {
+        postMsg("cancelPlayStory", {
+          id: storyId.current,
+        });
+        storyId.current = undefined;
+      }
     }
   }, []);
 
   useEffect(() => {
     prevSizeRef.current = sizeRef.current;
+
     setSize(
       minimized
         ? sizes.mini
@@ -83,13 +86,12 @@ export default () => {
         ? sizes.editor
         : { width: undefined, height: playerHeight },
     );
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [minimized, mode, playerHeight]);
 
   useEffect(() => {
     if (size.height > prevSizeRef.current.height) {
       postMsg("resize", [size.width, size.height, !minimizedRef.current]);
-    } else {
+    } else if (size.height < prevSizeRef.current.height) {
       setTimeout(() => {
         if (sizeRef.current === size) {
           postMsg("resize", [size.width, size.height, !minimizedRef.current]);
@@ -191,8 +193,11 @@ export default () => {
       storyId.current = id;
       setScenes(scenes ? JSON.parse(scenes) : []);
       handleSetMode("editor");
+      if (minimized) {
+        handleMinimize();
+      }
     },
-    [handleSetMode],
+    [handleSetMode, minimized, handleMinimize],
   );
 
   const handleSaveStory = useCallback(
