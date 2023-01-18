@@ -128,7 +128,6 @@ const MinimizeButton = styled.div<{ minimized?: boolean }>`
 
 const PlateauIcon = styled(Icon)<{ minimized?: boolean }>`
   margin: auto;
-  cursor: pointer;
 
   ${({ minimized }) => minimized && "text-align: left;"}
 `;
