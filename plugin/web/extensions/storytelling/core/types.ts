@@ -61,7 +61,6 @@ export type PluginMessage = {
 // Communications
 
 // sidebar -> storytelling
-// story title is NOT in use by story telling widget
 export type EditStory = {
   type: "editStory";
   payload: {
@@ -71,7 +70,6 @@ export type EditStory = {
   };
 };
 
-// story telling will carry back this id
 export type SaveStory = {
   type: "saveStory";
   payload: {
@@ -79,7 +77,6 @@ export type SaveStory = {
   };
 };
 
-// story telling will clear content if current editing this story
 export type DeleteStory = {
   type: "deleteStory";
   payload: {
@@ -92,6 +89,7 @@ export type PlayStory = {
   payload: {
     id: string;
     scenes: string;
+    title?: string;
   };
 };
 
