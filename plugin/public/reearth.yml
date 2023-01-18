@@ -18,6 +18,9 @@ extensions:
             - id: cmsURL
               type: string
               title: PLATEAU CMS Base URL
+            - id: reearthURL
+              type: string
+              title: Re:Earth Base URL
     widgetLayout:
       defaultLocation:
         zone: outer

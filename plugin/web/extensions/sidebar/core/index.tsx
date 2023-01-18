@@ -20,6 +20,7 @@ const Sidebar: React.FC<Props> = ({ className }) => {
     overrides,
     minimized,
     inEditor,
+    reearthURL,
     backendURL,
     templates,
     handleTemplateAdd,
@@ -77,7 +78,9 @@ const Sidebar: React.FC<Props> = ({ className }) => {
                 />
               ),
               map: <MapSettings overrides={overrides} onOverridesUpdate={handleOverridesUpdate} />,
-              share: <Share overrides={overrides} backendURL={backendURL} />,
+              share: (
+                <Share overrides={overrides} reearthURL={reearthURL} backendURL={backendURL} />
+              ),
               help: <Help />,
               feedback: <Feedback backendURL={backendURL} />,
               template: (

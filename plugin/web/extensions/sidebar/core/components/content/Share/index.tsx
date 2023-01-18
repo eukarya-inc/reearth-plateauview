@@ -7,10 +7,11 @@ import useHooks, { ReearthApi } from "./hooks";
 
 export type Props = {
   overrides: ReearthApi;
+  reearthURL?: string;
   backendURL?: string;
 };
 
-const Share: React.FC<Props> = ({ overrides, backendURL }) => {
+const Share: React.FC<Props> = ({ overrides, reearthURL, backendURL }) => {
   const [copiedUrl, setCopiedUrl] = useState(false);
   const [copiedIframe, setCopiedIframe] = useState(false);
 
@@ -24,6 +25,7 @@ const Share: React.FC<Props> = ({ overrides, backendURL }) => {
     handleScreenshotSave,
   } = useHooks({
     overrides,
+    reearthURL,
     backendURL,
     messageApi,
   });

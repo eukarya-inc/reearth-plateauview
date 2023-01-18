@@ -7,10 +7,12 @@ export type ReearthApi = ReearthApiType;
 
 export default ({
   overrides,
+  reearthURL,
   backendURL,
   messageApi,
 }: {
   overrides?: ReearthApi;
+  reearthURL?: string;
   backendURL?: string;
   messageApi: any;
 }) => {
@@ -47,13 +49,15 @@ export default ({
         }
       } else {
         const project = await resp.json();
-        setPublishedUrl(`${backendURL}/share/${project}`);
+        setPublishedUrl(
+          `${reearthURL}${reearthURL?.includes("?") ? "&" : "?"}projectID=${project}`,
+        );
       }
     }
     timer.current = setTimeout(() => {
       setShareDisable(false);
     }, 3000);
-  }, [messageApi, backendURL, overrides, setPublishedUrl]);
+  }, [messageApi, reearthURL, backendURL, overrides, setPublishedUrl]);
 
   useEffect(() => {
     return () => {

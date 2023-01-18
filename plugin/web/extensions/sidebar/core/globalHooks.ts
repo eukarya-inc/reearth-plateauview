@@ -12,6 +12,7 @@ export default () => {
   const [backendAccessToken, setBackendAccessToken] = useState<string>();
   const [backendURL, setBackendURL] = useState<string>();
   const [cmsURL, setCMSURL] = useState<string>();
+  const [reearthURL, setReearthURL] = useState<string>();
 
   // ****************************************
   // Init
@@ -51,10 +52,15 @@ export default () => {
   // Dataset
   const [selectedDatasets, updateDatasets] = useState<CatalogRawItem[]>([]);
 
-  const handleDatasetAdd = useCallback((dataset: CatalogRawItem) => {
-    updateDatasets(oldDatasets => [...oldDatasets, dataset]);
-    postMsg({ action: "addDatasetToScene", payload: dataset });
-  }, []);
+  const handleDatasetAdd = useCallback(
+    (dataset: CatalogRawItem) => {
+      console.log("Dataset to be added: ", dataset);
+      console.log("Current datasets: ", selectedDatasets);
+      updateDatasets(oldDatasets => [...oldDatasets, dataset]);
+      postMsg({ action: "addDatasetToScene", payload: dataset });
+    },
+    [selectedDatasets],
+  );
 
   const handleDatasetRemove = useCallback(
     (id: string) => updateDatasets(oldDatasets => oldDatasets.filter(d => d.id !== id)),
@@ -84,12 +90,10 @@ export default () => {
     }
   }, [cmsURL, setPlateauData, setUsecaseData, setDatasetData]);
 
-  const rawCatalog = useMemo(() => {
-    console.log("PLATEAU: ", plateauData);
-    console.log("USECASE: ", usecaseData);
-    console.log("DATASET: ", datasetData);
-    return processCatalog(plateauData, usecaseData, datasetData);
-  }, [plateauData, usecaseData, datasetData]);
+  const rawCatalog = useMemo(
+    () => processCatalog(plateauData, usecaseData, datasetData),
+    [plateauData, usecaseData, datasetData],
+  );
 
   const handleModalOpen = useCallback(() => {
     const selectedIds = selectedDatasets.map(d => d.id);
@@ -168,22 +172,41 @@ export default () => {
 
   // MIGHT NEED FIXING. MIGHT NEED FIXING. MIGHT NEED FIXING
   const [data, setData] = useState<Data[]>();
-  const processedSelectedDatasets = useMemo(() => {
-    if (!data) return;
+  const processedSelectedDatasets: Data[] = useMemo(() => {
+    // if (!data) return data;
     return selectedDatasets
       .map(d => {
+        console.log("DATA: ", data);
         if (d.modelType === "usecase") {
           // If usecase, check "data" for saved template, components, etc
-          return data.filter(d3 => d3.dataId === `plateau-2022-${d.cityName}`);
-        } else if (d.modelType === "plateau") {
-          // Else, if PLATEAUデータ(plateau), do ....(HARDCODED TEMPLATE)
-          return data;
-        } else if (d.modelType === "dataset") {
-          // Else, if 関連データセット(dataset), do ....(HARDCODED TEMPLATE)
-          return data;
+          // return data?.filter(d3 => d3.dataId === `plateau-2022-${d.cityName}`);
+          return {
+            id: d.id,
+            dataId: "ASDFSDFASDFasdf", // <======= NEEDS TO BE UPDATED
+            type: d.type ?? "", // maybe not needed
+            name: d.cityName ?? d.name,
+            public: false, //<======= NEEDS TO BE UPDATED
+            // visible <=== this will come from data (or be default true)
+            // template <=== this will come from data (and/or be added later from editor)
+            // components: data?.filter(d=> d.),
+          };
+          // } else if (d.modelType === "plateau") {
+          //   // Else, if PLATEAUデータ(plateau), do ....(HARDCODED TEMPLATE)
+          //   return d;
+          // } else if (d.modelType === "dataset") {
+          //   // Else, if 関連データセット(dataset), do ....(HARDCODED TEMPLATE)
+          //   return d;
         } else {
-          // SOME DEFAULT?????
-          return data;
+          return {
+            id: d.id,
+            dataId: `plateau-2022-${d.cityName ?? d.name}`,
+            type: d.type ?? "", // maybe not needed
+            name: d.cityName ?? d.name,
+            public: false,
+            visible: true,
+            template: "SOME TEMPLATE NAME???????????????????????????????",
+            components: [],
+          };
         }
       })
       .flat(1)
@@ -191,6 +214,9 @@ export default () => {
   }, [data, selectedDatasets]);
   // MIGHT NEED FIXING. MIGHT NEED FIXING. MIGHT NEED FIXING
 
+  useEffect(() => {
+    console.log("Processed: ", processedSelectedDatasets);
+  }, [processedSelectedDatasets]);
   // ****************************************
 
   useEffect(() => {
@@ -206,6 +232,7 @@ export default () => {
         setBackendAccessToken(e.data.payload.backendAccessToken);
         setBackendURL(e.data.payload.backendURL);
         setCMSURL(`${e.data.payload.cmsURL}/api/p/plateau-2022`);
+        setReearthURL(`${e.data.payload.reearthURL}`);
       }
     };
     addEventListener("message", e => eventListenerCallback(e));
@@ -215,29 +242,31 @@ export default () => {
   }, [handleDatasetAdd]);
 
   useEffect(() => {
-    // Fetch from backend (if projectID)
+    if (!backendURL) return;
     if (projectID) {
-      // fetch
+      (async () => {
+        const res = await fetch(`${backendURL}/share/${projectID}`);
+        if (res.status !== 200) return;
+        const data = await res.json();
+        updateOverrides(data);
+      })();
     } else {
-      // Fetch from backend (if no projectID)
-      const fetchBackend = async () => {
-        const res = await fetch(`${cmsURL}/viz/plateau`);
+      (async () => {
+        const res = await fetch(`${backendURL}/viz/plateau`);
         if (res.status !== 200) return;
         const results: Root = (await res.json()).results;
         setTemplates(results.templates);
         setData(results.data);
-      };
-      if (cmsURL) {
-        fetchBackend();
-      }
+      })();
     }
-  }, [projectID, cmsURL]);
+  }, [projectID, backendURL, updateOverrides]);
 
   return {
     processedSelectedDatasets,
     overrides,
     minimized,
     inEditor,
+    reearthURL,
     backendURL,
     templates,
     handleTemplateAdd,

@@ -26,6 +26,7 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
         backendAccessToken: reearth.widget.property.default.plateauAccessToken ?? "",
         backendURL: reearth.widget.property.default.plateauURL ?? "",
         cmsURL: reearth.widget.property.default.cmsURL ?? "",
+        reearthURL: reearth.widget.property.default.reearthURL ?? "",
       },
     });
     if (!doNotShowWelcome) {

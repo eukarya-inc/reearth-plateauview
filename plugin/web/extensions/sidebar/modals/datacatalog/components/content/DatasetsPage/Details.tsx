@@ -29,13 +29,7 @@ const DatasetDetails: React.FC<Props> = ({ dataset, addDisabled, onTagSelect, on
   const ContentComponent: React.FC = () => (
     <>
       <Tags tags={datasetTags} onTagSelect={onTagSelect} />
-      {dataset && dataset?.type !== "group" && (
-        <Content
-          dangerouslySetInnerHTML={{
-            __html: dataset.description as string,
-          }}
-        />
-      )}
+      {dataset && dataset?.type !== "group" && <Content>{dataset.description}</Content>}
     </>
   );
 
@@ -100,4 +94,5 @@ const StyledP = styled.p`
 
 const Content = styled.div`
   margin-top: 16px;
+  white-space: pre-wrap;
 `;
