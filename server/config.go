@@ -40,6 +40,7 @@ type Config struct {
 	Ckan_BaseURL         string
 	Ckan_Org             string
 	Ckan_Token           string
+	SDK_Token            string
 	Ckan_Private         bool
 	SendGrid_APIKey      string
 	Opinion_Email        string
@@ -107,6 +108,7 @@ func (c *Config) SDKAPI() sdkapi.Config {
 		CMSBaseURL: c.CMS_BaseURL,
 		Project:    c.CMS_SDKProject,
 		Model:      c.CMS_SDKModel,
+		Token:      c.SDK_Token,
 	}
 }
 

@@ -16,6 +16,7 @@ type Config struct {
 	CMSBaseURL string
 	Project    string
 	Model      string
+	Token      string
 }
 
 func (c *Config) Normalize() {
