@@ -93,6 +93,8 @@ func (h *Handler) getAllDataHandler() func(c echo.Context) error {
 	return func(c echo.Context) error {
 		ctx := c.Request().Context()
 
+		// res, err := http.Get(lo.Must(url.JoinPath("https://api.cms.test.reearth.dev", "api/models/key1/items")))
+		// fmt.Printf(res.Status)
 		data, err := h.CMS.GetItems(ctx, h.DataModelKey)
 		if err != nil {
 			return err
