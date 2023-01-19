@@ -14,11 +14,12 @@ let addedDatasets: string | undefined = undefined;
 
 let rawCatalog: CatalogRawItem[] = [];
 
-const doNotShowWelcome = true; // Make it `let doNotShowWelcome: boolean = false`, and then modify based on storage value when Storage API available
+let doNotShowWelcome = false; // Make it `let doNotShowWelcome: boolean = false`, and then modify based on storage value when Storage API available
 
 // let isMobile: boolean;
 
 reearth.ui.show(html, { extended: true });
+reearth.modal.show(welcomeScreenHtml, { width: 1811, height: 959 });
 
 reearth.on("message", ({ action, payload }: PostMessageProps) => {
   // Sidebar
@@ -35,9 +36,15 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
       },
     });
     reearth.clientStorage.setAsync("overrides", payload);
+    reearth.clientStorage.getAsync("doNotShowWelcome").then((value: any) => {
+      doNotShowWelcome = value;
+    });
     if (!doNotShowWelcome) {
       reearth.modal.show(welcomeScreenHtml, { background: "#000000bf" });
     }
+  } else if (action === "storageSaveWelcomeScreen") {
+    doNotShowWelcome = payload.value;
+    reearth.clientStorage.setAsync(payload.key, payload.value);
   } else if (action === "storageSave") {
     reearth.clientStorage.setAsync(payload.key, payload.value);
   } else if (action === "storageFetch") {

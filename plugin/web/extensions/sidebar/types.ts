@@ -21,7 +21,8 @@ type ActionType =
   | "popupClose"
   | "msgToPopup"
   | "msgFromPopup"
-  | "minimize";
+  | "minimize"
+  | "storageSaveWelcomeScreen";
 
 export type PostMessageProps = { action: ActionType; payload?: any };
 
