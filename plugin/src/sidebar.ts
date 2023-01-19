@@ -35,6 +35,24 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
     if (!doNotShowWelcome) {
       reearth.modal.show(welcomeScreenHtml, { background: "#000000bf" });
     }
+  } else if (action === "storageSave") {
+    reearth.clientStorage.setAsync(payload.key, payload.value);
+  } else if (action === "storageFetch") {
+    reearth.clientStorage.getAsync(payload.key).then((value: any) => {
+      reearth.ui.postMessage({
+        type: "getAsync",
+        payload: value,
+      });
+    });
+  } else if (action === "storageKeys") {
+    reearth.clientStorage.keysAsync().then((value: any) => {
+      reearth.ui.postMessage({
+        type: "keysAsync",
+        payload: value,
+      });
+    });
+  } else if (action === "storageDelete") {
+    reearth.clientStorage.deleteAsync(payload.key);
   } else if (action === "updateOverrides") {
     reearth.visualizer.overrideProperty(payload);
   } else if (action === "addDatasetToScene") {
