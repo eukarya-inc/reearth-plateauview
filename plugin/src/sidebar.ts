@@ -16,6 +16,8 @@ let rawCatalog: CatalogRawItem[] = [];
 
 const doNotShowWelcome = true; // Make it `let doNotShowWelcome: boolean = false`, and then modify based on storage value when Storage API available
 
+// let isMobile: boolean;
+
 reearth.ui.show(html, { extended: true });
 
 reearth.on("message", ({ action, payload }: PostMessageProps) => {
@@ -32,6 +34,7 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
         reearthURL: reearth.widget.property.default.reearthURL ?? "",
       },
     });
+    reearth.clientStorage.setAsync("overrides", payload);
     if (!doNotShowWelcome) {
       reearth.modal.show(welcomeScreenHtml, { background: "#000000bf" });
     }
@@ -55,6 +58,7 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
     reearth.clientStorage.deleteAsync(payload.key);
   } else if (action === "updateOverrides") {
     reearth.visualizer.overrideProperty(payload);
+    reearth.clientStorage.setAsync("overrides", payload);
   } else if (action === "addDatasetToScene") {
     // NEED TO HANDLE ADDING TO SCENE WHEN ABLE
   } else if (
@@ -109,3 +113,10 @@ reearth.on("update", () => {
     payload: reearth.widget.extended,
   });
 });
+
+// reearth.on("resize", (e: any) => {
+//   if (e.isMobile !== isMobile) {
+//     reearth.ui.postMessage({type: ""});
+//     isMobile = e.isMobile;
+//   }
+// });
