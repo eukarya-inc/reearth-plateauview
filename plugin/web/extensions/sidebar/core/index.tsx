@@ -5,7 +5,7 @@ import Selection from "@web/extensions/sidebar/core/components/content/Selection
 import Share from "@web/extensions/sidebar/core/components/content/Share";
 import Templates from "@web/extensions/sidebar/core/components/content/Templates";
 import Header, { Pages } from "@web/extensions/sidebar/core/components/Header";
-import useGlobalHooks from "@web/extensions/sidebar/core/globalHooks";
+import useHooks from "@web/extensions/sidebar/core/hooks";
 import { Content } from "@web/sharedComponents";
 import { styled, commonStyles } from "@web/theme";
 import { memo, useCallback, useState } from "react";
@@ -16,16 +16,22 @@ export type Props = {
 
 const Sidebar: React.FC<Props> = ({ className }) => {
   const {
-    selectedDatasets,
+    processedSelectedDatasets,
     overrides,
     minimized,
     inEditor,
+    reearthURL,
+    backendURL,
+    templates,
+    handleTemplateAdd,
+    handleTemplateUpdate,
+    handleTemplateRemove,
     setMinimize,
     handleDatasetRemove,
     handleDatasetRemoveAll,
     handleOverridesUpdate,
     handleModalOpen,
-  } = useGlobalHooks();
+  } = useHooks();
 
   const [current, setCurrent] = useState<Pages>("data");
 
@@ -65,17 +71,26 @@ const Sidebar: React.FC<Props> = ({ className }) => {
               data: (
                 <Selection
                   inEditor={inEditor}
-                  selectedDatasets={selectedDatasets}
+                  selectedDatasets={processedSelectedDatasets}
                   onDatasetRemove={handleDatasetRemove}
                   onDatasetRemoveAll={handleDatasetRemoveAll}
                   onModalOpen={handleModalOpen}
                 />
               ),
               map: <MapSettings overrides={overrides} onOverridesUpdate={handleOverridesUpdate} />,
-              share: <Share overrides={overrides} />,
+              share: (
+                <Share overrides={overrides} reearthURL={reearthURL} backendURL={backendURL} />
+              ),
               help: <Help />,
-              feedback: <Feedback />,
-              template: <Templates />,
+              feedback: <Feedback backendURL={backendURL} />,
+              template: (
+                <Templates
+                  templates={templates}
+                  onTemplateAdd={handleTemplateAdd}
+                  onTemplateUpdate={handleTemplateUpdate}
+                  onTemplateRemove={handleTemplateRemove}
+                />
+              ),
             }[current]
           }
         </ContentWrapper>
