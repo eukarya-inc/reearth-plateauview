@@ -29,74 +29,60 @@ reearth.on("pluginmessage", (pluginMessage: PluginMessage) => {
 });
 
 reearth.on("message", ({ type, payload }: PostMessageProps) => {
-  switch (type) {
-    case "resize":
-      reearth.ui.resize(...payload);
-      break;
-    case "captureScene":
-      reearth.ui.postMessage({
-        type: "captureScene",
-        payload: reearth.camera.position,
-      });
-      break;
-    case "viewScene":
-      reearth.camera.flyTo(payload, { duration: 1.5 });
-      break;
-    case "recaptureScene":
-      reearth.ui.postMessage({
-        type: "recaptureScene",
-        payload: { camera: reearth.camera.position, id: payload },
-      });
-      break;
-    case "editScene":
-      reearth.modal.show(storyeditorHtml, { background: "transparent", width: 580, height: 320 });
-      reearth.modal.postMessage({
-        type: "editScene",
-        payload,
-      });
-      break;
-    case "closeSceneEditor":
-      reearth.modal.close();
-      break;
-    case "saveScene":
-      reearth.ui.postMessage({
-        type: "saveScene",
-        payload,
-      });
-      reearth.modal.close();
-      break;
-    case "getViewport":
-      reearth.ui.postMessage({
-        type: "viewport",
-        payload: reearth.viewport,
-      });
-      break;
-    case "shareStory":
-      getSidebarId();
-      if (!sidebarId) return;
-      reearth.plugins.postMessage(sidebarId, {
-        type: "shareStory",
-        payload,
-      } as ShareStory);
-      break;
-    case "saveStoryData":
-      getSidebarId();
-      if (!sidebarId) return;
-      reearth.plugins.postMessage(sidebarId, {
-        type: "saveStoryData",
-        payload,
-      } as SaveStoryData);
-      break;
-    case "cancelPlayStory":
-      getSidebarId();
-      if (!sidebarId) return;
-      reearth.plugins.postMessage(sidebarId, {
-        type: "cancelPlayStory",
-        payload,
-      } as CancelPlayStory);
-      break;
-    default:
-      break;
+  if (type === "resize") {
+    reearth.ui.resize(...payload);
+  } else if (type === "captureScene") {
+    reearth.ui.postMessage({
+      type: "captureScene",
+      payload: reearth.camera.position,
+    });
+  } else if (type === "viewScene") {
+    reearth.camera.flyTo(payload, { duration: 1.5 });
+  } else if (type === "recaptureScene") {
+    reearth.ui.postMessage({
+      type: "recaptureScene",
+      payload: { camera: reearth.camera.position, id: payload },
+    });
+  } else if (type === "editScene") {
+    reearth.modal.show(storyeditorHtml, { background: "transparent", width: 580, height: 320 });
+    reearth.modal.postMessage({
+      type: "editScene",
+      payload,
+    });
+  } else if (type === "closeSceneEditor") {
+    reearth.modal.close();
+  } else if (type === "saveScene") {
+    reearth.ui.postMessage({
+      type: "saveScene",
+      payload,
+    });
+    reearth.modal.close();
+  } else if (type === "getViewport") {
+    reearth.ui.postMessage({
+      type: "viewport",
+      payload: reearth.viewport,
+    });
+  } else if (type === "shareStory") {
+    getSidebarId();
+    if (!sidebarId) return;
+    reearth.plugins.postMessage(sidebarId, {
+      type: "shareStory",
+      payload,
+    } as ShareStory);
+  } else if (type === "saveStoryData") {
+    getSidebarId();
+    if (!sidebarId) return;
+    reearth.plugins.postMessage(sidebarId, {
+      type: "saveStoryData",
+      payload,
+    } as SaveStoryData);
+  } else if (type === "cancelPlayStory") {
+    getSidebarId();
+    if (!sidebarId) return;
+    reearth.plugins.postMessage(sidebarId, {
+      type: "cancelPlayStory",
+      payload,
+    } as CancelPlayStory);
   }
 });
 
