@@ -249,7 +249,7 @@ export default () => {
 
   useEffect(() => {
     // mock scenes, only on web dev
-    const mockScenes = true;
+    const mockScenes = false;
     if (mockScenes) {
       const scenes = [];
       for (let i = 1; i <= 3; i += 1) {

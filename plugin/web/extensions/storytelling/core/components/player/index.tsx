@@ -137,15 +137,6 @@ const Player: React.FC<Props> = ({
     }
   }, [scenes, viewScene, updateHeight]);
 
-  useEffect(() => {
-    return () => {
-      sceneRefs.current = [];
-      sceneTitleRefs.current = [];
-      sceneContentRefs.current = [];
-      carouselRef.current = undefined;
-    };
-  }, []);
-
   return (
     <Wrapper isMobile={isMobile}>
       <NavButton onClick={prev} disabled={current === 0} isMobile={isMobile}>
