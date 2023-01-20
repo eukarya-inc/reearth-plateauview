@@ -7,8 +7,7 @@ import Tab from "./Tab";
 
 type Props = {
   mode: Mode;
-  editable: boolean;
-  shareable: boolean;
+  isMobile: boolean;
   setMode: (m: Mode) => void;
   shareStory: () => void;
   clearStory: () => void;
@@ -17,56 +16,55 @@ type Props = {
 
 const Header: React.FC<Props> = ({
   mode,
-  editable,
-  shareable,
+  isMobile,
   setMode,
   shareStory,
   clearStory,
   handleMinimize,
 }) => {
   return (
-    <StyledHeader>
+    <StyledHeader isMobile={isMobile}>
       <HeaderMain>
-        <WidgetTitle>Story</WidgetTitle>
-        {editable && (
-          <Tab
-            mode="editor"
-            icon="pencil"
-            text="Editor mode"
-            currentMode={mode}
-            onClick={setMode}
-          />
+        {!isMobile && (
+          <>
+            <WidgetTitle>Story</WidgetTitle>
+            <Tab
+              mode="editor"
+              icon="pencil"
+              text="Editor mode"
+              currentMode={mode}
+              onClick={setMode}
+            />
+            <Tab
+              mode="player"
+              icon="play"
+              text="Play mode"
+              theme="grey"
+              currentMode={mode}
+              onClick={setMode}
+            />
+          </>
         )}
-        <Tab
-          mode="player"
-          icon="play"
-          text="Play mode"
-          theme="grey"
-          currentMode={mode}
-          onClick={setMode}
-        />
       </HeaderMain>
-      <HeaderBtns>
-        {mode === "editor" && (
-          <IconBtn onClick={clearStory}>
+      <HeaderBtns isMobile={isMobile}>
+        {!isMobile && mode === "editor" && (
+          <IconBtn onClick={clearStory} isMobile={isMobile}>
             <Icon icon="eraser" size={24} />
           </IconBtn>
         )}
-        {shareable && (
-          <IconBtn onClick={shareStory}>
-            <Icon icon="paperPlane" size={24} />
-          </IconBtn>
-        )}
-        <IconBtn onClick={handleMinimize}>
-          <Icon icon="cross" size={24} />
+        <IconBtn onClick={shareStory} isMobile={isMobile}>
+          <Icon icon="paperPlane" size={isMobile ? 16 : 24} />
+        </IconBtn>
+        <IconBtn onClick={handleMinimize} isMobile={isMobile}>
+          <Icon icon="cross" size={isMobile ? 16 : 24} />
         </IconBtn>
       </HeaderBtns>
     </StyledHeader>
   );
 };
 
-const StyledHeader = styled.div`
-  height: 40px;
+const StyledHeader = styled.div<{ isMobile: boolean }>`
+  height: ${({ isMobile }) => (isMobile ? "26px" : "40px")};
   background: #dfdfdf;
   display: flex;
   align-items: center;
@@ -79,9 +77,9 @@ const HeaderMain = styled.div`
   gap: 10px;
   height: 100%;
 `;
-const HeaderBtns = styled.div`
+const HeaderBtns = styled.div<{ isMobile: boolean }>`
   display: flex;
-  gap: 2px;
+  gap: ${({ isMobile }) => (isMobile ? "1px" : "2px")};
   height: 100%;
 `;
 
@@ -93,15 +91,16 @@ const WidgetTitle = styled.div`
   padding: 10px 12px;
 `;
 
-const IconBtn = styled.div`
+const IconBtn = styled.div<{ isMobile: boolean }>`
   display: flex;
-  width: 40px;
-  height: 40px;
+  width: ${({ isMobile }) => (isMobile ? "26px" : "40px")};
+  height: 100%;
   align-items: center;
   justify-content: center;
   background: var(--theme-color);
   color: #fff;
   cursor: pointer;
+  line-height: 1;
 `;
 
 export default Header;

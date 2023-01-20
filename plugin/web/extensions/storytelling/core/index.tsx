@@ -41,8 +41,7 @@ const Storytelling: React.FC = () => {
             shareStory={shareStory}
             clearStory={clearStory}
             handleMinimize={handleMinimize}
-            editable={!isMobile}
-            shareable={!isMobile}
+            isMobile={isMobile}
           />
           {!isMobile && mode === "editor" && (
             <Editor
@@ -56,7 +55,12 @@ const Storytelling: React.FC = () => {
             />
           )}
           {mode === "player" && (
-            <Player scenes={scenes} viewScene={viewScene} setPlayerHeight={setPlayerHeight} />
+            <Player
+              scenes={scenes}
+              isMobile={isMobile}
+              viewScene={viewScene}
+              setPlayerHeight={setPlayerHeight}
+            />
           )}
         </ContentPane>
       </Wrapper>

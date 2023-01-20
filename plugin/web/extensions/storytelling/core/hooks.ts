@@ -44,7 +44,7 @@ export default () => {
     [isMobile],
   );
 
-  const [mode, setMode] = useState<Mode>("editor");
+  const [mode, setMode] = useState<Mode>("player");
 
   const [minimized, setMinimized] = useState<boolean>(true);
   const minimizedRef = useRef<boolean>(minimized);
@@ -250,7 +250,7 @@ export default () => {
 
   useEffect(() => {
     // mock scenes, only on web dev
-    const mockScenes = false;
+    const mockScenes = true;
     if (mockScenes) {
       const scenes = [];
       for (let i = 1; i <= 3; i += 1) {

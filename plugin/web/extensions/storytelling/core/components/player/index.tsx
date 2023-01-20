@@ -1,6 +1,6 @@
 import { Carousel, Icon, Pagination } from "@web/sharedComponents";
 import { styled } from "@web/theme";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, useMemo } from "react";
 import { Remarkable } from "remarkable";
 
 import type { Camera, Scene as SceneType } from "../../types";
@@ -8,14 +8,17 @@ import "./index.css";
 
 type Props = {
   scenes: SceneType[];
+  isMobile: boolean;
   viewScene: (camera: Camera) => void;
   setPlayerHeight: (height: number) => void;
 };
 
-const minCarouselHeight = 131;
-const maxCarouselHeight = 331;
+const Player: React.FC<Props> = ({ scenes, isMobile, viewScene, setPlayerHeight }) => {
+  const minCarouselHeight = 131;
+  const maxCarouselHeight = useMemo(() => {
+    return isMobile ? 162 : 331;
+  }, [isMobile]);
 
-const Player: React.FC<Props> = ({ scenes, viewScene, setPlayerHeight }) => {
   const sceneRefs = useRef<HTMLDivElement[]>([]);
   const setSceneRef = useCallback((dom: HTMLDivElement) => {
     sceneRefs.current.push(dom);
@@ -33,6 +36,7 @@ const Player: React.FC<Props> = ({ scenes, viewScene, setPlayerHeight }) => {
 
   const updateHeight = useCallback(
     (index: number) => {
+      const outerHeight = isMobile ? 12 + 26 : 24 + 40;
       if (scenes.length > 0 && sceneRefs.current[index]) {
         let carouselHeight =
           sceneTitleRefs.current[index].clientHeight +
@@ -48,12 +52,12 @@ const Player: React.FC<Props> = ({ scenes, viewScene, setPlayerHeight }) => {
             ? minCarouselHeight
             : carouselHeight;
         sceneRefs.current[index].style.height = `${carouselHeight}px`;
-        setPlayerHeight(carouselHeight + 24 + 40);
+        setPlayerHeight(carouselHeight + outerHeight);
       } else {
-        setPlayerHeight(minCarouselHeight + 24 + 40);
+        setPlayerHeight(minCarouselHeight + outerHeight);
       }
     },
-    [scenes, setPlayerHeight],
+    [scenes, setPlayerHeight, isMobile, maxCarouselHeight],
   );
 
   const carouselRef = useRef<any>(null);
@@ -110,7 +114,7 @@ const Player: React.FC<Props> = ({ scenes, viewScene, setPlayerHeight }) => {
       carouselRef.current = undefined;
       updateHeight(0);
     } else {
-      if (currentRef.current !== 0) {
+      if (carouselRef.current && currentRef.current !== 0) {
         carouselRef.current.goTo(0);
       } else {
         if (scenes[0]?.camera) {
@@ -131,11 +135,11 @@ const Player: React.FC<Props> = ({ scenes, viewScene, setPlayerHeight }) => {
   }, []);
 
   return (
-    <Wrapper>
-      <NavButton onClick={prev} disabled={current === 0}>
-        <Icon icon="caretLeft" size={32} />
+    <Wrapper isMobile={isMobile}>
+      <NavButton onClick={prev} disabled={current === 0} isMobile={isMobile}>
+        <Icon icon="caretLeft" size={isMobile ? 24 : 32} />
       </NavButton>
-      <MainContent>
+      <MainContent isMobile={isMobile}>
         <CarouselContainer>
           <CarouselArea>
             {scenes.length > 0 && (
@@ -177,48 +181,55 @@ const Player: React.FC<Props> = ({ scenes, viewScene, setPlayerHeight }) => {
           )}
         </PaginationContainer>
       </MainContent>
-      <NavButton onClick={next} disabled={current >= scenes.length - 1} className="next">
-        <Icon icon="caretLeft" size={32} />
+      <NavButton
+        onClick={next}
+        disabled={current >= scenes.length - 1}
+        className="next"
+        isMobile={isMobile}>
+        <Icon icon="caretLeft" size={isMobile ? 24 : 32} />
       </NavButton>
     </Wrapper>
   );
 };
 
-const Wrapper = styled.div`
+const Wrapper = styled.div<{ isMobile: boolean }>`
   position: relative;
   display: flex;
   justify-content: space-between;
   height: 100%;
-  padding: 12px;
-  gap: 12px;
+  padding: ${({ isMobile }) => (isMobile ? "6px" : "12px")};
+  gap: ${({ isMobile }) => (isMobile ? "6px" : "12px")};
 `;
 
-const NavButton = styled.a<{ disabled: boolean }>`
+const NavButton = styled.a<{ disabled: boolean; isMobile: boolean }>`
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  width: 40px;
+  width: ${({ isMobile }) => (isMobile ? "24px" : "40px")};
   &.next {
     transform: rotate(180deg);
   }
   color: ${({ disabled }) => (disabled ? "#ccc" : "--var(theme-color)")};
   pointer-events: ${({ disabled }) => (disabled ? "none" : "all")};
+  z-index: 2;
 `;
 
-const MainContent = styled.div`
+const MainContent = styled.div<{ isMobile: boolean }>`
   position: relative;
   height: 100%;
   width: 100%;
+  overflow: hidden;
+  border-radius: 6px;
+  border: ${({ isMobile }) =>
+    isMobile ? "1px solid rgba(0, 0, 0, 0.1)" : "1px solid rgba(0, 0, 0, 0.45)"};
 `;
 
 const CarouselContainer = styled.div`
   height: 100%;
-  border: 1px solid rgba(0, 0, 0, 0.45);
-  border-radius: 6px;
-  overflow: hidden;
   width: 100%;
-  box-sizing: content-box;
+  overflow: hidden;
 `;
 
 const CarouselArea = styled.div`
