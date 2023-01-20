@@ -25,9 +25,9 @@ const Header: React.FC<Props> = ({
   return (
     <StyledHeader isMobile={isMobile}>
       <HeaderMain>
+        <WidgetTitle isMobile={isMobile}>Story</WidgetTitle>
         {!isMobile && (
           <>
-            <WidgetTitle>Story</WidgetTitle>
             <Tab
               mode="editor"
               icon="pencil"
@@ -52,9 +52,11 @@ const Header: React.FC<Props> = ({
             <Icon icon="eraser" size={24} />
           </IconBtn>
         )}
-        <IconBtn onClick={shareStory} isMobile={isMobile}>
-          <Icon icon="paperPlane" size={isMobile ? 16 : 24} />
-        </IconBtn>
+        {!isMobile && (
+          <IconBtn onClick={shareStory} isMobile={isMobile}>
+            <Icon icon="paperPlane" size={isMobile ? 16 : 24} />
+          </IconBtn>
+        )}
         <IconBtn onClick={handleMinimize} isMobile={isMobile}>
           <Icon icon="cross" size={isMobile ? 16 : 24} />
         </IconBtn>
@@ -83,12 +85,13 @@ const HeaderBtns = styled.div<{ isMobile: boolean }>`
   height: 100%;
 `;
 
-const WidgetTitle = styled.div`
+const WidgetTitle = styled.div<{ isMobile: boolean }>`
+  display: flex;
+  align-items: center;
   color: #4a4a4a;
   font-weight: 700;
   font-size: 14px;
-  line-height: 20px;
-  padding: 10px 12px;
+  padding: ${({ isMobile }) => (isMobile ? "0 10px" : "0 20px")};
 `;
 
 const IconBtn = styled.div<{ isMobile: boolean }>`

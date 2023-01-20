@@ -34,7 +34,6 @@ export type Size = { width: number | undefined; height: number };
 
 export default () => {
   const [isMobile, setIsMobile] = useState<boolean>(window.innerWidth <= 768);
-
   const handleViewportResize = useCallback(
     (viewport: Viewport) => {
       if (viewport.isMobile !== isMobile) {
@@ -281,6 +280,31 @@ export default () => {
     postMsg("getViewport");
   }, []);
 
+  const [contentWidth, setContentWidth] = useState<number>(document.body.clientWidth);
+  useEffect(() => {
+    const viewportResizeObserver = new ResizeObserver(entries => {
+      const [entry] = entries;
+      let width: number | undefined;
+
+      if (entry.contentBoxSize) {
+        const contentBoxSize = Array.isArray(entry.contentBoxSize)
+          ? entry.contentBoxSize[0]
+          : entry.contentBoxSize;
+        width = contentBoxSize.inlineSize;
+      } else if (entry.contentRect) {
+        width = entry.contentRect.width;
+      }
+
+      setContentWidth(width ?? document.body.clientWidth);
+    });
+
+    viewportResizeObserver.observe(document.body);
+
+    return () => {
+      viewportResizeObserver.disconnect();
+    };
+  }, []);
+
   const onMessage = useCallback(
     (e: MessageEvent<any>) => {
       if (e.source !== parent) return;
@@ -344,6 +368,7 @@ export default () => {
     ConfigProvider,
     isMobile,
     playerHeight,
+    contentWidth,
     setPlayerHeight,
     handleMinimize,
     handleSetMode,

@@ -9,11 +9,18 @@ import "./index.css";
 type Props = {
   scenes: SceneType[];
   isMobile: boolean;
+  contentWidth: number;
   viewScene: (camera: Camera) => void;
   setPlayerHeight: (height: number) => void;
 };
 
-const Player: React.FC<Props> = ({ scenes, isMobile, viewScene, setPlayerHeight }) => {
+const Player: React.FC<Props> = ({
+  scenes,
+  isMobile,
+  contentWidth,
+  viewScene,
+  setPlayerHeight,
+}) => {
   const minCarouselHeight = 131;
   const maxCarouselHeight = useMemo(() => {
     return isMobile ? 162 : 331;
@@ -106,6 +113,11 @@ const Player: React.FC<Props> = ({ scenes, isMobile, viewScene, setPlayerHeight 
     }),
   );
 
+  const [carouselWidth, setCarouselWidth] = useState<number>(document.body.clientWidth);
+  useEffect(() => {
+    setCarouselWidth(isMobile ? contentWidth - 12 - 12 - 48 : contentWidth - 24 - 24 - 80);
+  }, [contentWidth, isMobile]);
+
   useEffect(() => {
     if (scenes.length === 0) {
       sceneRefs.current = [];
@@ -141,7 +153,7 @@ const Player: React.FC<Props> = ({ scenes, isMobile, viewScene, setPlayerHeight 
       </NavButton>
       <MainContent isMobile={isMobile}>
         <CarouselContainer>
-          <CarouselArea>
+          <CarouselArea minWidth={carouselWidth}>
             {scenes.length > 0 && (
               <Carousel
                 beforeChange={onSlideChange}
@@ -232,10 +244,11 @@ const CarouselContainer = styled.div`
   overflow: hidden;
 `;
 
-const CarouselArea = styled.div`
+const CarouselArea = styled.div<{ minWidth: number }>`
   position: absolute;
   width: 100%;
   height: 100%;
+  min-width: ${({ minWidth }) => `${minWidth}px`};
 `;
 
 const PaginationContainer = styled.div`

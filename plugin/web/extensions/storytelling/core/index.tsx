@@ -14,6 +14,7 @@ const Storytelling: React.FC = () => {
     ConfigProvider,
     isMobile,
     playerHeight,
+    contentWidth,
     setPlayerHeight,
     handleMinimize,
     handleSetMode,
@@ -58,6 +59,7 @@ const Storytelling: React.FC = () => {
             <Player
               scenes={scenes}
               isMobile={isMobile}
+              contentWidth={contentWidth}
               viewScene={viewScene}
               setPlayerHeight={setPlayerHeight}
             />
