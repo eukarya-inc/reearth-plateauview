@@ -11,7 +11,7 @@ var item = Item{
 	ID:                "xxx",
 	Bldg:              []string{"bldg_assetid", "bldg_assetid2"},
 	SearchIndex:       []string{"searchindex_assetid"},
-	SeatchIndexStatus: "エラー",
+	SearchIndexStatus: "エラー",
 }
 
 var cmsitem = cms.Item{

@@ -27,8 +27,11 @@ type Config struct {
 	CMS_BaseURL          string
 	CMS_ModelID          string
 	CMS_Token            string
+	CMS_IntegrationID    string
 	CMS_ShareModelID     string
 	CMS_ShareDataFieldID string
+	CMS_IndexerSysPrj    string
+	CMS_IndexerSysModel  string
 	FME_BaseURL          string
 	FME_Mock             bool
 	FME_Token            string
@@ -74,6 +77,7 @@ func (c *Config) CMSIntegration() cmsintegration.Config {
 		FMESkipQualityCheck: c.FME_SkipQualityCheck,
 		CMSBaseURL:          c.CMS_BaseURL,
 		CMSToken:            c.CMS_Token,
+		CMSIntegration:      c.CMS_IntegrationID,
 		Secret:              c.Secret,
 		Debug:               c.Debug,
 	}
@@ -81,12 +85,13 @@ func (c *Config) CMSIntegration() cmsintegration.Config {
 
 func (c *Config) SDK() sdk.Config {
 	return sdk.Config{
-		FMEBaseURL:   c.FME_BaseURL,
-		FMEToken:     c.FME_Token,
-		FMEResultURL: util.DR(url.JoinPath(c.Host, "notify_sdk")),
-		CMSBase:      c.CMS_BaseURL,
-		CMSToken:     c.CMS_Token,
-		Secret:       c.Secret,
+		FMEBaseURL:     c.FME_BaseURL,
+		FMEToken:       c.FME_Token,
+		FMEResultURL:   util.DR(url.JoinPath(c.Host, "notify_sdk")),
+		CMSBase:        c.CMS_BaseURL,
+		CMSToken:       c.CMS_Token,
+		CMSIntegration: c.CMS_IntegrationID,
+		Secret:         c.Secret,
 	}
 }
 func (c *Config) Visualizer() visualizer.Config {
@@ -99,6 +104,15 @@ func (c *Config) Visualizer() visualizer.Config {
 		TemplateModelKey: c.VizDataModelKey,
 	}
 }
+
+// func (c *Config) SearchIndex() searchindex.Config {
+// 	return searchindex.Config{
+// 		CMSBase:             c.CMS_BaseURL,
+// 		CMSToken:            c.CMS_Token,
+// 		CMSStorageProjectID: c.CMS_IndexerSysPrj,
+// 		CMSStorageModelID:   c.CMS_IndexerSysModel,
+// 	}
+// }
 
 func (c *Config) Share() share.Config {
 	return share.Config{
@@ -119,11 +133,12 @@ func (c *Config) Opinion() opinion.Config {
 
 func (c *Config) Geospatialjp() geospatialjp.Config {
 	return geospatialjp.Config{
-		CkanBase:    c.Ckan_BaseURL,
-		CkanOrg:     c.Ckan_Org,
-		CkanToken:   c.Ckan_Token,
-		CkanPrivate: c.Ckan_Private,
-		CMSToken:    c.CMS_Token,
-		CMSBase:     c.CMS_BaseURL,
+		CkanBase:       c.Ckan_BaseURL,
+		CkanOrg:        c.Ckan_Org,
+		CkanToken:      c.Ckan_Token,
+		CkanPrivate:    c.Ckan_Private,
+		CMSToken:       c.CMS_Token,
+		CMSBase:        c.CMS_BaseURL,
+		CMSIntegration: c.CMS_IntegrationID,
 	}
 }
