@@ -214,7 +214,7 @@ const NavButton = styled.a<{ disabled: boolean; isMobile: boolean }>`
   &.next {
     transform: rotate(180deg);
   }
-  color: ${({ disabled }) => (disabled ? "#ccc" : "--var(theme-color)")};
+  color: ${({ disabled }) => (disabled ? "#ccc" : "var(--theme-color)")};
   pointer-events: ${({ disabled }) => (disabled ? "none" : "all")};
   z-index: 2;
 `;

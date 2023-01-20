@@ -117,7 +117,7 @@ const Scene: React.FC<Props> = ({
         <Title>{title}</Title>
         <ActionsBtn>
           <Dropdown trigger={["click"]} overlay={menu} placement={"topRight"}>
-            <Icon icon="dotsThreeVertical" size={24} />
+            <Icon icon="dotsThreeVertical" size={24} color={"var(--theme-color)"} />
           </Dropdown>
         </ActionsBtn>
       </Header>

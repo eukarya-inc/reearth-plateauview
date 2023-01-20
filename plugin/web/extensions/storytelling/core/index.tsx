@@ -11,7 +11,6 @@ const Storytelling: React.FC = () => {
     mode,
     minimized,
     scenes,
-    ConfigProvider,
     isMobile,
     playerHeight,
     contentWidth,
@@ -29,44 +28,42 @@ const Storytelling: React.FC = () => {
   } = useHooks();
 
   return (
-    <ConfigProvider>
-      <Wrapper size={size} mode={mode} playerHeight={playerHeight} minimized={minimized}>
-        <MiniPane onClick={handleMinimize} minimized={minimized}>
-          <Icon icon="cornersOut" color="#4A4A4A" size={24} />
-          <MiniTitle>Story</MiniTitle>
-        </MiniPane>
-        <ContentPane minimized={minimized}>
-          <Header
-            mode={mode}
-            setMode={handleSetMode}
-            shareStory={shareStory}
-            clearStory={clearStory}
-            handleMinimize={handleMinimize}
-            isMobile={isMobile}
+    <Wrapper size={size} mode={mode} playerHeight={playerHeight} minimized={minimized}>
+      <MiniPane onClick={handleMinimize} minimized={minimized}>
+        <Icon icon="cornersOut" color="#4A4A4A" size={24} />
+        <MiniTitle>Story</MiniTitle>
+      </MiniPane>
+      <ContentPane minimized={minimized}>
+        <Header
+          mode={mode}
+          setMode={handleSetMode}
+          shareStory={shareStory}
+          clearStory={clearStory}
+          handleMinimize={handleMinimize}
+          isMobile={isMobile}
+        />
+        {!isMobile && mode === "editor" && (
+          <Editor
+            scenes={scenes}
+            captureScene={captureScene}
+            viewScene={viewScene}
+            recaptureScene={recaptureScene}
+            deleteScene={deleteScene}
+            editScene={editScene}
+            moveScene={moveScene}
           />
-          {!isMobile && mode === "editor" && (
-            <Editor
-              scenes={scenes}
-              captureScene={captureScene}
-              viewScene={viewScene}
-              recaptureScene={recaptureScene}
-              deleteScene={deleteScene}
-              editScene={editScene}
-              moveScene={moveScene}
-            />
-          )}
-          {mode === "player" && (
-            <Player
-              scenes={scenes}
-              isMobile={isMobile}
-              contentWidth={contentWidth}
-              viewScene={viewScene}
-              setPlayerHeight={setPlayerHeight}
-            />
-          )}
-        </ContentPane>
-      </Wrapper>
-    </ConfigProvider>
+        )}
+        {mode === "player" && (
+          <Player
+            scenes={scenes}
+            isMobile={isMobile}
+            contentWidth={contentWidth}
+            viewScene={viewScene}
+            setPlayerHeight={setPlayerHeight}
+          />
+        )}
+      </ContentPane>
+    </Wrapper>
   );
 };
 

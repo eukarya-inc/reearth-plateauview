@@ -1,4 +1,3 @@
-import { ConfigProvider } from "@web/sharedComponents";
 import update from "immutability-helper";
 import { useCallback, useState, useRef, useEffect } from "react";
 
@@ -251,11 +250,10 @@ export default () => {
     // theme
     const themeColor = "#00BEBE";
     document.documentElement.style.setProperty("--theme-color", themeColor);
-    ConfigProvider.config({
-      theme: {
-        primaryColor: themeColor,
-      },
-    });
+    document.documentElement.style.setProperty("--ant-primary-color", themeColor);
+    document.documentElement.style.setProperty("--ant-primary-color-hover", themeColor);
+    document.documentElement.style.setProperty("--ant-primary-color-active", themeColor);
+    document.documentElement.style.setProperty("--ant-primary-5", themeColor);
 
     // viewport
     postMsg("getViewport");
@@ -346,7 +344,6 @@ export default () => {
     mode,
     minimized,
     scenes,
-    ConfigProvider,
     isMobile,
     playerHeight,
     contentWidth,
