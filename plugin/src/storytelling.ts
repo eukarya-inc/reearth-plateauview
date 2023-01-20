@@ -9,7 +9,7 @@ import {
 } from "@web/extensions/storytelling/core/types";
 
 import html from "../dist/web/storytelling/core/index.html?raw";
-import storyeditorHtml from "../dist/web/storytelling/modals/sceneeditor/index.html?raw";
+import storyeditorHtml from "../dist/web/storytelling/modals/sceneEditor/index.html?raw";
 
 const reearth = (globalThis as any).reearth;
 
