@@ -1,10 +1,30 @@
+import { ReearthApi } from "@web/extensions/sidebar/types";
+import { mergeProperty, postMsg } from "@web/extensions/sidebar/utils";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { Root, Data, Template } from "./newTypes";
 import processCatalog, { CatalogRawItem } from "./processCatalog";
-import { useCurrentOverrides } from "./state";
-import { ReearthApi } from "./types";
-import { mergeProperty, postMsg } from "./utils";
+
+const defaultOverrides: ReearthApi = {
+  default: {
+    sceneMode: "3d",
+    depthTestAgainstTerrain: false,
+  },
+  terrain: {
+    terrain: true,
+    terrainType: "cesiumion",
+    terrainCesiumIonAccessToken:
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI3NGI5ZDM0Mi1jZDIzLTRmMzEtOTkwYi0zZTk4Yzk3ODZlNzQiLCJpZCI6NDA2NDYsImlhdCI6MTYwODk4MzAwOH0.3rco62ErML11TMSEflsMqeUTCDbIH6o4n4l5sssuedE",
+    terrainCesiumIonAsset: "286503",
+  },
+  tiles: [
+    {
+      id: "tokyo",
+      tile_url: "https://cyberjapandata.gsi.go.jp/xyz/seamlessphoto/{z}/{x}/{y}.jpg",
+      tile_type: "url",
+    },
+  ],
+};
 
 export default () => {
   const [projectID, setProjectID] = useState<string>();
@@ -17,13 +37,13 @@ export default () => {
   // ****************************************
   // Init
   useEffect(() => {
-    postMsg({ action: "init" }); // Needed to trigger sending initialization data to sidebar
+    postMsg({ action: "initSidebar", payload: defaultOverrides }); // Needed to trigger sending initialization data to sidebar
   }, []);
   // ****************************************
 
   // ****************************************
   // Override
-  const [overrides, updateOverrides] = useCurrentOverrides();
+  const [overrides, updateOverrides] = useState<ReearthApi>(defaultOverrides);
 
   const handleOverridesUpdate = useCallback(
     (updatedProperties: Partial<ReearthApi>) => {
@@ -93,7 +113,7 @@ export default () => {
   const handleModalOpen = useCallback(() => {
     const selectedIds = selectedDatasets.map(d => d.id);
     postMsg({
-      action: "datacatalog-modal-open",
+      action: "catalogModalOpen",
       payload: { addedDatasets: selectedIds, rawCatalog },
     });
   }, [rawCatalog, selectedDatasets]);
@@ -215,7 +235,7 @@ export default () => {
         if (e.data.payload.dataset) {
           handleDatasetAdd(e.data.payload.dataset);
         }
-      } else if (e.data.type === "init") {
+      } else if (e.data.type === "initSidebar") {
         setProjectID(e.data.payload.projectID);
         setInEditor(e.data.payload.inEditor);
         setBackendAccessToken(e.data.payload.backendAccessToken);

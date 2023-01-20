@@ -1,5 +1,5 @@
 import { CatalogRawItem } from "@web/extensions/sidebar/core/processCatalog";
-import { PostMessageProps } from "@web/extensions/sidebar/core/types";
+import { PostMessageProps } from "@web/extensions/sidebar/types";
 
 import html from "../dist/web/sidebar/core/index.html?raw";
 import clipVideoHtml from "../dist/web/sidebar/modals/clipVideo/index.html?raw";
@@ -16,13 +16,15 @@ let rawCatalog: CatalogRawItem[] = [];
 
 const doNotShowWelcome = true; // Make it `let doNotShowWelcome: boolean = false`, and then modify based on storage value when Storage API available
 
+// let isMobile: boolean;
+
 reearth.ui.show(html, { extended: true });
 
 reearth.on("message", ({ action, payload }: PostMessageProps) => {
   // Sidebar
-  if (action === "init") {
+  if (action === "initSidebar") {
     reearth.ui.postMessage({
-      type: "init",
+      type: action,
       payload: {
         projectID: reearth.viewport.query.projectID,
         inEditor: reearth.scene.inEditor,
@@ -32,17 +34,37 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
         reearthURL: reearth.widget.property.default.reearthURL ?? "",
       },
     });
+    reearth.clientStorage.setAsync("overrides", payload);
     if (!doNotShowWelcome) {
       reearth.modal.show(welcomeScreenHtml, { background: "#000000bf" });
     }
+  } else if (action === "storageSave") {
+    reearth.clientStorage.setAsync(payload.key, payload.value);
+  } else if (action === "storageFetch") {
+    reearth.clientStorage.getAsync(payload.key).then((value: any) => {
+      reearth.ui.postMessage({
+        type: "getAsync",
+        payload: value,
+      });
+    });
+  } else if (action === "storageKeys") {
+    reearth.clientStorage.keysAsync().then((value: any) => {
+      reearth.ui.postMessage({
+        type: "keysAsync",
+        payload: value,
+      });
+    });
+  } else if (action === "storageDelete") {
+    reearth.clientStorage.deleteAsync(payload.key);
   } else if (action === "updateOverrides") {
     reearth.visualizer.overrideProperty(payload);
+    reearth.clientStorage.setAsync("overrides", payload);
   } else if (action === "addDatasetToScene") {
     // NEED TO HANDLE ADDING TO SCENE WHEN ABLE
   } else if (
     action === "screenshot" ||
-    action === "screenshot-preview" ||
-    action === "screenshot-save"
+    action === "screenshotPreview" ||
+    action === "screenshotSave"
   ) {
     reearth.ui.postMessage({
       type: action,
@@ -56,31 +78,31 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
     } else {
       reearth.ui.resize(350, undefined, true);
     }
-  } else if (action === "datacatalog-modal-open") {
+  } else if (action === "catalogModalOpen") {
     addedDatasets = payload.addedDatasets;
     rawCatalog = payload.rawCatalog;
     reearth.modal.show(dataCatalogHtml, { background: "transparent" });
     // Datacatalog modal
-  } else if (action === "modal-close") {
+  } else if (action === "modalClose") {
     reearth.modal.close();
-  } else if (action === "initDatasetCatalog") {
+  } else if (action === "initDataCatalog") {
     reearth.modal.postMessage({
-      type: "msgFromSidebar",
+      type: action,
       payload: { rawCatalog, addedDatasets },
     });
-  } else if (action === "welcome-modal-open") {
+  } else if (action === "welcomeModalOpen") {
     reearth.modal.show(welcomeScreenHtml, { background: "transparent" });
-  } else if (action === "show-popup") {
+  } else if (action === "popupOpen") {
     reearth.popup.show(helpPopupHtml, { position: "right-start", offset: 4 });
-  } else if (action === "popup-message-init") {
+  } else if (action === "initPopup") {
     reearth.ui.postMessage({ type: action });
-  } else if (action === "popup-message") {
-    reearth.popup.postMessage({ type: "msgFromHelp", message: payload }, "*");
-  } else if (action === "close-popup") {
+  } else if (action === "msgToPopup") {
+    reearth.popup.postMessage({ type: "msgToPopup", message: payload }, "*");
+  } else if (action === "popupClose") {
     reearth.popup.close();
-  } else if (action === "show-map-modal") {
+  } else if (action === "mapModalOpen") {
     reearth.modal.show(mapVideoHtml, { background: "transparent" });
-  } else if (action === "show-clip-modal") {
+  } else if (action === "clipModalOpen") {
     reearth.modal.show(clipVideoHtml, { background: "transparent" });
   }
 });
@@ -91,3 +113,10 @@ reearth.on("update", () => {
     payload: reearth.widget.extended,
   });
 });
+
+// reearth.on("resize", (e: any) => {
+//   if (e.isMobile !== isMobile) {
+//     reearth.ui.postMessage({type: ""});
+//     isMobile = e.isMobile;
+//   }
+// });

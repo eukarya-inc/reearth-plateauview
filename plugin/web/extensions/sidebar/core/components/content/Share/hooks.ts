@@ -1,6 +1,5 @@
-import { usePublishedUrl } from "@web/extensions/sidebar/core/state";
-import { ReearthApi as ReearthApiType } from "@web/extensions/sidebar/core/types";
-import { postMsg } from "@web/extensions/sidebar/core/utils";
+import { ReearthApi as ReearthApiType } from "@web/extensions/sidebar/types";
+import { postMsg } from "@web/extensions/sidebar/utils";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 export type ReearthApi = ReearthApiType;
@@ -16,22 +15,22 @@ export default ({
   backendURL?: string;
   messageApi: any;
 }) => {
-  const [publishedUrl, setPublishedUrl] = usePublishedUrl();
+  const [publishedUrl, setPublishedUrl] = useState<string>();
   const [shareDisabled, setShareDisable] = useState(false);
   const timer = useRef<NodeJS.Timeout | null>(null);
 
   const handleScreenshotShow = useCallback(() => {
-    postMsg({ action: "screenshot-preview" });
+    postMsg({ action: "screenshotPreview" });
   }, []);
 
   const handleScreenshotSave = useCallback(() => {
-    postMsg({ action: "screenshot-save" });
+    postMsg({ action: "screenshotSave" });
   }, []);
 
   const handleProjectShare = useCallback(async () => {
     setShareDisable(true);
     if (overrides) {
-      if (!backendURL) return;
+      if (!backendURL || !reearthURL) return;
       const resp = await fetch(`${backendURL}/share`, {
         headers: {
           "Content-Type": "application/json",
@@ -49,9 +48,7 @@ export default ({
         }
       } else {
         const project = await resp.json();
-        setPublishedUrl(
-          `${reearthURL}${reearthURL?.includes("?") ? "&" : "?"}projectID=${project}`,
-        );
+        setPublishedUrl(`${reearthURL}${reearthURL.includes("?") ? "&" : "?"}projectID=${project}`);
       }
     }
     timer.current = setTimeout(() => {
@@ -79,9 +76,9 @@ export default ({
 addEventListener("message", e => {
   if (e.source !== parent) return;
   if (e.data.type) {
-    if (e.data.type === "screenshot-preview") {
+    if (e.data.type === "screenshotPreview") {
       generatePrintView(e.data.payload);
-    } else if (e.data.type === "screenshot-save") {
+    } else if (e.data.type === "screenshotSave") {
       const link = document.createElement("a");
       link.download = "screenshot.png";
       link.href = e.data.payload;
