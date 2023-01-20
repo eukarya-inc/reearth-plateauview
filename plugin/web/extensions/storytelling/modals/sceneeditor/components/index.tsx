@@ -9,13 +9,13 @@ const SceneEditor: React.FC<Props> = () => {
 
   return (
     <Wrapper>
-      <TitleInput placeholder="Title" ref={titleRef} />
-      <ContentInput placeholder="Content" ref={descriptionRef} />
+      <TitleInput placeholder="タイトル" ref={titleRef} />
+      <ContentInput placeholder="内容" ref={descriptionRef} />
       <Actions>
         <Button primary onClick={onSave}>
-          Save
+          保存
         </Button>
-        <Button onClick={onCancel}>Cancel</Button>
+        <Button onClick={onCancel}>キャンセル</Button>
       </Actions>
     </Wrapper>
   );

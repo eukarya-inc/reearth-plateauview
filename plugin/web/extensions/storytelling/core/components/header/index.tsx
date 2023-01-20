@@ -25,20 +25,20 @@ const Header: React.FC<Props> = ({
   return (
     <StyledHeader isMobile={isMobile}>
       <HeaderMain>
-        <WidgetTitle isMobile={isMobile}>Story</WidgetTitle>
+        <WidgetTitle isMobile={isMobile}>ストリー</WidgetTitle>
         {!isMobile && (
           <>
             <Tab
               mode="editor"
               icon="pencil"
-              text="Editor mode"
+              text="編集モード"
               currentMode={mode}
               onClick={setMode}
             />
             <Tab
               mode="player"
               icon="play"
-              text="Play mode"
+              text="再生モード"
               theme="grey"
               currentMode={mode}
               onClick={setMode}

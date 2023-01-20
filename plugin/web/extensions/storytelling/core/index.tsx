@@ -31,7 +31,7 @@ const Storytelling: React.FC = () => {
     <Wrapper size={size} mode={mode} playerHeight={playerHeight} minimized={minimized}>
       <MiniPane onClick={handleMinimize} minimized={minimized}>
         <Icon icon="cornersOut" color="#4A4A4A" size={24} />
-        <MiniTitle>Story</MiniTitle>
+        <MiniTitle>ストリー</MiniTitle>
       </MiniPane>
       <ContentPane minimized={minimized}>
         <Header
@@ -102,6 +102,7 @@ const MiniTitle = styled.div`
   font-weight: 700;
   font-size: 14px;
   width: auto;
+  white-space: nowrap;
 `;
 
 const ContentPane = styled.div<{ minimized: boolean }>`

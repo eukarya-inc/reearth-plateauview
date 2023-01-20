@@ -15,7 +15,7 @@ import { postMsg, generateId } from "./utils";
 
 export const sizes = {
   mini: {
-    width: 89,
+    width: 108,
     height: 40,
   },
   editor: {

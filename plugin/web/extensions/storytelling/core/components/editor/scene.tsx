@@ -46,10 +46,10 @@ const Scene: React.FC<Props> = ({
   }, [sceneDelete, id]);
 
   const items = [
-    { label: "View", key: "view", onClick: hendleView },
-    { label: "Edit", key: "edit", onClick: handleEdit },
-    { label: "Recapture", key: "recapture", onClick: handleRecapture },
-    { label: "Delete", key: "delete", onClick: handleDelete },
+    { label: "ビュー", key: "view", onClick: hendleView },
+    { label: "編集", key: "edit", onClick: handleEdit },
+    { label: "再キャプチャ", key: "recapture", onClick: handleRecapture },
+    { label: "削除", key: "delete", onClick: handleDelete },
   ];
   const menu = <Menu items={items} />;
 

@@ -53,7 +53,7 @@ const Editor: React.FC<Props> = ({
           ))}
           <CreateStory onClick={sceneCapture}>
             <Icon icon="cornersOut" size={24} />
-            <CreateText>Capture Scene</CreateText>
+            <CreateText>キャプチャ</CreateText>
           </CreateStory>
         </Content>
       </DndProvider>
