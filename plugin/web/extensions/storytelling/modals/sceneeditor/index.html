@@ -42,7 +42,7 @@
 <script>
   window.addEventListener("message", function (e) {
     if (e.source !== parent) return;
-    if (e.data.type === 'editScene'){
+    if (e.data.action === 'editScene'){
       window.editScene = e.data.payload;
     }
   });

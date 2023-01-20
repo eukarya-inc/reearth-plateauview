@@ -28,59 +28,59 @@ reearth.on("pluginmessage", (pluginMessage: PluginMessage) => {
   reearth.ui.postMessage(pluginMessage.data);
 });
 
-reearth.on("message", ({ type, payload }: PostMessageProps) => {
-  if (type === "resize") {
+reearth.on("message", ({ action, payload }: PostMessageProps) => {
+  if (action === "resize") {
     reearth.ui.resize(...payload);
-  } else if (type === "captureScene") {
+  } else if (action === "captureScene") {
     reearth.ui.postMessage({
-      type: "captureScene",
+      action: "captureScene",
       payload: reearth.camera.position,
     });
-  } else if (type === "viewScene") {
+  } else if (action === "viewScene") {
     reearth.camera.flyTo(payload, { duration: 1.5 });
-  } else if (type === "recaptureScene") {
+  } else if (action === "recaptureScene") {
     reearth.ui.postMessage({
-      type: "recaptureScene",
+      action: "recaptureScene",
       payload: { camera: reearth.camera.position, id: payload },
     });
-  } else if (type === "editScene") {
+  } else if (action === "editScene") {
     reearth.modal.show(storyeditorHtml, { background: "transparent", width: 580, height: 320 });
     reearth.modal.postMessage({
-      type: "editScene",
+      action: "editScene",
       payload,
     });
-  } else if (type === "closeSceneEditor") {
+  } else if (action === "closeSceneEditor") {
     reearth.modal.close();
-  } else if (type === "saveScene") {
+  } else if (action === "saveScene") {
     reearth.ui.postMessage({
-      type: "saveScene",
+      action: "saveScene",
       payload,
     });
     reearth.modal.close();
-  } else if (type === "getViewport") {
+  } else if (action === "getViewport") {
     reearth.ui.postMessage({
-      type: "viewport",
+      action: "viewport",
       payload: reearth.viewport,
     });
-  } else if (type === "shareStory") {
+  } else if (action === "shareStory") {
     getSidebarId();
     if (!sidebarId) return;
     reearth.plugins.postMessage(sidebarId, {
-      type: "shareStory",
+      action: "shareStory",
       payload,
     } as ShareStory);
-  } else if (type === "saveStoryData") {
+  } else if (action === "saveStoryData") {
     getSidebarId();
     if (!sidebarId) return;
     reearth.plugins.postMessage(sidebarId, {
-      type: "saveStoryData",
+      action: "saveStoryData",
       payload,
     } as SaveStoryData);
-  } else if (type === "cancelPlayStory") {
+  } else if (action === "cancelPlayStory") {
     getSidebarId();
     if (!sidebarId) return;
     reearth.plugins.postMessage(sidebarId, {
-      type: "cancelPlayStory",
+      action: "cancelPlayStory",
       payload,
     } as CancelPlayStory);
   }
@@ -88,7 +88,7 @@ reearth.on("message", ({ type, payload }: PostMessageProps) => {
 
 reearth.on("resize", (viewport: Viewport) => {
   reearth.ui.postMessage({
-    type: "viewport",
+    action: "viewport",
     payload: viewport,
   });
 });

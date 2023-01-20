@@ -1,4 +1,4 @@
-export type PostMessageType =
+export type ActionType =
   | "resize"
   | "captureScene"
   | "viewScene"
@@ -11,7 +11,7 @@ export type PostMessageType =
   | "saveStoryData"
   | "cancelPlayStory";
 
-export type PostMessageProps = { type: PostMessageType; payload?: any };
+export type PostMessageProps = { action: ActionType; payload?: any };
 
 export type Story = {
   id?: string;
@@ -59,7 +59,7 @@ export type PluginMessage = {
 
 // sidebar -> storytelling
 export type EditStory = {
-  type: "editStory";
+  action: "editStory";
   payload: {
     id: string;
     scenes: string;
@@ -68,21 +68,21 @@ export type EditStory = {
 };
 
 export type SaveStory = {
-  type: "saveStory";
+  action: "saveStory";
   payload: {
     id: string;
   };
 };
 
 export type DeleteStory = {
-  type: "deleteStory";
+  action: "deleteStory";
   payload: {
     id: string;
   };
 };
 
 export type PlayStory = {
-  type: "playStory";
+  action: "playStory";
   payload: {
     id: string;
     scenes: string;
@@ -93,7 +93,7 @@ export type PlayStory = {
 // sidebar -> storytelling
 // storytelling -> sidebar
 export type CancelPlayStory = {
-  type: "cancelPlayStory";
+  action: "cancelPlayStory";
   payload: {
     id: string;
   };
@@ -101,14 +101,14 @@ export type CancelPlayStory = {
 
 // storytelling -> sidebar
 export type ShareStory = {
-  type: "shareStory";
+  action: "shareStory";
   payload: {
     scenes: string;
   };
 };
 
 export type SaveStoryData = {
-  type: "saveStoryData";
+  action: "saveStoryData";
   payload: {
     id: string;
     scenes: string;

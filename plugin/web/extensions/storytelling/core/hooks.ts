@@ -129,6 +129,7 @@ export default () => {
   const recaptureScene = useCallback((id: string) => {
     postMsg("recaptureScene", id);
   }, []);
+
   const handleRecaptureScene = useCallback(({ camera, id }: { camera: Camera; id: string }) => {
     setScenes(scenes => {
       const scene = scenes.find(scene => scene.id === id);
@@ -159,7 +160,7 @@ export default () => {
     [scenes],
   );
 
-  const saveScene = useCallback((sceneInfo: Omit<Scene, "camera">) => {
+  const handleSaveScene = useCallback((sceneInfo: Omit<Scene, "camera">) => {
     setScenes(scenes => {
       const scene = scenes.find(scene => scene.id === sceneInfo.id);
       if (scene) {
@@ -287,7 +288,7 @@ export default () => {
   const onMessage = useCallback(
     (e: MessageEvent<any>) => {
       if (e.source !== parent) return;
-      switch (e.data.type) {
+      switch (e.data.action) {
         case "captureScene":
           handleCaptureScene(e.data.payload);
           break;
@@ -295,7 +296,7 @@ export default () => {
           handleRecaptureScene(e.data.payload);
           break;
         case "saveScene":
-          saveScene(e.data.payload);
+          handleSaveScene(e.data.payload);
           break;
         case "viewport":
           handleViewportResize(e.data.payload);
@@ -322,7 +323,7 @@ export default () => {
     [
       handleCaptureScene,
       handleRecaptureScene,
-      saveScene,
+      handleSaveScene,
       handleViewportResize,
       handleEditStory,
       handleSaveStory,
