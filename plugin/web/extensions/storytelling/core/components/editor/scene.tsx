@@ -8,11 +8,11 @@ import type { Camera, Scene as SceneType } from "../../types";
 
 type Props = SceneType & {
   index: number;
-  viewScene: (camera: Camera) => void;
-  recaptureScene: (id: string) => void;
-  deleteScene: (id: string) => void;
-  editScene: (id: string) => void;
-  moveScene: (dragIndex: number, hoverIndex: number) => void;
+  sceneView: (camera: Camera) => void;
+  sceneRecapture: (id: string) => void;
+  sceneDelete: (id: string) => void;
+  sceneEdit: (id: string) => void;
+  sceneMove: (dragIndex: number, hoverIndex: number) => void;
 };
 
 const Scene: React.FC<Props> = ({
@@ -21,29 +21,29 @@ const Scene: React.FC<Props> = ({
   description,
   camera,
   index,
-  viewScene,
-  recaptureScene,
-  deleteScene,
-  editScene,
-  moveScene,
+  sceneView,
+  sceneRecapture,
+  sceneDelete,
+  sceneEdit,
+  sceneMove,
 }) => {
   const hendleView = useCallback(() => {
     if (camera) {
-      viewScene(camera);
+      sceneView(camera);
     }
-  }, [viewScene, camera]);
+  }, [sceneView, camera]);
 
   const handleEdit = useCallback(() => {
-    editScene(id);
-  }, [editScene, id]);
+    sceneEdit(id);
+  }, [sceneEdit, id]);
 
   const handleRecapture = useCallback(() => {
-    recaptureScene(id);
-  }, [recaptureScene, id]);
+    sceneRecapture(id);
+  }, [sceneRecapture, id]);
 
   const handleDelete = useCallback(() => {
-    deleteScene(id);
-  }, [deleteScene, id]);
+    sceneDelete(id);
+  }, [sceneDelete, id]);
 
   const items = [
     { label: "View", key: "view", onClick: hendleView },
@@ -92,7 +92,7 @@ const Scene: React.FC<Props> = ({
         return;
       }
 
-      moveScene(dragIndex, hoverIndex);
+      sceneMove(dragIndex, hoverIndex);
 
       item.index = hoverIndex;
     },

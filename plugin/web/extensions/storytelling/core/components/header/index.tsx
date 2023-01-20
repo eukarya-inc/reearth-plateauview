@@ -9,8 +9,8 @@ type Props = {
   mode: Mode;
   isMobile: boolean;
   setMode: (m: Mode) => void;
-  shareStory: () => void;
-  clearStory: () => void;
+  storyShare: () => void;
+  storyClear: () => void;
   handleMinimize: () => void;
 };
 
@@ -18,8 +18,8 @@ const Header: React.FC<Props> = ({
   mode,
   isMobile,
   setMode,
-  shareStory,
-  clearStory,
+  storyShare,
+  storyClear,
   handleMinimize,
 }) => {
   return (
@@ -48,12 +48,12 @@ const Header: React.FC<Props> = ({
       </HeaderMain>
       <HeaderBtns isMobile={isMobile}>
         {!isMobile && mode === "editor" && (
-          <IconBtn onClick={clearStory} isMobile={isMobile}>
+          <IconBtn onClick={storyClear} isMobile={isMobile}>
             <Icon icon="eraser" size={24} />
           </IconBtn>
         )}
         {!isMobile && (
-          <IconBtn onClick={shareStory} isMobile={isMobile}>
+          <IconBtn onClick={storyShare} isMobile={isMobile}>
             <Icon icon="paperPlane" size={isMobile ? 16 : 24} />
           </IconBtn>
         )}

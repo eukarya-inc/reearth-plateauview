@@ -10,22 +10,22 @@ import Scene from "./scene";
 
 type Props = {
   scenes: SceneType[];
-  captureScene: () => void;
-  viewScene: (camera: Camera) => void;
-  recaptureScene: (id: string) => void;
-  deleteScene: (id: string) => void;
-  editScene: (id: string) => void;
-  moveScene: (dragIndex: number, hoverIndex: number) => void;
+  sceneCapture: () => void;
+  sceneView: (camera: Camera) => void;
+  sceneRecapture: (id: string) => void;
+  sceneDelete: (id: string) => void;
+  sceneEdit: (id: string) => void;
+  sceneMove: (dragIndex: number, hoverIndex: number) => void;
 };
 
 const Editor: React.FC<Props> = ({
   scenes,
-  captureScene,
-  viewScene,
-  recaptureScene,
-  deleteScene,
-  editScene,
-  moveScene,
+  sceneCapture,
+  sceneView,
+  sceneRecapture,
+  sceneDelete,
+  sceneEdit,
+  sceneMove,
 }) => {
   const wrapperRef = useRef<HTMLDivElement>(null);
 
@@ -43,15 +43,15 @@ const Editor: React.FC<Props> = ({
             <Scene
               key={scene.id}
               index={index}
-              viewScene={viewScene}
-              recaptureScene={recaptureScene}
-              deleteScene={deleteScene}
-              editScene={editScene}
-              moveScene={moveScene}
+              sceneView={sceneView}
+              sceneRecapture={sceneRecapture}
+              sceneDelete={sceneDelete}
+              sceneEdit={sceneEdit}
+              sceneMove={sceneMove}
               {...scene}
             />
           ))}
-          <CreateStory onClick={captureScene}>
+          <CreateStory onClick={sceneCapture}>
             <Icon icon="cornersOut" size={24} />
             <CreateText>Capture Scene</CreateText>
           </CreateStory>

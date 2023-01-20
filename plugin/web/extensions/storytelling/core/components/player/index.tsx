@@ -10,7 +10,7 @@ type Props = {
   scenes: SceneType[];
   isMobile: boolean;
   contentWidth: number;
-  viewScene: (camera: Camera) => void;
+  sceneView: (camera: Camera) => void;
   setPlayerHeight: (height: number) => void;
 };
 
@@ -18,7 +18,7 @@ const Player: React.FC<Props> = ({
   scenes,
   isMobile,
   contentWidth,
-  viewScene,
+  sceneView,
   setPlayerHeight,
 }) => {
   const minCarouselHeight = 131;
@@ -77,13 +77,13 @@ const Player: React.FC<Props> = ({
       if (currentSlide !== current) {
         const camera = scenes[currentSlide]?.camera;
         if (camera) {
-          viewScene(camera);
+          sceneView(camera);
         }
         setCurrent(currentSlide);
         updateHeight(currentSlide);
       }
     },
-    [scenes, viewScene, current, setCurrent, updateHeight],
+    [scenes, sceneView, current, setCurrent, updateHeight],
   );
 
   const prev = useCallback(() => {
@@ -130,12 +130,12 @@ const Player: React.FC<Props> = ({
         carouselRef.current.goTo(0);
       } else {
         if (scenes[0]?.camera) {
-          viewScene(scenes[0].camera);
+          sceneView(scenes[0].camera);
         }
         updateHeight(0);
       }
     }
-  }, [scenes, viewScene, updateHeight]);
+  }, [scenes, sceneView, updateHeight]);
 
   return (
     <Wrapper isMobile={isMobile}>

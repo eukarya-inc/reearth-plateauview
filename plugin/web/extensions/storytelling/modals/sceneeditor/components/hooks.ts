@@ -9,11 +9,11 @@ export default () => {
   const easyMDE = useRef<EasyMDE | null>(null);
 
   const onCancel = useCallback(() => {
-    postMsg("closeSceneEditor");
+    postMsg("sceneEditorClose");
   }, []);
 
   const onSave = useCallback(() => {
-    postMsg("saveScene", {
+    postMsg("sceneSave", {
       id: storyId.current,
       title: titleRef.current?.value,
       description: easyMDE.current?.value(),
@@ -30,12 +30,12 @@ export default () => {
       });
     }
 
-    if ((window as any).editScene && titleRef.current && descriptionRef.current) {
-      storyId.current = (window as any).editScene.id;
-      titleRef.current.value = (window as any).editScene.title;
+    if ((window as any).sceneEdit && titleRef.current && descriptionRef.current) {
+      storyId.current = (window as any).sceneEdit.id;
+      titleRef.current.value = (window as any).sceneEdit.title;
 
       if (easyMDE.current) {
-        easyMDE.current.value((window as any).editScene.description);
+        easyMDE.current.value((window as any).sceneEdit.description);
       }
     }
 

@@ -5,11 +5,11 @@ import type {
   Camera,
   Scene,
   Viewport,
-  EditStory,
-  SaveStory,
-  DeleteStory,
-  PlayStory,
-  CancelPlayStory,
+  StoryEdit,
+  StorySave,
+  StoryDelete,
+  StoryPlay,
+  StoryCancelPlay,
 } from "./types";
 import { postMsg, generateId } from "./utils";
 
@@ -61,18 +61,23 @@ export default () => {
     setMinimized(minimized => !minimized);
   }, []);
 
-  const handleSetMode = useCallback((mode: Mode) => {
-    setMode(mode);
-    if (mode === "editor") {
-      setPlayerHeight(0);
-      if (storyId.current) {
-        postMsg("cancelPlayStory", {
-          id: storyId.current,
-        });
-        storyId.current = undefined;
+  const handleSetMode = useCallback(
+    (newMode: Mode) => {
+      if (newMode !== mode) {
+        setMode(newMode);
+        if (newMode === "editor") {
+          setPlayerHeight(0);
+          if (storyId.current) {
+            postMsg("storyCancelPlay", {
+              id: storyId.current,
+            });
+            storyId.current = undefined;
+          }
+        }
       }
-    }
-  }, []);
+    },
+    [mode],
+  );
 
   useEffect(() => {
     prevSizeRef.current = sizeRef.current;
@@ -99,79 +104,36 @@ export default () => {
   }, [size]);
 
   // scenes
-  const storyId = useRef<string>();
   const [scenes, setScenes] = useState<Scene[]>([]);
 
-  const addScene = useCallback((scene: Scene) => {
+  const sceneCreate = useCallback((scene: Scene) => {
     setScenes(scenes => [...scenes, scene]);
-    postMsg("editScene", { id: scene.id, title: scene.title, description: scene.description });
+    postMsg("sceneEdit", { id: scene.id, title: scene.title, description: scene.description });
   }, []);
 
-  const captureScene = useCallback(() => {
-    postMsg("captureScene");
-  }, []);
-  const handleCaptureScene = useCallback(
-    (camera: Camera) => {
-      addScene({
-        id: generateId(),
-        title: "",
-        description: "",
-        camera,
-      });
-    },
-    [addScene],
-  );
-
-  const viewScene = useCallback((camera: Camera) => {
-    postMsg("viewScene", camera);
+  const sceneView = useCallback((camera: Camera) => {
+    postMsg("sceneView", camera);
   }, []);
 
-  const recaptureScene = useCallback((id: string) => {
-    postMsg("recaptureScene", id);
+  const sceneCapture = useCallback(() => {
+    postMsg("sceneCapture");
   }, []);
 
-  const handleRecaptureScene = useCallback(({ camera, id }: { camera: Camera; id: string }) => {
-    setScenes(scenes => {
-      const scene = scenes.find(scene => scene.id === id);
-      if (scene) {
-        scene.camera = camera;
-      }
-      return [...scenes];
-    });
+  const sceneRecapture = useCallback((id: string) => {
+    postMsg("sceneRecapture", id);
   }, []);
 
-  const deleteScene = useCallback((id: string) => {
-    setScenes(scenes => {
-      const index = scenes.findIndex(scene => scene.id === id);
-      if (index !== -1) {
-        scenes.splice(index, 1);
-      }
-      return [...scenes];
-    });
-  }, []);
-
-  const editScene = useCallback(
+  const sceneEdit = useCallback(
     (id: string) => {
       const scene = scenes.find(scene => scene.id === id);
       if (scene) {
-        postMsg("editScene", scene);
+        postMsg("sceneEdit", scene);
       }
     },
     [scenes],
   );
 
-  const handleSaveScene = useCallback((sceneInfo: Omit<Scene, "camera">) => {
-    setScenes(scenes => {
-      const scene = scenes.find(scene => scene.id === sceneInfo.id);
-      if (scene) {
-        scene.title = sceneInfo.title;
-        scene.description = sceneInfo.description;
-      }
-      return [...scenes];
-    });
-  }, []);
-
-  const moveScene = useCallback((dragIndex: number, hoverIndex: number) => {
+  const sceneMove = useCallback((dragIndex: number, hoverIndex: number) => {
     setScenes((prevScenes: Scene[]) =>
       update(prevScenes, {
         $splice: [
@@ -182,16 +144,68 @@ export default () => {
     );
   }, []);
 
-  const clearStory = useCallback(() => {
+  const sceneDelete = useCallback((id: string) => {
+    setScenes(scenes => {
+      const index = scenes.findIndex(scene => scene.id === id);
+      if (index !== -1) {
+        scenes.splice(index, 1);
+      }
+      return [...scenes];
+    });
+  }, []);
+
+  const handleSceneCapture = useCallback(
+    (camera: Camera) => {
+      sceneCreate({
+        id: generateId(),
+        title: "",
+        description: "",
+        camera,
+      });
+    },
+    [sceneCreate],
+  );
+
+  const handleSceneRecapture = useCallback(({ camera, id }: { camera: Camera; id: string }) => {
+    setScenes(scenes => {
+      const scene = scenes.find(scene => scene.id === id);
+      if (scene) {
+        scene.camera = camera;
+      }
+      return [...scenes];
+    });
+  }, []);
+
+  const handleSceneSave = useCallback((sceneInfo: Omit<Scene, "camera">) => {
+    setScenes(scenes => {
+      const scene = scenes.find(scene => scene.id === sceneInfo.id);
+      if (scene) {
+        scene.title = sceneInfo.title;
+        scene.description = sceneInfo.description;
+      }
+      return [...scenes];
+    });
+  }, []);
+
+  // story
+  const storyId = useRef<string>();
+
+  const storyClear = useCallback(() => {
     storyId.current = undefined;
     setScenes([]);
   }, []);
 
-  const handleEditStory = useCallback(
-    ({ id, scenes }: EditStory["payload"]) => {
+  const storyShare = useCallback(() => {
+    postMsg("storyShare", {
+      scenes: JSON.stringify(scenes),
+    });
+  }, [scenes]);
+
+  const handleStoryEdit = useCallback(
+    ({ id, scenes }: StoryEdit["payload"]) => {
+      handleSetMode("editor");
       storyId.current = id;
       setScenes(scenes ? JSON.parse(scenes) : []);
-      handleSetMode("editor");
       if (minimized) {
         handleMinimize();
       }
@@ -199,9 +213,9 @@ export default () => {
     [handleSetMode, minimized, handleMinimize],
   );
 
-  const handleSaveStory = useCallback(
-    ({ id }: SaveStory["payload"]) => {
-      postMsg("saveStoryData", {
+  const handleStorySave = useCallback(
+    ({ id }: StorySave["payload"]) => {
+      postMsg("storySaveData", {
         id,
         scenes: JSON.stringify(scenes),
       });
@@ -209,15 +223,15 @@ export default () => {
     [scenes],
   );
 
-  const handleDeleteStory = useCallback(({ id }: DeleteStory["payload"]) => {
+  const handleStoryDelete = useCallback(({ id }: StoryDelete["payload"]) => {
     if (storyId.current === id) {
       storyId.current = undefined;
       setScenes([]);
     }
   }, []);
 
-  const handlePlayStory = useCallback(
-    ({ id, scenes }: PlayStory["payload"]) => {
+  const handleStoryPlay = useCallback(
+    ({ id, scenes }: StoryPlay["payload"]) => {
       storyId.current = id;
       setScenes(JSON.parse(scenes ?? "[]"));
       handleSetMode("player");
@@ -228,8 +242,8 @@ export default () => {
     [handleSetMode, minimized, handleMinimize],
   );
 
-  const handleCancelPlayStory = useCallback(
-    ({ id }: CancelPlayStory["payload"]) => {
+  const handleStoryCancelPlay = useCallback(
+    ({ id }: StoryCancelPlay["payload"]) => {
       if (storyId.current === id) {
         storyId.current = undefined;
         setScenes([]);
@@ -241,12 +255,6 @@ export default () => {
     [minimized, handleMinimize],
   );
 
-  const shareStory = useCallback(() => {
-    postMsg("shareStory", {
-      scenes: JSON.stringify(scenes),
-    });
-  }, [scenes]);
-
   useEffect(() => {
     // theme
     const themeColor = "#00BEBE";
@@ -256,7 +264,6 @@ export default () => {
     document.documentElement.style.setProperty("--ant-primary-color-active", themeColor);
     document.documentElement.style.setProperty("--ant-primary-5", themeColor);
 
-    // viewport
     postMsg("getViewport");
   }, []);
 
@@ -289,47 +296,47 @@ export default () => {
     (e: MessageEvent<any>) => {
       if (e.source !== parent) return;
       switch (e.data.action) {
-        case "captureScene":
-          handleCaptureScene(e.data.payload);
-          break;
-        case "recaptureScene":
-          handleRecaptureScene(e.data.payload);
-          break;
-        case "saveScene":
-          handleSaveScene(e.data.payload);
-          break;
-        case "viewport":
+        case "getViewport":
           handleViewportResize(e.data.payload);
           break;
-        case "editStory":
-          handleEditStory(e.data.payload);
+        case "sceneCapture":
+          handleSceneCapture(e.data.payload);
           break;
-        case "saveStory":
-          handleSaveStory(e.data.payload);
+        case "sceneRecapture":
+          handleSceneRecapture(e.data.payload);
           break;
-        case "deleteStory":
-          handleDeleteStory(e.data.payload);
+        case "sceneSave":
+          handleSceneSave(e.data.payload);
           break;
-        case "playStory":
-          handlePlayStory(e.data.payload);
+        case "storyEdit":
+          handleStoryEdit(e.data.payload);
           break;
-        case "cancelPlayStory":
-          handleCancelPlayStory(e.data.payload);
+        case "storySave":
+          handleStorySave(e.data.payload);
+          break;
+        case "storyDelete":
+          handleStoryDelete(e.data.payload);
+          break;
+        case "storyPlay":
+          handleStoryPlay(e.data.payload);
+          break;
+        case "storyCancelPlay":
+          handleStoryCancelPlay(e.data.payload);
           break;
         default:
           break;
       }
     },
     [
-      handleCaptureScene,
-      handleRecaptureScene,
-      handleSaveScene,
       handleViewportResize,
-      handleEditStory,
-      handleSaveStory,
-      handleDeleteStory,
-      handlePlayStory,
-      handleCancelPlayStory,
+      handleSceneCapture,
+      handleSceneRecapture,
+      handleSceneSave,
+      handleStoryEdit,
+      handleStorySave,
+      handleStoryDelete,
+      handleStoryPlay,
+      handleStoryCancelPlay,
     ],
   );
 
@@ -351,13 +358,13 @@ export default () => {
     setPlayerHeight,
     handleMinimize,
     handleSetMode,
-    captureScene,
-    viewScene,
-    recaptureScene,
-    deleteScene,
-    editScene,
-    moveScene,
-    clearStory,
-    shareStory,
+    sceneCapture,
+    sceneView,
+    sceneRecapture,
+    sceneDelete,
+    sceneEdit,
+    sceneMove,
+    storyClear,
+    storyShare,
   };
 };

@@ -1,15 +1,17 @@
 export type ActionType =
   | "resize"
-  | "captureScene"
-  | "viewScene"
-  | "recaptureScene"
-  | "editScene"
-  | "closeSceneEditor"
-  | "saveScene"
   | "getViewport"
-  | "shareStory"
-  | "saveStoryData"
-  | "cancelPlayStory";
+  | "sceneCapture"
+  | "sceneView"
+  | "sceneRecapture"
+  | "sceneEdit"
+  | "sceneSave"
+  | "sceneEditorClose"
+  | "storyShare"
+  | "storySaveData"
+  | "storyCancelPlay";
+
+export type CommunicationActionType = "storyEdit" | "storySave" | "storyDelete" | "storyPlay";
 
 export type PostMessageProps = { action: ActionType; payload?: any };
 
@@ -53,13 +55,13 @@ export type PluginExtensionInstance = {
 
 // Communications
 export type PluginMessage = {
-  data: EditStory | SaveStory | DeleteStory | PlayStory | CancelPlayStory;
+  data: StoryEdit | StorySave | StoryDelete | StoryPlay | StoryCancelPlay;
   sender: string;
 };
 
 // sidebar -> storytelling
-export type EditStory = {
-  action: "editStory";
+export type StoryEdit = {
+  action: "storyEdit";
   payload: {
     id: string;
     scenes: string;
@@ -67,22 +69,22 @@ export type EditStory = {
   };
 };
 
-export type SaveStory = {
-  action: "saveStory";
+export type StorySave = {
+  action: "storySave";
   payload: {
     id: string;
   };
 };
 
-export type DeleteStory = {
-  action: "deleteStory";
+export type StoryDelete = {
+  action: "storyDelete";
   payload: {
     id: string;
   };
 };
 
-export type PlayStory = {
-  action: "playStory";
+export type StoryPlay = {
+  action: "storyPlay";
   payload: {
     id: string;
     scenes: string;
@@ -92,23 +94,23 @@ export type PlayStory = {
 
 // sidebar -> storytelling
 // storytelling -> sidebar
-export type CancelPlayStory = {
-  action: "cancelPlayStory";
+export type StoryCancelPlay = {
+  action: "storyCancelPlay";
   payload: {
     id: string;
   };
 };
 
 // storytelling -> sidebar
-export type ShareStory = {
-  action: "shareStory";
+export type StoryShare = {
+  action: "storyShare";
   payload: {
     scenes: string;
   };
 };
 
-export type SaveStoryData = {
-  action: "saveStoryData";
+export type StorySaveData = {
+  action: "storySaveData";
   payload: {
     id: string;
     scenes: string;

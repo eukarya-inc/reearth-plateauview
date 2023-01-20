@@ -17,14 +17,14 @@ const Storytelling: React.FC = () => {
     setPlayerHeight,
     handleMinimize,
     handleSetMode,
-    captureScene,
-    viewScene,
-    recaptureScene,
-    deleteScene,
-    editScene,
-    moveScene,
-    clearStory,
-    shareStory,
+    sceneCapture,
+    sceneView,
+    sceneRecapture,
+    sceneDelete,
+    sceneEdit,
+    sceneMove,
+    storyClear,
+    storyShare,
   } = useHooks();
 
   return (
@@ -37,20 +37,20 @@ const Storytelling: React.FC = () => {
         <Header
           mode={mode}
           setMode={handleSetMode}
-          shareStory={shareStory}
-          clearStory={clearStory}
+          storyShare={storyShare}
+          storyClear={storyClear}
           handleMinimize={handleMinimize}
           isMobile={isMobile}
         />
         {!isMobile && mode === "editor" && (
           <Editor
             scenes={scenes}
-            captureScene={captureScene}
-            viewScene={viewScene}
-            recaptureScene={recaptureScene}
-            deleteScene={deleteScene}
-            editScene={editScene}
-            moveScene={moveScene}
+            sceneCapture={sceneCapture}
+            sceneView={sceneView}
+            sceneRecapture={sceneRecapture}
+            sceneDelete={sceneDelete}
+            sceneEdit={sceneEdit}
+            sceneMove={sceneMove}
           />
         )}
         {mode === "player" && (
@@ -58,7 +58,7 @@ const Storytelling: React.FC = () => {
             scenes={scenes}
             isMobile={isMobile}
             contentWidth={contentWidth}
-            viewScene={viewScene}
+            sceneView={sceneView}
             setPlayerHeight={setPlayerHeight}
           />
         )}

@@ -42,8 +42,8 @@
 <script>
   window.addEventListener("message", function (e) {
     if (e.source !== parent) return;
-    if (e.data.action === 'editScene'){
-      window.editScene = e.data.payload;
+    if (e.data.action === 'sceneEdit'){
+      window.sceneEdit = e.data.payload;
     }
   });
 </script>

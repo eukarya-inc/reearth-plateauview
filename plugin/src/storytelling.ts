@@ -3,9 +3,9 @@ import {
   Viewport,
   PluginMessage,
   PluginExtensionInstance,
-  ShareStory,
-  SaveStoryData,
-  CancelPlayStory,
+  StoryShare,
+  StorySaveData,
+  StoryCancelPlay,
 } from "@web/extensions/storytelling/core/types";
 
 import html from "../dist/web/storytelling/core/index.html?raw";
@@ -31,58 +31,58 @@ reearth.on("pluginmessage", (pluginMessage: PluginMessage) => {
 reearth.on("message", ({ action, payload }: PostMessageProps) => {
   if (action === "resize") {
     reearth.ui.resize(...payload);
-  } else if (action === "captureScene") {
-    reearth.ui.postMessage({
-      action: "captureScene",
-      payload: reearth.camera.position,
-    });
-  } else if (action === "viewScene") {
-    reearth.camera.flyTo(payload, { duration: 1.5 });
-  } else if (action === "recaptureScene") {
-    reearth.ui.postMessage({
-      action: "recaptureScene",
-      payload: { camera: reearth.camera.position, id: payload },
-    });
-  } else if (action === "editScene") {
-    reearth.modal.show(storyeditorHtml, { background: "transparent", width: 580, height: 320 });
-    reearth.modal.postMessage({
-      action: "editScene",
-      payload,
-    });
-  } else if (action === "closeSceneEditor") {
-    reearth.modal.close();
-  } else if (action === "saveScene") {
-    reearth.ui.postMessage({
-      action: "saveScene",
-      payload,
-    });
-    reearth.modal.close();
   } else if (action === "getViewport") {
     reearth.ui.postMessage({
-      action: "viewport",
+      action: "getViewport",
       payload: reearth.viewport,
     });
-  } else if (action === "shareStory") {
+  } else if (action === "sceneCapture") {
+    reearth.ui.postMessage({
+      action: "sceneCapture",
+      payload: reearth.camera.position,
+    });
+  } else if (action === "sceneView") {
+    reearth.camera.flyTo(payload, { duration: 1.5 });
+  } else if (action === "sceneRecapture") {
+    reearth.ui.postMessage({
+      action: "sceneRecapture",
+      payload: { camera: reearth.camera.position, id: payload },
+    });
+  } else if (action === "sceneEdit") {
+    reearth.modal.show(storyeditorHtml, { background: "transparent", width: 580, height: 320 });
+    reearth.modal.postMessage({
+      action: "sceneEdit",
+      payload,
+    });
+  } else if (action === "sceneEditorClose") {
+    reearth.modal.close();
+  } else if (action === "sceneSave") {
+    reearth.ui.postMessage({
+      action: "sceneSave",
+      payload,
+    });
+    reearth.modal.close();
+  } else if (action === "storyShare") {
     getSidebarId();
     if (!sidebarId) return;
     reearth.plugins.postMessage(sidebarId, {
-      action: "shareStory",
+      action: "storyShare",
       payload,
-    } as ShareStory);
-  } else if (action === "saveStoryData") {
+    } as StoryShare);
+  } else if (action === "storySaveData") {
     getSidebarId();
     if (!sidebarId) return;
     reearth.plugins.postMessage(sidebarId, {
-      action: "saveStoryData",
+      action: "storySaveData",
       payload,
-    } as SaveStoryData);
-  } else if (action === "cancelPlayStory") {
+    } as StorySaveData);
+  } else if (action === "storyCancelPlay") {
     getSidebarId();
     if (!sidebarId) return;
     reearth.plugins.postMessage(sidebarId, {
-      action: "cancelPlayStory",
+      action: "storyCancelPlay",
       payload,
-    } as CancelPlayStory);
+    } as StoryCancelPlay);
   }
 });
 
