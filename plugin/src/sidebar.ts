@@ -15,7 +15,7 @@ let addedDatasets: string | undefined = undefined;
 let rawCatalog: CatalogRawItem[] = [];
 
 // let isMobile: boolean;
-
+let welcomPagIsOpen = false;
 reearth.ui.show(html, { extended: true });
 
 reearth.on("message", ({ action, payload }: PostMessageProps) => {
@@ -34,8 +34,13 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
     });
     reearth.clientStorage.setAsync("overrides", payload);
     reearth.clientStorage.getAsync("doNotShowWelcome").then((value: any) => {
-      if (!value && !reearth.scene.inEditor)
-        reearth.modal.show(welcomeScreenHtml, { width: 1811, height: 959 });
+      if (!value && !reearth.scene.inEditor) {
+        reearth.modal.show(welcomeScreenHtml, {
+          width: reearth.viewport.width,
+          height: reearth.viewport.height,
+        });
+        welcomPagIsOpen = true;
+      }
     });
   } else if (action === "storageSaveWelcomeScreen") {
     reearth.clientStorage.setAsync(payload.key, payload.value);
@@ -115,9 +120,15 @@ reearth.on("update", () => {
   });
 });
 
-// reearth.on("resize", (e: any) => {
-//   if (e.isMobile !== isMobile) {
-//     reearth.ui.postMessage({type: ""});
-//     isMobile = e.isMobile;
-//   }
-// });
+reearth.on("resize", () => {
+  // if (e.isMobile !== isMobile) {
+  //   reearth.ui.postMessage({type: ""});
+  //   isMobile = e.isMobile;
+  // }
+
+  if (welcomPagIsOpen)
+    reearth.modal.update(welcomeScreenHtml, {
+      width: reearth.viewport.width,
+      height: reearth.viewport.height,
+    });
+});
