@@ -19,10 +19,11 @@ export default () => {
 
   const handleClose = useCallback(() => {
     postMsg({ action: "modalClose" });
-    postMsg({
-      action: "storageSaveWelcomeScreen",
-      payload: { key: "doNotShowWelcome", value: dontShowAgain },
-    });
+    if (dontShowAgain)
+      postMsg({
+        action: "storageSaveWelcomeScreen",
+        payload: { key: "doNotShowWelcome", value: dontShowAgain },
+      });
   }, [dontShowAgain]);
 
   return {
