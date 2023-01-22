@@ -17,6 +17,10 @@ export default () => {
     setShowVideo(true);
   }, []);
 
+  const handleCloseVideo = useCallback(() => {
+    setShowVideo(false);
+  }, []);
+
   const handleClose = useCallback(() => {
     postMsg({ action: "modalClose" });
   }, []);
@@ -26,6 +30,7 @@ export default () => {
     ShowVideo,
     dontShowAgain,
     handleShowVideo,
+    handleCloseVideo,
     handleClose,
   };
 };

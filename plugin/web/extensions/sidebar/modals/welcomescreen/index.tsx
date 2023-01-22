@@ -1,21 +1,26 @@
 import welcomeScreenVideo from "@web/extensions/sidebar/core/assets/welcomeScreenVideo.png";
-// import Backdrop from "@web/extensions/sidebar/modals/welcomescreen/component/Backdrop";
 import useHooks from "@web/extensions/sidebar/modals/welcomescreen/hooks";
 import { Checkbox, Icon } from "@web/sharedComponents";
 import Video from "@web/sharedComponents/Video";
 import { styled } from "@web/theme";
 
 const WelcomeScreen: React.FC = () => {
-  const { ShowVideo, handleDontShowAgain, dontShowAgain, handleShowVideo, handleClose } =
-    useHooks();
+  const {
+    ShowVideo,
+    handleDontShowAgain,
+    dontShowAgain,
+    handleShowVideo,
+    handleClose,
+    handleCloseVideo,
+  } = useHooks();
 
   return (
     <Wrapper>
-      <CloseButton>
-        <Icon size={32} icon="close" onClick={handleClose} />
-      </CloseButton>
       {!ShowVideo ? (
         <>
+          <CloseButton>
+            <Icon size={32} icon="close" onClick={handleClose} />
+          </CloseButton>
           <InnerWrapper>
             <TryMapWrapper>
               <TextWrapper width={192} height={46}>
@@ -54,7 +59,7 @@ const WelcomeScreen: React.FC = () => {
           </InnerWrapper>
           <CheckWrapper>
             <Checkbox checked={dontShowAgain} onClick={handleDontShowAgain}>
-              <TextWrapper width={192} height={46}>
+              <TextWrapper width={192} height={54}>
                 <Text weight={700} size={14}>
                   閉じて今後は表示しない
                 </Text>
@@ -63,17 +68,31 @@ const WelcomeScreen: React.FC = () => {
           </CheckWrapper>
         </>
       ) : (
-        <VideoWrapper>
-          <Video width=" 1142" height="543" src="https://www.youtube.com/embed/pY2dM-eG5mA" />
-        </VideoWrapper>
+        <>
+          <CloseButton>
+            <Icon size={32} icon="close" onClick={handleCloseVideo} />
+          </CloseButton>
+          <VideoWrapper>
+            <Video width=" 1142" height="543" src="https://www.youtube.com/embed/pY2dM-eG5mA" />
+          </VideoWrapper>
+        </>
       )}
-      {/* <Backdrop onClose={handleClose} /> */}
     </Wrapper>
   );
 };
 export default WelcomeScreen;
 
-const Wrapper = styled.div``;
+const Wrapper = styled.div`
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  gap: 50px;
+  background: rgba(0, 0, 0, 0.7);
+`;
 
 const InnerWrapper = styled.div`
   display: flex;
@@ -81,7 +100,6 @@ const InnerWrapper = styled.div`
   align-items: flex-end;
   padding: 0px;
   gap: 119px;
-  position: absolute;
   width: 742px;
   height: 316px;
   left: calc(50% - 742px / 2 + 0.5px);
@@ -104,6 +122,7 @@ const TryMapWrapper = styled.div`
   display: flex;
   flex-direction: column;
   align-items: flex-start;
+  justify-content: flex-end;
   padding: 0px;
   gap: 55px;
   width: 305px;
@@ -175,7 +194,6 @@ const CheckWrapper = styled.div`
   align-items: center;
   padding: 0px;
   gap: 8px;
-  position: absolute;
   width: 178px;
   height: 22px;
   left: calc(50% - 178px / 2 + 0.5px);
@@ -183,7 +201,6 @@ const CheckWrapper = styled.div`
 `;
 
 const VideoWrapper = styled.div`
-  position: absolute;
   width: 1142px;
   height: 543px;
   left: calc(50% - 1142px / 2 + 0.5px);
