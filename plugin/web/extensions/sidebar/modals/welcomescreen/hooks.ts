@@ -7,10 +7,6 @@ export default () => {
 
   const handleDontShowAgain = useCallback(() => {
     setDontShowAgain(!dontShowAgain);
-    postMsg({
-      action: "storageSaveWelcomeScreen",
-      payload: { key: "doNotShowWelcome", value: dontShowAgain },
-    });
   }, [dontShowAgain]);
 
   const handleShowVideo = useCallback(() => {
@@ -23,7 +19,11 @@ export default () => {
 
   const handleClose = useCallback(() => {
     postMsg({ action: "modalClose" });
-  }, []);
+    postMsg({
+      action: "storageSaveWelcomeScreen",
+      payload: { key: "doNotShowWelcome", value: dontShowAgain },
+    });
+  }, [dontShowAgain]);
 
   return {
     handleDontShowAgain,
