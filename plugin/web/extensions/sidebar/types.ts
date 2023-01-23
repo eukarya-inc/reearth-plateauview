@@ -3,7 +3,6 @@ type ActionType =
   | "initDataCatalog"
   | "initPopup"
   | "storageSave"
-  | "storageSaveWelcomeScreen"
   | "storageFetch"
   | "storageKeys"
   | "storageDelete"

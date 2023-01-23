@@ -15,7 +15,7 @@ let addedDatasets: string | undefined = undefined;
 let rawCatalog: CatalogRawItem[] = [];
 
 // let isMobile: boolean;
-let welcomPagIsOpen = false;
+let welcomePagIsOpen = false;
 reearth.ui.show(html, { extended: true });
 
 reearth.on("message", ({ action, payload }: PostMessageProps) => {
@@ -39,11 +39,9 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
           width: reearth.viewport.width,
           height: reearth.viewport.height,
         });
-        welcomPagIsOpen = true;
+        welcomePagIsOpen = true;
       }
     });
-  } else if (action === "storageSaveWelcomeScreen") {
-    reearth.clientStorage.setAsync(payload.key, payload.value);
   } else if (action === "storageSave") {
     reearth.clientStorage.setAsync(payload.key, payload.value);
   } else if (action === "storageFetch") {
@@ -126,8 +124,8 @@ reearth.on("resize", () => {
   //   isMobile = e.isMobile;
   // }
 
-  if (welcomPagIsOpen)
-    reearth.modal.update(welcomeScreenHtml, {
+  if (welcomePagIsOpen)
+    reearth.modal.update({
       width: reearth.viewport.width,
       height: reearth.viewport.height,
     });

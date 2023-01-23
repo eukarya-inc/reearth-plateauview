@@ -18,12 +18,12 @@ export default () => {
   }, []);
 
   const handleClose = useCallback(() => {
-    postMsg({ action: "modalClose" });
     if (dontShowAgain)
       postMsg({
-        action: "storageSaveWelcomeScreen",
+        action: "storageSave",
         payload: { key: "doNotShowWelcome", value: dontShowAgain },
       });
+    postMsg({ action: "modalClose" });
   }, [dontShowAgain]);
 
   return {
