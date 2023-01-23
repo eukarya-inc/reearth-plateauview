@@ -256,14 +256,7 @@ export default () => {
   );
 
   useEffect(() => {
-    // theme
-    const themeColor = "#00BEBE";
-    document.documentElement.style.setProperty("--theme-color", themeColor);
-    document.documentElement.style.setProperty("--ant-primary-color", themeColor);
-    document.documentElement.style.setProperty("--ant-primary-color-hover", themeColor);
-    document.documentElement.style.setProperty("--ant-primary-color-active", themeColor);
-    document.documentElement.style.setProperty("--ant-primary-5", themeColor);
-
+    document.documentElement.style.setProperty("--theme-color", "#00BEBE");
     postMsg("getViewport");
   }, []);
 

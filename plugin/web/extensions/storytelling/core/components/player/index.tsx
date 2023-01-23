@@ -4,7 +4,6 @@ import { useCallback, useEffect, useRef, useState, useMemo } from "react";
 import { Remarkable } from "remarkable";
 
 import type { Camera, Scene as SceneType } from "../../types";
-import "./index.css";
 
 type Props = {
   scenes: SceneType[];
@@ -174,11 +173,12 @@ const Player: React.FC<Props> = ({
         </CarouselContainer>
         <PaginationContainer>
           {scenes.length > 0 && (
-            <Pagination
+            <StyledPagination
               current={current + 1}
               size="small"
               total={scenes.length}
               pageSize={1}
+              showSizeChanger={false}
               onChange={onPaginationChange}
             />
           )}
@@ -204,19 +204,21 @@ const Wrapper = styled.div<{ isMobile: boolean }>`
   gap: ${({ isMobile }) => (isMobile ? "6px" : "12px")};
 `;
 
-const NavButton = styled.a<{ disabled: boolean; isMobile: boolean }>`
+const NavButton = styled.div<{ disabled: boolean; isMobile: boolean }>`
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
   width: ${({ isMobile }) => (isMobile ? "24px" : "40px")};
+  color: ${({ disabled }) => (disabled ? "#ccc" : "var(--theme-color)")};
+  pointer-events: ${({ disabled }) => (disabled ? "none" : "all")};
+  cursor: pointer;
+  z-index: 2;
+
   &.next {
     transform: rotate(180deg);
   }
-  color: ${({ disabled }) => (disabled ? "#ccc" : "var(--theme-color)")};
-  pointer-events: ${({ disabled }) => (disabled ? "none" : "all")};
-  z-index: 2;
 `;
 
 const MainContent = styled.div<{ isMobile: boolean }>`
@@ -251,6 +253,23 @@ const PaginationContainer = styled.div`
   background-color: #fff;
 `;
 
+const StyledPagination = styled(Pagination)`
+  .ant-pagination-prev,
+  .ant-pagination-next {
+    display: none;
+  }
+
+  .ant-pagination-item-active {
+    border-color: rgba(0, 0, 0, 0);
+    background: none;
+  }
+
+  .ant-pagination-item:hover a,
+  .ant-pagination-item-active a {
+    color: var(--theme-color);
+  }
+`;
+
 const StoryItem = styled.div`
   width: 100%;
   display: flex;
@@ -272,6 +291,10 @@ const Description = styled.div`
   font-size: 12px;
   line-height: 1.5;
   padding: 0 12px 24px;
+
+  img {
+    max-width: 100%;
+  }
 `;
 
 export default Player;

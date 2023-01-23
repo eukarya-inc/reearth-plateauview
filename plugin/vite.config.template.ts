@@ -62,7 +62,7 @@ export const web =
               name: "antd",
               var: "antd",
               path: "https://cdnjs.cloudflare.com/ajax/libs/antd/4.22.8/antd.min.js",
-              css: "https://cdnjs.cloudflare.com/ajax/libs/antd/4.22.8/antd.variable.min.css",
+              css: "https://cdnjs.cloudflare.com/ajax/libs/antd/4.22.8/antd.min.css",
             },
             {
               name: "styled-components",
