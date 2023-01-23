@@ -39,6 +39,9 @@ import { ReactComponent as Edit } from "./Icons/edit.svg";
 import { ReactComponent as Bullseye } from "./Icons/bullseye.svg";
 import { ReactComponent as ArrowRight } from "./Icons/arrowRight.svg";
 
+// Ant Design Icons
+export { InboxOutlined } from "@ant-design/icons";
+
 export default {
   logo: Logo,
   group: Group,

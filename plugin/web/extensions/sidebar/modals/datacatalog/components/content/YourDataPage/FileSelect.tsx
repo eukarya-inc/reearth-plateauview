@@ -1,5 +1,5 @@
-import { InboxOutlined } from "@ant-design/icons";
 import { Tabs, Select, Input, Form } from "@web/sharedComponents";
+import { InboxOutlined } from "@web/sharedComponents/Icon/icons";
 import Upload, { message, UploadProps } from "@web/sharedComponents/Upload";
 import { styled } from "@web/theme";
 
@@ -82,7 +82,7 @@ const FileSelectPane: React.FC = () => {
               />
             </Form.Item>
             <Form.Item label="Upload File">
-              <Form.Item name="upload-file" noStyle>
+              <Form.Item name="upload-file" style={{ height: 300, overflowY: "scroll" }}>
                 <Upload.Dragger {...props}>
                   <p className="ant-upload-drag-icon">
                     <InboxOutlined />
