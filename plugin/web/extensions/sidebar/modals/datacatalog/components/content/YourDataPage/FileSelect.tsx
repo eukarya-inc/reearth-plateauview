@@ -81,8 +81,8 @@ const FileSelectPane: React.FC = () => {
                 options={options}
               />
             </Form.Item>
-            <Form.Item label="Dragger">
-              <Form.Item name="dragger" noStyle>
+            <Form.Item label="Upload File">
+              <Form.Item name="upload-file" noStyle>
                 <Upload.Dragger {...props}>
                   <p className="ant-upload-drag-icon">
                     <InboxOutlined />
