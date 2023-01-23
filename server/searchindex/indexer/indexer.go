@@ -21,6 +21,8 @@ const (
 	tilesetJSONName = "tileset.json"
 )
 
+const semaphoreLimit = 2
+
 type Indexer struct {
 	config *Config
 	fs     FS
@@ -342,8 +344,8 @@ func ForEachTile(ts *tiles.Tileset, iterFn TileIterFn) error {
 		err := Retry(retriableIterfn)
 		if (tile.Children != nil) && len(*tile.Children) != 0 {
 			var wg sync.WaitGroup
-			semaphore := make(chan struct{}, 2)
-			errors := make(chan error, 2)
+			semaphore := make(chan struct{}, semaphoreLimit)
+			errors := make(chan error, semaphoreLimit)
 			for _, child := range *tile.Children {
 				semaphore <- struct{}{}
 				wg.Add(1)
