@@ -51,7 +51,7 @@ const WelcomeScreen: React.FC = () => {
                 <Icon size={20} icon="plusCircle" color="#fafafa" />
                 <TextWrapper width={84} height={21}>
                   <Text weight={500} size={14}>
-                    ヘルプをみる
+                    マップのデータをみる
                   </Text>
                 </TextWrapper>
               </ButtonWrapper>
