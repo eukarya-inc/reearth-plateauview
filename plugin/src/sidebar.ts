@@ -26,10 +26,10 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
       payload: {
         projectID: reearth.viewport.query.projectID,
         inEditor: reearth.scene.inEditor,
-        backendAccessToken: reearth.widget.property.default.plateauAccessToken ?? "",
-        backendURL: reearth.widget.property.default.plateauURL ?? "",
-        cmsURL: reearth.widget.property.default.cmsURL ?? "",
-        reearthURL: reearth.widget.property.default.reearthURL ?? "",
+        backendAccessToken: reearth.widget.property.default?.plateauAccessToken ?? "",
+        backendURL: reearth.widget.property.default?.plateauURL ?? "",
+        cmsURL: reearth.widget.property.default?.cmsURL ?? "",
+        reearthURL: reearth.widget.property.default?.reearthURL ?? "",
       },
     });
     reearth.clientStorage.setAsync("overrides", payload);

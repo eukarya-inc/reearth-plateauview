@@ -59,7 +59,7 @@ const WelcomeScreen: React.FC = () => {
           </InnerWrapper>
           <CheckWrapper>
             <Checkbox checked={dontShowAgain} onClick={handleDontShowAgain}>
-              <TextWrapper width={192} height={54}>
+              <TextWrapper width={192} height={46}>
                 <Text weight={700} size={14}>
                   閉じて今後は表示しない
                 </Text>
@@ -106,8 +106,8 @@ const InnerWrapper = styled.div`
   top: calc(50% - 316px / 2 - 30.5px);
 `;
 const TextWrapper = styled.div<{ width: number; height: number }>`
-  width: ${({ width }) => width};
-  height: ${({ height }) => height};
+  width: ${({ width }) => width}px;
+  height: ${({ height }) => height}px;
   margin: 0px;
 `;
 
@@ -194,8 +194,8 @@ const CheckWrapper = styled.div`
   align-items: center;
   padding: 0px;
   gap: 8px;
-  width: 178px;
-  height: 22px;
+  width: 192px;
+  height: 46px;
   left: calc(50% - 178px / 2 + 0.5px);
   top: calc(50% - 22px / 2 + 178.5px);
 `;
