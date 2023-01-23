@@ -1,10 +1,9 @@
-import { Tabs, Select, Icon, Input, Form } from "@web/sharedComponents";
+import { InboxOutlined } from "@ant-design/icons";
+import { Tabs, Select, Input, Form } from "@web/sharedComponents";
 import Upload, { message, UploadProps } from "@web/sharedComponents/Upload";
 import { styled } from "@web/theme";
 
 const FileSelectPane: React.FC = () => {
-  const { Dragger } = Upload;
-
   const props: UploadProps = {
     name: "file",
     multiple: true,
@@ -82,17 +81,19 @@ const FileSelectPane: React.FC = () => {
                 options={options}
               />
             </Form.Item>
-            <Form.Item name="upload-file" label="Upload file">
-              <UploadWrapper>
-                <Dragger {...props}>
-                  <StyledIcon className="ant-upload-drag-icon" icon="inbox" />
+            <Form.Item label="Dragger">
+              <Form.Item name="dragger" valuePropName="fileList" noStyle>
+                <Upload.Dragger name="files" action="/upload.do" {...props}>
+                  <p className="ant-upload-drag-icon">
+                    <InboxOutlined />
+                  </p>
                   <p className="ant-upload-text">Click or drag file to this area to upload</p>
                   <p className="ant-upload-hint">
                     Support for a single or bulk upload. Strictly prohibit from uploading company
                     data or other band files
                   </p>
-                </Dragger>
-              </UploadWrapper>
+                </Upload.Dragger>
+              </Form.Item>
             </Form.Item>
           </Form>
         </Tabs.TabPane>
@@ -126,16 +127,4 @@ export default FileSelectPane;
 
 const Wrapper = styled.div`
   padding: 24px 12px;
-`;
-
-const StyledIcon = styled(Icon)`
-  margin-bottom: 8px;
-`;
-
-const UploadWrapper = styled.div`
-  height: 172px;
-
-  .ant-upload-list-item {
-    height: 50px;
-  }
 `;
