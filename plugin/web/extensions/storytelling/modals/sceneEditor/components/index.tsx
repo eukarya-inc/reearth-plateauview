@@ -29,6 +29,27 @@ const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
   gap: 12px;
+
+  .editor-toolbar {
+    padding: 0 !important;
+    border-color: #d9d9d9 !important;
+    border-radius: 2px 2px 0 0 !important;
+  }
+  .editor-toolbar button {
+    border: none !important;
+    border-radius: 0 !important;
+  }
+  .editor-toolbar button.active,
+  .editor-toolbar button:hover {
+    background: #a7e3e3 !important;
+  }
+  .CodeMirror {
+    border-color: #d9d9d9 !important;
+    border-radius: 0 0 2px 2px !important;
+  }
+  .CodeMirror .cm-spell-error:not(.cm-url):not(.cm-comment):not(.cm-tag):not(.cm-word) {
+    background: none !important;
+  }
 `;
 
 const TitleInput = styled.input`
