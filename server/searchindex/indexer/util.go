@@ -139,9 +139,9 @@ func roundFloat(val float64, precision uint) float64 {
 	return math.Round(val*ratio) / ratio
 }
 
-type RetryableFunc func() error
+type RetriableFunc func() error
 
-func Retry(retryableFunc RetryableFunc) error {
+func Retry(RetriableFunc RetriableFunc) error {
 	var n uint
 	config := newDefaultRetryConfig()
 	if err := config.context.Err(); err != nil {
@@ -150,7 +150,7 @@ func Retry(retryableFunc RetryableFunc) error {
 
 	shouldRetry := true
 	for shouldRetry {
-		err := retryableFunc()
+		err := RetriableFunc()
 		if err != nil {
 			// if this is last attempt - don't wait
 			if n == config.attempts-1 {
