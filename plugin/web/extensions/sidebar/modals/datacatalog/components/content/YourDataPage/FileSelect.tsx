@@ -1,4 +1,4 @@
-import { Tabs, Select, Icon } from "@web/sharedComponents";
+import { Tabs, Select, Icon, Input, Form } from "@web/sharedComponents";
 import Upload, { message, UploadProps } from "@web/sharedComponents/Upload";
 import { styled } from "@web/theme";
 
@@ -26,74 +26,98 @@ const FileSelectPane: React.FC = () => {
     },
   };
 
+  const options = [
+    {
+      value: "auto",
+      label: "Auto-detect (Recommended)",
+    },
+    {
+      value: "geojson",
+      label: "GeoJSON",
+    },
+    {
+      value: "kml",
+      label: "KML or KMZ",
+    },
+    {
+      value: "csv",
+      label: "CSV",
+    },
+    {
+      value: "czml",
+      label: "CZML",
+    },
+    {
+      value: "gpx",
+      label: "GPX",
+    },
+    {
+      value: "json",
+      label: "JSON",
+    },
+    {
+      value: "georss",
+      label: "GeoRSS",
+    },
+    {
+      value: "gltf",
+      label: "GLTF",
+    },
+    {
+      value: "shapefile",
+      label: "ShapeFile (zip)",
+    },
+  ];
+
   return (
     <Wrapper>
       <Tabs defaultActiveKey="local" style={{ marginBottom: "12px" }}>
         <Tabs.TabPane tab="Add Local Data" key="local">
-          <Subtitle>Select file type</Subtitle>
-          <Select
-            defaultValue="auto"
-            style={{ width: "100%" }}
-            // onChange={handleChange}
-            options={[
-              {
-                value: "auto",
-                label: "Auto-detect (Recommended)",
-              },
-              {
-                value: "geojson",
-                label: "GeoJSON",
-              },
-              {
-                value: "kml",
-                label: "KML or KMZ",
-              },
-              {
-                value: "csv",
-                label: "CSV",
-              },
-              {
-                value: "czml",
-                label: "CZML",
-              },
-              {
-                value: "gpx",
-                label: "GPX",
-              },
-              {
-                value: "json",
-                label: "JSON",
-              },
-              {
-                value: "georss",
-                label: "GeoRSS",
-              },
-              {
-                value: "gltf",
-                label: "GLTF",
-              },
-              {
-                value: "shapefile",
-                label: "ShapeFile (zip)",
-              },
-            ]}
-          />
+          <Form layout="vertical">
+            <Form.Item name="file-type" label="Select file type">
+              <Select
+                defaultValue="auto"
+                style={{ width: "100%" }}
+                // onChange={handleChange}
+                options={options}
+              />
+            </Form.Item>
+            <Form.Item name="upload-file" label="Upload file">
+              <UploadWrapper>
+                <Dragger {...props}>
+                  <StyledIcon className="ant-upload-drag-icon" icon="inbox" />
+                  <p className="ant-upload-text">Click or drag file to this area to upload</p>
+                  <p className="ant-upload-hint">
+                    Support for a single or bulk upload. Strictly prohibit from uploading company
+                    data or other band files
+                  </p>
+                </Dragger>
+              </UploadWrapper>
+            </Form.Item>
+          </Form>
         </Tabs.TabPane>
         <Tabs.TabPane tab="Add Web Data" key="web">
-          Add Web Data
+          <Form layout="vertical">
+            <Form.Item name="file-type" label="Select file type">
+              <Select
+                defaultValue="auto"
+                // onChange={handleChange}
+                options={options}
+              />
+            </Form.Item>
+            <Form.Item
+              name="url"
+              label="File URL"
+              rules={[
+                { required: true },
+                { message: "Please input the URL of the asset!" },
+                { type: "url", warningOnly: true },
+              ]}>
+              <Input placeholder={"Please input a valid URL"} />
+            </Form.Item>
+          </Form>
         </Tabs.TabPane>
       </Tabs>
-      <Subtitle>Upload file</Subtitle>
-      <UploadWrapper>
-        <Dragger {...props}>
-          <StyledIcon className="ant-upload-drag-icon" icon="inbox" />
-          <p className="ant-upload-text">Click or drag file to this area to upload</p>
-          <p className="ant-upload-hint">
-            Support for a single or bulk upload. Strictly prohibit from uploading company data or
-            other band files
-          </p>
-        </Dragger>
-      </UploadWrapper>
     </Wrapper>
   );
 };
@@ -106,10 +130,6 @@ const Wrapper = styled.div`
 
 const StyledIcon = styled(Icon)`
   margin-bottom: 8px;
-`;
-
-const Subtitle = styled.p`
-  margin: 0;
 `;
 
 const UploadWrapper = styled.div`
