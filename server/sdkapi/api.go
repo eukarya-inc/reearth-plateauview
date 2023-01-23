@@ -9,6 +9,7 @@ import (
 	"net/url"
 	"path"
 	"strings"
+	"unicode"
 
 	"github.com/eukarya-inc/reearth-plateauview/server/cms"
 	"github.com/labstack/echo/v4"
@@ -112,15 +113,15 @@ func GetMaxLOD(ctx context.Context, u string) (MaxLODColumns, error) {
 	var results MaxLODColumns
 	for {
 		c, err := r.Read()
-		if err != nil {
-			return nil, fmt.Errorf("failed to read csv: %w", err)
-		}
-
 		if err == io.EOF {
 			break
 		}
 
-		if len(c) != 3 || c[0] == "code" {
+		if err != nil {
+			return nil, fmt.Errorf("failed to read csv: %w", err)
+		}
+
+		if len(c) != 3 || !isInt(c[0]) {
 			continue
 		}
 
@@ -132,4 +133,13 @@ func GetMaxLOD(ctx context.Context, u string) (MaxLODColumns, error) {
 	}
 
 	return results, nil
+}
+
+func isInt(s string) bool {
+	for _, c := range s {
+		if !unicode.IsDigit(c) {
+			return false
+		}
+	}
+	return true
 }
