@@ -31,7 +31,7 @@ const Storytelling: React.FC = () => {
     <Wrapper size={size} mode={mode} playerHeight={playerHeight} minimized={minimized}>
       <MiniPane onClick={handleMinimize} minimized={minimized}>
         <Icon icon="cornersOut" color="#4A4A4A" size={24} />
-        <MiniTitle>ストリー</MiniTitle>
+        <MiniTitle>ストーリー</MiniTitle>
       </MiniPane>
       <ContentPane minimized={minimized}>
         <Header

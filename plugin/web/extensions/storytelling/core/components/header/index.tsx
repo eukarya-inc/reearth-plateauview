@@ -25,7 +25,7 @@ const Header: React.FC<Props> = ({
   return (
     <StyledHeader isMobile={isMobile}>
       <HeaderMain>
-        <WidgetTitle isMobile={isMobile}>ストリー</WidgetTitle>
+        <WidgetTitle isMobile={isMobile}>ストーリー</WidgetTitle>
         {!isMobile && (
           <>
             <Tab

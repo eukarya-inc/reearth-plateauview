@@ -13,7 +13,7 @@ import storyeditorHtml from "../dist/web/storytelling/modals/sceneEditor/index.h
 
 const reearth = (globalThis as any).reearth;
 
-reearth.ui.show(html, { width: 108, height: 40, extended: false });
+reearth.ui.show(html, { width: 122, height: 40, extended: false });
 
 let sidebarId: string;
 const getSidebarId = () => {
