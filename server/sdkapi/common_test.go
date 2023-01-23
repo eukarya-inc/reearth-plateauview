@@ -27,20 +27,14 @@ func TestItems_DatasetResponse(t *testing.T) {
 		},
 	}, Items{
 		{
-			ID:         "id",
-			Prefecture: "東京都",
-			CityName:   "千代田区",
-			CityGML: &cms.PublicAsset{
-				URL: "",
-			},
+			ID:          "id",
+			Prefecture:  "東京都",
+			CityName:    "千代田区",
 			Description: "description",
-			MaxLOD: &cms.PublicAsset{
-				URL: "",
-			},
-			Bldg: []cms.PublicAsset{{}},
-			Tran: []cms.PublicAsset{{}},
-			Frn:  []cms.PublicAsset{{}},
-			Veg:  []cms.PublicAsset{{}},
+			Bldg:        []cms.PublicAsset{{}},
+			Tran:        []cms.PublicAsset{{}},
+			Frn:         []cms.PublicAsset{{}},
+			Veg:         []cms.PublicAsset{{}},
 		},
 	}.DatasetResponse())
 }
@@ -77,8 +71,8 @@ func TestMaxLODMap_Files(t *testing.T) {
 		"frn": nil,
 	}, MaxLODMap{
 		"bldg": map[string]string{
-			"1": "1",
 			"2": "1",
+			"1": "1",
 		},
 		"veg": map[string]string{
 			"1": "2",

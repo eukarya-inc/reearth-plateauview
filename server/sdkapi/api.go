@@ -61,7 +61,7 @@ func Files(ctx context.Context, c *cms.PublicAPIClient[Item], model, id string) 
 		return nil, rerror.ErrInternalBy(err)
 	}
 
-	maxlod, err := GetMaxLOD(ctx, item.MaxLOD.URL)
+	maxlod, err := getMaxLOD(ctx, item.MaxLOD.URL)
 	if err != nil {
 		return nil, rerror.ErrInternalBy(err)
 	}
@@ -89,7 +89,7 @@ func auth(expected string) echo.MiddlewareFunc {
 	}
 }
 
-func GetMaxLOD(ctx context.Context, u string) (MaxLODColumns, error) {
+func getMaxLOD(ctx context.Context, u string) (MaxLODColumns, error) {
 	req, err := http.NewRequestWithContext(ctx, "GET", u, nil)
 	if err != nil {
 		return nil, err

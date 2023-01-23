@@ -8,6 +8,7 @@ import (
 
 	"github.com/eukarya-inc/reearth-plateauview/server/cms"
 	"github.com/samber/lo"
+	"golang.org/x/exp/slices"
 )
 
 const modelKey = "plateau"
@@ -111,6 +112,12 @@ func (i Item) FeatureTypes() (t []string) {
 
 type MaxLODColumns []MaxLODColumn
 
+type MaxLODColumn struct {
+	Code   string `json:"code"`
+	Type   string `json:"type"`
+	MaxLOD string `json:"max_lod"`
+}
+
 type MaxLODMap map[string]map[string]string
 
 func (mc MaxLODColumns) Map() MaxLODMap {
@@ -150,12 +157,9 @@ func (mm MaxLODMap) Files(urls []*url.URL) (r FilesResponse) {
 				})
 			}
 		}
+		slices.SortFunc(r[ty], func(i, j File) bool {
+			return i.Code < j.Code
+		})
 	}
 	return
-}
-
-type MaxLODColumn struct {
-	Code   string `json:"code"`
-	Type   string `json:"type"`
-	MaxLOD string `json:"max_lod"`
 }

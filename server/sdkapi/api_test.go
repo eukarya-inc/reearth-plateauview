@@ -24,7 +24,7 @@ func TestGetMaxLOD(t *testing.T) {
 	httpmock.RegisterResponder("GET", "https://example.com", httpmock.NewBytesResponder(http.StatusOK, []byte(data)))
 
 	ctx := context.Background()
-	res, err := GetMaxLOD(ctx, "https://example.com")
+	res, err := getMaxLOD(ctx, "https://example.com")
 	assert.NoError(t, err)
 	assert.Equal(t, MaxLODColumns{
 		{Code: "53394452", Type: "bldg", MaxLOD: "1"},
