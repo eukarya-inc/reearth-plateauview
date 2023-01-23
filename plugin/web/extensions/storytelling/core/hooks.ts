@@ -10,7 +10,8 @@ import type {
   StoryDelete,
   StoryPlay,
   StoryCancelPlay,
-} from "./types";
+} from "../types";
+
 import { postMsg, generateId } from "./utils";
 
 export const sizes = {

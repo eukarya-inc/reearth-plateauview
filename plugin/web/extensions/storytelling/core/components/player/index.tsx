@@ -3,7 +3,7 @@ import { styled } from "@web/theme";
 import { useCallback, useEffect, useRef, useState, useMemo } from "react";
 import { Remarkable } from "remarkable";
 
-import type { Camera, Scene as SceneType } from "../../types";
+import type { Camera, Scene as SceneType } from "../../../types";
 
 type Props = {
   scenes: SceneType[];

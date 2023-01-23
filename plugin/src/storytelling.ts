@@ -6,7 +6,7 @@ import {
   StoryShare,
   StorySaveData,
   StoryCancelPlay,
-} from "@web/extensions/storytelling/core/types";
+} from "@web/extensions/storytelling/types";
 
 import html from "../dist/web/storytelling/core/index.html?raw";
 import storyeditorHtml from "../dist/web/storytelling/modals/sceneEditor/index.html?raw";

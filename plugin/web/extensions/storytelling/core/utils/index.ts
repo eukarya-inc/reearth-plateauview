@@ -1,6 +1,6 @@
 import { cloneDeep, mergeWith } from "lodash";
 
-import { ActionType } from "../types";
+import { ActionType } from "../../types";
 
 export function postMsg(action: ActionType, payload?: any) {
   if (parent === window) return;

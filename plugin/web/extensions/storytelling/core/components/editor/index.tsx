@@ -4,7 +4,7 @@ import { useRef, useCallback, type WheelEvent } from "react";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 
-import type { Camera, Scene as SceneType } from "../../types";
+import type { Camera, Scene as SceneType } from "../../../types";
 
 import Scene from "./scene";
 

@@ -4,7 +4,7 @@ import type { Identifier, XYCoord } from "dnd-core";
 import { useCallback, useRef } from "react";
 import { useDrag, useDrop } from "react-dnd";
 
-import type { Camera, Scene as SceneType } from "../../types";
+import type { Camera, Scene as SceneType } from "../../../types";
 
 type Props = SceneType & {
   index: number;
