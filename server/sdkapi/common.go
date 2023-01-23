@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"net/url"
 	"path"
-	"strconv"
 	"strings"
 
+	"github.com/eukarya-inc/reearth-plateauview/server/cms"
 	"github.com/samber/lo"
 )
 
@@ -26,7 +26,7 @@ func (c *Config) Normalize() {
 }
 
 type DatasetResponse struct {
-	Data []DatasetPref `json:"data"`
+	Data []*DatasetPref `json:"data"`
 }
 
 type DatasetPref struct {
@@ -54,16 +54,16 @@ type Items []Item
 
 func (i Items) DatasetResponse() (r *DatasetResponse) {
 	r = &DatasetResponse{}
-	prefs := []DatasetPref{}
+	prefs := []*DatasetPref{}
 	prefm := map[string]*DatasetPref{}
 	for _, i := range i {
 		if _, ok := prefm[i.Prefecture]; !ok {
-			pd := DatasetPref{
+			pd := &DatasetPref{
 				ID:    i.Prefecture,
 				Title: i.Prefecture,
 			}
 			prefs = append(prefs, pd)
-			prefm[i.Prefecture] = lo.ToPtr(prefs[len(prefs)-1])
+			prefm[i.Prefecture] = prefs[len(prefs)-1]
 		}
 
 		d := DatasetCity{
@@ -81,16 +81,16 @@ func (i Items) DatasetResponse() (r *DatasetResponse) {
 }
 
 type Item struct {
-	ID          string  `json:"id"`
-	Prefecture  string  `json:"prefecture"`
-	CityName    string  `json:"city_name"`
-	CityGML     *Asset  `json:"citygml"`
-	Description string  `json:"description_bldg"`
-	MaxLOD      *Asset  `json:"max_lod"`
-	Bldg        []Asset `json:"bldg"`
-	Tran        []Asset `json:"tran"`
-	Frn         []Asset `json:"frn"`
-	Veg         []Asset `json:"veg"`
+	ID          string            `json:"id"`
+	Prefecture  string            `json:"prefecture"`
+	CityName    string            `json:"city_name"`
+	CityGML     *cms.PublicAsset  `json:"citygml"`
+	Description string            `json:"description_bldg"`
+	MaxLOD      *cms.PublicAsset  `json:"max_lod"`
+	Bldg        []cms.PublicAsset `json:"bldg"`
+	Tran        []cms.PublicAsset `json:"tran"`
+	Frn         []cms.PublicAsset `json:"frn"`
+	Veg         []cms.PublicAsset `json:"veg"`
 }
 
 func (i Item) FeatureTypes() (t []string) {
@@ -109,62 +109,46 @@ func (i Item) FeatureTypes() (t []string) {
 	return
 }
 
-type Asset struct {
-	URL string `json:"url"`
-}
-
 type MaxLODColumns []MaxLODColumn
 
-type MaxLODMap map[string]map[string]float64
+type MaxLODMap map[string]map[string]string
 
 func (mc MaxLODColumns) Map() MaxLODMap {
 	m := MaxLODMap{}
 
 	for _, c := range mc {
-		max := c.MaxLODAsFloat64()
-		if max == 0 {
+		if c.MaxLOD == "" {
 			continue
 		}
 
 		if _, ok := m[c.Type]; !ok {
-			m[c.Type] = map[string]float64{}
+			m[c.Type] = map[string]string{}
 		}
 		t := m[c.Type]
-		t[c.Code] = max
+		t[c.Code] = c.MaxLOD
 	}
 
 	return m
 }
 
-func (mm MaxLODMap) ForEachType() map[string]float64 {
-	m := map[string]float64{}
-
-	for ty, c := range mm {
-		max := 0.0
-		for _, lod := range c {
-			if lod > max {
-				max = lod
-			}
-		}
-
-		m[ty] = max
-	}
-
-	return m
-}
-
-func (mm MaxLODMap) Files(citygmlAssetURL string) (r FilesResponse) {
+func (mm MaxLODMap) Files(urls []*url.URL) (r FilesResponse) {
 	r = FilesResponse{}
 	for ty, m := range mm {
 		if _, ok := r[ty]; !ok {
 			r[ty] = ([]File)(nil)
 		}
 		for code, maxlod := range m {
-			r[ty] = append(r[ty], File{
-				Code:   code,
-				URL:    cityGMLURLFromAsset(citygmlAssetURL, ty, code),
-				MaxLOD: fmt.Sprintf("%f", maxlod),
+			prefix := fmt.Sprintf("%s_%s_", code, ty)
+			u, ok := lo.Find(urls, func(u *url.URL) bool {
+				return strings.HasPrefix(path.Base(u.Path), prefix) && path.Ext(u.Path) == ".gml"
 			})
+			if ok {
+				r[ty] = append(r[ty], File{
+					Code:   code,
+					URL:    u.String(),
+					MaxLOD: maxlod,
+				})
+			}
 		}
 	}
 	return
@@ -174,28 +158,4 @@ type MaxLODColumn struct {
 	Code   string `json:"code"`
 	Type   string `json:"type"`
 	MaxLOD string `json:"max_lod"`
-}
-
-func (m MaxLODColumn) MaxLODAsInt() int {
-	n, _ := strconv.Atoi(m.MaxLOD)
-	return n
-}
-
-func (m MaxLODColumn) MaxLODAsFloat64() float64 {
-	n, _ := strconv.ParseFloat(m.MaxLOD, 64)
-	return n
-}
-
-func cityGMLURLFromAsset(u, ty, code string) string {
-	v, err := url.Parse(u)
-	if err != nil {
-		return ""
-	}
-
-	dir := path.Dir(v.Path)
-	filename := strings.TrimSuffix(path.Base(v.Path), path.Ext(v.Path))
-
-	fn := fmt.Sprintf("%s_%s_6697_op.gml", code, ty)
-	v.Path = path.Join(dir, filename, "udx", ty, fn)
-	return v.String()
 }
