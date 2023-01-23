@@ -193,8 +193,6 @@ const CheckWrapper = styled.div`
   gap: 8px;
   width: 192px;
   height: 46px;
-  left: calc(50% - 178px / 2 + 0.5px);
-  top: calc(50% - 22px / 2 + 178.5px);
 `;
 
 const VideoWrapper = styled.div`
