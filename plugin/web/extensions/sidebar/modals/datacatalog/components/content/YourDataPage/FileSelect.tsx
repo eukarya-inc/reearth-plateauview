@@ -41,17 +41,40 @@ const FileSelectPane: React.FC = () => {
                 label: "Auto-detect (Recommended)",
               },
               {
-                value: "lucy",
-                label: "Lucy",
+                value: "geojson",
+                label: "GeoJSON",
               },
               {
-                value: "disabled",
-                disabled: true,
-                label: "Disabled",
+                value: "kml",
+                label: "KML or KMZ",
               },
               {
-                value: "Yiminghe",
-                label: "yiminghe",
+                value: "csv",
+                label: "CSV",
+              },
+              {
+                value: "czml",
+                label: "CZML",
+              },
+              {
+                value: "gpx",
+                label: "GPX",
+              },
+              {
+                value: "json",
+                label: "JSON",
+              },
+              {
+                value: "georss",
+                label: "GeoRSS",
+              },
+              {
+                value: "gltf",
+                label: "GLTF",
+              },
+              {
+                value: "shapefile",
+                label: "ShapeFile (zip)",
               },
             ]}
           />
