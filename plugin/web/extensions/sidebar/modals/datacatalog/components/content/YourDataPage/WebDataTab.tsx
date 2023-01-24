@@ -1,16 +1,14 @@
 import { CatalogItem, convertRaw } from "@web/extensions/sidebar/core/processCatalog";
-import { Select, Input, Form, Button } from "@web/sharedComponents";
+import { Input, Form, Button } from "@web/sharedComponents";
 import { useState } from "react";
 
+import FileTypeSelect from "./FileTypeSelect";
+
 type Props = {
-  options: {
-    value: string;
-    label: string;
-  }[];
   onOpenDetails?: (data?: CatalogItem) => void;
 };
 
-const WebDataTab: React.FC<Props> = ({ options, onOpenDetails }) => {
+const WebDataTab: React.FC<Props> = ({ onOpenDetails }) => {
   const [url, setUrl] = useState("");
 
   const fetchDataFromUrl = async () => {
@@ -42,11 +40,7 @@ const WebDataTab: React.FC<Props> = ({ options, onOpenDetails }) => {
   return (
     <Form layout="vertical">
       <Form.Item name="file-type" label="Select file type">
-        <Select
-          defaultValue="auto"
-          // onChange={handleChange}
-          options={options}
-        />
+        <FileTypeSelect />
       </Form.Item>
       <Form.Item
         name="url"
