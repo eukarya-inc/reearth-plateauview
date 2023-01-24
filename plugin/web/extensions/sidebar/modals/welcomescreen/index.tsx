@@ -51,7 +51,7 @@ const WelcomeScreen: React.FC = () => {
                 <Icon size={20} icon="plusCircle" color="#fafafa" />
                 <TextWrapper width={84} height={21}>
                   <Text weight={500} size={14}>
-                    ヘルプをみる
+                    マップのデータをみる
                   </Text>
                 </TextWrapper>
               </ButtonWrapper>
@@ -90,7 +90,6 @@ const Wrapper = styled.div`
   justify-content: center;
   align-items: center;
   position: relative;
-  gap: 50px;
   background: rgba(0, 0, 0, 0.7);
 `;
 
@@ -102,8 +101,6 @@ const InnerWrapper = styled.div`
   gap: 119px;
   width: 742px;
   height: 316px;
-  left: calc(50% - 742px / 2 + 0.5px);
-  top: calc(50% - 316px / 2 - 30.5px);
 `;
 const TextWrapper = styled.div<{ width: number; height: number }>`
   width: ${({ width }) => width}px;
@@ -192,17 +189,13 @@ const CheckWrapper = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
-  padding: 0px;
+  padding-top: 40px;
   gap: 8px;
   width: 192px;
   height: 46px;
-  left: calc(50% - 178px / 2 + 0.5px);
-  top: calc(50% - 22px / 2 + 178.5px);
 `;
 
 const VideoWrapper = styled.div`
   width: 1142px;
   height: 543px;
-  left: calc(50% - 1142px / 2 + 0.5px);
-  top: calc(50% - 543px / 2);
 `;
