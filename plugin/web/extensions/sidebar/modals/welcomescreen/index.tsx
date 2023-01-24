@@ -23,17 +23,13 @@ const WelcomeScreen: React.FC = () => {
           </CloseButton>
           <InnerWrapper>
             <TryMapWrapper>
-              <TextWrapper width={192} height={46}>
-                <Text weight={700} size={48}>
-                  ようこそ
-                </Text>
-              </TextWrapper>
+              <Text weight={700} size={48}>
+                ようこそ
+              </Text>
               <ImgSection>
-                <TextWrapper width={215} height={32}>
-                  <Text weight={500} size={20}>
-                    マップを使ってみる
-                  </Text>
-                </TextWrapper>
+                <Text weight={500} size={20}>
+                  マップを使ってみる
+                </Text>
                 <ImgWrapper>
                   <img src={welcomeScreenVideo} onClick={handleShowVideo} />
                 </ImgWrapper>
@@ -41,29 +37,23 @@ const WelcomeScreen: React.FC = () => {
             </TryMapWrapper>
             <BtnsWrapper>
               <ButtonWrapper>
-                <TextWrapper width={84} height={21}>
-                  <Text weight={500} size={14}>
-                    ヘルプをみる
-                  </Text>
-                </TextWrapper>
+                <Text weight={500} size={14}>
+                  ヘルプをみる
+                </Text>
               </ButtonWrapper>
               <ButtonWrapper>
                 <Icon size={20} icon="plusCircle" color="#fafafa" />
-                <TextWrapper width={84} height={21}>
-                  <Text weight={500} size={14}>
-                    マップのデータをみる
-                  </Text>
-                </TextWrapper>
+                <Text weight={500} size={14}>
+                  カタログから検索する
+                </Text>
               </ButtonWrapper>
             </BtnsWrapper>
           </InnerWrapper>
           <CheckWrapper>
             <Checkbox checked={dontShowAgain} onClick={handleDontShowAgain}>
-              <TextWrapper width={192} height={46}>
-                <Text weight={700} size={14}>
-                  閉じて今後は表示しない
-                </Text>
-              </TextWrapper>
+              <Text weight={700} size={14}>
+                閉じて今後は表示しない
+              </Text>
             </Checkbox>
           </CheckWrapper>
         </>
@@ -80,6 +70,7 @@ const WelcomeScreen: React.FC = () => {
     </Wrapper>
   );
 };
+
 export default WelcomeScreen;
 
 const Wrapper = styled.div`
@@ -102,11 +93,6 @@ const InnerWrapper = styled.div`
   width: 742px;
   height: 316px;
 `;
-const TextWrapper = styled.div<{ width: number; height: number }>`
-  width: ${({ width }) => width}px;
-  height: ${({ height }) => height}px;
-  margin: 0px;
-`;
 
 const Text = styled.p<{ weight: number; size: number }>`
   font-weight: ${({ weight }) => weight}px;
@@ -121,7 +107,7 @@ const TryMapWrapper = styled.div`
   align-items: flex-start;
   justify-content: flex-end;
   padding: 0px;
-  gap: 55px;
+  gap: 50px;
   width: 305px;
   height: 316px;
 `;
@@ -141,8 +127,6 @@ const ImgSection = styled.div`
   align-items: flex-start;
   padding: 0px;
   gap: 24px;
-  width: 305px;
-  height: 215px;
 `;
 
 const ImgWrapper = styled.div`

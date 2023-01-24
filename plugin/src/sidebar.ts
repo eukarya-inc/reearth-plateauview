@@ -87,7 +87,6 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
     addedDatasets = payload.addedDatasets;
     rawCatalog = payload.rawCatalog;
     reearth.modal.show(dataCatalogHtml, { background: "transparent" });
-    // Datacatalog modal
   } else if (action === "modalClose") {
     reearth.modal.close();
     welcomePageIsOpen = false;
@@ -96,8 +95,6 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
       type: action,
       payload: { rawCatalog, addedDatasets },
     });
-  } else if (action === "welcomeModalOpen") {
-    reearth.modal.show(welcomeScreenHtml, { background: "transparent" });
   } else if (action === "popupOpen") {
     reearth.popup.show(helpPopupHtml, { position: "right-start", offset: 4 });
   } else if (action === "initPopup") {

@@ -12,7 +12,6 @@ type ActionType =
   | "screenshotSave"
   | "addDatasetToScene"
   | "catalogModalOpen"
-  | "welcomeModalOpen"
   | "mapModalOpen"
   | "clipModalOpen"
   | "modalClose"
