@@ -9,7 +9,7 @@ import (
 	"github.com/eukarya-inc/reearth-plateauview/server/geospatialjp"
 	"github.com/eukarya-inc/reearth-plateauview/server/opinion"
 	"github.com/eukarya-inc/reearth-plateauview/server/sdk"
-	"github.com/eukarya-inc/reearth-plateauview/server/searchindex"
+	"github.com/eukarya-inc/reearth-plateauview/server/sdkapi"
 	"github.com/eukarya-inc/reearth-plateauview/server/share"
 	"github.com/joho/godotenv"
 	"github.com/kelseyhightower/envconfig"
@@ -26,8 +26,13 @@ type Config struct {
 	CMS_Webhook_Secret   string
 	CMS_BaseURL          string
 	CMS_Token            string
+	CMS_IntegrationID    string
 	CMS_ShareModelID     string
 	CMS_ShareDataFieldID string
+	CMS_IndexerSysPrj    string
+	CMS_IndexerSysModel  string
+	CMS_SDKProject       string
+	CMS_SDKModel         string
 	FME_BaseURL          string
 	FME_Mock             bool
 	FME_Token            string
@@ -35,6 +40,7 @@ type Config struct {
 	Ckan_BaseURL         string
 	Ckan_Org             string
 	Ckan_Token           string
+	SDK_Token            string
 	Ckan_Private         bool
 	SendGrid_APIKey      string
 	Opinion_Email        string
@@ -70,26 +76,39 @@ func (c *Config) CMSIntegration() cmsintegration.Config {
 		FMESkipQualityCheck: c.FME_SkipQualityCheck,
 		CMSBaseURL:          c.CMS_BaseURL,
 		CMSToken:            c.CMS_Token,
+		CMSIntegration:      c.CMS_IntegrationID,
 		Secret:              c.Secret,
 		Debug:               c.Debug,
 	}
 }
 
+// func (c *Config) SearchIndex() searchindex.Config {
+// 	return searchindex.Config{
+// 		CMSBase:             c.CMS_BaseURL,
+// 		CMSToken:            c.CMS_Token,
+// 		CMSStorageProjectID: c.CMS_IndexerSysPrj,
+// 		CMSStorageModelID:   c.CMS_IndexerSysModel,
+// 	}
+// }
+
 func (c *Config) SDK() sdk.Config {
 	return sdk.Config{
-		FMEBaseURL:   c.FME_BaseURL,
-		FMEToken:     c.FME_Token,
-		FMEResultURL: util.DR(url.JoinPath(c.Host, "notify_sdk")),
-		CMSBase:      c.CMS_BaseURL,
-		CMSToken:     c.CMS_Token,
-		Secret:       c.Secret,
+		FMEBaseURL:     c.FME_BaseURL,
+		FMEToken:       c.FME_Token,
+		FMEResultURL:   util.DR(url.JoinPath(c.Host, "notify_sdk")),
+		CMSBase:        c.CMS_BaseURL,
+		CMSToken:       c.CMS_Token,
+		CMSIntegration: c.CMS_IntegrationID,
+		Secret:         c.Secret,
 	}
 }
 
-func (c *Config) SearchIndex() searchindex.Config {
-	return searchindex.Config{
-		CMSBase:  c.CMS_BaseURL,
-		CMSToken: c.CMS_Token,
+func (c *Config) SDKAPI() sdkapi.Config {
+	return sdkapi.Config{
+		CMSBaseURL: c.CMS_BaseURL,
+		Project:    c.CMS_SDKProject,
+		Model:      c.CMS_SDKModel,
+		Token:      c.SDK_Token,
 	}
 }
 
@@ -112,11 +131,12 @@ func (c *Config) Opinion() opinion.Config {
 
 func (c *Config) Geospatialjp() geospatialjp.Config {
 	return geospatialjp.Config{
-		CkanBase:    c.Ckan_BaseURL,
-		CkanOrg:     c.Ckan_Org,
-		CkanToken:   c.Ckan_Token,
-		CkanPrivate: c.Ckan_Private,
-		CMSToken:    c.CMS_Token,
-		CMSBase:     c.CMS_BaseURL,
+		CkanBase:       c.Ckan_BaseURL,
+		CkanOrg:        c.Ckan_Org,
+		CkanToken:      c.Ckan_Token,
+		CkanPrivate:    c.Ckan_Private,
+		CMSToken:       c.CMS_Token,
+		CMSBase:        c.CMS_BaseURL,
+		CMSIntegration: c.CMS_IntegrationID,
 	}
 }

@@ -1,27 +1,37 @@
-import { usePublishedUrl } from "@web/extensions/sidebar/core/state";
-import { ReearthApi as ReearthApiType } from "@web/extensions/sidebar/core/types";
-import { postMsg } from "@web/extensions/sidebar/core/utils";
+import { ReearthApi as ReearthApiType } from "@web/extensions/sidebar/types";
+import { postMsg } from "@web/extensions/sidebar/utils";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 export type ReearthApi = ReearthApiType;
 
-export default ({ overrides, messageApi }: { overrides?: ReearthApi; messageApi: any }) => {
-  const [publishedUrl, setPublishedUrl] = usePublishedUrl();
+export default ({
+  overrides,
+  reearthURL,
+  backendURL,
+  messageApi,
+}: {
+  overrides?: ReearthApi;
+  reearthURL?: string;
+  backendURL?: string;
+  messageApi: any;
+}) => {
+  const [publishedUrl, setPublishedUrl] = useState<string>();
   const [shareDisabled, setShareDisable] = useState(false);
   const timer = useRef<NodeJS.Timeout | null>(null);
 
   const handleScreenshotShow = useCallback(() => {
-    postMsg({ action: "screenshot-preview" });
+    postMsg({ action: "screenshotPreview" });
   }, []);
 
   const handleScreenshotSave = useCallback(() => {
-    postMsg({ action: "screenshot-save" });
+    postMsg({ action: "screenshotSave" });
   }, []);
 
   const handleProjectShare = useCallback(async () => {
     setShareDisable(true);
     if (overrides) {
-      const resp = await fetch("https://plateauview.dev.reearth.io/share", {
+      if (!backendURL || !reearthURL) return;
+      const resp = await fetch(`${backendURL}/share`, {
         headers: {
           "Content-Type": "application/json",
         },
@@ -38,13 +48,13 @@ export default ({ overrides, messageApi }: { overrides?: ReearthApi; messageApi:
         }
       } else {
         const project = await resp.json();
-        setPublishedUrl(`https://plateauview.dev.reearth.io/share/${project}`);
+        setPublishedUrl(`${reearthURL}${reearthURL.includes("?") ? "&" : "?"}projectID=${project}`);
       }
     }
     timer.current = setTimeout(() => {
       setShareDisable(false);
     }, 3000);
-  }, []);
+  }, [messageApi, reearthURL, backendURL, overrides, setPublishedUrl]);
 
   useEffect(() => {
     return () => {
@@ -66,9 +76,9 @@ export default ({ overrides, messageApi }: { overrides?: ReearthApi; messageApi:
 addEventListener("message", e => {
   if (e.source !== parent) return;
   if (e.data.type) {
-    if (e.data.type === "screenshot-preview") {
+    if (e.data.type === "screenshotPreview") {
       generatePrintView(e.data.payload);
-    } else if (e.data.type === "screenshot-save") {
+    } else if (e.data.type === "screenshotSave") {
       const link = document.createElement("a");
       link.download = "screenshot.png";
       link.href = e.data.payload;
