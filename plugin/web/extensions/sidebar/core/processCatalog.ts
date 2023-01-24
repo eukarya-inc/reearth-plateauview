@@ -77,7 +77,7 @@ export default (plateauData: any[], usecaseData: any[], datasetData: any[]) => {
   return [...rawPlateauData, ...rawUsecaseData, ...rawDatasetData];
 };
 
-function convertRaw(data?: any[], modelType?: ModelType): CatalogRawItem[] {
+export function convertRaw(data?: any[], modelType?: ModelType): CatalogRawItem[] {
   if (!data || data.length <= 0) return [];
 
   return data.map(item => {

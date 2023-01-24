@@ -1,4 +1,5 @@
 import { CatalogItem } from "@web/extensions/sidebar/core/processCatalog";
+import { useCallback, useState } from "react";
 
 import PageLayout from "../PageLayout";
 
@@ -10,7 +11,18 @@ export type Props = {
 };
 
 const YourDataPage: React.FC<Props> = ({ onDatasetAdd }) => {
-  return <PageLayout left={<FileSelectPane />} right={<Details onDatasetAdd={onDatasetAdd} />} />;
+  const [selectedDataset, setDataset] = useState<CatalogItem>();
+
+  const handleOpenDetails = useCallback((data?: CatalogItem) => {
+    setDataset(data);
+  }, []);
+
+  return (
+    <PageLayout
+      left={<FileSelectPane onOpenDetails={handleOpenDetails} />}
+      right={<Details dataset={selectedDataset} onDatasetAdd={onDatasetAdd} />}
+    />
+  );
 };
 
 export default YourDataPage;
