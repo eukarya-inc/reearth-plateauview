@@ -1,6 +1,6 @@
 import { CatalogItem, convertRaw } from "@web/extensions/sidebar/core/processCatalog";
 import { Input, Form, Button } from "@web/sharedComponents";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 
 import FileTypeSelect from "./FileTypeSelect";
 
@@ -9,33 +9,43 @@ type Props = {
 };
 
 const WebDataTab: React.FC<Props> = ({ onOpenDetails }) => {
-  const [url, setUrl] = useState("");
+  const [dataUrl, setDataUrl] = useState("");
 
-  const fetchDataFromUrl = async () => {
+  const fetchDataFromUrl = useCallback(async (url: string) => {
     try {
       const result = await fetch(url);
       if (result.ok) {
-        const filename = url.substring(url.lastIndexOf("/") + 1);
-        const id = "id" + Math.random().toString(16).slice(2);
-        const item = {
-          id: id,
-          description: "web data",
-          city_name: "", // TODO: find a way to add the city name
-          prefecture: "", // TODO: find a way to add the prefecture
-          name: filename,
-          data_url: url,
-        };
-        const catalogItem = convertRaw([item])[0] as CatalogItem;
-        catalogItem.type = "item";
-        if (onOpenDetails) onOpenDetails(catalogItem);
-
-        const data = result.json();
-        console.log(data);
+        return result;
       }
     } catch (error) {
-      console.error(error);
+      return undefined;
     }
-  };
+  }, []);
+
+  const handleClick = useCallback(async () => {
+    const result = await fetchDataFromUrl(dataUrl);
+    if (result) {
+      // Catalog Item
+      const filename = dataUrl.substring(dataUrl.lastIndexOf("/") + 1);
+      const id = "id" + Math.random().toString(16).slice(2);
+      const item = {
+        id: id,
+        description:
+          "Please contact the provider of this data for more information, including information about usage rights and constraints.",
+        city_name: "", // TODO: find a way to add the city name
+        prefecture: "", // TODO: find a way to add the prefecture
+        name: filename,
+        data_url: dataUrl,
+      };
+      const catalogItem = convertRaw([item])[0] as CatalogItem;
+      catalogItem.type = "item";
+      if (onOpenDetails) onOpenDetails(catalogItem);
+
+      // Raw Data
+      // const data = await result.json();
+      // console.log(data);
+    }
+  }, [dataUrl, fetchDataFromUrl, onOpenDetails]);
 
   return (
     <Form layout="vertical">
@@ -50,10 +60,13 @@ const WebDataTab: React.FC<Props> = ({ onOpenDetails }) => {
           { message: "Please input the URL of the asset!" },
           { type: "url", warningOnly: true },
         ]}>
-        <Input placeholder={"Please input a valid URL"} onChange={e => setUrl(e.target.value)} />
+        <Input
+          placeholder={"Please input a valid URL"}
+          onChange={e => setDataUrl(e.target.value)}
+        />
       </Form.Item>
       <Form.Item style={{ textAlign: "right" }}>
-        <Button type="primary" htmlType="submit" onClick={fetchDataFromUrl}>
+        <Button type="primary" htmlType="submit" onClick={handleClick}>
           Upload
         </Button>
       </Form.Item>

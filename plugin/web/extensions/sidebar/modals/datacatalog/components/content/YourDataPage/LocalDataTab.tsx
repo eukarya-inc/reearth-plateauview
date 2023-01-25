@@ -15,24 +15,20 @@ const LocalDataTab: React.FC<Props> = ({ onOpenDetails }) => {
   const [fileList, setFileList] = useState<UploadFile[]>([]);
   const fileFormats = ".kml,.czml,.topojson,.geojson,.json,.gltf,.glb";
 
-  const onRemove = useCallback(
-    (file: UploadFile) => {
-      const index = fileList.indexOf(file);
-      const newFileList = fileList.slice();
-      newFileList.splice(index, 1);
-      setFileList(newFileList);
-    },
-    [fileList],
-  );
+  const onRemove = useCallback((_file: UploadFile) => {
+    setFileList([]);
+  }, []);
 
   const beforeUpload = useCallback(
     (file: RcFile, files: RcFile[]) => {
+      // Catalog Item
       const filename = file.name;
       const id = "id" + Math.random().toString(16).slice(2);
       const url = URL.createObjectURL(file);
       const item = {
         id: id,
-        description: "local data",
+        description:
+          "This file only exists in your browser. To share it, you must load it onto a public web server.",
         city_name: "", // TODO: find a way to add the city name
         prefecture: "", // TODO: find a way to add the prefecture
         name: filename,
@@ -42,18 +38,19 @@ const LocalDataTab: React.FC<Props> = ({ onOpenDetails }) => {
       catalogItem.type = "item";
       if (onOpenDetails) onOpenDetails(catalogItem);
 
-      const reader = new FileReader();
-      reader.readAsText(file);
-      let data;
-      reader.onload = e => {
-        data = e?.target?.result ?? "";
-        console.log(JSON.parse(data as string));
-      };
+      // Raw Data
+      // const reader = new FileReader();
+      // reader.readAsText(file);
+      // let data;
+      // reader.onload = e => {
+      //   data = e?.target?.result ?? "";
+      //   console.log(JSON.parse(data as string));
+      // };
 
-      setFileList([...fileList, ...files]);
+      setFileList([...files]);
       return false;
     },
-    [fileList, onOpenDetails],
+    [onOpenDetails],
   );
 
   const props: UploadProps = {
