@@ -1,9 +1,7 @@
 import { Select } from "@web/sharedComponents";
 import { useCallback } from "react";
 
-export type Props = {};
-
-const FileTypeSelect: React.FC<Props> = () => {
+const FileTypeSelect: React.FC = () => {
   const options = [
     {
       value: "auto",
