@@ -32,8 +32,6 @@ const WebDataTab: React.FC<Props> = ({ onOpenDetails }) => {
         id: id,
         description:
           "Please contact the provider of this data for more information, including information about usage rights and constraints.",
-        city_name: "", // TODO: find a way to add the city name
-        prefecture: "", // TODO: find a way to add the prefecture
         name: filename,
         data_url: dataUrl,
       };
@@ -42,8 +40,7 @@ const WebDataTab: React.FC<Props> = ({ onOpenDetails }) => {
       if (onOpenDetails) onOpenDetails(catalogItem);
 
       // Raw Data
-      // const data = await result.json();
-      // console.log(data);
+      // const data = await result.text();
     }
   }, [dataUrl, fetchDataFromUrl, onOpenDetails]);
 

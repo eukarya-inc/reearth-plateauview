@@ -4,11 +4,12 @@ import { styled } from "@web/theme";
 import { useCallback } from "react";
 
 export type Props = {
+  isShareable?: boolean;
   dataset?: CatalogItem;
   onDatasetAdd: (dataset: CatalogItem) => void;
 };
 
-const DatasetDetails: React.FC<Props> = ({ dataset, onDatasetAdd }) => {
+const DatasetDetails: React.FC<Props> = ({ dataset, isShareable, onDatasetAdd }) => {
   const handleDatasetAdd = useCallback(() => {
     if (!dataset) return;
     onDatasetAdd(dataset);
@@ -37,6 +38,7 @@ const DatasetDetails: React.FC<Props> = ({ dataset, onDatasetAdd }) => {
   return dataset ? (
     <DetailsComponent
       dataset={dataset}
+      isShareable={isShareable}
       addDisabled={false}
       onDatasetAdd={handleDatasetAdd}
       contentSection={ContentComponent}

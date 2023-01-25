@@ -20,7 +20,7 @@ const YourDataPage: React.FC<Props> = ({ onDatasetAdd }) => {
   return (
     <PageLayout
       left={<FileSelectPane onOpenDetails={handleOpenDetails} />}
-      right={<Details dataset={selectedDataset} onDatasetAdd={onDatasetAdd} />}
+      right={<Details isShareable={false} dataset={selectedDataset} onDatasetAdd={onDatasetAdd} />}
     />
   );
 };

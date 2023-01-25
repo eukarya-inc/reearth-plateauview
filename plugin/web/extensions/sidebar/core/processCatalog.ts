@@ -5,8 +5,8 @@ type ModelType = "plateau" | "usecase" | "dataset";
 export type CatalogRawItem = {
   id: string;
   name?: string;
-  prefecture: string; // 都道府県
-  cityName: string; // city_name 市区町村名
+  prefecture?: string; // 都道府県
+  cityName?: string; // city_name 市区町村名
   description?: string | null;
   descriptionBldg?: string | null; // description_bldg
   descriptionTran?: string | null; // description_tran

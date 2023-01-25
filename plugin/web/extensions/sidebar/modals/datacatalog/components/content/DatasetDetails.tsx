@@ -5,6 +5,7 @@ import { ComponentType, useCallback } from "react";
 
 export type Props = {
   dataset: CatalogItem;
+  isShareable?: boolean;
   addDisabled: boolean;
   contentSection?: ComponentType;
   onDatasetAdd: (dataset: CatalogItem) => void;
@@ -12,6 +13,7 @@ export type Props = {
 
 const DatasetDetails: React.FC<Props> = ({
   dataset,
+  isShareable,
   addDisabled,
   contentSection: ContentSection,
   onDatasetAdd,
@@ -29,7 +31,7 @@ const DatasetDetails: React.FC<Props> = ({
           {!addDisabled && <Icon icon="plusCircle" />}
           {addDisabled ? "シーンに追加済み" : "シーンに追加"}
         </Button>
-        <Button>
+        <Button isShareable={isShareable}>
           <Icon icon="share" />
           シェア
         </Button>
@@ -54,8 +56,8 @@ const ButtonWrapper = styled.div`
   margin: 12px 0 16px 0;
 `;
 
-const Button = styled.button<{ disabled?: boolean }>`
-  display: flex;
+const Button = styled.button<{ disabled?: boolean; isShareable?: boolean }>`
+  display: ${({ isShareable }) => (isShareable !== false ? "flex" : "none")};
   justify-content: center;
   align-items: center;
   gap: 8px;

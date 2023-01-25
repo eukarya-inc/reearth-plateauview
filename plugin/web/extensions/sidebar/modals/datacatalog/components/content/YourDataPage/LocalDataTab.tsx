@@ -29,8 +29,6 @@ const LocalDataTab: React.FC<Props> = ({ onOpenDetails }) => {
         id: id,
         description:
           "This file only exists in your browser. To share it, you must load it onto a public web server.",
-        city_name: "", // TODO: find a way to add the city name
-        prefecture: "", // TODO: find a way to add the prefecture
         name: filename,
         data_url: url,
       };
@@ -43,8 +41,7 @@ const LocalDataTab: React.FC<Props> = ({ onOpenDetails }) => {
       // reader.readAsText(file);
       // let data;
       // reader.onload = e => {
-      //   data = e?.target?.result ?? "";
-      //   console.log(JSON.parse(data as string));
+      //   data = e?.target?.result;
       // };
 
       setFileList([...files]);
