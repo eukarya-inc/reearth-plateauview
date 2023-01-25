@@ -27,6 +27,7 @@ const defaultOverrides: ReearthApi = {
 };
 
 export default () => {
+  const [isMobile, setIsMobile] = useState<boolean>(true);
   const [projectID, setProjectID] = useState<string>();
   const [inEditor, setInEditor] = useState(true);
   const [backendAccessToken, setBackendAccessToken] = useState<string>();
@@ -236,6 +237,7 @@ export default () => {
           handleDatasetAdd(e.data.payload.dataset);
         }
       } else if (e.data.type === "initSidebar") {
+        setIsMobile(e.data.payload.isMobile);
         setProjectID(e.data.payload.projectID);
         setInEditor(e.data.payload.inEditor);
         setBackendAccessToken(e.data.payload.backendAccessToken);
@@ -271,6 +273,7 @@ export default () => {
   }, [projectID, backendURL, updateOverrides]);
 
   return {
+    isMobile,
     processedSelectedDatasets,
     overrides,
     minimized,

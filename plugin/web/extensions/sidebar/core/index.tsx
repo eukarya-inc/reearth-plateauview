@@ -10,12 +10,15 @@ import { Content } from "@web/sharedComponents";
 import { styled, commonStyles } from "@web/theme";
 import { memo, useCallback, useState } from "react";
 
+import MobileSidebar from "./Mobile";
+
 export type Props = {
   className?: string;
 };
 
 const Sidebar: React.FC<Props> = ({ className }) => {
   const {
+    isMobile,
     processedSelectedDatasets,
     overrides,
     minimized,
@@ -55,7 +58,9 @@ const Sidebar: React.FC<Props> = ({ className }) => {
     setMinimize(!minimized);
   }, [minimized, setMinimize]);
 
-  return (
+  return isMobile ? (
+    <MobileSidebar />
+  ) : (
     <Wrapper className={className} minimized={minimized}>
       <Header
         current={current}

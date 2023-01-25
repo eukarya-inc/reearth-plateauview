@@ -7,6 +7,15 @@ import dataCatalogHtml from "../dist/web/sidebar/modals/datacatalog/index.html?r
 import mapVideoHtml from "../dist/web/sidebar/modals/mapVideo/index.html?raw";
 import welcomeScreenHtml from "../dist/web/sidebar/modals/welcomescreen/index.html?raw";
 import helpPopupHtml from "../dist/web/sidebar/popups/help/index.html?raw";
+import mobileDropdownHtml from "../dist/web/sidebar/popups/mobileDropdown/index.html?raw";
+
+// type PluginExtensionInstance = {
+//   id: string;
+//   pluginId: string;
+//   name: string;
+//   extensionId: string;
+//   extensionType: "widget" | "block";
+// };
 
 const reearth = (globalThis as any).reearth;
 
@@ -14,17 +23,43 @@ let addedDatasets: string | undefined = undefined;
 
 let rawCatalog: CatalogRawItem[] = [];
 
-// let isMobile: boolean;
+// const initialized = false;
 let welcomePageIsOpen = false;
+let mobileDropdownIsOpen = false;
 
+// if (reearth.viewport.isMobile) {
+//   reearth.widget.moveTo({ zone: "outer", section: "center", area: "top" });
+// } else {
 reearth.ui.show(html, { extended: true });
+// }
 
 reearth.on("message", ({ action, payload }: PostMessageProps) => {
+  // Mobile specific
+  // reearth.plugins.instances.map((i: PluginExtensionInstance) => {
+  //   console.log("instance: ", i);
+  // });
+  // if (action === "initMobile") {
+  //   reearth.plugins.instances.map((i: PluginExtensionInstance) => {
+  //     console.log("instance: ", i);
+  //   });
+  // } else
+  if (action === "mobileDropdownOpen") {
+    // console.log("VIEWPORT WIDTH: ", reearth.viewport.width);
+    reearth.popup.show(mobileDropdownHtml, {
+      position: "bottom",
+      width: reearth.viewport.width - 12,
+      // height: 700,
+    });
+    mobileDropdownIsOpen = true;
+  } else if (action === "msgToMobileDropdown") {
+    reearth.popup.postMessage({ type: "msgToPopup", message: payload });
+  }
   // Sidebar
   if (action === "initSidebar") {
     reearth.ui.postMessage({
       type: action,
       payload: {
+        isMobile: reearth.viewport.isMobile,
         projectID: reearth.viewport.query.projectID,
         inEditor: reearth.scene.inEditor,
         backendAccessToken: reearth.widget.property.default?.plateauAccessToken ?? "",
@@ -95,14 +130,15 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
       type: action,
       payload: { rawCatalog, addedDatasets },
     });
-  } else if (action === "popupOpen") {
+  } else if (action === "helpPopupOpen") {
     reearth.popup.show(helpPopupHtml, { position: "right-start", offset: 4 });
   } else if (action === "initPopup") {
     reearth.ui.postMessage({ type: action });
   } else if (action === "msgToPopup") {
-    reearth.popup.postMessage({ type: "msgToPopup", message: payload }, "*");
+    reearth.popup.postMessage({ type: "msgToPopup", message: payload });
   } else if (action === "popupClose") {
     reearth.popup.close();
+    mobileDropdownIsOpen = false;
   } else if (action === "mapModalOpen") {
     reearth.modal.show(mapVideoHtml, { background: "transparent" });
   } else if (action === "clipModalOpen") {
@@ -123,9 +159,14 @@ reearth.on("resize", () => {
   //   isMobile = e.isMobile;
   // }
 
-  if (welcomePageIsOpen)
+  if (welcomePageIsOpen) {
     reearth.modal.update({
       width: reearth.viewport.width,
       height: reearth.viewport.height,
     });
+  } else if (mobileDropdownIsOpen) {
+    reearth.popup.update({
+      width: reearth.viewport.width - 12,
+    });
+  }
 });

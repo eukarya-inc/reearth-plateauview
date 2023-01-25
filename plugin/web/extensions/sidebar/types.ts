@@ -2,6 +2,7 @@ type ActionType =
   | "initSidebar"
   | "initDataCatalog"
   | "initPopup"
+  | "initMobile"
   | "storageSave"
   | "storageFetch"
   | "storageKeys"
@@ -16,10 +17,12 @@ type ActionType =
   | "clipModalOpen"
   | "modalClose"
   | "msgFromModal"
-  | "popupOpen"
+  | "helpPopupOpen"
   | "popupClose"
   | "msgToPopup"
   | "msgFromPopup"
+  | "mobileDropdownOpen"
+  | "msgToMobileDropdown"
   | "minimize";
 
 export type PostMessageProps = { action: ActionType; payload?: any };
