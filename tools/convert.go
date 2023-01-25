@@ -1,9 +1,11 @@
 package main
 
 import (
+	"bytes"
 	_ "embed"
 	"encoding/json"
 	"fmt"
+	"image/color"
 	"io/fs"
 	"net/http"
 	"path"
@@ -12,20 +14,41 @@ import (
 	geojson "github.com/paulmach/go.geojson"
 	"github.com/samber/lo"
 	"github.com/spf13/afero"
+	"github.com/tdewolff/canvas"
+	"github.com/tdewolff/canvas/renderers"
 	"github.com/vincent-petithory/dataurl"
 )
 
 const (
-	wallHeight        = 100
-	wallImageName     = "yellow_gradient.png"
-	billboardImageDir = "billboard_image"
+	wallHeight           = 100
+	wallImageName        = "yellow_gradient.png"
+	billboardImageDir    = "billboard_image"
+	billboardPaddingH    = 16.0
+	billboardPaddingV    = 8.0
+	billboradFontSize    = 72.0
+	billboardRadius      = 30.0
+	billboardLineWidth   = 2.0
+	billboardLineHeight  = 100.0
+	billbordHeightMargin = 55.0
 )
 
 var (
 	//go:embed yellow_gradient.png
 	wallImage        []byte
 	wallImageDataURL = dataurl.New(wallImage, http.DetectContentType(wallImage)).String()
+
+	billboardBgColor   = color.RGBA{R: 0, G: 189, B: 189, A: 255} // #00BDBD
+	billboardTextColor = color.White
+
+	//go:embed fonts/NotoSansJP-Light.otf
+	billboardFontData   []byte
+	billboardFontFamily = canvas.NewFontFamily("Noto Sans Japanese")
+	billboardFontStyle  = canvas.FontLight
 )
+
+func init() {
+	billboardFontFamily.MustLoadFont(billboardFontData, 0, billboardFontStyle)
+}
 
 type Convert struct {
 	Input    string   `help:"入力元ディレクトリパス。デフォルトはカレントディレクトリです。"`
@@ -35,9 +58,7 @@ type Convert struct {
 }
 
 func (c *Convert) Execute() error {
-	if c.Input == "" {
-		c.InputFS = afero.NewBasePathFs(afero.NewOsFs(), c.Input)
-	}
+	c.InputFS = afero.NewBasePathFs(afero.NewOsFs(), c.Input)
 	if c.Output == "" || path.Clean(c.Output) == "." {
 		c.OutputFS = afero.NewOsFs()
 	} else {
@@ -140,9 +161,6 @@ func ConvertLandmark(fc *geojson.FeatureCollection, id string) (any, error) {
 		if len(f.Geometry.Point) < 2 {
 			continue
 		}
-		if len(f.Geometry.Point) == 2 {
-			f.Geometry.Point = append(f.Geometry.Point, 0)
-		}
 
 		name, _ := f.PropertyString("名称")
 		if name == "" {
@@ -150,6 +168,13 @@ func ConvertLandmark(fc *geojson.FeatureCollection, id string) (any, error) {
 		}
 		if name == "" {
 			continue
+		}
+
+		height, _ := f.PropertyFloat64("高さ")
+		if len(f.Geometry.Point) == 2 {
+			f.Geometry.Point = append(f.Geometry.Point, height+billbordHeightMargin)
+		} else if height > 0 {
+			f.Geometry.Point[2] = height + billbordHeightMargin
 		}
 
 		image, err := GenerateLandmarkImage(name)
@@ -187,7 +212,32 @@ func ConvertLandmark(fc *geojson.FeatureCollection, id string) (any, error) {
 
 // GenerateLandmarkImage はランドマーク用の画像を生成します。
 func GenerateLandmarkImage(name string) ([]byte, error) {
-	return nil, nil
+	face := billboardFontFamily.Face(billboradFontSize, billboardTextColor, billboardFontStyle, canvas.FontNormal)
+	text := canvas.NewTextLine(face, name, canvas.Left)
+	textBounds := text.Bounds()
+	text2 := canvas.NewTextBox(face, name, textBounds.W+billboardPaddingH*2, textBounds.H+billboardPaddingV*2, canvas.Center, canvas.Middle, 0, 0)
+
+	w := textBounds.W + billboardPaddingH*2
+	h := textBounds.H + billboardPaddingV*2 + billboardLineHeight
+	c := canvas.New(w, h)
+	ctx := canvas.NewContext(c)
+	ctx.SetCoordSystem(canvas.CartesianIV)
+
+	ctx.SetStrokeWidth(0)
+	ctx.SetFillColor(billboardBgColor)
+	ctx.DrawPath(0, 0, canvas.RoundedRectangle(w, textBounds.H+billboardPaddingV*2, billboardRadius))
+
+	ctx.SetStrokeWidth(billboardLineWidth)
+	ctx.SetStrokeColor(billboardBgColor)
+	ctx.DrawPath(w/2, textBounds.H+billboardPaddingV*2, canvas.Line(0, h-textBounds.H+billboardPaddingV*2))
+
+	ctx.DrawText(0, 0, text2)
+
+	b := bytes.NewBuffer(nil)
+	if err := renderers.PNG()(b, c); err != nil {
+		return nil, err
+	}
+	return b.Bytes(), nil
 }
 
 // ConvertBorder は国土数値情報を基に作成された行政界GeoJSONデータをPLATEAU VIEW用のCZMLに変換します。

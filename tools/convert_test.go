@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"os"
 	"testing"
 
 	"github.com/samber/lo"
@@ -96,4 +97,10 @@ func TestConvert_Execute(t *testing.T) {
 	assert.NoError(t, json.Unmarshal(lo.Must(afero.ReadFile(fs, borderName+".czml")), &actualBorderJSON))
 
 	assert.Equal(t, expectedBorderJSON, actualBorderJSON)
+}
+
+func TestGenerateLandmarkImage(t *testing.T) {
+	image, err := GenerateLandmarkImage("日本カメラ博物館")
+	require.NoError(t, err)
+	require.NoError(t, os.WriteFile("test.png", image, 0666))
 }
