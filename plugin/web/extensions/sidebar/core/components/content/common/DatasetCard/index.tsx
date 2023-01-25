@@ -138,6 +138,45 @@ const DatasetCard: React.FC<Props> = ({ dataset, inEditor, onRemove }) => {
                   type: "description",
                 },
                 { id: "template", icon: undefined, title: "Template", type: "template" },
+                {
+                  id: "legendGradient",
+                  icon: undefined,
+                  title: "Legend(Gradient)",
+                  type: "legendGradient",
+                  value: {
+                    style: "square",
+                    items: [
+                      {
+                        title: "639",
+                        color: "#753E13",
+                      },
+                      {
+                        title: "532",
+                        color: "#9E591B",
+                      },
+                      {
+                        title: "425",
+                        color: "#C37929",
+                      },
+                      {
+                        title: "318",
+                        color: "#E1A04C",
+                      },
+                      {
+                        title: "211",
+                        color: "#F3C687",
+                      },
+                      {
+                        title: "104",
+                        color: "#F7E3C3",
+                      },
+                      {
+                        title: "-3",
+                        color: "#F2EEEB",
+                      },
+                    ],
+                  },
+                },
               ] as FieldType[]
             )?.map((field, idx) => (
               <Field key={idx} field={field} editMode={inEditor && currentTab === "edit"} />
