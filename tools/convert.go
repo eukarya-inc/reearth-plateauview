@@ -6,7 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"image/color"
-	"io/fs"
+	"io"
 	"net/http"
 	"os"
 	"path"
@@ -56,6 +56,7 @@ type Convert struct {
 	Output   string   `help:"出力先ディレクトリパス。デフォルトはカレントディレクトリです。"`
 	InputFS  afero.Fs `opts:"-"`
 	OutputFS afero.Fs `opts:"-"`
+	Copy     bool     `help:"CZML生成対象外のGeoJSONをそのまま出力先にコピーします。デフォルトではコピーしません。"`
 }
 
 func (c *Convert) Execute() error {
@@ -75,13 +76,25 @@ func (c *Convert) execute() error {
 	}
 
 	for _, fi := range files {
-		t := detectType(fi)
-		if t == "" {
+		if fi.IsDir() {
 			continue
 		}
 
 		name := fi.Name()
-		os.Stderr.WriteString(fmt.Sprintf("%s\n", name))
+		if path.Ext(name) != ".geojson" {
+			continue
+		}
+
+		t := detectType(name)
+		if t == "" {
+			if c.Copy {
+				os.Stderr.WriteString(fmt.Sprintf("copy: %s\n", name))
+				if err := c.copyFile(name); err != nil {
+					return fmt.Errorf("「%s」のコピーに失敗しました。%w", name, err)
+				}
+			}
+			continue
+		}
 
 		fc, err := c.loadGeoJSON(name)
 		if err != nil {
@@ -92,8 +105,10 @@ func (c *Convert) execute() error {
 		var czml any
 		switch t {
 		case "landmark":
+			os.Stderr.WriteString(fmt.Sprintf("land: %s\n", name))
 			czml, err = ConvertLandmark(fc, id)
 		case "border":
+			os.Stderr.WriteString(fmt.Sprintf("bord: %s\n", name))
 			czml, err = ConvertBorder(fc, id)
 		}
 
@@ -110,6 +125,27 @@ func (c *Convert) execute() error {
 	}
 
 	return nil
+}
+
+func (c *Convert) copyFile(name string) error {
+	f, err := c.InputFS.Open(name)
+	if err != nil {
+		return err
+	}
+	defer func() {
+		_ = f.Close()
+	}()
+
+	f2, err := c.OutputFS.Create(name)
+	if err != nil {
+		return err
+	}
+	defer func() {
+		_ = f2.Close()
+	}()
+
+	_, err = io.Copy(f2, f)
+	return err
 }
 
 func (c *Convert) loadGeoJSON(path string) (*geojson.FeatureCollection, error) {
@@ -142,13 +178,8 @@ func (c *Convert) writeCZML(name string, d any) error {
 	return json.NewEncoder(f).Encode(d)
 }
 
-func detectType(fi fs.FileInfo) string {
-	n := fi.Name()
-	ext := path.Ext(n)
-	if ext != ".geojson" && ext != ".json" {
-		return ""
-	}
-	fn := strings.TrimSuffix(n, ext)
+func detectType(name string) string {
+	fn := strings.TrimSuffix(name, path.Ext(name))
 	if strings.HasSuffix(fn, "_landmark") || strings.HasSuffix(fn, "_station") {
 		return "landmark"
 	} else if strings.HasSuffix(fn, "_border") {
