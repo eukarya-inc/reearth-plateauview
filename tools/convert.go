@@ -8,6 +8,7 @@ import (
 	"image/color"
 	"io/fs"
 	"net/http"
+	"os"
 	"path"
 	"strings"
 
@@ -70,7 +71,7 @@ func (c *Convert) Execute() error {
 func (c *Convert) execute() error {
 	files, err := afero.ReadDir(c.InputFS, "")
 	if err != nil {
-		return err
+		return fmt.Errorf("ディレクトリの読み込みに失敗しました。%w", err)
 	}
 
 	for _, fi := range files {
@@ -80,9 +81,11 @@ func (c *Convert) execute() error {
 		}
 
 		name := fi.Name()
+		os.Stderr.WriteString(fmt.Sprintf("%s\n", name))
+
 		fc, err := c.loadGeoJSON(name)
 		if err != nil {
-			return err
+			return fmt.Errorf("GeoJSONファイル「%s」の読み込みに失敗しました。%w", name, err)
 		}
 
 		id := strings.TrimSuffix(name, path.Ext(name))
@@ -95,14 +98,14 @@ func (c *Convert) execute() error {
 		}
 
 		if err != nil {
-			return err
+			return fmt.Errorf("CZMLデータの生成に失敗しました。%w", err)
 		}
 		if czml == nil {
 			continue
 		}
 
 		if err := c.writeCZML(id, czml); err != nil {
-			return err
+			return fmt.Errorf("CZMLファイルの書き込みに失敗しました。%w", err)
 		}
 	}
 
