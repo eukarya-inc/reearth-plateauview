@@ -29,7 +29,6 @@ const DatasetDetails: React.FC<Props> = ({ dataset, isShareable, onDatasetAdd })
           __html: dataset?.description as string,
         }}
       />
-      )
     </>
   );
 
