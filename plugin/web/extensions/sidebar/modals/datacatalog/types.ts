@@ -1,5 +1,3 @@
-import { Tag } from "@web/extensions/sidebar/core/processCatalog";
-
 export type UserDataItem = {
   type: string;
   id: string;
@@ -10,5 +8,4 @@ export type UserDataItem = {
   data?: string;
   dataUrl?: string;
   dataFormat?: string;
-  tags?: Tag[];
 };
