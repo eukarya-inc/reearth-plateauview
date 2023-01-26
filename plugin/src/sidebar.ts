@@ -11,18 +11,11 @@ import mobileDropdownHtml from "../dist/web/sidebar/popups/mobileDropdown/index.
 
 type PluginExtensionInstance = {
   id: string;
-  pluginId: string;
-  name: string;
-  extensionId: string;
-  extensionType: "widget" | "block";
-  layout: any;
-  extended: any;
   runTimes?: number;
 };
 
 const reearth = (globalThis as any).reearth;
 
-// Defaults
 let welcomePageIsOpen = false;
 let mobileDropdownIsOpen = false;
 const defaultLocation = { zone: "outer", section: "left", area: "middle" };
@@ -34,8 +27,7 @@ let addedDatasets: string | undefined = undefined;
 
 const widgetInstance = reearth.plugins.instances.find(
   (i: PluginExtensionInstance) => i.id === reearth.widget.id,
-);
-// Defaults (end)
+) as PluginExtensionInstance;
 
 reearth.ui.show(html, { extended: true });
 
