@@ -1,7 +1,21 @@
 import { Select } from "@web/sharedComponents";
-import { useCallback } from "react";
 
-const FileTypeSelect: React.FC = () => {
+export type FileType =
+  | "auto"
+  | "geojson"
+  | "kml"
+  | "csv"
+  | "czml"
+  | "gpx"
+  | "json"
+  | "georss"
+  | "shapefile";
+
+type Props = {
+  onFileTypeSelect: (value: string) => void;
+};
+
+const FileTypeSelect: React.FC<Props> = ({ onFileTypeSelect }) => {
   const options = [
     {
       value: "auto",
@@ -41,15 +55,11 @@ const FileTypeSelect: React.FC = () => {
     },
   ];
 
-  const handleChange = useCallback((_value: string) => {
-    // TODO: add functionality
-  }, []);
-
   return (
     <Select
       defaultValue="auto"
       style={{ width: "100%" }}
-      onChange={handleChange}
+      onChange={onFileTypeSelect}
       options={options}
     />
   );

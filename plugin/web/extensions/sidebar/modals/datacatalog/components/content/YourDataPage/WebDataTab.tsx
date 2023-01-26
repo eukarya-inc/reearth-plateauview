@@ -1,8 +1,9 @@
 import { UserDataItem } from "@web/extensions/sidebar/modals/datacatalog/types";
+import { getExtension } from "@web/extensions/sidebar/utils/file";
 import { Input, Form, Button } from "@web/sharedComponents";
 import { useCallback, useState } from "react";
 
-import FileTypeSelect from "./FileTypeSelect";
+import FileTypeSelect, { FileType } from "./FileTypeSelect";
 
 type Props = {
   onOpenDetails?: (data?: UserDataItem) => void;
@@ -11,6 +12,7 @@ type Props = {
 
 const WebDataTab: React.FC<Props> = ({ onOpenDetails, setSelectedWebItem }) => {
   const [dataUrl, setDataUrl] = useState("");
+  const [fileType, setFileType] = useState<FileType>("auto");
 
   const fetchDataFromUrl = useCallback(async (url: string) => {
     try {
@@ -21,6 +23,20 @@ const WebDataTab: React.FC<Props> = ({ onOpenDetails, setSelectedWebItem }) => {
     } catch (error) {
       return undefined;
     }
+  }, []);
+
+  const setDataFormat = useCallback((type: FileType, filename: string) => {
+    const extension = getExtension(filename);
+    if (type === "auto") {
+      // more exceptions will be added in the future
+      switch (extension) {
+        case "kmz":
+          return "kml";
+        default:
+          return extension;
+      }
+    }
+    return type;
   }, []);
 
   const handleClick = useCallback(async () => {
@@ -36,6 +52,7 @@ const WebDataTab: React.FC<Props> = ({ onOpenDetails, setSelectedWebItem }) => {
           "Please contact the provider of this data for more information, including information about usage rights and constraints.",
         name: filename,
         dataUrl: dataUrl,
+        dataFormat: setDataFormat(fileType, filename),
       };
       if (onOpenDetails) onOpenDetails(item);
       if (setSelectedWebItem) setSelectedWebItem(item);
@@ -43,12 +60,16 @@ const WebDataTab: React.FC<Props> = ({ onOpenDetails, setSelectedWebItem }) => {
       // Raw Data
       // const data = await result.text();
     }
-  }, [dataUrl, fetchDataFromUrl, onOpenDetails, setSelectedWebItem]);
+  }, [dataUrl, fetchDataFromUrl, fileType, onOpenDetails, setDataFormat, setSelectedWebItem]);
+
+  const handleFileTypeSelect = useCallback((type: string) => {
+    setFileType(type as FileType);
+  }, []);
 
   return (
     <Form layout="vertical">
       <Form.Item name="file-type" label="Select file type">
-        <FileTypeSelect />
+        <FileTypeSelect onFileTypeSelect={handleFileTypeSelect} />
       </Form.Item>
       <Form.Item
         name="url"
