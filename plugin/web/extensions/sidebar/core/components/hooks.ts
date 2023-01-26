@@ -5,7 +5,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { Root, Data, Template } from "../newTypes";
 import processCatalog, { CatalogRawItem } from "../processCatalog";
 
-const defaultProject: Project = {
+export const defaultProject: Project = {
   sceneOverrides: {
     default: {
       sceneMode: "3d",

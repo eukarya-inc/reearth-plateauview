@@ -1,9 +1,20 @@
+import Feedback from "@web/extensions/sidebar/core/components/content/Feedback";
+import MapSettings from "@web/extensions/sidebar/core/components/content/MapSettings";
+import Share from "@web/extensions/sidebar/core/components/content/Share";
+import { Project, ReearthApi } from "@web/extensions/sidebar/types";
 import { postMsg } from "@web/extensions/sidebar/utils";
 import { Icon } from "@web/sharedComponents";
 import { styled } from "@web/theme";
 import { ReactNode, useCallback, useEffect, useState } from "react";
 
 import PopupItem from "../sharedComponents/PopupItem";
+
+export type Props = {
+  project: Project;
+  backendURL?: string;
+  reearthURL?: string;
+  onProjectSceneUpdate: (updatedProperties: Partial<ReearthApi>) => void;
+};
 
 type ItemKey = "map" | "share" | "feedback";
 
@@ -31,7 +42,7 @@ const menuItems: MenuItem[] = [
   },
 ];
 
-const Menu: React.FC = () => {
+const Menu: React.FC<Props> = ({ project, backendURL, reearthURL, onProjectSceneUpdate }) => {
   const [currentItem, changeItem] = useState<MenuItem | undefined>();
 
   const handleHeightUpdate = () => {
@@ -62,10 +73,23 @@ const Menu: React.FC = () => {
   return (
     <Wrapper id="menu">
       {currentItem ? (
-        <PopupItem onBack={() => changeItem(undefined)}>
-          {currentItem.icon}
-          <Title>{currentItem.title}</Title>
-        </PopupItem>
+        <>
+          <PopupItem onBack={() => changeItem(undefined)}>
+            {currentItem.icon}
+            <Title>{currentItem.title}</Title>
+          </PopupItem>
+          {currentItem.key &&
+            {
+              map: (
+                <MapSettings
+                  overrides={project.sceneOverrides}
+                  onOverridesUpdate={onProjectSceneUpdate}
+                />
+              ),
+              share: <Share project={project} backendURL={backendURL} reearthURL={reearthURL} />,
+              feedback: <Feedback />,
+            }[currentItem.key]}
+        </>
       ) : (
         menuItems.map(i => (
           <PopupItem key={i.key} onClick={() => handleClick(i)}>
