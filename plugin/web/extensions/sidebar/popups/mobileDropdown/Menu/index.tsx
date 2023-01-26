@@ -1,6 +1,7 @@
+import { postMsg } from "@web/extensions/sidebar/utils";
 import { Icon } from "@web/sharedComponents";
 import { styled } from "@web/theme";
-import { ReactNode, useCallback, useState } from "react";
+import { ReactNode, useCallback, useEffect, useState } from "react";
 
 import PopupItem from "../sharedComponents/PopupItem";
 
@@ -33,6 +34,15 @@ const menuItems: MenuItem[] = [
 const Menu: React.FC = () => {
   const [currentItem, changeItem] = useState<MenuItem | undefined>();
 
+  const handleHeightUpdate = () => {
+    const el = document.getElementById("menu");
+    const currentHeight = el ? window.getComputedStyle(el).height : undefined;
+    postMsg({
+      action: "msgFromPopup",
+      payload: { height: currentHeight },
+    });
+  };
+
   const handleClick = useCallback(
     (item: MenuItem) => {
       if (currentItem === item) {
@@ -40,9 +50,14 @@ const Menu: React.FC = () => {
       } else {
         changeItem(item);
       }
+      handleHeightUpdate();
     },
     [currentItem],
   );
+
+  useEffect(() => {
+    handleHeightUpdate();
+  }, []);
 
   return (
     <Wrapper id="menu">

@@ -10,7 +10,7 @@ type Props = {
 
 const PopupItem: React.FC<Props> = ({ onClick, onBack, children }) => {
   return (
-    <Wrapper onClick={onClick}>
+    <Wrapper onClick={onClick} selectable={!onBack}>
       {onBack && <StyledIcon icon="arrowLeft" onClick={onBack} />}
       {children}
     </Wrapper>
@@ -19,7 +19,7 @@ const PopupItem: React.FC<Props> = ({ onClick, onBack, children }) => {
 
 export default PopupItem;
 
-const Wrapper = styled.div`
+const Wrapper = styled.div<{ selectable: boolean }>`
   display: flex;
   justify-content: center;
   gap: 12px;
@@ -27,6 +27,17 @@ const Wrapper = styled.div`
   position: relative;
   color: #00bebe;
   background: #f4f4f4;
+  user-select: none;
+  transition: 0.3s background;
+
+  ${({ selectable }) =>
+    selectable &&
+    `
+  cursor: pointer;
+  :hover{
+    background: #e7e7e7;
+  }
+  `};
 `;
 
 const StyledIcon = styled(Icon)`

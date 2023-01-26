@@ -27,7 +27,7 @@ const defaultOverrides: ReearthApi = {
 };
 
 export default () => {
-  const [isMobile, setIsMobile] = useState<boolean>(true);
+  const [isMobile, setIsMobile] = useState<boolean>(false);
   const [projectID, setProjectID] = useState<string>();
   const [inEditor, setInEditor] = useState(true);
   const [backendAccessToken, setBackendAccessToken] = useState<string>();
@@ -48,14 +48,13 @@ export default () => {
 
   const handleOverridesUpdate = useCallback(
     (updatedProperties: Partial<ReearthApi>) => {
-      updateOverrides([overrides, updatedProperties].reduce((p, v) => mergeProperty(p, v)));
+      const newOverrides = [overrides, updatedProperties].reduce((p, v) => mergeProperty(p, v));
+      updateOverrides(newOverrides);
+      postMsg({ action: "updateOverrides", payload: newOverrides });
     },
     [overrides, updateOverrides],
   );
 
-  useEffect(() => {
-    postMsg({ action: "updateOverrides", payload: overrides });
-  }, [overrides]);
   // ****************************************
 
   // ****************************************
@@ -244,6 +243,9 @@ export default () => {
         setBackendURL(e.data.payload.backendURL);
         setCMSURL(`${e.data.payload.cmsURL}/api/p/plateau-2022`);
         setReearthURL(`${e.data.payload.reearthURL}`);
+        if (e.data.payload.storedOverrides) {
+          updateOverrides(e.data.payload.storedOverrides);
+        }
       }
     };
     addEventListener("message", e => eventListenerCallback(e));
@@ -260,6 +262,7 @@ export default () => {
         if (res.status !== 200) return;
         const data = await res.json();
         updateOverrides(data);
+        postMsg({ action: "updateOverrides", payload: data });
       })();
     } else {
       (async () => {
@@ -270,7 +273,7 @@ export default () => {
         setData(results.data);
       })();
     }
-  }, [projectID, backendURL, updateOverrides]);
+  }, [projectID, backendURL]);
 
   return {
     isMobile,

@@ -8,7 +8,7 @@ import Detail from "./Detail";
 import Menu from "./Menu";
 
 const MobileDropdown: React.FC = () => {
-  const [currentTab, setCurrentTab] = useState<Tab>();
+  const [currentTab, setCurrentTab] = useState<Tab>("menu");
 
   useEffect(() => {
     postMsg({ action: "initPopup" });

@@ -9,66 +9,95 @@ import welcomeScreenHtml from "../dist/web/sidebar/modals/welcomescreen/index.ht
 import helpPopupHtml from "../dist/web/sidebar/popups/help/index.html?raw";
 import mobileDropdownHtml from "../dist/web/sidebar/popups/mobileDropdown/index.html?raw";
 
-// type PluginExtensionInstance = {
-//   id: string;
-//   pluginId: string;
-//   name: string;
-//   extensionId: string;
-//   extensionType: "widget" | "block";
-// };
+type PluginExtensionInstance = {
+  id: string;
+  pluginId: string;
+  name: string;
+  extensionId: string;
+  extensionType: "widget" | "block";
+  layout: any;
+  extended: any;
+  runTimes?: number;
+};
 
 const reearth = (globalThis as any).reearth;
 
-let addedDatasets: string | undefined = undefined;
+// Defaults
+let welcomePageIsOpen = false;
+let mobileDropdownIsOpen = false;
+const defaultLocation = { zone: "outer", section: "left", area: "middle" };
+const mobileLocation = { zone: "outer", section: "center", area: "top" };
 
 let rawCatalog: CatalogRawItem[] = [];
 
-// const initialized = false;
-let welcomePageIsOpen = false;
-let mobileDropdownIsOpen = false;
+let addedDatasets: string | undefined = undefined;
 
-// if (reearth.viewport.isMobile) {
-//   reearth.widget.moveTo({ zone: "outer", section: "center", area: "top" });
-// } else {
+const widgetInstance = reearth.plugins.instances.find(
+  (i: PluginExtensionInstance) => i.id === reearth.widget.id,
+);
+// Defaults (end)
+
 reearth.ui.show(html, { extended: true });
-// }
+
+if (widgetInstance.runTimes === 0) {
+  if (reearth.viewport.isMobile) {
+    reearth.clientStorage.setAsync("isMobile", true);
+    reearth.widget.moveTo(mobileLocation);
+  } else {
+    reearth.clientStorage.setAsync("isMobile", false);
+  }
+}
 
 reearth.on("message", ({ action, payload }: PostMessageProps) => {
   // Mobile specific
-  // reearth.plugins.instances.map((i: PluginExtensionInstance) => {
-  //   console.log("instance: ", i);
-  // });
-  // if (action === "initMobile") {
-  //   reearth.plugins.instances.map((i: PluginExtensionInstance) => {
-  //     console.log("instance: ", i);
-  //   });
-  // } else
   if (action === "mobileDropdownOpen") {
-    // console.log("VIEWPORT WIDTH: ", reearth.viewport.width);
     reearth.popup.show(mobileDropdownHtml, {
       position: "bottom",
       width: reearth.viewport.width - 12,
-      // height: 700,
     });
     mobileDropdownIsOpen = true;
   } else if (action === "msgToMobileDropdown") {
     reearth.popup.postMessage({ type: "msgToPopup", message: payload });
   }
+
   // Sidebar
   if (action === "initSidebar") {
-    reearth.ui.postMessage({
-      type: action,
-      payload: {
-        isMobile: reearth.viewport.isMobile,
-        projectID: reearth.viewport.query.projectID,
-        inEditor: reearth.scene.inEditor,
-        backendAccessToken: reearth.widget.property.default?.plateauAccessToken ?? "",
-        backendURL: reearth.widget.property.default?.plateauURL ?? "",
-        cmsURL: reearth.widget.property.default?.cmsURL ?? "",
-        reearthURL: reearth.widget.property.default?.reearthURL ?? "",
-      },
-    });
-    reearth.clientStorage.setAsync("overrides", payload);
+    const sidebarInstance = reearth.plugins.instances.find(
+      (i: PluginExtensionInstance) => i.id === reearth.widget.id,
+    );
+    if (sidebarInstance.runTimes === 0) {
+      reearth.visualizer.overrideProperty(payload);
+      reearth.clientStorage.setAsync("overrides", payload);
+      reearth.ui.postMessage({
+        type: action,
+        payload: {
+          isMobile: reearth.viewport.isMobile,
+          projectID: reearth.viewport.query.projectID,
+          inEditor: reearth.scene.inEditor,
+          backendAccessToken: reearth.widget.property.default?.plateauAccessToken ?? "",
+          backendURL: reearth.widget.property.default?.plateauURL ?? "",
+          cmsURL: reearth.widget.property.default?.cmsURL ?? "",
+          reearthURL: reearth.widget.property.default?.reearthURL ?? "",
+        },
+      });
+    } else {
+      reearth.clientStorage.getAsync("overrides").then((value: any) => {
+        reearth.ui.postMessage({
+          type: action,
+          payload: {
+            isMobile: reearth.viewport.isMobile,
+            projectID: reearth.viewport.query.projectID,
+            inEditor: reearth.scene.inEditor,
+            backendAccessToken: reearth.widget.property.default?.plateauAccessToken ?? "",
+            backendURL: reearth.widget.property.default?.plateauURL ?? "",
+            cmsURL: reearth.widget.property.default?.cmsURL ?? "",
+            reearthURL: reearth.widget.property.default?.reearthURL ?? "",
+            storedOverrides: value,
+          },
+        });
+      });
+    }
+
     reearth.clientStorage.getAsync("doNotShowWelcome").then((value: any) => {
       if (!value && !reearth.scene.inEditor) {
         reearth.modal.show(welcomeScreenHtml, {
@@ -134,8 +163,14 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
     reearth.popup.show(helpPopupHtml, { position: "right-start", offset: 4 });
   } else if (action === "initPopup") {
     reearth.ui.postMessage({ type: action });
+  } else if (action === "initWelcome") {
+    reearth.modal.postMessage({ type: "msgToModal", message: reearth.viewport.isMobile });
   } else if (action === "msgToPopup") {
     reearth.popup.postMessage({ type: "msgToPopup", message: payload });
+  } else if (action === "msgFromPopup") {
+    if (payload.height) {
+      reearth.popup.update({ height: payload.height, width: reearth.viewport.width - 12 });
+    }
   } else if (action === "popupClose") {
     reearth.popup.close();
     mobileDropdownIsOpen = false;
@@ -154,17 +189,33 @@ reearth.on("update", () => {
 });
 
 reearth.on("resize", () => {
-  // if (e.isMobile !== isMobile) {
-  //   reearth.ui.postMessage({type: ""});
-  //   isMobile = e.isMobile;
-  // }
+  // Sidebar
+  if (reearth.viewport.isMobile) {
+    reearth.clientStorage.getAsync("isMobile").then((value: any) => {
+      if (!value) {
+        reearth.widget.moveTo(mobileLocation);
+        reearth.clientStorage.setAsync("isMobile", true);
+      }
+    });
+  } else {
+    reearth.clientStorage.getAsync("isMobile").then((value: any) => {
+      if (value) {
+        reearth.widget.moveTo(defaultLocation);
+        reearth.clientStorage.setAsync("isMobile", false);
+      }
+    });
+  }
 
+  // Modals
   if (welcomePageIsOpen) {
     reearth.modal.update({
       width: reearth.viewport.width,
       height: reearth.viewport.height,
     });
-  } else if (mobileDropdownIsOpen) {
+    reearth.modal.postMessage({ type: "msgToModal", payload: reearth.viewport.isMobile });
+  }
+  // Popups
+  if (mobileDropdownIsOpen) {
     reearth.popup.update({
       width: reearth.viewport.width - 12,
     });
