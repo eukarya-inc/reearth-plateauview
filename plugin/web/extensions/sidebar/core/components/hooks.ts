@@ -1,33 +1,35 @@
-import { ReearthApi } from "@web/extensions/sidebar/types";
+import { Project, ReearthApi } from "@web/extensions/sidebar/types";
 import { mergeProperty, postMsg } from "@web/extensions/sidebar/utils";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
-import { Root, Data, Template } from "./newTypes";
-import processCatalog, { CatalogRawItem } from "./processCatalog";
+import { Root, Data, Template } from "../newTypes";
+import processCatalog, { CatalogRawItem } from "../processCatalog";
 
-const defaultOverrides: ReearthApi = {
-  default: {
-    sceneMode: "3d",
-    depthTestAgainstTerrain: false,
-  },
-  terrain: {
-    terrain: true,
-    terrainType: "cesiumion",
-    terrainCesiumIonAccessToken:
-      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI3NGI5ZDM0Mi1jZDIzLTRmMzEtOTkwYi0zZTk4Yzk3ODZlNzQiLCJpZCI6NDA2NDYsImlhdCI6MTYwODk4MzAwOH0.3rco62ErML11TMSEflsMqeUTCDbIH6o4n4l5sssuedE",
-    terrainCesiumIonAsset: "286503",
-  },
-  tiles: [
-    {
-      id: "tokyo",
-      tile_url: "https://cyberjapandata.gsi.go.jp/xyz/seamlessphoto/{z}/{x}/{y}.jpg",
-      tile_type: "url",
+const defaultProject: Project = {
+  sceneOverrides: {
+    default: {
+      sceneMode: "3d",
+      depthTestAgainstTerrain: false,
     },
-  ],
+    terrain: {
+      terrain: true,
+      terrainType: "cesiumion",
+      terrainCesiumIonAccessToken:
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI3NGI5ZDM0Mi1jZDIzLTRmMzEtOTkwYi0zZTk4Yzk3ODZlNzQiLCJpZCI6NDA2NDYsImlhdCI6MTYwODk4MzAwOH0.3rco62ErML11TMSEflsMqeUTCDbIH6o4n4l5sssuedE",
+      terrainCesiumIonAsset: "286503",
+    },
+    tiles: [
+      {
+        id: "tokyo",
+        tile_url: "https://cyberjapandata.gsi.go.jp/xyz/seamlessphoto/{z}/{x}/{y}.jpg",
+        tile_type: "url",
+      },
+    ],
+  },
+  selectedDatasets: [],
 };
 
 export default () => {
-  const [isMobile, setIsMobile] = useState<boolean>(false);
   const [projectID, setProjectID] = useState<string>();
   const [inEditor, setInEditor] = useState(true);
   const [backendAccessToken, setBackendAccessToken] = useState<string>();
@@ -38,23 +40,64 @@ export default () => {
   // ****************************************
   // Init
   useEffect(() => {
-    postMsg({ action: "initSidebar", payload: defaultOverrides }); // Needed to trigger sending initialization data to sidebar
+    postMsg({ action: "initSidebar", payload: defaultProject }); // Needed to trigger sending initialization data to sidebar
   }, []);
   // ****************************************
 
   // ****************************************
-  // Override
-  const [overrides, updateOverrides] = useState<ReearthApi>(defaultOverrides);
+  // Project
+  const [project, updateProject] = useState<Project>(defaultProject);
 
-  const handleOverridesUpdate = useCallback(
+  const handleProjectSceneUpdate = useCallback(
     (updatedProperties: Partial<ReearthApi>) => {
-      const newOverrides = [overrides, updatedProperties].reduce((p, v) => mergeProperty(p, v));
-      updateOverrides(newOverrides);
-      postMsg({ action: "updateOverrides", payload: newOverrides });
+      const updatedProject: Project = {
+        sceneOverrides: [project.sceneOverrides, updatedProperties].reduce((p, v) =>
+          mergeProperty(p, v),
+        ),
+        selectedDatasets: project.selectedDatasets,
+      };
+      updateProject(updatedProject);
     },
-    [overrides, updateOverrides],
+    [project, updateProject],
   );
 
+  const handleProjectDatasetAdd = useCallback((dataset: CatalogRawItem) => {
+    updateProject(({ sceneOverrides, selectedDatasets }) => {
+      console.log("Selected: ", selectedDatasets);
+      console.log("Dataset: ", dataset);
+      return {
+        sceneOverrides,
+        selectedDatasets: [...selectedDatasets, dataset],
+      };
+    });
+    postMsg({ action: "addDatasetToScene", payload: dataset });
+  }, []);
+
+  const handleProjectDatasetRemove = useCallback(
+    (id: string) =>
+      updateProject(({ sceneOverrides, selectedDatasets }) => {
+        return {
+          sceneOverrides,
+          selectedDatasets: selectedDatasets.filter(d => d.id !== id),
+        };
+      }),
+    [],
+  );
+
+  const handleDatasetRemoveAll = useCallback(
+    () =>
+      updateProject(({ sceneOverrides }) => {
+        return {
+          sceneOverrides,
+          selectedDatasets: [],
+        };
+      }),
+    [],
+  );
+
+  useEffect(() => {
+    postMsg({ action: "updateProject", payload: project });
+  }, [project]);
   // ****************************************
 
   // ****************************************
@@ -66,23 +109,6 @@ export default () => {
       postMsg({ action: "minimize", payload: minimized });
     }, 250);
   }, [minimized]);
-  // ****************************************
-
-  // ****************************************
-  // Dataset
-  const [selectedDatasets, updateDatasets] = useState<CatalogRawItem[]>([]);
-
-  const handleDatasetAdd = useCallback((dataset: CatalogRawItem) => {
-    updateDatasets(oldDatasets => [...oldDatasets, dataset]);
-    postMsg({ action: "addDatasetToScene", payload: dataset });
-  }, []);
-
-  const handleDatasetRemove = useCallback(
-    (id: string) => updateDatasets(oldDatasets => oldDatasets.filter(d => d.id !== id)),
-    [],
-  );
-
-  const handleDatasetRemoveAll = useCallback(() => updateDatasets([]), []);
   // ****************************************
 
   // ****************************************
@@ -111,12 +137,12 @@ export default () => {
   );
 
   const handleModalOpen = useCallback(() => {
-    const selectedIds = selectedDatasets.map(d => d.id);
+    const selectedIds = project.selectedDatasets.map(d => d.id);
     postMsg({
       action: "catalogModalOpen",
       payload: { addedDatasets: selectedIds, rawCatalog },
     });
-  }, [rawCatalog, selectedDatasets]);
+  }, [rawCatalog, project.selectedDatasets]);
   // ****************************************
 
   // ****************************************
@@ -188,7 +214,8 @@ export default () => {
   const [data, setData] = useState<Data[]>();
   const processedSelectedDatasets: Data[] = useMemo(() => {
     // if (!data) return data;
-    return selectedDatasets
+    console.log("PROJECT: ", project);
+    return project.selectedDatasets
       .map(d => {
         console.log("DATA: ", data);
         if (d.modelType === "usecase") {
@@ -225,7 +252,7 @@ export default () => {
       })
       .flat(1)
       .filter(p => p);
-  }, [data, selectedDatasets]);
+  }, [data, project]);
   // ****************************************
 
   useEffect(() => {
@@ -233,18 +260,17 @@ export default () => {
       if (e.source !== parent) return;
       if (e.data.type === "msgFromModal") {
         if (e.data.payload.dataset) {
-          handleDatasetAdd(e.data.payload.dataset);
+          handleProjectDatasetAdd(e.data.payload.dataset);
         }
       } else if (e.data.type === "initSidebar") {
-        setIsMobile(e.data.payload.isMobile);
         setProjectID(e.data.payload.projectID);
         setInEditor(e.data.payload.inEditor);
         setBackendAccessToken(e.data.payload.backendAccessToken);
         setBackendURL(e.data.payload.backendURL);
         setCMSURL(`${e.data.payload.cmsURL}/api/p/plateau-2022`);
         setReearthURL(`${e.data.payload.reearthURL}`);
-        if (e.data.payload.storedOverrides) {
-          updateOverrides(e.data.payload.storedOverrides);
+        if (e.data.payload.draftProject) {
+          updateProject(e.data.payload.draftProject);
         }
       }
     };
@@ -252,7 +278,8 @@ export default () => {
     return () => {
       removeEventListener("message", eventListenerCallback);
     };
-  }, [handleDatasetAdd]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     if (!backendURL) return;
@@ -261,8 +288,7 @@ export default () => {
         const res = await fetch(`${backendURL}/share/${projectID}`);
         if (res.status !== 200) return;
         const data = await res.json();
-        updateOverrides(data);
-        postMsg({ action: "updateOverrides", payload: data });
+        updateProject(data);
       })();
     } else {
       (async () => {
@@ -276,9 +302,8 @@ export default () => {
   }, [projectID, backendURL]);
 
   return {
-    isMobile,
     processedSelectedDatasets,
-    overrides,
+    project,
     minimized,
     inEditor,
     reearthURL,
@@ -288,9 +313,9 @@ export default () => {
     handleTemplateUpdate,
     handleTemplateRemove,
     setMinimize,
-    handleDatasetRemove,
+    handleProjectDatasetRemove,
     handleDatasetRemoveAll,
-    handleOverridesUpdate,
+    handleProjectSceneUpdate,
     handleModalOpen,
   };
 };

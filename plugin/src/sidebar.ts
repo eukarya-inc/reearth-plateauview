@@ -59,7 +59,7 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
     });
     mobileDropdownIsOpen = true;
   } else if (action === "msgToMobileDropdown") {
-    reearth.popup.postMessage({ type: "msgToPopup", message: payload });
+    reearth.popup.postMessage({ action: "msgToPopup", payload });
   }
 
   // Sidebar
@@ -68,12 +68,11 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
       (i: PluginExtensionInstance) => i.id === reearth.widget.id,
     );
     if (sidebarInstance.runTimes === 0) {
-      reearth.visualizer.overrideProperty(payload);
-      reearth.clientStorage.setAsync("overrides", payload);
+      reearth.visualizer.overrideProperty(payload.sceneOverrides);
+      reearth.clientStorage.setAsync("draftProject", payload);
       reearth.ui.postMessage({
         type: action,
         payload: {
-          isMobile: reearth.viewport.isMobile,
           projectID: reearth.viewport.query.projectID,
           inEditor: reearth.scene.inEditor,
           backendAccessToken: reearth.widget.property.default?.plateauAccessToken ?? "",
@@ -83,18 +82,17 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
         },
       });
     } else {
-      reearth.clientStorage.getAsync("overrides").then((value: any) => {
+      reearth.clientStorage.getAsync("draftProject").then((value: any) => {
         reearth.ui.postMessage({
           type: action,
           payload: {
-            isMobile: reearth.viewport.isMobile,
             projectID: reearth.viewport.query.projectID,
             inEditor: reearth.scene.inEditor,
             backendAccessToken: reearth.widget.property.default?.plateauAccessToken ?? "",
             backendURL: reearth.widget.property.default?.plateauURL ?? "",
             cmsURL: reearth.widget.property.default?.cmsURL ?? "",
             reearthURL: reearth.widget.property.default?.reearthURL ?? "",
-            storedOverrides: value,
+            draftProject: value,
           },
         });
       });
@@ -127,9 +125,9 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
     });
   } else if (action === "storageDelete") {
     reearth.clientStorage.deleteAsync(payload.key);
-  } else if (action === "updateOverrides") {
-    reearth.visualizer.overrideProperty(payload);
-    reearth.clientStorage.setAsync("overrides", payload);
+  } else if (action === "updateProject") {
+    reearth.visualizer.overrideProperty(payload.sceneOverrides);
+    reearth.clientStorage.setAsync("draftProject", payload);
   } else if (action === "addDatasetToScene") {
     // NEED TO HANDLE ADDING TO SCENE WHEN ABLE
   } else if (
@@ -180,6 +178,8 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
     reearth.modal.show(mapVideoHtml, { background: "transparent" });
   } else if (action === "clipModalOpen") {
     reearth.modal.show(clipVideoHtml, { background: "transparent" });
+  } else if (action === "checkIfMobile") {
+    reearth.ui.postMessage({ action, payload: reearth.viewport.isMobile });
   }
 });
 

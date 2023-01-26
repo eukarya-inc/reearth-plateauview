@@ -1,3 +1,5 @@
+import { CatalogRawItem } from "./core/processCatalog";
+
 type ActionType =
   | "initSidebar"
   | "initDataCatalog"
@@ -7,7 +9,7 @@ type ActionType =
   | "storageFetch"
   | "storageKeys"
   | "storageDelete"
-  | "updateOverrides"
+  | "updateProject"
   | "screenshot"
   | "screenshotPreview"
   | "screenshotSave"
@@ -23,9 +25,15 @@ type ActionType =
   | "msgFromPopup"
   | "mobileDropdownOpen"
   | "msgToMobileDropdown"
+  | "checkIfMobile"
   | "minimize";
 
 export type PostMessageProps = { action: ActionType; payload?: any };
+
+export type Project = {
+  sceneOverrides: ReearthApi;
+  selectedDatasets: CatalogRawItem[];
+};
 
 export type ReearthApi = {
   default?: {

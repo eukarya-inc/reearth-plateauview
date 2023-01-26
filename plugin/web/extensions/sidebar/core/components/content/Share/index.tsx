@@ -3,15 +3,15 @@ import { Row, Icon, message } from "@web/sharedComponents";
 import { styled } from "@web/theme";
 import { memo, useState } from "react";
 
-import useHooks, { ReearthApi } from "./hooks";
+import useHooks, { Project } from "./hooks";
 
 export type Props = {
-  overrides: ReearthApi;
+  project: Project;
   reearthURL?: string;
   backendURL?: string;
 };
 
-const Share: React.FC<Props> = ({ overrides, reearthURL, backendURL }) => {
+const Share: React.FC<Props> = ({ project, reearthURL, backendURL }) => {
   const [copiedUrl, setCopiedUrl] = useState(false);
   const [copiedIframe, setCopiedIframe] = useState(false);
 
@@ -24,7 +24,7 @@ const Share: React.FC<Props> = ({ overrides, reearthURL, backendURL }) => {
     handleScreenshotShow,
     handleScreenshotSave,
   } = useHooks({
-    overrides,
+    project,
     reearthURL,
     backendURL,
     messageApi,

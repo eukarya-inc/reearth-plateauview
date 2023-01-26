@@ -1,3 +1,4 @@
+// import useHooks from "@web/extensions/sidebar/core/components/hooks";
 import { postMsg } from "@web/extensions/sidebar/utils";
 import { Icon } from "@web/sharedComponents";
 import { styled } from "@web/theme";
@@ -5,8 +6,30 @@ import { useCallback, useEffect, useState } from "react";
 
 export type Tab = "data" | "detail" | "menu";
 
-const MobileSidebar: React.FC = () => {
+export type Props = {
+  className?: string;
+};
+
+const MobileSidebar: React.FC<Props> = ({ className }) => {
   const [selected, setSelected] = useState<Tab | undefined>();
+
+  // const {
+  //   processedSelectedDatasets,
+  //   overrides,
+  //   minimized,
+  //   inEditor,
+  //   reearthURL,
+  //   backendURL,
+  //   templates,
+  //   handleTemplateAdd,
+  //   handleTemplateUpdate,
+  //   handleTemplateRemove,
+  //   setMinimize,
+  //   handleDatasetRemove,
+  //   handleDatasetRemoveAll,
+  //   handleOverridesUpdate,
+  //   handleModalOpen,
+  // } = useHooks();
 
   const handleClick = useCallback(
     (tab: Tab) => {
@@ -60,7 +83,7 @@ const MobileSidebar: React.FC = () => {
   }, []);
 
   return (
-    <Wrapper>
+    <Wrapper className={className}>
       <PlateauIcon icon="plateauLogo" size={114} wide />
       <IconGroup>
         <StyledIcon
