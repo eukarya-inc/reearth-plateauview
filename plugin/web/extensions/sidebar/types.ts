@@ -2,7 +2,7 @@ type ActionType =
   | "initSidebar"
   | "initDataCatalog"
   | "initPopup"
-  | "initMobile"
+  | "initWelcome"
   | "storageSave"
   | "storageFetch"
   | "storageKeys"

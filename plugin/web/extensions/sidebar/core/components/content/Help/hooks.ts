@@ -39,7 +39,6 @@ export default () => {
 
   const handleItemClicked = useCallback((key: Tab) => {
     changeTab(key);
-    postMsg({ action: "msgFromPopup", payload: key });
     postMsg({ action: "helpPopupOpen" });
   }, []);
 
