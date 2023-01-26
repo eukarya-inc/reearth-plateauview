@@ -14,7 +14,7 @@ const FileSelectPane: React.FC<Props> = ({ onOpenDetails }) => {
   const [selectedLocalItem, setSelectedLocalItem] = useState<UserDataItem>();
   const [selectedWebItem, setSelectedWebItem] = useState<UserDataItem>();
 
-  const handleChange = (activeKey: string) => {
+  const handleTabChange = (activeKey: string) => {
     switch (activeKey) {
       case "local":
         if (onOpenDetails) onOpenDetails(selectedLocalItem);
@@ -27,7 +27,7 @@ const FileSelectPane: React.FC<Props> = ({ onOpenDetails }) => {
 
   return (
     <Wrapper>
-      <StyledTabs defaultActiveKey="local" onChange={handleChange}>
+      <StyledTabs defaultActiveKey="local" onChange={handleTabChange}>
         <Tabs.TabPane tab="Add Local Data" key="local">
           <LocalDataTab onOpenDetails={onOpenDetails} setSelectedLocalItem={setSelectedLocalItem} />
         </Tabs.TabPane>
