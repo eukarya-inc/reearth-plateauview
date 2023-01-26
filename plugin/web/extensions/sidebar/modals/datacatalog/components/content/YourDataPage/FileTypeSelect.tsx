@@ -36,10 +36,6 @@ const FileTypeSelect: React.FC = () => {
       label: "GeoRSS",
     },
     {
-      value: "gltf",
-      label: "GLTF",
-    },
-    {
       value: "shapefile",
       label: "ShapeFile (zip)",
     },
