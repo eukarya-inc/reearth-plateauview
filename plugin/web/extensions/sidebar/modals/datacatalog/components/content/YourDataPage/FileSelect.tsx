@@ -1,4 +1,4 @@
-import { CatalogItem } from "@web/extensions/sidebar/core/processCatalog";
+import { UserDataItem } from "@web/extensions/sidebar/modals/datacatalog/types";
 import { Tabs } from "@web/sharedComponents";
 import { styled } from "@web/theme";
 
@@ -6,7 +6,7 @@ import LocalDataTab from "./LocalDataTab";
 import WebDataTab from "./WebDataTab";
 
 export type Props = {
-  onOpenDetails?: (data?: CatalogItem) => void;
+  onOpenDetails?: (data?: UserDataItem) => void;
 };
 
 const FileSelectPane: React.FC<Props> = ({ onOpenDetails }) => {

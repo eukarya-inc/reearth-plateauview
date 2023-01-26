@@ -1,4 +1,4 @@
-import { CatalogItem, convertRaw } from "@web/extensions/sidebar/core/processCatalog";
+import { UserDataItem } from "@web/extensions/sidebar/modals/datacatalog/types";
 import { Form } from "@web/sharedComponents";
 import { InboxOutlined } from "@web/sharedComponents/Icon/icons";
 import Upload, { UploadProps, UploadFile } from "@web/sharedComponents/Upload";
@@ -8,7 +8,7 @@ import { useCallback, useState } from "react";
 import FileTypeSelect from "./FileTypeSelect";
 
 type Props = {
-  onOpenDetails?: (data?: CatalogItem) => void;
+  onOpenDetails?: (data?: UserDataItem) => void;
 };
 
 const fileFormats = ".kml,.kmz,.csv,.czml,.gpx,.topojson,.geojson,.json,.zip";
@@ -26,16 +26,15 @@ const LocalDataTab: React.FC<Props> = ({ onOpenDetails }) => {
       const filename = file.name;
       const id = "id" + Math.random().toString(16).slice(2);
       const url = URL.createObjectURL(file);
-      const item = {
+      const item: UserDataItem = {
+        type: "item",
         id: id,
         description:
           "This file only exists in your browser. To share it, you must load it onto a public web server.",
         name: filename,
-        data_url: url,
+        dataUrl: url,
       };
-      const catalogItem = convertRaw([item])[0] as CatalogItem;
-      catalogItem.type = "item";
-      if (onOpenDetails) onOpenDetails(catalogItem);
+      if (onOpenDetails) onOpenDetails(item);
 
       // Raw Data
       // const reader = new FileReader();

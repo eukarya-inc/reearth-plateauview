@@ -1,14 +1,15 @@
 import { CatalogItem } from "@web/extensions/sidebar/core/processCatalog";
+import { UserDataItem } from "@web/extensions/sidebar/modals/datacatalog/types";
 import { Icon } from "@web/sharedComponents";
 import { styled } from "@web/theme";
 import { ComponentType, useCallback } from "react";
 
 export type Props = {
-  dataset: CatalogItem;
+  dataset: CatalogItem | UserDataItem;
   isShareable?: boolean;
   addDisabled: boolean;
   contentSection?: ComponentType;
-  onDatasetAdd: (dataset: CatalogItem) => void;
+  onDatasetAdd: (dataset: CatalogItem | UserDataItem) => void;
 };
 
 const DatasetDetails: React.FC<Props> = ({

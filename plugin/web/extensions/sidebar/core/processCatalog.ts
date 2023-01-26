@@ -5,8 +5,8 @@ type ModelType = "plateau" | "usecase" | "dataset";
 export type CatalogRawItem = {
   id: string;
   name?: string;
-  prefecture?: string; // 都道府県
-  cityName?: string; // city_name 市区町村名
+  prefecture: string; // 都道府県
+  cityName: string; // city_name 市区町村名
   description?: string | null;
   descriptionBldg?: string | null; // description_bldg
   descriptionTran?: string | null; // description_tran
@@ -77,7 +77,7 @@ export default (plateauData: any[], usecaseData: any[], datasetData: any[]) => {
   return [...rawPlateauData, ...rawUsecaseData, ...rawDatasetData];
 };
 
-export function convertRaw(data?: any[], modelType?: ModelType): CatalogRawItem[] {
+function convertRaw(data?: any[], modelType?: ModelType): CatalogRawItem[] {
   if (!data || data.length <= 0) return [];
 
   return data.map(item => {

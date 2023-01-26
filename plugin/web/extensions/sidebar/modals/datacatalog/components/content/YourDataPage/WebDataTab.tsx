@@ -1,11 +1,11 @@
-import { CatalogItem, convertRaw } from "@web/extensions/sidebar/core/processCatalog";
+import { UserDataItem } from "@web/extensions/sidebar/modals/datacatalog/types";
 import { Input, Form, Button } from "@web/sharedComponents";
 import { useCallback, useState } from "react";
 
 import FileTypeSelect from "./FileTypeSelect";
 
 type Props = {
-  onOpenDetails?: (data?: CatalogItem) => void;
+  onOpenDetails?: (data?: UserDataItem) => void;
 };
 
 const WebDataTab: React.FC<Props> = ({ onOpenDetails }) => {
@@ -28,16 +28,15 @@ const WebDataTab: React.FC<Props> = ({ onOpenDetails }) => {
       // Catalog Item
       const filename = dataUrl.substring(dataUrl.lastIndexOf("/") + 1);
       const id = "id" + Math.random().toString(16).slice(2);
-      const item = {
+      const item: UserDataItem = {
+        type: "item",
         id: id,
         description:
           "Please contact the provider of this data for more information, including information about usage rights and constraints.",
         name: filename,
-        data_url: dataUrl,
+        dataUrl: dataUrl,
       };
-      const catalogItem = convertRaw([item])[0] as CatalogItem;
-      catalogItem.type = "item";
-      if (onOpenDetails) onOpenDetails(catalogItem);
+      if (onOpenDetails) onOpenDetails(item);
 
       // Raw Data
       // const data = await result.text();

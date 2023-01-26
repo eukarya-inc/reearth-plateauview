@@ -1,12 +1,12 @@
-import { CatalogItem } from "@web/extensions/sidebar/core/processCatalog";
 import DetailsComponent from "@web/extensions/sidebar/modals/datacatalog/components/content/DatasetDetails";
+import { UserDataItem } from "@web/extensions/sidebar/modals/datacatalog/types";
 import { styled } from "@web/theme";
 import { useCallback } from "react";
 
 export type Props = {
   isShareable?: boolean;
-  dataset?: CatalogItem;
-  onDatasetAdd: (dataset: CatalogItem) => void;
+  dataset?: UserDataItem;
+  onDatasetAdd: (dataset: UserDataItem) => void;
 };
 
 const DatasetDetails: React.FC<Props> = ({ dataset, isShareable, onDatasetAdd }) => {
@@ -18,20 +18,18 @@ const DatasetDetails: React.FC<Props> = ({ dataset, isShareable, onDatasetAdd })
   const ContentComponent: React.FC = () => (
     <>
       <TagWrapper>
-        {dataset?.type !== "group" &&
-          dataset?.tags?.map(tag => (
-            <Tag key={tag.name} type={tag.type}>
-              {tag.name}
-            </Tag>
-          ))}
+        {dataset?.tags?.map(tag => (
+          <Tag key={tag.name} type={tag.type}>
+            {tag.name}
+          </Tag>
+        ))}
       </TagWrapper>
-      {dataset && dataset?.type !== "group" && (
-        <Content
-          dangerouslySetInnerHTML={{
-            __html: dataset.description as string,
-          }}
-        />
-      )}
+      <Content
+        dangerouslySetInnerHTML={{
+          __html: dataset?.description as string,
+        }}
+      />
+      )
     </>
   );
 
