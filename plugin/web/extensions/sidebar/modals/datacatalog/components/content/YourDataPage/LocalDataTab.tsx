@@ -11,9 +11,10 @@ type Props = {
   onOpenDetails?: (data?: CatalogItem) => void;
 };
 
+const fileFormats = ".kml,.czml,.topojson,.geojson,.json,.gltf,.glb";
+
 const LocalDataTab: React.FC<Props> = ({ onOpenDetails }) => {
   const [fileList, setFileList] = useState<UploadFile[]>([]);
-  const fileFormats = ".kml,.czml,.topojson,.geojson,.json,.gltf,.glb";
 
   const onRemove = useCallback((_file: UploadFile) => {
     setFileList([]);
