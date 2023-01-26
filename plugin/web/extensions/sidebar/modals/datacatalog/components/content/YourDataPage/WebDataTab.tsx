@@ -6,9 +6,10 @@ import FileTypeSelect from "./FileTypeSelect";
 
 type Props = {
   onOpenDetails?: (data?: UserDataItem) => void;
+  setSelectedWebItem?: (data?: UserDataItem) => void;
 };
 
-const WebDataTab: React.FC<Props> = ({ onOpenDetails }) => {
+const WebDataTab: React.FC<Props> = ({ onOpenDetails, setSelectedWebItem }) => {
   const [dataUrl, setDataUrl] = useState("");
 
   const fetchDataFromUrl = useCallback(async (url: string) => {
@@ -37,11 +38,12 @@ const WebDataTab: React.FC<Props> = ({ onOpenDetails }) => {
         dataUrl: dataUrl,
       };
       if (onOpenDetails) onOpenDetails(item);
+      if (setSelectedWebItem) setSelectedWebItem(item);
 
       // Raw Data
       // const data = await result.text();
     }
-  }, [dataUrl, fetchDataFromUrl, onOpenDetails]);
+  }, [dataUrl, fetchDataFromUrl, onOpenDetails, setSelectedWebItem]);
 
   return (
     <Form layout="vertical">

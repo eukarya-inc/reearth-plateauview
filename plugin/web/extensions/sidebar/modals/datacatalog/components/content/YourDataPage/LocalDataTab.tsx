@@ -9,11 +9,12 @@ import FileTypeSelect from "./FileTypeSelect";
 
 type Props = {
   onOpenDetails?: (data?: UserDataItem) => void;
+  setSelectedLocalItem?: (data?: UserDataItem) => void;
 };
 
 const fileFormats = ".kml,.kmz,.csv,.czml,.gpx,.topojson,.geojson,.json,.zip";
 
-const LocalDataTab: React.FC<Props> = ({ onOpenDetails }) => {
+const LocalDataTab: React.FC<Props> = ({ onOpenDetails, setSelectedLocalItem }) => {
   const [fileList, setFileList] = useState<UploadFile[]>([]);
 
   const onRemove = useCallback((_file: UploadFile) => {
@@ -35,6 +36,7 @@ const LocalDataTab: React.FC<Props> = ({ onOpenDetails }) => {
         dataUrl: url,
       };
       if (onOpenDetails) onOpenDetails(item);
+      if (setSelectedLocalItem) setSelectedLocalItem(item);
 
       // Raw Data
       // const reader = new FileReader();
@@ -47,7 +49,7 @@ const LocalDataTab: React.FC<Props> = ({ onOpenDetails }) => {
       setFileList([...files]);
       return false;
     },
-    [onOpenDetails],
+    [onOpenDetails, setSelectedLocalItem],
   );
 
   const props: UploadProps = {
