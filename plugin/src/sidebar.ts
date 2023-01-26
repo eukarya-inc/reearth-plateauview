@@ -46,6 +46,16 @@ if (widgetInstance.runTimes === 0) {
   } else {
     reearth.clientStorage.setAsync("isMobile", false);
   }
+} else {
+  reearth.clientStorage.getAsync("isMobile").then((value: any) => {
+    if (value && reearth.viewport.isMobile) {
+      reearth.widget.moveTo(mobileLocation);
+      reearth.clientStorage.setAsync("isMobile", false);
+    } else if (!value && !reearth.viewport.isMobile) {
+      reearth.widget.moveTo(defaultLocation);
+      reearth.clientStorage.setAsync("isMobile", true);
+    }
+  });
 }
 
 reearth.on("message", ({ action, payload }: PostMessageProps) => {
@@ -189,23 +199,6 @@ reearth.on("update", () => {
 });
 
 reearth.on("resize", () => {
-  // Sidebar
-  if (reearth.viewport.isMobile) {
-    reearth.clientStorage.getAsync("isMobile").then((value: any) => {
-      if (!value) {
-        reearth.widget.moveTo(mobileLocation);
-        reearth.clientStorage.setAsync("isMobile", true);
-      }
-    });
-  } else {
-    reearth.clientStorage.getAsync("isMobile").then((value: any) => {
-      if (value) {
-        reearth.widget.moveTo(defaultLocation);
-        reearth.clientStorage.setAsync("isMobile", false);
-      }
-    });
-  }
-
   // Modals
   if (welcomePageIsOpen) {
     reearth.modal.update({
