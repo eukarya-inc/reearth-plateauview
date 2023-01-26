@@ -9,5 +9,6 @@ export type UserDataItem = {
   description?: string;
   data?: string;
   dataUrl?: string;
+  dataFormat?: string;
   tags?: Tag[];
 };
