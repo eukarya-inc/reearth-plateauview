@@ -6,7 +6,7 @@ import Viewer from "./components/viewer";
 import useHooks from "./hooks";
 
 const Infobox: React.FC = () => {
-  const { mode, primitives, publicSettings } = useHooks();
+  const { mode, primitives, publicSettings, savePublicSetting } = useHooks();
 
   return (
     <Wrapper>
@@ -26,6 +26,7 @@ const Infobox: React.FC = () => {
               key={publicSetting.type}
               publicSetting={publicSetting}
               primitives={primitives}
+              savePublicSetting={savePublicSetting}
             />
           ))}
         </StyledCollapse>

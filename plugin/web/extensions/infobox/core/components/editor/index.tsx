@@ -12,9 +12,10 @@ import PropertyItem from "./PropertyItem";
 type Props = {
   publicSetting: PublicSetting;
   primitives: Primitive[];
+  savePublicSetting: (publicSetting: PublicSetting) => void;
 };
 
-const Editor: React.FC<Props> = ({ primitives, publicSetting, ...props }) => {
+const Editor: React.FC<Props> = ({ primitives, publicSetting, savePublicSetting, ...props }) => {
   const [propertyList, setPropertyList] = useState<PropertyItemType[]>([]);
 
   useEffect(() => {
@@ -61,17 +62,20 @@ const Editor: React.FC<Props> = ({ primitives, publicSetting, ...props }) => {
   }, []);
 
   const onSave = useCallback(() => {
-    const output: PublicProperty[] = [];
+    const outputProperties: PublicProperty[] = [];
     propertyList.forEach(p => {
       const property: PublicProperty = {
         key: p.key,
       };
       if (p.title) property.title = p.title;
       if (p.hidden) property.hidden = p.hidden;
-      output.push(property);
+      outputProperties.push(property);
     });
-    console.log(output);
-  }, [propertyList]);
+    savePublicSetting({
+      type: publicSetting.type,
+      properties: outputProperties,
+    });
+  }, [propertyList, publicSetting, savePublicSetting]);
 
   return (
     <StyledPanel

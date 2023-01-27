@@ -1,4 +1,4 @@
-export type ActionType = "getInEditor";
+export type ActionType = "getInEditor" | "savePublicSetting";
 
 export type PostMessageProps = { action: ActionType; payload?: any };
 
@@ -19,7 +19,7 @@ export type TilesTypeTitle = "建物情報" | "ブリッジ情報";
 
 export type PublicSetting = {
   type: TilesType;
-  typeTitle: TilesTypeTitle;
+  typeTitle?: TilesTypeTitle;
   properties: PublicProperty[];
 };
 
@@ -27,6 +27,15 @@ export type PublicProperty = {
   key: string;
   title?: string;
   hidden?: boolean;
+};
+
+// Reearth types
+export type PluginExtensionInstance = {
+  id: string;
+  pluginId: string;
+  name: string;
+  extensionId: string;
+  extensionType: "widget" | "block";
 };
 
 // Communication
@@ -74,5 +83,13 @@ export type GetPublicSettings = {
   action: "getPublicSettings";
   payload: {
     publicSettings: PublicSetting[];
+  };
+};
+
+// infobox -> sidebar
+export type SavePublicSetting = {
+  action: "savePublicSetting";
+  payload: {
+    publicSetting: PublicSetting;
   };
 };

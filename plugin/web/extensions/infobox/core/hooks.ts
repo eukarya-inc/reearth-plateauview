@@ -35,6 +35,10 @@ export default () => {
     postMsg("getInEditor");
   }, []);
 
+  const savePublicSetting = useCallback((publicSetting: PublicSetting) => {
+    postMsg("savePublicSetting", publicSetting);
+  }, []);
+
   const onMessage = useCallback(
     (e: MessageEvent<any>) => {
       if (e.source !== parent) return;
@@ -60,5 +64,6 @@ export default () => {
     mode,
     primitives,
     publicSettings,
+    savePublicSetting,
   };
 };
