@@ -16,24 +16,17 @@ const MobileSidebar: React.FC<Props> = ({ className }) => {
     (tab: Tab) => {
       if (selected === tab) {
         setSelected(undefined);
+        postMsg({ action: "popupClose" });
+      } else if (selected) {
+        setSelected(tab);
+        postMsg({ action: "msgToPopup", payload: tab });
       } else {
         setSelected(tab);
+        postMsg({ action: "mobileDropdownOpen" });
       }
-      postMsg({ action: "mobileDropdownOpen" });
     },
     [selected],
   );
-
-  useEffect(() => {
-    if (selected) {
-      postMsg({
-        action: "msgToMobileDropdown",
-        payload: selected,
-      });
-    } else {
-      postMsg({ action: "popupClose" });
-    }
-  }, [selected]);
 
   useEffect(() => {
     const eventListenerCallback = (e: any) => {

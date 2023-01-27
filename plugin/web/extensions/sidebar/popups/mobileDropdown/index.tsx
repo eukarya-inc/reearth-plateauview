@@ -10,15 +10,15 @@ import useHooks from "./hooks";
 import Menu from "./Menu";
 
 const MobileDropdown: React.FC = () => {
-  const [currentTab, setCurrentTab] = useState<Tab>("menu");
+  const [currentTab, setCurrentTab] = useState<Tab>();
 
   const {
-    // processedSelectedDatasets,
+    processedSelectedDatasets,
     project,
     reearthURL,
     backendURL,
-    // handleProjectDatasetRemove,
-    // handleDatasetRemoveAll,
+    handleProjectDatasetRemove,
+    handleDatasetRemoveAll,
     handleProjectSceneUpdate,
   } = useHooks();
 
@@ -46,7 +46,13 @@ const MobileDropdown: React.FC = () => {
       {currentTab &&
         {
           data: <Data />,
-          detail: <Detail />,
+          detail: (
+            <Detail
+              selectedDatasets={processedSelectedDatasets}
+              onDatasetRemove={handleProjectDatasetRemove}
+              onDatasetRemoveAll={handleDatasetRemoveAll}
+            />
+          ),
           menu: (
             <Menu
               project={project}

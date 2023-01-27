@@ -42,11 +42,11 @@ const reearth = (globalThis as any).reearth;
 
 let welcomePageIsOpen = false;
 let mobileDropdownIsOpen = false;
+
 const defaultLocation = { zone: "outer", section: "left", area: "middle" };
 const mobileLocation = { zone: "outer", section: "center", area: "top" };
 
 let rawCatalog: CatalogRawItem[] = [];
-
 let addedDatasets: string | undefined = undefined;
 
 const sidebarInstance: PluginExtensionInstance = reearth.plugins.instances.find(
@@ -57,43 +57,45 @@ const sidebarInstance: PluginExtensionInstance = reearth.plugins.instances.find(
 // initializations
 reearth.ui.show(html, { extended: true });
 
-if (
-  sidebarInstance.runTimes === 1 ||
-  (sidebarInstance.runTimes === 2 && reearth.viewport.isMobile)
-) {
-  reearth.visualizer.overrideProperty(defaultProject.sceneOverrides);
-  reearth.clientStorage.setAsync("draftProject", defaultProject);
+reearth.clientStorage.getAsync("draftProject").then((draftProject: Project) => {
+  if (
+    sidebarInstance.runTimes === 1 ||
+    (sidebarInstance.runTimes === 2 && reearth.viewport.isMobile && draftProject === defaultProject)
+  ) {
+    reearth.visualizer.overrideProperty(defaultProject.sceneOverrides);
+    reearth.clientStorage.setAsync("draftProject", defaultProject);
 
-  if (reearth.viewport.isMobile) {
-    reearth.clientStorage.setAsync("isMobile", true);
-    reearth.widget.moveTo(mobileLocation);
-  } else {
-    reearth.clientStorage.setAsync("isMobile", false);
-  }
-  reearth.clientStorage.getAsync("doNotShowWelcome").then((value: any) => {
-    if (!value && !reearth.scene.inEditor) {
-      reearth.modal.show(welcomeScreenHtml, {
-        width: reearth.viewport.width,
-        height: reearth.viewport.height,
-      });
-      welcomePageIsOpen = true;
-    }
-  });
-} else {
-  reearth.clientStorage.getAsync("isMobile").then((value: any) => {
     if (reearth.viewport.isMobile) {
-      if (!value) {
-        reearth.widget.moveTo(mobileLocation);
-        reearth.clientStorage.setAsync("isMobile", true);
-      }
+      reearth.clientStorage.setAsync("isMobile", true);
+      reearth.widget.moveTo(mobileLocation);
     } else {
-      if (value) {
-        reearth.widget.moveTo(defaultLocation);
-        reearth.clientStorage.setAsync("isMobile", false);
-      }
+      reearth.clientStorage.setAsync("isMobile", false);
     }
-  });
-}
+    reearth.clientStorage.getAsync("doNotShowWelcome").then((value: any) => {
+      if (!value && !reearth.scene.inEditor) {
+        reearth.modal.show(welcomeScreenHtml, {
+          width: reearth.viewport.width,
+          height: reearth.viewport.height,
+        });
+        welcomePageIsOpen = true;
+      }
+    });
+  } else {
+    reearth.clientStorage.getAsync("isMobile").then((value: any) => {
+      if (reearth.viewport.isMobile) {
+        if (!value) {
+          reearth.widget.moveTo(mobileLocation);
+          reearth.clientStorage.setAsync("isMobile", true);
+        }
+      } else {
+        if (value) {
+          reearth.widget.moveTo(defaultLocation);
+          reearth.clientStorage.setAsync("isMobile", false);
+        }
+      }
+    });
+  }
+});
 // ************************************************
 
 reearth.on("message", ({ action, payload }: PostMessageProps) => {
@@ -201,6 +203,11 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
     reearth.modal.show(clipVideoHtml, { background: "transparent" });
   } else if (action === "checkIfMobile") {
     reearth.ui.postMessage({ action, payload: reearth.viewport.isMobile });
+  } else if (action === "extendPopup") {
+    reearth.popup.update({
+      height: reearth.viewport.height - 68,
+      width: reearth.viewport.width - 12,
+    });
   }
 });
 

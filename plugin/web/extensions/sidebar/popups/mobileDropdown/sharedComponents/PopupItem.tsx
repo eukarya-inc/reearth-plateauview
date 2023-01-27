@@ -10,7 +10,7 @@ type Props = {
 
 const PopupItem: React.FC<Props> = ({ onClick, onBack, children }) => {
   return (
-    <Wrapper onClick={onClick} selectable={!onBack}>
+    <Wrapper onClick={onClick} selectable={!!onClick}>
       {onBack && <StyledIcon icon="arrowLeft" onClick={onBack} />}
       {children}
     </Wrapper>

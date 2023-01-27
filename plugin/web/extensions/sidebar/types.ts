@@ -26,6 +26,7 @@ type ActionType =
   | "mobileDropdownOpen"
   | "msgToMobileDropdown"
   | "checkIfMobile"
+  | "extendPopup"
   | "minimize";
 
 export type PostMessageProps = { action: ActionType; payload?: any };
