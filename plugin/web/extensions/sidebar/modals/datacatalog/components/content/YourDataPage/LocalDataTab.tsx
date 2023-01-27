@@ -6,14 +6,12 @@ import Upload, { UploadProps, UploadFile } from "@web/sharedComponents/Upload";
 import { RcFile } from "antd/lib/upload";
 import { useCallback, useMemo, useState } from "react";
 
-import FileTypeSelect, { FileType } from "./FileTypeSelect";
+import FileTypeSelect, { fileFormats, FileType } from "./FileTypeSelect";
 
 type Props = {
   onOpenDetails?: (data?: UserDataItem) => void;
   setSelectedLocalItem?: (data?: UserDataItem) => void;
 };
-
-const fileFormats = ".kml,.kmz,.csv,.czml,.gpx,.geojson,.json,.zip";
 
 const LocalDataTab: React.FC<Props> = ({ onOpenDetails, setSelectedLocalItem }) => {
   const [fileList, setFileList] = useState<UploadFile[]>([]);

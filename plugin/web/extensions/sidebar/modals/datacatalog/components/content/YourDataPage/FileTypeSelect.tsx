@@ -1,5 +1,7 @@
 import { Select } from "@web/sharedComponents";
 
+export const fileFormats = ".kml,.kmz,.csv,.czml,.gpx,.geojson,.json,.zip";
+
 export type FileType =
   | "auto"
   | "geojson"
