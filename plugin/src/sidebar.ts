@@ -54,14 +54,13 @@ const sidebarInstance: PluginExtensionInstance = reearth.plugins.instances.find(
 );
 
 // ************************************************
-// ************************************************
-// ************************************************
-// ************************************************
-// initialization
-
+// initializations
 reearth.ui.show(html, { extended: true });
 
-if (sidebarInstance.runTimes === 0) {
+if (
+  sidebarInstance.runTimes === 1 ||
+  (sidebarInstance.runTimes === 2 && reearth.viewport.isMobile)
+) {
   reearth.visualizer.overrideProperty(defaultProject.sceneOverrides);
   reearth.clientStorage.setAsync("draftProject", defaultProject);
 
@@ -71,22 +70,30 @@ if (sidebarInstance.runTimes === 0) {
   } else {
     reearth.clientStorage.setAsync("isMobile", false);
   }
+  reearth.clientStorage.getAsync("doNotShowWelcome").then((value: any) => {
+    if (!value && !reearth.scene.inEditor) {
+      reearth.modal.show(welcomeScreenHtml, {
+        width: reearth.viewport.width,
+        height: reearth.viewport.height,
+      });
+      welcomePageIsOpen = true;
+    }
+  });
 } else {
   reearth.clientStorage.getAsync("isMobile").then((value: any) => {
-    if (value && reearth.viewport.isMobile) {
-      reearth.widget.moveTo(mobileLocation);
-      reearth.clientStorage.setAsync("isMobile", false);
-    } else if (!value && !reearth.viewport.isMobile) {
-      reearth.widget.moveTo(defaultLocation);
-      reearth.clientStorage.setAsync("isMobile", true);
+    if (reearth.viewport.isMobile) {
+      if (!value) {
+        reearth.widget.moveTo(mobileLocation);
+        reearth.clientStorage.setAsync("isMobile", true);
+      }
+    } else {
+      if (value) {
+        reearth.widget.moveTo(defaultLocation);
+        reearth.clientStorage.setAsync("isMobile", false);
+      }
     }
   });
 }
-
-// initialization
-// ************************************************
-// ************************************************
-// ************************************************
 // ************************************************
 
 reearth.on("message", ({ action, payload }: PostMessageProps) => {
@@ -103,29 +110,23 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
 
   // Sidebar
   if (action === "init") {
-    reearth.clientStorage.getAsync("draftProject").then((value: any) => {
-      reearth.ui.postMessage({
-        action,
-        payload: {
+    reearth.clientStorage.getAsync("isMobile").then((isMobile: boolean) => {
+      reearth.clientStorage.getAsync("draftProject").then((draftProject: Project) => {
+        const payload = {
           projectID: reearth.viewport.query.projectID,
           inEditor: reearth.scene.inEditor,
           backendAccessToken: reearth.widget.property.default?.plateauAccessToken ?? "",
           backendURL: reearth.widget.property.default?.plateauURL ?? "",
           cmsURL: reearth.widget.property.default?.cmsURL ?? "",
           reearthURL: reearth.widget.property.default?.reearthURL ?? "",
-          draftProject: value,
-        },
+          draftProject,
+        };
+        if (isMobile) {
+          reearth.popup.postMessage({ action, payload });
+        } else {
+          reearth.ui.postMessage({ action, payload });
+        }
       });
-    });
-
-    reearth.clientStorage.getAsync("doNotShowWelcome").then((value: any) => {
-      if (!value && !reearth.scene.inEditor) {
-        reearth.modal.show(welcomeScreenHtml, {
-          width: reearth.viewport.width,
-          height: reearth.viewport.height,
-        });
-        welcomePageIsOpen = true;
-      }
     });
   } else if (action === "storageSave") {
     reearth.clientStorage.setAsync(payload.key, payload.value);

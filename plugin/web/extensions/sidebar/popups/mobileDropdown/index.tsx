@@ -1,14 +1,26 @@
-import type { Tab } from "@web/extensions/sidebar/core/Mobile";
 import { postMsg } from "@web/extensions/sidebar/utils";
 import { styled } from "@web/theme";
 import { useEffect, useState } from "react";
 
+import { Tab } from "../../core/components/Mobile";
+
 import Data from "./Data";
 import Detail from "./Detail";
+import useHooks from "./hooks";
 import Menu from "./Menu";
 
 const MobileDropdown: React.FC = () => {
   const [currentTab, setCurrentTab] = useState<Tab>("menu");
+
+  const {
+    // processedSelectedDatasets,
+    project,
+    reearthURL,
+    backendURL,
+    // handleProjectDatasetRemove,
+    // handleDatasetRemoveAll,
+    handleProjectSceneUpdate,
+  } = useHooks();
 
   useEffect(() => {
     postMsg({ action: "initPopup" });
@@ -35,7 +47,14 @@ const MobileDropdown: React.FC = () => {
         {
           data: <Data />,
           detail: <Detail />,
-          menu: <Menu />,
+          menu: (
+            <Menu
+              project={project}
+              backendURL={backendURL}
+              reearthURL={reearthURL}
+              onProjectSceneUpdate={handleProjectSceneUpdate}
+            />
+          ),
         }[currentTab]}
     </Wrapper>
   );

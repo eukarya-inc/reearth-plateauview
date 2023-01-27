@@ -45,14 +45,19 @@ const menuItems: MenuItem[] = [
 const Menu: React.FC<Props> = ({ project, backendURL, reearthURL, onProjectSceneUpdate }) => {
   const [currentItem, changeItem] = useState<MenuItem | undefined>();
 
-  const handleHeightUpdate = () => {
-    const el = document.getElementById("menu");
-    const currentHeight = el ? window.getComputedStyle(el).height : undefined;
+  const handleHeightUpdate = useCallback(() => {
+    const el = currentItem
+      ? document.getElementById("scroll-area")
+      : document.getElementById("menu");
+    let currentHeight = el ? parseFloat(window.getComputedStyle(el).height) : undefined;
+    if (currentItem && currentHeight) {
+      currentHeight += 48;
+    }
     postMsg({
       action: "msgFromPopup",
       payload: { height: currentHeight },
     });
-  };
+  }, [currentItem]);
 
   const handleClick = useCallback(
     (item: MenuItem) => {
@@ -63,12 +68,12 @@ const Menu: React.FC<Props> = ({ project, backendURL, reearthURL, onProjectScene
       }
       handleHeightUpdate();
     },
-    [currentItem],
+    [currentItem, handleHeightUpdate],
   );
 
   useEffect(() => {
     handleHeightUpdate();
-  }, []);
+  }, [handleHeightUpdate]);
 
   return (
     <Wrapper id="menu">
@@ -78,17 +83,20 @@ const Menu: React.FC<Props> = ({ project, backendURL, reearthURL, onProjectScene
             {currentItem.icon}
             <Title>{currentItem.title}</Title>
           </PopupItem>
-          {currentItem.key &&
-            {
-              map: (
-                <MapSettings
-                  overrides={project.sceneOverrides}
-                  onOverridesUpdate={onProjectSceneUpdate}
-                />
-              ),
-              share: <Share project={project} backendURL={backendURL} reearthURL={reearthURL} />,
-              feedback: <Feedback />,
-            }[currentItem.key]}
+          <ScrollArea id="scroll-area">
+            {currentItem.key &&
+              {
+                map: (
+                  <MapSettings
+                    overrides={project.sceneOverrides}
+                    isMobile
+                    onOverridesUpdate={onProjectSceneUpdate}
+                  />
+                ),
+                share: <Share project={project} backendURL={backendURL} reearthURL={reearthURL} />,
+                feedback: <Feedback />,
+              }[currentItem.key]}
+          </ScrollArea>
         </>
       ) : (
         menuItems.map(i => (
@@ -105,9 +113,13 @@ const Menu: React.FC<Props> = ({ project, backendURL, reearthURL, onProjectScene
 export default Menu;
 
 const Wrapper = styled.div`
-  height: 144px;
   width: 100%;
 `;
+
 const Title = styled.p`
   margin: 0;
+`;
+
+const ScrollArea = styled.div`
+  overflow: auto;
 `;
