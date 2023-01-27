@@ -1,7 +1,7 @@
 import { CatalogRawItem } from "./core/processCatalog";
 
 type ActionType =
-  | "initSidebar"
+  | "init"
   | "initDataCatalog"
   | "initPopup"
   | "initWelcome"

@@ -1,5 +1,5 @@
 import { CatalogRawItem } from "@web/extensions/sidebar/core/processCatalog";
-import { PostMessageProps } from "@web/extensions/sidebar/types";
+import { PostMessageProps, Project } from "@web/extensions/sidebar/types";
 
 import html from "../dist/web/sidebar/core/index.html?raw";
 import clipVideoHtml from "../dist/web/sidebar/modals/clipVideo/index.html?raw";
@@ -8,6 +8,30 @@ import mapVideoHtml from "../dist/web/sidebar/modals/mapVideo/index.html?raw";
 import welcomeScreenHtml from "../dist/web/sidebar/modals/welcomescreen/index.html?raw";
 import helpPopupHtml from "../dist/web/sidebar/popups/help/index.html?raw";
 import mobileDropdownHtml from "../dist/web/sidebar/popups/mobileDropdown/index.html?raw";
+
+const defaultProject: Project = {
+  sceneOverrides: {
+    default: {
+      sceneMode: "3d",
+      depthTestAgainstTerrain: false,
+    },
+    terrain: {
+      terrain: true,
+      terrainType: "cesiumion",
+      terrainCesiumIonAccessToken:
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI3NGI5ZDM0Mi1jZDIzLTRmMzEtOTkwYi0zZTk4Yzk3ODZlNzQiLCJpZCI6NDA2NDYsImlhdCI6MTYwODk4MzAwOH0.3rco62ErML11TMSEflsMqeUTCDbIH6o4n4l5sssuedE",
+      terrainCesiumIonAsset: "286503",
+    },
+    tiles: [
+      {
+        id: "tokyo",
+        tile_url: "https://cyberjapandata.gsi.go.jp/xyz/seamlessphoto/{z}/{x}/{y}.jpg",
+        tile_type: "url",
+      },
+    ],
+  },
+  selectedDatasets: [],
+};
 
 type PluginExtensionInstance = {
   id: string;
@@ -25,13 +49,22 @@ let rawCatalog: CatalogRawItem[] = [];
 
 let addedDatasets: string | undefined = undefined;
 
-const widgetInstance = reearth.plugins.instances.find(
+const sidebarInstance: PluginExtensionInstance = reearth.plugins.instances.find(
   (i: PluginExtensionInstance) => i.id === reearth.widget.id,
-) as PluginExtensionInstance;
+);
+
+// ************************************************
+// ************************************************
+// ************************************************
+// ************************************************
+// initialization
 
 reearth.ui.show(html, { extended: true });
 
-if (widgetInstance.runTimes === 0) {
+if (sidebarInstance.runTimes === 0) {
+  reearth.visualizer.overrideProperty(defaultProject.sceneOverrides);
+  reearth.clientStorage.setAsync("draftProject", defaultProject);
+
   if (reearth.viewport.isMobile) {
     reearth.clientStorage.setAsync("isMobile", true);
     reearth.widget.moveTo(mobileLocation);
@@ -50,6 +83,12 @@ if (widgetInstance.runTimes === 0) {
   });
 }
 
+// initialization
+// ************************************************
+// ************************************************
+// ************************************************
+// ************************************************
+
 reearth.on("message", ({ action, payload }: PostMessageProps) => {
   // Mobile specific
   if (action === "mobileDropdownOpen") {
@@ -63,15 +102,10 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
   }
 
   // Sidebar
-  if (action === "initSidebar") {
-    const sidebarInstance = reearth.plugins.instances.find(
-      (i: PluginExtensionInstance) => i.id === reearth.widget.id,
-    );
-    if (sidebarInstance.runTimes === 0) {
-      reearth.visualizer.overrideProperty(payload.sceneOverrides);
-      reearth.clientStorage.setAsync("draftProject", payload);
+  if (action === "init") {
+    reearth.clientStorage.getAsync("draftProject").then((value: any) => {
       reearth.ui.postMessage({
-        type: action,
+        action,
         payload: {
           projectID: reearth.viewport.query.projectID,
           inEditor: reearth.scene.inEditor,
@@ -79,24 +113,10 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
           backendURL: reearth.widget.property.default?.plateauURL ?? "",
           cmsURL: reearth.widget.property.default?.cmsURL ?? "",
           reearthURL: reearth.widget.property.default?.reearthURL ?? "",
+          draftProject: value,
         },
       });
-    } else {
-      reearth.clientStorage.getAsync("draftProject").then((value: any) => {
-        reearth.ui.postMessage({
-          type: action,
-          payload: {
-            projectID: reearth.viewport.query.projectID,
-            inEditor: reearth.scene.inEditor,
-            backendAccessToken: reearth.widget.property.default?.plateauAccessToken ?? "",
-            backendURL: reearth.widget.property.default?.plateauURL ?? "",
-            cmsURL: reearth.widget.property.default?.cmsURL ?? "",
-            reearthURL: reearth.widget.property.default?.reearthURL ?? "",
-            draftProject: value,
-          },
-        });
-      });
-    }
+    });
 
     reearth.clientStorage.getAsync("doNotShowWelcome").then((value: any) => {
       if (!value && !reearth.scene.inEditor) {
@@ -140,7 +160,7 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
       payload: reearth.scene.captureScreen(undefined, 0.01),
     });
   } else if (action === "msgFromModal") {
-    reearth.ui.postMessage({ type: action, payload });
+    reearth.ui.postMessage({ action, payload });
   } else if (action === "minimize") {
     if (payload) {
       reearth.ui.resize(undefined, undefined, false);

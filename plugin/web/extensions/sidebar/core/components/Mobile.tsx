@@ -1,4 +1,3 @@
-// import useHooks from "@web/extensions/sidebar/core/components/hooks";
 import { postMsg } from "@web/extensions/sidebar/utils";
 import { Icon } from "@web/sharedComponents";
 import { styled } from "@web/theme";
@@ -12,24 +11,6 @@ export type Props = {
 
 const MobileSidebar: React.FC<Props> = ({ className }) => {
   const [selected, setSelected] = useState<Tab | undefined>();
-
-  // const {
-  //   processedSelectedDatasets,
-  //   overrides,
-  //   minimized,
-  //   inEditor,
-  //   reearthURL,
-  //   backendURL,
-  //   templates,
-  //   handleTemplateAdd,
-  //   handleTemplateUpdate,
-  //   handleTemplateRemove,
-  //   setMinimize,
-  //   handleDatasetRemove,
-  //   handleDatasetRemoveAll,
-  //   handleOverridesUpdate,
-  //   handleModalOpen,
-  // } = useHooks();
 
   const handleClick = useCallback(
     (tab: Tab) => {

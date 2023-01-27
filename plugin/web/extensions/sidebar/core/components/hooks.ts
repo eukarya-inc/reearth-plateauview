@@ -40,7 +40,7 @@ export default () => {
   // ****************************************
   // Init
   useEffect(() => {
-    postMsg({ action: "initSidebar", payload: defaultProject }); // Needed to trigger sending initialization data to sidebar
+    postMsg({ action: "init" }); // Needed to trigger sending initialization data to sidebar
   }, []);
   // ****************************************
 
@@ -50,36 +50,40 @@ export default () => {
 
   const handleProjectSceneUpdate = useCallback(
     (updatedProperties: Partial<ReearthApi>) => {
-      const updatedProject: Project = {
-        sceneOverrides: [project.sceneOverrides, updatedProperties].reduce((p, v) =>
-          mergeProperty(p, v),
-        ),
-        selectedDatasets: project.selectedDatasets,
-      };
-      updateProject(updatedProject);
+      updateProject(({ sceneOverrides, selectedDatasets }) => {
+        const updatedProject: Project = {
+          sceneOverrides: [sceneOverrides, updatedProperties].reduce((p, v) => mergeProperty(p, v)),
+          selectedDatasets,
+        };
+        postMsg({ action: "updateProject", payload: updatedProject });
+        return updatedProject;
+      });
     },
-    [project, updateProject],
+    [updateProject],
   );
 
   const handleProjectDatasetAdd = useCallback((dataset: CatalogRawItem) => {
     updateProject(({ sceneOverrides, selectedDatasets }) => {
-      console.log("Selected: ", selectedDatasets);
-      console.log("Dataset: ", dataset);
-      return {
+      const updatedProject = {
         sceneOverrides,
         selectedDatasets: [...selectedDatasets, dataset],
       };
+      postMsg({ action: "updateProject", payload: updatedProject });
+      return updatedProject;
     });
-    postMsg({ action: "addDatasetToScene", payload: dataset });
+
+    postMsg({ action: "addDatasetToScene", payload: dataset }); // MIGHT NEED TO MOVE THIS ELSEWHEREEEE
   }, []);
 
   const handleProjectDatasetRemove = useCallback(
     (id: string) =>
       updateProject(({ sceneOverrides, selectedDatasets }) => {
-        return {
+        const updatedProject = {
           sceneOverrides,
           selectedDatasets: selectedDatasets.filter(d => d.id !== id),
         };
+        postMsg({ action: "updateProject", payload: updatedProject });
+        return updatedProject;
       }),
     [],
   );
@@ -87,17 +91,15 @@ export default () => {
   const handleDatasetRemoveAll = useCallback(
     () =>
       updateProject(({ sceneOverrides }) => {
-        return {
+        const updatedProject = {
           sceneOverrides,
           selectedDatasets: [],
         };
+        postMsg({ action: "updateProject", payload: updatedProject });
+        return updatedProject;
       }),
     [],
   );
-
-  useEffect(() => {
-    postMsg({ action: "updateProject", payload: project });
-  }, [project]);
   // ****************************************
 
   // ****************************************
@@ -258,11 +260,11 @@ export default () => {
   useEffect(() => {
     const eventListenerCallback = (e: MessageEvent<any>) => {
       if (e.source !== parent) return;
-      if (e.data.type === "msgFromModal") {
+      if (e.data.action === "msgFromModal") {
         if (e.data.payload.dataset) {
           handleProjectDatasetAdd(e.data.payload.dataset);
         }
-      } else if (e.data.type === "initSidebar") {
+      } else if (e.data.action === "init") {
         setProjectID(e.data.payload.projectID);
         setInEditor(e.data.payload.inEditor);
         setBackendAccessToken(e.data.payload.backendAccessToken);
@@ -278,8 +280,7 @@ export default () => {
     return () => {
       removeEventListener("message", eventListenerCallback);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (!backendURL) return;
@@ -288,7 +289,10 @@ export default () => {
         const res = await fetch(`${backendURL}/share/${projectID}`);
         if (res.status !== 200) return;
         const data = await res.json();
-        updateProject(data);
+        if (data) {
+          updateProject(data);
+          postMsg({ action: "updateProject", payload: data });
+        }
       })();
     } else {
       (async () => {

@@ -10,7 +10,7 @@ export type Props = {
 };
 
 const Sidebar: React.FC<Props> = ({ className }) => {
-  const [isMobile, setIsMobile] = useState<boolean>(false);
+  const [isMobile, setIsMobile] = useState<boolean>();
 
   useEffect(() => {
     postMsg({ action: "checkIfMobile" });
@@ -20,22 +20,22 @@ const Sidebar: React.FC<Props> = ({ className }) => {
     const eventListenerCallback = (e: MessageEvent<any>) => {
       if (e.source !== parent) return;
       if (e.data.action === "checkIfMobile") {
-        if (e.data.payload) {
-          setIsMobile(e.data.payload);
-        }
+        setIsMobile(e.data.payload);
       }
     };
     addEventListener("message", e => eventListenerCallback(e));
     return () => {
       removeEventListener("message", eventListenerCallback);
     };
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  return isMobile ? (
-    <MobileSidebar className={className} />
-  ) : (
-    <DesktopSidebar className={className} />
-  );
+  return isMobile !== undefined ? (
+    isMobile ? (
+      <MobileSidebar className={className} />
+    ) : (
+      <DesktopSidebar className={className} />
+    )
+  ) : null;
 };
 
 export default Sidebar;
