@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"os"
 	"path"
+	"path/filepath"
 	"strings"
 
 	geojson "github.com/paulmach/go.geojson"
@@ -60,7 +61,13 @@ type Convert struct {
 }
 
 func (c *Convert) Execute() error {
+	// workaround for walking
+	if !filepath.IsAbs(c.Input) {
+		dir := filepath.Base(lo.Must(os.Getwd()))
+		c.Input = filepath.Join("..", dir, c.Input)
+	}
 	c.InputFS = afero.NewBasePathFs(afero.NewOsFs(), c.Input)
+
 	if c.Output == "" || path.Clean(c.Output) == "." {
 		c.OutputFS = afero.NewOsFs()
 	} else {
