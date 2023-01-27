@@ -73,7 +73,7 @@ const MobileSidebar: React.FC<Props> = ({ className }) => {
           onClick={() => handleClick("data")}
         />
         <StyledIcon
-          icon="database"
+          icon="visible"
           selected={selected === "detail"}
           onClick={() => handleClick("detail")}
         />

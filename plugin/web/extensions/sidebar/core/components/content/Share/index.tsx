@@ -9,9 +9,10 @@ export type Props = {
   project: Project;
   reearthURL?: string;
   backendURL?: string;
+  isMobile?: boolean;
 };
 
-const Share: React.FC<Props> = ({ project, reearthURL, backendURL }) => {
+const Share: React.FC<Props> = ({ project, reearthURL, backendURL, isMobile }) => {
   const [copiedUrl, setCopiedUrl] = useState(false);
   const [copiedIframe, setCopiedIframe] = useState(false);
 
@@ -47,7 +48,7 @@ const Share: React.FC<Props> = ({ project, reearthURL, backendURL }) => {
   const iframeCode = `<iframe src="${publishedUrl}" />`;
 
   return (
-    <CommonPage title="共有・印刷">
+    <CommonPage title="共有・印刷" isMobile={isMobile}>
       <>
         {contextHolder}
         <ShareButton onClick={handleProjectShare} disabled={shareDisabled}>
