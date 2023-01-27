@@ -27,7 +27,7 @@ extensions:
         section: left
         area: middle
   - id: storytelling
-    name: Storytelling (PLATEAU)
+    name: Storytelling(PLATEAU)
     type: widget
     widgetLayout:
       defaultLocation:
@@ -51,5 +51,5 @@ extensions:
         section: right
         area: middle
   - id: infobox
-    name: Infobox (PLATEAU)
+    name: Infobox(PLATEAU)
     type: block
