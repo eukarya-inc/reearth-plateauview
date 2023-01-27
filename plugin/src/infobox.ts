@@ -32,6 +32,5 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
       action: "savePublicSetting",
       payload,
     } as SavePublicSetting);
-    console.log(payload);
   }
 });
