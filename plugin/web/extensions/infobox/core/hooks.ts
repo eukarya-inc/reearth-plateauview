@@ -3,7 +3,7 @@ import { useCallback, useEffect, useState } from "react";
 import { postMsg } from "../core/utils";
 import { Primitive, PublicSetting } from "../types";
 
-import { TEST_PRIMITIVES, TEST_PUBLIC_SETTINGS } from "./TEST_DATA";
+import { TEST_SELECTED_LAYERS, TEST_PUBLIC_SETTINGS, TEST_LAYER_TYPES } from "./TEST_DATA";
 
 type Mode = "edit" | "view" | "pending";
 
@@ -13,9 +13,18 @@ export default () => {
   const [publicSettings, setPublicSettings] = useState<PublicSetting[]>([]);
 
   useEffect(() => {
-    setMode("edit"); // DEV ONLY
-    setPrimitives(TEST_PRIMITIVES); // DEV ONLY
+    const allPrimitives: Primitive[] = [];
+    TEST_SELECTED_LAYERS.forEach(layer => {
+      layer.primitives.forEach(p => {
+        allPrimitives.push({
+          type: TEST_LAYER_TYPES.find(lt => lt.layerId === layer.id)?.tilesType,
+          ...p,
+        });
+      });
+    });
+    setPrimitives(allPrimitives); // DEV ONLY
     setPublicSettings(TEST_PUBLIC_SETTINGS); // DEV ONLY
+    setMode("edit"); // DEV ONLY
   }, []);
 
   const handleInEditor = useCallback((inEditor: boolean) => {

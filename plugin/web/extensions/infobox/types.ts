@@ -2,9 +2,13 @@ export type ActionType = "getInEditor";
 
 export type PostMessageProps = { action: ActionType; payload?: any };
 
-export type Primitive = {
+export type Layer = {
   id: string;
-  type: TilesType;
+  primitives: Primitive[];
+};
+
+export type Primitive = {
+  type?: TilesType;
   properties: PrimitiveProperty[];
 };
 
@@ -36,38 +40,39 @@ export type PublicProperty = {
 // The requests are sepreated so that the property settings for a certain type can be catched to save requests.
 // Since there might be multiple select (not sure), the layerIds is an array.
 
-// export type LayerType = {
-//   layerId: string;
-//   tilesType: TilesType;
-// };
-// // infobox -> sidebar
-// export type Request3DTilesType = {
-//   action: "request3DTilesType";
-//   payload: {
-//     layerIds: string[];
-//   };
-// };
+// infobox -> sidebar
+export type Request3DTilesType = {
+  action: "request3DTilesType";
+  payload: {
+    layerIds: string[];
+  };
+};
 
-// // sidebar -> infobox
-// export type Get3DTilesType = {
-//   action: "Get3DTilesType";
-//   payload: {
-//     layerTypes: LayerType[];
-//   };
-// };
+// sidebar -> infobox
+export type LayerType = {
+  layerId: string;
+  tilesType: TilesType;
+};
 
-// // infobox -> sidebar
-// export type Request3DTilesPropertiesByTypes = {
-//   action: "request3DTilesPropertiesByTypes";
-//   payload: {
-//     types: string[];
-//   };
-// };
+export type Get3DTilesType = {
+  action: "Get3DTilesType";
+  payload: {
+    layerTypes: LayerType[];
+  };
+};
 
-// // sidebar -> infobox
-// export type Get3DTilesPropertiesByTypes = {
-//   action: "get3DTilesPropertiesByTypes";
-//   payload: {
-//     typeProperties: TypeProperties[];
-//   };
-// };
+// infobox -> sidebar
+export type RequestPublicSettings = {
+  action: "requestPublicSettings";
+  payload: {
+    types: string[];
+  };
+};
+
+// sidebar -> infobox
+export type GetPublicSettings = {
+  action: "getPublicSettings";
+  payload: {
+    publicSettings: PublicSetting[];
+  };
+};
