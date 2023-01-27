@@ -1,9 +1,15 @@
+import { styled } from "@web/theme";
+
 const Data: React.FC = () => {
   return (
-    <div id="menu">
+    <Wrapper id="menu">
       <p>MobileDatacatalog</p>
-    </div>
+    </Wrapper>
   );
 };
 
 export default Data;
+
+const Wrapper = styled.div`
+  border-top: 1px solid #d9d9d9;
+`;

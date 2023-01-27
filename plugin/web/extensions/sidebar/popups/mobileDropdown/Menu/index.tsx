@@ -121,6 +121,7 @@ export default Menu;
 
 const Wrapper = styled.div`
   width: 100%;
+  border-top: 1px solid #d9d9d9;
 `;
 
 const Title = styled.p`
