@@ -4,15 +4,16 @@ import { useEffect, useState } from "react";
 
 import { Tab } from "../../core/components/Mobile";
 
-import Data from "./Data";
-import Detail from "./Detail";
+import Catalog from "./Catalog";
 import useHooks from "./hooks";
 import Menu from "./Menu";
+import Selection from "./Selection";
 
 const MobileDropdown: React.FC = () => {
   const [currentTab, setCurrentTab] = useState<Tab>();
 
   const {
+    rawCatalog,
     processedSelectedDatasets,
     project,
     reearthURL,
@@ -45,9 +46,9 @@ const MobileDropdown: React.FC = () => {
     <Wrapper>
       {currentTab &&
         {
-          data: <Data />,
-          detail: (
-            <Detail
+          catalog: <Catalog rawCatalog={rawCatalog} />,
+          selection: (
+            <Selection
               selectedDatasets={processedSelectedDatasets}
               onDatasetRemove={handleProjectDatasetRemove}
               onDatasetRemoveAll={handleDatasetRemoveAll}

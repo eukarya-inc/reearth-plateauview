@@ -126,23 +126,6 @@ export default () => {
     [plateauData, usecaseData, datasetData],
   );
 
-  // ****************************************
-  // ****************************************
-  // *****************LOOK HERE**************
-  // ****************************************
-  // ****************************************
-  // ****************************************
-  console.log("NEED TO SEND THE RAW CATALOG TO MOBILE DATA CATALOG WHEN AVAILABLE: ", rawCatalog);
-  // ****************************************
-  // ****************************************
-  // *****************LOOK HERE**************
-  // ****************************************
-  // ****************************************
-  // ****************************************
-
-  // ****************************************
-  // Processed Data
-
   const [data, setData] = useState<Data[]>();
   const processedSelectedDatasets: Data[] = useMemo(() => {
     // if (!data) return data;
@@ -233,6 +216,7 @@ export default () => {
   }, [projectID, backendURL]);
 
   return {
+    rawCatalog,
     processedSelectedDatasets,
     project,
     reearthURL,

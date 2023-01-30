@@ -3,7 +3,7 @@ import { Icon } from "@web/sharedComponents";
 import { styled } from "@web/theme";
 import { useCallback, useEffect, useState } from "react";
 
-export type Tab = "data" | "detail" | "menu";
+export type Tab = "catalog" | "selection" | "menu";
 
 export type Props = {
   className?: string;
@@ -62,13 +62,13 @@ const MobileSidebar: React.FC<Props> = ({ className }) => {
       <IconGroup>
         <StyledIcon
           icon="database"
-          selected={selected === "data"}
-          onClick={() => handleClick("data")}
+          selected={selected === "catalog"}
+          onClick={() => handleClick("catalog")}
         />
         <StyledIcon
           icon="visible"
-          selected={selected === "detail"}
-          onClick={() => handleClick("detail")}
+          selected={selected === "selection"}
+          onClick={() => handleClick("selection")}
         />
         <StyledIcon
           icon="menu"
@@ -86,7 +86,7 @@ const Wrapper = styled.div`
   display: flex;
   justify-content: space-between;
   height: 56px;
-  width: 100%; //NEED TO FIX WIDTH
+  width: 100%;
   background: #f4f4f4;
   padding: 12px;
 `;

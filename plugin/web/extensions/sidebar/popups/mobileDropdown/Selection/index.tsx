@@ -1,4 +1,4 @@
-import Selection from "@web/extensions/sidebar/core/components/content/Selection";
+import SelectionComponent from "@web/extensions/sidebar/core/components/content/Selection";
 import { Data } from "@web/extensions/sidebar/core/newTypes";
 import { postMsg } from "@web/extensions/sidebar/utils";
 import { styled } from "@web/theme";
@@ -12,7 +12,7 @@ type Props = {
   onDatasetRemoveAll: () => void;
 };
 
-const Detail: React.FC<Props> = ({ selectedDatasets, onDatasetRemove, onDatasetRemoveAll }) => {
+const Selection: React.FC<Props> = ({ selectedDatasets, onDatasetRemove, onDatasetRemoveAll }) => {
   useEffect(() => {
     postMsg({ action: "extendPopup" });
   }, []);
@@ -22,7 +22,7 @@ const Detail: React.FC<Props> = ({ selectedDatasets, onDatasetRemove, onDatasetR
       <PopupItem>
         <Title>Data Style Settings</Title>
       </PopupItem>
-      <Selection
+      <SelectionComponent
         selectedDatasets={selectedDatasets}
         onDatasetRemove={onDatasetRemove}
         onDatasetRemoveAll={onDatasetRemoveAll}
@@ -31,7 +31,7 @@ const Detail: React.FC<Props> = ({ selectedDatasets, onDatasetRemove, onDatasetR
   );
 };
 
-export default Detail;
+export default Selection;
 
 const Wrapper = styled.div`
   border-top: 1px solid #d9d9d9;
