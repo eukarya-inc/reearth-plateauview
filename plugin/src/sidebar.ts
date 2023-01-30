@@ -174,6 +174,10 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
     addedDatasets = payload.addedDatasets;
     rawCatalog = payload.rawCatalog;
     reearth.modal.show(dataCatalogHtml, { background: "transparent" });
+  } else if (action === "triggerCatalogOpen") {
+    reearth.ui.postMessage({ action });
+  } else if (action === "triggerHelpOpen") {
+    reearth.ui.postMessage({ action });
   } else if (action === "modalClose") {
     reearth.modal.close();
     welcomePageIsOpen = false;
@@ -189,7 +193,7 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
   } else if (action === "initWelcome") {
     reearth.modal.postMessage({ type: "msgToModal", message: reearth.viewport.isMobile });
   } else if (action === "msgToPopup") {
-    reearth.popup.postMessage({ type: "msgToPopup", message: payload });
+    reearth.popup.postMessage({ action: "msgToPopup", payload });
   } else if (action === "msgFromPopup") {
     if (payload.height) {
       reearth.popup.update({ height: payload.height, width: reearth.viewport.width - 12 });
