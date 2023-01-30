@@ -39,11 +39,11 @@ func WebhookHandler(conf Config) (cmswebhook.Handler, error) {
 
 		ctx := req.Context()
 
-		stprj := conf.CMSStorageProjectID
+		stprj := conf.CMSStorageProject
 		if stprj == "" {
 			stprj = pid
 		}
-		st := NewStorage(c, stprj, conf.CMSStorageModelID)
+		st := NewStorage(c, stprj, conf.CMSStorageModel)
 
 		item, err := getItem(ctx, c, st, w)
 		if err != nil || item.ID == "" {
@@ -245,7 +245,7 @@ func do(ctx context.Context, c cms.Interface, pid string, u []*url.URL) ([]strin
 		}
 
 		log.Infof("searchindex webhook: start processing for %s", name)
-		indexer := NewIndexer(c, getAssetBase(u), pid)
+		indexer := NewIndexer(c, pid, getAssetBase(u))
 		aid, err := indexer.BuildIndex(ctx, name)
 		if err != nil {
 			return nil, fmt.Errorf("「%s」の処理中にエラーが発生しました。%w", name, err)

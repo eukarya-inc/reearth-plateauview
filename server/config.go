@@ -10,6 +10,7 @@ import (
 	"github.com/eukarya-inc/reearth-plateauview/server/opinion"
 	"github.com/eukarya-inc/reearth-plateauview/server/sdk"
 	"github.com/eukarya-inc/reearth-plateauview/server/sdkapi"
+	"github.com/eukarya-inc/reearth-plateauview/server/searchindex"
 	"github.com/eukarya-inc/reearth-plateauview/server/share"
 	"github.com/eukarya-inc/reearth-plateauview/server/visualizer"
 	"github.com/joho/godotenv"
@@ -21,20 +22,21 @@ import (
 const configPrefix = "REEARTH_PLATEAUVIEW"
 
 type Config struct {
-	Port                 uint   `default:"8080" envconfig:"PORT"`
-	Host                 string `default:"http://localhost:8080"`
-	Origin               []string
-	CMS_Webhook_Secret   string
-	CMS_BaseURL          string
-	CMS_ModelID          string
-	CMS_Token            string
-	CMS_IntegrationID    string
-	CMS_ShareModelID     string
-	CMS_ShareDataFieldID string
-	CMS_IndexerSysPrj    string
-	CMS_IndexerSysModel  string
-	CMS_SDKProject       string
-	CMS_SDKModel         string
+	Port               uint   `default:"8080" envconfig:"PORT"`
+	Host               string `default:"http://localhost:8080"`
+	Origin             []string
+	CMS_Webhook_Secret string
+	CMS_BaseURL        string
+	CMS_Token          string
+	CMS_ModelID        string
+	CMS_IntegrationID  string
+	CMS_ShareProject   string
+	CMS_ShareModel     string
+	// CMS_ShareField            string
+	CMS_IndexerStorageProject string
+	CMS_IndexerStorageModel   string
+	CMS_SDKProject            string
+	// CMS_SDKModel              string
 	FME_BaseURL          string
 	FME_Mock             bool
 	FME_Token            string
@@ -42,8 +44,8 @@ type Config struct {
 	Ckan_BaseURL         string
 	Ckan_Org             string
 	Ckan_Token           string
-	SDK_Token            string
 	Ckan_Private         bool
+	SDK_Token            string
 	SendGrid_APIKey      string
 	Opinion_Email        string
 	Opinion_ToName       string
@@ -87,14 +89,14 @@ func (c *Config) CMSIntegration() cmsintegration.Config {
 	}
 }
 
-// func (c *Config) SearchIndex() searchindex.Config {
-// 	return searchindex.Config{
-// 		CMSBase:             c.CMS_BaseURL,
-// 		CMSToken:            c.CMS_Token,
-// 		CMSStorageProjectID: c.CMS_IndexerSysPrj,
-// 		CMSStorageModelID:   c.CMS_IndexerSysModel,
-// 	}
-// }
+func (c *Config) SearchIndex() searchindex.Config {
+	return searchindex.Config{
+		CMSBase:           c.CMS_BaseURL,
+		CMSToken:          c.CMS_Token,
+		CMSStorageProject: c.CMS_IndexerStorageProject,
+		CMSStorageModel:   c.CMS_IndexerStorageModel,
+	}
+}
 
 func (c *Config) SDK() sdk.Config {
 	return sdk.Config{
@@ -122,17 +124,18 @@ func (c *Config) SDKAPI() sdkapi.Config {
 	return sdkapi.Config{
 		CMSBaseURL: c.CMS_BaseURL,
 		Project:    c.CMS_SDKProject,
-		Model:      c.CMS_SDKModel,
-		Token:      c.SDK_Token,
+		// Model:      c.CMS_SDKModel,
+		Token: c.SDK_Token,
 	}
 }
 
 func (c *Config) Share() share.Config {
 	return share.Config{
-		CMSBase:        c.CMS_BaseURL,
-		CMSToken:       c.CMS_Token,
-		CMSModelID:     c.CMS_ShareModelID,
-		CMSDataFieldID: c.CMS_ShareDataFieldID,
+		CMSBase:    c.CMS_BaseURL,
+		CMSToken:   c.CMS_Token,
+		CMSProject: c.CMS_ShareProject,
+		CMSModel:   c.CMS_ShareModel,
+		// CMSDataFieldKey: c.CMS_ShareField,
 	}
 }
 
