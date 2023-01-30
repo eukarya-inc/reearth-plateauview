@@ -52,12 +52,8 @@ export default () => {
   }, []);
 
   const handleOpenCatalog = useCallback(() => {
-    if (isMobile) {
-      // postMsg({ action: "catalogModalOpen" });
-    } else {
-      postMsg({ action: "triggerCatalogOpen" });
-    }
-  }, [isMobile]);
+    postMsg({ action: "triggerCatalogOpen" });
+  }, []);
 
   return {
     isMobile,

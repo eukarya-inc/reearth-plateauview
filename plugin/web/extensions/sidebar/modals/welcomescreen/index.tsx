@@ -28,7 +28,7 @@ const WelcomeScreen: React.FC = () => {
                 ようこそ
               </Title>
               <Text weight={500} size={isMobile ? 16 : 20}>
-                マップを使ってみる
+                {isMobile ? "データがお好きですか？" : "マップを使ってみる"}
               </Text>
             </TextWrapper>
             <ContentWrapper isMobile={isMobile}>

@@ -189,7 +189,7 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
   } else if (action === "helpPopupOpen") {
     reearth.popup.show(helpPopupHtml, { position: "right-start", offset: 4 });
   } else if (action === "initPopup") {
-    reearth.ui.postMessage({ type: action });
+    reearth.ui.postMessage({ action });
   } else if (action === "initWelcome") {
     reearth.modal.postMessage({ type: "msgToModal", message: reearth.viewport.isMobile });
   } else if (action === "msgToPopup") {
