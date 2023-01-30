@@ -1,53 +1,26 @@
 import { Icon, Dropdown, Menu } from "@web/sharedComponents";
 import { styled } from "@web/theme";
-import { useCallback, useState } from "react";
 
-import { BaseField as BaseFieldProps } from ".";
+import { BaseField as BaseFieldProps } from "..";
 
-type LegendStyleType = "square" | "circle" | "line" | "icon";
-
-const legendStyles: { [key: string]: string } = {
-  square: "四角",
-  circle: "丸",
-  line: "線",
-  icon: "アイコン",
-};
-
-const Fields: { [key: string]: string } = {
-  unDefiend: "-",
-};
-
-type LegendItem = {
-  title: string;
-  color: string;
-  url?: string;
-};
-
-type LegendGradient = {
-  id?: string;
-  style: LegendStyleType;
-  items?: LegendItem[];
-};
+import useHooks, { LegendGradientType, LegendStyleType } from "./hooks";
 
 type Props = BaseFieldProps<"legendGradient"> & {
-  value: LegendGradient;
+  value: LegendGradientType;
   editMode?: boolean;
 };
+
 const LegendGradient: React.FC<Props> = ({ value, editMode }) => {
-  const [LegendGradient, updateLegend] = useState<LegendGradient>(value);
-
-  const handleStyleChange = useCallback((style: LegendStyleType) => {
-    updateLegend(l => {
-      return {
-        ...l,
-        style,
-      };
-    });
-  }, []);
-
-  const handleChooseField = useCallback((field: string) => {
-    console.log(field);
-  }, []);
+  const {
+    legendStyles,
+    Fields,
+    currentLegendGradient,
+    handleStyleChange,
+    handleChooseField,
+    handleStepChange,
+    handleStartColorChange,
+    handleEndColorChange,
+  } = useHooks(value);
 
   const stylesMenu = (
     <Menu
@@ -85,7 +58,7 @@ const LegendGradient: React.FC<Props> = ({ value, editMode }) => {
         <FieldValue>
           <Dropdown overlay={stylesMenu} placement="bottom" trigger={["click"]}>
             <StyledDropdownButton>
-              <p style={{ margin: 0 }}>{legendStyles[LegendGradient.style]}</p>
+              <p style={{ margin: 0 }}>{legendStyles[currentLegendGradient.style]}</p>
               <Icon icon="arrowDownSimple" size={12} />
             </StyledDropdownButton>
           </Dropdown>
@@ -103,28 +76,30 @@ const LegendGradient: React.FC<Props> = ({ value, editMode }) => {
         </FieldValue>
       </Field>
 
-      {LegendGradient.style === "icon" && (
-        <Field>
-          <FieldTitle> Image URL</FieldTitle>
-          <FieldValue>
-            <TextInput value={"item.url"} />
-          </FieldValue>
-        </Field>
-      )}
-      {LegendGradient.items && (
+      {currentLegendGradient.items && (
         <>
           <Field>
             <FieldTitle>Start color</FieldTitle>
             <FieldValue>
-              <ColorBlock color={LegendGradient.items[LegendGradient.items.length - 1].color} />
-              <TextInput value={LegendGradient.items[LegendGradient.items.length - 1].color} />
+              <ColorBlock color={currentLegendGradient.items[0]?.color} />
+              <TextInput
+                defaultValue={currentLegendGradient.items[0]?.color}
+                onChange={handleStartColorChange}
+              />
             </FieldValue>
           </Field>
           <Field>
             <FieldTitle>End color</FieldTitle>
             <FieldValue>
-              <ColorBlock color={LegendGradient?.items[0].color} />
-              <TextInput value={LegendGradient?.items[0].color} />
+              <ColorBlock
+                color={currentLegendGradient.items[currentLegendGradient.items.length - 1]?.color}
+              />
+              <TextInput
+                defaultValue={
+                  currentLegendGradient.items[currentLegendGradient.items.length - 1].color
+                }
+                onChange={handleEndColorChange}
+              />
             </FieldValue>
           </Field>
         </>
@@ -132,20 +107,20 @@ const LegendGradient: React.FC<Props> = ({ value, editMode }) => {
       <Field>
         <FieldTitle> Step width</FieldTitle>
         <FieldValue>
-          <TextInput value={100} />
+          <TextInput
+            defaultValue={currentLegendGradient.items.length}
+            type={"number"}
+            onChange={handleStepChange}
+          />
         </FieldValue>
       </Field>
     </Wrapper>
   ) : (
     <Wrapper>
-      {LegendGradient.items?.map((item, idx) => (
+      {currentLegendGradient.items?.map((item, idx) => (
         <Field key={idx} gap={12}>
-          {LegendGradient.style === "icon" ? (
-            <StyledImg src={item.url} />
-          ) : (
-            <ColorBlock color={item.color} legendStyle={LegendGradient.style} />
-          )}
-          <Text>{item.title}</Text>
+          <ColorBlock color={item?.color} legendStyle={currentLegendGradient.style} />
+          <Text>{item?.title}</Text>
         </Field>
       ))}
     </Wrapper>
@@ -193,20 +168,21 @@ const FieldValue = styled.div`
   width: 100%;
 `;
 
-const TextInput = styled.input.attrs({ type: "text" })`
+const TextInput = styled.input`
   height: 100%;
   width: 100%;
   flex: 1;
   padding: 0 12px;
   border: none;
   outline: none;
-  color: rgba(0, 0, 0, 0.25);
   :focus {
     border: none;
   }
 `;
-
-const ColorBlock = styled.div<{ color: string; legendStyle?: "circle" | "square" | "line" }>`
+const ColorBlock = styled.div<{
+  color?: string;
+  legendStyle?: "circle" | "square" | "line";
+}>`
   width: 30px;
   height: ${({ legendStyle }) => (legendStyle === "line" ? "3px" : "30px")};
   background: ${({ color }) => color ?? "#d9d9d9"};
@@ -218,9 +194,4 @@ const ColorBlock = styled.div<{ color: string; legendStyle?: "circle" | "square"
         ? "5px"
         : "2px"
       : "1px 0 0 1px"};
-`;
-
-const StyledImg = styled.img`
-  width: 30px;
-  height: 30px;
 `;
