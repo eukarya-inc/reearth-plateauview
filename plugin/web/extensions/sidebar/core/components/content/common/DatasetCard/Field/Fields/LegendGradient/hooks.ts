@@ -67,7 +67,7 @@ export default (value: LegendGradientType) => {
   }, [colorGradients, displayValues, items]);
 
   const handleStepChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    setStep(parseInt(e.target.value));
+    if (e.target.value) setStep(parseInt(e.target.value));
   }, []);
 
   const handleStartColorChange = useCallback(
