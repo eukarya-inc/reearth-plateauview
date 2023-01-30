@@ -5,6 +5,7 @@ extensions:
   - id: sidebar
     name: Sidebar
     type: widget
+    singleOnly: true
     schema:
       groups:
         - id: default
@@ -27,8 +28,9 @@ extensions:
         section: left
         area: middle
   - id: storytelling
-    name: Storytelling (PLATEAU)
+    name: Storytelling(PLATEAU)
     type: widget
+    singleOnly: true
     widgetLayout:
       defaultLocation:
         zone: inner
@@ -37,6 +39,7 @@ extensions:
   - id: location
     name: Location Footer
     type: widget
+    singleOnly: true
     widgetLayout:
       defaultLocation:
         zone: outer
@@ -45,8 +48,12 @@ extensions:
   - id: geolocation
     name: My Location
     type: widget
+    singleOnly: true
     widgetLayout:
       defaultLocation:
         zone: inner
         section: right
         area: middle
+  - id: infobox
+    name: Infobox(PLATEAU)
+    type: block
