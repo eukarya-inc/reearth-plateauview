@@ -6,6 +6,7 @@ import clipVideoHtml from "../dist/web/sidebar/modals/clipVideo/index.html?raw";
 import dataCatalogHtml from "../dist/web/sidebar/modals/datacatalog/index.html?raw";
 import mapVideoHtml from "../dist/web/sidebar/modals/mapVideo/index.html?raw";
 import welcomeScreenHtml from "../dist/web/sidebar/modals/welcomescreen/index.html?raw";
+import buildingSearchHtml from "../dist/web/sidebar/popups/buildingSearch/index.html?raw";
 import helpPopupHtml from "../dist/web/sidebar/popups/help/index.html?raw";
 
 const reearth = (globalThis as any).reearth;
@@ -16,6 +17,8 @@ let rawCatalog: CatalogRawItem[] = [];
 
 // let isMobile: boolean;
 let welcomePageIsOpen = false;
+let buildingSearchIsOpen = false;
+
 reearth.ui.show(html, { extended: true });
 
 reearth.on("message", ({ action, payload }: PostMessageProps) => {
@@ -109,6 +112,22 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
     reearth.modal.show(mapVideoHtml, { background: "transparent" });
   } else if (action === "clipModalOpen") {
     reearth.modal.show(clipVideoHtml, { background: "transparent" });
+  } else if (action === "buildingSearchOpen") {
+    reearth.popup.show(buildingSearchHtml, {
+      position: reearth.viewport.isMobile ? "bottom-start" : "right-start",
+      offset: {
+        mainAxis: 4,
+        crossAxis: reearth.viewport.isMobile ? reearth.viewport.width * 0.05 : 0,
+      },
+    });
+    reearth.popup.postMessage({
+      type: "buildingSearchInit",
+      payload: {
+        viewport: reearth.viewport,
+        data: "",
+      },
+    });
+    buildingSearchIsOpen = true;
   }
 });
 
@@ -130,4 +149,21 @@ reearth.on("resize", () => {
       width: reearth.viewport.width,
       height: reearth.viewport.height,
     });
+
+  if (buildingSearchIsOpen && reearth.viewport.isMobile) {
+    reearth.popup.postMessage({
+      type: "mobileResize",
+      payload: reearth.viewport.width,
+    });
+    reearth.popup.update({
+      offset: {
+        mainAxis: 4,
+        crossAxis: reearth.viewport.isMobile ? reearth.viewport.width * 0.05 : 0,
+      },
+    });
+  }
+});
+
+reearth.on("popupclose", () => {
+  buildingSearchIsOpen = false;
 });
