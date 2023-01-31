@@ -59,27 +59,34 @@ const FileTree: React.FC<Props> = ({ catalog, onOpenDetails }) => {
   }, []);
 
   return (
-    <Tree>
-      {catalog.map(item =>
-        TreeBuilder({
-          item,
-          selectedId,
-          nestLevel: 1,
-          onOpenDetails,
-          onSelect: handleSelect,
-        }),
-      )}
-    </Tree>
+    <TreeWrapper>
+      <Tree>
+        {catalog.map(item =>
+          TreeBuilder({
+            item,
+            selectedId,
+            nestLevel: 1,
+            onOpenDetails,
+            onSelect: handleSelect,
+          }),
+        )}
+      </Tree>
+    </TreeWrapper>
   );
 };
 
 export default FileTree;
 
+const TreeWrapper = styled.div`
+  width: 298px;
+  height: 400px;
+  overflow-y: scroll;
+`;
+
 const Tree = styled.div`
   display: flex;
   flex-direction: column;
   flex-wrap: wrap;
-  width: 298px;
 `;
 
 const Folder = styled.div<{ isOpen?: boolean }>`
