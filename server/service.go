@@ -32,7 +32,7 @@ var services = [](func(*Config) (*Service, error)){
 	SearchIndex,
 	Share,
 	Opinion,
-	SidebarAPI,
+	Visualizer,
 }
 
 func Services(conf *Config) (srv []*Service, _ error) {
@@ -179,14 +179,14 @@ func Opinion(conf *Config) (*Service, error) {
 	}, nil
 }
 
-func SidebarAPI(conf *Config) (*Service, error) {
+func Visualizer(conf *Config) (*Service, error) {
 	c := conf.Visualizer()
 	if c.AdminToken == "" || c.CMSToken == "" {
 		return nil, nil
 	}
 
 	return &Service{
-		Name: "sidebar",
+		Name: "visualizer",
 		Echo: func(g *echo.Group) error {
 			return visualizer.Echo(g.Group("/visualizer"), c)
 		},
