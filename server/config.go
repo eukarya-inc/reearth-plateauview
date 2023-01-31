@@ -115,9 +115,9 @@ func (c *Config) Visualizer() visualizer.Config {
 		CMSModelID:       c.CMS_ModelID,
 		CMSBaseURL:       c.CMS_BaseURL,
 		CMSToken:         c.CMS_Token,
-		AdminToken:       c.VizToken,
-		DataModelKey:     c.VizDataModelKey,
-		TemplateModelKey: c.VizDataModelKey,
+		AdminToken:       c.Viz_Token,
+		DataModelKey:     c.Viz_DataModel,
+		TemplateModelKey: c.Viz_TemplateModel,
 	}
 }
 

@@ -19,6 +19,7 @@ require (
 )
 
 require (
+	github.com/labstack/echo v3.3.10+incompatible // indirect
 	github.com/richardlehane/mscfb v1.0.4 // indirect
 	github.com/richardlehane/msoleps v1.0.3 // indirect
 )

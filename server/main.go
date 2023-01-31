@@ -50,6 +50,7 @@ func main() {
 			webhookHandlers = append(webhookHandlers, s.Webhook)
 		}
 	}
+
 	if len(webhookHandlers) > 0 {
 		cmswebhook.Echo(
 			e.Group("/webhook"),
