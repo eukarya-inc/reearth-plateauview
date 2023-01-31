@@ -51,9 +51,10 @@ type Config struct {
 	Opinion_ToName       string
 	Secret               string
 	Debug                bool
-	VizToken             string
-	VizTemplateModelKey  string `default:"plateau-view-template"`
-	VizDataModelKey      string `default:"plateau-view-data"`
+	Viz_Token            string
+	Viz_Project          string
+	Viz_TemplateModel    string `default:"viewer-template"`
+	Viz_DataModel        string `default:"viewer-data"`
 }
 
 func NewConfig() (*Config, error) {

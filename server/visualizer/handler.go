@@ -12,6 +12,7 @@ import (
 )
 
 type Handler struct {
+	CMSProject                   string
 	DataModelKey                 string
 	TemplateModelKey             string
 	DataModelDataFieldID         string
@@ -21,7 +22,7 @@ type Handler struct {
 	CMS                          cms.Interface
 }
 
-func NewHandler(CMS cms.Interface, dKey, tKey string) (*Handler, error) {
+func NewHandler(CMS cms.Interface, prj, dKey, tKey string) (*Handler, error) {
 	if dKey == "" || tKey == "" {
 		return nil, fmt.Errorf("missing model keys, dataKey=%s, templateKey=%s", dKey, tKey)
 	}
@@ -32,7 +33,7 @@ func NewHandler(CMS cms.Interface, dKey, tKey string) (*Handler, error) {
 		return nil, err
 	}
 
-	templates, err := CMS.GetItems(ctx, tKey)
+	templates, err := CMS.GetItemsByKey(ctx, prj, tKey)
 	if err != nil {
 		return nil, err
 	}
@@ -42,6 +43,7 @@ func NewHandler(CMS cms.Interface, dKey, tKey string) (*Handler, error) {
 	}
 
 	h := &Handler{
+		CMSProject:                   prj,
 		DataModelKey:                 dKey,
 		TemplateModelKey:             tKey,
 		CMS:                          CMS,
@@ -58,7 +60,7 @@ func NewHandler(CMS cms.Interface, dKey, tKey string) (*Handler, error) {
 func (h *Handler) fetchRoot() func(c echo.Context) error {
 	return func(c echo.Context) error {
 		ctx := c.Request().Context()
-		data, err := h.CMS.GetItems(ctx, h.DataModelKey)
+		data, err := h.CMS.GetItemsByKey(ctx, h.CMSProject, h.DataModelKey)
 		if err != nil {
 			return err
 		}
@@ -67,7 +69,7 @@ func (h *Handler) fetchRoot() func(c echo.Context) error {
 			return d.Field(h.DataModelDataFieldID).Value
 		})
 
-		templates, err := h.CMS.GetItems(ctx, h.TemplateModelKey)
+		templates, err := h.CMS.GetItemsByKey(ctx, h.CMSProject, h.TemplateModelKey)
 		if err != nil {
 			return err
 		}
@@ -92,7 +94,7 @@ func (h *Handler) fetchRoot() func(c echo.Context) error {
 func (h *Handler) getAllDataHandler() func(c echo.Context) error {
 	return func(c echo.Context) error {
 		ctx := c.Request().Context()
-		data, err := h.CMS.GetItems(ctx, h.DataModelKey)
+		data, err := h.CMS.GetItemsByKey(ctx, h.CMSProject, h.DataModelKey)
 		if err != nil {
 			return err
 		}
@@ -134,7 +136,7 @@ func (h *Handler) createDataHandler() func(c echo.Context) error {
 			ID:    h.DataModelDataFieldID,
 			Value: string(b),
 		}}
-		item, err := h.CMS.CreateItem(ctx, h.DataModelKey, fields)
+		item, err := h.CMS.CreateItemByKey(ctx, h.CMSProject, h.DataModelKey, fields)
 		if err != nil {
 			return err
 		}
@@ -186,7 +188,7 @@ func (h *Handler) deleteDataHandler() func(c echo.Context) error {
 func (h *Handler) fetchTemplate() func(c echo.Context) error {
 	return func(c echo.Context) error {
 		ctx := c.Request().Context()
-		templates, err := h.CMS.GetItems(ctx, h.TemplateModelKey)
+		templates, err := h.CMS.GetItemsByKey(ctx, h.CMSProject, h.TemplateModelKey)
 		if err != nil {
 			return err
 		}
@@ -211,7 +213,7 @@ func (h *Handler) createTemplateHandler() func(c echo.Context) error {
 			ID:    h.TemplateModelTemplateFieldID,
 			Value: string(b),
 		}}
-		item, err := h.CMS.CreateItem(ctx, h.TemplateModelKey, fields)
+		item, err := h.CMS.CreateItemByKey(ctx, h.CMSProject, h.TemplateModelKey, fields)
 		if err != nil {
 			return err
 		}
