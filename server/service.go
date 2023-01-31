@@ -94,7 +94,7 @@ func Geospatialjp(conf *Config) (*Service, error) {
 
 func SearchIndex(conf *Config) (*Service, error) {
 	c := conf.SearchIndex()
-	if c.CMSBase == "" {
+	if c.CMSBase == "" || c.CMSToken == "" || c.CMSStorageProject == "" {
 		return nil, nil
 	}
 
@@ -152,7 +152,7 @@ func SDKAPI(conf *Config) (*Service, error) {
 
 func Share(conf *Config) (*Service, error) {
 	c := conf.Share()
-	if c.CMSBase == "" || c.CMSToken == "" {
+	if c.CMSBase == "" || c.CMSToken == "" || c.CMSProject == "" {
 		return nil, nil
 	}
 

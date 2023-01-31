@@ -22,21 +22,22 @@ import (
 const configPrefix = "REEARTH_PLATEAUVIEW"
 
 type Config struct {
-	Port               uint   `default:"8080" envconfig:"PORT"`
-	Host               string `default:"http://localhost:8080"`
-	Origin             []string
-	CMS_Webhook_Secret string
-	CMS_BaseURL        string
-	CMS_Token          string
-	CMS_ModelID        string
-	CMS_IntegrationID  string
-	CMS_ShareProject   string
-	CMS_ShareModel     string
+	CMS_ModelID      string
+	CMS_ShareProject string
+	CMS_ShareModel   string
 	// CMS_ShareField            string
 	CMS_IndexerStorageProject string
 	CMS_IndexerStorageModel   string
-	CMS_SDKProject            string
 	// CMS_SDKModel              string
+	Port                 uint   `default:"8080" envconfig:"PORT"`
+	Host                 string `default:"http://localhost:8080"`
+	Origin               []string
+	CMS_Webhook_Secret   string
+	CMS_BaseURL          string
+	CMS_Token            string
+	CMS_IntegrationID    string
+	CMS_SystemProject    string
+	CMS_SDKProject       string
 	FME_BaseURL          string
 	FME_Mock             bool
 	FME_Token            string
@@ -94,8 +95,8 @@ func (c *Config) SearchIndex() searchindex.Config {
 	return searchindex.Config{
 		CMSBase:           c.CMS_BaseURL,
 		CMSToken:          c.CMS_Token,
-		CMSStorageProject: c.CMS_IndexerStorageProject,
-		CMSStorageModel:   c.CMS_IndexerStorageModel,
+		CMSStorageProject: c.CMS_SystemProject,
+		// CMSStorageModel:   c.CMS_IndexerStorageModel,
 	}
 }
 
@@ -134,8 +135,8 @@ func (c *Config) Share() share.Config {
 	return share.Config{
 		CMSBase:    c.CMS_BaseURL,
 		CMSToken:   c.CMS_Token,
-		CMSProject: c.CMS_ShareProject,
-		CMSModel:   c.CMS_ShareModel,
+		CMSProject: c.CMS_SystemProject,
+		// CMSModel:   c.CMS_ShareModel,
 		// CMSDataFieldKey: c.CMS_ShareField,
 	}
 }

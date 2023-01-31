@@ -3,6 +3,7 @@ module github.com/eukarya-inc/reearth-plateauview/server
 go 1.19
 
 require (
+	github.com/dustin/go-humanize v1.0.1
 	github.com/go-playground/validator/v10 v10.11.1
 	github.com/jarcoal/httpmock v1.2.0
 	github.com/joho/godotenv v1.4.0
