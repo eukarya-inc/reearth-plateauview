@@ -179,12 +179,11 @@ func Opinion(conf *Config) (*Service, error) {
 	}, nil
 }
 
-func funcName(i interface{}) string {
-	return strings.TrimPrefix(runtime.FuncForPC(reflect.ValueOf(i).Pointer()).Name(), "main.")
-}
-
 func SidebarAPI(conf *Config) (*Service, error) {
 	c := conf.Visualizer()
+	if c.AdminToken == "" || c.CMSToken == "" {
+		return nil, nil
+	}
 
 	return &Service{
 		Name: "sidebar",
@@ -193,4 +192,8 @@ func SidebarAPI(conf *Config) (*Service, error) {
 			return nil
 		},
 	}, nil
+}
+
+func funcName(i interface{}) string {
+	return strings.TrimPrefix(runtime.FuncForPC(reflect.ValueOf(i).Pointer()).Name(), "main.")
 }
