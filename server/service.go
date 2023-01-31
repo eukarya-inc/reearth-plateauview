@@ -188,8 +188,7 @@ func SidebarAPI(conf *Config) (*Service, error) {
 	return &Service{
 		Name: "sidebar",
 		Echo: func(g *echo.Group) error {
-			visualizer.Echo(g.Group("/visualizer"), c)
-			return nil
+			return visualizer.Echo(g.Group("/visualizer"), c)
 		},
 	}, nil
 }
