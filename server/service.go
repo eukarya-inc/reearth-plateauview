@@ -14,7 +14,7 @@ import (
 	"github.com/eukarya-inc/reearth-plateauview/server/sdkapi"
 	"github.com/eukarya-inc/reearth-plateauview/server/searchindex"
 	"github.com/eukarya-inc/reearth-plateauview/server/share"
-	"github.com/eukarya-inc/reearth-plateauview/server/visualizer"
+	"github.com/eukarya-inc/reearth-plateauview/server/sidebar"
 	"github.com/labstack/echo/v4"
 )
 
@@ -32,7 +32,7 @@ var services = [](func(*Config) (*Service, error)){
 	SearchIndex,
 	Share,
 	Opinion,
-	Visualizer,
+	Sidebar,
 }
 
 func Services(conf *Config) (srv []*Service, _ error) {
@@ -179,16 +179,16 @@ func Opinion(conf *Config) (*Service, error) {
 	}, nil
 }
 
-func Visualizer(conf *Config) (*Service, error) {
-	c := conf.Visualizer()
-	if c.AdminToken == "" || c.CMSToken == "" {
+func Sidebar(conf *Config) (*Service, error) {
+	c := conf.Sidebar()
+	if c.AdminToken == "" || c.CMSToken == "" || c.CMSBaseURL == "" || c.CMSProject == "" {
 		return nil, nil
 	}
 
 	return &Service{
-		Name: "visualizer",
+		Name: "sidebar",
 		Echo: func(g *echo.Group) error {
-			return visualizer.Echo(g.Group("/visualizer"), c)
+			return sidebar.Echo(g.Group("/sidebar"), c)
 		},
 	}, nil
 }

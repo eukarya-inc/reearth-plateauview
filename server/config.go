@@ -12,7 +12,7 @@ import (
 	"github.com/eukarya-inc/reearth-plateauview/server/sdkapi"
 	"github.com/eukarya-inc/reearth-plateauview/server/searchindex"
 	"github.com/eukarya-inc/reearth-plateauview/server/share"
-	"github.com/eukarya-inc/reearth-plateauview/server/visualizer"
+	"github.com/eukarya-inc/reearth-plateauview/server/sidebar"
 	"github.com/joho/godotenv"
 	"github.com/kelseyhightower/envconfig"
 	"github.com/reearth/reearthx/log"
@@ -52,10 +52,7 @@ type Config struct {
 	Opinion_ToName       string
 	Secret               string
 	Debug                bool
-	Viz_Token            string
-	Viz_Project          string
-	Viz_TemplateModel    string `default:"viewer-template"`
-	Viz_DataModel        string `default:"viewer-data"`
+	Sidebar_Token        string
 }
 
 func NewConfig() (*Config, error) {
@@ -111,16 +108,6 @@ func (c *Config) SDK() sdk.Config {
 		Secret:         c.Secret,
 	}
 }
-func (c *Config) Visualizer() visualizer.Config {
-	return visualizer.Config{
-		CMSModelID:       c.CMS_ModelID,
-		CMSBaseURL:       c.CMS_BaseURL,
-		CMSToken:         c.CMS_Token,
-		AdminToken:       c.Viz_Token,
-		DataModelKey:     c.Viz_DataModel,
-		TemplateModelKey: c.Viz_TemplateModel,
-	}
-}
 
 func (c *Config) SDKAPI() sdkapi.Config {
 	return sdkapi.Config{
@@ -158,5 +145,14 @@ func (c *Config) Geospatialjp() geospatialjp.Config {
 		CMSToken:       c.CMS_Token,
 		CMSBase:        c.CMS_BaseURL,
 		CMSIntegration: c.CMS_IntegrationID,
+	}
+}
+
+func (c *Config) Sidebar() sidebar.Config {
+	return sidebar.Config{
+		CMSBaseURL: c.CMS_BaseURL,
+		CMSToken:   c.CMS_Token,
+		CMSProject: c.CMS_SystemProject,
+		AdminToken: c.Sidebar_Token,
 	}
 }
