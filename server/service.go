@@ -32,6 +32,7 @@ var services = [](func(*Config) (*Service, error)){
 	SearchIndex,
 	Share,
 	Opinion,
+	SidebarAPI,
 }
 
 func Services(conf *Config) (srv []*Service, _ error) {
