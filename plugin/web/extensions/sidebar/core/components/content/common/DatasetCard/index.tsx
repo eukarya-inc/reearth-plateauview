@@ -138,6 +138,32 @@ const DatasetCard: React.FC<Props> = ({ dataset, inEditor, onRemove }) => {
                   type: "description",
                 },
                 { id: "template", icon: undefined, title: "Template", type: "template" },
+                {
+                  id: "switchGroup",
+                  icon: undefined,
+                  title: "グループを切り替える",
+                  type: "switchGroup",
+                  value: {
+                    title: "example",
+                    groups: [
+                      {
+                        id: 1,
+                        group: "1",
+                        title: "",
+                      },
+                      {
+                        id: 2,
+                        group: "2",
+                        title: "",
+                      },
+                      {
+                        id: 3,
+                        group: "3",
+                        title: "",
+                      },
+                    ],
+                  },
+                },
               ] as FieldType[]
             )?.map((field, idx) => (
               <Field key={idx} field={field} editMode={inEditor && currentTab === "edit"} />

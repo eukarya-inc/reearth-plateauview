@@ -1,4 +1,5 @@
 import AddButton from "@web/extensions/sidebar/core/components/content/common/AddButton";
+import { array_move } from "@web/extensions/sidebar/utils";
 import { Icon, Dropdown, Menu } from "@web/sharedComponents";
 import { styled } from "@web/theme";
 import { useCallback, useState } from "react";
@@ -30,16 +31,6 @@ type Props = BaseFieldProps<"legend"> & {
   value: Legend;
   editMode?: boolean;
 };
-
-function array_move(arr: any[], old_index: number, new_index: number) {
-  if (new_index >= arr.length) {
-    let k = new_index - arr.length + 1;
-    while (k--) {
-      arr.push(undefined);
-    }
-  }
-  arr.splice(new_index, 0, arr.splice(old_index, 1)[0]);
-}
 
 const Legend: React.FC<Props> = ({ value, editMode }) => {
   const [legend, updateLegend] = useState<Legend>(value);
