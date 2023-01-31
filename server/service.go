@@ -14,6 +14,7 @@ import (
 	"github.com/eukarya-inc/reearth-plateauview/server/sdkapi"
 	"github.com/eukarya-inc/reearth-plateauview/server/searchindex"
 	"github.com/eukarya-inc/reearth-plateauview/server/share"
+	"github.com/eukarya-inc/reearth-plateauview/server/visualizer"
 	"github.com/labstack/echo/v4"
 )
 
@@ -179,4 +180,16 @@ func Opinion(conf *Config) (*Service, error) {
 
 func funcName(i interface{}) string {
 	return strings.TrimPrefix(runtime.FuncForPC(reflect.ValueOf(i).Pointer()).Name(), "main.")
+}
+
+func SidebarAPI(conf *Config) (*Service, error) {
+	c := conf.Visualizer()
+
+	return &Service{
+		Name: "sidebar",
+		Echo: func(g *echo.Group) error {
+			visualizer.Echo(g.Group("/visualizer"), c)
+			return nil
+		},
+	}, nil
 }

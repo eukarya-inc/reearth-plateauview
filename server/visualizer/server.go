@@ -18,7 +18,7 @@ func Echo(g *echo.Group, c Config) error {
 }
 
 func initEcho(g *echo.Group, c Config, s Services) {
-	h, err := NewHandler(s.CMS, c.DataModelKey, c.TemplateModelKey)
+	h, err := NewHandler(s.CMS, c.CMSProject, c.DataModelKey, c.TemplateModelKey)
 	if err != nil {
 		panic("failed to init echo")
 	}
