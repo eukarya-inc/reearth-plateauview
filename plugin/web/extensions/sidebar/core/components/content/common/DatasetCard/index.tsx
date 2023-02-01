@@ -1,5 +1,5 @@
 import { Data } from "@web/extensions/sidebar/core/newTypes";
-import { Icon } from "@web/sharedComponents";
+import { Dropdown, Icon, Menu } from "@web/sharedComponents";
 import { styled } from "@web/theme";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
@@ -44,7 +44,7 @@ const DatasetCard: React.FC<Props> = ({
   const [visible, setVisibility] = useState(false);
   const [currentTab, changeTab] = useState<Tabs>("default");
 
-  const { items } = useHooks({ dataset, inEditor, onDatasetUpdate });
+  const { fieldGroups } = useHooks({ dataset, inEditor, onDatasetUpdate });
 
   const baseFields: BaseFieldType[] = useMemo(
     () => [
@@ -74,6 +74,34 @@ const DatasetCard: React.FC<Props> = ({
   //   if (!inEditor) return;
   //   onAddField?.(key);
   // };
+
+  const menuGenerator = (menuItems: { [key: string]: any }) => (
+    <Menu
+      items={Object.keys(menuItems).map(i => {
+        if (menuItems[i].fields) {
+          return {
+            key: i,
+            label: (
+              <Dropdown
+                overlay={menuGenerator(menuItems[i].fields)}
+                placement="bottom"
+                trigger={["click"]}>
+                <div onClick={e => e.stopPropagation()}>
+                  <p style={{ margin: 0 }}>{menuItems[i].name}</p>
+                </div>
+              </Dropdown>
+            ),
+          };
+        } else {
+          return {
+            key: i,
+            label: <p style={{ margin: 0 }}>{menuItems[i].name}</p>,
+            onClick: menuItems[i]?.onClick?.(),
+          };
+        }
+      })}
+    />
+  );
 
   return (
     <StyledAccordionComponent allowZeroExpanded>
@@ -123,7 +151,7 @@ const DatasetCard: React.FC<Props> = ({
             ))}
           </Content>
           {inEditor && currentTab === "edit" && (
-            <StyledAddButton text="フィルドを追加" items={items} />
+            <StyledAddButton text="フィルドを追加" items={menuGenerator(fieldGroups)} />
           )}
         </BodyWrapper>
       </AccordionItem>

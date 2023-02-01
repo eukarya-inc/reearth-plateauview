@@ -10,6 +10,7 @@ export type Data = {
   name?: string; // Might want to make raw type without this
   // public: boolean; // Might want to make raw type without this
   visible?: boolean; // Might want to make raw type without this
+  modelType: "usecase" | "plateau" | "dataset";
   // either template or components
   template?: string; // user-defined template ID or builtin template ID
   components?: FieldComponent[];
@@ -41,21 +42,19 @@ export type Camera = {
   };
 };
 
+type LegendStyleType = "square" | "circle" | "line" | "icon";
+
+type LegendItem = {
+  title: string;
+  color: string;
+  url?: string;
+};
+
 type Legend = {
   type: "legend";
   group?: string;
-  key: string;
-  // If false, legend will be auto-generated from data
-  override?: boolean;
+  style: LegendStyleType;
   items?: LegendItem[];
-};
-
-type LegendItem = {
-  value: string;
-  title?: string;
-  color?: string;
-  image?: string;
-  hidden?: boolean;
 };
 
 type Realtime = {
@@ -77,7 +76,8 @@ type Point = {
 type Description = {
   type: "description";
   group?: string;
-  markdownKey: string;
+  content?: string;
+  isMarkdown?: boolean;
 };
 
 // ****** Template ******

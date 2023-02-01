@@ -19,7 +19,8 @@ type LegendItem = {
 };
 
 type LegendType = {
-  id?: string; // NOT SURE ID IS NEEDED OR WILL BE OBTAINABLE
+  type: "legend";
+  group?: string;
   style: LegendStyleType;
   items?: LegendItem[];
 };
@@ -75,7 +76,7 @@ const Legend: React.FC<Props> = ({ value, editMode }) => {
         return { ...l, items: newItems };
       });
     },
-    [legend.items],
+    [legend],
   );
 
   const handleAdd = useCallback(() => {

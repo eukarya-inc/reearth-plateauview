@@ -1,10 +1,10 @@
-import { Icon, Dropdown, MenuProps } from "@web/sharedComponents";
+import { Icon, Dropdown } from "@web/sharedComponents";
 import { styled } from "@web/theme";
 
 type Props = {
   className?: string;
   text: string;
-  items?: MenuProps["items"];
+  items?: JSX.Element;
   direction?:
     | "topLeft"
     | "topCenter"
@@ -20,8 +20,8 @@ type Props = {
 
 const AddButton: React.FC<Props> = ({ className, text, items, direction = "bottom", onClick }) => {
   return items ? (
-    <Dropdown menu={{ items }} placement={direction} trigger={["click"]}>
-      <StyledButton className={className} onClick={e => e.preventDefault()}>
+    <Dropdown overlay={items} placement={direction} trigger={["click"]}>
+      <StyledButton className={className}>
         <Icon icon="plus" size={14} />
         <Text>{text}</Text>
       </StyledButton>

@@ -1,5 +1,4 @@
 import { Data } from "@web/extensions/sidebar/core/newTypes";
-import { MenuProps } from "@web/sharedComponents";
 
 export default ({
   dataset,
@@ -11,10 +10,9 @@ export default ({
   onDatasetUpdate: (dataset: Data) => void;
 }) => {
   const handleAddField =
-    (property: any): MenuProps["onClick"] =>
-    ({ key }) => {
+    (property: any) =>
+    ({ key }: { key: string }) => {
       if (!inEditor) return;
-      console.log(property);
       onDatasetUpdate?.({
         ...dataset,
         components: [
@@ -27,74 +25,148 @@ export default ({
       });
     };
 
-  const items: MenuProps["items"] = [
-    {
-      key: "general",
-      label: "一般",
-      children: [
-        {
-          key: "camera",
-          label: "カメラ",
-          onClick: handleAddField({
-            position: {
-              lng: 0,
-              lat: 0,
-              height: 0,
-              pitch: 0,
-              heading: 0,
-              roll: 0,
-            },
-          }),
-        },
-        {
-          key: "description",
-          label: "説明",
-          onClick: handleAddField({ markdownKey: "" }),
-        },
-        {
-          key: "legend",
-          label: "凡例",
-          onClick: handleAddField({ style: "square" }),
-        },
-      ],
+  const generalFields: {
+    [key: string]: { name: string; onClick: (property: any) => void };
+  } = {
+    camera: {
+      name: "カメラ",
+      onClick: () =>
+        handleAddField({
+          position: {
+            lng: 0,
+            lat: 0,
+            height: 0,
+            pitch: 0,
+            heading: 0,
+            roll: 0,
+          },
+        }),
     },
-    {
-      key: "point-group",
-      label: "ポイント",
-      children: [
-        {
-          key: "point",
-          label: "Fill color (condition)",
-        },
-        // {
-        //   key: "point",
-        //   label: "Fill color (gradient)",
-        // },
-        // {
-        //   key: "point",
-        //   label: "Stroke",
-        // },
-        // {
-        //   key: "point",
-        //   label: "Icon",
-        // },
-        // {
-        //   key: "point",
-        //   label: "Size",
-        // },
-        // {
-        //   key: "point",
-        //   label: "Label",
-        // },
-        // {
-        //   key: "point",
-        //   label: "3D Model",
-        // },
-      ],
+    description: {
+      name: "説明",
+      onClick: () => handleAddField({}),
     },
-  ];
+    legend: {
+      name: "凡例",
+      onClick: () => handleAddField({ style: "square", items: [{ title: "hey", color: "red" }] }),
+    },
+  };
 
+  const pointFields: {
+    [key: string]: { name: string; onClick?: (property: any) => void };
+  } = {
+    camera: {
+      name: "カメラ",
+      onClick: () =>
+        handleAddField({
+          position: {
+            lng: 0,
+            lat: 0,
+            height: 0,
+            pitch: 0,
+            heading: 0,
+            roll: 0,
+          },
+        }),
+    },
+  };
+
+  const polylineFields: {
+    [key: string]: { name: string; onClick?: (property: any) => void };
+  } = {
+    camera: {
+      name: "カメラ",
+      onClick: () =>
+        handleAddField({
+          position: {
+            lng: 0,
+            lat: 0,
+            height: 0,
+            pitch: 0,
+            heading: 0,
+            roll: 0,
+          },
+        }),
+    },
+  };
+
+  const polygonFields: {
+    [key: string]: { name: string; onClick?: (property: any) => void };
+  } = {
+    camera: {
+      name: "カメラ",
+      onClick: () =>
+        handleAddField({
+          position: {
+            lng: 0,
+            lat: 0,
+            height: 0,
+            pitch: 0,
+            heading: 0,
+            roll: 0,
+          },
+        }),
+    },
+  };
+
+  const ThreeDModelFields: {
+    [key: string]: { name: string; onClick?: (property: any) => void };
+  } = {
+    camera: {
+      name: "カメラ",
+      onClick: () =>
+        handleAddField({
+          position: {
+            lng: 0,
+            lat: 0,
+            height: 0,
+            pitch: 0,
+            heading: 0,
+            roll: 0,
+          },
+        }),
+    },
+  };
+
+  const ThreeDTileFields: {
+    [key: string]: { name: string; onClick?: (property: any) => void };
+  } = {
+    camera: {
+      name: "カメラ",
+      onClick: () =>
+        handleAddField({
+          position: {
+            lng: 0,
+            lat: 0,
+            height: 0,
+            pitch: 0,
+            heading: 0,
+            roll: 0,
+          },
+        }),
+    },
+  };
+
+  const fieldGroups: {
+    [key: string]: {
+      name: string;
+      fields: { [key: string]: { name: string; onClick?: (property: any) => void } };
+    };
+  } = {
+    general: {
+      name: "一般",
+      fields: generalFields,
+    },
+    point: {
+      name: "ポイント",
+      fields: pointFields,
+    },
+    polyline: { name: "ポリライン", fields: polylineFields },
+    polygone: { name: "ポリゴン", fields: polygonFields },
+    "3d-model": { name: "3Dモデル", fields: ThreeDModelFields },
+    "3d-tile": { name: "3Dタイル", fields: ThreeDTileFields },
+  };
   return {
-    items,
+    fieldGroups,
   };
 };
