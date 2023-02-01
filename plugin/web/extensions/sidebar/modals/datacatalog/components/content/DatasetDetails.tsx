@@ -37,8 +37,8 @@ const DatasetDetails: React.FC<Props> = ({
         <HeaderWrapper>
           <Title>{dataset.type === "item" && (dataset.cityName ?? dataset.name)}</Title>
           <PublishButton onClick={handlePublish} published={published} isShareable={isShareable}>
-            <HoverText published={published}>Publish</HoverText>
-            <Text published={published}>{published ? "Published" : "Unpublished"}</Text>
+            <HoverText published={published}>公開</HoverText>
+            <Text published={published}>{published ? "公開済み" : "未公開"}</Text>
           </PublishButton>
         </HeaderWrapper>
         <ButtonWrapper>
