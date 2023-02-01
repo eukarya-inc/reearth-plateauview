@@ -88,7 +88,6 @@ export default () => {
 
   const handleDatasetUpdate = useCallback((updatedDataset: Data) => {
     updateProject(({ sceneOverrides, selectedDatasets }) => {
-      console.log("ARGH: ", selectedDatasets);
       const datasetIndex = selectedDatasets.findIndex(d => d.id === updatedDataset.id);
       selectedDatasets[datasetIndex] = updatedDataset;
       console.log("Selected DATASETS: ", selectedDatasets);
