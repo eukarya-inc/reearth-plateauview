@@ -187,9 +187,7 @@ export default () => {
 
   useEffect(() => {
     addEventListener("message", onMessage);
-    console.log(1);
     return () => {
-      console.log(2);
       removeEventListener("message", onMessage);
     };
   }, [onMessage]);
