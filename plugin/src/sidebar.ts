@@ -43,6 +43,7 @@ const reearth = (globalThis as any).reearth;
 
 let welcomePageIsOpen = false;
 let mobileDropdownIsOpen = false;
+let buildingSearchIsOpen = false;
 
 const defaultLocation = { zone: "outer", section: "left", area: "middle" };
 const mobileLocation = { zone: "outer", section: "center", area: "top" };
@@ -56,7 +57,6 @@ const sidebarInstance: PluginExtensionInstance = reearth.plugins.instances.find(
 
 // ************************************************
 // initializations
-let buildingSearchIsOpen = false;
 
 reearth.ui.show(html, { extended: true });
 

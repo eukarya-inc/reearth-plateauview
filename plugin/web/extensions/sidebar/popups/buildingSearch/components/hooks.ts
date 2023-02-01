@@ -162,7 +162,7 @@ export default () => {
 
     document.documentElement.style.setProperty("--theme-color", "#00BEBE");
 
-    const datasetIndexes = ((window as any).buildingSearchInit.data ??
+    const datasetIndexes = ((window as any).buildingSearchInit?.data ??
       TEST_DATASET_INDEX_DATA) as DatasetIndexes;
 
     setDatasetIndexes(datasetIndexes);
@@ -187,7 +187,9 @@ export default () => {
 
   useEffect(() => {
     addEventListener("message", onMessage);
+    console.log(1);
     return () => {
+      console.log(2);
       removeEventListener("message", onMessage);
     };
   }, [onMessage]);
