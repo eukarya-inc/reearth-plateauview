@@ -92,7 +92,7 @@ const FileTree: React.FC<Props> = ({ catalog, isMobile, onOpenDetails }) => {
 export default FileTree;
 
 const TreeWrapper = styled.div<{ isMobile?: boolean }>`
-  width: 298px;
+  width: ${({ isMobile }) => (isMobile ? "100%" : "298px")};
   height: ${({ isMobile }) => (isMobile ? "100%" : "400px")};
   overflow-y: scroll;
 `;

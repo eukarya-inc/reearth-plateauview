@@ -9,10 +9,11 @@ import { useCallback, useEffect, useState } from "react";
 import PopupItem from "../sharedComponents/PopupItem";
 
 type Props = {
+  isMobile?: boolean;
   rawCatalog?: CatalogRawItem[];
 };
 
-const Catalog: React.FC<Props> = ({ rawCatalog }) => {
+const Catalog: React.FC<Props> = ({ isMobile, rawCatalog }) => {
   useEffect(() => {
     postMsg({ action: "extendPopup" });
   }, []);
@@ -35,6 +36,7 @@ const Catalog: React.FC<Props> = ({ rawCatalog }) => {
         <Title>データカタログ</Title>
       </PopupItem>
       <DatasetTree
+        isMobile={isMobile}
         rawCatalog={rawCatalog}
         selectedTags={selectedTags}
         onTagSelect={handleTagSelect}

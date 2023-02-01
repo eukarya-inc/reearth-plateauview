@@ -13,6 +13,7 @@ type FilterType = "prefecture" | "fileType" | "tag";
 export type Tag = TagType;
 
 export type Props = {
+  isMobile?: boolean;
   rawCatalog?: CatalogRawItem[];
   selectedTags?: Tag[];
   onTagSelect: (tag: Tag) => void;
@@ -113,7 +114,13 @@ function filterCatalog(
   }
 }
 
-const DatasetTree: React.FC<Props> = ({ rawCatalog, selectedTags, onTagSelect, onOpenDetails }) => {
+const DatasetTree: React.FC<Props> = ({
+  isMobile,
+  rawCatalog,
+  selectedTags,
+  onTagSelect,
+  onOpenDetails,
+}) => {
   const [filter, setFilter] = useState<FilterType>("prefecture");
   const [searchTerm, setSearchTerm] = useState("");
   const [catalog, setCatalog] = useState<DataCatalog>();
@@ -134,7 +141,7 @@ const DatasetTree: React.FC<Props> = ({ rawCatalog, selectedTags, onTagSelect, o
   }, [rawCatalog, filter]);
 
   return (
-    <Wrapper>
+    <Wrapper isMobile={isMobile}>
       {!selectedTags?.length && (
         <StyledInput
           placeholder="検索"
@@ -158,10 +165,10 @@ const DatasetTree: React.FC<Props> = ({ rawCatalog, selectedTags, onTagSelect, o
         }
         onChange={active => handleFilter(active as FilterType)}>
         <Tabs.TabPane key="prefecture" tab="都道府県">
-          {catalog && <FileTree catalog={catalog} onOpenDetails={onOpenDetails} />}
+          {catalog && <FileTree catalog={catalog} isMobile={true} onOpenDetails={onOpenDetails} />}
         </Tabs.TabPane>
         <Tabs.TabPane key="type" tab="種類">
-          {catalog && <FileTree catalog={catalog} onOpenDetails={onOpenDetails} />}
+          {catalog && <FileTree catalog={catalog} isMobile={true} onOpenDetails={onOpenDetails} />}
         </Tabs.TabPane>
       </StyledTabs>
     </Wrapper>
@@ -170,12 +177,12 @@ const DatasetTree: React.FC<Props> = ({ rawCatalog, selectedTags, onTagSelect, o
 
 export default DatasetTree;
 
-const Wrapper = styled.div`
+const Wrapper = styled.div<{ isMobile?: boolean }>`
   display: flex;
   flex-direction: column;
   gap: 12px;
-  padding: 24px 0 24px 12px;
-  width: 310px;
+  padding: ${({ isMobile }) => (isMobile ? "24px 12px" : "24px 0 24px 12px")};
+  width: ${({ isMobile }) => (isMobile ? "100%" : "310px")};
 `;
 
 const StyledInput = styled(Input)`

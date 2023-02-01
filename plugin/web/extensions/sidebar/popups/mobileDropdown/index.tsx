@@ -9,7 +9,11 @@ import useHooks from "./hooks";
 import Menu from "./Menu";
 import Selection from "./Selection";
 
-const MobileDropdown: React.FC = () => {
+type Props = {
+  isMobile?: boolean;
+};
+
+const MobileDropdown: React.FC<Props> = ({ isMobile }) => {
   const [currentTab, setCurrentTab] = useState<Tab>();
 
   const {
@@ -46,7 +50,7 @@ const MobileDropdown: React.FC = () => {
     <Wrapper>
       {currentTab &&
         {
-          catalog: <Catalog rawCatalog={rawCatalog} />,
+          catalog: <Catalog isMobile={isMobile} rawCatalog={rawCatalog} />,
           selection: (
             <Selection
               selectedDatasets={project.selectedDatasets}
