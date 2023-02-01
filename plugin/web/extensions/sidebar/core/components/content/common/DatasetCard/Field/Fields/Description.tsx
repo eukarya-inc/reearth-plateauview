@@ -2,9 +2,7 @@ import { Switch } from "@web/sharedComponents";
 import { styled } from "@web/theme";
 import { Remarkable } from "remarkable";
 
-import { BaseField as BaseFieldProps } from ".";
-
-type Props = BaseFieldProps<"description"> & {
+type Props = {
   isMarkdown?: boolean;
   value?: string;
   editMode?: boolean;

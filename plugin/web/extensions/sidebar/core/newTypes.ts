@@ -8,19 +8,27 @@ export type Data = {
   dataId: string;
   type: string;
   name?: string; // Might want to make raw type without this
-  public: boolean; // Might want to make raw type without this
+  // public: boolean; // Might want to make raw type without this
   visible?: boolean; // Might want to make raw type without this
   // either template or components
   template?: string; // user-defined template ID or builtin template ID
-  components?: Component[];
+  components?: FieldComponent[];
 };
 
 // ****** Components ******
 
-// type Component = Camera | Legend | Realtime | Point | Polyline | Polygon | Model | Description;
-type Component = Camera | Legend | Realtime | Point | Description;
+export const fieldName = {
+  camera: "カメラ",
+  legend: "凡例",
+  realtime: "リアルタイム",
+  point: "ポイント",
+  description: "説明",
+};
 
-type Camera = {
+// type Component = Camera | Legend | Realtime | Point | Polyline | Polygon | Model | Description;
+export type FieldComponent = Camera | Legend | Realtime | Point | Description;
+
+export type Camera = {
   type: "camera";
   group?: string;
   position: {
@@ -78,7 +86,7 @@ export type Template = {
   id: string;
   modelId: string;
   name?: string;
-  components?: Component[];
+  components?: FieldComponent[];
 };
 
 // ****** Expression ******

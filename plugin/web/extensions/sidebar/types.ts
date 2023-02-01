@@ -1,4 +1,4 @@
-import { CatalogRawItem } from "./core/processCatalog";
+import { Data } from "./core/newTypes";
 
 type ActionType =
   | "init"
@@ -35,7 +35,7 @@ export type PostMessageProps = { action: ActionType; payload?: any };
 
 export type Project = {
   sceneOverrides: ReearthApi;
-  selectedDatasets: CatalogRawItem[];
+  selectedDatasets: Data[];
 };
 
 export type ReearthApi = {
