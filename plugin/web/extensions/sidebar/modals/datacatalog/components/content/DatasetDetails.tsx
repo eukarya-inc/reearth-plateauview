@@ -52,7 +52,11 @@ const DatasetDetails: React.FC<Props> = ({
           </ShareButton>
         </ButtonWrapper>
       </TopWrapper>
-      <Wrapper>{ContentSection && <ContentSection />}</Wrapper>
+      {ContentSection && (
+        <Wrapper>
+          <ContentSection />
+        </Wrapper>
+      )}
     </>
   );
 };
