@@ -259,20 +259,18 @@ reearth.on("resize", () => {
     });
   }
 
-  if (buildingSearchIsOpen && reearth.viewport.isMobile) {
+  if (buildingSearchIsOpen) {
     reearth.popup.postMessage({
-      type: "mobileResize",
-      payload: reearth.viewport.width,
+      type: "resize",
+      payload: reearth.viewport,
     });
-    reearth.popup.update({
-      offset: {
-        mainAxis: 4,
-        crossAxis: reearth.viewport.isMobile ? reearth.viewport.width * 0.05 : 0,
-      },
-    });
+    if (reearth.viewport.isMobile) {
+      reearth.popup.update({
+        offset: {
+          mainAxis: 4,
+          crossAxis: reearth.viewport.isMobile ? reearth.viewport.width * 0.05 : 0,
+        },
+      });
+    }
   }
-});
-
-reearth.on("popupclose", () => {
-  buildingSearchIsOpen = false;
 });

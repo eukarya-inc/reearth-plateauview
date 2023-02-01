@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState, useRef } from "react";
 
 import { postMsg } from "../../../utils";
-import type { DatasetIndexes, Condition, Result } from "../types";
+import type { DatasetIndexes, Condition, Result, Viewport } from "../types";
 
 import { TEST_DATASET_INDEX_DATA, TEST_RESULT_DATA } from "./TEST_DATA";
 
@@ -56,15 +56,19 @@ export default () => {
     }
   }, [minimized, sizes, isMobile, setHtmlSize]);
 
-  const handleMobileResize = useCallback(
-    (width: number) => {
-      setIsMobile(true);
-      setSizes({
-        ...sizes,
-        mobile: { width: width * 0.9, height: sizes.mobile.height },
-      });
+  const handleResize = useCallback(
+    (viewport: Viewport) => {
+      if (viewport.isMobile) {
+        setIsMobile(true);
+        setSizes({
+          ...sizes,
+          mobile: { width: viewport.width * 0.9, height: sizes.mobile.height },
+        });
+      } else if (isMobile) {
+        setIsMobile(false);
+      }
     },
-    [sizes],
+    [sizes, isMobile],
   );
 
   const [activeTab, setActiveTab] = useState<"condition" | "result">("condition");
@@ -171,14 +175,14 @@ export default () => {
     (e: MessageEvent<any>) => {
       if (e.source !== parent) return;
       switch (e.data.type) {
-        case "mobileResize":
-          handleMobileResize(e.data.payload);
+        case "resize":
+          handleResize(e.data.payload);
           break;
         default:
           break;
       }
     },
-    [handleMobileResize],
+    [handleResize],
   );
 
   useEffect(() => {

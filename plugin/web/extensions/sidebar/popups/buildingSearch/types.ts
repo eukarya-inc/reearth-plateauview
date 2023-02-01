@@ -16,3 +16,9 @@ export type Condition = {
 export type Result = {
   id: string;
 };
+
+export type Viewport = {
+  width: number;
+  height: number;
+  isMobile: boolean;
+};
