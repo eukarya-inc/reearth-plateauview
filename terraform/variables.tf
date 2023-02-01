@@ -21,3 +21,9 @@ variable "service_prefix" {
   default     = null
   description = "特定のリソースに付与するためのprefixを指定してください"
 }
+
+variable "dns_managed_zone_name" {
+  type        = string
+  default     = null
+  description = "CloudDNSのゾーン名を指定してください"
+}

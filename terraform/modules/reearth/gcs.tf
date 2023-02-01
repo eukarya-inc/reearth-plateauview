@@ -19,10 +19,6 @@ resource "google_storage_bucket_iam_binding" "app_public_read" {
   ]
 }
 
-resource "google_compute_backend_bucket" "app_backend" {
-  name        = "reearth-app-backend"
-  bucket_name = google_storage_bucket.app.name
-}
 
 resource "google_storage_bucket" "static" {
   name          = "${var.service_prefix}-reearth-static-bucket"

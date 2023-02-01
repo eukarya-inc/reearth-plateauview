@@ -116,6 +116,9 @@ resource "google_cloud_run_service" "reearth_api" {
       template[0].metadata[0].annotations["client.knative.dev/user-image"]
     ]
   }
+  depends_on = [
+    google_secret_manager_secret_version.reearth_api_dummy
+  ]
 }
 
 resource "google_secret_manager_secret" "reearth_api" {
@@ -130,5 +133,25 @@ resource "google_secret_manager_secret" "reearth_api" {
         location = "asia-northeast2"
       }
     }
+  }
+}
+
+//MEMO: secret_managerに値が入っていないとcloudrunが起動エラーになるので、
+//      あとから手動で値を入れるものに関しては先にdummyの値を入れておく
+resource "google_secret_manager_secret_version" "reearth_api_dummy" {
+  for_each = toset([
+    "REEARTH_DB",
+    "REEARTH_AUTH0_CLIENTID",
+    "REEARTH_AUTH0_CLIENTSECRET",
+    "REEARTH_SIGNUPSECRET",
+    "REEARTH_MARKETPLACE_SECRET",
+  ])
+  secret = google_secret_manager_secret.reearth_api[each.value].id
+
+  secret_data = "dummy"
+  lifecycle {
+    ignore_changes = [
+      secret_data
+    ]
   }
 }
