@@ -147,6 +147,30 @@ export default ({
   //     },
   //   };
 
+  const filterFields = (fields: {
+    [key: string]: {
+      name: string;
+      onClick: (property: any) => void;
+    };
+  }) =>
+    Object.keys(fields)
+      .filter(fieldKey => !dataset.components?.find(c => c.type === fieldKey))
+      .reduce(
+        (
+          obj: {
+            [key: string]: {
+              name: string;
+              onClick: (property: any) => void;
+            };
+          },
+          key,
+        ) => {
+          obj[key] = fields[key];
+          return obj;
+        },
+        {},
+      );
+
   const fieldGroups: {
     [key: string]: {
       name: string;
@@ -155,7 +179,7 @@ export default ({
   } = {
     general: {
       name: "一般",
-      fields: generalFields,
+      fields: filterFields(generalFields),
     },
     // point: {
     //   name: "ポイント",
