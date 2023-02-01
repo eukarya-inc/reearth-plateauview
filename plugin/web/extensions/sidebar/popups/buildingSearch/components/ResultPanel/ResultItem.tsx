@@ -6,17 +6,17 @@ import { Result } from "../../types";
 type Props = {
   item: Result;
   selected: string[];
-  setSelected: React.Dispatch<React.SetStateAction<string[]>>;
+  onSelect: (selected: string[]) => void;
 };
 
-const ResultItem: React.FC<Props> = ({ item, selected, setSelected }) => {
+const ResultItem: React.FC<Props> = ({ item, selected, onSelect }) => {
   const onClick = useCallback(() => {
     if (selected.includes(item.id)) {
-      setSelected(selected.filter(sid => sid !== item.id));
+      onSelect(selected.filter(sid => sid !== item.id));
     } else {
-      setSelected([item.id]);
+      onSelect([item.id]);
     }
-  }, [setSelected, item, selected]);
+  }, [onSelect, item, selected]);
   return (
     <StyledResultItem onClick={onClick} active={selected.includes(item.id)}>
       {item.id}

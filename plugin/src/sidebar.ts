@@ -216,10 +216,12 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
       type: "buildingSearchInit",
       payload: {
         viewport: reearth.viewport,
-        data: "",
+        data: payload,
       },
     });
     buildingSearchIsOpen = true;
+  } else if (action === "cameraFlyTo") {
+    reearth.camera.flyTo(...payload);
   } else if (action === "checkIfMobile") {
     reearth.ui.postMessage({ action, payload: reearth.viewport.isMobile });
   } else if (action === "extendPopup") {
@@ -244,6 +246,14 @@ reearth.on("resize", () => {
       width: reearth.viewport.width,
       height: reearth.viewport.height,
     });
+    reearth.modal.postMessage({ type: "msgToModal", payload: reearth.viewport.isMobile });
+  }
+  // Popups
+  if (mobileDropdownIsOpen) {
+    reearth.popup.update({
+      width: reearth.viewport.width - 12,
+    });
+  }
 
   if (buildingSearchIsOpen && reearth.viewport.isMobile) {
     reearth.popup.postMessage({
@@ -261,12 +271,4 @@ reearth.on("resize", () => {
 
 reearth.on("popupclose", () => {
   buildingSearchIsOpen = false;
-    reearth.modal.postMessage({ type: "msgToModal", payload: reearth.viewport.isMobile });
-  }
-  // Popups
-  if (mobileDropdownIsOpen) {
-    reearth.popup.update({
-      width: reearth.viewport.width - 12,
-    });
-  }
 });

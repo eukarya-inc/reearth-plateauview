@@ -28,19 +28,34 @@ const ResultPanel: React.FC<Props> = ({
   setSelected,
 }) => {
   const onHighlightAll = useCallback(() => {
-    setHighlightAll(highlightAll => !highlightAll);
-  }, [setHighlightAll]);
+    setHighlightAll(highlightAll => {
+      if (!highlightAll && selected.length > 0) {
+        setSelected([]);
+      }
+      return !highlightAll;
+    });
+  }, [setHighlightAll, selected, setSelected]);
 
   const onShowMatchingOnly = useCallback(() => {
     setShowMatchingOnly(showMatchingOnly => !showMatchingOnly);
   }, [setShowMatchingOnly]);
+
+  const onSelect = useCallback(
+    (selected: string[]) => {
+      setSelected(selected);
+      if (highlightAll) {
+        setHighlightAll(false);
+      }
+    },
+    [setSelected, highlightAll, setHighlightAll],
+  );
 
   return (
     <Wrapper active={active}>
       <ResultInfo>{`${results.length} matches found`}</ResultInfo>
       <ResultWrapper>
         {results?.map((item, index) => (
-          <ResultItem key={index} item={item} setSelected={setSelected} selected={selected} />
+          <ResultItem key={index} item={item} onSelect={onSelect} selected={selected} />
         ))}
         {results.length === 0 && (
           <EmptyWrapper>

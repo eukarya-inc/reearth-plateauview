@@ -84,14 +84,61 @@ export default () => {
   const [selected, setSelected] = useState<string[]>([]);
 
   const conditionApply = useCallback(() => {
-    // search logic here
+    // TODO: Search logic here
     console.log(conditions);
-    // set results
-    setResults(TEST_RESULT_DATA);
+    const computeResult = TEST_RESULT_DATA;
+
+    setResults(computeResult);
     setActiveTab("result");
     setHighlightAll(true);
     setShowMatchingOnly(false);
   }, [conditions]);
+
+  useEffect(() => {
+    // TODO: flyTo the selected building
+    if (selected.length === 1) {
+      postMsg({
+        action: "cameraFlyTo",
+        payload: [
+          {
+            lng: 137.31210397018728,
+            lat: 34.60832876429294,
+            height: 54735.3396536646,
+            heading: 0.06105070089725917,
+            pitch: -0.8254743840751195,
+            roll: 6.283184517370357,
+            fov: 1.0471975511965976,
+          },
+          { duration: 2 },
+        ],
+      });
+    }
+  }, [selected]);
+
+  useEffect(() => {
+    // TODO: flyTo the result if only one
+    if (results.length === 1) {
+      postMsg({
+        action: "cameraFlyTo",
+        payload: [
+          {
+            lng: 137.31210397018728,
+            lat: 34.60832876429294,
+            height: 54735.3396536646,
+            heading: 0.06105070089725917,
+            pitch: -0.8254743840751195,
+            roll: 6.283184517370357,
+            fov: 1.0471975511965976,
+          },
+          { duration: 2 },
+        ],
+      });
+    }
+  }, [results]);
+
+  useEffect(() => {
+    // TODO: Update 3D tiles style
+  }, [highlightAll, showMatchingOnly, selected, results]);
 
   const popupClose = useCallback(() => {
     postMsg({ action: "popupClose" });
@@ -111,10 +158,11 @@ export default () => {
 
     document.documentElement.style.setProperty("--theme-color", "#00BEBE");
 
-    setDatasetIndexes(TEST_DATASET_INDEX_DATA);
-    setConditions(
-      TEST_DATASET_INDEX_DATA.indexes.map(index => ({ field: index.field, values: [] })),
-    );
+    const datasetIndexes = ((window as any).buildingSearchInit.data ??
+      TEST_DATASET_INDEX_DATA) as DatasetIndexes;
+
+    setDatasetIndexes(datasetIndexes);
+    setConditions(datasetIndexes.indexes.map(index => ({ field: index.field, values: [] })));
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

@@ -28,7 +28,8 @@ type ActionType =
   | "checkIfMobile"
   | "extendPopup"
   | "minimize"
-  | "buildingSearchOpen";
+  | "buildingSearchOpen"
+  | "cameraFlyTo";
 
 export type PostMessageProps = { action: ActionType; payload?: any };
 
