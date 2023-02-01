@@ -14,6 +14,7 @@ import (
 	"github.com/eukarya-inc/reearth-plateauview/server/sdkapi"
 	"github.com/eukarya-inc/reearth-plateauview/server/searchindex"
 	"github.com/eukarya-inc/reearth-plateauview/server/share"
+	"github.com/eukarya-inc/reearth-plateauview/server/sidebar"
 	"github.com/labstack/echo/v4"
 )
 
@@ -31,6 +32,7 @@ var services = [](func(*Config) (*Service, error)){
 	SearchIndex,
 	Share,
 	Opinion,
+	Sidebar,
 }
 
 func Services(conf *Config) (srv []*Service, _ error) {
@@ -92,7 +94,7 @@ func Geospatialjp(conf *Config) (*Service, error) {
 
 func SearchIndex(conf *Config) (*Service, error) {
 	c := conf.SearchIndex()
-	if c.CMSBase == "" {
+	if c.CMSBase == "" || c.CMSToken == "" || c.CMSStorageProject == "" {
 		return nil, nil
 	}
 
@@ -142,7 +144,7 @@ func SDKAPI(conf *Config) (*Service, error) {
 	return &Service{
 		Name: "sdkapi",
 		Echo: func(g *echo.Group) error {
-			sdkapi.Handler(c, g)
+			sdkapi.Handler(c, g.Group("/sdk"))
 			return nil
 		},
 	}, nil
@@ -150,7 +152,7 @@ func SDKAPI(conf *Config) (*Service, error) {
 
 func Share(conf *Config) (*Service, error) {
 	c := conf.Share()
-	if c.CMSBase == "" || c.CMSToken == "" {
+	if c.CMSBase == "" || c.CMSToken == "" || c.CMSProject == "" {
 		return nil, nil
 	}
 
@@ -173,6 +175,20 @@ func Opinion(conf *Config) (*Service, error) {
 		Echo: func(g *echo.Group) error {
 			opinion.Echo(g.Group("/opinion"), c)
 			return nil
+		},
+	}, nil
+}
+
+func Sidebar(conf *Config) (*Service, error) {
+	c := conf.Sidebar()
+	if c.AdminToken == "" || c.CMSToken == "" || c.CMSBaseURL == "" || c.CMSProject == "" {
+		return nil, nil
+	}
+
+	return &Service{
+		Name: "sidebar",
+		Echo: func(g *echo.Group) error {
+			return sidebar.Echo(g.Group("/sidebar"), c)
 		},
 	}, nil
 }

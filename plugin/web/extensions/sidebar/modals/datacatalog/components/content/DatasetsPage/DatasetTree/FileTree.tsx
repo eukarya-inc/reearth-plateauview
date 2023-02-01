@@ -2,7 +2,7 @@ import {
   CatalogItem,
   DataCatalog as DataCatalogType,
 } from "@web/extensions/sidebar/core/processCatalog";
-import { Icon } from "@web/sharedComponents";
+import { Button, Icon } from "@web/sharedComponents";
 import { styled } from "@web/theme";
 import { useCallback, useMemo, useState } from "react";
 
@@ -10,6 +10,7 @@ export type DataCatalog = DataCatalogType;
 
 export type Props = {
   catalog: DataCatalog;
+  isMobile?: boolean;
   onOpenDetails?: (data?: CatalogItem) => void;
 };
 
@@ -33,25 +34,38 @@ const TreeBuilder: React.FC<{
     onSelect?.(item.id);
   }, [item, onOpenDetails, onSelect]);
 
+  const handleClick = useCallback(() => {
+    // TODO: implement me
+  }, []);
+
   return item.type === "group" ? (
     <Folder key={item.name} isOpen={isOpen}>
       <FolderItem nestLevel={nestLevel} onClick={() => open(!isOpen)}>
-        <Icon icon={isOpen ? "folderOpen" : "folder"} size={20} />
-        <Name>{item.name}</Name>
+        <NameWrapper>
+          <Icon icon={isOpen ? "folderOpen" : "folder"} size={20} />
+          <Name>{item.name}</Name>
+        </NameWrapper>
       </FolderItem>
       {item.children.map(m =>
         TreeBuilder({ item: m, selectedId, nestLevel: nestLevel + 1, onOpenDetails, onSelect }),
       )}
     </Folder>
   ) : (
-    <FolderItem key={item.id} nestLevel={nestLevel} selected={selected} onClick={handleOpenDetails}>
-      <Icon icon={"file"} size={20} />
-      <Name>{item.cityName ?? item.name}</Name>
+    <FolderItem key={item.id} nestLevel={nestLevel} selected={selected}>
+      <NameWrapper onClick={handleOpenDetails}>
+        <Icon icon={"file"} size={20} />
+        <Name>{item.cityName ?? item.name}</Name>
+      </NameWrapper>
+      <Button
+        type="link"
+        icon={<StyledIcon icon="plusCircle" selected={selected} />}
+        onClick={handleClick}
+      />
     </FolderItem>
   );
 };
 
-const FileTree: React.FC<Props> = ({ catalog, onOpenDetails }) => {
+const FileTree: React.FC<Props> = ({ catalog, isMobile, onOpenDetails }) => {
   const [selectedId, select] = useState<string>();
 
   const handleSelect = useCallback((id?: string) => {
@@ -59,27 +73,34 @@ const FileTree: React.FC<Props> = ({ catalog, onOpenDetails }) => {
   }, []);
 
   return (
-    <Tree>
-      {catalog.map(item =>
-        TreeBuilder({
-          item,
-          selectedId,
-          nestLevel: 1,
-          onOpenDetails,
-          onSelect: handleSelect,
-        }),
-      )}
-    </Tree>
+    <TreeWrapper isMobile={isMobile}>
+      <Tree>
+        {catalog.map(item =>
+          TreeBuilder({
+            item,
+            selectedId,
+            nestLevel: 1,
+            onOpenDetails,
+            onSelect: handleSelect,
+          }),
+        )}
+      </Tree>
+    </TreeWrapper>
   );
 };
 
 export default FileTree;
 
+const TreeWrapper = styled.div<{ isMobile?: boolean }>`
+  width: 298px;
+  height: ${({ isMobile }) => (isMobile ? "100%" : "400px")};
+  overflow-y: scroll;
+`;
+
 const Tree = styled.div`
   display: flex;
   flex-direction: column;
   flex-wrap: wrap;
-  width: 298px;
 `;
 
 const Folder = styled.div<{ isOpen?: boolean }>`
@@ -96,6 +117,7 @@ const Folder = styled.div<{ isOpen?: boolean }>`
 const FolderItem = styled.div<{ nestLevel: number; selected?: boolean }>`
   display: flex;
   align-items: center;
+  justify-content: space-between;
   box-sizing: border-box;
   gap: 8px;
   min-height: 29px;
@@ -116,7 +138,22 @@ const FolderItem = styled.div<{ nestLevel: number; selected?: boolean }>`
   }
 `;
 
+const NameWrapper = styled.div`
+  display: flex;
+`;
+
 const Name = styled.p`
-  margin: 0;
+  margin: 0 0 0 8px;
   user-select: none;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+  width: 200px;
+`;
+
+const StyledIcon = styled(Icon)<{ selected: boolean }>`
+  color: ${({ selected }) => (selected ? "#ffffff" : "#00bebe")};
+  ${FolderItem}:hover & {
+    color: #ffffff;
+  }
 `;

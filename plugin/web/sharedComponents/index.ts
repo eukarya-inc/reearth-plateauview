@@ -4,7 +4,8 @@ import Checkbox from "@web/sharedComponents/Checkbox";
 import Col from "@web/sharedComponents/Col";
 import Collapse from "@web/sharedComponents/Collapse";
 import Divider from "@web/sharedComponents/Divider";
-import Dropdown, { Menu, MenuProps } from "@web/sharedComponents/Dropdown";
+import Dropdown, { Menu } from "@web/sharedComponents/Dropdown";
+import Empty from "@web/sharedComponents/Empty";
 import Form from "@web/sharedComponents/Form";
 import Icon from "@web/sharedComponents/Icon";
 import Input from "@web/sharedComponents/Input";
@@ -17,8 +18,6 @@ import Space from "@web/sharedComponents/Space";
 import Switch from "@web/sharedComponents/Switch";
 import Tabs from "@web/sharedComponents/Tabs";
 import Typography from "@web/sharedComponents/Typography";
-
-export type { MenuProps };
 
 export {
   Button,
@@ -42,4 +41,5 @@ export {
   Typography,
   Pagination,
   Collapse,
+  Empty,
 };
