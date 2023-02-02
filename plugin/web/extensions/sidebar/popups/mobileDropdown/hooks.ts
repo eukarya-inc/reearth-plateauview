@@ -3,7 +3,7 @@ import { mergeProperty, postMsg } from "@web/extensions/sidebar/utils";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { Data, Root } from "../../core/newTypes";
-import processCatalog, { CatalogRawItem } from "../../core/processCatalog";
+import processCatalog, { CatalogItem, CatalogRawItem } from "../../core/processCatalog";
 
 export const defaultProject: Project = {
   sceneOverrides: {
@@ -35,6 +35,7 @@ export default () => {
   const [backendURL, setBackendURL] = useState<string>();
   const [cmsURL, setCMSURL] = useState<string>();
   const [reearthURL, setReearthURL] = useState<string>();
+  const [addedDatasetIds, setAddedDatasetIds] = useState<string[]>();
 
   // ****************************************
   // Init
@@ -149,6 +150,23 @@ export default () => {
     [plateauData, usecaseData, datasetData],
   );
 
+  const handleClose = useCallback(() => {
+    postMsg({ action: "popupClose" });
+  }, []);
+
+  const handleDatasetAdd = useCallback(
+    (dataset: CatalogItem) => {
+      postMsg({
+        action: "msgFromPopup",
+        payload: {
+          dataset,
+        },
+      });
+      handleClose();
+    },
+    [handleClose],
+  );
+
   // ****************************************
 
   useEffect(() => {
@@ -167,6 +185,9 @@ export default () => {
         if (e.data.payload.draftProject) {
           updateProject(e.data.payload.draftProject);
         }
+      } else if (e.data.type === "initDataCatalog") {
+        // different type might be used
+        setAddedDatasetIds(e.data.payload.addedDatasets);
       }
     };
     addEventListener("message", e => eventListenerCallback(e));
@@ -197,10 +218,12 @@ export default () => {
   }, [projectID, backendURL]);
 
   return {
+    addedDatasetIds,
     rawCatalog,
     project,
     reearthURL,
     backendURL,
+    handleDatasetAdd,
     handleDatasetUpdate,
     handleProjectDatasetRemove,
     handleDatasetRemoveAll,

@@ -17,10 +17,12 @@ const MobileDropdown: React.FC<Props> = ({ isMobile }) => {
   const [currentTab, setCurrentTab] = useState<Tab>();
 
   const {
+    addedDatasetIds,
     rawCatalog,
     project,
     reearthURL,
     backendURL,
+    handleDatasetAdd,
     handleProjectDatasetRemove,
     handleDatasetUpdate,
     handleDatasetRemoveAll,
@@ -50,7 +52,14 @@ const MobileDropdown: React.FC<Props> = ({ isMobile }) => {
     <Wrapper>
       {currentTab &&
         {
-          catalog: <Catalog isMobile={isMobile} rawCatalog={rawCatalog} />,
+          catalog: (
+            <Catalog
+              addedDatasetIds={addedDatasetIds}
+              isMobile={isMobile}
+              rawCatalog={rawCatalog}
+              onDatasetAdd={handleDatasetAdd}
+            />
+          ),
           selection: (
             <Selection
               selectedDatasets={project.selectedDatasets}
