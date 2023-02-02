@@ -17,8 +17,9 @@ const MobileDropdown: React.FC = () => {
     project,
     reearthURL,
     backendURL,
-    handleProjectDatasetRemove,
+    handleDatasetSave,
     handleDatasetUpdate,
+    handleProjectDatasetRemove,
     handleDatasetRemoveAll,
     handleProjectSceneUpdate,
   } = useHooks();
@@ -50,6 +51,7 @@ const MobileDropdown: React.FC = () => {
           selection: (
             <Selection
               selectedDatasets={project.selectedDatasets}
+              onDatasetSave={handleDatasetSave}
               onDatasetUpdate={handleDatasetUpdate}
               onDatasetRemove={handleProjectDatasetRemove}
               onDatasetRemoveAll={handleDatasetRemoveAll}
