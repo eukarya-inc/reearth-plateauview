@@ -66,7 +66,7 @@ export default () => {
 
   const handleProjectDatasetAdd = useCallback((dataset: CatalogRawItem) => {
     updateProject(({ sceneOverrides, selectedDatasets }) => {
-      const updatedProject = {
+      const updatedProject: Project = {
         sceneOverrides,
         selectedDatasets: [
           ...selectedDatasets,
@@ -147,13 +147,8 @@ export default () => {
         const data = await res.json();
         // setTemplates(t => [...t, data.results]);
         console.log("SAVED DATA: ", data);
-        return data.results as Template;
+        // return data.results;
       })();
-      console.log("Saving dataset with id:", datasetId);
-      console.log(
-        "Saving dataset:",
-        project.selectedDatasets.find(d => d.id === datasetId),
-      );
     },
     [project.selectedDatasets, backendAccessToken, backendURL],
   );
