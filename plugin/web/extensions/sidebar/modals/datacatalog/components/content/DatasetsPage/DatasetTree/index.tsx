@@ -165,10 +165,14 @@ const DatasetTree: React.FC<Props> = ({
         }
         onChange={active => handleFilter(active as FilterType)}>
         <Tabs.TabPane key="prefecture" tab="都道府県">
-          {catalog && <FileTree catalog={catalog} isMobile={true} onOpenDetails={onOpenDetails} />}
+          {catalog && (
+            <FileTree catalog={catalog} isMobile={isMobile} onOpenDetails={onOpenDetails} />
+          )}
         </Tabs.TabPane>
         <Tabs.TabPane key="type" tab="種類">
-          {catalog && <FileTree catalog={catalog} isMobile={true} onOpenDetails={onOpenDetails} />}
+          {catalog && (
+            <FileTree catalog={catalog} isMobile={isMobile} onOpenDetails={onOpenDetails} />
+          )}
         </Tabs.TabPane>
       </StyledTabs>
     </Wrapper>
