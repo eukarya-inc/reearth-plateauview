@@ -28,6 +28,7 @@ const DesktopSidebar: React.FC<Props> = ({ className }) => {
     handleTemplateAdd,
     handleTemplateUpdate,
     handleTemplateRemove,
+    handleDatasetSave,
     handleProjectDatasetRemove,
     handleDatasetUpdate,
     handleDatasetRemoveAll,
@@ -52,6 +53,7 @@ const DesktopSidebar: React.FC<Props> = ({ className }) => {
                 <Selection
                   inEditor={inEditor}
                   selectedDatasets={project.selectedDatasets}
+                  onDatasetSave={handleDatasetSave}
                   onDatasetUpdate={handleDatasetUpdate}
                   onDatasetRemove={handleProjectDatasetRemove}
                   onDatasetRemoveAll={handleDatasetRemoveAll}

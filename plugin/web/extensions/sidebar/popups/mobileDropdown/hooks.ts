@@ -179,22 +179,28 @@ export default () => {
     if (!backendURL) return;
     if (projectID) {
       (async () => {
-        const res = await fetch(`${backendURL}/share/${projectID}`);
+        const res = await fetch(`${backendURL}/share/plateau_sys/${projectID}`);
         if (res.status !== 200) return;
         const data = await res.json();
-        updateProject(data);
-        postMsg({ action: "updateProject", payload: data });
-      })();
-    } else {
-      (async () => {
-        const res = await fetch(`${backendURL}/viz/plateau`);
-        if (res.status !== 200) return;
-        const results: Root = (await res.json()).results;
-        // setTemplates(results.templates);
-        console.log(results.data);
+        if (data) {
+          updateProject(data);
+          postMsg({ action: "updateProject", payload: data });
+        }
       })();
     }
   }, [projectID, backendURL]);
+
+  useEffect(() => {
+    if (!backendURL) return;
+    (async () => {
+      const res = await fetch(`${backendURL}/sidebar/plateau_sys`);
+      if (res.status !== 200) return;
+      const results: Root = (await res.json()).results;
+      // setTemplates(results.templates);
+      // setData(results.data);
+      console.log("RESULTS.DATA: ", results.data);
+    })();
+  }, [backendURL]);
 
   return {
     rawCatalog,

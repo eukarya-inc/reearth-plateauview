@@ -88,12 +88,13 @@ export default () => {
 
   const handleDatasetUpdate = useCallback((updatedDataset: Data) => {
     updateProject(({ sceneOverrides, selectedDatasets }) => {
-      const datasetIndex = selectedDatasets.findIndex(d => d.id === updatedDataset.id);
-      selectedDatasets[datasetIndex] = updatedDataset;
-      console.log("Selected DATASETS: ", selectedDatasets);
+      const updatedDatasets = [...selectedDatasets];
+      const datasetIndex = updatedDatasets.findIndex(d => d.id === updatedDataset.id);
+
+      updatedDatasets[datasetIndex] = updatedDataset;
       const updatedProject: Project = {
         sceneOverrides,
-        selectedDatasets,
+        selectedDatasets: updatedDatasets,
       };
       postMsg({ action: "updateProject", payload: updatedProject });
       return updatedProject;
@@ -125,6 +126,38 @@ export default () => {
       }),
     [],
   );
+
+  const handleDatasetSave = useCallback(
+    (datasetId: string) => {
+      (async () => {
+        const datasetToSave = project.selectedDatasets.find(d => d.id === datasetId);
+
+        if (!backendURL || !backendAccessToken || !datasetToSave) return;
+        //Check if already
+        // if has, PATCH
+        // if not, POST
+        const res = await fetch(`${backendURL}/sidebar/plateau_sys/data`, {
+          headers: {
+            authorization: `Bearer ${backendAccessToken}`,
+          },
+          method: "POST",
+          body: JSON.stringify(datasetToSave),
+        });
+        if (res.status !== 200) return;
+        const data = await res.json();
+        // setTemplates(t => [...t, data.results]);
+        console.log("SAVED DATA: ", data);
+        return data.results as Template;
+      })();
+      console.log("Saving dataset with id:", datasetId);
+      console.log(
+        "Saving dataset:",
+        project.selectedDatasets.find(d => d.id === datasetId),
+      );
+    },
+    [project.selectedDatasets, backendAccessToken, backendURL],
+  );
+
   // ****************************************
 
   // ****************************************
@@ -179,7 +212,7 @@ export default () => {
   const handleTemplateAdd = useCallback(
     async (newTemplate?: Template) => {
       if (!backendURL || !backendAccessToken) return;
-      const res = await fetch(`${backendURL}/viz/plateau/templates`, {
+      const res = await fetch(`${backendURL}/sidebar/plateau_sys/templates`, {
         headers: {
           authorization: `Bearer ${backendAccessToken}`,
         },
@@ -197,7 +230,7 @@ export default () => {
   const handleTemplateUpdate = useCallback(
     async (template: Template) => {
       if (!template.modelId || !backendURL || !backendAccessToken) return;
-      const res = await fetch(`${backendURL}/viz/plateau/templates/${template.modelId}`, {
+      const res = await fetch(`${backendURL}/sidebar/plateau_sys/templates/${template.modelId}`, {
         headers: {
           authorization: `Bearer ${backendAccessToken}`,
         },
@@ -221,7 +254,7 @@ export default () => {
   const handleTemplateRemove = useCallback(
     async (template: Template) => {
       if (!template.modelId || !backendURL || !backendAccessToken) return;
-      const res = await fetch(`${backendURL}/viz/plateau/templates/${template.modelId}`, {
+      const res = await fetch(`${backendURL}/sidebar/plateau_sys/templates/${template.modelId}`, {
         headers: {
           authorization: `Bearer ${backendAccessToken}`,
         },
@@ -240,7 +273,7 @@ export default () => {
 
   // const [data, setData] = useState<Data[]>();
   // const processedSelectedDatasets: Data[] = useMemo(() => {
-  //   // if (!data) return data;
+  //   if (!data) return;
   //   console.log("PROJECT: ", project);
   //   return project.selectedDatasets
   //     .map(d => {
@@ -289,7 +322,7 @@ export default () => {
         if (e.data.payload.dataset) {
           handleProjectDatasetAdd(e.data.payload.dataset);
         }
-      } else if (e.data.action === "init") {
+      } else if (e.data.action === "init" && e.data.payload) {
         setProjectID(e.data.payload.projectID);
         setInEditor(e.data.payload.inEditor);
         setBackendAccessToken(e.data.payload.backendAccessToken);
@@ -315,7 +348,7 @@ export default () => {
     if (!backendURL) return;
     if (projectID) {
       (async () => {
-        const res = await fetch(`${backendURL}/share/${projectID}`);
+        const res = await fetch(`${backendURL}/share/plateau_sys/${projectID}`);
         if (res.status !== 200) return;
         const data = await res.json();
         if (data) {
@@ -323,17 +356,20 @@ export default () => {
           postMsg({ action: "updateProject", payload: data });
         }
       })();
-    } else {
-      (async () => {
-        const res = await fetch(`${backendURL}/viz/plateau`);
-        if (res.status !== 200) return;
-        const results: Root = (await res.json()).results;
-        setTemplates(results.templates);
-        // updateProject(results.data);
-        console.log("RESULTS.DATA: ", results.data);
-      })();
     }
   }, [projectID, backendURL]);
+
+  useEffect(() => {
+    if (!backendURL) return;
+    (async () => {
+      const res = await fetch(`${backendURL}/sidebar/plateau_sys`);
+      if (res.status !== 200) return;
+      const results: Root = (await res.json()).results;
+      setTemplates(results.templates);
+      // setData(results.data);
+      console.log("RESULTS.DATA: ", results.data);
+    })();
+  }, [backendURL]);
 
   const [currentPage, setCurrentPage] = useState<Pages>("data");
 
@@ -371,6 +407,7 @@ export default () => {
     handleTemplateUpdate,
     handleTemplateRemove,
     setMinimize,
+    handleDatasetSave,
     handleDatasetUpdate,
     handleProjectDatasetRemove,
     handleDatasetRemoveAll,
