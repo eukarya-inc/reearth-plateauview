@@ -156,17 +156,6 @@ export default () => {
   // ****************************************
 
   // ****************************************
-  // Minimize
-  const [minimized, setMinimize] = useState(false);
-
-  useEffect(() => {
-    setTimeout(() => {
-      postMsg({ action: "minimize", payload: minimized });
-    }, 250);
-  }, [minimized]);
-  // ****************************************
-
-  // ****************************************
   // Catalog
   const [plateauData, setPlateauData] = useState<any[]>([]);
   const [usecaseData, setUsecaseData] = useState<any[]>([]);
@@ -372,37 +361,18 @@ export default () => {
     setCurrentPage(p);
   }, []);
 
-  const handleMinimize = useCallback(() => {
-    const html = document.querySelector("html");
-    const body = document.querySelector("body");
-    const root = document.getElementById("root");
-    if (!minimized) {
-      html?.classList.add("minimized");
-      body?.classList.add("minimized");
-      root?.classList.add("minimized");
-    } else {
-      html?.classList.remove("minimized");
-      body?.classList.remove("minimized");
-      root?.classList.remove("minimized");
-    }
-    setMinimize(!minimized);
-  }, [minimized, setMinimize]);
-
   return {
     rawCatalog,
     project,
-    minimized,
     inEditor,
     reearthURL,
     backendURL,
     templates,
     currentPage,
     handlePageChange,
-    handleMinimize,
     handleTemplateAdd,
     handleTemplateUpdate,
     handleTemplateRemove,
-    setMinimize,
     handleDatasetSave,
     handleDatasetUpdate,
     handleProjectDatasetRemove,
