@@ -61,7 +61,7 @@ const Catalog: React.FC<Props> = ({ addedDatasetIds, isMobile, rawCatalog, onDat
       {page === "details" && (
         <>
           <PopupItem onBack={() => setPage("catalog")}>
-            <Title>Data Details</Title>
+            <Title>データ詳細</Title>
           </PopupItem>
           <DatasetDetails
             dataset={selectedDataset}
