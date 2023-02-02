@@ -338,7 +338,7 @@ export default () => {
         handlePageChange("help");
       }
     };
-    addEventListener("message", e => eventListenerCallback(e));
+    addEventListener("message", eventListenerCallback);
     return () => {
       removeEventListener("message", eventListenerCallback);
     };
@@ -394,6 +394,7 @@ export default () => {
   }, [minimized, setMinimize]);
 
   return {
+    rawCatalog,
     project,
     minimized,
     inEditor,
