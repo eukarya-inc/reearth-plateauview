@@ -17,6 +17,7 @@ export type Props = {
   rawCatalog?: CatalogRawItem[];
   selectedTags?: Tag[];
   onTagSelect: (tag: Tag) => void;
+  onDatasetAdd: (dataset: CatalogItem) => void;
   onOpenDetails?: (data?: CatalogItem) => void;
 };
 
@@ -119,6 +120,7 @@ const DatasetTree: React.FC<Props> = ({
   rawCatalog,
   selectedTags,
   onTagSelect,
+  onDatasetAdd,
   onOpenDetails,
 }) => {
   const [filter, setFilter] = useState<FilterType>("prefecture");
@@ -166,12 +168,22 @@ const DatasetTree: React.FC<Props> = ({
         onChange={active => handleFilter(active as FilterType)}>
         <Tabs.TabPane key="prefecture" tab="都道府県">
           {catalog && (
-            <FileTree catalog={catalog} isMobile={isMobile} onOpenDetails={onOpenDetails} />
+            <FileTree
+              catalog={catalog}
+              isMobile={isMobile}
+              onDatasetAdd={onDatasetAdd}
+              onOpenDetails={onOpenDetails}
+            />
           )}
         </Tabs.TabPane>
         <Tabs.TabPane key="type" tab="種類">
           {catalog && (
-            <FileTree catalog={catalog} isMobile={isMobile} onOpenDetails={onOpenDetails} />
+            <FileTree
+              catalog={catalog}
+              isMobile={isMobile}
+              onDatasetAdd={onDatasetAdd}
+              onOpenDetails={onOpenDetails}
+            />
           )}
         </Tabs.TabPane>
       </StyledTabs>

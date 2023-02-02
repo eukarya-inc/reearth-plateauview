@@ -11,6 +11,7 @@ export type DataCatalog = DataCatalogType;
 export type Props = {
   catalog: DataCatalog;
   isMobile?: boolean;
+  onDatasetAdd: (dataset: CatalogItem) => void;
   onOpenDetails?: (data?: CatalogItem) => void;
 };
 
@@ -18,9 +19,10 @@ const TreeBuilder: React.FC<{
   item: CatalogItem;
   selectedId?: string;
   nestLevel: number;
+  onDatasetAdd: (dataset: CatalogItem) => void;
   onOpenDetails?: (item?: CatalogItem) => void;
   onSelect?: (id: string) => void;
-}> = ({ item, selectedId, nestLevel, onOpenDetails, onSelect }) => {
+}> = ({ item, selectedId, nestLevel, onDatasetAdd, onOpenDetails, onSelect }) => {
   const [isOpen, open] = useState(false);
 
   const selected = useMemo(
@@ -35,8 +37,8 @@ const TreeBuilder: React.FC<{
   }, [item, onOpenDetails, onSelect]);
 
   const handleClick = useCallback(() => {
-    // TODO: implement me
-  }, []);
+    onDatasetAdd(item);
+  }, [item, onDatasetAdd]);
 
   return item.type === "group" ? (
     <Folder key={item.name} isOpen={isOpen}>
@@ -47,7 +49,14 @@ const TreeBuilder: React.FC<{
         </NameWrapper>
       </FolderItem>
       {item.children.map(m =>
-        TreeBuilder({ item: m, selectedId, nestLevel: nestLevel + 1, onOpenDetails, onSelect }),
+        TreeBuilder({
+          item: m,
+          selectedId,
+          nestLevel: nestLevel + 1,
+          onDatasetAdd,
+          onOpenDetails,
+          onSelect,
+        }),
       )}
     </Folder>
   ) : (
@@ -65,7 +74,7 @@ const TreeBuilder: React.FC<{
   );
 };
 
-const FileTree: React.FC<Props> = ({ catalog, isMobile, onOpenDetails }) => {
+const FileTree: React.FC<Props> = ({ catalog, isMobile, onDatasetAdd, onOpenDetails }) => {
   const [selectedId, select] = useState<string>();
 
   const handleSelect = useCallback((id?: string) => {
@@ -80,6 +89,7 @@ const FileTree: React.FC<Props> = ({ catalog, isMobile, onOpenDetails }) => {
             item,
             selectedId,
             nestLevel: 1,
+            onDatasetAdd,
             onOpenDetails,
             onSelect: handleSelect,
           }),

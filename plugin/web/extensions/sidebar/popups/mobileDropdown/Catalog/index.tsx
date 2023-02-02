@@ -55,6 +55,7 @@ const Catalog: React.FC<Props> = ({ addedDatasetIds, isMobile, rawCatalog, onDat
             selectedTags={selectedTags}
             onTagSelect={handleTagSelect}
             onOpenDetails={handleOpenDetails}
+            onDatasetAdd={onDatasetAdd}
           />
         </>
       )}
