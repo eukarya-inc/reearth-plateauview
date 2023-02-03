@@ -38,7 +38,6 @@ export default () => {
   const [backendURL, setBackendURL] = useState<string>();
   const [cmsURL, setCMSURL] = useState<string>();
   const [reearthURL, setReearthURL] = useState<string>();
-  const [addedDatasetIds, setAddedDatasetIds] = useState<string[]>();
 
   // ****************************************
   // Init
@@ -176,11 +175,6 @@ export default () => {
     }
   }, [cmsURL, setPlateauData, setUsecaseData, setDatasetData]);
 
-  useEffect(() => {
-    const selectedIds = project.selectedDatasets.map(d => d.id);
-    setAddedDatasetIds(selectedIds);
-  }, [project.selectedDatasets]);
-
   const rawCatalog = useMemo(
     () => processCatalog(plateauData, usecaseData, datasetData),
     [plateauData, usecaseData, datasetData],
@@ -200,15 +194,10 @@ export default () => {
 
   const handleDatasetAdd = useCallback(
     (dataset: CatalogItem) => {
-      postMsg({
-        action: "msgFromPopup",
-        payload: {
-          dataset,
-        },
-      });
+      handleProjectDatasetAdd(dataset as CatalogRawItem);
       handleClose();
     },
-    [handleClose],
+    [handleClose, handleProjectDatasetAdd],
   );
 
   // ****************************************
@@ -344,10 +333,6 @@ export default () => {
         handleModalOpen();
       } else if (e.data.action === "triggerHelpOpen") {
         handlePageChange("help");
-      } else if (e.data.action === "msgFromPopup") {
-        if (e.data.payload.dataset) {
-          handleProjectDatasetAdd(e.data.payload.dataset);
-        }
       }
     };
     addEventListener("message", eventListenerCallback);
@@ -390,7 +375,6 @@ export default () => {
   }, []);
 
   return {
-    addedDatasetIds,
     rawCatalog,
     project,
     inEditor,
