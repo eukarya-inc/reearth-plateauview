@@ -3,7 +3,7 @@ import { mergeProperty, postMsg } from "@web/extensions/sidebar/utils";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { Root, Data, Template } from "../newTypes";
-import processCatalog, { CatalogRawItem } from "../processCatalog";
+import processCatalog, { CatalogItem, CatalogRawItem } from "../processCatalog";
 
 import { Pages } from "./Header";
 
@@ -38,6 +38,7 @@ export default () => {
   const [backendURL, setBackendURL] = useState<string>();
   const [cmsURL, setCMSURL] = useState<string>();
   const [reearthURL, setReearthURL] = useState<string>();
+  const [addedDatasetIds, setAddedDatasetIds] = useState<string[]>();
 
   // ****************************************
   // Init
@@ -187,6 +188,24 @@ export default () => {
       payload: { addedDatasets: selectedIds, rawCatalog },
     });
   }, [rawCatalog, project.selectedDatasets]);
+
+  const handleClose = useCallback(() => {
+    postMsg({ action: "popupClose" });
+  }, []);
+
+  const handleDatasetAdd = useCallback(
+    (dataset: CatalogItem) => {
+      postMsg({
+        action: "msgFromPopup",
+        payload: {
+          dataset,
+        },
+      });
+      handleClose();
+    },
+    [handleClose],
+  );
+
   // ****************************************
 
   // ****************************************
@@ -320,6 +339,9 @@ export default () => {
         handleModalOpen();
       } else if (e.data.action === "triggerHelpOpen") {
         handlePageChange("help");
+      } else if (e.data.type === "initDataCatalog") {
+        // different type might be used
+        setAddedDatasetIds(e.data.payload.addedDatasets);
       }
     };
     addEventListener("message", eventListenerCallback);
@@ -362,6 +384,7 @@ export default () => {
   }, []);
 
   return {
+    addedDatasetIds,
     rawCatalog,
     project,
     inEditor,
@@ -373,6 +396,7 @@ export default () => {
     handleTemplateAdd,
     handleTemplateUpdate,
     handleTemplateRemove,
+    handleDatasetAdd,
     handleDatasetSave,
     handleDatasetUpdate,
     handleProjectDatasetRemove,
