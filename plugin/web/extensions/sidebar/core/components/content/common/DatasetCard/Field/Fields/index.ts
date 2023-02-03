@@ -14,8 +14,8 @@ const fieldComponents: Fields<FieldComponent> = {
   camera: IdealZoom,
   legend: Legend,
   description: Description,
-  point: Description,
-  realtime: Description,
+  // point: Point,
+  // realtime: Realtime,
   // template: Template,
 };
 

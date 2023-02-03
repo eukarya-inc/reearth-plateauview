@@ -5,9 +5,7 @@ import { Remarkable } from "remarkable";
 
 import { BaseFieldProps } from "./types";
 
-type Props = BaseFieldProps<"description">;
-
-const Description: React.FC<Props> = ({ value, editMode, onUpdate }) => {
+const Description: React.FC<BaseFieldProps<"description">> = ({ value, editMode, onUpdate }) => {
   const [isMarkdown, setIsMarkdown] = useState(!!value.isMarkdown);
   const [content, setContent] = useState(value.content ?? "");
 

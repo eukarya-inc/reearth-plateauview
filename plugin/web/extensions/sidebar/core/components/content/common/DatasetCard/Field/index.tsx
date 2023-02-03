@@ -68,7 +68,7 @@ const FieldComponent: React.FC<Props> = ({ field, editMode, onUpdate, onRemove, 
         </AccordionItemState>
         <BodyWrapper>
           {FieldContent && (
-            <FieldContent value={{ ...field }} editMode={editMode} onFieldUpdate={onUpdate} />
+            <FieldContent value={{ ...field }} editMode={editMode} onUpdate={onUpdate} />
           )}
         </BodyWrapper>
       </AccordionItem>

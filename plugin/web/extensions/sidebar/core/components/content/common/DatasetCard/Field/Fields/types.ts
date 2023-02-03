@@ -7,7 +7,7 @@ export const fieldName = {
 };
 
 // type Component = Camera | Legend | Realtime | Point | Polyline | Polygon | Model | Description;
-export type FieldComponent = Camera | Legend | Realtime | Point | Description;
+export type FieldComponent = Camera | Legend | Description;
 
 export type Camera = {
   type: "camera";
@@ -37,21 +37,21 @@ export type Legend = {
   items?: LegendItem[];
 };
 
-type Realtime = {
-  type: "realtime";
-  group?: string;
-  updateInterval: number; // 1000 * 60 -> 1m
-};
+// type Realtime = {
+//   type: "realtime";
+//   group?: string;
+//   updateInterval: number; // 1000 * 60 -> 1m
+// };
 
-type Point = {
-  type: "point";
-  group?: string;
-  visible?: Expression;
-  pointColor?: Expression;
-  pointSize?: Expression;
-  image?: Expression;
-  modelUrl?: string;
-};
+// type Point = {
+//   type: "point";
+//   group?: string;
+//   visible?: Expression;
+//   pointColor?: Expression;
+//   pointSize?: Expression;
+//   image?: Expression;
+//   modelUrl?: string;
+// };
 
 export type Description = {
   type: "description";
@@ -72,29 +72,29 @@ export type BaseFieldProps<T extends keyof Fields> = {
   onUpdate: (property: Fields[T]) => void;
 };
 
-type Expression<T extends string | number | boolean = string | number | boolean> =
-  | T
-  | {
-      conditions: Cond<T>[];
-    }
-  | {
-      gradient: {
-        key: string;
-        defaultValue?: T;
-        steps: { min?: number; max: number; value: T }[];
-      };
-    };
+// type Expression<T extends string | number | boolean = string | number | boolean> =
+//   | T
+//   | {
+//       conditions: Cond<T>[];
+//     }
+//   | {
+//       gradient: {
+//         key: string;
+//         defaultValue?: T;
+//         steps: { min?: number; max: number; value: T }[];
+//       };
+//     };
 
-type Cond<T> =
-  | {
-      key: string;
-      operator: "=" | ">=" | "<=" | ">" | "<" | "!=";
-      operand: string;
-      value: T;
-    }
-  | {
-      and: Cond<T>[];
-    }
-  | {
-      or: Cond<T>[];
-    };
+// type Cond<T> =
+//   | {
+//       key: string;
+//       operator: "=" | ">=" | "<=" | ">" | "<" | "!=";
+//       operand: string;
+//       value: T;
+//     }
+//   | {
+//       and: Cond<T>[];
+//     }
+//   | {
+//       or: Cond<T>[];
+//     };
