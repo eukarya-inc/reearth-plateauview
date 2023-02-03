@@ -2,9 +2,10 @@ import {
   CatalogItem,
   DataCatalog as DataCatalogType,
 } from "@web/extensions/sidebar/core/processCatalog";
-import { Button, Icon } from "@web/sharedComponents";
 import { styled } from "@web/theme";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useState } from "react";
+
+import TreeBuilder from "./TreeBuilder";
 
 export type DataCatalog = DataCatalogType;
 
@@ -16,75 +17,7 @@ export type Props = {
   onOpenDetails?: (data?: CatalogItem) => void;
 };
 
-const TreeBuilder: React.FC<{
-  addDisabled: boolean;
-  item: CatalogItem;
-  selectedId?: string;
-  nestLevel: number;
-  onDatasetAdd: (dataset: CatalogItem) => void;
-  onOpenDetails?: (item?: CatalogItem) => void;
-  onSelect?: (id: string) => void;
-}> = ({ addDisabled, item, selectedId, nestLevel, onDatasetAdd, onOpenDetails, onSelect }) => {
-  const [isOpen, open] = useState(false);
-
-  const selected = useMemo(
-    () => (item.type !== "group" ? selectedId === item.id : false),
-    [selectedId, item],
-  );
-
-  const handleOpenDetails = useCallback(() => {
-    if (item.type === "group") return;
-    onOpenDetails?.(item);
-    onSelect?.(item.id);
-  }, [item, onOpenDetails, onSelect]);
-
-  const handleClick = useCallback(() => {
-    onDatasetAdd(item);
-  }, [item, onDatasetAdd]);
-
-  return item.type === "group" ? (
-    <Folder key={item.name} isOpen={isOpen}>
-      <FolderItem nestLevel={nestLevel} onClick={() => open(!isOpen)}>
-        <NameWrapper>
-          <Icon icon={isOpen ? "folderOpen" : "folder"} size={20} />
-          <Name>{item.name}</Name>
-        </NameWrapper>
-      </FolderItem>
-      {item.children.map(m =>
-        TreeBuilder({
-          addDisabled,
-          item: m,
-          selectedId,
-          nestLevel: nestLevel + 1,
-          onDatasetAdd,
-          onOpenDetails,
-          onSelect,
-        }),
-      )}
-    </Folder>
-  ) : (
-    <FolderItem key={item.id} nestLevel={nestLevel} selected={selected}>
-      <NameWrapper onClick={handleOpenDetails}>
-        <Icon icon={"file"} size={20} />
-        <Name>{item.cityName ?? item.name}</Name>
-      </NameWrapper>
-      <Button
-        type="link"
-        icon={<StyledIcon icon="plusCircle" selected={selected} />}
-        onClick={handleClick}
-        disabled={addDisabled}
-      />
-    </FolderItem>
-  );
-};
-
-const FileTree: React.FC<Props> = ({
-  addDisabled,
-  catalog,
-  isMobile,
-  onDatasetAdd,
-  onOpenDetails,
-}) => {
+const FileTree: React.FC<Props> = ({ catalog, isMobile, onDatasetAdd, onOpenDetails }) => {
   const [selectedId, select] = useState<string>();
 
   const handleSelect = useCallback((id?: string) => {
@@ -96,7 +29,6 @@ const FileTree: React.FC<Props> = ({
       <Tree>
         {catalog.map(item =>
           TreeBuilder({
-            addDisabled,
             item,
             selectedId,
             nestLevel: 1,
@@ -122,59 +54,4 @@ const Tree = styled.div`
   display: flex;
   flex-direction: column;
   flex-wrap: wrap;
-`;
-
-const Folder = styled.div<{ isOpen?: boolean }>`
-  width: 100%;
-  ${({ isOpen }) =>
-    isOpen
-      ? "height: 100%;"
-      : `
-  height: 29px; 
-  overflow: hidden;
-  `}
-`;
-
-const FolderItem = styled.div<{ nestLevel: number; selected?: boolean }>`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  box-sizing: border-box;
-  gap: 8px;
-  min-height: 29px;
-  ${({ selected }) =>
-    selected &&
-    `
-  background: #00BEBE;
-  color: white;
-  `}
-
-  padding-left: ${({ nestLevel }) => (nestLevel ? `${nestLevel * 8}px` : "8px")};
-  padding-right: 8px;
-  cursor: pointer;
-
-  :hover {
-    background: #00bebe;
-    color: white;
-  }
-`;
-
-const NameWrapper = styled.div`
-  display: flex;
-`;
-
-const Name = styled.p`
-  margin: 0 0 0 8px;
-  user-select: none;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  overflow: hidden;
-  width: 200px;
-`;
-
-const StyledIcon = styled(Icon)<{ selected: boolean }>`
-  color: ${({ selected }) => (selected ? "#ffffff" : "#00bebe")};
-  ${FolderItem}:hover & {
-    color: #ffffff;
-  }
 `;
