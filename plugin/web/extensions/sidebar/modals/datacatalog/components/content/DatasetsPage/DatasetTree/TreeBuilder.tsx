@@ -5,14 +5,27 @@ import { useMemo, useState } from "react";
 
 import File from "./File";
 
-const TreeBuilder: React.FC<{
+type Props = {
   item: CatalogItem;
+  addedDatasetIds?: string[];
+  selectedDataset?: CatalogItem;
   selectedId?: string;
   nestLevel: number;
   onDatasetAdd: (dataset: CatalogItem) => void;
   onOpenDetails?: (item?: CatalogItem) => void;
   onSelect?: (id: string) => void;
-}> = ({ item, selectedId, nestLevel, onDatasetAdd, onOpenDetails, onSelect }) => {
+};
+
+const TreeBuilder: React.FC<Props> = ({
+  item,
+  addedDatasetIds,
+  selectedDataset,
+  selectedId,
+  nestLevel,
+  onDatasetAdd,
+  onOpenDetails,
+  onSelect,
+}) => {
   const selected = useMemo(
     () => (item.type !== "group" ? selectedId === item.id : false),
     [selectedId, item],
@@ -41,6 +54,8 @@ const TreeBuilder: React.FC<{
   ) : (
     <File
       item={item}
+      addedDatasetIds={addedDatasetIds}
+      selectedDataset={selectedDataset}
       nestLevel={nestLevel}
       selected={selected}
       onDatasetAdd={onDatasetAdd}

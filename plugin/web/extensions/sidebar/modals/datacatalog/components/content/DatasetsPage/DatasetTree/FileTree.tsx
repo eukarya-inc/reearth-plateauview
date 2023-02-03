@@ -10,14 +10,22 @@ import TreeBuilder from "./TreeBuilder";
 export type DataCatalog = DataCatalogType;
 
 export type Props = {
-  addDisabled: boolean;
+  addedDatasetIds?: string[];
+  selectedDataset?: CatalogItem;
   catalog: DataCatalog;
   isMobile?: boolean;
   onDatasetAdd: (dataset: CatalogItem) => void;
   onOpenDetails?: (data?: CatalogItem) => void;
 };
 
-const FileTree: React.FC<Props> = ({ catalog, isMobile, onDatasetAdd, onOpenDetails }) => {
+const FileTree: React.FC<Props> = ({
+  addedDatasetIds,
+  selectedDataset,
+  catalog,
+  isMobile,
+  onDatasetAdd,
+  onOpenDetails,
+}) => {
   const [selectedId, select] = useState<string>();
 
   const handleSelect = useCallback((id?: string) => {
@@ -30,6 +38,8 @@ const FileTree: React.FC<Props> = ({ catalog, isMobile, onDatasetAdd, onOpenDeta
         {catalog.map(item =>
           TreeBuilder({
             item,
+            addedDatasetIds,
+            selectedDataset,
             selectedId,
             nestLevel: 1,
             onDatasetAdd,
