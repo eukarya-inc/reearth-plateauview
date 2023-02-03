@@ -13,6 +13,7 @@ type FilterType = "prefecture" | "fileType" | "tag";
 export type Tag = TagType;
 
 export type Props = {
+  addDisabled: boolean;
   isMobile?: boolean;
   rawCatalog?: CatalogRawItem[];
   selectedTags?: Tag[];
@@ -116,6 +117,7 @@ function filterCatalog(
 }
 
 const DatasetTree: React.FC<Props> = ({
+  addDisabled,
   isMobile,
   rawCatalog,
   selectedTags,
@@ -169,6 +171,7 @@ const DatasetTree: React.FC<Props> = ({
         <Tabs.TabPane key="prefecture" tab="都道府県">
           {catalog && (
             <FileTree
+              addDisabled={addDisabled}
               catalog={catalog}
               isMobile={isMobile}
               onDatasetAdd={onDatasetAdd}
@@ -179,6 +182,7 @@ const DatasetTree: React.FC<Props> = ({
         <Tabs.TabPane key="type" tab="種類">
           {catalog && (
             <FileTree
+              addDisabled={addDisabled}
               catalog={catalog}
               isMobile={isMobile}
               onDatasetAdd={onDatasetAdd}

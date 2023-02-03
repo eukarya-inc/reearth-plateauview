@@ -9,6 +9,7 @@ import { useCallback, useMemo, useState } from "react";
 export type DataCatalog = DataCatalogType;
 
 export type Props = {
+  addDisabled: boolean;
   catalog: DataCatalog;
   isMobile?: boolean;
   onDatasetAdd: (dataset: CatalogItem) => void;
@@ -16,13 +17,14 @@ export type Props = {
 };
 
 const TreeBuilder: React.FC<{
+  addDisabled: boolean;
   item: CatalogItem;
   selectedId?: string;
   nestLevel: number;
   onDatasetAdd: (dataset: CatalogItem) => void;
   onOpenDetails?: (item?: CatalogItem) => void;
   onSelect?: (id: string) => void;
-}> = ({ item, selectedId, nestLevel, onDatasetAdd, onOpenDetails, onSelect }) => {
+}> = ({ addDisabled, item, selectedId, nestLevel, onDatasetAdd, onOpenDetails, onSelect }) => {
   const [isOpen, open] = useState(false);
 
   const selected = useMemo(
@@ -50,6 +52,7 @@ const TreeBuilder: React.FC<{
       </FolderItem>
       {item.children.map(m =>
         TreeBuilder({
+          addDisabled,
           item: m,
           selectedId,
           nestLevel: nestLevel + 1,
@@ -69,12 +72,19 @@ const TreeBuilder: React.FC<{
         type="link"
         icon={<StyledIcon icon="plusCircle" selected={selected} />}
         onClick={handleClick}
+        disabled={addDisabled}
       />
     </FolderItem>
   );
 };
 
-const FileTree: React.FC<Props> = ({ catalog, isMobile, onDatasetAdd, onOpenDetails }) => {
+const FileTree: React.FC<Props> = ({
+  addDisabled,
+  catalog,
+  isMobile,
+  onDatasetAdd,
+  onOpenDetails,
+}) => {
   const [selectedId, select] = useState<string>();
 
   const handleSelect = useCallback((id?: string) => {
@@ -86,6 +96,7 @@ const FileTree: React.FC<Props> = ({ catalog, isMobile, onDatasetAdd, onOpenDeta
       <Tree>
         {catalog.map(item =>
           TreeBuilder({
+            addDisabled,
             item,
             selectedId,
             nestLevel: 1,
