@@ -14,7 +14,7 @@ type Props = {
 };
 
 const MobileDropdown: React.FC<Props> = ({ isMobile }) => {
-  const [currentTab, setCurrentTab] = useState<Tab>("catalog");
+  const [currentTab, setCurrentTab] = useState<Tab>();
 
   const {
     rawCatalog,

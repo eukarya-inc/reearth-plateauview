@@ -42,6 +42,7 @@ const TreeBuilder: React.FC<Props> = ({
       {item.children.map(m =>
         TreeBuilder({
           item: m,
+          addedDatasetIds,
           selectedId,
           nestLevel: nestLevel + 1,
           onDatasetAdd,
