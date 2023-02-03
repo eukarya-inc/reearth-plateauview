@@ -1,3 +1,4 @@
+import useHooks from "@web/extensions/sidebar/core/components/hooks";
 import { postMsg } from "@web/extensions/sidebar/utils";
 import { styled } from "@web/theme";
 import { useEffect, useState } from "react";
@@ -5,7 +6,6 @@ import { useEffect, useState } from "react";
 import { Tab } from "../../core/components/Mobile";
 
 import Catalog from "./Catalog";
-import useHooks from "./hooks";
 import Menu from "./Menu";
 import Selection from "./Selection";
 
@@ -22,9 +22,10 @@ const MobileDropdown: React.FC<Props> = ({ isMobile }) => {
     project,
     reearthURL,
     backendURL,
+    handleDatasetSave,
+    handleDatasetUpdate,
     handleDatasetAdd,
     handleProjectDatasetRemove,
-    handleDatasetUpdate,
     handleDatasetRemoveAll,
     handleProjectSceneUpdate,
   } = useHooks();
@@ -42,7 +43,7 @@ const MobileDropdown: React.FC<Props> = ({ isMobile }) => {
         }
       }
     };
-    (globalThis as any).addEventListener("message", (e: any) => eventListenerCallback(e));
+    (globalThis as any).addEventListener("message", eventListenerCallback);
     return () => {
       (globalThis as any).removeEventListener("message", eventListenerCallback);
     };
@@ -63,6 +64,7 @@ const MobileDropdown: React.FC<Props> = ({ isMobile }) => {
           selection: (
             <Selection
               selectedDatasets={project.selectedDatasets}
+              onDatasetSave={handleDatasetSave}
               onDatasetUpdate={handleDatasetUpdate}
               onDatasetRemove={handleProjectDatasetRemove}
               onDatasetRemoveAll={handleDatasetRemoveAll}
