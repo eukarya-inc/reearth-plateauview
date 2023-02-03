@@ -8,7 +8,6 @@ import File from "./File";
 type Props = {
   item: CatalogItem;
   addedDatasetIds?: string[];
-  selectedDataset?: CatalogItem;
   selectedId?: string;
   nestLevel: number;
   onDatasetAdd: (dataset: CatalogItem) => void;
@@ -19,18 +18,18 @@ type Props = {
 const TreeBuilder: React.FC<Props> = ({
   item,
   addedDatasetIds,
-  selectedDataset,
   selectedId,
   nestLevel,
   onDatasetAdd,
   onOpenDetails,
   onSelect,
 }) => {
+  const [isOpen, open] = useState(false);
+
   const selected = useMemo(
     () => (item.type !== "group" ? selectedId === item.id : false),
     [selectedId, item],
   );
-  const [isOpen, open] = useState(false);
 
   return item.type === "group" ? (
     <Folder key={item.name} isOpen={isOpen}>
@@ -53,9 +52,9 @@ const TreeBuilder: React.FC<Props> = ({
     </Folder>
   ) : (
     <File
+      key={item.name}
       item={item}
       addedDatasetIds={addedDatasetIds}
-      selectedDataset={selectedDataset}
       nestLevel={nestLevel}
       selected={selected}
       onDatasetAdd={onDatasetAdd}

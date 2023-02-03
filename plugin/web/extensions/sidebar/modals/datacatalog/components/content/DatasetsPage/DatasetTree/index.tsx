@@ -119,7 +119,6 @@ function filterCatalog(
 
 const DatasetTree: React.FC<Props> = ({
   addedDatasetIds,
-  selectedDataset,
   isMobile,
   rawCatalog,
   selectedTags,
@@ -174,7 +173,6 @@ const DatasetTree: React.FC<Props> = ({
           {catalog && (
             <FileTree
               addedDatasetIds={addedDatasetIds}
-              selectedDataset={selectedDataset}
               catalog={catalog}
               isMobile={isMobile}
               onDatasetAdd={onDatasetAdd}
@@ -186,7 +184,6 @@ const DatasetTree: React.FC<Props> = ({
           {catalog && (
             <FileTree
               addedDatasetIds={addedDatasetIds}
-              selectedDataset={selectedDataset}
               catalog={catalog}
               isMobile={isMobile}
               onDatasetAdd={onDatasetAdd}

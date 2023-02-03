@@ -6,7 +6,6 @@ import { useCallback, useMemo } from "react";
 export type Props = {
   item: CatalogItem;
   addedDatasetIds?: string[];
-  selectedDataset?: CatalogItem;
   nestLevel: number;
   selected: boolean;
   onDatasetAdd: (dataset: CatalogItem) => void;
@@ -17,7 +16,6 @@ export type Props = {
 const File: React.FC<Props> = ({
   item,
   addedDatasetIds,
-  selectedDataset,
   nestLevel,
   selected,
   onDatasetAdd,
@@ -35,15 +33,13 @@ const File: React.FC<Props> = ({
   }, [item, onOpenDetails, onSelect]);
 
   const addDisabled = useMemo(() => {
-    return !!addedDatasetIds?.find(
-      id => selectedDataset?.type === "item" && id === selectedDataset.id,
-    );
-  }, [addedDatasetIds, selectedDataset]);
+    return !!addedDatasetIds?.find(id => item?.type === "item" && id === item.id);
+  }, [addedDatasetIds, item]);
 
   return (
     <>
       {item.type === "item" && (
-        <Wrapper key={item.id} nestLevel={nestLevel} selected={selected}>
+        <Wrapper nestLevel={nestLevel} selected={selected}>
           <NameWrapper onClick={handleOpenDetails}>
             <Icon icon="file" size={20} />
             <Name>{item.cityName ?? item.name}</Name>

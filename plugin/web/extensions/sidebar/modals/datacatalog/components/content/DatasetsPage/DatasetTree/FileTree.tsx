@@ -11,7 +11,6 @@ export type DataCatalog = DataCatalogType;
 
 export type Props = {
   addedDatasetIds?: string[];
-  selectedDataset?: CatalogItem;
   catalog: DataCatalog;
   isMobile?: boolean;
   onDatasetAdd: (dataset: CatalogItem) => void;
@@ -20,7 +19,6 @@ export type Props = {
 
 const FileTree: React.FC<Props> = ({
   addedDatasetIds,
-  selectedDataset,
   catalog,
   isMobile,
   onDatasetAdd,
@@ -39,7 +37,6 @@ const FileTree: React.FC<Props> = ({
           TreeBuilder({
             item,
             addedDatasetIds,
-            selectedDataset,
             selectedId,
             nestLevel: 1,
             onDatasetAdd,
