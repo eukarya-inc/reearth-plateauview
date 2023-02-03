@@ -176,6 +176,11 @@ export default () => {
     }
   }, [cmsURL, setPlateauData, setUsecaseData, setDatasetData]);
 
+  useEffect(() => {
+    const selectedIds = project.selectedDatasets.map(d => d.id);
+    setAddedDatasetIds(selectedIds);
+  }, [project.selectedDatasets]);
+
   const rawCatalog = useMemo(
     () => processCatalog(plateauData, usecaseData, datasetData),
     [plateauData, usecaseData, datasetData],
@@ -339,9 +344,10 @@ export default () => {
         handleModalOpen();
       } else if (e.data.action === "triggerHelpOpen") {
         handlePageChange("help");
-      } else if (e.data.type === "initDataCatalog") {
-        // different type might be used
-        setAddedDatasetIds(e.data.payload.addedDatasets);
+      } else if (e.data.action === "msgFromPopup") {
+        if (e.data.payload.dataset) {
+          handleProjectDatasetAdd(e.data.payload.dataset);
+        }
       }
     };
     addEventListener("message", eventListenerCallback);
