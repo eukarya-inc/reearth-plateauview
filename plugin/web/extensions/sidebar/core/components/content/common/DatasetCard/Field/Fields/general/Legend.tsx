@@ -4,7 +4,7 @@ import { styled } from "@web/theme";
 import _ from "lodash";
 import { useCallback, useEffect, useState } from "react";
 
-import { BaseFieldProps, LegendItem, LegendStyleType } from "./types";
+import { BaseFieldProps, LegendItem, LegendStyleType } from "../types";
 
 const legendStyles: { [key: string]: string } = {
   square: "四角",

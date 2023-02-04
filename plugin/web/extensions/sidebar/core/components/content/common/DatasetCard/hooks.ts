@@ -1,6 +1,12 @@
 import { Data } from "@web/extensions/sidebar/core/newTypes";
 import { useCallback } from "react";
 
+import { fieldName } from "./Field/Fields/types";
+
+type FieldDropdownItem = {
+  [key: string]: { name: string; onClick: (property: any) => void };
+};
+
 export default ({
   dataset,
   inEditor,
@@ -62,11 +68,9 @@ export default ({
     [dataset, inEditor, onDatasetUpdate],
   );
 
-  const generalFields: {
-    [key: string]: { name: string; onClick: (property: any) => void };
-  } = {
+  const generalFields: FieldDropdownItem = {
     camera: {
-      name: "カメラ",
+      name: fieldName["camera"],
       onClick: () =>
         handleFieldAdd({
           position: {
@@ -80,33 +84,45 @@ export default ({
         }),
     },
     description: {
-      name: "説明",
+      name: fieldName["description"],
       onClick: () => handleFieldAdd({}),
     },
     legend: {
-      name: "凡例",
+      name: fieldName["legend"],
       onClick: () => handleFieldAdd({ style: "square", items: [{ title: "hey", color: "red" }] }),
     },
   };
 
-  //   const pointFields: {
-  //     [key: string]: { name: string; onClick?: (property: any) => void };
-  //   } = {
-  //     camera: {
-  //       name: "カメラ",
-  //       onClick: () =>
-  //         handleFieldAdd({
-  //           position: {
-  //             lng: 0,
-  //             lat: 0,
-  //             height: 0,
-  //             pitch: 0,
-  //             heading: 0,
-  //             roll: 0,
-  //           },
-  //         }),
-  //     },
-  //   };
+  const pointFields: FieldDropdownItem = {
+    pointColor: {
+      name: fieldName["pointColor"],
+      onClick: () => console.log("do something"),
+    },
+    pointColorGradient: {
+      name: fieldName["pointColorGradient"],
+      onClick: () => console.log("do something"),
+    },
+    pointSize: {
+      name: fieldName["pointSize"],
+      onClick: () => console.log("do something"),
+    },
+    pointIcon: {
+      name: fieldName["pointIcon"],
+      onClick: () => console.log("do something"),
+    },
+    pointLabel: {
+      name: fieldName["pointLabel"],
+      onClick: () => console.log("do something"),
+    },
+    pointModel: {
+      name: fieldName["pointModel"],
+      onClick: () => console.log("do something"),
+    },
+    pointStroke: {
+      name: fieldName["pointStroke"],
+      onClick: () => console.log("do something"),
+    },
+  };
 
   //   const polylineFields: {
   //     [key: string]: { name: string; onClick?: (property: any) => void };
@@ -218,10 +234,10 @@ export default ({
       name: "一般",
       fields: filterFields(generalFields),
     },
-    // point: {
-    //   name: "ポイント",
-    //   fields: pointFields,
-    // },
+    point: {
+      name: "ポイント",
+      fields: filterFields(pointFields),
+    },
     // polyline: { name: "ポリライン", fields: polylineFields },
     // polygone: { name: "ポリゴン", fields: polygonFields },
     // "3d-model": { name: "3Dモデル", fields: ThreeDModelFields },

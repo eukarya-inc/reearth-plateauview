@@ -3,7 +3,7 @@ import { styled } from "@web/theme";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Remarkable } from "remarkable";
 
-import { BaseFieldProps } from "./types";
+import { BaseFieldProps } from "../types";
 
 const Description: React.FC<BaseFieldProps<"description">> = ({ value, editMode, onUpdate }) => {
   const [isMarkdown, setIsMarkdown] = useState(!!value.isMarkdown);
