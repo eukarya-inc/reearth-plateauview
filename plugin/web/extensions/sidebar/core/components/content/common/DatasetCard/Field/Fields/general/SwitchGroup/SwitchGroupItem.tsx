@@ -1,8 +1,7 @@
 import { Icon } from "@web/sharedComponents";
 import { styled } from "@web/theme";
-//import { useState } from "react";
 
-import { groupItem } from "./types";
+import { groupItem } from "../../types";
 
 type Props = {
   items?: groupItem[];

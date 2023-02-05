@@ -1,5 +1,4 @@
 import AddButton from "@web/extensions/sidebar/core/components/content/common/AddButton";
-import { array_move } from "@web/extensions/sidebar/utils";
 import { Icon, Dropdown, Menu } from "@web/sharedComponents";
 import { styled } from "@web/theme";
 import { useCallback, useState } from "react";
@@ -13,27 +12,6 @@ const legendStyles: { [key: string]: string } = {
   icon: "アイコン",
 };
 
-<<<<<<< HEAD:plugin/web/extensions/sidebar/core/components/content/common/DatasetCard/Field/Fields/Legend.tsx
-type LegendItem = {
-  title: string;
-  color: string;
-  url?: string;
-};
-
-type Legend = {
-  id?: string; // NOT SURE ID IS NEEDED OR WILL BE OBTAINABLE
-  style: LegendStyleType;
-  items?: LegendItem[];
-};
-
-type Props = BaseFieldProps<"legend"> & {
-  value: Legend;
-  editMode?: boolean;
-};
-
-const Legend: React.FC<Props> = ({ value, editMode }) => {
-  const [legend, updateLegend] = useState<Legend>(value);
-=======
 function array_move(arr: any[], old_index: number, new_index: number) {
   if (new_index >= arr.length) {
     let k = new_index - arr.length + 1;
@@ -46,7 +24,6 @@ function array_move(arr: any[], old_index: number, new_index: number) {
 
 const Legend: React.FC<BaseFieldProps<"legend">> = ({ value, editMode, onUpdate }) => {
   const [legend, updateLegend] = useState(value);
->>>>>>> 84df32584167e469611505ab19f7c26431abccd2:plugin/web/extensions/sidebar/core/components/content/common/DatasetCard/Field/Fields/general/Legend.tsx
 
   const handleStyleChange = useCallback(
     (style: LegendStyleType) => {

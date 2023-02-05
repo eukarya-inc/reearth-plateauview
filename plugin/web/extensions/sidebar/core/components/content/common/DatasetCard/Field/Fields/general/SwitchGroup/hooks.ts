@@ -1,17 +1,17 @@
 import { array_move } from "@web/extensions/sidebar/utils";
 import { useCallback, useEffect, useState } from "react";
 
-import { groupItem, SwitchGroupObj } from "./types";
+import { groupItem, SwitchGroup } from "../../types";
 
-export default (value: SwitchGroupObj) => {
-  const [switchGroupObj, updateGroups] = useState<SwitchGroupObj>(value);
+export default (value: SwitchGroup) => {
+  const [switchGroupObj, updateGroups] = useState<SwitchGroup>(value);
   const [groupsTitle, setGroupsTitle] = useState(value.title);
   const [currentGroup, setCurrentGroup] = useState<groupItem>(value.groups[0]);
-  const [modifiedGroups, updateModifiedGroups] = useState<SwitchGroupObj | undefined>();
+  const [modifiedGroups, updateModifiedGroups] = useState<SwitchGroup | undefined>();
 
   //initialize the helper array (modifiedGroups)
   useEffect(() => {
-    updateModifiedGroups({ title: "Temp", groups: [] });
+    updateModifiedGroups({ type: "switchGroup", title: "Temp", groups: [] });
   }, []);
 
   //add empty item each time we press on add item

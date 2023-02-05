@@ -1,6 +1,7 @@
 export const fieldName = {
   camera: "カメラ",
   legend: "凡例",
+  switchGroup: "Switch group",
   realtime: "リアルタイム",
   point: "ポイント",
   description: "説明",
@@ -24,7 +25,8 @@ export type FieldComponent =
   | PointIcon
   | PointLabel
   | PointModel
-  | PointStroke;
+  | PointStroke
+  | SwitchGroup;
 
 export type Camera = {
   type: "camera";
@@ -105,12 +107,24 @@ type PointStroke = {
   type: "pointStroke";
   group?: string;
 };
+export type groupItem = {
+  title: string;
+  group: string;
+  id?: number;
+};
+
+export type SwitchGroup = {
+  type: "switchGroup";
+  title: string;
+  groups: groupItem[];
+};
 
 type Fields = {
   // general
   camera: Camera;
   legend: Legend;
   description: Description;
+  switchGroup: SwitchGroup;
   // point
   pointColor: PointColor;
   pointColorGradient: PointColorGradient;

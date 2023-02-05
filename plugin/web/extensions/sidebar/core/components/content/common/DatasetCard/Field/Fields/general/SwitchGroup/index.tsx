@@ -2,16 +2,12 @@ import AddButton from "@web/extensions/sidebar/core/components/content/common/Ad
 import { Icon, Dropdown, Menu } from "@web/sharedComponents";
 import { styled } from "@web/theme";
 
-import { BaseField as BaseFieldProps } from "..";
+import { BaseFieldProps } from "../../types";
 
 import useHooks from "./hooks";
 import SwitchGroupItems from "./SwitchGroupItem";
-import { SwitchGroupObj } from "./types";
 
-type Props = BaseFieldProps<"switchGroup"> & {
-  value: SwitchGroupObj;
-  editMode?: boolean;
-};
+type Props = BaseFieldProps<"switchGroup">;
 
 const SwitchGroup: React.FC<Props> = ({ value, editMode }) => {
   const {
