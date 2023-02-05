@@ -44,7 +44,7 @@ const File: React.FC<Props> = ({
             <Icon icon="file" size={20} />
             <Name>{item.cityName ?? item.name}</Name>
           </NameWrapper>
-          <Button
+          <StyledButton
             type="link"
             icon={<StyledIcon icon="plusCircle" selected={selected ?? false} />}
             onClick={handleClick}
@@ -93,6 +93,10 @@ const Name = styled.p`
   white-space: nowrap;
   overflow: hidden;
   width: 200px;
+`;
+
+const StyledButton = styled(Button)<{ disabled: boolean }>`
+  display: ${({ disabled }) => (disabled ? "none" : "initial")};
 `;
 
 const StyledIcon = styled(Icon)<{ selected: boolean }>`
