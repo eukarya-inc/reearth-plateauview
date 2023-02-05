@@ -14,6 +14,7 @@ import (
 	"github.com/eukarya-inc/reearth-plateauview/server/sdkapi"
 	"github.com/eukarya-inc/reearth-plateauview/server/searchindex"
 	"github.com/eukarya-inc/reearth-plateauview/server/share"
+	"github.com/eukarya-inc/reearth-plateauview/server/sidebar"
 	"github.com/labstack/echo/v4"
 )
 
@@ -31,6 +32,7 @@ var services = [](func(*Config) (*Service, error)){
 	SearchIndex,
 	Share,
 	Opinion,
+	Sidebar,
 }
 
 func Services(conf *Config) (srv []*Service, _ error) {
@@ -150,7 +152,7 @@ func SDKAPI(conf *Config) (*Service, error) {
 
 func Share(conf *Config) (*Service, error) {
 	c := conf.Share()
-	if c.CMSBase == "" || c.CMSToken == "" || c.CMSProject == "" {
+	if c.CMSBase == "" || c.CMSToken == "" {
 		return nil, nil
 	}
 
@@ -164,7 +166,7 @@ func Share(conf *Config) (*Service, error) {
 
 func Opinion(conf *Config) (*Service, error) {
 	c := conf.Opinion()
-	if c.SendGridAPIKey == "" {
+	if c.SendGridAPIKey == "" || c.From == "" || c.To == "" {
 		return nil, nil
 	}
 
@@ -173,6 +175,20 @@ func Opinion(conf *Config) (*Service, error) {
 		Echo: func(g *echo.Group) error {
 			opinion.Echo(g.Group("/opinion"), c)
 			return nil
+		},
+	}, nil
+}
+
+func Sidebar(conf *Config) (*Service, error) {
+	c := conf.Sidebar()
+	if c.AdminToken == "" || c.CMSToken == "" || c.CMSBaseURL == "" {
+		return nil, nil
+	}
+
+	return &Service{
+		Name: "sidebar",
+		Echo: func(g *echo.Group) error {
+			return sidebar.Echo(g.Group("/sidebar"), c)
 		},
 	}, nil
 }

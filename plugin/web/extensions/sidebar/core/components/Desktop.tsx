@@ -8,7 +8,9 @@ import Header from "@web/extensions/sidebar/core/components/Header";
 import useHooks from "@web/extensions/sidebar/core/components/hooks";
 import { Content } from "@web/sharedComponents";
 import { styled, commonStyles } from "@web/theme";
-import { memo } from "react";
+import { memo, useCallback, useEffect, useState } from "react";
+
+import { postMsg } from "../../utils";
 
 export type Props = {
   className?: string;
@@ -16,24 +18,48 @@ export type Props = {
 
 const DesktopSidebar: React.FC<Props> = ({ className }) => {
   const {
-    processedSelectedDatasets,
     project,
-    minimized,
+    processedSelectedDatasets,
     inEditor,
     reearthURL,
     backendURL,
     templates,
     currentPage,
     handlePageChange,
-    handleMinimize,
     handleTemplateAdd,
     handleTemplateUpdate,
     handleTemplateRemove,
+    handleDatasetSave,
     handleProjectDatasetRemove,
+    handleDatasetUpdate,
     handleDatasetRemoveAll,
     handleProjectSceneUpdate,
     handleModalOpen,
   } = useHooks();
+
+  const [minimized, setMinimize] = useState(false);
+
+  useEffect(() => {
+    setTimeout(() => {
+      postMsg({ action: "minimize", payload: minimized });
+    }, 250);
+  }, [minimized]);
+
+  const handleMinimize = useCallback(() => {
+    const html = document.querySelector("html");
+    const body = document.querySelector("body");
+    const root = document.getElementById("root");
+    if (!minimized) {
+      html?.classList.add("minimized");
+      body?.classList.add("minimized");
+      root?.classList.add("minimized");
+    } else {
+      html?.classList.remove("minimized");
+      body?.classList.remove("minimized");
+      root?.classList.remove("minimized");
+    }
+    setMinimize(!minimized);
+  }, [minimized, setMinimize]);
 
   return (
     <Wrapper className={className} minimized={minimized}>
@@ -52,6 +78,8 @@ const DesktopSidebar: React.FC<Props> = ({ className }) => {
                 <Selection
                   inEditor={inEditor}
                   selectedDatasets={processedSelectedDatasets}
+                  onDatasetSave={handleDatasetSave}
+                  onDatasetUpdate={handleDatasetUpdate}
                   onDatasetRemove={handleProjectDatasetRemove}
                   onDatasetRemoveAll={handleDatasetRemoveAll}
                   onModalOpen={handleModalOpen}

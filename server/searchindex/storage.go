@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/eukarya-inc/reearth-plateauview/server/cms"
+	"github.com/reearth/reearthx/rerror"
 	"github.com/samber/lo"
 	"golang.org/x/exp/slices"
 )
@@ -31,13 +32,13 @@ func (s StorageItems) FindByItem(iid string) *StorageItem {
 }
 
 type StorageItem struct {
-	ID    string
+	ID    string   `json:"id,omitempty" cms:"id"`
 	Item  string   `json:"item,omitempty" cms:"item,text"`
 	Asset []string `json:"asset,omitempty" cms:"asset,asset"`
 }
 
 func (s StorageItem) RemoveAsset(aid string) StorageItem {
-	s.Asset = lo.Filter(s.Asset, func(a string, _ int) bool { return a == aid })
+	s.Asset = lo.Filter(s.Asset, func(a string, _ int) bool { return a != aid })
 	return s
 }
 
@@ -81,7 +82,10 @@ func (s *Storage) FindByAsset(ctx context.Context, assetid string) (r StorageIte
 	}
 
 	r2 := all.FindByAsset(assetid)
-	return lo.FromPtr(r2), nil
+	if r2 == nil {
+		return r, rerror.ErrNotFound
+	}
+	return *r2, nil
 }
 
 func (s *Storage) FindByItem(ctx context.Context, itemid string) (r StorageItem, err error) {
@@ -91,7 +95,10 @@ func (s *Storage) FindByItem(ctx context.Context, itemid string) (r StorageItem,
 	}
 
 	r2 := all.FindByItem(itemid)
-	return lo.FromPtr(r2), nil
+	if r2 == nil {
+		return r, rerror.ErrNotFound
+	}
+	return *r2, nil
 }
 
 func (s *Storage) Set(ctx context.Context, item StorageItem) (err error) {
@@ -99,7 +106,7 @@ func (s *Storage) Set(ctx context.Context, item StorageItem) (err error) {
 	cms.Marshal(item, &citem)
 	if citem.ID == "" {
 		_, err = s.c.CreateItemByKey(ctx, s.pid, storageModel, citem.Fields)
-	} else if len(item.Item) > 0 {
+	} else if len(item.Asset) > 0 {
 		_, err = s.c.UpdateItem(ctx, citem.ID, citem.Fields)
 	} else {
 		err = s.Delete(ctx, item.ID)

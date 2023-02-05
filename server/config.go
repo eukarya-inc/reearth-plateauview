@@ -12,6 +12,7 @@ import (
 	"github.com/eukarya-inc/reearth-plateauview/server/sdkapi"
 	"github.com/eukarya-inc/reearth-plateauview/server/searchindex"
 	"github.com/eukarya-inc/reearth-plateauview/server/share"
+	"github.com/eukarya-inc/reearth-plateauview/server/sidebar"
 	"github.com/joho/godotenv"
 	"github.com/kelseyhightower/envconfig"
 	"github.com/reearth/reearthx/log"
@@ -23,13 +24,15 @@ const configPrefix = "REEARTH_PLATEAUVIEW"
 type Config struct {
 	Port                 uint   `default:"8080" envconfig:"PORT"`
 	Host                 string `default:"http://localhost:8080"`
+	Debug                bool
 	Origin               []string
+	Secret               string
 	CMS_Webhook_Secret   string
 	CMS_BaseURL          string
 	CMS_Token            string
 	CMS_IntegrationID    string
+	CMS_PlateauProject   string
 	CMS_SystemProject    string
-	CMS_SDKProject       string
 	FME_BaseURL          string
 	FME_Mock             bool
 	FME_Token            string
@@ -40,10 +43,11 @@ type Config struct {
 	Ckan_Private         bool
 	SDK_Token            string
 	SendGrid_APIKey      string
-	Opinion_Email        string
+	Opinion_From         string
+	Opinion_FromName     string
+	Opinion_To           string
 	Opinion_ToName       string
-	Secret               string
-	Debug                bool
+	Sidebar_Token        string
 }
 
 func NewConfig() (*Config, error) {
@@ -84,6 +88,7 @@ func (c *Config) SearchIndex() searchindex.Config {
 		CMSBase:           c.CMS_BaseURL,
 		CMSToken:          c.CMS_Token,
 		CMSStorageProject: c.CMS_SystemProject,
+		// CMSModel: c.CMS_Model,
 		// CMSStorageModel:   c.CMS_IndexerStorageModel,
 	}
 }
@@ -103,7 +108,7 @@ func (c *Config) SDK() sdk.Config {
 func (c *Config) SDKAPI() sdkapi.Config {
 	return sdkapi.Config{
 		CMSBaseURL: c.CMS_BaseURL,
-		Project:    c.CMS_SDKProject,
+		Project:    c.CMS_PlateauProject,
 		// Model:      c.CMS_SDKModel,
 		Token: c.SDK_Token,
 	}
@@ -111,9 +116,8 @@ func (c *Config) SDKAPI() sdkapi.Config {
 
 func (c *Config) Share() share.Config {
 	return share.Config{
-		CMSBase:    c.CMS_BaseURL,
-		CMSToken:   c.CMS_Token,
-		CMSProject: c.CMS_SystemProject,
+		CMSBase:  c.CMS_BaseURL,
+		CMSToken: c.CMS_Token,
 		// CMSModel:   c.CMS_ShareModel,
 		// CMSDataFieldKey: c.CMS_ShareField,
 	}
@@ -122,7 +126,9 @@ func (c *Config) Share() share.Config {
 func (c *Config) Opinion() opinion.Config {
 	return opinion.Config{
 		SendGridAPIKey: c.SendGrid_APIKey,
-		Email:          c.Opinion_Email,
+		From:           c.Opinion_From,
+		FromName:       c.Opinion_FromName,
+		To:             c.Opinion_To,
 		ToName:         c.Opinion_ToName,
 	}
 }
@@ -136,5 +142,13 @@ func (c *Config) Geospatialjp() geospatialjp.Config {
 		CMSToken:       c.CMS_Token,
 		CMSBase:        c.CMS_BaseURL,
 		CMSIntegration: c.CMS_IntegrationID,
+	}
+}
+
+func (c *Config) Sidebar() sidebar.Config {
+	return sidebar.Config{
+		CMSBaseURL: c.CMS_BaseURL,
+		CMSToken:   c.CMS_Token,
+		AdminToken: c.Sidebar_Token,
 	}
 }

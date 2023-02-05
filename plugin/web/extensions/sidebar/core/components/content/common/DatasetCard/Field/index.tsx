@@ -10,21 +10,18 @@ import {
   AccordionItemState,
 } from "react-accessible-accordion";
 
-import fields, { BaseField as BaseFieldProps, FieldType } from "./Fields";
-
-export type Field = BaseFieldProps<FieldType> & {
-  value: any;
-  icon?: string; // MAYBE NOT NEEDED
-};
+import fields from "./Fields";
+import { FieldComponent as FieldComponentType, fieldName } from "./Fields/types";
 
 export type Props = {
-  field: Field;
+  field: FieldComponentType;
   editMode?: boolean;
+  onUpdate?: (property: any) => void;
+  onRemove: (type: string) => void;
   onGroupAdd?: () => void;
-  onRemove?: () => void;
 };
 
-const FieldComponent: React.FC<Props> = ({ field, editMode, onGroupAdd, onRemove }) => {
+const FieldComponent: React.FC<Props> = ({ field, editMode, onUpdate, onRemove, onGroupAdd }) => {
   const FieldContent = fields[field.type];
 
   const handleGroupAdd = useCallback(
@@ -38,12 +35,12 @@ const FieldComponent: React.FC<Props> = ({ field, editMode, onGroupAdd, onRemove
   const handleRemove = useCallback(
     (e: React.MouseEvent<HTMLDivElement, MouseEvent> | undefined) => {
       e?.stopPropagation();
-      onRemove?.();
+      onRemove?.(field.type);
     },
-    [onRemove],
+    [field, onRemove],
   );
 
-  return !editMode && field.type === "idealZoom" ? null : (
+  return !editMode && field.type === "camera" ? null : (
     <StyledAccordionComponent allowZeroExpanded>
       <AccordionItem>
         <AccordionItemState>
@@ -53,7 +50,7 @@ const FieldComponent: React.FC<Props> = ({ field, editMode, onGroupAdd, onRemove
                 <HeaderContents>
                   <LeftContents>
                     <ArrowIcon icon="arrowDown" size={16} direction="right" expanded={expanded} />
-                    <Title>{field.configTitle}</Title>
+                    <Title>{fieldName[field.type]}</Title>
                   </LeftContents>
                   <RightContents>
                     <StyledIcon icon="group" size={16} onClick={handleGroupAdd} />
@@ -62,14 +59,18 @@ const FieldComponent: React.FC<Props> = ({ field, editMode, onGroupAdd, onRemove
                 </HeaderContents>
               ) : (
                 <HeaderContents>
-                  <Title>{field.title}</Title>
+                  <Title>{fieldName[field.type]}</Title>
                   <ArrowIcon icon="arrowDown" size={16} direction="left" expanded={expanded} />
                 </HeaderContents>
               )}
             </Header>
           )}
         </AccordionItemState>
-        <BodyWrapper>{FieldContent && <FieldContent {...field} editMode={editMode} />}</BodyWrapper>
+        <BodyWrapper>
+          {FieldContent && (
+            <FieldContent value={{ ...field }} editMode={editMode} onUpdate={onUpdate} />
+          )}
+        </BodyWrapper>
       </AccordionItem>
     </StyledAccordionComponent>
   );

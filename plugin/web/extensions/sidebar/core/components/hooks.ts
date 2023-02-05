@@ -2,7 +2,7 @@ import { Project, ReearthApi } from "@web/extensions/sidebar/types";
 import { mergeProperty, postMsg } from "@web/extensions/sidebar/utils";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
-import { Root, Data, Template } from "../newTypes";
+import { Data, Template } from "../newTypes";
 import processCatalog, { CatalogRawItem } from "../processCatalog";
 
 import { Pages } from "./Header";
@@ -39,6 +39,20 @@ export default () => {
   const [cmsURL, setCMSURL] = useState<string>();
   const [reearthURL, setReearthURL] = useState<string>();
 
+  const [data, setData] = useState<Data[]>();
+  const [project, updateProject] = useState<Project>(defaultProject);
+  const [processedSelectedDatasets, setProcessedSelectedDatasets] = useState<Data[]>([]);
+
+  const handleBackendFetch = useCallback(async () => {
+    if (!backendURL) return;
+    const res = await fetch(`${backendURL}/sidebar/plateauview`);
+    if (res.status !== 200) return;
+    const resData = await res.json();
+
+    setTemplates(resData.templates);
+    setData(resData.data);
+  }, [backendURL]);
+
   // ****************************************
   // Init
   useEffect(() => {
@@ -48,7 +62,6 @@ export default () => {
 
   // ****************************************
   // Project
-  const [project, updateProject] = useState<Project>(defaultProject);
 
   const handleProjectSceneUpdate = useCallback(
     (updatedProperties: Partial<ReearthApi>) => {
@@ -66,15 +79,39 @@ export default () => {
 
   const handleProjectDatasetAdd = useCallback((dataset: CatalogRawItem) => {
     updateProject(({ sceneOverrides, selectedDatasets }) => {
-      const updatedProject = {
+      const updatedProject: Project = {
         sceneOverrides,
-        selectedDatasets: [...selectedDatasets, dataset],
+        selectedDatasets: [
+          ...selectedDatasets,
+          {
+            id: dataset.id,
+            dataId: `plateau-2022-${dataset.cityName ?? dataset.name}`,
+            type: dataset.type,
+            name: dataset.cityName ?? dataset.name,
+            visible: true,
+          } as Data,
+        ],
       };
       postMsg({ action: "updateProject", payload: updatedProject });
       return updatedProject;
     });
 
     postMsg({ action: "addDatasetToScene", payload: dataset }); // MIGHT NEED TO MOVE THIS ELSEWHEREEEE
+  }, []);
+
+  const handleDatasetUpdate = useCallback((updatedDataset: Data) => {
+    updateProject(({ sceneOverrides, selectedDatasets }) => {
+      const updatedDatasets = [...selectedDatasets];
+      const datasetIndex = updatedDatasets.findIndex(d => d.id === updatedDataset.id);
+
+      updatedDatasets[datasetIndex] = updatedDataset;
+      const updatedProject: Project = {
+        sceneOverrides,
+        selectedDatasets: updatedDatasets,
+      };
+      postMsg({ action: "updateProject", payload: updatedProject });
+      return updatedProject;
+    });
   }, []);
 
   const handleProjectDatasetRemove = useCallback(
@@ -102,17 +139,42 @@ export default () => {
       }),
     [],
   );
-  // ****************************************
 
-  // ****************************************
-  // Minimize
-  const [minimized, setMinimize] = useState(false);
+  const handleDatasetSave = useCallback(
+    (datasetID: string) => {
+      (async () => {
+        if (!inEditor) return;
+        const datasetToSave = processedSelectedDatasets.find(d => d.id === datasetID);
+        const isNew = !data?.find(d => d.id === datasetID);
 
-  useEffect(() => {
-    setTimeout(() => {
-      postMsg({ action: "minimize", payload: minimized });
-    }, 250);
-  }, [minimized]);
+        if (!backendURL || !backendAccessToken || !datasetToSave) return;
+
+        const fetchURL = !isNew
+          ? `${backendURL}/sidebar/plateauview/data/${datasetToSave.id}`
+          : `${backendURL}/sidebar/plateauview/data`;
+
+        const method = !isNew ? "PATCH" : "POST";
+
+        const res = await fetch(fetchURL, {
+          headers: {
+            authorization: `Bearer ${backendAccessToken}`,
+          },
+          method,
+          body: JSON.stringify(datasetToSave),
+        });
+        if (res.status !== 200) {
+          handleBackendFetch();
+          return;
+        }
+        const data2 = await res.json();
+        // setTemplates(t => [...t, data.results]);
+        console.log("DATA JUST SAVED: ", data2);
+        handleBackendFetch(); // MAYBE UPDATE THIS LATER TO JUST UPDATE THE LOCAL VALUE
+      })();
+    },
+    [data, processedSelectedDatasets, inEditor, backendAccessToken, backendURL, handleBackendFetch],
+  );
+
   // ****************************************
 
   // ****************************************
@@ -156,7 +218,7 @@ export default () => {
   const handleTemplateAdd = useCallback(
     async (newTemplate?: Template) => {
       if (!backendURL || !backendAccessToken) return;
-      const res = await fetch(`${backendURL}/viz/plateau/templates`, {
+      const res = await fetch(`${backendURL}/sidebar/plateauview/templates`, {
         headers: {
           authorization: `Bearer ${backendAccessToken}`,
         },
@@ -174,7 +236,7 @@ export default () => {
   const handleTemplateUpdate = useCallback(
     async (template: Template) => {
       if (!template.modelId || !backendURL || !backendAccessToken) return;
-      const res = await fetch(`${backendURL}/viz/plateau/templates/${template.modelId}`, {
+      const res = await fetch(`${backendURL}/sidebar/plateauview/templates/${template.modelId}`, {
         headers: {
           authorization: `Bearer ${backendAccessToken}`,
         },
@@ -198,7 +260,7 @@ export default () => {
   const handleTemplateRemove = useCallback(
     async (template: Template) => {
       if (!template.modelId || !backendURL || !backendAccessToken) return;
-      const res = await fetch(`${backendURL}/viz/plateau/templates/${template.modelId}`, {
+      const res = await fetch(`${backendURL}/sidebar/plateauview/templates/${template.modelId}`, {
         headers: {
           authorization: `Bearer ${backendAccessToken}`,
         },
@@ -212,53 +274,6 @@ export default () => {
 
   // ****************************************
 
-  // ****************************************
-  // Processed Data
-
-  const [data, setData] = useState<Data[]>();
-  const processedSelectedDatasets: Data[] = useMemo(() => {
-    // if (!data) return data;
-    console.log("PROJECT: ", project);
-    return project.selectedDatasets
-      .map(d => {
-        console.log("DATA: ", data);
-        if (d.modelType === "usecase") {
-          // If usecase, check "data" for saved template, components, etc
-          // return data?.filter(d3 => d3.dataId === `plateau-2022-${d.cityName}`);
-          return {
-            id: d.id,
-            dataId: "ASDFSDFASDFasdf", // <======= NEEDS TO BE UPDATED
-            type: d.type ?? "", // maybe not needed
-            name: d.cityName ?? d.name,
-            public: false, //<======= NEEDS TO BE UPDATED
-            // visible <=== this will come from data (or be default true)
-            // template <=== this will come from data (and/or be added later from editor)
-            // components: data?.filter(d=> d.),
-          };
-          // } else if (d.modelType === "plateau") {
-          //   // Else, if PLATEAUデータ(plateau), do ....(HARDCODED TEMPLATE)
-          //   return d;
-          // } else if (d.modelType === "dataset") {
-          //   // Else, if 関連データセット(dataset), do ....(HARDCODED TEMPLATE)
-          //   return d;
-        } else {
-          return {
-            id: d.id,
-            dataId: `plateau-2022-${d.cityName ?? d.name}`,
-            type: d.type ?? "", // maybe not needed
-            name: d.cityName ?? d.name,
-            public: false,
-            visible: true,
-            template: "SOME TEMPLATE NAME???????????????????????????????",
-            components: [],
-          };
-        }
-      })
-      .flat(1)
-      .filter(p => p);
-  }, [data, project]);
-  // ****************************************
-
   useEffect(() => {
     const eventListenerCallback = (e: MessageEvent<any>) => {
       if (e.source !== parent) return;
@@ -266,7 +281,7 @@ export default () => {
         if (e.data.payload.dataset) {
           handleProjectDatasetAdd(e.data.payload.dataset);
         }
-      } else if (e.data.action === "init") {
+      } else if (e.data.action === "init" && e.data.payload) {
         setProjectID(e.data.payload.projectID);
         setInEditor(e.data.payload.inEditor);
         setBackendAccessToken(e.data.payload.backendAccessToken);
@@ -282,7 +297,7 @@ export default () => {
         handlePageChange("help");
       }
     };
-    addEventListener("message", e => eventListenerCallback(e));
+    addEventListener("message", eventListenerCallback);
     return () => {
       removeEventListener("message", eventListenerCallback);
     };
@@ -292,7 +307,7 @@ export default () => {
     if (!backendURL) return;
     if (projectID) {
       (async () => {
-        const res = await fetch(`${backendURL}/share/${projectID}`);
+        const res = await fetch(`${backendURL}/share/plateauview/${projectID}`);
         if (res.status !== 200) return;
         const data = await res.json();
         if (data) {
@@ -300,16 +315,35 @@ export default () => {
           postMsg({ action: "updateProject", payload: data });
         }
       })();
-    } else {
-      (async () => {
-        const res = await fetch(`${backendURL}/viz/plateau`);
-        if (res.status !== 200) return;
-        const results: Root = (await res.json()).results;
-        setTemplates(results.templates);
-        setData(results.data);
-      })();
     }
   }, [projectID, backendURL]);
+
+  useEffect(() => {
+    if (backendURL) {
+      handleBackendFetch();
+    }
+  }, [backendURL]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    setProcessedSelectedDatasets(
+      !data
+        ? project.selectedDatasets
+        : project.selectedDatasets
+            .map(sd => {
+              const savedData = data.find(d => d.dataId === sd.dataId);
+              if (savedData) {
+                return {
+                  ...sd,
+                  ...savedData,
+                };
+              } else {
+                return sd;
+              }
+            })
+            .flat(1)
+            .filter(p => p),
+    );
+  }, [data, project.selectedDatasets]);
 
   const [currentPage, setCurrentPage] = useState<Pages>("data");
 
@@ -317,37 +351,21 @@ export default () => {
     setCurrentPage(p);
   }, []);
 
-  const handleMinimize = useCallback(() => {
-    const html = document.querySelector("html");
-    const body = document.querySelector("body");
-    const root = document.getElementById("root");
-    if (!minimized) {
-      html?.classList.add("minimized");
-      body?.classList.add("minimized");
-      root?.classList.add("minimized");
-    } else {
-      html?.classList.remove("minimized");
-      body?.classList.remove("minimized");
-      root?.classList.remove("minimized");
-    }
-    setMinimize(!minimized);
-  }, [minimized, setMinimize]);
-
   return {
-    processedSelectedDatasets,
+    rawCatalog,
     project,
-    minimized,
+    processedSelectedDatasets,
     inEditor,
     reearthURL,
     backendURL,
     templates,
     currentPage,
     handlePageChange,
-    handleMinimize,
     handleTemplateAdd,
     handleTemplateUpdate,
     handleTemplateRemove,
-    setMinimize,
+    handleDatasetSave,
+    handleDatasetUpdate,
     handleProjectDatasetRemove,
     handleDatasetRemoveAll,
     handleProjectSceneUpdate,

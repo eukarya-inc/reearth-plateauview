@@ -1,3 +1,4 @@
+import useHooks from "@web/extensions/sidebar/core/components/hooks";
 import { postMsg } from "@web/extensions/sidebar/utils";
 import { styled } from "@web/theme";
 import { useEffect, useState } from "react";
@@ -5,7 +6,6 @@ import { useEffect, useState } from "react";
 import { Tab } from "../../core/components/Mobile";
 
 import Catalog from "./Catalog";
-import useHooks from "./hooks";
 import Menu from "./Menu";
 import Selection from "./Selection";
 
@@ -14,10 +14,12 @@ const MobileDropdown: React.FC = () => {
 
   const {
     rawCatalog,
-    processedSelectedDatasets,
     project,
+    processedSelectedDatasets,
     reearthURL,
     backendURL,
+    handleDatasetSave,
+    handleDatasetUpdate,
     handleProjectDatasetRemove,
     handleDatasetRemoveAll,
     handleProjectSceneUpdate,
@@ -36,7 +38,7 @@ const MobileDropdown: React.FC = () => {
         }
       }
     };
-    (globalThis as any).addEventListener("message", (e: any) => eventListenerCallback(e));
+    (globalThis as any).addEventListener("message", eventListenerCallback);
     return () => {
       (globalThis as any).removeEventListener("message", eventListenerCallback);
     };
@@ -50,13 +52,18 @@ const MobileDropdown: React.FC = () => {
           selection: (
             <Selection
               selectedDatasets={processedSelectedDatasets}
+              onDatasetSave={handleDatasetSave}
+              onDatasetUpdate={handleDatasetUpdate}
               onDatasetRemove={handleProjectDatasetRemove}
               onDatasetRemoveAll={handleDatasetRemoveAll}
             />
           ),
           menu: (
             <Menu
-              project={project}
+              project={{
+                sceneOverrides: project.sceneOverrides,
+                selectedDatasets: processedSelectedDatasets,
+              }}
               backendURL={backendURL}
               reearthURL={reearthURL}
               onProjectSceneUpdate={handleProjectSceneUpdate}

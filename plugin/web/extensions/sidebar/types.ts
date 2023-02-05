@@ -1,4 +1,4 @@
-import { CatalogRawItem } from "./core/processCatalog";
+import { Data } from "./core/newTypes";
 
 type ActionType =
   | "init"
@@ -29,13 +29,15 @@ type ActionType =
   | "msgToMobileDropdown"
   | "checkIfMobile"
   | "extendPopup"
-  | "minimize";
+  | "minimize"
+  | "buildingSearchOpen"
+  | "cameraFlyTo";
 
 export type PostMessageProps = { action: ActionType; payload?: any };
 
 export type Project = {
   sceneOverrides: ReearthApi;
-  selectedDatasets: CatalogRawItem[];
+  selectedDatasets: Data[];
 };
 
 export type ReearthApi = {

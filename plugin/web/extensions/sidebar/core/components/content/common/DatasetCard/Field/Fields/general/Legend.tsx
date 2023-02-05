@@ -4,9 +4,7 @@ import { Icon, Dropdown, Menu } from "@web/sharedComponents";
 import { styled } from "@web/theme";
 import { useCallback, useState } from "react";
 
-import { BaseField as BaseFieldProps } from ".";
-
-type LegendStyleType = "square" | "circle" | "line" | "icon";
+import { BaseFieldProps, LegendItem, LegendStyleType } from "../types";
 
 const legendStyles: { [key: string]: string } = {
   square: "四角",
@@ -15,6 +13,7 @@ const legendStyles: { [key: string]: string } = {
   icon: "アイコン",
 };
 
+<<<<<<< HEAD:plugin/web/extensions/sidebar/core/components/content/common/DatasetCard/Field/Fields/Legend.tsx
 type LegendItem = {
   title: string;
   color: string;
@@ -34,27 +33,51 @@ type Props = BaseFieldProps<"legend"> & {
 
 const Legend: React.FC<Props> = ({ value, editMode }) => {
   const [legend, updateLegend] = useState<Legend>(value);
+=======
+function array_move(arr: any[], old_index: number, new_index: number) {
+  if (new_index >= arr.length) {
+    let k = new_index - arr.length + 1;
+    while (k--) {
+      arr.push(undefined);
+    }
+  }
+  arr.splice(new_index, 0, arr.splice(old_index, 1)[0]);
+}
 
-  const handleStyleChange = useCallback((style: LegendStyleType) => {
-    updateLegend(l => {
-      return {
-        ...l,
-        style,
-      };
-    });
-  }, []);
+const Legend: React.FC<BaseFieldProps<"legend">> = ({ value, editMode, onUpdate }) => {
+  const [legend, updateLegend] = useState(value);
+>>>>>>> 84df32584167e469611505ab19f7c26431abccd2:plugin/web/extensions/sidebar/core/components/content/common/DatasetCard/Field/Fields/general/Legend.tsx
 
-  const handleMoveUp = useCallback((idx: number) => {
-    if (idx === 0) return;
-    updateLegend(l => {
-      let newItems: LegendItem[] | undefined = undefined;
-      if (l.items) {
-        newItems = l.items;
-        array_move(newItems, idx, idx - 1);
-      }
-      return { ...l, items: newItems };
-    });
-  }, []);
+  const handleStyleChange = useCallback(
+    (style: LegendStyleType) => {
+      updateLegend(l => {
+        const newLegend = {
+          ...l,
+          style,
+        };
+        onUpdate(newLegend);
+        return newLegend;
+      });
+    },
+    [onUpdate],
+  );
+
+  const handleMoveUp = useCallback(
+    (idx: number) => {
+      if (idx === 0) return;
+      updateLegend(l => {
+        let newItems: LegendItem[] | undefined = undefined;
+        if (l.items) {
+          newItems = l.items;
+          array_move(newItems, idx, idx - 1);
+        }
+        const newLegend = { ...l, items: newItems };
+        onUpdate(newLegend);
+        return newLegend;
+      });
+    },
+    [onUpdate],
+  );
 
   const handleMoveDown = useCallback(
     (idx: number) => {
@@ -68,11 +91,20 @@ const Legend: React.FC<Props> = ({ value, editMode }) => {
         return { ...l, items: newItems };
       });
     },
-    [legend.items],
+    [legend],
   );
 
   const handleAdd = useCallback(() => {
-    alert("ADD ITEM");
+    updateLegend(l => {
+      const newItem = {
+        title: "New Item",
+        color: "white",
+      };
+      return {
+        ...l,
+        items: l.items ? [...l.items, newItem] : [newItem],
+      };
+    });
   }, []);
 
   const handleRemove = useCallback((idx: number) => {
@@ -84,41 +116,6 @@ const Legend: React.FC<Props> = ({ value, editMode }) => {
       return { ...l, items: newItems };
     });
   }, []);
-
-  // [
-  //   {
-  //     key: "1",
-  //     label: (
-  //       <a target="_blank" rel="noopener noreferrer" href="https://www.antgroup.com">
-  //         1st menu item
-  //       </a>
-  //     ),
-  //   },
-  //   {
-  //     key: "2",
-  //     label: (
-  //       <a target="_blank" rel="noopener noreferrer" href="https://www.aliyun.com">
-  //         2nd menu item (disabled)
-  //       </a>
-  //     ),
-  //     // icon: <SmileOutlined />,
-  //     disabled: true,
-  //   },
-  //   {
-  //     key: "3",
-  //     label: (
-  //       <a target="_blank" rel="noopener noreferrer" href="https://www.luohanacademy.com">
-  //         3rd menu item (disabled)
-  //       </a>
-  //     ),
-  //     disabled: true,
-  //   },
-  //   {
-  //     key: "4",
-  //     danger: true,
-  //     label: "a danger item",
-  //   },
-  // ]
 
   const menu = (
     <Menu
