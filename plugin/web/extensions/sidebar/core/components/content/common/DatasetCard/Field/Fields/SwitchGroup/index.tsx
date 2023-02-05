@@ -4,29 +4,41 @@ import { styled } from "@web/theme";
 
 import { BaseField as BaseFieldProps } from "..";
 
-import useHooks, { SwitchGroupObj } from "./hooks";
+import useHooks from "./hooks";
+import SwitchGroupItems from "./SwitchGroupItem";
+import { SwitchGroupObj } from "./types";
 
-type Props = BaseFieldProps<"legend"> & {
+type Props = BaseFieldProps<"switchGroup"> & {
   value: SwitchGroupObj;
   editMode?: boolean;
 };
+
 const SwitchGroup: React.FC<Props> = ({ value, editMode }) => {
   const {
-    groups,
+    switchGroupObj,
     groupsTitle,
-    handleMoveDown,
-    handleMoveUp,
-    handleAdd,
-    handleRemove,
     handleTitleChange,
+    handleChooseGroup,
+    handleMoveDown,
+    handleRemove,
+    handleMoveUp,
+    currentGroup,
+    modifiedGroups,
+    handAddItem,
+    handleModifyGroup,
+    handleModifyGroupTitle,
   } = useHooks(value);
 
   const menu = (
     <Menu
-      items={Object.keys(groups.groups).map(ls => {
+      items={switchGroupObj.groups.map(ls => {
         return {
-          key: ls,
-          label: <p style={{ margin: 0 }}>{ls}</p>,
+          key: ls.group,
+          label: (
+            <p style={{ margin: 0 }} onClick={() => handleChooseGroup(ls)}>
+              {ls.group}
+            </p>
+          ),
         };
       })}
     />
@@ -40,47 +52,30 @@ const SwitchGroup: React.FC<Props> = ({ value, editMode }) => {
           <TextInput defaultValue={groupsTitle} onChange={handleTitleChange} />
         </FieldValue>
       </Field>
-      <AddButton text="項目" onClick={handleAdd} />
-      {groups.groups?.map((item, idx) => (
-        <Item key={idx}>
-          <ItemControls>
-            <Icon icon="arrowUpThin" size={16} onClick={() => handleMoveUp(idx)} />
-            <Icon icon="arrowDownThin" size={16} onClick={() => handleMoveDown(idx)} />
-            <Icon icon="trash" size={16} onClick={() => handleRemove(idx)} />
-          </ItemControls>
-          <Field>
-            <FieldTitle>グループ</FieldTitle>
-            <FieldValue>
-              <Dropdown overlay={menu} placement="bottom" trigger={["click"]}>
-                <StyledDropdownButton>
-                  <p style={{ margin: 0 }}>{groups.groups[0].title}</p>
-                  <Icon icon="arrowDownSimple" size={12} />
-                </StyledDropdownButton>
-              </Dropdown>
-            </FieldValue>
-          </Field>
-          <Field>
-            <FieldTitle>題名</FieldTitle>
-            <FieldValue>
-              <TextInput value={item.title} />
-            </FieldValue>
-          </Field>
-        </Item>
-      ))}
+      <AddButton text="Add Item" onClick={handAddItem} />
+      <SwitchGroupItems
+        items={modifiedGroups?.groups}
+        switchGroups={switchGroupObj.groups}
+        handleMoveDown={handleMoveDown}
+        handleMoveUp={handleMoveUp}
+        handleRemove={handleRemove}
+        handleModifyGroup={handleModifyGroup}
+        handleModifyGroupTitle={handleModifyGroupTitle}
+      />
     </Wrapper>
   ) : (
     <Wrapper>
-      {/* {legend.items?.map((item, idx) => (
-        <Field key={idx} gap={12}>
-          {legend.style === "icon" ? (
-            <StyledImg src={item.url} />
-          ) : (
-            <ColorBlock color={item.color} legendStyle={legend.style} />
-          )}
-          <Text>{item.title}</Text>
-        </Field>
-      ))} */}
-      <div>test</div>
+      <Field>
+        <FieldTitle>{groupsTitle}</FieldTitle>
+        <FieldValue>
+          <Dropdown overlay={menu} placement="bottom" trigger={["click"]}>
+            <StyledDropdownButton>
+              <p style={{ margin: 0 }}>{currentGroup.group}</p>
+              <Icon icon="arrowDownSimple" size={12} />
+            </StyledDropdownButton>
+          </Dropdown>
+        </FieldValue>
+      </Field>
     </Wrapper>
   );
 };
@@ -105,22 +100,6 @@ const StyledDropdownButton = styled.div`
 
 const Text = styled.p`
   margin: 0;
-`;
-
-const Item = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  border: 1px solid #d9d9d9;
-  border-radius: 2px;
-  padding: 8px;
-`;
-
-const ItemControls = styled.div`
-  display: flex;
-  justify-content: right;
-  gap: 4px;
-  cursor: pointer;
 `;
 
 const Field = styled.div<{ gap?: number }>`

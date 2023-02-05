@@ -14,6 +14,7 @@ export type BaseField<T extends FieldType> = {
   id: string;
   type: T;
   title: string;
+  configTitle: string;
   // icon?: string;
   // url?: string;
   // onChange?: () => void;

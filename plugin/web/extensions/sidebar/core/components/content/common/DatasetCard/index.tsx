@@ -109,6 +109,7 @@ const DatasetCard: React.FC<Props> = ({ dataset, inEditor, onRemove }) => {
                   id: "legend",
                   icon: undefined,
                   title: "凡例",
+                  configTitle: "凡例",
                   type: "legend",
                   value: {
                     style: "circle",
@@ -131,34 +132,42 @@ const DatasetCard: React.FC<Props> = ({ dataset, inEditor, onRemove }) => {
                   id: "description",
                   icon: undefined,
                   title: "説明",
+                  configTitle: "説明",
                   value: `*This is my descripadsfojl.*
                   (c) (C) (r) (R) (tm) (TM) (p) (P) +-
                   [link text](http://google.ca)`,
                   isMarkdown: true,
                   type: "description",
                 },
-                { id: "template", icon: undefined, title: "Template", type: "template" },
+                {
+                  id: "template",
+                  icon: undefined,
+                  title: "Template",
+                  configTitle: "Template",
+                  type: "template",
+                },
                 {
                   id: "switchGroup",
                   icon: undefined,
-                  title: "グループを切り替える",
+                  title: "Options",
+                  configTitle: "Switch group (General)",
                   type: "switchGroup",
                   value: {
                     title: "example",
                     groups: [
                       {
                         id: 1,
-                        group: "1",
+                        group: "gr1",
                         title: "",
                       },
                       {
                         id: 2,
-                        group: "2",
+                        group: "gr2",
                         title: "",
                       },
                       {
                         id: 3,
-                        group: "3",
+                        group: "gr3",
                         title: "",
                       },
                     ],

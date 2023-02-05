@@ -53,7 +53,7 @@ const FieldComponent: React.FC<Props> = ({ field, editMode, onGroupAdd, onRemove
                 <HeaderContents>
                   <LeftContents>
                     <ArrowIcon icon="arrowDown" size={16} direction="right" expanded={expanded} />
-                    <Title>{field.title}</Title>
+                    <Title>{field.configTitle}</Title>
                   </LeftContents>
                   <RightContents>
                     <StyledIcon icon="group" size={16} onClick={handleGroupAdd} />

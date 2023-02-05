@@ -1,62 +1,93 @@
+//import { array_move } from "@web/extensions/sidebar/utils";
+
 import { array_move } from "@web/extensions/sidebar/utils";
 import { useCallback, useEffect, useState } from "react";
 
-export type groupItem = {
-  title: string;
-  group: string;
-  id: number;
-};
-
-export type SwitchGroupObj = {
-  title: string;
-  groups: groupItem[];
-};
+import { groupItem, SwitchGroupObj } from "./types";
 
 export default (value: SwitchGroupObj) => {
-  const [groups, updateGroups] = useState<SwitchGroupObj>(value);
+  const [switchGroupObj, updateGroups] = useState<SwitchGroupObj>(value);
   const [groupsTitle, setGroupsTitle] = useState(value.title);
+  const [currentGroup, setCurrentGroup] = useState<groupItem>(value.groups[0]);
+  const [modifiedGroups, updateModifiedGroups] = useState<SwitchGroupObj | undefined>();
 
+  //initialize the helper array (modifiedGroups)
+  useEffect(() => {
+    updateModifiedGroups({ title: "Temp", groups: [] });
+  }, []);
+
+  //add empty item each time we press on add item
+  const handAddItem = useCallback(() => {
+    updateModifiedGroups(l => {
+      if (!l) return;
+      l.groups.push({ id: 0, group: "", title: "" });
+      return { ...l, groups: l.groups };
+    });
+  }, []);
+
+  //modiy the group in the helper array
+  const handleModifyGroup = (group: string, index: number) => {
+    updateModifiedGroups(l => {
+      let newArray: groupItem[] | undefined = undefined;
+      if (!l || !l.groups) return;
+      newArray = l.groups;
+      newArray[index].group = group;
+      return { ...l, groups: newArray };
+    });
+  };
+
+  //modify the title in the helper array
+  const handleModifyGroupTitle = (title: string, index: number) => {
+    updateModifiedGroups(l => {
+      let newArray: groupItem[] | undefined = undefined;
+      if (!l || !l.groups) return;
+      newArray = l.groups;
+      newArray[index].title = title;
+      return { ...l, groups: newArray };
+    });
+  };
+
+  //modify the title of the switch group in config and reflect it on main switch group field component
   const handleTitleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     setGroupsTitle(e.target.value);
   }, []);
 
+  //handle on change group in main field component
+  const handleChooseGroup = useCallback((item: groupItem) => {
+    setCurrentGroup(item);
+  }, []);
+
   const handleMoveUp = useCallback((idx: number) => {
     if (idx === 0) return;
-    updateGroups(l => {
+    updateModifiedGroups(l => {
       let newItems: groupItem[] | undefined = undefined;
-      if (l.groups) {
-        newItems = l.groups;
-        array_move(newItems, idx, idx - 1);
-      }
-      return { ...l, items: newItems };
+      if (!l || !l.groups) return;
+      newItems = l.groups;
+      array_move(newItems, idx, idx - 1);
+      return { ...l, groups: newItems };
     });
   }, []);
+
   const handleMoveDown = useCallback(
     (idx: number) => {
-      if (groups.groups && idx >= groups.groups.length - 1) return;
-      updateGroups(l => {
+      if (modifiedGroups?.groups && idx >= modifiedGroups.groups.length - 1) return;
+      updateModifiedGroups(l => {
         let newItems: groupItem[] | undefined = undefined;
-        if (l.groups) {
-          newItems = l.groups;
-          array_move(newItems, idx, idx + 1);
-        }
-        return { ...l, items: newItems };
+        if (!l || !l.groups) return;
+        newItems = l.groups;
+        array_move(newItems, idx, idx + 1);
+        return { ...l, groups: newItems };
       });
     },
-    [groups.groups],
+    [modifiedGroups?.groups],
   );
 
-  const handleAdd = useCallback(() => {
-    alert("ADD ITEM");
-  }, []);
-
   const handleRemove = useCallback((idx: number) => {
-    updateGroups(l => {
+    updateModifiedGroups(l => {
       let newItems: groupItem[] | undefined = undefined;
-      if (l.groups) {
-        newItems = l.groups.filter((_, idx2) => idx2 != idx);
-      }
-      return { ...l, items: newItems };
+      if (!l || !l.groups) return;
+      newItems = l.groups.filter((_, idx2) => idx2 != idx);
+      return { ...l, groups: newItems };
     });
   }, []);
 
@@ -67,15 +98,29 @@ export default (value: SwitchGroupObj) => {
         groupsTitle,
       };
     });
-  }, [groupsTitle]);
+    updateGroups(l => {
+      l.groups?.forEach(item1 => {
+        const itemFromArr2 = modifiedGroups?.groups.find(item2 => item2.group == item1.group);
+        if (itemFromArr2) {
+          item1.title = itemFromArr2.title;
+        }
+      });
+      return { ...l };
+    });
+  }, [groupsTitle, modifiedGroups]);
 
   return {
-    groups,
+    switchGroupObj,
     groupsTitle,
-    handleTitleChange,
-    handleMoveUp,
-    handleMoveDown,
-    handleAdd,
+    currentGroup,
+    modifiedGroups,
+    handleModifyGroupTitle,
+    handleModifyGroup,
+    handAddItem,
     handleRemove,
+    handleMoveDown,
+    handleMoveUp,
+    handleTitleChange,
+    handleChooseGroup,
   };
 };
