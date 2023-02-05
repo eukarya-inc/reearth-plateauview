@@ -1,5 +1,3 @@
-//import { array_move } from "@web/extensions/sidebar/utils";
-
 import { array_move } from "@web/extensions/sidebar/utils";
 import { useCallback, useEffect, useState } from "react";
 
