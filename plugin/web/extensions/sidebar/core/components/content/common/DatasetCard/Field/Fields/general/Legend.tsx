@@ -1,8 +1,7 @@
 import AddButton from "@web/extensions/sidebar/core/components/content/common/AddButton";
 import { Icon, Dropdown, Menu } from "@web/sharedComponents";
 import { styled } from "@web/theme";
-import _ from "lodash";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 
 import { BaseFieldProps, LegendItem, LegendStyleType } from "../types";
 
@@ -26,32 +25,36 @@ function array_move(arr: any[], old_index: number, new_index: number) {
 const Legend: React.FC<BaseFieldProps<"legend">> = ({ value, editMode, onUpdate }) => {
   const [legend, updateLegend] = useState(value);
 
-  useEffect(() => {
-    if (!_.isEqual(legend, value)) {
-      onUpdate(legend);
-    }
-  }, [value, legend, onUpdate]);
+  const handleStyleChange = useCallback(
+    (style: LegendStyleType) => {
+      updateLegend(l => {
+        const newLegend = {
+          ...l,
+          style,
+        };
+        onUpdate(newLegend);
+        return newLegend;
+      });
+    },
+    [onUpdate],
+  );
 
-  const handleStyleChange = useCallback((style: LegendStyleType) => {
-    updateLegend(l => {
-      return {
-        ...l,
-        style,
-      };
-    });
-  }, []);
-
-  const handleMoveUp = useCallback((idx: number) => {
-    if (idx === 0) return;
-    updateLegend(l => {
-      let newItems: LegendItem[] | undefined = undefined;
-      if (l.items) {
-        newItems = l.items;
-        array_move(newItems, idx, idx - 1);
-      }
-      return { ...l, items: newItems };
-    });
-  }, []);
+  const handleMoveUp = useCallback(
+    (idx: number) => {
+      if (idx === 0) return;
+      updateLegend(l => {
+        let newItems: LegendItem[] | undefined = undefined;
+        if (l.items) {
+          newItems = l.items;
+          array_move(newItems, idx, idx - 1);
+        }
+        const newLegend = { ...l, items: newItems };
+        onUpdate(newLegend);
+        return newLegend;
+      });
+    },
+    [onUpdate],
+  );
 
   const handleMoveDown = useCallback(
     (idx: number) => {

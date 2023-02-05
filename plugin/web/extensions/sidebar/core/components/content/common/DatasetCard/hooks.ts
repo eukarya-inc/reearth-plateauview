@@ -85,42 +85,42 @@ export default ({
     },
     description: {
       name: fieldName["description"],
-      onClick: () => handleFieldAdd({}),
+      onClick: handleFieldAdd({}),
     },
     legend: {
       name: fieldName["legend"],
-      onClick: () => handleFieldAdd({ style: "square", items: [{ title: "hey", color: "red" }] }),
+      onClick: handleFieldAdd({ style: "square", items: [{ title: "hey", color: "red" }] }),
     },
   };
 
   const pointFields: FieldDropdownItem = {
     pointColor: {
       name: fieldName["pointColor"],
-      onClick: () => console.log("do something"),
+      onClick: ({ key }) => console.log("do something: ", key),
     },
     pointColorGradient: {
       name: fieldName["pointColorGradient"],
-      onClick: () => console.log("do something"),
+      onClick: ({ key }) => console.log("do something: ", key),
     },
     pointSize: {
       name: fieldName["pointSize"],
-      onClick: () => console.log("do something"),
+      onClick: ({ key }) => console.log("do something: ", key),
     },
     pointIcon: {
       name: fieldName["pointIcon"],
-      onClick: () => console.log("do something"),
+      onClick: ({ key }) => console.log("do something: ", key),
     },
     pointLabel: {
       name: fieldName["pointLabel"],
-      onClick: () => console.log("do something"),
+      onClick: ({ key }) => console.log("do something: ", key),
     },
     pointModel: {
       name: fieldName["pointModel"],
-      onClick: () => console.log("do something"),
+      onClick: ({ key }) => console.log("do something: ", key),
     },
     pointStroke: {
       name: fieldName["pointStroke"],
-      onClick: () => console.log("do something"),
+      onClick: ({ key }) => console.log("do something: ", key),
     },
   };
 
