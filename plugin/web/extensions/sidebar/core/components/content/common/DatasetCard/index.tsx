@@ -50,8 +50,8 @@ const DatasetCard: React.FC<Props> = ({
     onDatasetUpdate,
   });
 
-  const baseFields: BaseFieldType[] = useMemo(
-    () => [
+  const baseFields: BaseFieldType[] = useMemo(() => {
+    const fields = [
       {
         id: "zoom",
         title: "カメラ",
@@ -61,9 +61,21 @@ const DatasetCard: React.FC<Props> = ({
       },
       { id: "about", title: "About Data", icon: "about", value: "www.plateau.org/data-url" },
       { id: "remove", icon: "trash", onClick: () => onRemoveDataset?.(dataset.id) },
-    ],
-    [dataset, onRemoveDataset],
-  );
+    ];
+    if (
+      currentTab === "default" &&
+      dataset.components?.find(c => c.type === "search" && c.enabled)
+    ) {
+      fields.push({
+        id: "search",
+        title: "Search Data",
+        icon: "search",
+        value: 1,
+        onClick: () => {},
+      });
+    }
+    return fields;
+  }, [currentTab, dataset, onRemoveDataset]);
 
   const handleTabChange: React.MouseEventHandler<HTMLParagraphElement> = useCallback(e => {
     e.stopPropagation();

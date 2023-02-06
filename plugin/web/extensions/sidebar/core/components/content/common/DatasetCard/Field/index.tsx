@@ -40,7 +40,7 @@ const FieldComponent: React.FC<Props> = ({ field, editMode, onUpdate, onRemove, 
     [field, onRemove],
   );
 
-  return !editMode && field.type === "camera" ? null : (
+  return !editMode && (field.type === "camera" || field.type === "search") ? null : (
     <StyledAccordionComponent allowZeroExpanded>
       <AccordionItem>
         <AccordionItemState>

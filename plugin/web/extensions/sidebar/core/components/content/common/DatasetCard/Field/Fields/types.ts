@@ -11,6 +11,7 @@ export const fieldName = {
   pointLabel: "ラベル",
   pointModel: "モデル",
   pointStroke: "ストロック",
+  search: "Search",
 };
 
 // type Component = Camera | Legend | Realtime | Point | Polyline | Polygon | Model | Description;
@@ -24,7 +25,8 @@ export type FieldComponent =
   | PointIcon
   | PointLabel
   | PointModel
-  | PointStroke;
+  | PointStroke
+  | Search;
 
 export type Camera = {
   type: "camera";
@@ -106,6 +108,11 @@ type PointStroke = {
   group?: string;
 };
 
+export type Search = {
+  type: "search";
+  enabled: boolean;
+};
+
 type Fields = {
   // general
   camera: Camera;
@@ -123,6 +130,7 @@ type Fields = {
   // polygon
   // 3d-model
   // 3d-tile
+  search: Search;
 };
 
 export type BaseFieldProps<T extends keyof Fields> = {

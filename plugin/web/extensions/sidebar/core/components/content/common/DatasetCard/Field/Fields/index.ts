@@ -12,6 +12,8 @@ import PointLabel from "./point/PointLabel";
 import PointModel from "./point/PointModel";
 import PointSize from "./point/PointSize";
 import PointStroke from "./point/PointStroke";
+// 3d-tiles
+import Search from "./threedtile/Search";
 import { FieldComponent } from "./types";
 // import Template from "./Template";
 
@@ -36,6 +38,7 @@ const fieldComponents: Fields<FieldComponent> = {
   // polygon
   // 3d-model
   // 3d-tile
+  search: Search,
   // realtime: Realtime,
   // template: Template,
 };
