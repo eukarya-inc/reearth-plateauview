@@ -10,7 +10,7 @@ require (
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/labstack/echo/v4 v4.10.0
 	github.com/reearth/go3dtiles v0.0.0-20221207041852-493e7e51cca9
-	github.com/reearth/reearthx v0.0.0-20221109022045-dd54f4626639
+	github.com/reearth/reearthx v0.0.0-20230203210115-d04054013125
 	github.com/samber/lo v1.33.0
 	github.com/sendgrid/sendgrid-go v3.12.0+incompatible
 	github.com/stretchr/testify v1.8.1
@@ -20,8 +20,12 @@ require (
 )
 
 require (
+	github.com/fatih/color v1.10.0 // indirect
+	github.com/goccy/go-yaml v1.9.8 // indirect
+	github.com/nicksnyder/go-i18n/v2 v2.2.1 // indirect
 	github.com/richardlehane/mscfb v1.0.4 // indirect
 	github.com/richardlehane/msoleps v1.0.3 // indirect
+	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1 // indirect
 )
 
 require (
