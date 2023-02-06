@@ -33,20 +33,24 @@ var builtinConfig = &indexer.Config{
 }
 
 type Indexer struct {
-	base    *url.URL
-	config  *indexer.Config
-	cms     cms.Interface
-	pid     string
+	base   *url.URL
+	config *indexer.Config
+	cms    cms.Interface
+	pid    string
+	// true -> faster but uses more memory
 	zipMode bool
+	// true -> more stable but uses more memory
+	bufferMode bool
 }
 
 func NewIndexer(cms cms.Interface, pid string, base *url.URL) *Indexer {
 	return &Indexer{
-		base:    base,
-		config:  builtinConfig,
-		cms:     cms,
-		pid:     pid,
-		zipMode: false,
+		base:       base,
+		config:     builtinConfig,
+		cms:        cms,
+		pid:        pid,
+		zipMode:    false,
+		bufferMode: false,
 	}
 }
 
@@ -68,6 +72,15 @@ func (i *Indexer) BuildIndex(ctx context.Context, name string) (string, error) {
 		return "", fmt.Errorf("インデックスを作成できませんでした。%w", err)
 	}
 
+	log.Infof("indexer webhook: suceeded to build indexes for %s", name)
+
+	if i.bufferMode {
+		return i.uploadWithBuffer(ctx, name, res)
+	}
+	return i.uploadWithPipe(ctx, name, res)
+}
+
+func (i *Indexer) uploadWithPipe(ctx context.Context, name string, res indexer.Result) (string, error) {
 	pr, pw := io.Pipe()
 
 	aids := make(chan string)
@@ -92,11 +105,39 @@ func (i *Indexer) BuildIndex(ctx context.Context, name string) (string, error) {
 		return "", fmt.Errorf("結果のアップロードに失敗しました。(2) %w", err)
 	}
 
+	log.Debugf("indexer webhook: waiting for finishing asset upload of indexes for %s", name)
+
 	aid := <-aids
-	err = <-errs
+	err := <-errs
 	if err != nil {
 		return "", fmt.Errorf("結果のアップロードに失敗しました。(3) %w", err)
 	}
+
+	log.Debugf("indexer webhook: succeeded to zip indexes for %s", name)
+	return aid, nil
+}
+
+func (i *Indexer) uploadWithBuffer(ctx context.Context, name string, res indexer.Result) (string, error) {
+	b := &bytes.Buffer{}
+
+	zw := zip.NewWriter(b)
+	zfs := indexer.NewZipOutputFS(zw, "")
+	if err := indexer.NewWriter(i.config, zfs).Write(res); err != nil {
+		return "", fmt.Errorf("failed to save files to zip: %w", err)
+	}
+
+	if err := zw.Close(); err != nil {
+		return "", fmt.Errorf("failed to close zip: %w", err)
+	}
+
+	log.Debugf("indexer webhook: succeeded to zip indexes for %s", name)
+
+	aid, err := i.cms.UploadAssetDirectly(ctx, i.pid, fmt.Sprintf("%s_index.zip", name), b)
+	if err != nil {
+		return "", fmt.Errorf("結果のアップロードに失敗しました。(3) %w", err)
+	}
+
+	log.Debugf("indexer webhook: succeeded to upload indexes for %s", name)
 	return aid, nil
 }
 
@@ -136,9 +177,28 @@ func (i *Indexer) fs() (indexer.FS, error) {
 	return indexer.NewHTTPFS(nil, getAssetBase(i.base)), nil
 }
 
-func getAssetBase(u *url.URL) string {
-	u2 := *u
-	b := path.Join(path.Dir(u.Path), pathFileName(u.Path))
-	u2.Path = b
-	return u2.String()
+type OutputFS struct {
+	c   cms.Interface
+	cb  func(assetID string, err error)
+	ctx context.Context
+	pid string
+}
+
+func NewOutputFS(ctx context.Context, c cms.Interface, projectID string, cb func(assetID string, err error)) *OutputFS {
+	return &OutputFS{
+		c:   c,
+		cb:  cb,
+		ctx: ctx,
+		pid: projectID,
+	}
+}
+
+func (f *OutputFS) Open(p string) (indexer.WriteCloser, error) {
+	pr, pw := io.Pipe()
+
+	go func() {
+		f.cb(f.c.UploadAssetDirectly(f.ctx, f.pid, path.Base(p), pr))
+	}()
+
+	return pw, nil
 }
