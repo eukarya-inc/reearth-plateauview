@@ -3,7 +3,7 @@ import { mergeProperty, postMsg } from "@web/extensions/sidebar/utils";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { Data, Template } from "../newTypes";
-import processCatalog, { CatalogItem, CatalogRawItem } from "../processCatalog";
+import processCatalog, { CatalogRawItem } from "../processCatalog";
 
 import { Pages } from "./Header";
 
@@ -210,18 +210,6 @@ export default () => {
     });
   }, [rawCatalog, project.selectedDatasets]);
 
-  const handleClose = useCallback(() => {
-    postMsg({ action: "popupClose" });
-  }, []);
-
-  const handleDatasetAdd = useCallback(
-    (dataset: CatalogItem) => {
-      handleProjectDatasetAdd(dataset as CatalogRawItem);
-      handleClose();
-    },
-    [handleClose, handleProjectDatasetAdd],
-  );
-
   // ****************************************
 
   // ****************************************
@@ -377,9 +365,9 @@ export default () => {
     handleTemplateAdd,
     handleTemplateUpdate,
     handleTemplateRemove,
-    handleDatasetAdd,
     handleDatasetSave,
     handleDatasetUpdate,
+    handleProjectDatasetAdd,
     handleProjectDatasetRemove,
     handleDatasetRemoveAll,
     handleProjectSceneUpdate,

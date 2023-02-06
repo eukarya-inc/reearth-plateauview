@@ -22,7 +22,6 @@ const MobileDropdown: React.FC<Props> = ({ isMobile }) => {
     processedSelectedDatasets,
     reearthURL,
     backendURL,
-    handleDatasetAdd,
     handleDatasetSave,
     handleDatasetUpdate,
     handleProjectDatasetRemove,
@@ -63,7 +62,6 @@ const MobileDropdown: React.FC<Props> = ({ isMobile }) => {
               addedDatasetIds={addedDatasetIds}
               isMobile={isMobile}
               rawCatalog={rawCatalog}
-              onDatasetAdd={handleDatasetAdd}
             />
           ),
           selection: (

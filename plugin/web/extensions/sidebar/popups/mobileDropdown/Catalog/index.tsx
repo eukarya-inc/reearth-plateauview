@@ -7,16 +7,18 @@ import { postMsg } from "@web/extensions/sidebar/utils";
 import { styled } from "@web/theme";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
+import useHooks from "../hooks";
 import PopupItem from "../sharedComponents/PopupItem";
 
 type Props = {
   addedDatasetIds?: string[];
   isMobile?: boolean;
   rawCatalog?: CatalogRawItem[];
-  onDatasetAdd: (dataset: CatalogItem) => void;
 };
 
-const Catalog: React.FC<Props> = ({ addedDatasetIds, isMobile, rawCatalog, onDatasetAdd }) => {
+const Catalog: React.FC<Props> = ({ addedDatasetIds, isMobile, rawCatalog }) => {
+  const { handleDatasetAdd } = useHooks();
+
   useEffect(() => {
     postMsg({ action: "extendPopup" });
   }, []);
@@ -57,7 +59,7 @@ const Catalog: React.FC<Props> = ({ addedDatasetIds, isMobile, rawCatalog, onDat
             selectedTags={selectedTags}
             onTagSelect={handleTagSelect}
             onOpenDetails={handleOpenDetails}
-            onDatasetAdd={onDatasetAdd}
+            onDatasetAdd={handleDatasetAdd}
           />
         </>
       )}
@@ -70,7 +72,7 @@ const Catalog: React.FC<Props> = ({ addedDatasetIds, isMobile, rawCatalog, onDat
             dataset={selectedDataset}
             addDisabled={addDisabled}
             onTagSelect={handleTagSelect}
-            onDatasetAdd={onDatasetAdd}
+            onDatasetAdd={handleDatasetAdd}
           />
         </>
       )}
