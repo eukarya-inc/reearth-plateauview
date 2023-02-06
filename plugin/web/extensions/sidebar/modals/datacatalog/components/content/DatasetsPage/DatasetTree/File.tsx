@@ -32,9 +32,10 @@ const File: React.FC<Props> = ({
     onSelect?.(item.id);
   }, [item, onOpenDetails, onSelect]);
 
-  const addDisabled = useMemo(() => {
-    return !!addedDatasetIds?.find(id => item?.type === "item" && id === item.id);
-  }, [addedDatasetIds, item]);
+  const addDisabled = useMemo(
+    () => !!addedDatasetIds?.find(id => item?.type === "item" && id === item.id),
+    [addedDatasetIds, item],
+  );
 
   return (
     <>
