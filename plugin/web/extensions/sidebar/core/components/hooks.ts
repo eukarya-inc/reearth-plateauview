@@ -209,7 +209,6 @@ export default () => {
       payload: { addedDatasets: selectedIds, rawCatalog },
     });
   }, [rawCatalog, project.selectedDatasets]);
-
   // ****************************************
 
   // ****************************************
