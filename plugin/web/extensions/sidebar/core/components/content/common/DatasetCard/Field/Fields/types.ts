@@ -110,7 +110,6 @@ type PointStroke = {
 
 export type Search = {
   type: "search";
-  enabled: boolean;
 };
 
 type Fields = {

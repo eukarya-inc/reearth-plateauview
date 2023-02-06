@@ -62,10 +62,7 @@ const DatasetCard: React.FC<Props> = ({
       { id: "about", title: "About Data", icon: "about", value: "www.plateau.org/data-url" },
       { id: "remove", icon: "trash", onClick: () => onRemoveDataset?.(dataset.id) },
     ];
-    if (
-      currentTab === "default" &&
-      dataset.components?.find(c => c.type === "search" && c.enabled)
-    ) {
+    if (currentTab === "default" && dataset.components?.find(c => c.type === "search")) {
       fields.push({
         id: "search",
         title: "Search Data",

@@ -1,24 +1,11 @@
-import { Switch } from "@web/sharedComponents";
 import { styled } from "@web/theme";
-import { useCallback, useState } from "react";
 
 import { BaseFieldProps } from "../types";
 
-const Search: React.FC<BaseFieldProps<"search">> = ({ value, editMode, onUpdate }) => {
-  const [enabled, setEnabled] = useState(!!value.enabled);
-
-  const handleEnabledChange = useCallback(() => {
-    setEnabled(!enabled);
-    onUpdate({
-      type: "search",
-      enabled: !enabled,
-    });
-  }, [enabled, onUpdate]);
-
+const Search: React.FC<BaseFieldProps<"search">> = ({ editMode }) => {
   return editMode ? (
     <Wrapper>
-      <Title>Enable</Title>
-      <Switch checked={enabled} size="small" onChange={handleEnabledChange} />
+      <Title>Enabled</Title>
     </Wrapper>
   ) : null;
 };
@@ -33,7 +20,7 @@ const Wrapper = styled.div`
 `;
 
 const Title = styled.div`
-  width: 87px;
+  width: 100%;
   font-size: 14px;
   display: flex;
   align-items: center;
