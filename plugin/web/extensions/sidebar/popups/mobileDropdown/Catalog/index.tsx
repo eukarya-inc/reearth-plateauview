@@ -68,6 +68,7 @@ const Catalog: React.FC<Props> = ({ addedDatasetIds, isMobile, rawCatalog, onDat
           </PopupItem>
           <DatasetDetails
             dataset={selectedDataset}
+            isMobile={isMobile}
             addDisabled={addDisabled}
             onTagSelect={handleTagSelect}
             onDatasetAdd={onDatasetAdd}
