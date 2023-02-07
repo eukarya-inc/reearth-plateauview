@@ -6,7 +6,7 @@ import MobileDropdown from ".";
   const element = document.getElementById("root");
   if (element) {
     const root = ReactDOM.createRoot(element);
-    root.render(<MobileDropdown isMobile />);
+    root.render(<MobileDropdown />);
   }
 })();
 

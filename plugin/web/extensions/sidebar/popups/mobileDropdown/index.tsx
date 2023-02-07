@@ -10,11 +10,7 @@ import Catalog from "./Catalog";
 import Menu from "./Menu";
 import Selection from "./Selection";
 
-type Props = {
-  isMobile?: boolean;
-};
-
-const MobileDropdown: React.FC<Props> = ({ isMobile }) => {
+const MobileDropdown: React.FC = () => {
   const [currentTab, setCurrentTab] = useState<Tab>();
 
   const {
@@ -74,7 +70,7 @@ const MobileDropdown: React.FC<Props> = ({ isMobile }) => {
           catalog: (
             <Catalog
               addedDatasetIds={addedDatasetIds}
-              isMobile={isMobile}
+              isMobile
               rawCatalog={rawCatalog}
               onDatasetAdd={handleDatasetAdd}
             />
