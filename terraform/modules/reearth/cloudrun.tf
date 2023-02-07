@@ -24,10 +24,7 @@ resource "google_cloud_run_service" "reearth_api" {
     spec {
       service_account_name = google_service_account.reearth_api.email
       containers {
-        # 最初はGCRにコンテナが存在しないケースも有るため、dummyのコンテナを立ち上げる。。
-        # コンテナイメージはCD(GithubAction)から更新する
-        # ignore_changesにimageを指定しているため、構築以降Terraformで更新してもこのコンテナに戻ることはない
-        image = "gcr.io/cloudrun/hello"
+        image = "reearth/reearth:${var.reearth_version}"
         resources {
           limits = {
             cpu    = "1000m"
@@ -49,15 +46,15 @@ resource "google_cloud_run_service" "reearth_api" {
         }
         env {
           name  = "REEARTH_AUTH0_DOMAIN"
-          value = "https://reearth-dev.auth0.com/"
+          value = "https://${var.auth0.domain}"
         }
         env {
           name  = "REEARTH_GCS_BUCKETNAME"
-          value = "static.${var.base_domain}"
+          value = local.static_reearth_domain
         }
         env {
           name  = "REEARTH_ASSETBASEURL"
-          value = "https://static.${var.base_domain}"
+          value = "https://${local.static_reearth_domain}"
         }
         env {
           name  = "REEARTH_TRACERSAMPLE"
@@ -69,7 +66,7 @@ resource "google_cloud_run_service" "reearth_api" {
         }
         env {
           name  = "REEARTH_ORIGINS"
-          value = "http://localhost:3000,https://app.${var.base_domain},https://*.netlify.app,https://marketplace.${var.base_domain}"
+          value = "https://${local.reearth_domain}"
         }
         env {
           name  = "REEARTH_AUTHSRV_DISABLED"
@@ -77,19 +74,19 @@ resource "google_cloud_run_service" "reearth_api" {
         }
         env {
           name  = "REEARTH_HOST"
-          value = "https://api.${var.base_domain}"
+          value = "https://${local.api_reearth_domain}"
         }
         env {
           name  = "REEARTH_HOST_WEB"
-          value = "https://app.${var.base_domain}"
+          value = "https://${local.reearth_domain}"
         }
         env {
           name  = "REEARTH_AUTH_AUD"
-          value = "https://api.${var.base_domain}"
+          value = "https://${local.api_reearth_domain}"
         }
         env {
           name  = "REEARTH_MARKETPLACE_ENDPOINT"
-          value = "https://api.marketplace.${var.base_domain}"
+          value = "https://api.marketplace.reearth.io"
         }
         env {
           name  = "GOOGLE_CLOUD_PROJECT"
@@ -113,7 +110,8 @@ resource "google_cloud_run_service" "reearth_api" {
       metadata[0].annotations,
       template[0].spec[0].containers[0].image,
       template[0].metadata[0].annotations["run.googleapis.com/client-name"],
-      template[0].metadata[0].annotations["client.knative.dev/user-image"]
+      template[0].metadata[0].annotations["client.knative.dev/user-image"],
+      template[0].metadata[0].annotations["run.googleapis.com/client-version"]
     ]
   }
   depends_on = [
@@ -141,9 +139,6 @@ resource "google_secret_manager_secret" "reearth_api" {
 resource "google_secret_manager_secret_version" "reearth_api_dummy" {
   for_each = toset([
     "REEARTH_DB",
-    "REEARTH_AUTH0_CLIENTID",
-    "REEARTH_AUTH0_CLIENTSECRET",
-    "REEARTH_SIGNUPSECRET",
     "REEARTH_MARKETPLACE_SECRET",
   ])
   secret = google_secret_manager_secret.reearth_api[each.value].id
@@ -154,4 +149,35 @@ resource "google_secret_manager_secret_version" "reearth_api_dummy" {
       secret_data
     ]
   }
+}
+
+resource "google_secret_manager_secret_version" "reearth_api_auth0_clientsecret" {
+  secret      = google_secret_manager_secret.reearth_api["REEARTH_AUTH0_CLIENTSECRET"].id
+  secret_data = auth0_client.reearth_api.client_secret
+}
+
+resource "google_secret_manager_secret_version" "reearth_api_auth0_clientid" {
+  secret      = google_secret_manager_secret.reearth_api["REEARTH_AUTH0_CLIENTID"].id
+  secret_data = auth0_client.reearth_api.client_id
+}
+
+resource "google_secret_manager_secret_version" "reearth_api_signupsecret" {
+  secret      = google_secret_manager_secret.reearth_api["REEARTH_SIGNUPSECRET"].id
+  secret_data = random_string.reeart_app_action_secret.result
+}
+
+data "google_iam_policy" "noauth" {
+  binding {
+    role = "roles/run.invoker"
+    members = [
+      "allUsers",
+    ]
+  }
+}
+
+resource "google_cloud_run_service_iam_policy" "reearth_noauth" {
+  location    = var.gcp_region
+  project     = var.gcp_project_name
+  service     = google_cloud_run_service.reearth_api.name
+  policy_data = data.google_iam_policy.noauth.policy_data
 }

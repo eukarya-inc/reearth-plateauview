@@ -5,4 +5,6 @@ module "reearth-api" {
   gcp_project_name      = var.gcp_project_name
   service_prefix        = var.service_prefix
   dns_managed_zone_name = var.dns_managed_zone_name
+  auth0                 = var.auth0
 }
+

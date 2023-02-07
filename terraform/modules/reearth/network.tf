@@ -10,11 +10,11 @@ resource "google_compute_target_https_proxy" "reearth" {
   name             = "reearth-common-https-targetproxy"
   url_map          = google_compute_url_map.reearth.id
   ssl_certificates = [google_compute_managed_ssl_certificate.common.id]
-  lifecycle {
-    ignore_changes = [
-      ssl_certificates,
-    ] #証明書を動的に追加するので2回目以降は無視させる
-  }
+  # lifecycle {
+  #   ignore_changes = [
+  #     ssl_certificates,
+  #   ] #証明書を動的に追加するので2回目以降は無視させる
+  # }
 }
 
 resource "google_compute_global_address" "reearth_lb" {
@@ -26,11 +26,14 @@ resource "google_compute_managed_ssl_certificate" "common" {
 
   managed {
     domains = [
-      "api.${var.base_domain}",
-      "app.${var.base_domain}",
-      "static.${var.base_domain}",
-    ]
+      local.api_reearth_domain,
+      local.reearth_domain,
+      local.static_reearth_domain,
+    ] #TODO: ワイルドカード対応
   }
+  # lifecycle {
+  #   create_before_destroy = true
+  # }
 }
 
 resource "google_compute_global_forwarding_rule" "reearth_https" {
@@ -57,11 +60,11 @@ resource "google_compute_url_map" "reearth" {
   name        = "reearth-common-urlmap"
   description = "reearth common urlmap"
 
-  default_service = google_compute_backend_bucket.static_backend.self_link
+  default_service = google_compute_backend_bucket.app_backend.self_link
 
   host_rule {
     hosts = [
-      "app.${var.base_domain}",
+      local.reearth_domain,
     ]
     path_matcher = "path-matcher-1"
   }
@@ -73,7 +76,7 @@ resource "google_compute_url_map" "reearth" {
 
   host_rule {
     hosts = [
-      "static.${var.base_domain}",
+      local.static_reearth_domain,
     ]
     path_matcher = "path-matcher-2"
   }
@@ -85,7 +88,7 @@ resource "google_compute_url_map" "reearth" {
 
   host_rule {
     hosts = [
-      "api.${var.base_domain}",
+      local.api_reearth_domain,
     ]
     path_matcher = "path-matcher-3"
   }

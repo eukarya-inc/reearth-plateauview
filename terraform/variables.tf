@@ -27,3 +27,25 @@ variable "dns_managed_zone_name" {
   default     = null
   description = "CloudDNSのゾーン名を指定してください"
 }
+
+variable "auth0" {
+  type = object({
+    domain = string
+  })
+  default = {
+    domain = null
+  }
+  description = "auth0に関する設定を指定してください"
+}
+
+variable "auth0_provider" {
+  type = object({
+    domain    = string
+    client_id = string
+  })
+  default = {
+    domain    = null
+    client_id = null
+  }
+  description = "auth0 providerに関する設定を指定してください"
+}

@@ -27,3 +27,23 @@ variable "dns_managed_zone_name" {
   default     = null
   description = "CloudDNSのゾーン名を指定してください"
 }
+
+variable "auth0" {
+  type = object({
+    domain = string
+  })
+  default = {
+    domain = null
+  }
+  description = "auth0に関する設定を指定してください"
+}
+
+variable "reearth_version" {
+  type    = string
+  default = "0.14.1"
+}
+
+variable "cesium_ion_access_token" {
+  type    = string
+  default = ""
+}
