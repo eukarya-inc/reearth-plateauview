@@ -128,22 +128,3 @@ const TextInput = styled.input.attrs({ type: "text" })`
     border: none;
   }
 `;
-
-// const ColorBlock = styled.div<{ color: string; legendStyle?: "circle" | "square" | "line" }>`
-//   width: 30px;
-//   height: ${({ legendStyle }) => (legendStyle === "line" ? "3px" : "30px")};
-//   background: ${({ color }) => color ?? "#d9d9d9"};
-//   border-radius: ${({ legendStyle }) =>
-//     legendStyle
-//       ? legendStyle === "circle"
-//         ? "50%"
-//         : legendStyle === "line"
-//         ? "5px"
-//         : "2px"
-//       : "1px 0 0 1px"};
-// `;
-
-// const StyledImg = styled.img`
-//   width: 30px;
-//   height: 30px;
-// `;
