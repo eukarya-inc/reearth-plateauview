@@ -98,6 +98,7 @@ export default (value: SwitchGroup) => {
         groupsTitle,
       };
     });
+
     updateGroups(switchGroup => {
       switchGroup.groups?.forEach(item1 => {
         const itemFromArr2 = modifiedGroups?.groups.find(item2 => item2.group == item1.group);
