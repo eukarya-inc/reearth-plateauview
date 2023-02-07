@@ -41,16 +41,14 @@ const SwitchGroupItems: React.FC<Props> = ({
                 }}>
                 <option selected disabled defaultValue={""} />
 
-                {switchGroups.map(option => {
-                  return (
-                    <option
-                      key={option.id}
-                      defaultValue={option.group}
-                      disabled={items.find(c => c.group === option.group) ? true : false}>
-                      {option.group}
-                    </option>
-                  );
-                })}
+                {switchGroups.map(option => (
+                  <option
+                    key={option.id}
+                    defaultValue={option.group}
+                    disabled={items.find(c => c.group === option.group) ? true : false}>
+                    {option.group}
+                  </option>
+                ))}
               </SelectWrapper>
             </FieldValue>
           </Field>

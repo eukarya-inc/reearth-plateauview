@@ -4,8 +4,8 @@ import { ComponentType } from "react";
 import Description from "./general/Description";
 import IdealZoom from "./general/IdealZoom";
 import Legend from "./general/Legend";
-// point
 import SwitchGroup from "./general/SwitchGroup";
+// point
 import PointColor from "./point/PointColor";
 import PointColorGradient from "./point/PointColorGradient";
 import PointIcon from "./point/PointIcon";

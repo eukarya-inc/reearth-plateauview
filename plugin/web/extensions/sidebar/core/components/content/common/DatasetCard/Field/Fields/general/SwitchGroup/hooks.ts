@@ -16,32 +16,34 @@ export default (value: SwitchGroup) => {
 
   //add empty item each time we press on add item
   const handAddItem = useCallback(() => {
-    updateModifiedGroups(l => {
-      if (!l) return;
-      l.groups.push({ id: 0, group: "", title: "" });
-      return { ...l, groups: l.groups };
+    updateModifiedGroups(switchGroup => {
+      if (!switchGroup) return;
+      switchGroup.groups.length == 0
+        ? switchGroup.groups.push({ id: 0, group: currentGroup.group, title: currentGroup.title })
+        : switchGroup.groups.push({ id: 0, group: "", title: "" });
+      return { ...switchGroup, groups: switchGroup.groups };
     });
-  }, []);
+  }, [currentGroup]);
 
   //modiy the group in the helper array
   const handleModifyGroup = (group: string, index: number) => {
-    updateModifiedGroups(l => {
+    updateModifiedGroups(switchGroup => {
       let newArray: groupItem[] | undefined = undefined;
-      if (!l || !l.groups) return;
-      newArray = l.groups;
+      if (!switchGroup) return;
+      newArray = switchGroup.groups;
       newArray[index].group = group;
-      return { ...l, groups: newArray };
+      return { ...switchGroup, groups: newArray };
     });
   };
 
   //modify the title in the helper array
   const handleModifyGroupTitle = (title: string, index: number) => {
-    updateModifiedGroups(l => {
+    updateModifiedGroups(switchGroup => {
       let newArray: groupItem[] | undefined = undefined;
-      if (!l || !l.groups) return;
-      newArray = l.groups;
+      if (!switchGroup) return;
+      newArray = switchGroup.groups;
       newArray[index].title = title;
-      return { ...l, groups: newArray };
+      return { ...switchGroup, groups: newArray };
     });
   };
 
@@ -57,53 +59,53 @@ export default (value: SwitchGroup) => {
 
   const handleMoveUp = useCallback((idx: number) => {
     if (idx === 0) return;
-    updateModifiedGroups(l => {
+    updateModifiedGroups(switchGroup => {
       let newItems: groupItem[] | undefined = undefined;
-      if (!l || !l.groups) return;
-      newItems = l.groups;
+      if (!switchGroup) return;
+      newItems = switchGroup.groups;
       array_move(newItems, idx, idx - 1);
-      return { ...l, groups: newItems };
+      return { ...switchGroup, groups: newItems };
     });
   }, []);
 
   const handleMoveDown = useCallback(
     (idx: number) => {
       if (modifiedGroups?.groups && idx >= modifiedGroups.groups.length - 1) return;
-      updateModifiedGroups(l => {
+      updateModifiedGroups(switchGroup => {
         let newItems: groupItem[] | undefined = undefined;
-        if (!l || !l.groups) return;
-        newItems = l.groups;
+        if (!switchGroup) return;
+        newItems = switchGroup.groups;
         array_move(newItems, idx, idx + 1);
-        return { ...l, groups: newItems };
+        return { ...switchGroup, groups: newItems };
       });
     },
     [modifiedGroups?.groups],
   );
 
   const handleRemove = useCallback((idx: number) => {
-    updateModifiedGroups(l => {
+    updateModifiedGroups(switchGroup => {
       let newItems: groupItem[] | undefined = undefined;
-      if (!l || !l.groups) return;
-      newItems = l.groups.filter((_, idx2) => idx2 != idx);
-      return { ...l, groups: newItems };
+      if (!switchGroup) return;
+      newItems = switchGroup.groups.filter((_, idx2) => idx2 != idx);
+      return { ...switchGroup, groups: newItems };
     });
   }, []);
 
   useEffect(() => {
-    updateGroups(l => {
+    updateGroups(switchGroup => {
       return {
-        ...l,
+        ...switchGroup,
         groupsTitle,
       };
     });
-    updateGroups(l => {
-      l.groups?.forEach(item1 => {
+    updateGroups(switchGroup => {
+      switchGroup.groups?.forEach(item1 => {
         const itemFromArr2 = modifiedGroups?.groups.find(item2 => item2.group == item1.group);
         if (itemFromArr2) {
           item1.title = itemFromArr2.title;
         }
       });
-      return { ...l };
+      return { ...switchGroup };
     });
   }, [groupsTitle, modifiedGroups]);
 

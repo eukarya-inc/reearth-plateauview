@@ -7,9 +7,7 @@ import { BaseFieldProps } from "../../types";
 import useHooks from "./hooks";
 import SwitchGroupItems from "./SwitchGroupItem";
 
-type Props = BaseFieldProps<"switchGroup">;
-
-const SwitchGroup: React.FC<Props> = ({ value, editMode }) => {
+const SwitchGroup: React.FC<BaseFieldProps<"switchGroup">> = ({ value, editMode }) => {
   const {
     switchGroupObj,
     groupsTitle,
@@ -43,7 +41,7 @@ const SwitchGroup: React.FC<Props> = ({ value, editMode }) => {
   return editMode ? (
     <Wrapper>
       <Field>
-        <FieldTitle>題名</FieldTitle>
+        <FieldTitle>タイトル</FieldTitle>
         <FieldValue>
           <TextInput defaultValue={groupsTitle} onChange={handleTitleChange} />
         </FieldValue>
