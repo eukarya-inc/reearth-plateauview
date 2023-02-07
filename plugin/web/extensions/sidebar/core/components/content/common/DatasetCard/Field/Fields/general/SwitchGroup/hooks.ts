@@ -17,11 +17,13 @@ export default (value: SwitchGroup) => {
   //add empty item each time we press on add item
   const handAddItem = useCallback(() => {
     updateModifiedGroups(switchGroup => {
-      if (!switchGroup) return;
-      switchGroup.groups.length == 0
-        ? switchGroup.groups.push({ id: 0, group: currentGroup.group, title: currentGroup.title })
-        : switchGroup.groups.push({ id: 0, group: "", title: "" });
-      return { ...switchGroup, groups: switchGroup.groups };
+      if (!switchGroup?.groups) return;
+      let newArray: groupItem[] | undefined = undefined;
+      newArray = switchGroup.groups;
+      newArray.length == 0
+        ? newArray.push({ id: 0, group: currentGroup.group, title: currentGroup.title })
+        : newArray.push({ id: 0, group: "", title: "" });
+      return { ...switchGroup, groups: newArray };
     });
   }, [currentGroup]);
 
@@ -29,7 +31,7 @@ export default (value: SwitchGroup) => {
   const handleModifyGroup = (group: string, index: number) => {
     updateModifiedGroups(switchGroup => {
       let newArray: groupItem[] | undefined = undefined;
-      if (!switchGroup) return;
+      if (!switchGroup?.groups) return;
       newArray = switchGroup.groups;
       newArray[index].group = group;
       return { ...switchGroup, groups: newArray };
@@ -40,7 +42,7 @@ export default (value: SwitchGroup) => {
   const handleModifyGroupTitle = (title: string, index: number) => {
     updateModifiedGroups(switchGroup => {
       let newArray: groupItem[] | undefined = undefined;
-      if (!switchGroup) return;
+      if (!switchGroup?.groups) return;
       newArray = switchGroup.groups;
       newArray[index].title = title;
       return { ...switchGroup, groups: newArray };
@@ -61,7 +63,7 @@ export default (value: SwitchGroup) => {
     if (idx === 0) return;
     updateModifiedGroups(switchGroup => {
       let newItems: groupItem[] | undefined = undefined;
-      if (!switchGroup) return;
+      if (!switchGroup?.groups) return;
       newItems = switchGroup.groups;
       array_move(newItems, idx, idx - 1);
       return { ...switchGroup, groups: newItems };
@@ -73,7 +75,7 @@ export default (value: SwitchGroup) => {
       if (modifiedGroups?.groups && idx >= modifiedGroups.groups.length - 1) return;
       updateModifiedGroups(switchGroup => {
         let newItems: groupItem[] | undefined = undefined;
-        if (!switchGroup) return;
+        if (!switchGroup?.groups) return;
         newItems = switchGroup.groups;
         array_move(newItems, idx, idx + 1);
         return { ...switchGroup, groups: newItems };
@@ -85,7 +87,7 @@ export default (value: SwitchGroup) => {
   const handleRemove = useCallback((idx: number) => {
     updateModifiedGroups(switchGroup => {
       let newItems: groupItem[] | undefined = undefined;
-      if (!switchGroup) return;
+      if (!switchGroup?.groups) return;
       newItems = switchGroup.groups.filter((_, idx2) => idx2 != idx);
       return { ...switchGroup, groups: newItems };
     });
