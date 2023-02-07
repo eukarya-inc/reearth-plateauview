@@ -37,24 +37,20 @@ const File: React.FC<Props> = ({
     [addedDatasetIds, item],
   );
 
-  return (
-    <>
-      {item.type === "item" && (
-        <Wrapper nestLevel={nestLevel} selected={selected}>
-          <NameWrapper onClick={handleOpenDetails}>
-            <Icon icon="file" size={20} />
-            <Name>{item.cityName ?? item.name}</Name>
-          </NameWrapper>
-          <StyledButton
-            type="link"
-            icon={<StyledIcon icon="plusCircle" selected={selected ?? false} />}
-            onClick={handleClick}
-            disabled={addDisabled}
-          />
-        </Wrapper>
-      )}
-    </>
-  );
+  return item.type === "item" ? (
+    <Wrapper nestLevel={nestLevel} selected={selected}>
+      <NameWrapper onClick={handleOpenDetails}>
+        <Icon icon="file" size={20} />
+        <Name>{item.cityName ?? item.name}</Name>
+      </NameWrapper>
+      <StyledButton
+        type="link"
+        icon={<StyledIcon icon="plusCircle" selected={selected ?? false} />}
+        onClick={handleClick}
+        disabled={addDisabled}
+      />
+    </Wrapper>
+  ) : null;
 };
 
 export default File;
