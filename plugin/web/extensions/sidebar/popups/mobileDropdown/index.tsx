@@ -27,9 +27,13 @@ const MobileDropdown: React.FC = () => {
     handleProjectSceneUpdate,
   } = useHooks();
 
-  const changeTab = useCallback((tab: Tab) => {
-    postMsg({ action: "msgToPopup", payload: tab });
-  }, []);
+  const changeTab = useCallback(
+    (tab: Tab) => {
+      postMsg({ action: "msgFromPopup", payload: { currentTab: tab } }); // changes the selected tab in the ui
+      setCurrentTab(tab); // changes the selected tab in the popup
+    },
+    [setCurrentTab],
+  );
 
   const handleDatasetAdd = useCallback(
     (dataset: CatalogItem) => {
