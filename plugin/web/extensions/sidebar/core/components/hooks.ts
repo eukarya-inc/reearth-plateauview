@@ -96,21 +96,20 @@ export default () => {
       return updatedProject;
     });
 
-    postMsg({ action: "addDatasetToScene", payload: dataset }); // MIGHT NEED TO MOVE THIS ELSEWHEREEEE
+    postMsg({ action: "addDatasetToScene", payload: dataset });
   }, []);
 
-  const handleProjectDatasetRemove = useCallback(
-    (id: string) =>
-      updateProject(({ sceneOverrides, selectedDatasets }) => {
-        const updatedProject = {
-          sceneOverrides,
-          selectedDatasets: selectedDatasets.filter(d => d.id !== id),
-        };
-        postMsg({ action: "updateProject", payload: updatedProject });
-        return updatedProject;
-      }),
-    [],
-  );
+  const handleProjectDatasetRemove = useCallback((id: string) => {
+    updateProject(({ sceneOverrides, selectedDatasets }) => {
+      const updatedProject = {
+        sceneOverrides,
+        selectedDatasets: selectedDatasets.filter(d => d.id !== id),
+      };
+      postMsg({ action: "updateProject", payload: updatedProject });
+      return updatedProject;
+    });
+    postMsg({ action: "removeDatasetFromScene", payload: id });
+  }, []);
 
   const handleProjectDatasetRemoveAll = useCallback(
     () =>

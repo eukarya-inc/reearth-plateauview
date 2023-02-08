@@ -1,7 +1,7 @@
 import { Data } from "@web/extensions/sidebar/core/newTypes";
 import { Dropdown, Icon, Menu } from "@web/sharedComponents";
 import { styled } from "@web/theme";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import {
   Accordion,
   AccordionItem,
@@ -41,7 +41,6 @@ const DatasetCard: React.FC<Props> = ({
   onDatasetUpdate,
   // onUpdateField,
 }) => {
-  const [visible, setVisibility] = useState(false);
   const [currentTab, changeTab] = useState<Tabs>("default");
 
   const { fieldGroups, handleFieldUpdate, handleFieldRemove } = useHooks({
@@ -69,10 +68,6 @@ const DatasetCard: React.FC<Props> = ({
     e.stopPropagation();
     changeTab(e.currentTarget.id as Tabs);
   }, []);
-
-  useEffect(() => {
-    setVisibility(dataset.visible ?? false);
-  }, [dataset]);
 
   const handleFieldSave = useCallback(() => {
     if (!inEditor) return;
@@ -116,11 +111,11 @@ const DatasetCard: React.FC<Props> = ({
                 <HeaderContents>
                   <LeftMain>
                     <Icon
-                      icon={!visible ? "hidden" : "visible"}
+                      icon={!dataset.visible ? "hidden" : "visible"}
                       size={20}
                       onClick={e => {
                         e?.stopPropagation();
-                        setVisibility(!visible);
+                        onDatasetUpdate({ ...dataset, visible: !dataset.visible });
                       }}
                     />
                     <Title>{dataset.name}</Title>

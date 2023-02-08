@@ -14,6 +14,8 @@ type ActionType =
   | "screenshotPreview"
   | "screenshotSave"
   | "addDatasetToScene"
+  | "updateDatasetInScene"
+  | "removeDatasetFromScene"
   | "catalogModalOpen"
   | "triggerCatalogOpen"
   | "triggerHelpOpen"
