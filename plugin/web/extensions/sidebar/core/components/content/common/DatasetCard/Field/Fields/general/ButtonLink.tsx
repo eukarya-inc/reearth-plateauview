@@ -1,10 +1,10 @@
 import { styled } from "@web/theme";
 import { useCallback, useState } from "react";
 
-import { BaseFieldProps, ButtonLinkInfo } from "../types";
+import { BaseFieldProps, ButtonLink } from "../types";
 
 const ButtonLink: React.FC<BaseFieldProps<"buttonLink">> = ({ editMode }) => {
-  const [CurrentButton, setCurrentButton] = useState<ButtonLinkInfo>();
+  const [CurrentButton, setCurrentButton] = useState<ButtonLink>();
 
   const handleChangeButtonTitle = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     setCurrentButton(btn => {
@@ -38,7 +38,6 @@ const ButtonLink: React.FC<BaseFieldProps<"buttonLink">> = ({ editMode }) => {
   ) : (
     <Wrapper>
       <Field>
-        <FieldTitle />
         <FieldValue>
           <StyledButton onClick={() => window.open(CurrentButton?.link, "_blank", "noopener")}>
             <Text>{CurrentButton?.title}</Text>
@@ -93,6 +92,7 @@ const TextInput = styled.input.attrs({ type: "text" })`
     border: none;
   }
 `;
+
 const StyledButton = styled.div`
   display: flex;
   justify-content: center;

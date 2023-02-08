@@ -1,7 +1,7 @@
 export const fieldName = {
   camera: "カメラ",
   legend: "凡例",
-  buttonLink: "Button link",
+  buttonLink: "リンクボタン",
   realtime: "リアルタイム",
   point: "ポイント",
   description: "説明",
@@ -134,14 +134,9 @@ type PointStroke = {
   }[];
 };
 
-export type ButtonLinkInfo = {
+export type ButtonLink = FieldBase<"buttonLink"> & {
   title?: string;
   link?: string;
-};
-
-export type ButtonLink = FieldBase<"buttonLink"> & {
-  type: "buttonLink";
-  buttonLink: ButtonLinkInfo;
 };
 
 export type Fields = {
