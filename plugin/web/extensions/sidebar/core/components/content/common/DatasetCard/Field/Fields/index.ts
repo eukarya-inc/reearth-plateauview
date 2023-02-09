@@ -1,6 +1,7 @@
 import { ComponentType } from "react";
 
 // general
+import ButtonLink from "./general/ButtonLink";
 import Description from "./general/Description";
 import IdealZoom from "./general/IdealZoom";
 import Legend from "./general/Legend";
@@ -26,6 +27,8 @@ const fields: Fields<FieldComponent> = {
   legend: { Component: Legend, hasUI: true },
   description: { Component: Description, hasUI: true },
   switchGroup: { Component: SwitchGroup, hasUI: true },
+  buttonLink: { Component: ButtonLink, hasUI: true },
+
   // point
   pointColor: { Component: PointColor, hasUI: false },
   pointColorGradient: { Component: PointColorGradient, hasUI: false },
