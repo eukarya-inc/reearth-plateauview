@@ -129,28 +129,6 @@ func NotifyHandler(conf Config) (echo.HandlerFunc, error) {
 	}, nil
 }
 
-func readDic(ctx context.Context, u string) (string, error) {
-	req, err := http.NewRequestWithContext(ctx, "GET", u, nil)
-	if err != nil {
-		return "", err
-	}
-	res, err := http.DefaultClient.Do(req)
-	if err != nil {
-		return "", err
-	}
-	defer func() {
-		_ = res.Body.Close()
-	}()
-	if res.StatusCode >= 300 {
-		return "", fmt.Errorf("status code is %d", err)
-	}
-	s, err := io.ReadAll(res.Body)
-	if err != nil {
-		return "", err
-	}
-	return string(s), nil
-}
-
 func commentContent(f FMEResult) string {
 	var log string
 	if f.LogURL != "" {
@@ -268,4 +246,26 @@ func itemFromUploadResult(r map[string][]string) (i Item) {
 		}
 	}
 	return
+}
+
+func readDic(ctx context.Context, u string) (string, error) {
+	req, err := http.NewRequestWithContext(ctx, "GET", u, nil)
+	if err != nil {
+		return "", err
+	}
+	res, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return "", err
+	}
+	defer func() {
+		_ = res.Body.Close()
+	}()
+	if res.StatusCode >= 300 {
+		return "", fmt.Errorf("status code is %d", err)
+	}
+	s, err := io.ReadAll(res.Body)
+	if err != nil {
+		return "", err
+	}
+	return string(s), nil
 }
