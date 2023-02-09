@@ -2,6 +2,7 @@ export const fieldName = {
   camera: "カメラ",
   legend: "凡例",
   switchGroup: "Switch group",
+  buttonLink: "リンクボタン",
   realtime: "リアルタイム",
   point: "ポイント",
   description: "説明",
@@ -18,6 +19,7 @@ export const fieldName = {
 export type FieldComponent =
   | Camera
   | Legend
+  | ButtonLink
   | Description
   | PointColor
   | PointColorGradient
@@ -145,12 +147,18 @@ export type SwitchGroup = {
   groups: groupItem[];
 };
 
+export type ButtonLink = FieldBase<"buttonLink"> & {
+  title?: string;
+  link?: string;
+};
+
 export type Fields = {
   // general
   camera: Camera;
   legend: Legend;
   description: Description;
   switchGroup: SwitchGroup;
+  buttonLink: ButtonLink;
   // point
   pointColor: PointColor;
   pointColorGradient: PointColorGradient;
