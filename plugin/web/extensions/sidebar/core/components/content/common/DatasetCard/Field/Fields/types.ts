@@ -1,6 +1,7 @@
 export const fieldName = {
   camera: "カメラ",
   legend: "凡例",
+  styleCode: "style code (General)",
   realtime: "リアルタイム",
   point: "ポイント",
   description: "説明",
@@ -17,6 +18,7 @@ export const fieldName = {
 export type FieldComponent =
   | Camera
   | Legend
+  | StyleCode
   | Description
   | PointColor
   | PointColorGradient
@@ -66,6 +68,9 @@ export type Description = FieldBase<"description"> & {
   isMarkdown?: boolean;
 };
 
+export type StyleCode = FieldBase<"styleCode"> & {
+  src?: string;
+};
 // MAYBE POINT TYPE IS JUST TO CONCEPTUALIZE THE JSONNNN
 // type Point = {
 //   type: "point";
@@ -137,6 +142,7 @@ export type Fields = {
   camera: Camera;
   legend: Legend;
   description: Description;
+  styleCode: StyleCode;
   // point
   pointColor: PointColor;
   pointColorGradient: PointColorGradient;
