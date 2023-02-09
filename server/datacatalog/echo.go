@@ -19,7 +19,7 @@ func Echo(c Config, e *echo.Group) error {
 			log.Errorf("datacatalog: %v", err)
 			return c.JSON(http.StatusInternalServerError, "error")
 		}
-		return c.JSON(http.StatusOK, res.Merge())
+		return c.JSON(http.StatusOK, res.All())
 	})
 
 	e.GET("/citites", func(c echo.Context) error {
@@ -28,7 +28,7 @@ func Echo(c Config, e *echo.Group) error {
 			log.Errorf("datacatalog: %v", err)
 			return c.JSON(http.StatusInternalServerError, "error")
 		}
-		return c.JSON(http.StatusOK, res.MergeByCities())
+		return c.JSON(http.StatusOK, res.ByCities())
 	})
 
 	e.GET("/types", func(c echo.Context) error {
@@ -37,7 +37,7 @@ func Echo(c Config, e *echo.Group) error {
 			log.Errorf("datacatalog: %v", err)
 			return c.JSON(http.StatusInternalServerError, "error")
 		}
-		return c.JSON(http.StatusOK, res.MergeByTypes())
+		return c.JSON(http.StatusOK, res.ByTypes())
 	})
 	return nil
 }

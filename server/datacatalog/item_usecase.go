@@ -2,11 +2,24 @@ package datacatalog
 
 import (
 	"encoding/json"
+	"regexp"
+	"strconv"
+	"strings"
 
 	"github.com/eukarya-inc/reearth-plateauview/server/cms"
 )
 
 const TypeUsecase = "usecase"
+
+var usecaseTypes = map[string]string{
+	"公園":     "park",
+	"避難施設":   "shelter",
+	"鉄道":     "railway",
+	"鉄道駅":    "station",
+	"行政界":    "border",
+	"ランドマーク": "landmark",
+	"緊急輸送道路": "emergency_route",
+}
 
 type UsecaseItem struct {
 	ID          string           `json:"id,omitempty"`
@@ -24,26 +37,47 @@ type UsecaseItem struct {
 	Config      string           `json:"config,omitempty"`
 }
 
+var reReiwa = regexp.MustCompile(`令和([0-9]+?)年度`)
+
 func (i UsecaseItem) DataCatalogs() []DataCatalogItem {
 	var c any
 	_ = json.Unmarshal([]byte(i.Config), &c)
 
-	u := i.DataURL
-	if u == "" || i.Data != nil && i.Data.URL != "" {
+	u := ""
+	if i.Data != nil && i.Data.URL != "" {
 		u = i.Data.URL
+	}
+	if u == "" {
+		u = i.DataURL
+	}
+
+	f := formatTypeEn(i.DataFormat)
+
+	y := ""
+	if ym := reReiwa.FindStringSubmatch(i.Year); len(ym) > 1 {
+		yy, _ := strconv.Atoi(ym[1])
+		y = strconv.Itoa(yy + 2018)
 	}
 
 	return []DataCatalogItem{{
 		ID:          i.ID,
 		Name:        i.Name,
 		Type:        i.Type,
+		TypeEn:      usecaseTypes[i.Type],
 		Prefecture:  i.Prefecture,
 		City:        i.CityName,
-		Format:      i.DataFormat,
-		URL:         u,
+		Format:      f,
+		URL:         assetURLFromFormat(u, f),
 		Description: i.Description,
 		Config:      c,
 		Layers:      i.DataLayers,
-		Year:        i.Year,
+		Year:        y,
 	}}
+}
+
+func formatTypeEn(f string) string {
+	if f == "3D Tiles" {
+		return "3dtiles"
+	}
+	return strings.ToLower(f)
 }

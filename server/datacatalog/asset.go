@@ -13,21 +13,22 @@ var reLod = regexp.MustCompile(`_lod([0-9\.]+?)`)
 var reWard = regexp.MustCompile(`^([0-9]+?)_(.+?)_`)
 
 type AssetName struct {
-	Code       string
-	CityEn     string
-	Year       string
-	Format     string
-	Op         string
-	Feature    string
-	Ex         string
-	Ext        string
-	WardCode   string
-	WardEn     string
-	Lod        string
-	LowTexture bool
-	NoTexture  bool
-	FldName    []string
-	UrfType    string
+	CityCode    string
+	CityEn      string
+	Year        string
+	Format      string
+	Op          string
+	Feature     string
+	Ex          string
+	Ext         string
+	WardCode    string
+	WardEn      string
+	Lod         string
+	LowTexture  bool
+	NoTexture   bool
+	FldCategory string
+	FldName     string
+	UrfType     string
 }
 
 func AssetNameFrom(name string) (a AssetName) {
@@ -39,7 +40,7 @@ func AssetNameFrom(name string) (a AssetName) {
 		return
 	}
 
-	a.Code = m[1]
+	a.CityCode = m[1]
 	a.CityEn = m[2]
 	a.Year = m[3]
 	a.Format = m[4]
@@ -68,7 +69,13 @@ func AssetNameFrom(name string) (a AssetName) {
 	if a.Feature == "urf" {
 		a.UrfType = a.Ex
 	} else if a.Feature == "fld" || a.Feature == "htd" || a.Feature == "ifld" || a.Feature == "tnm" {
-		a.FldName = strings.Split(strings.TrimSuffix(a.Ex, "_op"), "_")
+		fldCategory, fldName, found := strings.Cut(a.Ex, "_")
+		if found {
+			a.FldCategory = fldCategory
+			a.FldName = fldName
+		} else {
+			a.FldName = a.Ex
+		}
 	}
 
 	return
@@ -76,7 +83,7 @@ func AssetNameFrom(name string) (a AssetName) {
 
 func (a AssetName) String() string {
 	return strings.Join(lo.Filter([]string{
-		a.Code,
+		a.CityCode,
 		a.CityEn,
 		a.Year,
 		a.Format,
@@ -84,4 +91,15 @@ func (a AssetName) String() string {
 		a.Feature,
 		a.Ex,
 	}, func(s string, _ int) bool { return s != "" }), "_") + a.Ext
+}
+
+func (a AssetName) IsWard() bool {
+	return a.WardCode != ""
+}
+
+func (a AssetName) CityOrWardCode() string {
+	if a.IsWard() {
+		return a.WardCode
+	}
+	return a.CityCode
 }
