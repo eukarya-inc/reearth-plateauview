@@ -1,6 +1,6 @@
 import { prefectures } from "@web/extensions/sidebar/core/dataTypes";
 import { CatalogRawItem, CatalogItem } from "@web/extensions/sidebar/core/processCatalog";
-import { Icon, Input, Tabs } from "@web/sharedComponents";
+import { Input, Tabs } from "@web/sharedComponents";
 import { styled } from "@web/theme";
 import { useCallback, useEffect, useState } from "react";
 
@@ -135,8 +135,9 @@ const DatasetTree: React.FC<Props> = ({
   const [filter, setFilter] = useState<FilterType>("prefecture");
   const [searchTerm, setSearchTerm] = useState("");
   const [catalog, setCatalog] = useState<DataCatalog>();
+  const [loading, _setLoading] = useState(false); // needs implementation
 
-  const handleSearch = useCallback(({ target: { value } }: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = useCallback(({ target: { value } }: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(value);
   }, []);
 
@@ -158,12 +159,7 @@ const DatasetTree: React.FC<Props> = ({
   return (
     <Wrapper isMobile={isMobile}>
       {!selectedTags?.length && (
-        <StyledInput
-          placeholder="検索"
-          value={searchTerm}
-          onChange={handleSearch}
-          addonAfter={<StyledIcon icon="search" size={15} />}
-        />
+        <StyledInput placeholder="検索" onChange={handleChange} loading={loading} />
       )}
       {selectedTags && selectedTags.length > 0 && (
         <Tags tags={selectedTags} onTagSelect={onTagSelect} />
@@ -216,7 +212,7 @@ const Wrapper = styled.div<{ isMobile?: boolean }>`
   width: ${({ isMobile }) => (isMobile ? "100%" : "310px")};
 `;
 
-const StyledInput = styled(Input)`
+const StyledInput = styled(Input.Search)`
   .ant-input {
     :hover {
       border: 1px solid #00bebe;
@@ -245,8 +241,4 @@ const StyledTabs = styled(Tabs)`
   .ant-tabs-tab.ant-tabs-tab-active .ant-tabs-tab-btn {
     color: #00bebe;
   }
-`;
-
-const StyledIcon = styled(Icon)`
-  margin: 0 auto;
 `;
