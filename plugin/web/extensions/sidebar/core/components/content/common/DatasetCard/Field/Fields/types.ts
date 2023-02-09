@@ -2,6 +2,7 @@ export const fieldName = {
   camera: "カメラ",
   legend: "凡例",
   styleCode: "style code (General)",
+  buttonLink: "リンクボタン",
   realtime: "リアルタイム",
   point: "ポイント",
   description: "説明",
@@ -19,6 +20,7 @@ export type FieldComponent =
   | Camera
   | Legend
   | StyleCode
+  | ButtonLink
   | Description
   | PointColor
   | PointColorGradient
@@ -137,12 +139,18 @@ type PointStroke = {
   }[];
 };
 
+export type ButtonLink = FieldBase<"buttonLink"> & {
+  title?: string;
+  link?: string;
+};
+
 export type Fields = {
   // general
   camera: Camera;
   legend: Legend;
   description: Description;
   styleCode: StyleCode;
+  buttonLink: ButtonLink;
   // point
   pointColor: PointColor;
   pointColorGradient: PointColorGradient;
