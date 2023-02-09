@@ -11,7 +11,7 @@ func TestUsecaseItem_DataCatalogs(t *testing.T) {
 	assert.Equal(t, []DataCatalogItem{{
 		ID:          "id",
 		Name:        "name",
-		Type:        "公園",
+		Type:        "公園情報",
 		TypeEn:      "park",
 		Prefecture:  "pref",
 		City:        "city",
@@ -19,7 +19,7 @@ func TestUsecaseItem_DataCatalogs(t *testing.T) {
 		Layers:      "layers",
 		URL:         "https://example.com/aaaaa/tileset.json",
 		Description: "desc",
-		Year:        "2021",
+		Year:        2021,
 		Config:      map[string]any{"a": "b"},
 	}}, UsecaseItem{
 		ID:          "id",
@@ -38,7 +38,7 @@ func TestUsecaseItem_DataCatalogs(t *testing.T) {
 	assert.Equal(t, []DataCatalogItem{{
 		ID:   "id",
 		URL:  "url",
-		Year: "2022",
+		Year: 2022,
 	}}, UsecaseItem{
 		ID:      "id",
 		DataURL: "url2",

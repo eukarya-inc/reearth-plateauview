@@ -194,7 +194,7 @@ func (r *response) UnmarshalJSON(data []byte) error {
 
 	if r.Model == ModelUsecase {
 		r2.Usecase = lo.Map(r2.Usecase, func(r UsecaseItem, _ int) UsecaseItem {
-			r.Type = TypeUsecase
+			r.Type = "ユースケース"
 			return r
 		})
 	}

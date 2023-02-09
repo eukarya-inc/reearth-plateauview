@@ -284,6 +284,8 @@ func (i *intermediateItem) DataCatalogItem(t string, an AssetName, assetURL, des
 		an.FldName,
 	}, func(s string, _ int) bool { return s != "" }), "_")
 
+	y, _ := strconv.Atoi(an.Year)
+
 	return &DataCatalogItem{
 		ID:          id,
 		Type:        t,
@@ -299,7 +301,7 @@ func (i *intermediateItem) DataCatalogItem(t string, an AssetName, assetURL, des
 		Description: desc,
 		URL:         assetURLFromFormat(assetURL, an.Format),
 		Format:      an.Format,
-		Year:        an.Year,
+		Year:        y,
 	}
 }
 
@@ -383,7 +385,7 @@ func searchIndexURLFrom(assets []*cms.PublicAsset, wardCode string) string {
 		return ""
 	}
 
-	u.Path = path.Join(strings.TrimSuffix(u.Path, path.Ext(u.Path)), "indexRoot.json")
+	u.Path = path.Join(assetRootPath(u.Path), "indexRoot.json")
 	return u.String()
 }
 
@@ -392,26 +394,4 @@ func fldName(t, cityName, raw string, e *DicEntry) string {
 		return raw
 	}
 	return fmt.Sprintf("%s %s（%s）", t, e.Name, cityName)
-}
-
-func assetURLFromFormat(u, f string) string {
-	u2, err := url.Parse(u)
-	if err != nil {
-		return u
-	}
-
-	u2.Path = assetRootPath(u2.Path)
-	if f == "3dtiles" {
-		u2.Path = path.Join(u2.Path, "tileset.json")
-		return u2.String()
-	} else if f == "mvt" {
-		u2.Path = path.Join(u2.Path, "{z}/{x}/{y}.mvt")
-		return u2.String()
-	}
-	return u
-}
-
-func assetRootPath(p string) string {
-	fn := strings.TrimSuffix(path.Base(p), path.Ext(p))
-	return path.Join(path.Dir(p), fn)
 }

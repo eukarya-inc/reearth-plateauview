@@ -33,7 +33,7 @@ func TestFetcher_Do(t *testing.T) {
 	r, err := (&Fetcher{base: lo.Must(url.Parse("https://example.com"))}).Do(ctx)
 	assert.Equal(t, ResponseAll{
 		Plateau: []PlateauItem{{ID: "x"}},
-		Usecase: []UsecaseItem{{ID: "y", Type: "usecase"}, {ID: "z"}},
+		Usecase: []UsecaseItem{{ID: "y", Type: "ユースケース"}, {ID: "z"}},
 	}, r)
 	assert.NoError(t, err)
 }

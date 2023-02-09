@@ -9,8 +9,6 @@ import (
 	"github.com/eukarya-inc/reearth-plateauview/server/cms"
 )
 
-const TypeUsecase = "usecase"
-
 var usecaseTypes = map[string]string{
 	"公園":     "park",
 	"避難施設":   "shelter",
@@ -19,6 +17,7 @@ var usecaseTypes = map[string]string{
 	"行政界":    "border",
 	"ランドマーク": "landmark",
 	"緊急輸送道路": "emergency_route",
+	"ユースケース": "usecase",
 }
 
 type UsecaseItem struct {
@@ -53,16 +52,23 @@ func (i UsecaseItem) DataCatalogs() []DataCatalogItem {
 
 	f := formatTypeEn(i.DataFormat)
 
-	y := ""
+	y := 0
 	if ym := reReiwa.FindStringSubmatch(i.Year); len(ym) > 1 {
 		yy, _ := strconv.Atoi(ym[1])
-		y = strconv.Itoa(yy + 2018)
+		if yy > 0 {
+			y = yy + 2018
+		}
+	}
+
+	t := i.Type
+	if t != "" && t != "ユースケース" {
+		t += "情報"
 	}
 
 	return []DataCatalogItem{{
 		ID:          i.ID,
 		Name:        i.Name,
-		Type:        i.Type,
+		Type:        t,
 		TypeEn:      usecaseTypes[i.Type],
 		Prefecture:  i.Prefecture,
 		City:        i.CityName,
