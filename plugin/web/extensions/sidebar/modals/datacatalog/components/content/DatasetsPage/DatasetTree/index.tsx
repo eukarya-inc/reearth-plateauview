@@ -19,7 +19,7 @@ export type Props = {
   selectedTags?: Tag[];
   filter: FilterType;
   onFilter: (filter: FilterType) => void;
-  onTagSelect: (tag: Tag) => void;
+  onTagSelect?: (tag: Tag) => void;
   onDatasetAdd: (dataset: CatalogItem) => void;
   onOpenDetails?: (data?: CatalogItem) => void;
 };
