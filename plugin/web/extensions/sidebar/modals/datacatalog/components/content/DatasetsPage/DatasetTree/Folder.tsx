@@ -7,6 +7,7 @@ import TreeBuilder from "./TreeBuilder";
 
 type Props = {
   item: CatalogItem;
+  isMobile?: boolean;
   addedDatasetIds?: string[];
   selectedId?: string;
   nestLevel: number;
@@ -17,6 +18,7 @@ type Props = {
 
 const Folder: React.FC<Props> = ({
   item,
+  isMobile,
   addedDatasetIds,
   selectedId,
   nestLevel,
@@ -31,7 +33,7 @@ const Folder: React.FC<Props> = ({
       <FolderItem nestLevel={nestLevel} onClick={() => open(!isOpen)}>
         <NameWrapper>
           <Icon icon={isOpen ? "folderOpen" : "folder"} size={20} />
-          <Name>{item.name}</Name>
+          <Name isMobile={isMobile}>{item.name}</Name>
         </NameWrapper>
       </FolderItem>
       {item.type === "group" &&
@@ -39,6 +41,7 @@ const Folder: React.FC<Props> = ({
           <TreeBuilder
             key={m.name}
             item={m}
+            isMobile={isMobile}
             addedDatasetIds={addedDatasetIds}
             selectedId={selectedId}
             nestLevel={nestLevel + 1}
@@ -92,11 +95,11 @@ const NameWrapper = styled.div`
   display: flex;
 `;
 
-const Name = styled.p`
+const Name = styled.p<{ isMobile?: boolean }>`
   margin: 0 0 0 8px;
   user-select: none;
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden;
-  width: 200px;
+  width: ${({ isMobile }) => (isMobile ? "calc(100vw - 150px)" : "180px")};
 `;

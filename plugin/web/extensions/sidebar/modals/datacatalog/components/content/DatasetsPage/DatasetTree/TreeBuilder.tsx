@@ -6,6 +6,7 @@ import Folder from "./Folder";
 
 type Props = {
   item: CatalogItem;
+  isMobile?: boolean;
   addedDatasetIds?: string[];
   selectedId?: string;
   nestLevel: number;
@@ -16,6 +17,7 @@ type Props = {
 
 const TreeBuilder: React.FC<Props> = ({
   item,
+  isMobile,
   addedDatasetIds,
   selectedId,
   nestLevel,
@@ -31,6 +33,7 @@ const TreeBuilder: React.FC<Props> = ({
   return item.type === "group" ? (
     <Folder
       item={item}
+      isMobile={isMobile}
       addedDatasetIds={addedDatasetIds}
       selectedId={selectedId}
       nestLevel={nestLevel + 1}
@@ -42,6 +45,7 @@ const TreeBuilder: React.FC<Props> = ({
     <File
       key={item.name}
       item={item}
+      isMobile={isMobile}
       addedDatasetIds={addedDatasetIds}
       nestLevel={nestLevel}
       selected={selected}

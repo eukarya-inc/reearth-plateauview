@@ -37,6 +37,7 @@ const FileTree: React.FC<Props> = ({
           <TreeBuilder
             key={item.name}
             item={item}
+            isMobile={isMobile}
             addedDatasetIds={addedDatasetIds}
             selectedId={selectedId}
             nestLevel={1}
