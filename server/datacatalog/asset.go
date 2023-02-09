@@ -23,7 +23,7 @@ type AssetName struct {
 	Ext         string
 	WardCode    string
 	WardEn      string
-	Lod         string
+	LOD         string
 	LowTexture  bool
 	NoTexture   bool
 	FldCategory string
@@ -54,7 +54,7 @@ func AssetNameFrom(name string) (a AssetName) {
 
 	lodm := reLod.FindStringSubmatch(a.Ex)
 	if len(lodm) >= 2 {
-		a.Lod = lodm[1]
+		a.LOD = lodm[1]
 	}
 
 	wardm := reWard.FindStringSubmatch(a.Ex)

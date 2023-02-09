@@ -58,12 +58,18 @@ func (i PlateauItem) BldgItems() []*DataCatalogItem {
 	}
 
 	return lo.Filter(lo.MapToSlice(assets, func(k string, v []*cms.PublicAsset) *DataCatalogItem {
-		a := maxLOD(v)
-		if a == nil {
+		s := maxLODBldg(v)
+		if s == nil || s.Texture == nil {
 			return nil
 		}
 
-		dci := c.DataCatalogItem("建物物モデル", AssetNameFrom(a.URL), a.URL, i.DescriptionBldg)
+		dci := c.DataCatalogItem("建物物モデル", AssetNameFrom(s.Texture.URL), s.Texture.URL, i.DescriptionBldg)
+		if s.LowTexture != nil {
+			dci.BldgLowTextureURL = assetURLFromFormat(s.LowTexture.URL, "3dtiles")
+		}
+		if s.NoTexture != nil {
+			dci.BldgNoTextureURL = assetURLFromFormat(s.NoTexture.URL, "3dtiles")
+		}
 		dci.SearchIndex = searchIndexURLFrom(i.SearchIndex, dci.WardCode)
 		return dci
 	}), func(a *DataCatalogItem, _ int) bool {
@@ -357,6 +363,55 @@ func maxLOD(a []*cms.PublicAsset) *cms.PublicAsset {
 	}).A
 }
 
+type BldgSet struct {
+	LOD        int
+	Texture    *cms.PublicAsset
+	LowTexture *cms.PublicAsset
+	NoTexture  *cms.PublicAsset
+}
+
+func maxLODBldg(a []*cms.PublicAsset) *BldgSet {
+	if len(a) == 0 {
+		return nil
+	}
+
+	type lod struct {
+		A   *cms.PublicAsset
+		F   AssetName
+		LOD int
+	}
+
+	lods := lo.FilterMap(a, func(a *cms.PublicAsset, _ int) (lod, bool) {
+		if a == nil {
+			return lod{}, false
+		}
+		f := AssetNameFrom(a.URL)
+		l, _ := strconv.Atoi(f.LOD)
+		return lod{A: a, LOD: l, F: f}, true
+	})
+
+	l := lo.MaxBy(lods, func(a, b lod) bool {
+		return a.LOD > b.LOD
+	})
+
+	tex, _ := lo.Find(lods, func(a lod) bool {
+		return a.LOD == l.LOD && !a.F.LowTexture && !a.F.NoTexture
+	})
+	lowtex, _ := lo.Find(lods, func(a lod) bool {
+		return a.LOD == l.LOD && a.F.LowTexture
+	})
+	notex, _ := lo.Find(lods, func(a lod) bool {
+		return a.LOD == l.LOD && a.F.NoTexture
+	})
+
+	return &BldgSet{
+		LOD:        l.LOD,
+		Texture:    tex.A,
+		LowTexture: lowtex.A,
+		NoTexture:  notex.A,
+	}
+}
+
 func descFromAsset(a *cms.PublicAsset, descs []string) string {
 	if a == nil || len(descs) == 0 {
 		return ""
@@ -374,6 +429,9 @@ func descFromAsset(a *cms.PublicAsset, descs []string) string {
 
 func searchIndexURLFrom(assets []*cms.PublicAsset, wardCode string) string {
 	a, found := lo.Find(assets, func(a *cms.PublicAsset) bool {
+		if wardCode == "" {
+			return true
+		}
 		return AssetNameFrom(a.URL).WardCode == wardCode
 	})
 	if !found {

@@ -40,7 +40,7 @@ func TestAssetNameFrom(t *testing.T) {
 		Ext:       ".zip",
 		WardCode:  "13109",
 		WardEn:    "shinagawa-ku",
-		Lod:       "2",
+		LOD:       "2",
 		NoTexture: true,
 	}, AssetNameFrom("13100_tokyo23-ku_2020_3dtiles_4_2_op_bldg_13109_shinagawa-ku_lod2_no_texture.zip"))
 
@@ -112,7 +112,7 @@ func TestAssetName_String(t *testing.T) {
 		Ext:       ".zip",
 		WardCode:  "13109",
 		WardEn:    "shinagawa-ku",
-		Lod:       "2",
+		LOD:       "2",
 		NoTexture: true,
 	}.String())
 
