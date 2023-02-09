@@ -1,10 +1,16 @@
 package datacatalog
 
-type usecaseItem struct {
+const TypeUsecase = "usecase"
+
+type UsecaseItem struct {
+	ID   string `json:"id"`
+	Type string `json:"type"`
 	// TODO
 }
 
-func (i usecaseItem) DataCatalogs() []DataCatalogItem {
+func (i UsecaseItem) DataCatalogs() []DataCatalogItem {
 	// TODO
-	return nil
+	return []DataCatalogItem{
+		{ID: i.ID, Type: i.Type},
+	}
 }

@@ -1,10 +1,13 @@
 package datacatalog
 
-type plateauItem struct {
+type PlateauItem struct {
+	ID string `json:"id"`
 	// TODO
 }
 
-func (i plateauItem) DataCatalogs() []DataCatalogItem {
+func (i PlateauItem) DataCatalogs() []DataCatalogItem {
 	// TODO
-	return nil
+	return []DataCatalogItem{
+		{ID: i.ID},
+	}
 }

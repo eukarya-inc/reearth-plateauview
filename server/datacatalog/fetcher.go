@@ -45,10 +45,10 @@ func NewFetcher(c *http.Client, config Config) (*Fetcher, error) {
 	}, nil
 }
 
-func (f *Fetcher) Do(ctx context.Context) (DataCatalogItems, error) {
-	resultPlateau := make(chan []DataCatalogItem)
-	resultUsecase := make(chan []DataCatalogItem)
-	resultDataset := make(chan []DataCatalogItem)
+func (f *Fetcher) Do(ctx context.Context) (ResponseAll, error) {
+	resultPlateau := make(chan ResponseAll)
+	resultUsecase := make(chan ResponseAll)
+	resultDataset := make(chan ResponseAll)
 	errPlateau := make(chan error)
 	errUsecase := make(chan error)
 	errDataset := make(chan error)
@@ -72,41 +72,48 @@ func (f *Fetcher) Do(ctx context.Context) (DataCatalogItems, error) {
 	}()
 
 	if err := <-errPlateau; err != nil {
-		return DataCatalogItems{}, err
+		return ResponseAll{}, err
 	}
 
 	if err := <-errUsecase; err != nil {
-		return DataCatalogItems{}, err
+		return ResponseAll{}, err
 	}
 
 	if err := <-errDataset; err != nil {
-		return DataCatalogItems{}, err
+		return ResponseAll{}, err
 	}
 
-	return DataCatalogItems{
-		Plateau: <-resultPlateau,
-		Usecase: <-resultUsecase,
-		Dataset: <-resultDataset,
+	resPlateau := <-resultPlateau
+	resUsecase := <-resultUsecase
+	resDataset := <-resultDataset
+	return ResponseAll{
+		Plateau: append(append(resPlateau.Plateau, resUsecase.Plateau...), resDataset.Plateau...),
+		Usecase: append(append(resPlateau.Usecase, resUsecase.Usecase...), resDataset.Usecase...),
 	}, nil
 }
 
-func (f *Fetcher) all(ctx context.Context, model string) (resp []DataCatalogItem, err error) {
+func (f *Fetcher) all(ctx context.Context, model string) (resp ResponseAll, err error) {
 	for p := 1; ; p++ {
 		r, err := f.get(ctx, model, p, 0)
 		if err != nil {
-			return nil, err
+			return ResponseAll{}, err
 		}
 
+		resp.Plateau = append(resp.Plateau, r.Plateau...)
+		resp.Usecase = append(resp.Usecase, r.Usecase...)
 		if !r.HasNext() {
 			break
 		}
-
-		resp = append(resp, r.DataCatalogs()...)
 	}
 	return
 }
 
-func (f *Fetcher) get(ctx context.Context, model string, page, perPage int) (r Response, err error) {
+func (f *Fetcher) get(ctx context.Context, model string, page, perPage int) (r response, err error) {
+	if f.c == nil {
+		f.c = http.DefaultClient
+	}
+
+	r.Model = model
 	if perPage == 0 {
 		perPage = 100
 	}
@@ -130,7 +137,7 @@ func (f *Fetcher) get(ctx context.Context, model string, page, perPage int) (r R
 		return
 	}
 
-	err = json.NewDecoder(res.Request.Body).Decode(&r)
+	err = json.NewDecoder(res.Body).Decode(&r)
 	r.Page = page
 	r.PerPage = perPage
 	return
@@ -146,45 +153,61 @@ func (f *Fetcher) url(model string, page, perPage int) string {
 	return u.String()
 }
 
-type Response struct {
+type response responseInternal
+
+type responseInternal struct {
 	Model      string          `json:"-"`
 	Results    json.RawMessage `json:"results"`
-	Plateau    []plateauItem   `json:"-"`
-	Usecase    []usecaseItem   `json:"-"`
+	Plateau    []PlateauItem   `json:"-"`
+	Usecase    []UsecaseItem   `json:"-"`
 	Page       int             `json:"page"`
 	PerPage    int             `json:"perPage"`
-	TotalCount int             `json:"total_count"`
+	TotalCount int             `json:"totalCount"`
 }
 
-func (r *Response) UnmarshalJSON(data []byte) error {
-	if err := json.Unmarshal(data, r); err != nil {
+func (r *response) UnmarshalJSON(data []byte) error {
+	r2 := responseInternal{}
+	if err := json.Unmarshal(data, &r2); err != nil {
 		return err
 	}
+
 	if r.Model == ModelPlateau {
-		if err := json.Unmarshal(r.Results, &r.Plateau); err != nil {
+		if err := json.Unmarshal(r2.Results, &r2.Plateau); err != nil {
+			return err
+		}
+	} else if r.Model == ModelUsecase || r.Model == ModelDataset {
+		if err := json.Unmarshal(r2.Results, &r2.Usecase); err != nil {
 			return err
 		}
 	}
-	if r.Model == ModelUsecase || r.Model == ModelDataset {
-		if err := json.Unmarshal(r.Results, &r.Usecase); err != nil {
-			return err
-		}
+
+	if r.Model == ModelUsecase {
+		r2.Usecase = lo.Map(r2.Usecase, func(r UsecaseItem, _ int) UsecaseItem {
+			r.Type = TypeUsecase
+			return r
+		})
 	}
+
+	r2.Results = nil
+	*r = response(r2)
 	return nil
 }
 
-func (r Response) HasNext() bool {
-	return r.TotalCount/r.PerPage >= r.Page
+func (r response) HasNext() bool {
+	if r.PerPage == 0 {
+		return false
+	}
+	return r.TotalCount > r.Page*r.PerPage
 }
 
-func (r Response) DataCatalogs() []DataCatalogItem {
+func (r response) DataCatalogs() []DataCatalogItem {
 	if r.Plateau != nil {
-		return lo.FlatMap(r.Plateau, func(i plateauItem, _ int) []DataCatalogItem {
+		return lo.FlatMap(r.Plateau, func(i PlateauItem, _ int) []DataCatalogItem {
 			return i.DataCatalogs()
 		})
 	}
 	if r.Usecase != nil {
-		return lo.FlatMap(r.Usecase, func(i usecaseItem, _ int) []DataCatalogItem {
+		return lo.FlatMap(r.Usecase, func(i UsecaseItem, _ int) []DataCatalogItem {
 			return i.DataCatalogs()
 		})
 	}
