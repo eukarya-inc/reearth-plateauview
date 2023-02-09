@@ -1,5 +1,6 @@
 import { Project, ReearthApi } from "@web/extensions/sidebar/types";
 import { mergeProperty, postMsg } from "@web/extensions/sidebar/utils";
+import { Story } from "@web/extensions/storytelling/types";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { Data, Template } from "../newTypes";
@@ -29,6 +30,7 @@ export const defaultProject: Project = {
     ],
   },
   selectedDatasets: [],
+  userStory: undefined,
 };
 
 export default () => {
@@ -270,6 +272,22 @@ export default () => {
     [backendURL, backendAccessToken],
   );
 
+  const handleStoryShare = useCallback((story: Story) => {
+    updateProject(project => {
+      const updatedProject: Project = {
+        ...project,
+        userStory: story,
+      };
+      postMsg({ action: "updateProject", payload: updatedProject });
+      return updatedProject;
+    });
+    setCurrentPage("share");
+  }, []);
+
+  const handleInitUserStory = useCallback((story: Story) => {
+    postMsg({ action: "storyPlay", payload: story });
+  }, []);
+
   // ****************************************
 
   useEffect(() => {
@@ -293,6 +311,8 @@ export default () => {
         handleModalOpen();
       } else if (e.data.action === "triggerHelpOpen") {
         handlePageChange("help");
+      } else if (e.data.action === "storyShare") {
+        handleStoryShare(e.data.payload);
       }
     };
     addEventListener("message", eventListenerCallback);
@@ -311,10 +331,13 @@ export default () => {
         if (data) {
           updateProject(data);
           postMsg({ action: "updateProject", payload: data });
+          if (data.userStory) {
+            handleInitUserStory(data.userStory);
+          }
         }
       })();
     }
-  }, [projectID, backendURL]);
+  }, [projectID, backendURL, handleInitUserStory]);
 
   useEffect(() => {
     if (backendURL) {

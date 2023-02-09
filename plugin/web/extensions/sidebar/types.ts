@@ -1,3 +1,5 @@
+import { Story } from "../storytelling/types";
+
 import { Data } from "./core/newTypes";
 
 type ActionType =
@@ -31,13 +33,15 @@ type ActionType =
   | "extendPopup"
   | "minimize"
   | "buildingSearchOpen"
-  | "cameraFlyTo";
+  | "cameraFlyTo"
+  | "storyPlay";
 
 export type PostMessageProps = { action: ActionType; payload?: any };
 
 export type Project = {
   sceneOverrides: ReearthApi;
   selectedDatasets: Data[];
+  userStory?: Story;
 };
 
 export type ReearthApi = {
@@ -75,4 +79,14 @@ export type Camera = {
   heading: number;
   pitch: number;
   roll: number;
+};
+
+type PluginActionType = "storyShare";
+
+export type PluginMessage = {
+  data: {
+    action: PluginActionType;
+    payload: any;
+  };
+  sender: string;
 };

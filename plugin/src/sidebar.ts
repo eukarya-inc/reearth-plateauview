@@ -1,5 +1,5 @@
 import { CatalogRawItem } from "@web/extensions/sidebar/core/processCatalog";
-import { PostMessageProps, Project } from "@web/extensions/sidebar/types";
+import { PostMessageProps, Project, PluginMessage } from "@web/extensions/sidebar/types";
 
 import html from "../dist/web/sidebar/core/index.html?raw";
 import clipVideoHtml from "../dist/web/sidebar/modals/clipVideo/index.html?raw";
@@ -37,6 +37,7 @@ const defaultProject: Project = {
 type PluginExtensionInstance = {
   id: string;
   runTimes?: number;
+  extensionId: string;
 };
 
 const reearth = (globalThis as any).reearth;
@@ -235,6 +236,15 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
       height: reearth.viewport.height - 68,
       width: reearth.viewport.width - 12,
     });
+  } else if (action === "storyPlay") {
+    const storyTellingWidgetId = reearth.plugins.instances.find(
+      (instance: PluginExtensionInstance) => instance.extensionId === "storytelling",
+    )?.id;
+    if (!storyTellingWidgetId) return;
+    reearth.plugins.postMessage(storyTellingWidgetId, {
+      action: "storyPlay",
+      payload,
+    });
   }
 });
 
@@ -274,5 +284,11 @@ reearth.on("resize", () => {
         },
       });
     }
+  }
+});
+
+reearth.on("pluginmessage", (pluginMessage: PluginMessage) => {
+  if (pluginMessage.data.action === "storyShare") {
+    reearth.ui.postMessage(pluginMessage.data);
   }
 });
