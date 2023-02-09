@@ -4,11 +4,10 @@ import { Input, Tabs } from "@web/sharedComponents";
 import { styled } from "@web/theme";
 import { useCallback, useEffect, useState } from "react";
 
+import { FilterType } from "..";
 import Tags, { Tag as TagType } from "../Tags";
 
 import FileTree, { DataCatalog } from "./FileTree";
-
-type FilterType = "prefecture" | "fileType" | "tag";
 
 export type Tag = TagType;
 
@@ -18,6 +17,8 @@ export type Props = {
   isMobile?: boolean;
   rawCatalog?: CatalogRawItem[];
   selectedTags?: Tag[];
+  filter: FilterType;
+  onFilter: (filter: FilterType) => void;
   onTagSelect: (tag: Tag) => void;
   onDatasetAdd: (dataset: CatalogItem) => void;
   onOpenDetails?: (data?: CatalogItem) => void;
@@ -43,24 +44,12 @@ function typeFilter(catalog: CatalogRawItem[]): DataCatalog {
   return filteredCatalog;
 }
 
-function tagFilter(catalog: CatalogRawItem[]): DataCatalog {
-  const filteredCatalog: CatalogItem[] = prefectures.map(p => {
-    const items: CatalogItem[] = catalog.filter(i => {
-      if (i.prefecture === p) {
-        return {
-          type: "item",
-          ...i,
-        };
-      }
-    }) as CatalogItem[];
-
-    return {
-      type: "group",
-      name: p,
-      children: items,
-    };
-  });
-  return filteredCatalog;
+function tagFilter(catalog: CatalogRawItem[], tags?: Tag[]): DataCatalog {
+  return catalog
+    .filter(item =>
+      item.tags?.some(tag => tags?.some(selectedTag => tag.name === selectedTag.name)),
+    )
+    .map(item => ({ type: "item", ...item } as CatalogItem));
 }
 
 function prefectureFilter(catalog: CatalogRawItem[]): DataCatalog {
@@ -113,11 +102,12 @@ function searchCatalog(catalog: CatalogRawItem[], searchTerm = ""): DataCatalog 
 function filterCatalog(
   rawCatalog: CatalogRawItem[],
   filter: FilterType,
+  payload?: { tags?: Tag[] },
 ): CatalogItem[] | undefined {
   if (filter === "fileType") {
     return typeFilter(rawCatalog);
   } else if (filter === "tag") {
-    return tagFilter(rawCatalog);
+    return tagFilter(rawCatalog, payload?.tags);
   } else {
     return prefectureFilter(rawCatalog);
   }
@@ -128,11 +118,12 @@ const DatasetTree: React.FC<Props> = ({
   isMobile,
   rawCatalog,
   selectedTags,
+  filter,
+  onFilter,
   onTagSelect,
   onDatasetAdd,
   onOpenDetails,
 }) => {
-  const [filter, setFilter] = useState<FilterType>("prefecture");
   const [searchTerm, setSearchTerm] = useState("");
   const [catalog, setCatalog] = useState<DataCatalog>();
   const [loading, _setLoading] = useState(false); // needs implementation
@@ -141,20 +132,15 @@ const DatasetTree: React.FC<Props> = ({
     setSearchTerm(value);
   }, []);
 
-  const handleFilter = useCallback((filter: FilterType) => {
-    setFilter(filter);
-  }, []);
-
   useEffect(() => {
     if (rawCatalog && rawCatalog.length > 0) {
       const filteredCatalog =
         searchTerm.length > 0
           ? searchCatalog(rawCatalog, searchTerm)
-          : filterCatalog(rawCatalog, filter);
-
+          : filterCatalog(rawCatalog, filter, { tags: selectedTags });
       setCatalog(filteredCatalog);
     }
-  }, [rawCatalog, filter, searchTerm]);
+  }, [rawCatalog, filter, searchTerm, selectedTags]);
 
   return (
     <Wrapper isMobile={isMobile}>
@@ -174,7 +160,7 @@ const DatasetTree: React.FC<Props> = ({
                 userSelect: "none",
               }
         }
-        onChange={active => handleFilter(active as FilterType)}>
+        onChange={active => onFilter(active as FilterType)}>
         <Tabs.TabPane key="prefecture" tab="都道府県">
           {catalog && (
             <FileTree
