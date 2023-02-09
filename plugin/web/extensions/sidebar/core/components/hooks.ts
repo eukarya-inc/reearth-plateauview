@@ -349,6 +349,27 @@ export default () => {
     setCurrentPage(p);
   }, []);
 
+  // ThreeDTilesSearch
+  const handleThreeDTilesSearch = useCallback(
+    (dataId: string) => {
+      const name = dataId.split("-").pop();
+      const plateauItem = plateauData.find(pd => pd["city_name"] === name || pd["name"] === name);
+      if (!plateauItem) return;
+      const searchIndex = plateauItem["search_index"];
+
+      if (searchIndex) {
+        postMsg({
+          action: "buildingSearchOpen",
+          payload: {
+            title: plateauItem["city_name"] ?? plateauItem["name"],
+            searchIndex,
+          },
+        });
+      }
+    },
+    [plateauData],
+  );
+
   return {
     rawCatalog,
     project,
@@ -368,6 +389,7 @@ export default () => {
     handleProjectDatasetRemoveAll,
     handleProjectSceneUpdate,
     handleModalOpen,
+    handleThreeDTilesSearch,
   };
 };
 

@@ -11,10 +11,11 @@ type Props = {
   results: Result[];
   highlightAll: boolean;
   showMatchingOnly: boolean;
-  selected: string[];
+  selected: Result[];
+  isSearching: boolean;
   setHighlightAll: React.Dispatch<React.SetStateAction<boolean>>;
   setShowMatchingOnly: React.Dispatch<React.SetStateAction<boolean>>;
-  setSelected: React.Dispatch<React.SetStateAction<string[]>>;
+  setSelected: React.Dispatch<React.SetStateAction<Result[]>>;
 };
 
 const ResultPanel: React.FC<Props> = ({
@@ -23,6 +24,7 @@ const ResultPanel: React.FC<Props> = ({
   highlightAll,
   showMatchingOnly,
   selected,
+  isSearching,
   setHighlightAll,
   setShowMatchingOnly,
   setSelected,
@@ -41,7 +43,7 @@ const ResultPanel: React.FC<Props> = ({
   }, [setShowMatchingOnly]);
 
   const onSelect = useCallback(
-    (selected: string[]) => {
+    (selected: Result[]) => {
       setSelected(selected);
       if (highlightAll) {
         setHighlightAll(false);
@@ -52,12 +54,13 @@ const ResultPanel: React.FC<Props> = ({
 
   return (
     <Wrapper active={active}>
-      <ResultInfo>{`${results.length} matches found`}</ResultInfo>
+      <ResultInfo>{isSearching ? "Searching..." : `${results.length} matches found`}</ResultInfo>
       <ResultWrapper>
-        {results?.map((item, index) => (
-          <ResultItem key={index} item={item} onSelect={onSelect} selected={selected} />
-        ))}
-        {results.length === 0 && (
+        {!isSearching &&
+          results?.map((item, index) => (
+            <ResultItem key={index} item={item} onSelect={onSelect} selected={selected} />
+          ))}
+        {!isSearching && results.length === 0 && (
           <EmptyWrapper>
             <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
           </EmptyWrapper>

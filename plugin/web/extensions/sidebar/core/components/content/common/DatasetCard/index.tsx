@@ -32,6 +32,7 @@ export type Props = {
   onRemoveDataset?: (id: string) => void;
   onDatasetUpdate: (dataset: Data) => void;
   onUpdateField?: (id: string) => void;
+  onThreeDTilesSearch: (id: string) => void;
 };
 const DatasetCard: React.FC<Props> = ({
   dataset,
@@ -40,6 +41,7 @@ const DatasetCard: React.FC<Props> = ({
   onRemoveDataset,
   onDatasetUpdate,
   // onUpdateField,
+  onThreeDTilesSearch,
 }) => {
   const [visible, setVisibility] = useState(false);
   const [currentTab, changeTab] = useState<Tabs>("default");
@@ -68,11 +70,13 @@ const DatasetCard: React.FC<Props> = ({
         title: "Search Data",
         icon: "search",
         value: 1,
-        onClick: () => {},
+        onClick: () => {
+          onThreeDTilesSearch(dataset.dataId);
+        },
       });
     }
     return fields;
-  }, [currentTab, dataset, onRemoveDataset]);
+  }, [currentTab, dataset, onRemoveDataset, onThreeDTilesSearch]);
 
   const handleTabChange: React.MouseEventHandler<HTMLParagraphElement> = useCallback(e => {
     e.stopPropagation();

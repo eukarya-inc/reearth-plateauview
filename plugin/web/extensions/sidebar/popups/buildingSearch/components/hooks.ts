@@ -1,14 +1,27 @@
+import { postMsg } from "@web/extensions/sidebar/utils";
+import { uniq, intersection } from "lodash";
+import Papa from "papaparse";
 import { useCallback, useEffect, useState, useRef } from "react";
 
-import { postMsg } from "../../../utils";
-import type { DatasetIndexes, Condition, Result, Viewport } from "../types";
+import type {
+  DatasetIndexes,
+  Condition,
+  Result,
+  Viewport,
+  RawDatasetData,
+  IndexData,
+  SearchIndex,
+  SearchResults,
+} from "../types";
 
-import { TEST_DATASET_INDEX_DATA, TEST_RESULT_DATA } from "./TEST_DATA";
+// import { TEST_RESULT_DATA } from "./TEST_DATA";
 
 export type Size = {
   width: number;
   height: number;
 };
+
+type DataRowIds = number[];
 
 export default () => {
   // UI
@@ -85,33 +98,105 @@ export default () => {
   const [results, setResults] = useState<Result[]>([]);
   const [highlightAll, setHighlightAll] = useState<boolean>(true);
   const [showMatchingOnly, setShowMatchingOnly] = useState<boolean>(false);
-  const [selected, setSelected] = useState<string[]>([]);
+  const [selected, setSelected] = useState<Result[]>([]);
+  const [isSearching, setIsSearching] = useState<boolean>(false);
+
+  const searchIndexes = useRef<SearchIndex[]>();
+  const searchResults = useRef<SearchResults[]>();
+
+  const loadDetailData = useCallback(async (url: string) => {
+    let results: { dataRowId: number }[] = [];
+    await fetch(url)
+      .then(response => response.text())
+      .then(v => {
+        results = Papa.parse(v, { header: true, skipEmptyLines: true }).data as typeof results;
+      });
+    return results;
+  }, []);
+
+  const loadResultsData = useCallback(async (si: SearchIndex) => {
+    if (si.resultsData) return;
+    await fetch(`${si.baseURL}/resultsData.csv`)
+      .then(response => response.text())
+      .then(v => {
+        si.resultsData = Papa.parse(v, {
+          header: true,
+          skipEmptyLines: true,
+          fastMode: true,
+        }).data;
+      });
+  }, []);
 
   const conditionApply = useCallback(() => {
-    // TODO: Search logic here
-    console.log(conditions);
-    const computeResult = TEST_RESULT_DATA;
+    searchResults.current = [];
+    const combinedResults: Result[] = [];
 
-    setResults(computeResult);
+    (async () => {
+      if (searchIndexes.current) {
+        await Promise.all(
+          searchIndexes.current.map(async si => {
+            // get all conditions groups for current search index
+            const threeDTilesId = si.baseURL.split("/").pop() ?? "";
+            const condGroups: DataRowIds[] = [];
+
+            await Promise.all(
+              conditions.map(async cond => {
+                if (cond.values.length > 0) {
+                  const condGroup: DataRowIds = [];
+                  await Promise.all(
+                    cond.values.map(async v => {
+                      await loadDetailData(
+                        `${si.baseURL}/${si.indexRoot.indexes[cond.field].values[v].url}`,
+                      ).then(v => {
+                        condGroup.push(...v.map(item => item.dataRowId));
+                      });
+                    }),
+                  );
+                  condGroups.push(condGroup);
+                }
+              }),
+            );
+
+            let results: Result[] = [];
+
+            const rowIds = intersection(...condGroups);
+            if (rowIds) {
+              await loadResultsData(si);
+              results = rowIds.map(rowId => si.resultsData?.[rowId]);
+            }
+
+            searchResults.current?.push({
+              threeDTilesId,
+              results,
+            });
+
+            combinedResults.push(...results);
+          }),
+        );
+
+        // combine results from different search index
+        setResults(combinedResults);
+        setIsSearching(false);
+      }
+    })();
+
+    setResults([]);
+    setIsSearching(true);
     setActiveTab("result");
+    setSelected([]);
     setHighlightAll(true);
     setShowMatchingOnly(false);
-  }, [conditions]);
+  }, [conditions, loadDetailData, loadResultsData]);
 
   useEffect(() => {
-    // TODO: flyTo the selected building
+    // TODO: flyTo the selected feature
     if (selected.length === 1) {
       postMsg({
         action: "cameraFlyTo",
         payload: [
           {
-            lng: 137.31210397018728,
-            lat: 34.60832876429294,
-            height: 54735.3396536646,
-            heading: 0.06105070089725917,
-            pitch: -0.8254743840751195,
-            roll: 6.283184517370357,
-            fov: 1.0471975511965976,
+            lng: selected[0].Longitude,
+            lat: selected[0].Latitude,
           },
           { duration: 2 },
         ],
@@ -120,19 +205,14 @@ export default () => {
   }, [selected]);
 
   useEffect(() => {
-    // TODO: flyTo the result if only one
+    // TODO: flyTo the result (feature) if only one
     if (results.length === 1) {
       postMsg({
         action: "cameraFlyTo",
         payload: [
           {
-            lng: 137.31210397018728,
-            lat: 34.60832876429294,
-            height: 54735.3396536646,
-            heading: 0.06105070089725917,
-            pitch: -0.8254743840751195,
-            roll: 6.283184517370357,
-            fov: 1.0471975511965976,
+            lng: results[0].Longitude,
+            lat: results[0].Latitude,
           },
           { duration: 2 },
         ],
@@ -143,6 +223,67 @@ export default () => {
   useEffect(() => {
     // TODO: Update 3D tiles style
   }, [highlightAll, showMatchingOnly, selected, results]);
+
+  const initDatasetData = useCallback(
+    (rawDatasetData: RawDatasetData) => {
+      if (!rawDatasetData) return;
+
+      searchIndexes.current = [];
+
+      const indexData: IndexData[] = [];
+
+      (async () => {
+        await Promise.all(
+          rawDatasetData.searchIndex.map(async si => {
+            const baseURL = si.url.replace(".zip", "");
+
+            const indexRootRes = await fetch(`${baseURL}/indexRoot.json`);
+            if (indexRootRes.status !== 200) return;
+            const indexRoot = await indexRootRes.json();
+            if (indexRoot && searchIndexes.current) {
+              searchIndexes.current.push({
+                baseURL,
+                indexRoot,
+              });
+
+              Object.keys(indexRoot.indexes).forEach(field => {
+                const f = indexData.find(mi => mi.field === field);
+                if (!f) {
+                  indexData.push({
+                    field,
+                    values: Object.keys(indexRoot.indexes[field].values),
+                  });
+                } else {
+                  f.values.push(...Object.keys(indexRoot.indexes[field].values));
+                }
+              });
+            }
+          }),
+        );
+
+        indexData.forEach(indexDataItem => {
+          indexDataItem.values = uniq(indexDataItem.values);
+        });
+
+        setDatasetIndexes({
+          title: rawDatasetData.title,
+          indexes: indexData,
+        });
+        setConditions(indexData.map(index => ({ field: index.field, values: [] })));
+
+        searchIndexes.current?.forEach(si => {
+          loadResultsData(si);
+        });
+      })();
+
+      // const datasetIndexes = ((window as any).buildingSearchInit?.data ??
+      //   TEST_DATASET_INDEX_DATA) as DatasetIndexes;
+
+      // setDatasetIndexes(datasetIndexes);
+      // setConditions(datasetIndexes.indexes.map(index => ({ field: index.field, values: [] })));
+    },
+    [loadResultsData],
+  );
 
   const popupClose = useCallback(() => {
     postMsg({ action: "popupClose" });
@@ -162,12 +303,7 @@ export default () => {
 
     document.documentElement.style.setProperty("--theme-color", "#00BEBE");
 
-    const datasetIndexes = ((window as any).buildingSearchInit?.data ??
-      TEST_DATASET_INDEX_DATA) as DatasetIndexes;
-
-    setDatasetIndexes(datasetIndexes);
-    setConditions(datasetIndexes.indexes.map(index => ({ field: index.field, values: [] })));
-
+    initDatasetData((window as any).buildingSearchInit?.data);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -201,6 +337,7 @@ export default () => {
     highlightAll,
     showMatchingOnly,
     selected,
+    isSearching,
     onClickCondition,
     onClickResult,
     toggleMinimize,

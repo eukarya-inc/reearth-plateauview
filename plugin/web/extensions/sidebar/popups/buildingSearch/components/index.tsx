@@ -15,6 +15,7 @@ const BuildingSearch: React.FC = () => {
     highlightAll,
     showMatchingOnly,
     selected,
+    isSearching,
     onClickCondition,
     onClickResult,
     toggleMinimize,
@@ -73,6 +74,7 @@ const BuildingSearch: React.FC = () => {
             highlightAll={highlightAll}
             showMatchingOnly={showMatchingOnly}
             selected={selected}
+            isSearching={isSearching}
             setHighlightAll={setHighlightAll}
             setShowMatchingOnly={setShowMatchingOnly}
             setSelected={setSelected}

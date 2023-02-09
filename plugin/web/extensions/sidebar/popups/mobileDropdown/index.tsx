@@ -23,6 +23,7 @@ const MobileDropdown: React.FC = () => {
     handleProjectDatasetRemove,
     handleProjectDatasetRemoveAll,
     handleProjectSceneUpdate,
+    handleThreeDTilesSearch,
   } = useHooks();
 
   useEffect(() => {
@@ -56,6 +57,7 @@ const MobileDropdown: React.FC = () => {
               onDatasetUpdate={handleDatasetUpdate}
               onDatasetRemove={handleProjectDatasetRemove}
               onDatasetRemoveAll={handleProjectDatasetRemoveAll}
+              onThreeDTilesSearch={handleThreeDTilesSearch}
             />
           ),
           menu: (

@@ -5,21 +5,21 @@ import { Result } from "../../types";
 
 type Props = {
   item: Result;
-  selected: string[];
-  onSelect: (selected: string[]) => void;
+  selected: Result[];
+  onSelect: (selected: Result[]) => void;
 };
 
 const ResultItem: React.FC<Props> = ({ item, selected, onSelect }) => {
   const onClick = useCallback(() => {
-    if (selected.includes(item.id)) {
-      onSelect(selected.filter(sid => sid !== item.id));
+    if (selected.find(s => s.gml_id === item.gml_id)) {
+      onSelect(selected.filter(s => s.gml_id !== item.gml_id));
     } else {
-      onSelect([item.id]);
+      onSelect([item]);
     }
   }, [onSelect, item, selected]);
   return (
-    <StyledResultItem onClick={onClick} active={selected.includes(item.id)}>
-      {item.id}
+    <StyledResultItem onClick={onClick} active={!!selected.find(s => s.gml_id === item.gml_id)}>
+      {item.gml_id}
     </StyledResultItem>
   );
 };
@@ -31,6 +31,7 @@ const StyledResultItem = styled.div<{ active: boolean }>`
   height: 38px;
   padding: 0 12px;
   border-bottom: 1px solid #d9d9d9;
+  font-size: 12px;
   background: ${({ active }) => (active ? "var(--theme-color)" : "#fff")};
   color: ${({ active }) => (active ? "#fff" : "#000")};
   cursor: pointer;

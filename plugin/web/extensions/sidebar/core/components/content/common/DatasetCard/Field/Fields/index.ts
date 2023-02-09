@@ -38,7 +38,7 @@ const fields: Fields<FieldComponent> = {
   // polygon
   // 3d-model
   // 3d-tile
-  search: Search,
+  search: { Component: Search, hasUI: false },
   // realtime: Realtime,
   // template: Template,
 };
