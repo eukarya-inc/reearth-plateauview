@@ -45,6 +45,16 @@ func NewFetcher(c *http.Client, config Config) (*Fetcher, error) {
 	}, nil
 }
 
+func (f *Fetcher) Clone() *Fetcher {
+	if f == nil {
+		return nil
+	}
+	return &Fetcher{
+		c:    f.c,
+		base: util.CloneRef(f.base),
+	}
+}
+
 func (f *Fetcher) Do(ctx context.Context) (ResponseAll, error) {
 	resultPlateau := make(chan ResponseAll)
 	resultUsecase := make(chan ResponseAll)
@@ -52,21 +62,22 @@ func (f *Fetcher) Do(ctx context.Context) (ResponseAll, error) {
 	errPlateau := make(chan error)
 	errUsecase := make(chan error)
 	errDataset := make(chan error)
+	f1, f2, f3 := f.Clone(), f.Clone(), f.Clone()
 
 	go func() {
-		r, err := f.all(ctx, ModelPlateau)
+		r, err := f1.all(ctx, ModelPlateau)
 		errPlateau <- err
 		resultPlateau <- r
 	}()
 
 	go func() {
-		r, err := f.all(ctx, ModelUsecase)
+		r, err := f2.all(ctx, ModelUsecase)
 		errUsecase <- err
 		resultUsecase <- r
 	}()
 
 	go func() {
-		r, err := f.all(ctx, ModelDataset)
+		r, err := f3.all(ctx, ModelDataset)
 		errDataset <- err
 		resultDataset <- r
 	}()
