@@ -1,6 +1,8 @@
 export const fieldName = {
   camera: "カメラ",
   legend: "凡例",
+  switchGroup: "Switch group",
+  buttonLink: "リンクボタン",
   realtime: "リアルタイム",
   point: "ポイント",
   description: "説明",
@@ -17,6 +19,7 @@ export const fieldName = {
 export type FieldComponent =
   | Camera
   | Legend
+  | ButtonLink
   | Description
   | PointColor
   | PointColorGradient
@@ -24,7 +27,8 @@ export type FieldComponent =
   | PointIcon
   | PointLabel
   | PointModel
-  | PointStroke;
+  | PointStroke
+  | SwitchGroup;
 
 type FieldBase<T extends keyof typeof fieldName> = {
   type: T;
@@ -131,12 +135,30 @@ type PointStroke = {
     strokeWidth: number;
   }[];
 };
+export type groupItem = {
+  title: string;
+  group: string;
+  id?: number;
+};
+
+export type SwitchGroup = {
+  type: "switchGroup";
+  title: string;
+  groups: groupItem[];
+};
+
+export type ButtonLink = FieldBase<"buttonLink"> & {
+  title?: string;
+  link?: string;
+};
 
 export type Fields = {
   // general
   camera: Camera;
   legend: Legend;
   description: Description;
+  switchGroup: SwitchGroup;
+  buttonLink: ButtonLink;
   // point
   pointColor: PointColor;
   pointColorGradient: PointColorGradient;
