@@ -104,6 +104,12 @@ function prefectureFilter(catalog: CatalogRawItem[]): DataCatalog {
     .filter(c => !!(c && c.children.length > 0)) as DataCatalog;
 }
 
+function searchCatalog(catalog: CatalogRawItem[], searchTerm = ""): DataCatalog {
+  return catalog
+    .filter(item => item.name?.toLowerCase().startsWith(searchTerm.toLowerCase()))
+    .map(item => ({ type: "item", ...item } as CatalogItem));
+}
+
 function filterCatalog(
   rawCatalog: CatalogRawItem[],
   filter: FilterType,
@@ -130,8 +136,8 @@ const DatasetTree: React.FC<Props> = ({
   const [searchTerm, setSearchTerm] = useState("");
   const [catalog, setCatalog] = useState<DataCatalog>();
 
-  const handleSearch = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchTerm(e.currentTarget.value);
+  const handleSearch = useCallback(({ target: { value } }: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(value);
   }, []);
 
   const handleFilter = useCallback((filter: FilterType) => {
@@ -140,10 +146,14 @@ const DatasetTree: React.FC<Props> = ({
 
   useEffect(() => {
     if (rawCatalog && rawCatalog.length > 0) {
-      const filteredCatalog = filterCatalog(rawCatalog, filter);
+      const filteredCatalog =
+        searchTerm.length > 0
+          ? searchCatalog(rawCatalog, searchTerm)
+          : filterCatalog(rawCatalog, filter);
+
       setCatalog(filteredCatalog);
     }
-  }, [rawCatalog, filter]);
+  }, [rawCatalog, filter, searchTerm]);
 
   return (
     <Wrapper isMobile={isMobile}>

@@ -33,17 +33,18 @@ const FileTree: React.FC<Props> = ({
   return (
     <TreeWrapper isMobile={isMobile}>
       <Tree>
-        {catalog.map(item =>
-          TreeBuilder({
-            item,
-            addedDatasetIds,
-            selectedId,
-            nestLevel: 1,
-            onDatasetAdd,
-            onOpenDetails,
-            onSelect: handleSelect,
-          }),
-        )}
+        {catalog.map(item => (
+          <TreeBuilder
+            key={item.name}
+            item={item}
+            addedDatasetIds={addedDatasetIds}
+            selectedId={selectedId}
+            nestLevel={1}
+            onDatasetAdd={onDatasetAdd}
+            onOpenDetails={onOpenDetails}
+            onSelect={handleSelect}
+          />
+        ))}
       </Tree>
     </TreeWrapper>
   );
