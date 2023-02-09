@@ -91,7 +91,7 @@ const Name = styled.p<{ isMobile?: boolean }>`
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden;
-  width: ${({ isMobile }) => (isMobile ? "calc(100vw - 150px)" : "180px")};
+  width: ${({ isMobile }) => (isMobile ? "calc(100vw - 150px)" : "175px")};
 `;
 
 const StyledButton = styled(Button)<{ disabled: boolean }>`
