@@ -35,6 +35,8 @@ const DatasetsPage: React.FC<Props> = ({ rawCatalog, addedDatasetIds, onDatasetA
     <PageLayout
       left={
         <DatasetTree
+          addedDatasetIds={addedDatasetIds}
+          selectedDataset={selectedDataset}
           rawCatalog={rawCatalog}
           selectedTags={selectedTags}
           onTagSelect={handleTagSelect}
