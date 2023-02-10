@@ -86,7 +86,12 @@ const FieldComponent: React.FC<Props> = ({
                     <Title>{fieldName[field.type]}</Title>
                   </LeftContents>
                   <RightContents>
-                    <StyledIcon icon="group" size={16} onClick={handleGroupSelectOpen} />
+                    <StyledIcon
+                      icon="group"
+                      color={field.group ? "#00BEBE" : "inherit"}
+                      size={16}
+                      onClick={handleGroupSelectOpen}
+                    />
                     <StyledIcon icon="trash" size={16} onClick={handleRemove} />
                   </RightContents>
                 </HeaderContents>

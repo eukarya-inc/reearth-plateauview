@@ -113,6 +113,17 @@ export default ({
         items: [{ title: "hey", color: "red" }],
       }),
     },
+    switchGroup: {
+      name: fieldName["switchGroup"],
+      onClick: handleFieldAdd({
+        title: "Switch Group",
+        groups: [],
+      }),
+    },
+    buttonLink: {
+      name: fieldName["buttonLink"],
+      onClick: handleFieldAdd({}),
+    },
   };
 
   const pointFields: FieldDropdownItem = {
