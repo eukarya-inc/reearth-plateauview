@@ -29,7 +29,9 @@ const DatasetsPage: React.FC<Props> = ({ rawCatalog, addedDatasetIds, onDatasetA
   const handleTagSelect = useCallback(
     (tag: Tag) =>
       selectTags(tags => {
-        const selected = tags.includes(tag) ? [...tags.filter(t => t !== tag)] : [...tags, tag];
+        const selected = tags.find(selectedTag => selectedTag.name === tag.name)
+          ? [...tags.filter(t => t.name !== tag.name)]
+          : [...tags, tag];
         selected.length > 0 ? handleFilter("tag") : handleFilter("prefecture");
         return selected;
       }),
