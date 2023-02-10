@@ -2,7 +2,7 @@ import { prefectures } from "@web/extensions/sidebar/core/dataTypes";
 import { CatalogRawItem, CatalogItem } from "@web/extensions/sidebar/core/processCatalog";
 import { Input, Tabs } from "@web/sharedComponents";
 import { styled } from "@web/theme";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { FilterType } from "..";
 import Tags, { Tag as TagType } from "../Tags";
@@ -151,9 +151,24 @@ const DatasetTree: React.FC<Props> = ({
     }
   }, [rawCatalog, filter, searchTerm, selectedTags]);
 
+  const showInput = useMemo(
+    () => !selectedTags?.length || searchTerm.length > 0,
+    [searchTerm.length, selectedTags?.length],
+  );
+
+  const showTags = useMemo(
+    () => selectedTags && selectedTags.length > 0 && searchTerm.length === 0,
+    [searchTerm.length, selectedTags],
+  );
+
+  const showTabs = useMemo(
+    () => searchTerm.length > 0 || selectedTags?.length,
+    [searchTerm.length, selectedTags],
+  );
+
   return (
     <Wrapper isMobile={isMobile}>
-      {!selectedTags?.length && (
+      {showInput && (
         <StyledInput
           placeholder="検索"
           value={searchTerm}
@@ -161,19 +176,11 @@ const DatasetTree: React.FC<Props> = ({
           loading={loading}
         />
       )}
-      {selectedTags && selectedTags.length > 0 && (
-        <Tags tags={selectedTags} onTagSelect={onTagSelect} />
-      )}
+      {showTags && <Tags tags={selectedTags} onTagSelect={onTagSelect} />}
       {searchTerm.length > 0 && <p style={{ margin: "0", alignSelf: "center" }}>検索結果</p>}
       <StyledTabs
         defaultActiveKey="prefecture"
-        tabBarStyle={
-          searchTerm.length > 0 || selectedTags?.length
-            ? { display: "none" }
-            : {
-                userSelect: "none",
-              }
-        }
+        tabBarStyle={showTabs ? { display: "none" } : { userSelect: "none" }}
         onChange={active => onFilter(active as FilterType)}>
         <Tabs.TabPane key="prefecture" tab="都道府県">
           {catalog && (
