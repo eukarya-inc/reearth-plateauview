@@ -64,7 +64,7 @@ func (d ResponseAll) ByTypes() []DataCatalogGroup {
 
 func (d ResponseAll) plateau() []DataCatalogItem {
 	return lo.FlatMap(d.Plateau, func(i PlateauItem, _ int) []DataCatalogItem {
-		return i.DataCatalogs()
+		return i.DataCatalogItems()
 	})
 }
 

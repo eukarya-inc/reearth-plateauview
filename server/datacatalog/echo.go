@@ -39,5 +39,6 @@ func Echo(c Config, e *echo.Group) error {
 		}
 		return c.JSON(http.StatusOK, res.ByTypes())
 	})
+
 	return nil
 }
