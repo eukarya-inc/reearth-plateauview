@@ -94,8 +94,10 @@ function prefectureFilter(catalog: CatalogRawItem[]): DataCatalog {
 }
 
 function searchCatalog(catalog: CatalogRawItem[], searchTerm = ""): DataCatalog {
-  const rawData = catalog.filter(item =>
-    item.name?.toLowerCase().startsWith(searchTerm.toLowerCase()),
+  const rawData = catalog.filter(
+    item =>
+      item.name?.toLocaleLowerCase().includes(searchTerm.toLocaleLowerCase()) ||
+      item.cityName?.toLocaleLowerCase().includes(searchTerm.toLocaleLowerCase()),
   );
   // selected filter might has to be applied instead
   return prefectureFilter(rawData);
@@ -152,7 +154,12 @@ const DatasetTree: React.FC<Props> = ({
   return (
     <Wrapper isMobile={isMobile}>
       {!selectedTags?.length && (
-        <StyledInput placeholder="検索" onChange={handleChange} loading={loading} />
+        <StyledInput
+          placeholder="検索"
+          value={searchTerm}
+          onChange={handleChange}
+          loading={loading}
+        />
       )}
       {selectedTags && selectedTags.length > 0 && (
         <Tags tags={selectedTags} onTagSelect={onTagSelect} />
