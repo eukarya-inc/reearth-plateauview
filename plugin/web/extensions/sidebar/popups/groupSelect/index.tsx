@@ -25,9 +25,16 @@ const GroupSelect: React.FC = () => {
     });
   }, [draftGroups]);
 
-  const handleGroupSelect = useCallback((id: number) => {
-    selectGroup(id);
-  }, []);
+  const handleGroupSelect = useCallback(
+    (id: number) => {
+      if (selectedGroup === id) {
+        selectGroup(undefined);
+      } else {
+        selectGroup(id);
+      }
+    },
+    [selectedGroup],
+  );
 
   const handleGroupRemove = useCallback(() => {
     updateDraftGroups(dgs => dgs.filter(dg => dg.id !== selectedGroup));
@@ -107,6 +114,7 @@ const Title = styled.p`
 `;
 
 const StyledIcon = styled(Icon)`
+  align-self: center;
   cursor: pointer;
 `;
 
@@ -146,6 +154,7 @@ const ListItem = styled.div<{ selected?: boolean }>`
   box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.15);
   cursor: pointer;
   transition: 0.3s background;
+  user-select: none;
 
   :hover {
     ${({ selected }) => !selected && "background: #BAE7FF"};
