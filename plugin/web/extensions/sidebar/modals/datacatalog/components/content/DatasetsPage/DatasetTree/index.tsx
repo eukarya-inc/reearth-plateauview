@@ -128,7 +128,8 @@ const DatasetTree: React.FC<Props> = ({
 }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [catalog, setCatalog] = useState<DataCatalog>();
-  const [loading, _setLoading] = useState(false); // needs implementation
+  const [loading, _toggleLoading] = useState(false); // needs implementation
+  const [expandAll, toggleExpandAll] = useState(false); // needs implementation
 
   const handleChange = useCallback(({ target: { value } }: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(value);
@@ -136,10 +137,14 @@ const DatasetTree: React.FC<Props> = ({
 
   useEffect(() => {
     if (rawCatalog && rawCatalog.length > 0) {
-      const filteredCatalog =
-        searchTerm.length > 0
-          ? searchCatalog(rawCatalog, searchTerm)
-          : filterCatalog(rawCatalog, filter, { tags: selectedTags });
+      let filteredCatalog: CatalogItem[] | undefined;
+      if (searchTerm.length > 0) {
+        filteredCatalog = searchCatalog(rawCatalog, searchTerm);
+        toggleExpandAll(true);
+      } else {
+        filteredCatalog = filterCatalog(rawCatalog, filter, { tags: selectedTags });
+        toggleExpandAll(false);
+      }
       setCatalog(filteredCatalog);
     }
   }, [rawCatalog, filter, searchTerm, selectedTags]);
@@ -169,6 +174,7 @@ const DatasetTree: React.FC<Props> = ({
               addedDatasetIds={addedDatasetIds}
               catalog={catalog}
               isMobile={isMobile}
+              expandAll={expandAll}
               onDatasetAdd={onDatasetAdd}
               onOpenDetails={onOpenDetails}
             />
@@ -180,6 +186,7 @@ const DatasetTree: React.FC<Props> = ({
               addedDatasetIds={addedDatasetIds}
               catalog={catalog}
               isMobile={isMobile}
+              expandAll={expandAll}
               onDatasetAdd={onDatasetAdd}
               onOpenDetails={onOpenDetails}
             />

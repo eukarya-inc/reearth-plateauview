@@ -1,13 +1,14 @@
 import { CatalogItem } from "@web/extensions/sidebar/core/processCatalog";
 import { Icon } from "@web/sharedComponents";
 import { styled } from "@web/theme";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import TreeBuilder from "./TreeBuilder";
 
 type Props = {
   item: CatalogItem;
   isMobile?: boolean;
+  expandAll?: boolean;
   addedDatasetIds?: string[];
   selectedId?: string;
   nestLevel: number;
@@ -19,6 +20,7 @@ type Props = {
 const Folder: React.FC<Props> = ({
   item,
   isMobile,
+  expandAll,
   addedDatasetIds,
   selectedId,
   nestLevel,
@@ -27,6 +29,10 @@ const Folder: React.FC<Props> = ({
   onSelect,
 }) => {
   const [isOpen, open] = useState(false);
+
+  useEffect(() => {
+    expandAll ? open(true) : open(false);
+  }, [expandAll]);
 
   return (
     <Wrapper isOpen={isOpen}>
@@ -42,6 +48,7 @@ const Folder: React.FC<Props> = ({
             key={m.name}
             item={m}
             isMobile={isMobile}
+            expandAll={expandAll}
             addedDatasetIds={addedDatasetIds}
             selectedId={selectedId}
             nestLevel={nestLevel + 1}
