@@ -73,11 +73,11 @@ export default ({
       if (!inEditor) return;
 
       const newDatasetComponents = dataset.components ? [...dataset.components] : [];
-      const componentIndex = newDatasetComponents?.findIndex(c => c.type === field);
+      const componentIndex = newDatasetComponents.findIndex(c => c.type === field);
 
-      if (!newDatasetComponents || componentIndex === undefined) return;
-
-      newDatasetComponents[componentIndex].group = selectedGroup;
+      if (newDatasetComponents.length > 0 && componentIndex !== undefined) {
+        newDatasetComponents[componentIndex].group = selectedGroup;
+      }
 
       onDatasetUpdate?.({
         ...dataset,

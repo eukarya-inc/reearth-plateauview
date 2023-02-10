@@ -2,7 +2,7 @@ import { Group } from "@web/extensions/sidebar/core/newTypes";
 import { postMsg } from "@web/extensions/sidebar/utils";
 import { Icon } from "@web/sharedComponents";
 import { styled } from "@web/theme";
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   Accordion,
   AccordionItem,
@@ -33,6 +33,7 @@ const FieldComponent: React.FC<Props> = ({
   onGroupsUpdate,
 }) => {
   const { Component: FieldContent, hasUI } = fields[field.type];
+  const [groupPopupOpen, setGroupPopup] = useState(false);
 
   const handleGroupSelectOpen = useCallback(
     (e: React.MouseEvent<HTMLDivElement, MouseEvent> | undefined) => {
@@ -41,6 +42,7 @@ const FieldComponent: React.FC<Props> = ({
         action: "groupSelectOpen",
         payload: { groups: selectGroups, selected: field.group },
       });
+      setGroupPopup(true);
     },
     [field.group, selectGroups],
   );
@@ -56,15 +58,20 @@ const FieldComponent: React.FC<Props> = ({
   useEffect(() => {
     const eventListenerCallback = (e: any) => {
       if (e.source !== parent) return;
-      if (e.data.action === "saveGroups") {
-        onGroupsUpdate(e.data.payload.groups, e.data.payload.selected);
+      if (groupPopupOpen) {
+        if (e.data.action === "saveGroups") {
+          onGroupsUpdate(e.data.payload.groups, e.data.payload.selected);
+          setGroupPopup(false);
+        } else if (e.data.action === "popupClose") {
+          setGroupPopup(false);
+        }
       }
     };
     (globalThis as any).addEventListener("message", eventListenerCallback);
     return () => {
       (globalThis as any).removeEventListener("message", eventListenerCallback);
     };
-  });
+  }, [groupPopupOpen, onGroupsUpdate]);
 
   return !editMode && !hasUI ? null : (
     <StyledAccordionComponent allowZeroExpanded>

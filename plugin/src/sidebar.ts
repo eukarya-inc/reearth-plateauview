@@ -212,6 +212,7 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
     }
   } else if (action === "popupClose") {
     reearth.popup.close();
+    reearth.ui.postMessage({ action });
     mobileDropdownIsOpen = false;
   } else if (action === "mapModalOpen") {
     reearth.modal.show(mapVideoHtml, { background: "transparent" });
