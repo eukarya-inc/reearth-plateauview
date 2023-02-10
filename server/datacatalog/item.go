@@ -9,26 +9,26 @@ import (
 )
 
 type DataCatalogItem struct {
-	ID                string `json:"id,omitempty"`
-	Name              string `json:"name,omitempty"`
-	Prefecture        string `json:"pref,omitempty"`
-	City              string `json:"city,omitempty"`
-	CityEn            string `json:"city_en,omitempty"`
-	CityCode          string `json:"city_code,omitempty"`
-	Ward              string `json:"ward,omitempty"`
-	WardEn            string `json:"ward_en,omitempty"`
-	WardCode          string `json:"ward_code,omitempty"`
-	Type              string `json:"type,omitempty"`
-	TypeEn            string `json:"type_en,omitempty"`
-	Format            string `json:"format,omitempty"`
-	Layers            string `json:"layers,omitempty"`
-	URL               string `json:"url,omitempty"`
-	BldgLowTextureURL string `json:"bldg_low_texture_url,omitempty"`
-	BldgNoTextureURL  string `json:"bldg_no_texture_url,omitempty"`
-	Description       string `json:"desc,omitempty"`
-	SearchIndex       string `json:"search_index,omitempty"`
-	Year              int    `json:"year,omitempty"`
-	Config            any    `json:"config,omitempty"`
+	ID                string   `json:"id,omitempty"`
+	Name              string   `json:"name,omitempty"`
+	Prefecture        string   `json:"pref,omitempty"`
+	City              string   `json:"city,omitempty"`
+	CityEn            string   `json:"city_en,omitempty"`
+	CityCode          string   `json:"city_code,omitempty"`
+	Ward              string   `json:"ward,omitempty"`
+	WardEn            string   `json:"ward_en,omitempty"`
+	WardCode          string   `json:"ward_code,omitempty"`
+	Type              string   `json:"type,omitempty"`
+	TypeEn            string   `json:"type_en,omitempty"`
+	Format            string   `json:"format,omitempty"`
+	Layers            []string `json:"layers,omitempty"`
+	URL               string   `json:"url,omitempty"`
+	BldgLowTextureURL string   `json:"bldg_low_texture_url,omitempty"`
+	BldgNoTextureURL  string   `json:"bldg_no_texture_url,omitempty"`
+	Description       string   `json:"desc,omitempty"`
+	SearchIndex       string   `json:"search_index,omitempty"`
+	Year              int      `json:"year,omitempty"`
+	Config            any      `json:"config,omitempty"`
 }
 
 type DataCatalogGroup struct {
