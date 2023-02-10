@@ -1,4 +1,4 @@
-import { Data } from "@web/extensions/sidebar/core/newTypes";
+import { Data, Group } from "@web/extensions/sidebar/core/newTypes";
 import { useCallback } from "react";
 
 import { fieldName } from "./Field/Fields/types";
@@ -63,6 +63,26 @@ export default ({
       onDatasetUpdate?.({
         ...dataset,
         components: newDatasetComponents,
+      });
+    },
+    [dataset, inEditor, onDatasetUpdate],
+  );
+
+  const handleGroupsUpdate = useCallback(
+    (field: string) => (groups: Group[], selectedGroup?: string) => {
+      if (!inEditor) return;
+
+      const newDatasetComponents = dataset.components ? [...dataset.components] : [];
+      const componentIndex = newDatasetComponents?.findIndex(c => c.type === field);
+
+      if (!newDatasetComponents || componentIndex === undefined) return;
+
+      newDatasetComponents[componentIndex].group = selectedGroup;
+
+      onDatasetUpdate?.({
+        ...dataset,
+        components: newDatasetComponents,
+        fieldGroups: groups,
       });
     },
     [dataset, inEditor, onDatasetUpdate],
@@ -249,5 +269,6 @@ export default ({
     fieldGroups,
     handleFieldUpdate,
     handleFieldRemove,
+    handleGroupsUpdate,
   };
 };
