@@ -38,6 +38,7 @@ const GroupSelect: React.FC = () => {
 
   const handleGroupRemove = useCallback(() => {
     updateDraftGroups(dgs => dgs.filter(dg => dg.id !== selectedGroup));
+    selectGroup(undefined);
   }, [selectedGroup]);
 
   useEffect(() => {
