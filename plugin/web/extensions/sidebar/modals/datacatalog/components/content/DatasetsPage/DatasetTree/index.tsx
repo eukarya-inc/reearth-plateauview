@@ -131,7 +131,7 @@ const DatasetTree: React.FC<Props> = ({
   const [searchTerm, setSearchTerm] = useState("");
   const [catalog, setCatalog] = useState<DataCatalog>();
   const [loading, _toggleLoading] = useState(false); // needs implementation
-  const [expandAll, toggleExpandAll] = useState(false); // needs implementation
+  const [expandAll, toggleExpandAll] = useState(false);
 
   const handleChange = useCallback(({ target: { value } }: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(value);
