@@ -94,9 +94,11 @@ function prefectureFilter(catalog: CatalogRawItem[]): DataCatalog {
 }
 
 function searchCatalog(catalog: CatalogRawItem[], searchTerm = ""): DataCatalog {
-  return catalog
-    .filter(item => item.name?.toLowerCase().startsWith(searchTerm.toLowerCase()))
-    .map(item => ({ type: "item", ...item } as CatalogItem));
+  const rawData = catalog.filter(item =>
+    item.name?.toLowerCase().startsWith(searchTerm.toLowerCase()),
+  );
+  // selected filter might has to be applied instead
+  return prefectureFilter(rawData);
 }
 
 function filterCatalog(
