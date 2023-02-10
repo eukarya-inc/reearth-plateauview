@@ -1,10 +1,10 @@
 import { styled } from "@web/theme";
 import { useCallback, useState } from "react";
 
-import { BaseFieldProps, ButtonLink } from "../types";
+import { BaseFieldProps, ButtonLink as ButtonLinkType } from "../types";
 
 const ButtonLink: React.FC<BaseFieldProps<"buttonLink">> = ({ editMode }) => {
-  const [CurrentButton, setCurrentButton] = useState<ButtonLink>();
+  const [CurrentButton, setCurrentButton] = useState<ButtonLinkType>();
 
   const handleChangeButtonTitle = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     setCurrentButton(btn => {
