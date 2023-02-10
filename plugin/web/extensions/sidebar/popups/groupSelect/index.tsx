@@ -57,11 +57,11 @@ const GroupSelect: React.FC = () => {
   return (
     <Wrapper>
       <Header>
-        <Title>グルーブ管理</Title>
+        <Text>グルーブ管理</Text>
         <StyledIcon icon="close" size={16} onClick={handleCancel} />
       </Header>
       <Content>
-        <Subtitle>グループリスト</Subtitle>
+        <Text>グループリスト</Text>
         <Actions>
           <Action>
             <StyledIcon icon="plus" size={16} onClick={handleGroupAdd} />
@@ -99,7 +99,6 @@ const Wrapper = styled.div`
   height: 100%;
   width: 100%;
   background: #ffffff;
-  // border: 1px solid black;
   border-radius: 2px;
 `;
 
@@ -110,8 +109,9 @@ const Header = styled.div`
   border-bottom: 1px solid lightgrey;
 `;
 
-const Title = styled.p`
+const Text = styled.p`
   margin: 0;
+  user-select: none;
 `;
 
 const StyledIcon = styled(Icon)`
@@ -124,10 +124,6 @@ const Content = styled.div`
   flex-direction: column;
   gap: 8px;
   padding: 24px;
-`;
-
-const Subtitle = styled.p`
-  margin: 0;
 `;
 
 const Actions = styled.div`
