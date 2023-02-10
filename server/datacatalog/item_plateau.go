@@ -237,7 +237,7 @@ func (i PlateauItem) commonItem() *intermediateItem {
 
 	an := AssetNameFrom(i.CityGML.URL)
 	dic := Dic{}
-	_ = json.Unmarshal([]byte(i.Dic), &dic)
+	_ = json.Unmarshal(bom.Clean([]byte(i.Dic)), &dic)
 
 	return &intermediateItem{
 		ID:         i.ID,
