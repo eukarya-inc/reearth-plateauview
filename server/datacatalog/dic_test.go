@@ -11,7 +11,7 @@ func TestDir(t *testing.T) {
 		"admin": []DicEntry{
 			{
 				Code: "11111",
-				Name: "ward",
+				Name: "A県 A市",
 			},
 		},
 		"fld": []DicEntry{
@@ -40,7 +40,7 @@ func TestDir(t *testing.T) {
 		},
 	}
 
-	assert.Equal(t, "ward", d.WardName("11111"))
+	assert.Equal(t, "A市", d.WardName("11111"))
 	assert.Empty(t, d.WardName("11110"))
 
 	assert.Equal(t, &DicEntry{
