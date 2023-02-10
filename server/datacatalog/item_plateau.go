@@ -1,6 +1,9 @@
 package datacatalog
 
 import (
+	"bytes"
+	_ "embed"
+	"encoding/csv"
 	"encoding/json"
 	"fmt"
 	"net/url"
@@ -13,6 +16,18 @@ import (
 	"github.com/samber/lo"
 	"github.com/spkg/bom"
 )
+
+//go:embed urf.csv
+var urfFeatureTypesData []byte
+var urfFeatureTypes map[string]string
+
+func init() {
+	r := csv.NewReader(bom.NewReader(bytes.NewReader(urfFeatureTypesData)))
+	d := lo.Must(r.ReadAll())
+	urfFeatureTypes = lo.SliceToMap(d[1:], func(c []string) (string, string) {
+		return c[0], c[1]
+	})
+}
 
 type PlateauItem struct {
 	ID              string             `json:"id"`
@@ -132,7 +147,7 @@ func (i PlateauItem) UrfItems(c PlateauIntermediateItem) []*DataCatalogItem {
 
 	return lo.Map(i.Urf, func(a *cms.PublicAsset, _ int) *DataCatalogItem {
 		an := AssetNameFrom(a.URL)
-		return c.DataCatalogItem("都市計画決定情報", an, a.URL, descFromAsset(a, i.DescriptionUrf), []string{an.UrfFeatureType})
+		return c.DataCatalogItem("都市計画決定情報モデル", an, a.URL, descFromAsset(a, i.DescriptionUrf), []string{an.UrfFeatureType})
 	})
 }
 
@@ -258,7 +273,11 @@ func (i *PlateauIntermediateItem) DataCatalogItem(t string, an AssetName, assetU
 
 	name := ""
 	if an.Feature == "urf" {
-		name = fmt.Sprintf("%s（%s）", an.UrfFeatureType, cityOrWardName)
+		urfName := urfFeatureTypes[an.UrfFeatureType]
+		if urfName == "" {
+			urfName = an.UrfFeatureType
+		}
+		name = fmt.Sprintf("%s（%s）", urfName, cityOrWardName)
 	} else {
 		name = fmt.Sprintf("%s（%s）", t, cityOrWardName)
 	}
