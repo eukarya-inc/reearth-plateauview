@@ -47,7 +47,7 @@ function typeFilter(catalog: CatalogRawItem[]): DataCatalog {
 function tagFilter(catalog: CatalogRawItem[], tags?: Tag[]): DataCatalog {
   return catalog
     .filter(item =>
-      item.tags?.some(tag => tags?.some(selectedTag => tag.name === selectedTag.name)),
+      tags?.every(selectedTag => item.tags?.some(tag => selectedTag.name === tag.name)),
     )
     .map(item => ({ type: "item", ...item } as CatalogItem));
 }
