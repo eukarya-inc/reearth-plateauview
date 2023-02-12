@@ -1,22 +1,28 @@
 import { Icon } from "@web/sharedComponents";
 import { styled } from "@web/theme";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export type Props = {
   name: string;
+  isMobile?: boolean;
+  expandAll?: boolean;
   nestLevel: number;
   children?: React.ReactNode;
 };
 
-const Folder: React.FC<Props> = ({ name, nestLevel, children }) => {
+const Folder: React.FC<Props> = ({ name, isMobile, expandAll, nestLevel, children }) => {
   const [isOpen, open] = useState(false);
+
+  useEffect(() => {
+    expandAll ? open(true) : open(false);
+  }, [expandAll]);
 
   return (
     <Wrapper key={name} isOpen={isOpen}>
       <FolderItem nestLevel={nestLevel} onClick={() => open(!isOpen)}>
         <NameWrapper>
           <Icon icon={isOpen ? "folderOpen" : "folder"} size={20} />
-          <Name>{name}</Name>
+          <Name isMobile={isMobile}>{name}</Name>
         </NameWrapper>
       </FolderItem>
       {children}
@@ -65,11 +71,11 @@ const NameWrapper = styled.div`
   display: flex;
 `;
 
-const Name = styled.p`
+const Name = styled.p<{ isMobile?: boolean }>`
   margin: 0 0 0 8px;
   user-select: none;
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden;
-  width: 200px;
+  width: ${({ isMobile }) => (isMobile ? "calc(100vw - 150px)" : "175px")};
 `;

@@ -6,6 +6,7 @@ import { CatalogItem } from "./FileTree"; // CIRCULAR IMPORTSSS
 
 export type Props = {
   item: CatalogItem;
+  isMobile?: boolean;
   addedDatasetIds?: string[];
   nestLevel: number;
   selectedID?: string;
@@ -16,6 +17,7 @@ export type Props = {
 
 const File: React.FC<Props> = ({
   item,
+  isMobile,
   addedDatasetIds,
   nestLevel,
   selectedID,
@@ -47,7 +49,7 @@ const File: React.FC<Props> = ({
     <Wrapper nestLevel={nestLevel} selected={selected}>
       <NameWrapper onClick={handleOpenDetails}>
         <Icon icon="file" size={20} />
-        <Name>{item.name}</Name>
+        <Name isMobile={isMobile}>{item.name}</Name>
       </NameWrapper>
       <StyledButton
         type="link"
@@ -89,13 +91,13 @@ const NameWrapper = styled.div`
   display: flex;
 `;
 
-const Name = styled.p`
+const Name = styled.p<{ isMobile?: boolean }>`
   margin: 0 0 0 8px;
   user-select: none;
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden;
-  width: 200px;
+  width: ${({ isMobile }) => (isMobile ? "calc(100vw - 150px)" : "175px")};
 `;
 
 const StyledButton = styled(Button)<{ disabled: boolean }>`

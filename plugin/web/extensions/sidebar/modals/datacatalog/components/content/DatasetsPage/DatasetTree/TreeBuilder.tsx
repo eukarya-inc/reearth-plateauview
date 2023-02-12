@@ -5,6 +5,8 @@ import Folder from "./Folder";
 
 type Props = {
   catalog: Catalog | CatalogItem[];
+  isMobile?: boolean;
+  expandAll?: boolean;
   addedDatasetIds?: string[];
   selectedId?: string;
   nestLevel: number;
@@ -15,6 +17,8 @@ type Props = {
 
 const TreeBuilder: React.FC<Props> = ({
   catalog,
+  isMobile,
+  expandAll,
   addedDatasetIds,
   selectedId,
   nestLevel,
@@ -26,7 +30,12 @@ const TreeBuilder: React.FC<Props> = ({
     <>
       {!Array.isArray(catalog)
         ? Object.keys(catalog).map(loc => (
-            <Folder key={loc} name={loc} nestLevel={nestLevel + 1}>
+            <Folder
+              key={loc}
+              name={loc}
+              nestLevel={nestLevel + 1}
+              isMobile={isMobile}
+              expandAll={expandAll}>
               <TreeBuilder
                 catalog={catalog[loc]}
                 addedDatasetIds={addedDatasetIds}
@@ -43,6 +52,7 @@ const TreeBuilder: React.FC<Props> = ({
               key={item.id}
               item={item}
               addedDatasetIds={addedDatasetIds}
+              isMobile={isMobile}
               nestLevel={nestLevel + 1}
               selectedID={selectedId}
               onDatasetAdd={onDatasetAdd}

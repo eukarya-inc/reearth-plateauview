@@ -10,6 +10,7 @@ export type Props = {
   addedDatasetIds?: string[];
   catalog: Catalog;
   isMobile?: boolean;
+  expandAll?: boolean;
   onDatasetAdd: (dataset: CatalogItem) => void;
   onOpenDetails?: (data?: CatalogItem) => void;
 };
@@ -18,6 +19,7 @@ const FileTree: React.FC<Props> = ({
   addedDatasetIds,
   catalog,
   isMobile,
+  expandAll,
   onDatasetAdd,
   onOpenDetails,
 }) => {
@@ -33,6 +35,8 @@ const FileTree: React.FC<Props> = ({
         <TreeBuilder
           catalog={catalog}
           addedDatasetIds={addedDatasetIds}
+          isMobile={isMobile}
+          expandAll={expandAll}
           selectedId={selectedId}
           nestLevel={0}
           onDatasetAdd={onDatasetAdd}
