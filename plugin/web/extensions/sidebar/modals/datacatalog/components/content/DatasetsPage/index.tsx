@@ -1,4 +1,4 @@
-import { CatalogItem, CatalogRawItem } from "@web/extensions/sidebar/core/processCatalog";
+import { Catalog, CatalogItem } from "@web/extensions/sidebar/core/components/hooks";
 import PageLayout from "@web/extensions/sidebar/modals/datacatalog/components/content/PageLayout";
 import { useCallback, useMemo, useState } from "react";
 
@@ -6,7 +6,7 @@ import DatasetTree from "./DatasetTree";
 import DatasetDetails, { Tag } from "./Details";
 
 export type Props = {
-  rawCatalog?: CatalogRawItem[];
+  rawCatalog?: Catalog;
   addedDatasetIds?: string[];
   onDatasetAdd: (dataset: CatalogItem) => void;
 };
