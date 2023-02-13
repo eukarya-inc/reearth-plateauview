@@ -53,12 +53,6 @@ export default () => {
     });
   }, []);
 
-  useEffect(() => {
-    if (catalog) {
-      console.log("CATALOG: ", catalog);
-    }
-  });
-
   return {
     currentTab,
     catalog,

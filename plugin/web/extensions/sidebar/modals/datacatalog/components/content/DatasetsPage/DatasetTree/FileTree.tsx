@@ -32,7 +32,7 @@ const FileTree: React.FC<Props> = ({
     <TreeWrapper isMobile={isMobile}>
       <Tree>
         <TreeBuilder
-          catalog={catalog}
+          catalogItem={catalog}
           addedDatasetIds={addedDatasetIds}
           isMobile={isMobile}
           expandAll={expandAll}

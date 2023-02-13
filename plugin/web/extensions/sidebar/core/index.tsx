@@ -29,13 +29,7 @@ const Sidebar: React.FC<Props> = ({ className }) => {
     };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  return isMobile !== undefined ? (
-    isMobile ? (
-      <MobileSidebar className={className} />
-    ) : (
-      <DesktopSidebar className={className} />
-    )
-  ) : null;
+  return <DesktopSidebar className={className} />;
 };
 
 export default Sidebar;

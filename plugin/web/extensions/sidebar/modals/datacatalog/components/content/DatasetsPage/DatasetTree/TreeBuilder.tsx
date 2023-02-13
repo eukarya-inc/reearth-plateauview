@@ -4,7 +4,7 @@ import File from "./File";
 import Folder from "./Folder";
 
 type Props = {
-  catalog: DataCatalogGroup | DataCatalogItem | (DataCatalogItem | DataCatalogGroup)[];
+  catalogItem: DataCatalogGroup | DataCatalogItem | (DataCatalogItem | DataCatalogGroup)[];
   isMobile?: boolean;
   expandAll?: boolean;
   addedDatasetIds?: string[];
@@ -16,7 +16,7 @@ type Props = {
 };
 
 const TreeBuilder: React.FC<Props> = ({
-  catalog,
+  catalogItem,
   isMobile,
   expandAll,
   addedDatasetIds,
@@ -26,11 +26,10 @@ const TreeBuilder: React.FC<Props> = ({
   onOpenDetails,
   onSelect,
 }) => {
-  console.log("CATALOG IN TREE BUILDER: ", catalog);
   return (
     <>
-      {Array.isArray(catalog) ? (
-        catalog.map(item => {
+      {Array.isArray(catalogItem) ? (
+        catalogItem.map(item =>
           "children" in item ? (
             <Folder
               key={item.name}
@@ -39,7 +38,7 @@ const TreeBuilder: React.FC<Props> = ({
               isMobile={isMobile}
               expandAll={expandAll}>
               <TreeBuilder
-                catalog={item}
+                catalogItem={item.children}
                 addedDatasetIds={addedDatasetIds}
                 selectedId={selectedId}
                 nestLevel={nestLevel + 1}
@@ -50,7 +49,7 @@ const TreeBuilder: React.FC<Props> = ({
             </Folder>
           ) : (
             <TreeBuilder
-              catalog={item}
+              catalogItem={item}
               addedDatasetIds={addedDatasetIds}
               selectedId={selectedId}
               nestLevel={nestLevel + 1}
@@ -58,17 +57,17 @@ const TreeBuilder: React.FC<Props> = ({
               onOpenDetails={onOpenDetails}
               onSelect={onSelect}
             />
-          );
-        })
-      ) : "children" in catalog ? (
+          ),
+        )
+      ) : "children" in catalogItem ? (
         <Folder
-          key={catalog.name}
-          name={catalog.name}
+          key={catalogItem.name}
+          name={catalogItem.name}
           nestLevel={nestLevel + 1}
           isMobile={isMobile}
           expandAll={expandAll}>
           <TreeBuilder
-            catalog={catalog}
+            catalogItem={catalogItem.children}
             addedDatasetIds={addedDatasetIds}
             selectedId={selectedId}
             nestLevel={nestLevel + 1}
@@ -79,7 +78,7 @@ const TreeBuilder: React.FC<Props> = ({
         </Folder>
       ) : (
         <File
-          item={catalog}
+          item={catalogItem}
           addedDatasetIds={addedDatasetIds}
           isMobile={isMobile}
           nestLevel={nestLevel + 1}

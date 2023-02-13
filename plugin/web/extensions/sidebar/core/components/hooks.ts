@@ -180,12 +180,6 @@ export default () => {
   const [catalogData, setCatalog] = useState<DataCatalogItem[]>([]);
 
   useEffect(() => {
-    if (catalogData) {
-      console.log("CATALOG DATA: ", catalogData);
-    }
-  }, [catalogData]);
-
-  useEffect(() => {
     getDataCatalog("https://api.plateau.reearth.io/").then(res => {
       setCatalog(res);
     });
