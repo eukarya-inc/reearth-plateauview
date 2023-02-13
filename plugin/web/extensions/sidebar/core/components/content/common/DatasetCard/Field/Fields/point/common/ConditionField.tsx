@@ -1,7 +1,7 @@
 import { Icon, Dropdown, Menu } from "@web/sharedComponents";
 import { styled } from "@web/theme";
 
-import { Cond } from "../types";
+import { Cond } from "../../types";
 
 const operators: { [key: string]: string } = {
   greater: ">",

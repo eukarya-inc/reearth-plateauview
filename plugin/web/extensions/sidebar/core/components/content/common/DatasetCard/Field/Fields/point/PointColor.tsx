@@ -4,10 +4,10 @@ import { useCallback, useState } from "react";
 
 import { BaseFieldProps, Cond } from "../types";
 
-import { array_move } from "./common";
-import ConditionField from "./ConditionField";
-import Field from "./Field";
-import ItemControls from "./ItemControls";
+import { array_move } from "./common/common";
+import ConditionField from "./common/ConditionField";
+import Field from "./common/Field";
+import ItemControls from "./common/ItemControls";
 
 const PointColor: React.FC<BaseFieldProps<"pointColor">> = ({ value, editMode, onUpdate }) => {
   const [pointColors, updatePointColors] = useState(value.pointColors);

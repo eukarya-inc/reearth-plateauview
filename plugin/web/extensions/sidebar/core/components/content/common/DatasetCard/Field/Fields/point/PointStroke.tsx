@@ -4,10 +4,10 @@ import { useCallback, useState } from "react";
 
 import { BaseFieldProps, Cond, Expression, Fields } from "../types";
 
-import { array_move } from "./common";
-import ConditionField from "./ConditionField";
-import Field from "./Field";
-import ItemControls from "./ItemControls";
+import { array_move } from "./common/common";
+import ConditionField from "./common/ConditionField";
+import Field from "./common/Field";
+import ItemControls from "./common/ItemControls";
 
 const PointStroke: React.FC<BaseFieldProps<"pointStroke">> = ({ value, editMode, onUpdate }) => {
   // remember to update the BaseFieldProps type!
@@ -175,8 +175,8 @@ const ColorBlock = styled.div<{ color: string; legendStyle?: "circle" | "square"
       ? legendStyle === "circle"
         ? "50%"
         : legendStyle === "line"
-          ? "5px"
-          : "2px"
+        ? "5px"
+        : "2px"
       : "1px 0 0 1px"};
 `;
 
