@@ -1,4 +1,4 @@
-import { Catalog } from "@web/extensions/sidebar/core/components/hooks";
+import { DataCatalogItem } from "@web/extensions/sidebar/modals/datacatalog/api/api";
 import { PostMessageProps, Project } from "@web/extensions/sidebar/types";
 
 import html from "../dist/web/sidebar/core/index.html?raw";
@@ -49,7 +49,7 @@ let buildingSearchIsOpen = false;
 const defaultLocation = { zone: "outer", section: "left", area: "middle" };
 const mobileLocation = { zone: "outer", section: "center", area: "top" };
 
-let catalogData: Catalog = {};
+let catalogData: DataCatalogItem[] = [];
 let addedDatasets: string | undefined = undefined;
 
 const sidebarInstance: PluginExtensionInstance = reearth.plugins.instances.find(
