@@ -30,7 +30,7 @@ export type Props = {
   dataset: Data;
   inEditor?: boolean;
   onDatasetSave: (datasetId: string) => void;
-  onRemoveDataset?: (id: string) => void;
+  onDatasetRemove?: (id: string) => void;
   onDatasetUpdate: (dataset: Data) => void;
   onUpdateField?: (id: string) => void;
 };
@@ -38,7 +38,7 @@ const DatasetCard: React.FC<Props> = ({
   dataset,
   inEditor,
   onDatasetSave,
-  onRemoveDataset,
+  onDatasetRemove,
   onDatasetUpdate,
   // onUpdateField,
 }) => {
@@ -60,9 +60,13 @@ const DatasetCard: React.FC<Props> = ({
         onClick: () => alert("MOVE CAMERA"),
       },
       { id: "about", title: "About Data", icon: "about", value: "www.plateau.org/data-url" },
-      { id: "remove", icon: "trash", onClick: () => onRemoveDataset?.(dataset.id) },
+      {
+        id: "remove",
+        icon: "trash",
+        onClick: () => onDatasetRemove?.(dataset.id),
+      },
     ],
-    [dataset, onRemoveDataset],
+    [dataset, onDatasetRemove],
   );
 
   const handleTabChange: React.MouseEventHandler<HTMLParagraphElement> = useCallback(e => {

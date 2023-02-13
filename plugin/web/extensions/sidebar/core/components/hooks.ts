@@ -56,8 +56,13 @@ export default () => {
 
   // ****************************************
   // Init
+  const [catalogData, setCatalog] = useState<DataCatalogItem[]>([]);
+
   useEffect(() => {
-    postMsg({ action: "init" }); // Needed to trigger sending initialization data to sidebar
+    getDataCatalog("https://api.plateau.reearth.io/").then(res => {
+      setCatalog(res);
+      postMsg({ action: "init", payload: { dataCatalog: res } }); // Needed to trigger sending initialization data to sidebar
+    });
   }, []);
   // ****************************************
 
@@ -113,18 +118,17 @@ export default () => {
     postMsg({ action: "removeDatasetFromScene", payload: id });
   }, []);
 
-  const handleProjectDatasetRemoveAll = useCallback(
-    () =>
-      updateProject(({ sceneOverrides }) => {
-        const updatedProject = {
-          sceneOverrides,
-          selectedDatasets: [],
-        };
-        postMsg({ action: "updateProject", payload: updatedProject });
-        return updatedProject;
-      }),
-    [],
-  );
+  const handleProjectDatasetRemoveAll = useCallback(() => {
+    updateProject(({ sceneOverrides }) => {
+      const updatedProject = {
+        sceneOverrides,
+        selectedDatasets: [],
+      };
+      postMsg({ action: "updateProject", payload: updatedProject });
+      return updatedProject;
+    });
+    postMsg({ action: "removeAllDatasetsFromScene" });
+  }, []);
 
   const handleDatasetUpdate = useCallback(
     (updatedDataset: Data) => {
@@ -174,25 +178,6 @@ export default () => {
     [data, processedSelectedDatasets, inEditor, backendAccessToken, backendURL, handleBackendFetch],
   );
 
-  // ****************************************
-
-  // ****************************************
-  // Catalog
-  const [catalogData, setCatalog] = useState<DataCatalogItem[]>([]);
-
-  useEffect(() => {
-    getDataCatalog("https://api.plateau.reearth.io/").then(res => {
-      setCatalog(res);
-    });
-  }, []);
-
-  const handleModalOpen = useCallback(() => {
-    const selectedIds = project.selectedDatasets.map(d => d.id);
-    postMsg({
-      action: "catalogModalOpen",
-      payload: { addedDatasets: selectedIds, catalogData },
-    });
-  }, [catalogData, project.selectedDatasets]);
   // ****************************************
 
   // ****************************************
@@ -333,6 +318,12 @@ export default () => {
 
   const handlePageChange = useCallback((p: Pages) => {
     setCurrentPage(p);
+  }, []);
+
+  const handleModalOpen = useCallback(() => {
+    postMsg({
+      action: "catalogModalOpen",
+    });
   }, []);
 
   return {
