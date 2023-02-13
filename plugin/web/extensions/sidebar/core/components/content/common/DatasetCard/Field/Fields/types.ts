@@ -180,7 +180,7 @@ export type BaseFieldProps<T extends keyof Fields> = {
   onUpdate: (property: Fields[T]) => void;
 };
 
-type Expression<T extends string | number | boolean = string | number | boolean> =
+export type Expression<T extends string | number | boolean = string | number | boolean> =
   | T
   | {
       conditions: Cond<T>[];

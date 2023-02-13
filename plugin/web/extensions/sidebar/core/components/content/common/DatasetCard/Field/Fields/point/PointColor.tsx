@@ -4,19 +4,10 @@ import { useCallback, useState } from "react";
 
 import { BaseFieldProps, Cond } from "../types";
 
+import { array_move } from "./common";
 import ConditionField from "./ConditionField";
 import Field from "./Field";
 import ItemControls from "./ItemControls";
-
-function array_move(arr: any[], old_index: number, new_index: number) {
-  if (new_index >= arr.length) {
-    let k = new_index - arr.length + 1;
-    while (k--) {
-      arr.push(undefined);
-    }
-  }
-  arr.splice(new_index, 0, arr.splice(old_index, 1)[0]);
-}
 
 const PointColor: React.FC<BaseFieldProps<"pointColor">> = ({ value, editMode, onUpdate }) => {
   const [pointColors, updatePointColors] = useState(value.pointColors);
