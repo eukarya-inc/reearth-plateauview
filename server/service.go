@@ -2,12 +2,10 @@ package main
 
 import (
 	"fmt"
-	"reflect"
-	"runtime"
-	"strings"
 
 	"github.com/eukarya-inc/reearth-plateauview/server/cms/cmswebhook"
 	"github.com/eukarya-inc/reearth-plateauview/server/cmsintegration"
+	"github.com/eukarya-inc/reearth-plateauview/server/datacatalog"
 	"github.com/eukarya-inc/reearth-plateauview/server/geospatialjp"
 	"github.com/eukarya-inc/reearth-plateauview/server/opinion"
 	"github.com/eukarya-inc/reearth-plateauview/server/sdk"
@@ -33,6 +31,7 @@ var services = [](func(*Config) (*Service, error)){
 	Share,
 	Opinion,
 	Sidebar,
+	DataCatalog,
 }
 
 func Services(conf *Config) (srv []*Service, _ error) {
@@ -144,8 +143,7 @@ func SDKAPI(conf *Config) (*Service, error) {
 	return &Service{
 		Name: "sdkapi",
 		Echo: func(g *echo.Group) error {
-			sdkapi.Handler(c, g.Group("/sdk"))
-			return nil
+			return sdkapi.Handler(c, g.Group("/sdk"))
 		},
 	}, nil
 }
@@ -193,6 +191,16 @@ func Sidebar(conf *Config) (*Service, error) {
 	}, nil
 }
 
-func funcName(i interface{}) string {
-	return strings.TrimPrefix(runtime.FuncForPC(reflect.ValueOf(i).Pointer()).Name(), "main.")
+func DataCatalog(conf *Config) (*Service, error) {
+	c := conf.DataCatalog()
+	if c.CMSBase == "" || c.CMSProject == "" {
+		return nil, nil
+	}
+
+	return &Service{
+		Name: "datacatalog",
+		Echo: func(g *echo.Group) error {
+			return datacatalog.Echo(c, g.Group("/datacatalog"))
+		},
+	}, nil
 }

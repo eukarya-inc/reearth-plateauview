@@ -33,6 +33,8 @@ type ActionType =
   | "extendPopup"
   | "minimize"
   | "buildingSearchOpen"
+  | "groupSelectOpen"
+  | "saveGroups"
   | "cameraFlyTo"
   | "storyPlay";
 
