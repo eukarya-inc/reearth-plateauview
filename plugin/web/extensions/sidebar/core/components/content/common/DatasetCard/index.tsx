@@ -1,4 +1,5 @@
 import { Data } from "@web/extensions/sidebar/core/newTypes";
+import { postMsg } from "@web/extensions/sidebar/utils";
 import { Dropdown, Icon, Menu } from "@web/sharedComponents";
 import { styled } from "@web/theme";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -46,7 +47,7 @@ const DatasetCard: React.FC<Props> = ({
   const [visible, setVisibility] = useState(false);
   const [currentTab, changeTab] = useState<Tabs>("default");
 
-  const { fieldGroups, handleFieldUpdate, handleFieldRemove } = useHooks({
+  const { fieldGroups, handleFieldUpdate, handleFieldRemove, handleGroupsUpdate } = useHooks({
     dataset,
     inEditor,
     onDatasetUpdate,
@@ -92,6 +93,19 @@ const DatasetCard: React.FC<Props> = ({
     onDatasetSave(dataset.id);
   }, [dataset.id, inEditor, onDatasetSave]);
 
+  useEffect(() => {
+    const eventListenerCallback = (e: any) => {
+      if (e.source !== parent) return;
+      if (e.data.action === "fieldGroups") {
+        postMsg({ action: "msgToPopup", payload: { groups: dataset.fieldGroups } });
+      }
+    };
+    (globalThis as any).addEventListener("message", eventListenerCallback);
+    return () => {
+      (globalThis as any).removeEventListener("message", eventListenerCallback);
+    };
+  });
+
   const menuGenerator = (menuItems: { [key: string]: any }) => (
     <Menu>
       {Object.keys(menuItems).map(i => {
@@ -120,8 +134,8 @@ const DatasetCard: React.FC<Props> = ({
   );
 
   return (
-    <StyledAccordionComponent allowZeroExpanded>
-      <AccordionItem>
+    <StyledAccordionComponent allowZeroExpanded preExpanded={["datasetcard"]}>
+      <AccordionItem uuid="datasetcard">
         <AccordionItemState>
           {({ expanded }) => (
             <Header expanded={expanded}>
@@ -167,8 +181,10 @@ const DatasetCard: React.FC<Props> = ({
                 key={idx}
                 field={c}
                 editMode={inEditor && currentTab === "edit"}
+                selectGroups={dataset.fieldGroups}
                 onUpdate={handleFieldUpdate}
                 onRemove={handleFieldRemove}
+                onGroupsUpdate={handleGroupsUpdate(c.type)}
               />
             ))}
           </Content>

@@ -2,6 +2,8 @@ export const fieldName = {
   camera: "カメラ",
   legend: "凡例",
   realtime: "リアルタイム",
+  switchGroup: "スイッチグループ",
+  buttonLink: "リンクボタン",
   point: "ポイント",
   description: "説明",
   pointColor: "色",
@@ -19,6 +21,8 @@ export type FieldComponent =
   | Camera
   | Legend
   | Description
+  | SwitchGroup
+  | ButtonLink
   | PointColor
   | PointColorGradient
   | PointSize
@@ -66,6 +70,22 @@ export type Legend = FieldBase<"legend"> & {
 export type Description = FieldBase<"description"> & {
   content?: string;
   isMarkdown?: boolean;
+};
+
+export type GroupItem = {
+  title: string;
+  group: string;
+  id?: number;
+};
+
+export type SwitchGroup = FieldBase<"switchGroup"> & {
+  title: string;
+  groups: GroupItem[];
+};
+
+export type ButtonLink = FieldBase<"buttonLink"> & {
+  title?: string;
+  link?: string;
 };
 
 // MAYBE POINT TYPE IS JUST TO CONCEPTUALIZE THE JSONNNN
@@ -143,6 +163,8 @@ export type Fields = {
   camera: Camera;
   legend: Legend;
   description: Description;
+  switchGroup: SwitchGroup;
+  buttonLink: ButtonLink;
   // point
   pointColor: PointColor;
   pointColorGradient: PointColorGradient;
