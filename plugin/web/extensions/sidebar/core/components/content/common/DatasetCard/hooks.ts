@@ -216,7 +216,7 @@ export default ({
 
   const ThreeDTileFields: FieldDropdownItem = {
     search: {
-      name: "Search",
+      name: fieldName["camera"],
       onClick: handleFieldAdd({}),
     },
   };

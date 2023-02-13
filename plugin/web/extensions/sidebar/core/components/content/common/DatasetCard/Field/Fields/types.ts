@@ -156,6 +156,7 @@ type PointStroke = {
 
 export type Search = {
   type: "search";
+  group?: string;
 };
 
 export type Fields = {
