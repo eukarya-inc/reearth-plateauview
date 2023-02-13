@@ -1,17 +1,17 @@
-import { Catalog, CatalogItem } from "@web/extensions/sidebar/core/components/hooks";
+import { DataCatalogGroup, DataCatalogItem } from "../../../../api/api";
 
 import File from "./File";
 import Folder from "./Folder";
 
 type Props = {
-  catalog: Catalog | CatalogItem[];
+  catalog: DataCatalogGroup | DataCatalogItem | (DataCatalogItem | DataCatalogGroup)[];
   isMobile?: boolean;
   expandAll?: boolean;
   addedDatasetIds?: string[];
   selectedId?: string;
   nestLevel: number;
-  onDatasetAdd: (dataset: CatalogItem) => void;
-  onOpenDetails?: (item?: CatalogItem) => void;
+  onDatasetAdd: (dataset: DataCatalogItem) => void;
+  onOpenDetails?: (item?: DataCatalogItem) => void;
   onSelect?: (id: string) => void;
 };
 
@@ -26,18 +26,20 @@ const TreeBuilder: React.FC<Props> = ({
   onOpenDetails,
   onSelect,
 }) => {
+  console.log("CATALOG IN TREE BUILDER: ", catalog);
   return (
     <>
-      {!Array.isArray(catalog)
-        ? Object.keys(catalog).map(loc => (
+      {Array.isArray(catalog) ? (
+        catalog.map(item => {
+          "children" in item ? (
             <Folder
-              key={loc}
-              name={loc}
+              key={item.name}
+              name={item.name}
               nestLevel={nestLevel + 1}
               isMobile={isMobile}
               expandAll={expandAll}>
               <TreeBuilder
-                catalog={catalog[loc]}
+                catalog={item}
                 addedDatasetIds={addedDatasetIds}
                 selectedId={selectedId}
                 nestLevel={nestLevel + 1}
@@ -46,20 +48,47 @@ const TreeBuilder: React.FC<Props> = ({
                 onSelect={onSelect}
               />
             </Folder>
-          ))
-        : catalog.map(item => (
-            <File
-              key={item.id}
-              item={item}
+          ) : (
+            <TreeBuilder
+              catalog={item}
               addedDatasetIds={addedDatasetIds}
-              isMobile={isMobile}
+              selectedId={selectedId}
               nestLevel={nestLevel + 1}
-              selectedID={selectedId}
               onDatasetAdd={onDatasetAdd}
               onOpenDetails={onOpenDetails}
               onSelect={onSelect}
             />
-          ))}
+          );
+        })
+      ) : "children" in catalog ? (
+        <Folder
+          key={catalog.name}
+          name={catalog.name}
+          nestLevel={nestLevel + 1}
+          isMobile={isMobile}
+          expandAll={expandAll}>
+          <TreeBuilder
+            catalog={catalog}
+            addedDatasetIds={addedDatasetIds}
+            selectedId={selectedId}
+            nestLevel={nestLevel + 1}
+            onDatasetAdd={onDatasetAdd}
+            onOpenDetails={onOpenDetails}
+            onSelect={onSelect}
+          />
+        </Folder>
+      ) : (
+        <File
+          item={catalog}
+          addedDatasetIds={addedDatasetIds}
+          isMobile={isMobile}
+          nestLevel={nestLevel + 1}
+          selectedID={selectedId}
+          onDatasetAdd={onDatasetAdd}
+          onOpenDetails={onOpenDetails}
+          onSelect={onSelect}
+        />
+      )}
     </>
   );
 };

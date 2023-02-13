@@ -2,16 +2,16 @@ import { Button, Icon } from "@web/sharedComponents";
 import { styled } from "@web/theme";
 import { useCallback, useMemo } from "react";
 
-import { CatalogItem } from "./FileTree"; // CIRCULAR IMPORTSSS
+import { DataCatalogItem } from "../../../../api/api";
 
 export type Props = {
-  item: CatalogItem;
+  item: DataCatalogItem;
   isMobile?: boolean;
   addedDatasetIds?: string[];
   nestLevel: number;
   selectedID?: string;
-  onDatasetAdd: (dataset: CatalogItem) => void;
-  onOpenDetails?: (item?: CatalogItem) => void;
+  onDatasetAdd: (dataset: DataCatalogItem) => void;
+  onOpenDetails?: (item?: DataCatalogItem) => void;
   onSelect?: (id: string) => void;
 };
 

@@ -1,18 +1,17 @@
-import { Catalog, CatalogItem } from "@web/extensions/sidebar/core/components/hooks";
 import { styled } from "@web/theme";
 import { useCallback, useState } from "react";
 
-import TreeBuilder from "./TreeBuilder";
+import { DataCatalogGroup, DataCatalogItem } from "../../../../api/api";
 
-export type { Catalog, CatalogItem } from "@web/extensions/sidebar/core/components/hooks";
+import TreeBuilder from "./TreeBuilder";
 
 export type Props = {
   addedDatasetIds?: string[];
-  catalog: Catalog;
+  catalog: (DataCatalogItem | DataCatalogGroup)[];
   isMobile?: boolean;
   expandAll?: boolean;
-  onDatasetAdd: (dataset: CatalogItem) => void;
-  onOpenDetails?: (data?: CatalogItem) => void;
+  onDatasetAdd: (dataset: DataCatalogItem) => void;
+  onOpenDetails?: (data?: DataCatalogItem) => void;
 };
 
 const FileTree: React.FC<Props> = ({

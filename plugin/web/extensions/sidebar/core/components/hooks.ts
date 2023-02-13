@@ -2,33 +2,10 @@ import { Project, ReearthApi } from "@web/extensions/sidebar/types";
 import { mergeProperty, postMsg } from "@web/extensions/sidebar/utils";
 import { useCallback, useEffect, useState } from "react";
 
+import { DataCatalogItem, getDataCatalog } from "../../modals/datacatalog/api/api";
 import { Data, Template } from "../newTypes";
 
 import { Pages } from "./Header";
-
-export type Catalog = {
-  [key: string]: Catalog | CatalogItem[];
-};
-
-export type CatalogItem = {
-  id?: string;
-  name?: string;
-  pref?: string;
-  city?: string;
-  city_en?: string;
-  city_code?: string;
-  ward?: string;
-  ward_en?: string;
-  ward_code?: string;
-  type?: string;
-  format?: string;
-  layers?: string;
-  url?: string;
-  desc?: string;
-  search_index?: string;
-  year?: string;
-  config?: any;
-};
 
 export const defaultProject: Project = {
   sceneOverrides: {
@@ -200,7 +177,7 @@ export default () => {
 
   // ****************************************
   // Catalog
-  const [catalogData, setCatalog] = useState<Catalog>({});
+  const [catalogData, setCatalog] = useState<DataCatalogItem[]>([]);
 
   useEffect(() => {
     if (catalogData) {
@@ -209,13 +186,9 @@ export default () => {
   }, [catalogData]);
 
   useEffect(() => {
-    (async function fetchRawData() {
-      const catalog: CatalogItem[] = await (
-        await fetch("https://api.plateau.reearth.io/datacatalog")
-      ).json();
-
-      setCatalog(processCatalogByPref(catalog));
-    })();
+    getDataCatalog("https://api.plateau.reearth.io/").then(res => {
+      setCatalog(res);
+    });
   }, []);
 
   const handleModalOpen = useCallback(() => {
@@ -414,143 +387,3 @@ function updateExtended(e: { vertically: boolean }) {
     root?.classList.remove("extended");
   }
 }
-
-// Re-order catalog by Prefecture (行政コード)
-export const processCatalogByPref = (c: CatalogItem[]): Catalog => {
-  const byPref: { [key: string]: CatalogItem[] } = c.reduce(
-    (acc: { [key: string]: CatalogItem[] }, cur) => {
-      const key = cur["pref"];
-      if (key) {
-        if (!acc[key]) {
-          acc[key] = [];
-        }
-        acc[key].push(cur);
-      }
-      return acc;
-    },
-    {},
-  );
-
-  const byRest = Object.keys(byPref).map(prefKey => {
-    const byCity = byPref[prefKey].reduce((acc2, cur2) => {
-      const generateStructure = (keys: string[], object: CatalogItem) => {
-        return keys.reduce((o, k) => {
-          if (!o[k as keyof typeof o]) {
-            o[k as keyof typeof o] = [];
-          }
-          if (k === keys[keys.length - 1]) {
-            o[k as keyof typeof o].push(cur2);
-          } else {
-            o[k as keyof typeof o] = generateStructure(keys.slice(1), o[k as keyof typeof o]);
-          }
-          return o;
-        }, object);
-      };
-
-      let cityKeys: string[] = [];
-      let nameKeys: string[] = [];
-
-      if (cur2["city"]) {
-        cityKeys = cur2["city"].split("/");
-      }
-      if (cur2["name"]) {
-        nameKeys = cur2["name"].split("/");
-      }
-
-      const filterKeys = nameKeys.length > 1 ? [...cityKeys, ...nameKeys] : cityKeys;
-
-      return generateStructure(filterKeys, acc2);
-    }, {});
-
-    return { [prefKey]: byCity };
-  });
-
-  return byRest.reduce((acc, item) => {
-    return { ...acc, ...item };
-  }, {}) as Catalog;
-};
-
-export const prefectures = [
-  "全国",
-  "東京都",
-  "北海道",
-  "青森県",
-  "岩手県",
-  "宮城県",
-  "秋田県",
-  "山形県",
-  "福島県",
-  "茨城県",
-  "栃木県",
-  "群馬県",
-  "埼玉県",
-  "千葉県",
-  "神奈川県",
-  "新潟県",
-  "富山県",
-  "石川県",
-  "福井県",
-  "山梨県",
-  "長野県",
-  "岐阜県",
-  "静岡県",
-  "愛知県",
-  "三重県",
-  "滋賀県",
-  "京都府",
-  "大阪府",
-  "兵庫県",
-  "奈良県",
-  "和歌山県",
-  "鳥取県",
-  "島根県",
-  "岡山県",
-  "広島県",
-  "山口県",
-  "徳島県",
-  "香川県",
-  "愛媛県",
-  "高知県",
-  "福岡県",
-  "佐賀県",
-  "長崎県",
-  "熊本県",
-  "大分県",
-  "宮崎県",
-  "鹿児島県",
-  "沖縄県",
-];
-
-export const dataTypes = [
-  "建築物モデル",
-  "避難施設",
-  "ランドマーク",
-  "鉄道駅",
-  "道路モデル",
-  "植生",
-  "都市設備",
-  "土地利用",
-  "土砂災害警戒区域",
-  "都市計画決定情報", // Sub as-is
-  "洪水浸水想定区域", // Sub by name
-  "津波浸水想定区域", // Sub by name
-  "高潮浸水想定区域", // Sub by name
-  "内水浸水想定区域", // Sub by name
-  "緊急輸送道路",
-  "鉄道",
-  "公園",
-  "行政界",
-  "ユースケース", // Sub by name
-];
-
-export type Tag = {
-  type: "location" | "data-type";
-  name: string;
-};
-
-// tags: [
-//   { name: item.prefecture, type: "location" },
-//   { name: item.city_name, type: "location" },
-//   { name: item.data_format, type: "data-type" },
-//   { name: item.type, type: "data-type" },
-// ].filter(t => !!t.name) as Tag[],
