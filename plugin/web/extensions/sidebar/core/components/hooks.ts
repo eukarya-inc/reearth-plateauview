@@ -3,6 +3,7 @@ import { mergeProperty, postMsg } from "@web/extensions/sidebar/utils";
 import { useCallback, useEffect, useState } from "react";
 
 import { DataCatalogItem, getDataCatalog } from "../../modals/datacatalog/api/api";
+import { UserDataItem } from "../../modals/datacatalog/types";
 import { Data, Template } from "../newTypes";
 
 import { Pages } from "./Header";
@@ -77,7 +78,7 @@ export default () => {
     [updateProject],
   );
 
-  const handleProjectDatasetAdd = useCallback((dataset: any) => {
+  const handleProjectDatasetAdd = useCallback((dataset: DataCatalogItem | UserDataItem) => {
     updateProject(({ sceneOverrides, selectedDatasets }) => {
       const updatedProject: Project = {
         sceneOverrides,
@@ -85,9 +86,10 @@ export default () => {
           ...selectedDatasets,
           {
             id: dataset.id,
-            dataId: `plateau-2022-${dataset.cityName ?? dataset.name}`,
+            dataId: `plateau-2022-${dataset.name}`,
             type: dataset.type,
-            name: dataset.cityName ?? dataset.name,
+            name: dataset.name,
+            url: "dataURL" in dataset ? dataset.dataURL : undefined,
             visible: true,
           } as Data,
         ],

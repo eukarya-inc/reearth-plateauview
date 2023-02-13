@@ -37,6 +37,9 @@ const defaultProject: Project = {
 
 type PluginExtensionInstance = {
   id: string;
+  name: string;
+  pluginId: string;
+  extensionId: string;
   runTimes?: number;
 };
 
@@ -171,60 +174,26 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
     reearth.visualizer.overrideProperty(payload.sceneOverrides);
     reearth.clientStorage.setAsync("draftProject", payload);
   } else if (action === "addDatasetToScene") {
-    //   if (addedDatasets.find(d => d[0] === payload.id)) {
-    //     const idx = addedDatasets.findIndex(ad => ad[0] === payload.id);
-    //     addedDatasets[idx][1] = "showing";
-    //     reearth.layers.show(addedDatasets[idx][2]);
-    //   } else {
-    //     const { id, name, dataFormat, dataURL } = payload ?? {};
-    //     const data =
-    //       dataFormat === "3D Tiles"
-    //         ? {
-    //             type: "simple",
-    //             title: name, // Not sure this is needed
-    //             data: {
-    //               type: "3dtiles",
-    //               url: dataURL,
-    //             },
-    //             visible: true,
-    //             // infobox: someInofbox
-    //             "3dtiles": {
-    //               color: "red",
-    //             },
-    //           }
-    //         : {
-    //             type: "simple",
-    //             title: name, // Not sure this is needed
-    //             data: {
-    //               type: dataFormat.toLowerCase(),
-    //               url: dataURL,
-    //             },
-    //             visible: true,
-    //             // infobox: someInofbox
-    //             marker: {
-    //               style: "point",
-    //               // pointColor: "green",
-    //               // pointOutlineColor: "red",
-    //               // pointOutlineWidth: 6,
-    //               // label: true,
-    //               // labelText: "SOME TEXT",
-    //               // labelPosition: "right",
-    //               // labelBackground: true,
-    //             },
-    //           };
-    //     const layerID = reearth.layers.add(data);
-    //     addedDatasets.push([id, "showing", layerID]);
-    //   }
-    // } else if (action === "removeDatasetFromScene") {
-    //   reearth.layers.hide(addedDatasets.find(ad => ad[0] === payload)?.[2]);
-    //   const idx = addedDatasets.findIndex(ad => ad[0] === payload);
-    //   addedDatasets[idx][1] = "removed";
-    // } else if (action === "updateDatasetInScene") {
-    //   // update dataset
-    //   // update dataset
-    //   // update dataset
-    //   // update dataset
-    //   reearth.layers.overrideProperty();
+    console.log("SHOW IN SCENE PAYLOAD: ", payload);
+    if (addedDatasets.find(d => d[0] === payload.id)) {
+      const idx = addedDatasets.findIndex(ad => ad[0] === payload.id);
+      addedDatasets[idx][1] = "showing";
+      reearth.layers.show(addedDatasets[idx][2]);
+    } else {
+      const data = createLayer(payload ?? {});
+      const layerID = reearth.layers.add(data);
+      addedDatasets.push([payload.id, "showing", layerID]);
+    }
+  } else if (action === "removeDatasetFromScene") {
+    reearth.layers.hide(addedDatasets.find(ad => ad[0] === payload)?.[2]);
+    const idx = addedDatasets.findIndex(ad => ad[0] === payload);
+    addedDatasets[idx][1] = "removed";
+  } else if (action === "updateDatasetInScene") {
+    // update dataset
+    // update dataset
+    // update dataset
+    // update dataset
+    reearth.layers.overrideProperty();
   } else if (
     action === "screenshot" ||
     action === "screenshotPreview" ||
@@ -355,3 +324,48 @@ reearth.on("resize", () => {
     }
   }
 });
+
+function createLayer(dataset: DataCatalogItem) {
+  const layer: any = {
+    type: "simple",
+    title: dataset.name,
+    data: {
+      type: dataset.format.toLowerCase(),
+    },
+    visible: true,
+    infobox: {
+      blocks: [
+        {
+          pluginId: reearth.plugins.instances.find(
+            (i: PluginExtensionInstance) => i.name === "plateau-plugin",
+          ).pluginId,
+          extensionId: "infobox",
+          property: { default: {} },
+        },
+      ],
+      property: { default: { size: "medium" } },
+    },
+  };
+
+  // Add file type specific fields
+  if (dataset.format === "3dtiles") {
+    layer["data"]["url"] = dataset.url ?? dataset.config.data[0].url;
+    // layer["3dtiles"] = {
+    //   color: "red",
+    // };
+  } else if (dataset.format === "geojson") {
+    layer["data"]["url"] = dataset.url;
+    layer["marker"] = {
+      style: "point",
+      // pointOutlineColor: "red",
+      // pointOutlineWidth: 6,
+      // label: true,
+      // labelText: "SOME TEXT",
+      // labelPosition: "right",
+      // labelBackground: true,
+    };
+  }
+  console.log("CREATED LAYER BEFORE ADDING: ", layer);
+
+  return layer;
+}
