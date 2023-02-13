@@ -174,7 +174,6 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
     reearth.visualizer.overrideProperty(payload.sceneOverrides);
     reearth.clientStorage.setAsync("draftProject", payload);
   } else if (action === "addDatasetToScene") {
-    console.log("SHOW IN SCENE PAYLOAD: ", payload);
     if (addedDatasets.find(d => d[0] === payload.id)) {
       const idx = addedDatasets.findIndex(ad => ad[0] === payload.id);
       addedDatasets[idx][1] = "showing";
@@ -325,12 +324,13 @@ reearth.on("resize", () => {
   }
 });
 
-function createLayer(dataset: DataCatalogItem) {
+function createLayer(dataset: DataCatalogItem, options?: any) {
   const layer: any = {
     type: "simple",
     title: dataset.name,
     data: {
       type: dataset.format.toLowerCase(),
+      url: dataset.url ?? dataset.config.data[0].url,
     },
     visible: true,
     infobox: {
@@ -345,16 +345,11 @@ function createLayer(dataset: DataCatalogItem) {
       ],
       property: { default: { size: "medium" } },
     },
+    ...options,
   };
 
   // Add file type specific fields
-  if (dataset.format === "3dtiles") {
-    layer["data"]["url"] = dataset.url ?? dataset.config.data[0].url;
-    // layer["3dtiles"] = {
-    //   color: "red",
-    // };
-  } else if (dataset.format === "geojson") {
-    layer["data"]["url"] = dataset.url;
+  if (dataset.format === "geojson") {
     layer["marker"] = {
       style: "point",
       // pointOutlineColor: "red",
@@ -365,7 +360,6 @@ function createLayer(dataset: DataCatalogItem) {
       // labelBackground: true,
     };
   }
-  console.log("CREATED LAYER BEFORE ADDING: ", layer);
 
   return layer;
 }
