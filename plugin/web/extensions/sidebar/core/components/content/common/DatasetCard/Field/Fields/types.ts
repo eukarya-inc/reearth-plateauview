@@ -1,3 +1,5 @@
+import { Group } from "@web/extensions/sidebar/core/newTypes";
+
 export const fieldName = {
   camera: "カメラ",
   legend: "凡例",
@@ -72,8 +74,7 @@ export type Description = FieldBase<"description"> & {
 
 export type GroupItem = {
   title: string;
-  group: string;
-  id?: number;
+  groupID: number;
 };
 
 export type SwitchGroup = FieldBase<"switchGroup"> & {
@@ -176,6 +177,7 @@ export type Fields = {
 export type BaseFieldProps<T extends keyof Fields> = {
   value: Fields[T];
   editMode?: boolean;
+  fieldGroups?: Group[];
   onUpdate: (property: Fields[T]) => void;
 };
 
