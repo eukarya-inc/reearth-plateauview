@@ -1,50 +1,54 @@
 import { styled } from "@web/theme";
 import { useCallback, useState } from "react";
 
-import { BaseFieldProps, ButtonLink as ButtonLinkType } from "../types";
+import { BaseFieldProps } from "../types";
 
-const ButtonLink: React.FC<BaseFieldProps<"buttonLink">> = ({ editMode }) => {
-  const [CurrentButton, setCurrentButton] = useState<ButtonLinkType>();
+const ButtonLink: React.FC<BaseFieldProps<"buttonLink">> = ({ value, editMode, onUpdate }) => {
+  const [title, setTitle] = useState(value.title);
+  const [link, setLink] = useState(value.link);
 
-  const handleChangeButtonTitle = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    setCurrentButton(btn => {
-      if (!btn) return;
-      return { ...btn, title: e.currentTarget.value };
-    });
-  }, []);
+  const handleChangeButtonTitle = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setTitle(e.currentTarget.value);
+      onUpdate({
+        ...value,
+        title: e.currentTarget.value,
+      });
+    },
+    [value, onUpdate],
+  );
 
-  const handleChangeButtonLink = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    setCurrentButton(btn => {
-      if (!btn) return;
-      return { ...btn, link: e.currentTarget.value };
-    });
-  }, []);
+  const handleChangeButtonLink = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setLink(e.currentTarget.value);
+      onUpdate({
+        ...value,
+        link: e.currentTarget.value,
+      });
+    },
+    [value, onUpdate],
+  );
+
   return editMode ? (
     <Wrapper>
       <Field>
         <FieldTitle>タイトル</FieldTitle>
         <FieldValue>
-          <TextInput onChange={handleChangeButtonTitle} />
+          <TextInput defaultValue={title} onChange={handleChangeButtonTitle} />
         </FieldValue>
       </Field>
 
       <Field>
         <FieldTitle>リンク</FieldTitle>
         <FieldValue>
-          <TextInput onChange={handleChangeButtonLink} />
+          <TextInput defaultValue={link} onChange={handleChangeButtonLink} />
         </FieldValue>
       </Field>
     </Wrapper>
   ) : (
-    <Wrapper>
-      <Field>
-        <FieldValue>
-          <StyledButton onClick={() => window.open(CurrentButton?.link, "_blank", "noopener")}>
-            <Text>{CurrentButton?.title}</Text>
-          </StyledButton>
-        </FieldValue>
-      </Field>
-    </Wrapper>
+    <StyledButton onClick={() => link && window.open(link, "_blank", "noopener")}>
+      {title && <Text>{title}</Text>}
+    </StyledButton>
   );
 };
 
@@ -97,12 +101,9 @@ const StyledButton = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 8px;
-  padding: 1px 8px;
   background: #00bebe;
-  border: 1px solid #d9d9d9;
+  color: #fff;
   border-radius: 2px;
-  height: 270px;
-  width: 24px;
+  height: 24px;
   cursor: pointer;
 `;
