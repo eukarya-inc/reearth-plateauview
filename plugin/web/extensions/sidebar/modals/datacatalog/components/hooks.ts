@@ -2,7 +2,7 @@ import { UserDataItem } from "@web/extensions/sidebar/modals/datacatalog/types";
 import { postMsg } from "@web/extensions/sidebar/utils";
 import { useCallback, useEffect, useState } from "react";
 
-import { DataCatalogItem, getDataCatalog } from "../api/api";
+import { DataCatalogItem } from "../api/api";
 
 export type Tab = "dataset" | "your-data";
 
@@ -45,12 +45,6 @@ export default () => {
     return () => {
       removeEventListener("message", eventListenerCallback);
     };
-  }, []);
-
-  useEffect(() => {
-    getDataCatalog("https://api.plateau.reearth.io/").then(res => {
-      setCatalog(res);
-    });
   }, []);
 
   return {
