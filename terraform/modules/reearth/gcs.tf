@@ -83,7 +83,7 @@ resource "google_storage_bucket_object" "reearth_config" {
     {
       "api"                  = "https://${local.api_reearth_domain}/api",
       "plugins"              = "https://${local.static_reearth_domain}/plugins",
-      "published"            = "https://{}.${var.base_domain}",
+      "published"            = "https://{}.${local.reearth_domain}",
       "auth0ClientId"        = auth0_client.reearth_app.client_id,
       "auth0Domain"          = var.auth0.domain,
       "auth0Audience"        = "https://${local.api_reearth_domain}",

@@ -5,35 +5,49 @@ resource "google_compute_target_http_proxy" "reearth" {
   url_map    = google_compute_url_map.reearth.id
 }
 
-
 resource "google_compute_target_https_proxy" "reearth" {
-  name             = "reearth-common-https-targetproxy"
-  url_map          = google_compute_url_map.reearth.id
-  ssl_certificates = [google_compute_managed_ssl_certificate.common.id]
-  # lifecycle {
-  #   ignore_changes = [
-  #     ssl_certificates,
-  #   ] #証明書を動的に追加するので2回目以降は無視させる
-  # }
+  name            = "reearth-common-https-targetproxy"
+  url_map         = google_compute_url_map.reearth.id
+  certificate_map = "//certificatemanager.googleapis.com/${google_certificate_manager_certificate_map.reearth.id}"
+}
+
+resource "google_certificate_manager_certificate_map" "reearth" {
+  name = "reearth-cert-map"
+}
+
+resource "google_certificate_manager_certificate_map_entry" "reearth_primary" {
+  name        = "reearth-cert-map-primary"
+  description = "reearth wildcard"
+  map         = google_certificate_manager_certificate_map.reearth.name
+
+  certificates = [google_certificate_manager_certificate.reearth_wildcard.id]
+
+  matcher = "PRIMARY"
+}
+
+resource "google_certificate_manager_certificate" "reearth_wildcard" {
+  name        = "reearth-wildcard"
+  description = "reearth wildcard cert"
+  scope       = "DEFAULT"
+  managed {
+    domains = [
+      google_certificate_manager_dns_authorization.reearth_wildcard.domain,
+      "*.${google_certificate_manager_dns_authorization.reearth_wildcard.domain}"
+    ]
+    dns_authorizations = [
+      google_certificate_manager_dns_authorization.reearth_wildcard.id,
+    ]
+  }
+}
+
+resource "google_certificate_manager_dns_authorization" "reearth_wildcard" {
+  name        = "reearth-wildcard-dns-auth"
+  description = "reearth wildcard dns auth"
+  domain      = local.reearth_domain
 }
 
 resource "google_compute_global_address" "reearth_lb" {
   name = "reearth-common-lb"
-}
-
-resource "google_compute_managed_ssl_certificate" "common" {
-  name = "reearth-common-cert"
-
-  managed {
-    domains = [
-      local.api_reearth_domain,
-      local.reearth_domain,
-      local.static_reearth_domain,
-    ] #TODO: ワイルドカード対応
-  }
-  # lifecycle {
-  #   create_before_destroy = true
-  # }
 }
 
 resource "google_compute_global_forwarding_rule" "reearth_https" {
@@ -89,6 +103,7 @@ resource "google_compute_url_map" "reearth" {
   host_rule {
     hosts = [
       local.api_reearth_domain,
+      "*.${local.reearth_domain}"
     ]
     path_matcher = "path-matcher-3"
   }

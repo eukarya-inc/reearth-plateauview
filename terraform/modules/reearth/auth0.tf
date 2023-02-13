@@ -1,9 +1,9 @@
 resource "auth0_client" "reearth_app" {
   name = "plateau-reearth"
 
-  app_type           = "spa"
-  initiate_login_uri = "https://${local.reearth_domain}"
-
+  app_type                   = "spa"
+  initiate_login_uri         = "https://${local.reearth_domain}"
+  token_endpoint_auth_method = "none"
   allowed_logout_urls = [
     "https://${local.reearth_domain}"
   ]
@@ -66,7 +66,7 @@ resource "auth0_action" "reearth_app" {
 
   secrets {
     name  = "api"
-    value = "https://${local.api_reearth_domain}/api/graphql"
+    value = "https://${local.api_reearth_domain}/api/signup"
   }
 }
 
@@ -74,3 +74,12 @@ resource "random_string" "reeart_app_action_secret" {
   length  = 32
   special = false
 }
+
+# resource "auth0_trigger_binding" "reearth_login" {
+#   trigger = "post-user-registration"
+
+#   actions {
+#     id           = auth0_action.reearth_app.id
+#     display_name = auth0_action.action_foo.name
+#   }
+# }
