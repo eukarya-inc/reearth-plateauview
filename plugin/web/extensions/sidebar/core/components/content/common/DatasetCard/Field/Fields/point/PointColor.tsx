@@ -6,7 +6,6 @@ import { BaseFieldProps, Cond } from "../types";
 
 import ColorField from "./common/ColorField";
 import ConditionField from "./common/ConditionField";
-import Field from "./common/Field";
 import ItemControls from "./common/ItemControls";
 import { ButtonWrapper, Item, Wrapper } from "./common/styled";
 
@@ -98,11 +97,7 @@ const PointColor: React.FC<BaseFieldProps<"pointColor">> = ({ value, editMode, o
             handleRemove={handleRemove}
           />
           <ConditionField title="if" fieldGap={8} condition={c.condition} />
-          <Field
-            title="色"
-            titleWidth={82}
-            value={<ColorField color={c.color} value={c.color} />}
-          />
+          <ColorField title="色" titleWidth={82} color={c.color} />
         </Item>
       ))}
       <ButtonWrapper>

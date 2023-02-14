@@ -1,6 +1,4 @@
-import { styled } from "@web/theme";
-
-import { FieldValue } from "./styled";
+import { FieldTitle, FieldValue, FieldWrapper } from "./styled";
 
 type Props = {
   title: string;
@@ -10,25 +8,11 @@ type Props = {
 
 const Field: React.FC<Props> = ({ title, titleWidth, value }) => {
   return (
-    <Wrapper>
+    <FieldWrapper>
       <FieldTitle width={titleWidth}>{title}</FieldTitle>
       <FieldValue>{value}</FieldValue>
-    </Wrapper>
+    </FieldWrapper>
   );
 };
 
 export default Field;
-
-const Text = styled.p`
-  margin: 0;
-`;
-
-const Wrapper = styled.div`
-  display: flex;
-  align-items: center;
-  height: 32px;
-`;
-
-const FieldTitle = styled(Text)<{ width?: number }>`
-  ${({ width }) => width && `width: ${width}px;`}
-`;

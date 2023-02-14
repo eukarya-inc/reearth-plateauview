@@ -1,13 +1,22 @@
 import { styled } from "@web/theme";
 
-import { TextInput } from "./styled";
+import { FieldTitle, FieldValue, FieldWrapper, TextInput } from "./styled";
 
-const ColorField: React.FC<{ color?: string; value?: string }> = ({ color, value }) => {
+type Props = {
+  title: string;
+  titleWidth?: number;
+  color?: string;
+};
+
+const ColorField: React.FC<Props> = ({ title, titleWidth, color }) => {
   return (
-    <>
-      <ColorBlock color={color ?? ""} />
-      <TextInput value={value ?? ""} />
-    </>
+    <FieldWrapper>
+      <FieldTitle width={titleWidth}>{title}</FieldTitle>
+      <FieldValue>
+        <ColorBlock color={color ?? ""} />
+        <TextInput value={color ?? ""} />
+      </FieldValue>
+    </FieldWrapper>
   );
 };
 
