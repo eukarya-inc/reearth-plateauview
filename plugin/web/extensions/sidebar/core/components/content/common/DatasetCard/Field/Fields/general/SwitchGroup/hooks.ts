@@ -1,5 +1,5 @@
 import { Group } from "@web/extensions/sidebar/core/newTypes";
-import { array_move } from "@web/extensions/sidebar/utils";
+import { array_move, generateID } from "@web/extensions/sidebar/utils";
 import { useCallback, useState } from "react";
 
 import { GroupItem, SwitchGroup } from "../../types";
@@ -8,14 +8,16 @@ export default ({
   value,
   fieldGroups,
   onUpdate,
+  onCurrentGroupChange,
 }: {
   value: SwitchGroup;
   fieldGroups?: Group[];
   onUpdate: (property: SwitchGroup) => void;
+  onCurrentGroupChange: (group: number) => void;
 }) => {
   const [groupItems, updateGroupItems] = useState<GroupItem[]>(value.groups);
   const [title, setTitle] = useState(value.title);
-  const [selectedGroup, selectGroup] = useState(fieldGroups?.[0] ?? undefined);
+  const [selectedGroup, selectGroup] = useState(value.groups[0]);
 
   const handleTitleChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -26,32 +28,41 @@ export default ({
   );
 
   const handleGroupChoose = useCallback(
-    (groupID: number) => {
-      selectGroup(fieldGroups?.find(fg => fg.id === groupID));
+    (id: string) => {
+      const selected = groupItems?.find(gi => gi.id === id);
+      if (!selected) return;
+      selectGroup(selected);
+      onCurrentGroupChange(selected?.fieldGroupID);
     },
-    [fieldGroups],
+    [groupItems, onCurrentGroupChange],
   );
 
   const handleItemAdd = useCallback(() => {
     if (!fieldGroups) return;
-    const newItem = { title: "新グループ", groupID: fieldGroups[0].id };
-    updateGroupItems(gi => [...gi, newItem]);
-    onUpdate({ ...value, groups: [...value.groups, newItem] });
+    const newItem: GroupItem = {
+      id: generateID(),
+      title: `新グループ${value.groups.length ? value.groups.length + 1 : 1}`,
+      fieldGroupID: fieldGroups[0].id,
+    };
+    updateGroupItems(gi => (gi ? [...gi, newItem] : [newItem]));
+    onUpdate({ ...value, groups: value.groups ? [...value.groups, newItem] : [newItem] });
   }, [value, fieldGroups, onUpdate]);
 
   const handleItemRemove = useCallback(
-    (idx: number) => {
-      const newGroups = value.groups.filter((_, gidx) => gidx !== idx);
+    (id: string) => {
+      if (value.groups.length < 2) return;
+      const newGroups = value.groups?.filter(g => g.id !== id);
+      if (!newGroups) return;
       onUpdate({ ...value, groups: newGroups });
     },
     [value, onUpdate],
   );
 
   const handleItemGroupChange = useCallback(
-    (idx: number, groupID?: number) => {
-      if (!groupID) return;
+    (idx: number, fieldGroupID?: number) => {
+      if (!fieldGroupID || !value.groups) return;
       const updatedGroups = value.groups;
-      updatedGroups[idx].groupID = groupID;
+      updatedGroups[idx].fieldGroupID = fieldGroupID;
       updateGroupItems(updatedGroups);
       onUpdate({ ...value, groups: updatedGroups });
     },
@@ -60,6 +71,7 @@ export default ({
 
   const handleItemTitleChange = useCallback(
     (title: string, idx: number) => {
+      if (!value.groups) return;
       const updatedGroups = value.groups;
       updatedGroups[idx].title = title;
       onUpdate({ ...value, groups: updatedGroups });
@@ -69,7 +81,7 @@ export default ({
 
   const handleItemMoveUp = useCallback(
     (idx: number) => {
-      if (idx === 0) return;
+      if (idx === 0 || !value.groups) return;
       const newGroups = value.groups;
       array_move(newGroups, idx, idx - 1);
       onUpdate({ ...value, groups: newGroups });
@@ -79,7 +91,7 @@ export default ({
 
   const handleItemMoveDown = useCallback(
     (idx: number) => {
-      if (idx >= value.groups.length - 1) return;
+      if (!value.groups || idx >= value.groups.length - 1) return;
       const newGroups = value.groups;
       array_move(newGroups, idx, idx + 1);
       onUpdate({ ...value, groups: newGroups });

@@ -11,6 +11,7 @@ const SwitchGroup: React.FC<BaseFieldProps<"switchGroup">> = ({
   editMode,
   fieldGroups,
   onUpdate,
+  onCurrentGroupChange,
 }) => {
   const {
     title,
@@ -28,16 +29,32 @@ const SwitchGroup: React.FC<BaseFieldProps<"switchGroup">> = ({
     value,
     fieldGroups,
     onUpdate,
+    onCurrentGroupChange,
   });
 
-  const menu = (
+  const uiMenu = (
     <Menu
       items={groupItems?.map((gi, idx) => {
         return {
           key: idx,
           label: (
-            <p style={{ margin: 0 }} onClick={() => handleGroupChoose(gi.groupID)}>
+            <p style={{ margin: 0 }} onClick={() => handleGroupChoose(gi.id)}>
               {gi.title}
+            </p>
+          ),
+        };
+      })}
+    />
+  );
+
+  const editGroupMenu = (groupItemIndex: number) => (
+    <Menu
+      items={fieldGroups?.map((fg, idx) => {
+        return {
+          key: idx,
+          label: (
+            <p style={{ margin: 0 }} onClick={() => handleItemGroupChange(groupItemIndex, fg.id)}>
+              {fg.name}
             </p>
           ),
         };
@@ -54,34 +71,24 @@ const SwitchGroup: React.FC<BaseFieldProps<"switchGroup">> = ({
         </FieldValue>
       </Field>
       <AddButton text="Add Item" onClick={handleItemAdd} />
-      {value.groups?.map((g, idx) => (
+      {value.groups.map((g, idx) => (
         <Item key={idx}>
           <ItemControls>
             <Icon icon="arrowUpThin" size={16} onClick={() => handleItemMoveUp(idx)} />
             <Icon icon="arrowDownThin" size={16} onClick={() => handleItemMoveDown(idx)} />
-            <Icon icon="trash" size={16} onClick={() => handleItemRemove(idx)} />
+            <TrashIcon icon="trash" size={16} onClick={() => handleItemRemove(g.id)} />
           </ItemControls>
           <Field>
             <FieldTitle>グループ</FieldTitle>
             <FieldValue>
-              <SelectWrapper
-                defaultValue={g.title}
-                onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
-                  handleItemGroupChange(
-                    idx,
-                    fieldGroups?.find(fg => fg.name === e.target.value)?.id,
-                  );
-                }}>
-                {fieldGroups?.map((fg, idx) => (
-                  <option
-                    key={fg.id}
-                    defaultChecked={idx === 0}
-                    defaultValue={fg.name}
-                    disabled={fg.id === g.groupID ? true : false}>
-                    {fg.name}
-                  </option>
-                ))}
-              </SelectWrapper>
+              <Dropdown overlay={editGroupMenu(idx)} placement="bottom" trigger={["click"]}>
+                <StyledDropdownButton>
+                  <p style={{ margin: 0 }}>
+                    {fieldGroups?.find(fg => fg.id === g.fieldGroupID)?.name ?? "-"}
+                  </p>
+                  <Icon icon="arrowDownSimple" size={12} />
+                </StyledDropdownButton>
+              </Dropdown>
             </FieldValue>
           </Field>
           <Field>
@@ -103,9 +110,9 @@ const SwitchGroup: React.FC<BaseFieldProps<"switchGroup">> = ({
       <Field>
         <FieldTitle>{title}</FieldTitle>
         <FieldValue>
-          <Dropdown overlay={menu} placement="bottom" trigger={["click"]}>
+          <Dropdown overlay={uiMenu} placement="bottom" trigger={["click"]}>
             <StyledDropdownButton>
-              <p style={{ margin: 0 }}>{selectedGroup ? selectedGroup.name : "-"}</p>
+              <p style={{ margin: 0 }}>{selectedGroup ? selectedGroup.title : "-"}</p>
               <Icon icon="arrowDownSimple" size={12} />
             </StyledDropdownButton>
           </Dropdown>
@@ -135,6 +142,15 @@ const StyledDropdownButton = styled.div`
 
 const Text = styled.p`
   margin: 0;
+`;
+
+const TrashIcon = styled(Icon)<{ disabled?: boolean }>`
+  ${({ disabled }) =>
+    disabled &&
+    `
+      color: rgb(209, 209, 209);
+      pointer-events: none;
+    `}
 `;
 
 const Field = styled.div<{ gap?: number }>`
@@ -183,15 +199,5 @@ const ItemControls = styled.div`
   display: flex;
   justify-content: right;
   gap: 4px;
-  cursor: pointer;
-`;
-
-const SelectWrapper = styled.select`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  width: 100%;
-  align-content: center;
-  padding: 0 16px;
   cursor: pointer;
 `;
