@@ -79,8 +79,11 @@ const FieldComponent: React.FC<Props> = ({
     };
   }, [groupPopupOpen, onGroupsUpdate]);
 
-  return !editMode && (!hasUI || !isActive) ? null : (
-    <StyledAccordionComponent allowZeroExpanded preExpanded={[field.type]}>
+  return !isActive ? null : (
+    <StyledAccordionComponent
+      allowZeroExpanded
+      preExpanded={[field.type]}
+      hide={!editMode && !hasUI}>
       <AccordionItem uuid={field.type}>
         <AccordionItemState>
           {({ expanded }) => (
@@ -129,7 +132,8 @@ const FieldComponent: React.FC<Props> = ({
 
 export default FieldComponent;
 
-const StyledAccordionComponent = styled(Accordion)`
+const StyledAccordionComponent = styled(Accordion)<{ hide: boolean }>`
+  ${({ hide }) => hide && "display: none;"}
   width: 100%;
   border: 1px solid #e6e6e6;
   border-radius: 4px;
