@@ -119,9 +119,9 @@ type PointSize = {
   pointSize?: number;
 };
 
-type PointIcon = {
-  type: "pointIcon";
-  group?: string;
+type PointIcon = FieldBase<"pointIcon"> & {
+  url?: string;
+  size: number;
 };
 
 type PointLabel = {
@@ -176,6 +176,7 @@ export type Fields = {
 
 export type BaseFieldProps<T extends keyof Fields> = {
   value: Fields[T];
+  datasetID: string;
   editMode?: boolean;
   fieldGroups?: Group[];
   onUpdate: (property: Fields[T]) => void;

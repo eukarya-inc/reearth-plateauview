@@ -17,6 +17,7 @@ import { FieldComponent as FieldComponentType, fieldName } from "./Fields/types"
 
 export type Props = {
   field: FieldComponentType;
+  datasetID: string;
   editMode?: boolean;
   selectGroups?: Group[];
   onUpdate?: (property: any) => void;
@@ -26,6 +27,7 @@ export type Props = {
 
 const FieldComponent: React.FC<Props> = ({
   field,
+  datasetID,
   editMode,
   selectGroups,
   onUpdate,
@@ -110,6 +112,7 @@ const FieldComponent: React.FC<Props> = ({
               value={{ ...field }}
               editMode={editMode}
               fieldGroups={selectGroups}
+              datasetID={datasetID}
               onUpdate={onUpdate}
             />
           )}

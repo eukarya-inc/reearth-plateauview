@@ -7,6 +7,7 @@ import (
 
 	"github.com/eukarya-inc/reearth-plateauview/server/cmsintegration"
 	"github.com/eukarya-inc/reearth-plateauview/server/datacatalog"
+	"github.com/eukarya-inc/reearth-plateauview/server/dataconv"
 	"github.com/eukarya-inc/reearth-plateauview/server/geospatialjp"
 	"github.com/eukarya-inc/reearth-plateauview/server/opinion"
 	"github.com/eukarya-inc/reearth-plateauview/server/sdk"
@@ -28,6 +29,7 @@ type Config struct {
 	Debug                bool
 	Origin               []string
 	Secret               string
+	Delegate_URL         string
 	CMS_Webhook_Secret   string
 	CMS_BaseURL          string
 	CMS_Token            string
@@ -49,6 +51,9 @@ type Config struct {
 	Opinion_To           string
 	Opinion_ToName       string
 	Sidebar_Token        string
+	Share_Disable        bool
+	DataConv_Disable     bool
+	Indexer_Delegate     bool
 }
 
 func NewConfig() (*Config, error) {
@@ -89,6 +94,9 @@ func (c *Config) SearchIndex() searchindex.Config {
 		CMSBase:           c.CMS_BaseURL,
 		CMSToken:          c.CMS_Token,
 		CMSStorageProject: c.CMS_SystemProject,
+		Delegate:          c.Indexer_Delegate,
+		DelegateURL:       c.Delegate_URL,
+		Debug:             c.Debug,
 		// CMSModel: c.CMS_Model,
 		// CMSStorageModel:   c.CMS_IndexerStorageModel,
 	}
@@ -119,6 +127,7 @@ func (c *Config) Share() share.Config {
 	return share.Config{
 		CMSBase:  c.CMS_BaseURL,
 		CMSToken: c.CMS_Token,
+		Disable:  c.Share_Disable,
 		// CMSModel:   c.CMS_ShareModel,
 		// CMSDataFieldKey: c.CMS_ShareField,
 	}
@@ -158,5 +167,15 @@ func (c *Config) DataCatalog() datacatalog.Config {
 	return datacatalog.Config{
 		CMSBase:    c.CMS_BaseURL,
 		CMSProject: c.CMS_PlateauProject,
+	}
+}
+
+func (c *Config) DataConv() dataconv.Config {
+	return dataconv.Config{
+		Disable:    c.DataConv_Disable,
+		CMSBase:    c.CMS_BaseURL,
+		CMSToken:   c.CMS_Token,
+		CMSProject: c.CMS_PlateauProject,
+		// CMSModel: ,
 	}
 }
