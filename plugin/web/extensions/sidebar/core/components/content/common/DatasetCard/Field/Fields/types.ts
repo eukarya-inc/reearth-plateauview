@@ -145,10 +145,10 @@ type PointModel = {
 type PointStroke = {
   type: "pointStroke";
   group?: string;
-  conditions?: {
-    expression: Expression;
+  items?: {
     strokeColor: string;
     strokeWidth: number;
+    condition: Cond<string | number>;
   }[];
 };
 

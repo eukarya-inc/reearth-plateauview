@@ -3,30 +3,30 @@ import { array_move } from "@web/extensions/sidebar/utils";
 import { styled } from "@web/theme";
 import { useCallback, useState } from "react";
 
-import { BaseFieldProps, Cond, Expression, Fields } from "../types";
+import { BaseFieldProps, Cond, Fields } from "../types";
 
 import ConditionField from "./common/ConditionField";
 import Field from "./common/Field";
 import ItemControls from "./common/ItemControls";
 
 const PointStroke: React.FC<BaseFieldProps<"pointStroke">> = ({ value, editMode, onUpdate }) => {
-  const [conditions, updateConditions] = useState(value.conditions);
+  const [items, updateItems] = useState(value.items);
 
   const handleMoveUp = useCallback(
     (idx: number) => {
       if (idx === 0) return;
-      updateConditions(c => {
-        let newConditions: Fields["pointStroke"]["conditions"] = undefined;
+      updateItems(c => {
+        let newItems: Fields["pointStroke"]["items"] = undefined;
 
         if (c) {
-          newConditions = c;
-          array_move(newConditions, idx, idx - 1);
+          newItems = c;
+          array_move(newItems, idx, idx - 1);
         }
         onUpdate({
           ...value,
-          conditions: newConditions,
+          items: newItems,
         });
-        return newConditions;
+        return newItems;
       });
     },
     [value, onUpdate],
@@ -34,79 +34,67 @@ const PointStroke: React.FC<BaseFieldProps<"pointStroke">> = ({ value, editMode,
 
   const handleMoveDown = useCallback(
     (idx: number) => {
-      if (conditions && idx >= conditions.length - 1) return;
-      updateConditions(c => {
-        let newConditions: Fields["pointStroke"]["conditions"] = undefined;
+      if (items && idx >= items.length - 1) return;
+      updateItems(c => {
+        let newItems: Fields["pointStroke"]["items"] = undefined;
         if (c) {
-          newConditions = c;
-          array_move(newConditions, idx, idx + 1);
+          newItems = c;
+          array_move(newItems, idx, idx + 1);
         }
         onUpdate({
           ...value,
-          conditions: newConditions,
+          items: newItems,
         });
-        return newConditions;
+        return newItems;
       });
     },
-    [conditions, onUpdate, value],
+    [items, onUpdate, value],
   );
 
   const handleAdd = useCallback(() => {
-    updateConditions(c => {
-      const newCondition: {
-        expression: Expression;
+    updateItems(c => {
+      const newItem: {
         strokeColor: string;
         strokeWidth: number;
+        condition: Cond<string | number>;
       } = {
-        expression: {
-          conditions: [
-            {
-              key: "ARGH",
-              operator: "=",
-              operand: "AField",
-              value: 1,
-            },
-          ],
-        },
         strokeColor: "brown",
         strokeWidth: 10,
+        condition: {
+          key: "ARGH",
+          operator: "=",
+          operand: "AField",
+          value: 1,
+        },
       };
       onUpdate({
         ...value,
-        conditions: value.conditions ? [...value.conditions, newCondition] : [newCondition],
+        items: value.items ? [...value.items, newItem] : [newItem],
       });
-      return c ? [...c, newCondition] : [newCondition];
+      return c ? [...c, newItem] : [newItem];
     });
   }, [value, onUpdate]);
 
   const handleRemove = useCallback(
     (idx: number) => {
-      updateConditions(c => {
-        let newConditions: Fields["pointStroke"]["conditions"] = undefined;
+      updateItems(c => {
+        let newItems: Fields["pointStroke"]["items"] = undefined;
         if (c) {
-          newConditions = c.filter((_, idx2) => idx2 != idx);
+          newItems = c.filter((_, idx2) => idx2 != idx);
         }
         onUpdate({
           ...value,
-          conditions: newConditions,
+          items: newItems,
         });
-        return newConditions;
+        return newItems;
       });
     },
     [value, onUpdate],
   );
 
-  // this is hard-codded condition
-  const condition: Cond<number> = {
-    key: "ARGH",
-    operator: "=",
-    operand: "AField",
-    value: 1,
-  };
-
   return editMode ? (
     <Wrapper>
-      {value.conditions?.map((c, idx) => (
+      {value.items?.map((c, idx) => (
         <Item key={idx}>
           <ItemControls
             index={idx}
@@ -114,7 +102,7 @@ const PointStroke: React.FC<BaseFieldProps<"pointStroke">> = ({ value, editMode,
             handleMoveUp={handleMoveUp}
             handleRemove={handleRemove}
           />
-          <ConditionField title="if" fieldGap={8} condition={condition} />
+          <ConditionField title="if" fieldGap={8} condition={c.condition} />
           <Field
             title="strokeColor"
             titleWidth={82}
