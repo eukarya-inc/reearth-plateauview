@@ -140,8 +140,7 @@ type PointModel = FieldBase<"pointModel"> & {
 };
 
 type PointStroke = FieldBase<"pointStroke"> & {
-  conditions?: {
-    expression: Expression;
+  items?: {
     strokeColor: string;
     strokeWidth: number;
     condition: Cond<string | number>;
