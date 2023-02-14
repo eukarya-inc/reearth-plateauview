@@ -1,9 +1,9 @@
-import { styled } from "@web/theme";
 import { useCallback, useState } from "react";
 
 import { BaseFieldProps } from "../types";
 
 import Field from "./common/Field";
+import { TextInput, Wrapper } from "./common/styled";
 
 const PointModel: React.FC<BaseFieldProps<"pointModel">> = ({ value, editMode, onUpdate }) => {
   const [modelURL, setModelURL] = useState(value.modelURL ?? "");
@@ -51,22 +51,3 @@ const PointModel: React.FC<BaseFieldProps<"pointModel">> = ({ value, editMode, o
 };
 
 export default PointModel;
-
-const Wrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-`;
-
-const TextInput = styled.input.attrs({ type: "text" })`
-  height: 100%;
-  width: 100%;
-  flex: 1;
-  padding: 0 12px;
-  border: none;
-  outline: none;
-
-  :focus {
-    border: none;
-  }
-`;

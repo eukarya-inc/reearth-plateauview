@@ -3,6 +3,8 @@ import { styled } from "@web/theme";
 
 import { Cond } from "../../types";
 
+import { FieldValue } from "./styled";
+
 const operators: { [key: string]: string } = {
   greater: ">",
   less: "<",
@@ -70,15 +72,6 @@ const Field = styled.div<{ gap?: number }>`
   align-items: center;
   ${({ gap }) => gap && `gap: ${gap}px;`}
   height: 32px;
-`;
-
-const FieldValue = styled.div`
-  display: flex;
-  border: 1px solid #d9d9d9;
-  border-radius: 2px;
-  flex: 1;
-  height: 100%;
-  width: 100%;
 `;
 
 const NumberInput = styled.input.attrs({ type: "number" })`

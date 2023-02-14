@@ -1,9 +1,9 @@
-import { styled } from "@web/theme";
 import { useCallback, useState } from "react";
 
 import { BaseFieldProps } from "../types";
 
 import Field from "./common/Field";
+import { TextInput } from "./common/styled";
 
 const PointSize: React.FC<BaseFieldProps<"pointSize">> = ({ value, editMode, onUpdate }) => {
   const [size, setSize] = useState(value.pointSize);
@@ -32,16 +32,3 @@ const PointSize: React.FC<BaseFieldProps<"pointSize">> = ({ value, editMode, onU
 };
 
 export default PointSize;
-
-const TextInput = styled.input.attrs({ type: "text" })`
-  height: 100%;
-  width: 100%;
-  flex: 1;
-  padding: 0 12px;
-  border: none;
-  outline: none;
-
-  :focus {
-    border: none;
-  }
-`;

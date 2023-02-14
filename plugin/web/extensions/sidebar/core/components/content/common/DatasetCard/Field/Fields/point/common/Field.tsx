@@ -1,5 +1,7 @@
 import { styled } from "@web/theme";
 
+import { FieldValue } from "./styled";
+
 type Props = {
   title: string;
   titleWidth?: number;
@@ -29,13 +31,4 @@ const Wrapper = styled.div`
 
 const FieldTitle = styled(Text)<{ width?: number }>`
   ${({ width }) => width && `width: ${width}px;`}
-`;
-
-const FieldValue = styled.div`
-  display: flex;
-  border: 1px solid #d9d9d9;
-  border-radius: 2px;
-  flex: 1;
-  height: 100%;
-  width: 100%;
 `;
