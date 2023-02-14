@@ -85,7 +85,7 @@ func webhookHandler(ctx context.Context, w *cmswebhook.Payload, conf Config, c c
 	}
 
 	u, err := url.Parse(a.URL)
-	if b := path.Base(u.Path); err != nil ||
+	if b := fileName(u.Path); err != nil ||
 		path.Ext(u.Path) != ".geojson" ||
 		border && !strings.HasSuffix(b, "_border") ||
 		landmark && !strings.HasSuffix(b, "_landmark") && !strings.HasSuffix(b, "_station") {
@@ -163,4 +163,8 @@ func getGeoJSON(ctx context.Context, u string) (*geojson.FeatureCollection, erro
 	}
 
 	return &f, nil
+}
+
+func fileName(p string) string {
+	return strings.TrimSuffix(path.Base(p), path.Ext(p))
 }
