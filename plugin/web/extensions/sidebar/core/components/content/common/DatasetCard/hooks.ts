@@ -149,10 +149,12 @@ export default ({
     //   name: fieldName["pointLabel"],
     //   onClick: ({ key }) => console.log("do something: ", key),
     // },
-    // pointModel: {
-    //   name: fieldName["pointModel"],
-    //   onClick: ({ key }) => console.log("do something: ", key),
-    // },
+    pointModel: {
+      name: fieldName["pointModel"],
+      onClick: handleFieldAdd({
+        scale: 1,
+      }),
+    },
     pointStroke: {
       name: fieldName["pointStroke"],
       onClick: handleFieldAdd({}),
