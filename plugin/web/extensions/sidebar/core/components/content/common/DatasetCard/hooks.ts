@@ -137,7 +137,7 @@ export default ({
     // },
     pointSize: {
       name: fieldName["pointSize"],
-      onClick: ({ key }) => console.log("do something: ", key),
+      onClick: handleFieldAdd({}),
     },
     pointIcon: {
       name: fieldName["pointIcon"],
