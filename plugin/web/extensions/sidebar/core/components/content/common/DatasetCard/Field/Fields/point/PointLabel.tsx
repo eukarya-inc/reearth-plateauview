@@ -1,11 +1,17 @@
-import { Switch, Dropdown } from "@web/sharedComponents";
 import { ChangeEvent, useCallback, useState } from "react";
 
 import { BaseFieldProps, Fields } from "../types";
 
 import ColorField from "./common/ColorField";
 import Field from "./common/Field";
+import SelectField from "./common/SelectField";
 import { TextInput, Wrapper } from "./common/styled";
+import SwitchField from "./common/SwitchField";
+
+const options = [
+  { value: "Option1", label: "Option1" },
+  { value: "Option2", label: "Option2" },
+];
 
 const PointLabel: React.FC<BaseFieldProps<"pointLabel">> = ({ value, editMode, onUpdate }) => {
   const [pointLabel, setPointLabel] = useState(value);
@@ -30,12 +36,27 @@ const PointLabel: React.FC<BaseFieldProps<"pointLabel">> = ({ value, editMode, o
     [onUpdate],
   );
 
+  const handleFieldChange = (field: any) => {
+    setPointLabel(pointLabel => {
+      const newPointLabel: Fields["pointLabel"] = {
+        ...pointLabel,
+        field,
+      };
+      onUpdate({
+        ...pointLabel,
+        field,
+      });
+      return newPointLabel;
+    });
+  };
+
   return editMode ? (
     <Wrapper>
-      <Field
+      <SelectField
         title="Choose field"
         titleWidth={82}
-        value={<Dropdown placement="bottom" trigger={["click"]} />}
+        onChange={handleFieldChange}
+        options={options}
       />
       <Field
         title="Font size"
@@ -48,16 +69,8 @@ const PointLabel: React.FC<BaseFieldProps<"pointLabel">> = ({ value, editMode, o
         titleWidth={82}
         value={<TextInput defaultValue={pointLabel.height} />}
       />
-      <Field
-        title="Extrude"
-        titleWidth={82}
-        value={<Switch defaultChecked={pointLabel.extruded} />}
-      />
-      <Field
-        title="Use Background"
-        titleWidth={82}
-        value={<Switch defaultChecked={pointLabel.useBackground} />}
-      />
+      <SwitchField title="Extrude" titleWidth={82} checked={pointLabel.extruded} />
+      <SwitchField title="Use Background" titleWidth={82} checked={pointLabel.useBackground} />
       <ColorField title="Background color" titleWidth={82} color={pointLabel.backgroundColor} />
     </Wrapper>
   ) : null;

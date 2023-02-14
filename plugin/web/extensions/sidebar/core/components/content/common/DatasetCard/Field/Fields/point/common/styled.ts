@@ -42,11 +42,17 @@ export const FieldWrapper = styled.div<{ gap?: number }>`
 
 export const FieldValue = styled.div`
   display: flex;
+  justify-content: start;
+  align-items: center;
   border: 1px solid #d9d9d9;
   border-radius: 2px;
   flex: 1;
   height: 100%;
   width: 100%;
+`;
+
+export const BorderLessFieldValue = styled(FieldValue)`
+  border: none;
 `;
 
 const Text = styled.p`
