@@ -42,11 +42,7 @@ const PointLabel: React.FC<BaseFieldProps<"pointLabel">> = ({ value, editMode, o
         titleWidth={82}
         value={<TextInput defaultValue={pointLabel.fontSize} onChange={handleFontSizeUpdate} />}
       />
-      <Field
-        title="Font color"
-        titleWidth={82}
-        value={<ColorField color={pointLabel.fontColor} value={pointLabel.fontColor} />}
-      />
+      <ColorField title="Font color" titleWidth={82} color={pointLabel.fontColor} />
       <Field
         title="Height"
         titleWidth={82}
@@ -62,11 +58,7 @@ const PointLabel: React.FC<BaseFieldProps<"pointLabel">> = ({ value, editMode, o
         titleWidth={82}
         value={<Switch defaultChecked={pointLabel.useBackground} />}
       />
-      <Field
-        title="Background Color"
-        titleWidth={82}
-        value={<ColorField color={pointLabel.backgroundColor} value={pointLabel.backgroundColor} />}
-      />
+      <ColorField title="Background color" titleWidth={82} color={pointLabel.backgroundColor} />
     </Wrapper>
   ) : null;
 };
