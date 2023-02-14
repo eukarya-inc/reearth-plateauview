@@ -104,11 +104,7 @@ const PointStroke: React.FC<BaseFieldProps<"pointStroke">> = ({ value, editMode,
             handleRemove={handleRemove}
           />
           <ConditionField title="if" fieldGap={8} condition={c.condition} />
-          <Field
-            title="strokeColor"
-            titleWidth={82}
-            value={<ColorField color={c.strokeColor} value={c.strokeColor} />}
-          />
+          <ColorField title="strokeColor" titleWidth={82} color={c.strokeColor} />
           <Field title="strokeWidth" titleWidth={82} value={<TextInput value={c.strokeWidth} />} />
         </Item>
       ))}

@@ -42,7 +42,7 @@ const PointModel: React.FC<BaseFieldProps<"pointModel">> = ({ value, editMode, o
         value={<TextInput defaultValue={modelURL} onChange={handleURLUpdate} />}
       />
       <Field
-        title="Scale"
+        title="目盛"
         titleWidth={82}
         value={<TextInput defaultValue={scale} onChange={handleScaleUpdate} />}
       />
