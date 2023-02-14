@@ -144,6 +144,7 @@ type PointStroke = FieldBase<"pointStroke"> & {
     expression: Expression;
     strokeColor: string;
     strokeWidth: number;
+    condition: Cond<string | number>;
   }[];
 };
 
@@ -177,7 +178,7 @@ export type BaseFieldProps<T extends keyof Fields> = {
   onCurrentGroupChange: (group: number) => void;
 };
 
-type Expression<T extends string | number | boolean = string | number | boolean> =
+export type Expression<T extends string | number | boolean = string | number | boolean> =
   | T
   | {
       conditions: Cond<T>[];
