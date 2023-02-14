@@ -1,4 +1,6 @@
+import { Icon } from "@web/sharedComponents";
 import { styled } from "@web/theme";
+import { ChangeEvent, useState } from "react";
 
 import { FieldTitle, FieldValue, FieldWrapper, TextInput } from "./styled";
 
@@ -8,13 +10,29 @@ type Props = {
   color?: string;
 };
 
+function isValidColor(color: string) {
+  return CSS.supports("color", color);
+}
+
 const ColorField: React.FC<Props> = ({ title, titleWidth, color }) => {
+  const [text, setText] = useState(color);
+  const [selectedColor, setSelectedColor] = useState(color);
+
+  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setText(e.target.value);
+    setSelectedColor(isValidColor(e.target.value) ? e.target.value : "");
+  };
+
   return (
     <FieldWrapper>
       <FieldTitle width={titleWidth}>{title}</FieldTitle>
       <FieldValue>
-        <ColorBlock color={color ?? ""} />
-        <TextInput value={color ?? ""} />
+        {selectedColor ? (
+          <ColorBlock color={selectedColor} />
+        ) : (
+          <Icon icon="transparent" size={30} />
+        )}
+        <TextInput value={text} placeholder="#FFFFFF" onChange={handleChange} />
       </FieldValue>
     </FieldWrapper>
   );
