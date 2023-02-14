@@ -1,3 +1,4 @@
+import { Input } from "@web/sharedComponents";
 import { styled } from "@web/theme";
 
 export const Wrapper = styled.div`
@@ -15,7 +16,7 @@ export const Item = styled.div`
   padding: 8px;
 `;
 
-export const TextInput = styled.input.attrs({ type: "text" })`
+export const TextInput = styled(Input)`
   height: 100%;
   width: 100%;
   flex: 1;

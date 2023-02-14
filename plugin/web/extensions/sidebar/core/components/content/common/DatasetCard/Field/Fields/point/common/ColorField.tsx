@@ -8,19 +8,24 @@ type Props = {
   title: string;
   titleWidth?: number;
   color?: string;
+  onChange?: (color: string) => void;
 };
 
 function isValidColor(color: string) {
   return CSS.supports("color", color);
 }
 
-const ColorField: React.FC<Props> = ({ title, titleWidth, color }) => {
+const ColorField: React.FC<Props> = ({ title, titleWidth, color, onChange }) => {
   const [text, setText] = useState(color);
   const [selectedColor, setSelectedColor] = useState(color);
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     setText(e.target.value);
-    setSelectedColor(isValidColor(e.target.value) ? e.target.value : "");
+    setSelectedColor(() => {
+      const result = isValidColor(e.target.value) ? e.target.value : "";
+      onChange?.(result);
+      return result;
+    });
   };
 
   return (
