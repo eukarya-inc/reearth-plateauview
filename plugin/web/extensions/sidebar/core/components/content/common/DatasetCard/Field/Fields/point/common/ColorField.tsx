@@ -2,11 +2,11 @@ import { styled } from "@web/theme";
 
 import { TextInput } from "./styled";
 
-const ColorField: React.FC<{ color: string; value: string }> = ({ color, value }) => {
+const ColorField: React.FC<{ color?: string; value?: string }> = ({ color, value }) => {
   return (
     <>
-      <ColorBlock color={color} />
-      <TextInput value={value} />
+      <ColorBlock color={color ?? ""} />
+      <TextInput value={value ?? ""} />
     </>
   );
 };
