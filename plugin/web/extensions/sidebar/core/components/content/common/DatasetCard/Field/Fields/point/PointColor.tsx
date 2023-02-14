@@ -1,10 +1,10 @@
 import AddButton from "@web/extensions/sidebar/core/components/content/common/AddButton";
+import { array_move } from "@web/extensions/sidebar/utils";
 import { styled } from "@web/theme";
 import { useCallback, useState } from "react";
 
 import { BaseFieldProps, Cond } from "../types";
 
-import { array_move } from "./common/common";
 import ConditionField from "./common/ConditionField";
 import Field from "./common/Field";
 import ItemControls from "./common/ItemControls";
@@ -96,14 +96,6 @@ const PointColor: React.FC<BaseFieldProps<"pointColor">> = ({ value, editMode, o
             handleMoveUp={handleMoveUp}
             handleRemove={handleRemove}
           />
-          {/* {legend.style === "icon" && (
-            <Field>
-              <FieldTitle>URL</FieldTitle>
-              <FieldValue>
-                <TextInput value={item.url} />
-              </FieldValue>
-            </Field>
-          )} */}
           <ConditionField title="if" fieldGap={8} condition={c.condition} />
           <Field
             title="色"
@@ -131,16 +123,6 @@ const Wrapper = styled.div`
   flex-direction: column;
   gap: 8px;
 `;
-
-// const StyledDropdownButton = styled.div`
-//   display: flex;
-//   justify-content: space-between;
-//   align-items: center;
-//   width: 100%;
-//   align-content: center;
-//   padding: 0 16px;
-//   cursor: pointer;
-// `;
 
 const Item = styled.div`
   display: flex;
@@ -177,11 +159,6 @@ const ColorBlock = styled.div<{ color: string; legendStyle?: "circle" | "square"
         : "2px"
       : "1px 0 0 1px"};
 `;
-
-// const StyledImg = styled.img`
-//   width: 30px;
-//   height: 30px;
-// `;
 
 const ButtonWrapper = styled.div`
   width: 125px;

@@ -1,16 +1,15 @@
 import AddButton from "@web/extensions/sidebar/core/components/content/common/AddButton";
+import { array_move } from "@web/extensions/sidebar/utils";
 import { styled } from "@web/theme";
 import { useCallback, useState } from "react";
 
 import { BaseFieldProps, Cond, Expression, Fields } from "../types";
 
-import { array_move } from "./common/common";
 import ConditionField from "./common/ConditionField";
 import Field from "./common/Field";
 import ItemControls from "./common/ItemControls";
 
 const PointStroke: React.FC<BaseFieldProps<"pointStroke">> = ({ value, editMode, onUpdate }) => {
-  // remember to update the BaseFieldProps type!
   const [conditions, updateConditions] = useState(value.conditions);
 
   const handleMoveUp = useCallback(

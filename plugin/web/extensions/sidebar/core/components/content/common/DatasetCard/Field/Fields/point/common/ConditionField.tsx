@@ -13,7 +13,6 @@ const operators: { [key: string]: string } = {
 
 type Props = {
   title: string;
-  titleWidth?: number;
   fieldGap?: number;
   condition: Cond<any>;
 };
@@ -36,7 +35,7 @@ const ConditionField: React.FC<Props> = ({ title, fieldGap, condition }) => {
 
   return (
     <Field gap={fieldGap}>
-      <FieldTitle>{title}</FieldTitle>
+      <Text>{title}</Text>
       <FieldValue>
         <Dropdown overlay={menu} placement="bottom" trigger={["click"]}>
           <StyledDropdownButton>
@@ -71,10 +70,6 @@ const Field = styled.div<{ gap?: number }>`
   align-items: center;
   ${({ gap }) => gap && `gap: ${gap}px;`}
   height: 32px;
-`;
-
-const FieldTitle = styled(Text) <{ width?: number }>`
-  ${({ width }) => width && `width: ${width}px;`}
 `;
 
 const FieldValue = styled.div`

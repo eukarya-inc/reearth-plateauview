@@ -3,7 +3,6 @@ import { styled } from "@web/theme";
 type Props = {
   title: string;
   titleWidth?: number;
-  fieldGap?: number;
   value: JSX.Element;
 };
 
@@ -22,14 +21,13 @@ const Text = styled.p`
   margin: 0;
 `;
 
-const Wrapper = styled.div<{ gap?: number }>`
+const Wrapper = styled.div`
   display: flex;
   align-items: center;
-  ${({ gap }) => gap && `gap: ${gap}px;`}
   height: 32px;
 `;
 
-const FieldTitle = styled(Text) <{ width?: number }>`
+const FieldTitle = styled(Text)<{ width?: number }>`
   ${({ width }) => width && `width: ${width}px;`}
 `;
 
