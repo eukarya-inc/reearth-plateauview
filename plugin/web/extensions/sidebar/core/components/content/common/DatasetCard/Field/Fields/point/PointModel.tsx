@@ -37,7 +37,7 @@ const PointModel: React.FC<BaseFieldProps<"pointModel">> = ({ value, editMode, o
   return editMode ? (
     <Wrapper>
       <Field
-        title="Model URL"
+        title="モデルURL"
         titleWidth={82}
         value={<TextInput defaultValue={modelURL} onChange={handleURLUpdate} />}
       />
