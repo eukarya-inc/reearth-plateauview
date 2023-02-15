@@ -1,6 +1,6 @@
 import { ComponentType } from "react";
 
-import Clipping from "./3dtile/clipping";
+import Clipping from "./3dtiles/Clipping";
 import ButtonLink from "./general/ButtonLink";
 import Description from "./general/Description";
 import IdealZoom from "./general/IdealZoom";
