@@ -254,10 +254,6 @@ export default () => {
     [backendURL, backendAccessToken],
   );
 
-  const handleStoryShare = useCallback(() => {
-    setCurrentPage("share");
-  }, []);
-
   const handleStorySaveData = useCallback((story: Story) => {
     // save user story
     updateProject(project => {
@@ -300,7 +296,7 @@ export default () => {
       } else if (e.data.action === "triggerHelpOpen") {
         handlePageChange("help");
       } else if (e.data.action === "storyShare") {
-        handleStoryShare();
+        setCurrentPage("share");
       } else if (e.data.action === "storySaveData") {
         handleStorySaveData(e.data.payload);
       }
