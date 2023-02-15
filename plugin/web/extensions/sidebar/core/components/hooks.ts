@@ -1,5 +1,5 @@
 import { Project, ReearthApi } from "@web/extensions/sidebar/types";
-import { mergeProperty, postMsg } from "@web/extensions/sidebar/utils";
+import { generateID, mergeProperty, postMsg } from "@web/extensions/sidebar/utils";
 import { useCallback, useEffect, useState } from "react";
 
 import { DataCatalogItem, getDataCatalog } from "../../modals/datacatalog/api/api";
@@ -97,7 +97,7 @@ export default () => {
             url:
               "dataUrl" in dataset ? dataset.dataUrl : "url" in dataset ? dataset.url : undefined,
             visible: true,
-            fieldGroups: [],
+            fieldGroups: [{ id: generateID(), name: "グループ1" }],
           } as Data,
         ],
       };

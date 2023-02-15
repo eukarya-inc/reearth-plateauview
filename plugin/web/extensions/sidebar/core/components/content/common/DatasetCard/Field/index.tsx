@@ -23,8 +23,8 @@ export type Props = {
   selectGroups?: Group[];
   onUpdate?: (property: any) => void;
   onRemove: (type: string) => void;
-  onGroupsUpdate: (groups: Group[], selectedGroup?: number | undefined) => void;
-  onCurrentGroupChange: (group: number) => void;
+  onGroupsUpdate: (groups: Group[], selectedGroup?: string) => void;
+  onCurrentGroupChange: (fieldGroupID: string) => void;
 };
 
 const FieldComponent: React.FC<Props> = ({
