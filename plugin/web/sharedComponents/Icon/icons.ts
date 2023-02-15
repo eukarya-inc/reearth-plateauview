@@ -63,6 +63,7 @@ import { ReactComponent as ArrowLineUpRegular } from "./Icons/arrowLineUpRegular
 import { ReactComponent as Crosshair } from "./Icons/crosshair.svg";
 import { ReactComponent as Mousetip } from "./Icons/mousetip.svg";
 import { ReactComponent as ViewIndicator } from "./Icons/viewIndicator.svg";
+import { ReactComponent as Transparent } from "./Icons/transparent.svg";
 
 // Ant Design Icons
 export { InboxOutlined } from "@ant-design/icons";
@@ -130,4 +131,5 @@ export default {
   crosshair: Crosshair,
   mousetip: Mousetip,
   viewIndicator: ViewIndicator,
+  transparent: Transparent,
 };
