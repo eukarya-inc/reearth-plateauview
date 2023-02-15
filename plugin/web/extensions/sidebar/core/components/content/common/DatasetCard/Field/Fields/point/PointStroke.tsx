@@ -5,7 +5,7 @@ import { useCallback, useState } from "react";
 import { BaseFieldProps, Cond, Fields } from "../types";
 
 import { ColorField, ConditionField, Field, ItemControls } from "./common";
-import { ButtonWrapper, Item, TextInput, Wrapper } from "./commonStyles";
+import { ButtonWrapper, Item, TextInput, Wrapper } from "./commonComponents";
 
 const PointStroke: React.FC<BaseFieldProps<"pointStroke">> = ({ value, editMode, onUpdate }) => {
   const [items, updateItems] = useState(value.items);

@@ -2,7 +2,7 @@ import { Select } from "@web/sharedComponents";
 import { styled } from "@web/theme";
 import { ComponentProps } from "react";
 
-import { FieldTitle, BorderLessFieldValue, FieldWrapper } from "../commonStyles";
+import { FieldTitle, BorderlessFieldValue, FieldWrapper } from "../commonComponents";
 
 type Props = {
   title: string;
@@ -13,9 +13,9 @@ const SelectField: React.FC<Props> = ({ title, titleWidth, ...props }) => {
   return (
     <FieldWrapper>
       <FieldTitle width={titleWidth}>{title}</FieldTitle>
-      <BorderLessFieldValue>
+      <BorderlessFieldValue>
         <StyledSelect {...props} />
-      </BorderLessFieldValue>
+      </BorderlessFieldValue>
     </FieldWrapper>
   );
 };

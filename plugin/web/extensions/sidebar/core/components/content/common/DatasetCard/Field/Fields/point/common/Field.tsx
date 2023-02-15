@@ -1,4 +1,4 @@
-import { FieldTitle, FieldValue, FieldWrapper } from "../commonStyles";
+import { FieldTitle, FieldValue, FieldWrapper } from "../commonComponents";
 
 type Props = {
   title: string;

@@ -2,7 +2,7 @@ import { Icon } from "@web/sharedComponents";
 import { styled } from "@web/theme";
 import { ChangeEvent, useState } from "react";
 
-import { FieldTitle, FieldValue, FieldWrapper, TextInput } from "../commonStyles";
+import { FieldTitle, FieldValue, FieldWrapper, TextInput } from "../commonComponents";
 
 type Props = {
   title: string;

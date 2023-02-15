@@ -5,7 +5,7 @@ import { useCallback, useState } from "react";
 import { BaseFieldProps, Cond } from "../types";
 
 import { ColorField, ConditionField, ItemControls } from "./common";
-import { ButtonWrapper, Item, Wrapper } from "./commonStyles";
+import { ButtonWrapper, Item, Wrapper } from "./commonComponents";
 
 const PointColor: React.FC<BaseFieldProps<"pointColor">> = ({ value, editMode, onUpdate }) => {
   const [pointColors, updatePointColors] = useState(value.pointColors);

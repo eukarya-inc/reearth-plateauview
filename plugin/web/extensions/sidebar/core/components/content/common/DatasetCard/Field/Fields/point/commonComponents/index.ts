@@ -52,7 +52,7 @@ export const FieldValue = styled.div`
   width: 100%;
 `;
 
-export const BorderLessFieldValue = styled(FieldValue)`
+export const BorderlessFieldValue = styled(FieldValue)`
   border: none;
 `;
 

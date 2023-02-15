@@ -1,7 +1,7 @@
 import { Switch } from "@web/sharedComponents";
 import { ComponentProps } from "react";
 
-import { FieldTitle, BorderLessFieldValue, FieldWrapper } from "../commonStyles";
+import { FieldTitle, BorderlessFieldValue, FieldWrapper } from "../commonComponents";
 
 type Props = {
   title: string;
@@ -12,9 +12,9 @@ const SwitchField: React.FC<Props> = ({ title, titleWidth, ...props }) => {
   return (
     <FieldWrapper>
       <FieldTitle width={titleWidth}>{title}</FieldTitle>
-      <BorderLessFieldValue>
+      <BorderlessFieldValue>
         <Switch {...props} />
-      </BorderLessFieldValue>
+      </BorderlessFieldValue>
     </FieldWrapper>
   );
 };
