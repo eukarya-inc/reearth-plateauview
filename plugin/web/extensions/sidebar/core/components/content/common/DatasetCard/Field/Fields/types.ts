@@ -6,7 +6,7 @@ export const fieldName = {
   realtime: "リアルタイム",
   switchGroup: "スイッチグループ",
   buttonLink: "リンクボタン",
-  styleCode:"Style code (General)",
+  styleCode: "Style code (General)",
   point: "ポイント",
   description: "説明",
   pointColor: "色",
@@ -77,16 +77,15 @@ export type Description = FieldBase<"description"> & {
 export type StyleCode = FieldBase<"styleCode"> & {
   src?: string;
 };
-export type groupItem = {
+export type GroupItem = {
+  id: string;
   title: string;
-  group: string;
-  id?: number;
+  fieldGroupID: string;
 };
 
-export type SwitchGroup = {
-  type: "switchGroup";
+export type SwitchGroup = FieldBase<"switchGroup"> & {
   title: string;
-  groups: groupItem[];
+  groups: GroupItem[];
 };
 
 export type ButtonLink = FieldBase<"buttonLink"> & {
