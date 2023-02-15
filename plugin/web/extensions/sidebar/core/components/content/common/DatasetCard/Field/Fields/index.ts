@@ -1,6 +1,7 @@
 import { ComponentType } from "react";
 
 import Clipping from "./3dtiles/Clipping";
+import Search from "./3dtiles/Search";
 import ButtonLink from "./general/ButtonLink";
 import Description from "./general/Description";
 import IdealZoom from "./general/IdealZoom";
@@ -14,7 +15,6 @@ import PointModel from "./point/PointModel";
 import PointSize from "./point/PointSize";
 import PointStroke from "./point/PointStroke";
 // 3d-tiles
-import Search from "./threedtile/Search";
 import { FieldComponent } from "./types";
 
 // import Template from "./Template";

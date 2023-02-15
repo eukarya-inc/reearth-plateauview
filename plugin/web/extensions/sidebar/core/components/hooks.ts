@@ -359,23 +359,20 @@ export default () => {
 
   // ThreeDTilesSearch
   const handleThreeDTilesSearch = useCallback(
-    (dataId: string) => {
-      const name = dataId.split("-").pop();
-      const plateauItem = plateauData.find(pd => pd["city_name"] === name || pd["name"] === name);
-      if (!plateauItem) return;
-      const searchIndex = plateauItem["search_index"];
+    (dataID: string) => {
+      const name = dataID.split("-").pop();
+      const plateauItem = catalogData.find(pd => pd["name"] === name);
+      const searchIndex = plateauItem?.["search_index"];
 
-      if (searchIndex) {
-        postMsg({
-          action: "buildingSearchOpen",
-          payload: {
-            title: plateauItem["city_name"] ?? plateauItem["name"],
-            searchIndex,
-          },
-        });
-      }
+      postMsg({
+        action: "buildingSearchOpen",
+        payload: {
+          title: plateauItem?.["name"] ?? "",
+          searchIndex,
+        },
+      });
     },
-    [plateauData],
+    [catalogData],
   );
 
   const handleModalOpen = useCallback(() => {

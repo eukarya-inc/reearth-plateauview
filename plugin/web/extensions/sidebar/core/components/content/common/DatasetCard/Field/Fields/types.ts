@@ -151,10 +151,7 @@ type PointStroke = FieldBase<"pointStroke"> & {
   }[];
 };
 
-type Search = {
-  type: "search";
-  group?: string;
-};
+type Search = FieldBase<"search">;
 
 type Clipping = FieldBase<"clipping"> & {
   enabled: boolean;

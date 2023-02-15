@@ -75,7 +75,7 @@ const DatasetCard: React.FC<Props> = ({
         icon: "search",
         value: 1,
         onClick: () => {
-          onThreeDTilesSearch(dataset.dataId);
+          onThreeDTilesSearch(dataset.dataID);
         },
       });
     }
