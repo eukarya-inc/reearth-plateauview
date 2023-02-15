@@ -2,12 +2,11 @@ package main
 
 import (
 	"fmt"
-	"reflect"
-	"runtime"
-	"strings"
 
 	"github.com/eukarya-inc/reearth-plateauview/server/cms/cmswebhook"
 	"github.com/eukarya-inc/reearth-plateauview/server/cmsintegration"
+	"github.com/eukarya-inc/reearth-plateauview/server/datacatalog"
+	"github.com/eukarya-inc/reearth-plateauview/server/dataconv"
 	"github.com/eukarya-inc/reearth-plateauview/server/geospatialjp"
 	"github.com/eukarya-inc/reearth-plateauview/server/opinion"
 	"github.com/eukarya-inc/reearth-plateauview/server/sdk"
@@ -33,6 +32,8 @@ var services = [](func(*Config) (*Service, error)){
 	Share,
 	Opinion,
 	Sidebar,
+	DataCatalog,
+	DataConv,
 }
 
 func Services(conf *Config) (srv []*Service, _ error) {
@@ -84,6 +85,9 @@ func Geospatialjp(conf *Config) (*Service, error) {
 	w, err := geospatialjp.WebhookHandler(c)
 	if err != nil {
 		return nil, err
+	}
+	if w == nil {
+		return nil, nil
 	}
 
 	return &Service{
@@ -144,15 +148,14 @@ func SDKAPI(conf *Config) (*Service, error) {
 	return &Service{
 		Name: "sdkapi",
 		Echo: func(g *echo.Group) error {
-			sdkapi.Handler(c, g.Group("/sdk"))
-			return nil
+			return sdkapi.Handler(c, g.Group("/sdk"))
 		},
 	}, nil
 }
 
 func Share(conf *Config) (*Service, error) {
 	c := conf.Share()
-	if c.CMSBase == "" || c.CMSToken == "" {
+	if c.CMSBase == "" || c.CMSToken == "" || c.Disable {
 		return nil, nil
 	}
 
@@ -193,6 +196,36 @@ func Sidebar(conf *Config) (*Service, error) {
 	}, nil
 }
 
-func funcName(i interface{}) string {
-	return strings.TrimPrefix(runtime.FuncForPC(reflect.ValueOf(i).Pointer()).Name(), "main.")
+func DataCatalog(conf *Config) (*Service, error) {
+	c := conf.DataCatalog()
+	if c.CMSBase == "" || c.CMSProject == "" {
+		return nil, nil
+	}
+
+	return &Service{
+		Name: "datacatalog",
+		Echo: func(g *echo.Group) error {
+			return datacatalog.Echo(c, g.Group("/datacatalog"))
+		},
+	}, nil
+}
+
+func DataConv(conf *Config) (*Service, error) {
+	c := conf.DataConv()
+	if c.CMSBase == "" || c.CMSToken == "" || c.CMSProject == "" {
+		return nil, nil
+	}
+
+	w, err := dataconv.WebhookHandler(c)
+	if err != nil {
+		return nil, err
+	}
+	if w == nil {
+		return nil, nil
+	}
+
+	return &Service{
+		Name:    "dataconv",
+		Webhook: w,
+	}, nil
 }

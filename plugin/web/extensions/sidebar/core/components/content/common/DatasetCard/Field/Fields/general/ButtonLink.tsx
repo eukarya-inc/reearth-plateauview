@@ -4,61 +4,51 @@ import { useCallback, useState } from "react";
 import { BaseFieldProps } from "../types";
 
 const ButtonLink: React.FC<BaseFieldProps<"buttonLink">> = ({ value, editMode, onUpdate }) => {
-  const [CurrentButtonTitle, setCurrentButtonTitle] = useState(value.title);
-  const [CurrentButtonLink, setCurrentButtonLink] = useState(value.link);
+  const [title, setTitle] = useState(value.title);
+  const [link, setLink] = useState(value.link);
 
   const handleChangeButtonTitle = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
-      setCurrentButtonTitle(e.currentTarget.value);
+      setTitle(e.currentTarget.value);
       onUpdate({
         ...value,
-        title: CurrentButtonTitle,
+        title: e.currentTarget.value,
       });
     },
-    [CurrentButtonTitle, onUpdate, value],
+    [value, onUpdate],
   );
 
   const handleChangeButtonLink = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
-      let url = e.currentTarget.value;
-      const prefix = "http://";
-      if (!url.match(/^[a-zA-Z]+:\/\//)) {
-        url = prefix + url;
-      }
-      setCurrentButtonLink(url);
+      setLink(e.currentTarget.value);
       onUpdate({
         ...value,
-        link: CurrentButtonLink,
+        link: e.currentTarget.value,
       });
     },
-    [CurrentButtonLink, onUpdate, value],
+    [value, onUpdate],
   );
+
   return editMode ? (
     <Wrapper>
       <Field>
-        <FieldTitle>Title</FieldTitle>
+        <FieldTitle>タイトル</FieldTitle>
         <FieldValue>
-          <TextInput value={CurrentButtonTitle} onChange={handleChangeButtonTitle} />
+          <TextInput defaultValue={title} onChange={handleChangeButtonTitle} />
         </FieldValue>
       </Field>
 
       <Field>
-        <FieldTitle>Link</FieldTitle>
+        <FieldTitle>リンク</FieldTitle>
         <FieldValue>
-          <TextInput value={CurrentButtonLink} onChange={handleChangeButtonLink} />
+          <TextInput defaultValue={link} onChange={handleChangeButtonLink} />
         </FieldValue>
       </Field>
     </Wrapper>
   ) : (
-    <Wrapper>
-      <Field>
-        <FieldValue>
-          <StyledButton onClick={() => window.open(CurrentButtonLink, "_blank")}>
-            <Text>{CurrentButtonTitle}</Text>
-          </StyledButton>
-        </FieldValue>
-      </Field>
-    </Wrapper>
+    <StyledButton onClick={() => link && window.open(link, "_blank", "noopener")}>
+      {title && <Text>{title}</Text>}
+    </StyledButton>
   );
 };
 
@@ -114,13 +104,9 @@ const StyledButton = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 8px;
-  padding: 1px 8px;
   background: #00bebe;
-  color: #ffffff;
-  box-shadow: 0px 2px 0px rgba(0, 0, 0, 0.043);
+  color: #fff;
   border-radius: 2px;
-  width: 100%;
-  height: 100%;
+  height: 24px;
   cursor: pointer;
 `;

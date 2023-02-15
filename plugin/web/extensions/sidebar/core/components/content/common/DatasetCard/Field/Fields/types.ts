@@ -1,10 +1,12 @@
+import { Group } from "@web/extensions/sidebar/core/types";
+
 export const fieldName = {
   camera: "カメラ",
   legend: "凡例",
-  styleCode: "style code (General)",
-  switchGroup: "Switch group",
-  buttonLink: "リンクボタン",
   realtime: "リアルタイム",
+  switchGroup: "スイッチグループ",
+  buttonLink: "リンクボタン",
+  styleCode:"Style code (General)",
   point: "ポイント",
   description: "説明",
   pointColor: "色",
@@ -34,6 +36,7 @@ export type FieldComponent =
   | PointStroke;
 
 type FieldBase<T extends keyof typeof fieldName> = {
+  id: string;
   type: T;
   group?: string;
 };
@@ -116,20 +119,16 @@ type PointColorGradient = FieldBase<"pointColorGradient"> & {
   step?: number;
 };
 
-type PointSize = {
-  type: "pointSize";
-  group?: string;
+type PointSize = FieldBase<"pointSize"> & {
   pointSize?: number;
 };
 
-type PointIcon = {
-  type: "pointIcon";
-  group?: string;
+type PointIcon = FieldBase<"pointIcon"> & {
+  url?: string;
+  size: number;
 };
 
-type PointLabel = {
-  type: "pointLabel";
-  group?: string;
+type PointLabel = FieldBase<"pointLabel"> & {
   field?: string;
   fontSize?: number;
   fontColor?: string;
@@ -139,20 +138,16 @@ type PointLabel = {
   backgroundColor?: string;
 };
 
-type PointModel = {
-  type: "pointModel";
-  group?: string;
+type PointModel = FieldBase<"pointModel"> & {
   modelURL?: string;
   scale?: number;
 };
 
-type PointStroke = {
-  type: "pointStroke";
-  group?: string;
-  conditions?: {
-    expression: Expression;
+type PointStroke = FieldBase<"pointStroke"> & {
+  items?: {
     strokeColor: string;
     strokeWidth: number;
+    condition: Cond<string | number>;
   }[];
 };
 
@@ -181,11 +176,15 @@ export type Fields = {
 
 export type BaseFieldProps<T extends keyof Fields> = {
   value: Fields[T];
+  datasetID: string;
   editMode?: boolean;
+  isActive?: boolean;
+  fieldGroups?: Group[];
   onUpdate: (property: Fields[T]) => void;
+  onCurrentGroupChange: (fieldGroupID: string) => void;
 };
 
-type Expression<T extends string | number | boolean = string | number | boolean> =
+export type Expression<T extends string | number | boolean = string | number | boolean> =
   | T
   | {
       conditions: Cond<T>[];

@@ -1,4 +1,6 @@
-import { Data } from "./core/newTypes";
+import { Story } from "../storytelling/types";
+
+import { Data } from "./core/types";
 
 type ActionType =
   | "init"
@@ -14,6 +16,9 @@ type ActionType =
   | "screenshotPreview"
   | "screenshotSave"
   | "addDatasetToScene"
+  | "updateDatasetInScene"
+  | "removeDatasetFromScene"
+  | "removeAllDatasetsFromScene"
   | "catalogModalOpen"
   | "triggerCatalogOpen"
   | "triggerHelpOpen"
@@ -31,13 +36,17 @@ type ActionType =
   | "extendPopup"
   | "minimize"
   | "buildingSearchOpen"
-  | "cameraFlyTo";
+  | "groupSelectOpen"
+  | "saveGroups"
+  | "cameraFlyTo"
+  | "storyPlay";
 
 export type PostMessageProps = { action: ActionType; payload?: any };
 
 export type Project = {
   sceneOverrides: ReearthApi;
   selectedDatasets: Data[];
+  userStory?: Story;
 };
 
 export type ReearthApi = {
@@ -75,4 +84,14 @@ export type Camera = {
   heading: number;
   pitch: number;
   roll: number;
+};
+
+type PluginActionType = "storyShare";
+
+export type PluginMessage = {
+  data: {
+    action: PluginActionType;
+    payload: any;
+  };
+  sender: string;
 };

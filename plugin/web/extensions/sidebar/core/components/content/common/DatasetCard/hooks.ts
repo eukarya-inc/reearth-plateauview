@@ -1,4 +1,5 @@
-import { Data } from "@web/extensions/sidebar/core/newTypes";
+import { Data, Group } from "@web/extensions/sidebar/core/types";
+import { generateID } from "@web/extensions/sidebar/utils";
 import { useCallback } from "react";
 
 import { fieldName } from "./Field/Fields/types";
@@ -25,6 +26,7 @@ export default ({
         components: [
           ...(dataset.components ?? []),
           {
+            id: generateID(),
             type: key,
             ...property,
           },
@@ -68,6 +70,26 @@ export default ({
     [dataset, inEditor, onDatasetUpdate],
   );
 
+  const handleGroupsUpdate = useCallback(
+    (fieldID: string) => (groups: Group[], selectedGroupID?: string) => {
+      if (!inEditor) return;
+
+      const newDatasetComponents = dataset.components ? [...dataset.components] : [];
+      const componentIndex = newDatasetComponents.findIndex(c => c.id === fieldID);
+
+      if (newDatasetComponents.length > 0 && componentIndex !== undefined) {
+        newDatasetComponents[componentIndex].group = selectedGroupID;
+      }
+
+      onDatasetUpdate?.({
+        ...dataset,
+        components: newDatasetComponents,
+        fieldGroups: groups,
+      });
+    },
+    [dataset, inEditor, onDatasetUpdate],
+  );
+
   const generalFields: FieldDropdownItem = {
     camera: {
       name: fieldName["camera"],
@@ -101,9 +123,18 @@ export default ({
       name: fieldName["styleCode"],
       onClick: handleFieldAdd({ src: " " }),
     },
+    switchGroup: {
+      name: fieldName["switchGroup"],
+      onClick: handleFieldAdd({
+        title: "Switch Group",
+        groups: dataset.fieldGroups[0]
+          ? [{ id: generateID(), title: "新グループ1", fieldGroupID: dataset.fieldGroups[0].id }]
+          : [],
+      }),
+    },
     buttonLink: {
       name: fieldName["buttonLink"],
-      onClick: handleFieldAdd({ title: "test", link: "http:/google.com" }),
+      onClick: handleFieldAdd({}),
     },
   };
 
@@ -112,29 +143,33 @@ export default ({
       name: fieldName["pointColor"],
       onClick: handleFieldAdd({}),
     },
-    pointColorGradient: {
-      name: fieldName["pointColorGradient"],
-      onClick: ({ key }) => console.log("do something: ", key),
-    },
+    // pointColorGradient: {
+    //   name: fieldName["pointColorGradient"],
+    //   onClick: ({ key }) => console.log("do something: ", key),
+    // },
     pointSize: {
       name: fieldName["pointSize"],
-      onClick: ({ key }) => console.log("do something: ", key),
+      onClick: handleFieldAdd({}),
     },
     pointIcon: {
       name: fieldName["pointIcon"],
-      onClick: ({ key }) => console.log("do something: ", key),
+      onClick: handleFieldAdd({
+        size: 1,
+      }),
     },
     pointLabel: {
       name: fieldName["pointLabel"],
-      onClick: ({ key }) => console.log("do something: ", key),
+      onClick: handleFieldAdd({}),
     },
     pointModel: {
       name: fieldName["pointModel"],
-      onClick: ({ key }) => console.log("do something: ", key),
+      onClick: handleFieldAdd({
+        scale: 1,
+      }),
     },
     pointStroke: {
       name: fieldName["pointStroke"],
-      onClick: ({ key }) => console.log("do something: ", key),
+      onClick: handleFieldAdd({}),
     },
   };
 
@@ -238,7 +273,7 @@ export default ({
         {},
       );
 
-  const fieldGroups: {
+  const fieldComponentsList: {
     [key: string]: {
       name: string;
       fields: { [key: string]: { name: string; onClick?: (property: any) => void } };
@@ -258,8 +293,9 @@ export default ({
     // "3d-tile": { name: "3Dタイル", fields: ThreeDTileFields },
   };
   return {
-    fieldGroups,
+    fieldComponentsList,
     handleFieldUpdate,
     handleFieldRemove,
+    handleGroupsUpdate,
   };
 };
