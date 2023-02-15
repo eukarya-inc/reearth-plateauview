@@ -21,7 +21,6 @@ const DatasetDetails: React.FC<Props> = ({
   onDatasetAdd,
 }) => {
   const [published, setAsPublished] = useState(false);
-  const showShareButton = false;
 
   const handlePublish = useCallback(() => {
     // TODO: implement me
@@ -48,12 +47,10 @@ const DatasetDetails: React.FC<Props> = ({
             {!addDisabled && <Icon icon="plusCircle" />}
             {addDisabled ? "シーンに追加済み" : "シーンに追加"}
           </AddButton>
-          {showShareButton && (
-            <ShareButton isShareable={isShareable}>
-              <Icon icon="share" />
-              シェア
-            </ShareButton>
-          )}
+//            <ShareButton isShareable={isShareable}>
+//              <Icon icon="share" />
+//              シェア
+//            </ShareButton>
         </ButtonWrapper>
       </TopWrapper>
       {ContentSection && (
