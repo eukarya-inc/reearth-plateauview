@@ -14,6 +14,7 @@ const PedestrianController: React.FC = () => {
     moveRightOn,
     moveUpOn,
     moveDownOn,
+    miniMapViewRotate,
     handleMoveForwardClick,
     handleMoveBackwardClick,
     handleMoveLeftClick,
@@ -95,6 +96,12 @@ const PedestrianController: React.FC = () => {
             />
           </Line>
         </UpAndDown>
+        <MiniMapWrapper hidden={mode !== "pedestrian"}>
+          <ViewIndicator>
+            <StyledIcon icon={"viewIndicator"} size={20} rotate={miniMapViewRotate} />
+          </ViewIndicator>
+          <MiniMap id="minimap" />
+        </MiniMapWrapper>
       </Content>
     </Wrapper>
   );
@@ -133,7 +140,7 @@ const CloseButton = styled.div`
 const Content = styled.div`
   display: flex;
   flex-direction: column;
-  padding: 12px;
+  padding: 0 12px 12px 12px;
   gap: 12px;
 `;
 
@@ -167,5 +174,35 @@ const EmptySpace = styled.div`
 `;
 
 const UpAndDown = styled.div``;
+
+const MiniMapWrapper = styled.div<{ hidden: boolean }>`
+  position: relative;
+  height: 200px;
+  width: 100%;
+  display: ${({ hidden }) => (hidden ? "none" : "block")};
+  border-radius: 4px;
+  overflow: hidden;
+`;
+
+const ViewIndicator = styled.div`
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 401;
+`;
+
+const StyledIcon = styled(Icon)<{ rotate?: number }>`
+  transform: ${({ rotate }) => `rotate(${rotate ?? 0}deg)`};
+`;
+
+const MiniMap = styled.div`
+  width: 100%;
+  height: 200px;
+`;
 
 export default PedestrianController;

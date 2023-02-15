@@ -1,5 +1,7 @@
+import type { Camera } from "@web/extensions/pedestrian/types";
 import { postMsg } from "@web/extensions/pedestrian/utils";
-import { useCallback, useEffect, useState } from "react";
+import L, { Map as LeafletMap } from "leaflet";
+import { useCallback, useEffect, useState, useRef } from "react";
 
 export default () => {
   const [mainButtonText, setMainButtonText] = useState<"Start" | "Exit">("Start");
@@ -14,7 +16,7 @@ export default () => {
 
   const handleMoveForwardClick = useCallback(
     (enable?: boolean) => {
-      const on = enable === undefined ? !moveForwardOn : enable;
+      const on = typeof enable !== "boolean" ? !moveForwardOn : enable;
       setMoveForwardOn(on);
       postMsg("cameraMove", { moveType: "moveForward", on });
       if (on && moveBackwardOn) {
@@ -26,7 +28,7 @@ export default () => {
 
   const handleMoveBackwardClick = useCallback(
     (enable?: boolean) => {
-      const on = enable === undefined ? !moveBackwardOn : enable;
+      const on = typeof enable !== "boolean" ? !moveBackwardOn : enable;
       setMoveBackwardOn(on);
       postMsg("cameraMove", { moveType: "moveBackward", on });
       if (on && moveForwardOn) {
@@ -38,7 +40,7 @@ export default () => {
 
   const handleMoveLeftClick = useCallback(
     (enable?: boolean) => {
-      const on = enable === undefined ? !moveLeftOn : enable;
+      const on = typeof enable !== "boolean" ? !moveLeftOn : enable;
       setMoveLeftOn(on);
       postMsg("cameraMove", { moveType: "moveLeft", on });
       if (on && moveRightOn) {
@@ -50,7 +52,7 @@ export default () => {
 
   const handleMoveRightClick = useCallback(
     (enable?: boolean) => {
-      const on = enable === undefined ? !moveRightOn : enable;
+      const on = typeof enable !== "boolean" ? !moveRightOn : enable;
       setMoveRightOn(on);
       postMsg("cameraMove", { moveType: "moveRight", on });
       if (on && moveLeftOn) {
@@ -62,7 +64,7 @@ export default () => {
 
   const handleMoveUpClick = useCallback(
     (enable?: boolean) => {
-      const on = enable === undefined ? !moveUpOn : enable;
+      const on = typeof enable !== "boolean" ? !moveUpOn : enable;
       setMoveUpOn(on);
       postMsg("cameraMove", { moveType: "moveUp", on });
       if (on && moveDownOn) {
@@ -74,7 +76,7 @@ export default () => {
 
   const handleMoveDownClick = useCallback(
     (enable?: boolean) => {
-      const on = enable === undefined ? !moveDownOn : enable;
+      const on = typeof enable !== "boolean" ? !moveDownOn : enable;
       setMoveDownOn(on);
       postMsg("cameraMove", { moveType: "moveDown", on });
       if (on && moveUpOn) {
@@ -191,6 +193,39 @@ export default () => {
     postMsg("pedestrianClose");
   }, [mode, onExit]);
 
+  const miniMap = useRef<LeafletMap>();
+  const [miniMapViewRotate, setMiniMapViewRotate] = useState<number>();
+
+  const initMiniMap = useCallback(() => {
+    miniMap.current = L.map("minimap", {
+      zoomControl: false,
+      dragging: false,
+      boxZoom: false,
+      doubleClickZoom: false,
+      keyboard: false,
+      scrollWheelZoom: false,
+      touchZoom: false,
+      easeLinearity: 1,
+      // attributionControl: false,
+    }).setView([0, 0], 18);
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      attribution:
+        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+    }).addTo(miniMap.current);
+  }, []);
+
+  const handleUpdateMiniMap = useCallback((camera: Camera) => {
+    if (miniMap.current) {
+      miniMap.current.stop();
+      miniMap.current.panTo([camera.lat, camera.lng], {
+        animate: true,
+        duration: 0.5,
+        easeLinearity: 1,
+      });
+      setMiniMapViewRotate((camera.heading / Math.PI) * 180);
+    }
+  }, []);
+
   const onMessage = useCallback(
     (e: MessageEvent<any>) => {
       if (e.source !== parent) return;
@@ -198,16 +233,24 @@ export default () => {
         case "pickingDone":
           handlePickingDone();
           break;
+        case "updateMiniMap":
+          handleUpdateMiniMap(e.data.payload);
+          break;
         default:
           break;
       }
     },
-    [handlePickingDone],
+    [handlePickingDone, handleUpdateMiniMap],
   );
 
   useEffect(() => {
     document.documentElement.style.setProperty("--theme-color", "#00BEBE");
-  }, []);
+    (globalThis as any).parent.document.body.setAttribute("tabindex", "0");
+
+    if (!miniMap.current) {
+      initMiniMap();
+    }
+  }, [initMiniMap]);
 
   useEffect(() => {
     (globalThis as any).parent.document.addEventListener("keydown", onKeyDown, false);
@@ -235,6 +278,7 @@ export default () => {
     moveRightOn,
     moveUpOn,
     moveDownOn,
+    miniMapViewRotate,
     handleMoveForwardClick,
     handleMoveBackwardClick,
     handleMoveLeftClick,
