@@ -114,28 +114,31 @@ if (reearth.viewport.isMobile) {
     }
     mode = "ready";
     initCamera = undefined;
-    controllerShown = false;
     reearth.camera.enableScreenSpaceController(true);
-    reearth.popup.update({
-      width: 208,
-      height: 335,
-      position: "bottom-end",
-      offset: 4,
-    });
+
+    if (controllerShown) {
+      reearth.popup.update({
+        width: 208,
+        height: 335,
+        position: "bottom-end",
+        offset: 4,
+      });
+    }
   };
 
   reearth.on("message", ({ action, payload }: PostMessageProps) => {
     if (action === "pedestrianShow") {
+      controllerShown = true;
       reearth.popup.show(pedestrianControllerHtml, {
         width: 208,
         height: 335,
         position: "bottom-end",
         offset: 4,
       });
-      controllerShown = true;
     } else if (action === "pedestrianClose") {
-      handlePedestrianExit();
+      controllerShown = false;
       reearth.popup.close();
+      handlePedestrianExit();
     } else if (action === "pickingStart") {
       mode = "picking";
     } else if (action === "pedestrianExit") {
@@ -210,6 +213,7 @@ if (reearth.viewport.isMobile) {
 
   reearth.on("popupclose", () => {
     if (controllerShown) {
+      controllerShown = false;
       handlePedestrianExit();
     }
   });
