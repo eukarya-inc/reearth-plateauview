@@ -94,6 +94,10 @@ resource "google_cloud_run_service" "reearth_api" {
           name  = "GOOGLE_CLOUD_PROJECT"
           value = var.gcp_project_name
         }
+        env {
+          name  = "REEARTH_PUBLISHED_HOST"
+          value = "{}.${local.reearth_domain}"
+        }
       }
     }
     metadata {
