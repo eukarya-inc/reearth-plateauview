@@ -57,3 +57,12 @@ extensions:
   - id: infobox
     name: Infobox(PLATEAU)
     type: block
+  - id: pedestrian
+    name: Pedestrian(PLATEAU)
+    type: widget
+    singleOnly: true
+    widgetLayout:
+      defaultLocation:
+        zone: inner
+        section: right
+        area: middle
