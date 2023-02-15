@@ -100,6 +100,9 @@ export default () => {
 
   const handlePickingDone = useCallback(() => {
     setMode("pedestrian");
+    setTimeout(() => {
+      miniMap.current?.invalidateSize();
+    }, 500);
   }, []);
 
   const onMainButtonClick = useCallback(() => {
@@ -206,11 +209,14 @@ export default () => {
       scrollWheelZoom: false,
       touchZoom: false,
       easeLinearity: 1,
-      // attributionControl: false,
-    }).setView([0, 0], 18);
+    })
+      .setView([0, 0], 18)
+      .whenReady(() => {
+        miniMap.current?.invalidateSize();
+      });
+
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      attribution:
-        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
     }).addTo(miniMap.current);
   }, []);
 
@@ -253,10 +259,14 @@ export default () => {
   }, [initMiniMap]);
 
   useEffect(() => {
+    document.addEventListener("keydown", onKeyDown, false);
+    document.addEventListener("keyup", onKeyUp, false);
     (globalThis as any).parent.document.addEventListener("keydown", onKeyDown, false);
     (globalThis as any).parent.document.addEventListener("keyup", onKeyUp, false);
 
     return () => {
+      document.removeEventListener("keydown", onKeyDown, false);
+      document.removeEventListener("keyup", onKeyUp, false);
       (globalThis as any).parent.document.removeEventListener("keydown", onKeyDown);
       (globalThis as any).parent.document.removeEventListener("keyup", onKeyUp);
     };

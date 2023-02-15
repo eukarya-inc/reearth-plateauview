@@ -33,6 +33,12 @@ const StyledButton = styled.div<{ disabled?: boolean; active?: boolean }>`
   pointer-events: ${({ disabled }) => (disabled ? "none" : "all")};
   border-radius: 4px;
   user-select: none;
+  transition: all 0.25s ease;
+
+  &:hover {
+    background-color: var(--theme-color);
+    color: #fff;
+  }
 `;
 
 const Text = styled.div``;

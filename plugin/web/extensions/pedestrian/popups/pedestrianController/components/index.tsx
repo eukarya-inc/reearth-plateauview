@@ -179,7 +179,7 @@ const MiniMapWrapper = styled.div<{ hidden: boolean }>`
   position: relative;
   height: 200px;
   width: 100%;
-  display: ${({ hidden }) => (hidden ? "none" : "block")};
+  opacity: ${({ hidden }) => (hidden ? 0 : 1)};
   border-radius: 4px;
   overflow: hidden;
 `;
@@ -201,7 +201,8 @@ const StyledIcon = styled(Icon)<{ rotate?: number }>`
 `;
 
 const MiniMap = styled.div`
-  width: 100%;
+  position: relative;
+  width: 184px;
   height: 200px;
 `;
 
