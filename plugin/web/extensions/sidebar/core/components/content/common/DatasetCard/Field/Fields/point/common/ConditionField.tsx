@@ -2,8 +2,7 @@ import { Icon, Dropdown, Menu } from "@web/sharedComponents";
 import { styled } from "@web/theme";
 
 import { Cond } from "../../types";
-
-import { FieldTitle, FieldValue, FieldWrapper } from "./styled";
+import { FieldTitle, FieldValue, FieldWrapper } from "../commonStyles";
 
 const operators: { [key: string]: string } = {
   greater: ">",

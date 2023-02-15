@@ -60,6 +60,6 @@ const Text = styled.p`
   margin: 0;
 `;
 
-export const FieldTitle = styled(Text)<{ width?: number }>`
+export const FieldTitle = styled(Text) <{ width?: number }>`
   ${({ width }) => width && `width: ${width}px;`}
 `;

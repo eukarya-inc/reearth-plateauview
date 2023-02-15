@@ -3,11 +3,8 @@ import { ChangeEvent, useCallback, useState } from "react";
 
 import { BaseFieldProps, Fields } from "../types";
 
-import ColorField from "./common/ColorField";
-import SelectField from "./common/SelectField";
-import { Wrapper } from "./common/styled";
-import SwitchField from "./common/SwitchField";
-import TextField from "./common/TextField";
+import { ColorField, SelectField, SwitchField, TextField } from "./common";
+import { Wrapper } from "./commonStyles";
 
 // TODO: list all options for select field dropdown
 const options = [

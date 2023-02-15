@@ -2,7 +2,7 @@ import { Select } from "@web/sharedComponents";
 import { styled } from "@web/theme";
 import { ComponentProps } from "react";
 
-import { FieldTitle, BorderLessFieldValue, FieldWrapper } from "./styled";
+import { FieldTitle, BorderLessFieldValue, FieldWrapper } from "../commonStyles";
 
 type Props = {
   title: string;
