@@ -28,7 +28,7 @@ const Realtime: React.FC<BaseFieldProps<"realtime">> = ({ value, editMode, onUpd
   const startTimer = useCallback(
     (interval: number) => {
       if (Ref.current) clearInterval(Ref.current);
-      const id = setInterval(() => {
+      const remainingTime = setInterval(() => {
         if (enableUpdate) {
           getTimeRemaining(interval);
           interval--;
@@ -36,7 +36,7 @@ const Realtime: React.FC<BaseFieldProps<"realtime">> = ({ value, editMode, onUpd
         }
       }, 1000);
 
-      Ref.current = id;
+      Ref.current = remainingTime;
     },
     [enableUpdate, getTimeRemaining, intervalInSecond],
   );
@@ -46,9 +46,7 @@ const Realtime: React.FC<BaseFieldProps<"realtime">> = ({ value, editMode, onUpd
 
   const handleChangeupdateState = useCallback(() => {
     changeUpdateState(!enableUpdate);
-    setTimer("00:00:30");
-    if (enableUpdate) startTimer(intervalInSecond);
-  }, [enableUpdate, intervalInSecond, startTimer]);
+  }, [enableUpdate]);
 
   const handleChangeUpdateTime = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {

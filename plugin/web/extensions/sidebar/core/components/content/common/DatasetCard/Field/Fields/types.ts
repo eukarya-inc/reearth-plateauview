@@ -66,7 +66,7 @@ export type Legend = FieldBase<"legend"> & {
 };
 
 type Realtime = FieldBase<"realtime"> & {
-  updateInterval?: number; // 1000 * 60 -> 1m
+  updateInterval: number; // 1000 * 60 -> 1m
 };
 
 export type Description = FieldBase<"description"> & {
@@ -75,7 +75,7 @@ export type Description = FieldBase<"description"> & {
 };
 
 export type StyleCode = FieldBase<"styleCode"> & {
-  src?: string;
+  src: string;
 };
 export type GroupItem = {
   id: string;

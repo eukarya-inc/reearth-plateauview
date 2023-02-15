@@ -1,5 +1,5 @@
 import { styled } from "@web/theme";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import { BaseFieldProps } from "../types";
 
@@ -21,7 +21,7 @@ const ButtonLink: React.FC<BaseFieldProps<"buttonLink">> = ({ value, editMode, o
   const handleChangeButtonLink = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       let url = e.currentTarget.value;
-      const prefix = "http://";
+      const prefix = "https://";
       if (!url.match(/^[a-zA-Z]+:\/\//)) {
         url = prefix + url;
       }
@@ -34,6 +34,14 @@ const ButtonLink: React.FC<BaseFieldProps<"buttonLink">> = ({ value, editMode, o
     [value, onUpdate],
   );
 
+  useEffect(() => {
+    let url = link;
+    const prefix = "https://";
+    if (url && !url.match(/^[a-zA-Z]+:\/\//)) {
+      url = prefix + url;
+    }
+    setLink(url);
+  }, [link]);
   return editMode ? (
     <Wrapper>
       <Field>
