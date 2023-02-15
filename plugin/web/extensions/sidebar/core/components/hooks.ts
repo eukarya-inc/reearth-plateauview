@@ -1,10 +1,10 @@
 import { Project, ReearthApi } from "@web/extensions/sidebar/types";
-import { mergeProperty, postMsg } from "@web/extensions/sidebar/utils";
+import { generateID, mergeProperty, postMsg } from "@web/extensions/sidebar/utils";
 import { useCallback, useEffect, useState } from "react";
 
 import { DataCatalogItem, getDataCatalog } from "../../modals/datacatalog/api/api";
 import { UserDataItem } from "../../modals/datacatalog/types";
-import { Data, Template } from "../newTypes";
+import { Data, Template } from "../types";
 
 import { Pages } from "./Header";
 
@@ -83,41 +83,48 @@ export default () => {
     [updateProject],
   );
 
-  const handleProjectDatasetAdd = useCallback((dataset: DataCatalogItem | UserDataItem) => {
-    updateProject(({ sceneOverrides, selectedDatasets }) => {
-      const updatedProject: Project = {
-        sceneOverrides,
-        selectedDatasets: [
-          ...selectedDatasets,
-          {
+  const handleProjectDatasetAdd = useCallback(
+    (dataset: DataCatalogItem | UserDataItem) => {
+      updateProject(({ sceneOverrides, selectedDatasets }) => {
+        let datasetToAdd = data?.find(d => d.dataID === `plateau-2022-${dataset.name}`);
+
+        if (!datasetToAdd) {
+          datasetToAdd = {
             id: dataset.id,
-            dataId: `plateau-2022-${dataset.name}`,
+            dataID: `plateau-2022-${dataset.name}`,
             type: dataset.type,
             name: dataset.name,
-            url: "dataURL" in dataset ? dataset.dataURL : undefined,
+            url:
+              "dataUrl" in dataset ? dataset.dataUrl : "url" in dataset ? dataset.url : undefined,
             visible: true,
-            fieldGroups: [],
-          } as Data,
-        ],
-      };
-      postMsg({ action: "updateProject", payload: updatedProject });
-      return updatedProject;
-    });
+            fieldGroups: [{ id: generateID(), name: "グループ1" }],
+          };
+        }
 
-    // const options = data?.find(d => d.id === dataset.id)?.components;
-    postMsg({ action: "addDatasetToScene", payload: { dataset } });
-  }, []);
+        const updatedProject: Project = {
+          sceneOverrides,
+          selectedDatasets: [...selectedDatasets, datasetToAdd],
+        };
+        postMsg({ action: "updateProject", payload: updatedProject });
+        return updatedProject;
+      });
 
-  const handleProjectDatasetRemove = useCallback((id: string) => {
+      // const options = data?.find(d => d.id === dataset.id)?.components;
+      postMsg({ action: "addDatasetToScene", payload: { dataset } });
+    },
+    [data],
+  );
+
+  const handleProjectDatasetRemove = useCallback((dataID: string) => {
     updateProject(({ sceneOverrides, selectedDatasets }) => {
       const updatedProject = {
         sceneOverrides,
-        selectedDatasets: selectedDatasets.filter(d => d.id !== id),
+        selectedDatasets: selectedDatasets.filter(d => d.dataID !== dataID),
       };
       postMsg({ action: "updateProject", payload: updatedProject });
       return updatedProject;
     });
-    postMsg({ action: "removeDatasetFromScene", payload: id });
+    postMsg({ action: "removeDatasetFromScene", payload: dataID });
   }, []);
 
   const handleProjectDatasetRemoveAll = useCallback(() => {
@@ -137,7 +144,9 @@ export default () => {
       if (processedSelectedDatasets.length < 1) return;
 
       const updatedProcessedDatasets = [...processedSelectedDatasets];
-      const datasetIndex = updatedProcessedDatasets.findIndex(d2 => d2.id === updatedDataset.id);
+      const datasetIndex = updatedProcessedDatasets.findIndex(
+        d2 => d2.dataID === updatedDataset.dataID,
+      );
 
       updatedProcessedDatasets[datasetIndex] = updatedDataset;
       setProcessedSelectedDatasets(updatedProcessedDatasets);
@@ -146,16 +155,16 @@ export default () => {
   );
 
   const handleDatasetSave = useCallback(
-    (datasetID: string) => {
+    (dataID: string) => {
       (async () => {
         if (!inEditor) return;
-        const datasetToSave = processedSelectedDatasets.find(d => d.id === datasetID);
-        const isNew = !data?.find(d => d.id === datasetID);
+        const datasetToSave = processedSelectedDatasets.find(d => d.dataID === dataID);
+        const isNew = !data?.find(d => d.dataID === dataID);
 
         if (!backendURL || !backendAccessToken || !datasetToSave) return;
 
         const fetchURL = !isNew
-          ? `${backendURL}/sidebar/plateauview/data/${datasetToSave.id}`
+          ? `${backendURL}/sidebar/plateauview/data/${datasetToSave.id}` // should be id and not dataID because id here is the CMS item's id
           : `${backendURL}/sidebar/plateauview/data`;
 
         const method = !isNew ? "PATCH" : "POST";
@@ -298,7 +307,7 @@ export default () => {
   const handleDatasetProcessing = useCallback((dataset: Data, savedData?: Data[]) => {
     if (!savedData) return dataset;
 
-    const datasetSavedData = savedData.find(d => d.dataId === dataset.dataId);
+    const datasetSavedData = savedData.find(d => d.dataID === dataset.dataID);
     if (datasetSavedData) {
       return {
         ...dataset,

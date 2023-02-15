@@ -1,4 +1,4 @@
-import { Data } from "@web/extensions/sidebar/core/newTypes";
+import { Data } from "@web/extensions/sidebar/core/types";
 import { postMsg } from "@web/extensions/sidebar/utils";
 import { Dropdown, Icon, Menu } from "@web/sharedComponents";
 import { styled } from "@web/theme";
@@ -12,8 +12,7 @@ import {
   AccordionItemState,
 } from "react-accessible-accordion";
 
-import AddButton from "../AddButton";
-
+import AddButton from "./AddButton";
 import Field from "./Field";
 import useHooks from "./hooks";
 
@@ -29,8 +28,8 @@ type BaseFieldType = Partial<Data> & {
 export type Props = {
   dataset: Data;
   inEditor?: boolean;
-  onDatasetSave: (datasetId: string) => void;
-  onDatasetRemove?: (id: string) => void;
+  onDatasetSave: (dataID: string) => void;
+  onDatasetRemove?: (dataID: string) => void;
   onDatasetUpdate: (dataset: Data) => void;
   onUpdateField?: (id: string) => void;
 };
@@ -64,7 +63,7 @@ const DatasetCard: React.FC<Props> = ({
       {
         id: "remove",
         icon: "trash",
-        onClick: () => onDatasetRemove?.(dataset.id),
+        onClick: () => onDatasetRemove?.(dataset.dataID),
       },
     ],
     [dataset, onDatasetRemove],
@@ -77,8 +76,8 @@ const DatasetCard: React.FC<Props> = ({
 
   const handleFieldSave = useCallback(() => {
     if (!inEditor) return;
-    onDatasetSave(dataset.id);
-  }, [dataset.id, inEditor, onDatasetSave]);
+    onDatasetSave(dataset.dataID);
+  }, [dataset.dataID, inEditor, onDatasetSave]);
 
   useEffect(() => {
     const eventListenerCallback = (e: any) => {
@@ -120,10 +119,10 @@ const DatasetCard: React.FC<Props> = ({
     </Menu>
   );
 
-  const [selectedGroup, setGroup] = useState<number>();
+  const [selectedGroup, setGroup] = useState<string>();
 
-  const handleCurrentGroupChange = useCallback((group: number) => {
-    setGroup(group);
+  const handleCurrentGroupChange = useCallback((fieldGroupID: string) => {
+    setGroup(fieldGroupID);
   }, []);
 
   const activeComponentIDs = useMemo(

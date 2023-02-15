@@ -2,16 +2,16 @@ import Footer from "@web/extensions/sidebar/core/components/Footer";
 import { Icon } from "@web/sharedComponents";
 import { styled } from "@web/theme";
 
-import { Data } from "../../../newTypes";
+import { Data } from "../../../types";
 import DatasetCard from "../common/DatasetCard";
 
 export type Props = {
   className?: string;
   inEditor?: boolean;
   selectedDatasets?: Data[];
-  onDatasetSave: (datasetId: string) => void;
+  onDatasetSave: (dataID: string) => void;
   onDatasetUpdate: (dataset: Data) => void;
-  onDatasetRemove: (id: string) => void;
+  onDatasetRemove: (dataID: string) => void;
   onDatasetRemoveAll: () => void;
   onModalOpen?: () => void;
 };

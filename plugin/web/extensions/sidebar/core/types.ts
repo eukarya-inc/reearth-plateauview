@@ -7,7 +7,7 @@ export type Root = {
 
 export type Data = {
   id: string;
-  dataId: string;
+  dataID: string;
   type: string;
   name?: string;
   // public: boolean;
@@ -20,7 +20,7 @@ export type Data = {
 };
 
 export type Group = {
-  id: number;
+  id: string;
   name: string;
 };
 
