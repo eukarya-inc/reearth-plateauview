@@ -191,7 +191,11 @@ export default () => {
   }, []);
 
   const storyShare = useCallback(() => {
-    postMsg("storyShare", {
+    postMsg("storyShare");
+  }, []);
+
+  useEffect(() => {
+    postMsg("storySaveData", {
       scenes: JSON.stringify(scenes),
     });
   }, [scenes]);
