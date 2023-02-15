@@ -29,7 +29,7 @@ export type DataCatalogGroup = {
   children: (DataCatalogItem | DataCatalogGroup)[];
 };
 
-export type GroupBy = "city" | "type";
+export type GroupBy = "city" | "type" | "tag"; // Tag not implemented yet
 
 export async function getDataCatalog(base: string): Promise<DataCatalogItem[]> {
   const res = await fetch(base + "/datacatalog");
@@ -42,7 +42,7 @@ export async function getDataCatalog(base: string): Promise<DataCatalogItem[]> {
 export function getDataCatalogTree(
   items: DataCatalogItem[],
   groupBy: GroupBy,
-  q: string | undefined,
+  q?: string | undefined,
 ): (DataCatalogGroup | DataCatalogItem)[] {
   const allItems = filter(q, items)
     .map(i => ({
@@ -99,7 +99,7 @@ function sortByType(a: DataCatalogItem, b: DataCatalogItem): number {
 function filter(q: string | undefined, items: DataCatalogItem[]): DataCatalogItem[] {
   if (!q) return items;
   return items.filter(
-    i => i.name.includes(q) || i.pref.includes(q) || i.city.includes(q) || i.ward?.includes(q),
+    i => i.name.includes(q) || i.pref.includes(q) || i.city?.includes(q) || i.ward?.includes(q),
   );
 }
 

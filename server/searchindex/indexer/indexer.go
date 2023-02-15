@@ -27,13 +27,15 @@ type Indexer struct {
 	config *Config
 	fs     FS
 	writer *Writer
+	debug  bool
 }
 
-func NewIndexer(config *Config, fs FS, output OutputFS) *Indexer {
+func NewIndexer(config *Config, fs FS, output OutputFS, debug bool) *Indexer {
 	return &Indexer{
 		config: config,
 		fs:     fs,
 		writer: NewWriter(config, output),
+		debug:  debug,
 	}
 }
 
@@ -75,13 +77,13 @@ func (indexer *Indexer) Build() (res Result, errMsg error) {
 		indexBuilders = append(indexBuilders, createIndexBuilder(property, config))
 	}
 
-	features, err := ReadTilesetFeatures(tileset, indexer.config, indexer.fs)
+	features, err := ReadTilesetFeatures(tileset, indexer.config, indexer.fs, indexer.debug)
 	if err != nil {
 		errMsg = fmt.Errorf("failed to read features: %w", err)
 		return
 	}
 
-	log.Debugln("Number of features counted: ", len(features))
+	log.Debugf("Number of features counted: %d", len(features))
 
 	for idValue, tilsetFeature := range features {
 		// taking all positionProperties map entries as string for better writing experience
@@ -116,7 +118,7 @@ type TilesetFeature struct {
 	Position   Cartographic
 }
 
-func ReadTilesetFeatures(ts *tiles.Tileset, config *Config, fsys FS) (map[string]TilesetFeature, error) {
+func ReadTilesetFeatures(ts *tiles.Tileset, config *Config, fsys FS, debug bool) (map[string]TilesetFeature, error) {
 	uniqueFeatures := make(map[string]TilesetFeature)
 	tilesetQueue := []*tiles.Tileset{ts}
 	rMutex := sync.RWMutex{}
@@ -128,7 +130,10 @@ func ReadTilesetFeatures(ts *tiles.Tileset, config *Config, fsys FS) (map[string
 				return fmt.Errorf("failed to fetch uri of tile: %v", err)
 			}
 
-			log.Debugln(tileUri)
+			if debug {
+				log.Debugln(tileUri)
+			}
+
 			if strings.HasSuffix(tileUri, ".json") {
 				childTileset, _ := tiles.Open(tileUri)
 				tilesetQueue = append(tilesetQueue, childTileset)
@@ -251,14 +256,20 @@ func computeFeaturePositionsFromGltfVertices(doc *gltf.Document, tileTransform, 
 				}
 				pos, err := pd.ReadAttr(primitive, "POSITION", nil)
 				if err != nil {
-					return nil, fmt.Errorf("failed to read Positions: %v", err)
+					return nil, fmt.Errorf("failed to read positions: %v", err)
 				}
 				positions = pos.([][3]float32)
 
-				for _, batch := range bi.([]uint8) {
-					batchIds = append(batchIds, uint16(batch))
+				var ok bool
+				if batchIds, ok = bi.([]uint16); !ok {
+					if bi8, ok := bi.([]uint8); ok {
+						for _, batch := range bi8 {
+							batchIds = append(batchIds, uint16(batch))
+						}
+					} else {
+						return nil, fmt.Errorf("failed to read batchIds: invalid bi type: %T", bi)
+					}
 				}
-
 			} else {
 				bi, err := b3dms.GetGltfAttribute(primitive, doc, "_BATCHID")
 				if err != nil {

@@ -1,12 +1,11 @@
 import { ComponentType } from "react";
 
-// general
+import Clipping from "./3dtiles/Clipping";
 import ButtonLink from "./general/ButtonLink";
 import Description from "./general/Description";
 import IdealZoom from "./general/IdealZoom";
 import Legend from "./general/Legend";
 import SwitchGroup from "./general/SwitchGroup";
-// point
 import PointColor from "./point/PointColor";
 import PointColorGradient from "./point/PointColorGradient";
 import PointIcon from "./point/PointIcon";
@@ -17,6 +16,7 @@ import PointStroke from "./point/PointStroke";
 // 3d-tiles
 import Search from "./threedtile/Search";
 import { FieldComponent } from "./types";
+
 // import Template from "./Template";
 
 export type Fields<FC extends FieldComponent> = {
@@ -30,7 +30,6 @@ const fields: Fields<FieldComponent> = {
   description: { Component: Description, hasUI: true },
   switchGroup: { Component: SwitchGroup, hasUI: true },
   buttonLink: { Component: ButtonLink, hasUI: true },
-
   // point
   pointColor: { Component: PointColor, hasUI: false },
   pointColorGradient: { Component: PointColorGradient, hasUI: false },
@@ -42,6 +41,7 @@ const fields: Fields<FieldComponent> = {
   // polyline
   // polygon
   // 3d-model
+  clipping: { Component: Clipping, hasUI: false },
   // 3d-tile
   search: { Component: Search, hasUI: false },
   // realtime: Realtime,

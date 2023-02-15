@@ -1,3 +1,5 @@
+import { Group } from "@web/extensions/sidebar/core/types";
+
 export const fieldName = {
   camera: "カメラ",
   legend: "凡例",
@@ -14,6 +16,7 @@ export const fieldName = {
   pointModel: "モデル",
   pointStroke: "ストロック",
   search: "Search",
+  clipping: "クリッピング",
 };
 
 // type Component = Camera | Legend | Realtime | Point | Polyline | Polygon | Model | Description;
@@ -30,9 +33,11 @@ export type FieldComponent =
   | PointLabel
   | PointModel
   | PointStroke
-  | Search;
+  | Search
+  | Clipping;
 
 type FieldBase<T extends keyof typeof fieldName> = {
+  id: string;
   type: T;
   group?: string;
 };
@@ -73,9 +78,9 @@ export type Description = FieldBase<"description"> & {
 };
 
 export type GroupItem = {
+  id: string;
   title: string;
-  group: string;
-  id?: number;
+  fieldGroupID: string;
 };
 
 export type SwitchGroup = FieldBase<"switchGroup"> & {
@@ -114,20 +119,16 @@ type PointColorGradient = FieldBase<"pointColorGradient"> & {
   step?: number;
 };
 
-type PointSize = {
-  type: "pointSize";
-  group?: string;
+type PointSize = FieldBase<"pointSize"> & {
   pointSize?: number;
 };
 
-type PointIcon = {
-  type: "pointIcon";
-  group?: string;
+type PointIcon = FieldBase<"pointIcon"> & {
+  url?: string;
+  size: number;
 };
 
-type PointLabel = {
-  type: "pointLabel";
-  group?: string;
+type PointLabel = FieldBase<"pointLabel"> & {
   field?: string;
   fontSize?: number;
   fontColor?: string;
@@ -137,26 +138,29 @@ type PointLabel = {
   backgroundColor?: string;
 };
 
-type PointModel = {
-  type: "pointModel";
-  group?: string;
+type PointModel = FieldBase<"pointModel"> & {
   modelURL?: string;
   scale?: number;
 };
 
-type PointStroke = {
-  type: "pointStroke";
-  group?: string;
-  conditions?: {
-    expression: Expression;
+type PointStroke = FieldBase<"pointStroke"> & {
+  items?: {
     strokeColor: string;
     strokeWidth: number;
+    condition: Cond<string | number>;
   }[];
 };
 
-export type Search = {
+type Search = {
   type: "search";
   group?: string;
+};
+
+type Clipping = FieldBase<"clipping"> & {
+  enabled: boolean;
+  show: boolean;
+  aboveGroundOnly: boolean;
+  direction: "inside" | "outside";
 };
 
 export type Fields = {
@@ -179,15 +183,20 @@ export type Fields = {
   // 3d-model
   // 3d-tile
   search: Search;
+  clipping: Clipping;
 };
 
 export type BaseFieldProps<T extends keyof Fields> = {
   value: Fields[T];
+  datasetID: string;
   editMode?: boolean;
+  isActive?: boolean;
+  fieldGroups?: Group[];
   onUpdate: (property: Fields[T]) => void;
+  onCurrentGroupChange: (fieldGroupID: string) => void;
 };
 
-type Expression<T extends string | number | boolean = string | number | boolean> =
+export type Expression<T extends string | number | boolean = string | number | boolean> =
   | T
   | {
       conditions: Cond<T>[];
