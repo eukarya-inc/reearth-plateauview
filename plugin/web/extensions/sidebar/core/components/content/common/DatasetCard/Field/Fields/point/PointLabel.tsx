@@ -9,6 +9,7 @@ import { Wrapper } from "./common/styled";
 import SwitchField from "./common/SwitchField";
 import TextField from "./common/TextField";
 
+// TODO: list all options for select field dropdown
 const options = [
   { value: "Option1", label: "Option1" },
   { value: "Option2", label: "Option2" },
@@ -17,33 +18,16 @@ const options = [
 const PointLabel: React.FC<BaseFieldProps<"pointLabel">> = ({ value, editMode, onUpdate }) => {
   const [pointLabel, setPointLabel] = useState(value);
 
-  const handleFieldChange = (field: any) => {
-    setPointLabel(pointLabel => {
-      const newPointLabel: Fields["pointLabel"] = {
-        ...pointLabel,
-        field,
-      };
-      onUpdate({
-        ...pointLabel,
-        field,
-      });
-      return newPointLabel;
-    });
-  };
-
-  const handleFontSizeUpdate = useCallback(
-    (e: ChangeEvent<HTMLInputElement>) => {
-      const fontSize = !isNaN(parseFloat(e.currentTarget.value))
-        ? parseFloat(e.currentTarget.value)
-        : 1;
+  const updatePointLabelByProp = useCallback(
+    (prop: string, value: any) => {
       setPointLabel(pointLabel => {
         const newPointLabel: Fields["pointLabel"] = {
           ...pointLabel,
-          fontSize,
+          [prop]: value,
         };
         onUpdate({
           ...pointLabel,
-          fontSize,
+          [prop]: value,
         });
         return newPointLabel;
       });
@@ -51,23 +35,28 @@ const PointLabel: React.FC<BaseFieldProps<"pointLabel">> = ({ value, editMode, o
     [onUpdate],
   );
 
+  const handleFieldChange = useCallback(
+    (field: any) => {
+      updatePointLabelByProp("field", field);
+    },
+    [updatePointLabelByProp],
+  );
+
+  const handleFontSizeUpdate = useCallback(
+    (e: ChangeEvent<HTMLInputElement>) => {
+      const fontSize = !isNaN(parseFloat(e.currentTarget.value))
+        ? parseFloat(e.currentTarget.value)
+        : 1;
+      updatePointLabelByProp("fontSize", fontSize);
+    },
+    [updatePointLabelByProp],
+  );
+
   const handleFontColorUpdate = useCallback(
     (color: string) => {
-      if (color) {
-        setPointLabel(pointLabel => {
-          const newPointLabel: Fields["pointLabel"] = {
-            ...pointLabel,
-            fontColor: color,
-          };
-          onUpdate({
-            ...pointLabel,
-            fontColor: color,
-          });
-          return newPointLabel;
-        });
-      }
+      if (color) updatePointLabelByProp("color", color);
     },
-    [onUpdate],
+    [updatePointLabelByProp],
   );
 
   const handleHeightUpdate = useCallback(
@@ -75,66 +64,30 @@ const PointLabel: React.FC<BaseFieldProps<"pointLabel">> = ({ value, editMode, o
       const height = !isNaN(parseFloat(e.currentTarget.value))
         ? parseFloat(e.currentTarget.value)
         : 1;
-      setPointLabel(pointLabel => {
-        const newPointLabel: Fields["pointLabel"] = {
-          ...pointLabel,
-          height,
-        };
-        onUpdate({
-          ...pointLabel,
-          height,
-        });
-        return newPointLabel;
-      });
+      updatePointLabelByProp("height", height);
     },
-    [onUpdate],
+    [updatePointLabelByProp],
   );
 
-  const handleExtrudedChange = (extruded: boolean) => {
-    setPointLabel(pointLabel => {
-      const newPointLabel: Fields["pointLabel"] = {
-        ...pointLabel,
-        extruded,
-      };
-      onUpdate({
-        ...pointLabel,
-        extruded,
-      });
-      return newPointLabel;
-    });
-  };
+  const handleExtrudedChange = useCallback(
+    (extruded: boolean) => {
+      updatePointLabelByProp("extruded", extruded);
+    },
+    [updatePointLabelByProp],
+  );
 
-  const handleUseBackgroundChange = (useBackground: boolean) => {
-    setPointLabel(pointLabel => {
-      const newPointLabel: Fields["pointLabel"] = {
-        ...pointLabel,
-        useBackground,
-      };
-      onUpdate({
-        ...pointLabel,
-        useBackground,
-      });
-      return newPointLabel;
-    });
-  };
+  const handleUseBackgroundChange = useCallback(
+    (useBackground: boolean) => {
+      updatePointLabelByProp("useBackground", useBackground);
+    },
+    [updatePointLabelByProp],
+  );
 
   const handleBackgroundColorUpdate = useCallback(
     (color: string) => {
-      if (color) {
-        setPointLabel(pointLabel => {
-          const newPointLabel: Fields["pointLabel"] = {
-            ...pointLabel,
-            backgroundColor: color,
-          };
-          onUpdate({
-            ...pointLabel,
-            backgroundColor: color,
-          });
-          return newPointLabel;
-        });
-      }
+      if (color) updatePointLabelByProp("color", color);
     },
-    [onUpdate],
+    [updatePointLabelByProp],
   );
 
   return editMode ? (
