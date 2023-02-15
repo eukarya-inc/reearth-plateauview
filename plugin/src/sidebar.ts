@@ -41,7 +41,6 @@ type PluginExtensionInstance = {
   pluginId: string;
   extensionId: string;
   runTimes?: number;
-  extensionId: string;
 };
 
 const reearth = (globalThis as any).reearth;
