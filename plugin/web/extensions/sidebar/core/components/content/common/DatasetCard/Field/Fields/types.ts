@@ -23,14 +23,15 @@ export type FieldComponent =
   | StyleCode
   | ButtonLink
   | Description
+  | SwitchGroup
+  | Realtime
   | PointColor
   | PointColorGradient
   | PointSize
   | PointIcon
   | PointLabel
   | PointModel
-  | PointStroke
-  | SwitchGroup;
+  | PointStroke;
 
 type FieldBase<T extends keyof typeof fieldName> = {
   type: T;
@@ -61,11 +62,9 @@ export type Legend = FieldBase<"legend"> & {
   items?: LegendItem[];
 };
 
-// type Realtime = {
-//   type: "realtime";
-//   group?: string;
-//   updateInterval: number; // 1000 * 60 -> 1m
-// };
+type Realtime = FieldBase<"realtime"> & {
+  updateInterval?: number; // 1000 * 60 -> 1m
+};
 
 export type Description = FieldBase<"description"> & {
   content?: string;
@@ -74,6 +73,22 @@ export type Description = FieldBase<"description"> & {
 
 export type StyleCode = FieldBase<"styleCode"> & {
   src?: string;
+};
+export type groupItem = {
+  title: string;
+  group: string;
+  id?: number;
+};
+
+export type SwitchGroup = {
+  type: "switchGroup";
+  title: string;
+  groups: groupItem[];
+};
+
+export type ButtonLink = FieldBase<"buttonLink"> & {
+  title?: string;
+  link?: string;
 };
 // MAYBE POINT TYPE IS JUST TO CONCEPTUALIZE THE JSONNNN
 // type Point = {
@@ -140,22 +155,6 @@ type PointStroke = {
     strokeWidth: number;
   }[];
 };
-export type groupItem = {
-  title: string;
-  group: string;
-  id?: number;
-};
-
-export type SwitchGroup = {
-  type: "switchGroup";
-  title: string;
-  groups: groupItem[];
-};
-
-export type ButtonLink = FieldBase<"buttonLink"> & {
-  title?: string;
-  link?: string;
-};
 
 export type Fields = {
   // general
@@ -165,6 +164,7 @@ export type Fields = {
   styleCode: StyleCode;
   switchGroup: SwitchGroup;
   buttonLink: ButtonLink;
+  realtime: Realtime;
   // point
   pointColor: PointColor;
   pointColorGradient: PointColorGradient;

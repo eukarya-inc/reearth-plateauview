@@ -3,20 +3,24 @@ import { useCallback, useState } from "react";
 
 import { BaseFieldProps } from "../types";
 
-const StyleCode: React.FC<BaseFieldProps<"styleCode">> = ({ editMode }) => {
-  const [code, editCode] = useState<string>();
+const StyleCode: React.FC<BaseFieldProps<"styleCode">> = ({ value, editMode, onUpdate }) => {
+  const [code, editCode] = useState(value.src);
 
-  const handleEditCode = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    editCode(e.currentTarget.value);
-  }, []);
+  const handleEditCode = useCallback(
+    (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+      editCode(e.currentTarget.value);
+      onUpdate({
+        ...value,
+        src: code,
+      });
+    },
+    [code, onUpdate, value],
+  );
 
   return editMode ? (
     <Wrapper>
       <Field>
-        <FieldTitle>Title</FieldTitle>
-        <FieldValue>
-          <TextInput value={code} onChange={handleEditCode} />
-        </FieldValue>
+        <CodeEditor value={code} onChange={handleEditCode} />
       </Field>
     </Wrapper>
   ) : null;
@@ -30,36 +34,23 @@ const Wrapper = styled.div`
   gap: 8px;
 `;
 
-const Text = styled.p`
-  margin: 0;
-`;
-
 const Field = styled.div<{ gap?: number }>`
   display: flex;
   align-items: center;
   ${({ gap }) => gap && `gap: ${gap}px;`}
-  height: 32px;
+  height: 160px;
+  padding: 8px;
+  gap: 8px;
 `;
 
-const FieldTitle = styled(Text)`
-  width: 82px;
-`;
-
-const FieldValue = styled.div`
-  display: flex;
-  border: 1px solid #d9d9d9;
-  border-radius: 2px;
-  flex: 1;
-  height: 100%;
-  width: 100%;
-`;
-
-const TextInput = styled.input.attrs({ type: "text" })`
-  height: 100%;
-  width: 100%;
+const CodeEditor = styled.textarea`
+  height: 144px;
+  width: 280px;
   flex: 1;
   padding: 0 12px;
   border: none;
+  overflow: auto;
+  background: #f3f3f3;
   outline: none;
   :focus {
     border: none;

@@ -1,37 +1,51 @@
 import { styled } from "@web/theme";
 import { useCallback, useState } from "react";
 
-import { BaseFieldProps, ButtonLink } from "../types";
+import { BaseFieldProps } from "../types";
 
-const ButtonLink: React.FC<BaseFieldProps<"buttonLink">> = ({ editMode }) => {
-  const [CurrentButton, setCurrentButton] = useState<ButtonLink>();
+const ButtonLink: React.FC<BaseFieldProps<"buttonLink">> = ({ value, editMode, onUpdate }) => {
+  const [CurrentButtonTitle, setCurrentButtonTitle] = useState(value.title);
+  const [CurrentButtonLink, setCurrentButtonLink] = useState(value.link);
 
-  const handleChangeButtonTitle = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    setCurrentButton(btn => {
-      if (!btn) return;
-      return { ...btn, title: e.currentTarget.value };
-    });
-  }, []);
+  const handleChangeButtonTitle = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setCurrentButtonTitle(e.currentTarget.value);
+      onUpdate({
+        ...value,
+        title: CurrentButtonTitle,
+      });
+    },
+    [CurrentButtonTitle, onUpdate, value],
+  );
 
-  const handleChangeButtonLink = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    setCurrentButton(btn => {
-      if (!btn) return;
-      return { ...btn, link: e.currentTarget.value };
-    });
-  }, []);
+  const handleChangeButtonLink = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      let url = e.currentTarget.value;
+      const prefix = "http://";
+      if (!url.match(/^[a-zA-Z]+:\/\//)) {
+        url = prefix + url;
+      }
+      setCurrentButtonLink(url);
+      onUpdate({
+        ...value,
+        link: CurrentButtonLink,
+      });
+    },
+    [CurrentButtonLink, onUpdate, value],
+  );
   return editMode ? (
     <Wrapper>
       <Field>
         <FieldTitle>Title</FieldTitle>
         <FieldValue>
-          <TextInput onChange={handleChangeButtonTitle} />
+          <TextInput value={CurrentButtonTitle} onChange={handleChangeButtonTitle} />
         </FieldValue>
       </Field>
 
       <Field>
         <FieldTitle>Link</FieldTitle>
         <FieldValue>
-          <TextInput onChange={handleChangeButtonLink} />
+          <TextInput value={CurrentButtonLink} onChange={handleChangeButtonLink} />
         </FieldValue>
       </Field>
     </Wrapper>
@@ -39,8 +53,8 @@ const ButtonLink: React.FC<BaseFieldProps<"buttonLink">> = ({ editMode }) => {
     <Wrapper>
       <Field>
         <FieldValue>
-          <StyledButton onClick={() => window.open(CurrentButton?.link, "_blank", "noopener")}>
-            <Text>{CurrentButton?.title}</Text>
+          <StyledButton onClick={() => window.open(CurrentButtonLink, "_blank")}>
+            <Text>{CurrentButtonTitle}</Text>
           </StyledButton>
         </FieldValue>
       </Field>
@@ -58,6 +72,9 @@ const Wrapper = styled.div`
 
 const Text = styled.p`
   margin: 0;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 22px;
 `;
 
 const Field = styled.div<{ gap?: number }>`
@@ -100,9 +117,10 @@ const StyledButton = styled.div`
   gap: 8px;
   padding: 1px 8px;
   background: #00bebe;
-  border: 1px solid #d9d9d9;
+  color: #ffffff;
+  box-shadow: 0px 2px 0px rgba(0, 0, 0, 0.043);
   border-radius: 2px;
-  height: 270px;
-  width: 24px;
+  width: 100%;
+  height: 100%;
   cursor: pointer;
 `;

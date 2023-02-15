@@ -93,6 +93,18 @@ export default ({
         items: [{ title: "hey", color: "red" }],
       }),
     },
+    realtime: {
+      name: fieldName["realtime"],
+      onClick: handleFieldAdd({ updateInterval: 30 }),
+    },
+    styleCode: {
+      name: fieldName["styleCode"],
+      onClick: handleFieldAdd({ src: " " }),
+    },
+    buttonLink: {
+      name: fieldName["buttonLink"],
+      onClick: handleFieldAdd({ title: "test", link: "http:/google.com" }),
+    },
   };
 
   const pointFields: FieldDropdownItem = {
