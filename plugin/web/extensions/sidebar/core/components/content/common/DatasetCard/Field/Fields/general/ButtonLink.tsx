@@ -20,10 +20,15 @@ const ButtonLink: React.FC<BaseFieldProps<"buttonLink">> = ({ value, editMode, o
 
   const handleChangeButtonLink = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
-      setLink(e.currentTarget.value);
+      let url = e.currentTarget.value;
+      const prefix = "http://";
+      if (!url.match(/^[a-zA-Z]+:\/\//)) {
+        url = prefix + url;
+      }
+      setLink(url);
       onUpdate({
         ...value,
-        link: e.currentTarget.value,
+        link: url,
       });
     },
     [value, onUpdate],
