@@ -37,6 +37,9 @@ const defaultProject: Project = {
 
 type PluginExtensionInstance = {
   id: string;
+  name: string;
+  pluginId: string;
+  extensionId: string;
   runTimes?: number;
   extensionId: string;
 };
@@ -50,8 +53,12 @@ let buildingSearchIsOpen = false;
 const defaultLocation = { zone: "outer", section: "left", area: "middle" };
 const mobileLocation = { zone: "outer", section: "center", area: "top" };
 
-let catalogData: DataCatalogItem[] = [];
-let addedDatasets: string | undefined = undefined;
+let dataCatalog: DataCatalogItem[] = [];
+const addedDatasets: [
+  dataID: string,
+  status: "showing" | "hidden" | "removed",
+  layerID?: string,
+][] = [];
 
 const sidebarInstance: PluginExtensionInstance = reearth.plugins.instances.find(
   (i: PluginExtensionInstance) => i.id === reearth.widget.id,
@@ -117,9 +124,11 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
 
   // Sidebar
   if (action === "init") {
+    dataCatalog = payload.dataCatalog;
+
     reearth.clientStorage.getAsync("isMobile").then((isMobile: boolean) => {
       reearth.clientStorage.getAsync("draftProject").then((draftProject: Project) => {
-        const payload = {
+        const outBoundPayload = {
           projectID: reearth.viewport.query.projectID,
           inEditor: reearth.scene.inEditor,
           backendAccessToken: reearth.widget.property.default?.plateauAccessToken ?? "",
@@ -128,10 +137,16 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
           reearthURL: reearth.widget.property.default?.reearthURL ?? "",
           draftProject,
         };
+        draftProject.selectedDatasets.forEach(sd => {
+          const dataset = payload.dataCatalog.find((d: DataCatalogItem) => d.id === sd.id);
+          const data = createLayer(dataset ?? {});
+          const layerID = reearth.layers.add(data);
+          addedDatasets.push([sd.dataID, sd.visible ? "showing" : "hidden", layerID]);
+        });
         if (isMobile) {
-          reearth.popup.postMessage({ action, payload });
+          reearth.popup.postMessage({ action, payload: outBoundPayload });
         } else {
-          reearth.ui.postMessage({ action, payload });
+          reearth.ui.postMessage({ action, payload: outBoundPayload });
         }
       });
     });
@@ -157,7 +172,29 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
     reearth.visualizer.overrideProperty(payload.sceneOverrides);
     reearth.clientStorage.setAsync("draftProject", payload);
   } else if (action === "addDatasetToScene") {
-    // NEED TO HANDLE ADDING TO SCENE WHEN ABLE
+    if (addedDatasets.find(d => d[0] === payload.dataset.dataID)) {
+      const idx = addedDatasets.findIndex(ad => ad[0] === payload.dataset.dataID);
+      addedDatasets[idx][1] = "showing";
+      reearth.layers.show(addedDatasets[idx][2]);
+    } else {
+      const data = createLayer(payload.dataset, payload.updates);
+      const layerID = reearth.layers.add(data);
+      addedDatasets.push([payload.dataset.dataID, "showing", layerID]);
+    }
+  } else if (action === "updateDatasetInScene") {
+    reearth.layers.override(
+      addedDatasets.find(ad => ad[0] === payload.dataID)?.[2],
+      payload.update,
+    );
+  } else if (action === "removeDatasetFromScene") {
+    reearth.layers.hide(addedDatasets.find(ad => ad[0] === payload.dataID)?.[2]);
+    const idx = addedDatasets.findIndex(ad => ad[0] === payload.dataID);
+    addedDatasets[idx][1] = "removed";
+  } else if (action === "removeAllDatasetsFromScene") {
+    addedDatasets.forEach(ad => {
+      reearth.layers.hide(ad[2]);
+      ad[1] = "removed";
+    });
   } else if (
     action === "screenshot" ||
     action === "screenshotPreview" ||
@@ -176,8 +213,6 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
       reearth.ui.resize(350, undefined, true);
     }
   } else if (action === "catalogModalOpen") {
-    addedDatasets = payload.addedDatasets;
-    catalogData = payload.catalogData;
     reearth.modal.show(dataCatalogHtml, { background: "transparent" });
   } else if (action === "triggerCatalogOpen") {
     reearth.ui.postMessage({ action });
@@ -189,7 +224,10 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
   } else if (action === "initDataCatalog") {
     reearth.modal.postMessage({
       type: action,
-      payload: { catalogData, addedDatasets },
+      payload: {
+        dataCatalog,
+        addedDatasets: addedDatasets.filter(ad => ad[1] !== "removed").map(d => d[0]),
+      },
     });
   } else if (action === "helpPopupOpen") {
     reearth.popup.show(helpPopupHtml, { position: "right-start", offset: 4 });
@@ -300,3 +338,42 @@ reearth.on("pluginmessage", (pluginMessage: PluginMessage) => {
     reearth.ui.postMessage(pluginMessage.data);
   }
 });
+
+function createLayer(dataset: DataCatalogItem, options?: any) {
+  return {
+    type: "simple",
+    title: dataset.name,
+    data: {
+      type: dataset.format.toLowerCase(),
+      url: dataset.url ?? dataset.config.data[0].url,
+    },
+    visible: true,
+    infobox: {
+      blocks: [
+        {
+          pluginId: reearth.plugins.instances.find(
+            (i: PluginExtensionInstance) => i.name === "plateau-plugin",
+          ).pluginId,
+          extensionId: "infobox",
+          property: { default: {} },
+        },
+      ],
+      property: { default: { size: "medium" } },
+    },
+    ...(dataset.format === "geojson"
+      ? options
+        ? options
+        : {
+            marker: {
+              style: "point",
+              // pointOutlineColor: "red",
+              // pointOutlineWidth: 6,
+              // label: true,
+              // labelText: "SOME TEXT",
+              // labelPosition: "right",
+              // labelBackground: true,
+            },
+          }
+      : { ...(options ?? {}) }),
+  };
+}

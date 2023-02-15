@@ -86,6 +86,9 @@ func Geospatialjp(conf *Config) (*Service, error) {
 	if err != nil {
 		return nil, err
 	}
+	if w == nil {
+		return nil, nil
+	}
 
 	return &Service{
 		Name:    "geospatialjp",
@@ -152,7 +155,7 @@ func SDKAPI(conf *Config) (*Service, error) {
 
 func Share(conf *Config) (*Service, error) {
 	c := conf.Share()
-	if c.CMSBase == "" || c.CMSToken == "" {
+	if c.CMSBase == "" || c.CMSToken == "" || c.Disable {
 		return nil, nil
 	}
 

@@ -1,6 +1,6 @@
 import { Story } from "../storytelling/types";
 
-import { Data } from "./core/newTypes";
+import { Data } from "./core/types";
 
 type ActionType =
   | "init"
@@ -16,6 +16,9 @@ type ActionType =
   | "screenshotPreview"
   | "screenshotSave"
   | "addDatasetToScene"
+  | "updateDatasetInScene"
+  | "removeDatasetFromScene"
+  | "removeAllDatasetsFromScene"
   | "catalogModalOpen"
   | "triggerCatalogOpen"
   | "triggerHelpOpen"
