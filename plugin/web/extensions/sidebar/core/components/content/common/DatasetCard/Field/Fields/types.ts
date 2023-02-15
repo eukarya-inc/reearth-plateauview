@@ -172,6 +172,7 @@ export type BaseFieldProps<T extends keyof Fields> = {
   value: Fields[T];
   datasetID: string;
   editMode?: boolean;
+  isActive?: boolean;
   fieldGroups?: Group[];
   onUpdate: (property: Fields[T]) => void;
   onCurrentGroupChange: (fieldGroupID: string) => void;

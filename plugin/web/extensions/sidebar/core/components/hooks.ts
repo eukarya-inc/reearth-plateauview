@@ -83,13 +83,13 @@ export default () => {
     [updateProject],
   );
 
-  const handleProjectDatasetAdd = useCallback((dataset: DataCatalogItem | UserDataItem) => {
-    updateProject(({ sceneOverrides, selectedDatasets }) => {
-      const updatedProject: Project = {
-        sceneOverrides,
-        selectedDatasets: [
-          ...selectedDatasets,
-          {
+  const handleProjectDatasetAdd = useCallback(
+    (dataset: DataCatalogItem | UserDataItem) => {
+      updateProject(({ sceneOverrides, selectedDatasets }) => {
+        let datasetToAdd = data?.find(d => d.dataID === `plateau-2022-${dataset.name}`);
+
+        if (!datasetToAdd) {
+          datasetToAdd = {
             id: dataset.id,
             dataID: `plateau-2022-${dataset.name}`,
             type: dataset.type,
@@ -98,16 +98,22 @@ export default () => {
               "dataUrl" in dataset ? dataset.dataUrl : "url" in dataset ? dataset.url : undefined,
             visible: true,
             fieldGroups: [{ id: generateID(), name: "グループ1" }],
-          } as Data,
-        ],
-      };
-      postMsg({ action: "updateProject", payload: updatedProject });
-      return updatedProject;
-    });
+          };
+        }
 
-    // const options = data?.find(d => d.id === dataset.id)?.components;
-    postMsg({ action: "addDatasetToScene", payload: { dataset } });
-  }, []);
+        const updatedProject: Project = {
+          sceneOverrides,
+          selectedDatasets: [...selectedDatasets, datasetToAdd],
+        };
+        postMsg({ action: "updateProject", payload: updatedProject });
+        return updatedProject;
+      });
+
+      // const options = data?.find(d => d.id === dataset.id)?.components;
+      postMsg({ action: "addDatasetToScene", payload: { dataset } });
+    },
+    [data],
+  );
 
   const handleProjectDatasetRemove = useCallback((dataID: string) => {
     updateProject(({ sceneOverrides, selectedDatasets }) => {

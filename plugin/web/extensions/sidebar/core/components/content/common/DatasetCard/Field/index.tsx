@@ -79,7 +79,7 @@ const FieldComponent: React.FC<Props> = ({
     };
   }, [groupPopupOpen, onGroupsUpdate]);
 
-  return !isActive ? null : (
+  return !editMode && !isActive ? null : (
     <StyledAccordionComponent
       allowZeroExpanded
       preExpanded={[field.type]}
@@ -118,6 +118,7 @@ const FieldComponent: React.FC<Props> = ({
             <FieldContent
               value={{ ...field }}
               editMode={editMode}
+              isActive={isActive}
               fieldGroups={selectGroups}
               datasetID={datasetID}
               onUpdate={onUpdate}
