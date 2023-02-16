@@ -58,7 +58,7 @@ extensions:
     name: Infobox(PLATEAU)
     type: block
   - id: pedestrian
-    name: Pedestrian(PLATEAU)
+    name: Pedestrian
     type: widget
     singleOnly: true
     widgetLayout:

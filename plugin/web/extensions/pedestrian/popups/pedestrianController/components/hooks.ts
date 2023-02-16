@@ -4,7 +4,7 @@ import L, { Map as LeafletMap } from "leaflet";
 import { useCallback, useEffect, useState, useRef } from "react";
 
 export default () => {
-  const [mainButtonText, setMainButtonText] = useState<"Start" | "Exit">("Start");
+  const [mainButtonText, setMainButtonText] = useState<"始める" | "終わる">("始める");
   const [mode, setMode] = useState<"ready" | "picking" | "pedestrian">("ready");
 
   const [moveForwardOn, setMoveForwardOn] = useState(false);
@@ -88,13 +88,13 @@ export default () => {
 
   const onExit = useCallback(() => {
     setMode("ready");
-    setMainButtonText("Start");
+    setMainButtonText("始める");
     postMsg("pedestrianExit");
   }, []);
 
   const onPicking = useCallback(() => {
     setMode("picking");
-    setMainButtonText("Exit");
+    setMainButtonText("終わる");
     postMsg("pickingStart");
   }, []);
 

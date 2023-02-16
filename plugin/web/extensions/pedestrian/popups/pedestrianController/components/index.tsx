@@ -30,7 +30,7 @@ const PedestrianController: React.FC = () => {
       <Header>
         <TitleWrapper>
           <Icon icon="personSimpleWalk" size={20} />
-          <Title>Pedestrian</Title>
+          <Title>歩行者モード</Title>
         </TitleWrapper>
         <CloseButton onClick={onClose}>
           <Icon icon="cross" />
@@ -41,7 +41,9 @@ const PedestrianController: React.FC = () => {
         <MouseTip>
           <Icon icon="mousetip" size={54} />
         </MouseTip>
-        <Discription>Pick up a start point on map. Use mouse turn right and left.</Discription>
+        <Discription>
+          地図上のスタートしたい地点をクリックします。マウス操作で右や左に曲がります。
+        </Discription>
         <Directions>
           <Line>
             <EmptySpace />

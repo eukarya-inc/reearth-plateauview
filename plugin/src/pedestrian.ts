@@ -119,7 +119,7 @@ if (reearth.viewport.isMobile) {
     if (controllerShown) {
       reearth.popup.update({
         width: 208,
-        height: 335,
+        height: 356,
         position: "bottom-end",
         offset: 4,
       });
@@ -131,7 +131,7 @@ if (reearth.viewport.isMobile) {
       controllerShown = true;
       reearth.popup.show(pedestrianControllerHtml, {
         width: 208,
-        height: 335,
+        height: 356,
         position: "bottom-end",
         offset: 4,
       });
@@ -174,7 +174,7 @@ if (reearth.viewport.isMobile) {
       mode = "pedestrian";
       reearth.popup.update({
         width: 208,
-        height: 546,
+        height: 568,
         position: "bottom-end",
         offset: 4,
       });
