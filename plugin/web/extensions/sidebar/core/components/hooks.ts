@@ -49,7 +49,6 @@ export default () => {
   const [inEditor, setInEditor] = useState(true);
   const [backendAccessToken, setBackendAccessToken] = useState<string>();
   const [backendURL, setBackendURL] = useState<string>();
-  // const [cmsURL, setCMSURL] = useState<string>();
   const [reearthURL, setReearthURL] = useState<string>();
 
   const [data, setData] = useState<Data[]>();
@@ -59,8 +58,10 @@ export default () => {
   const handleBackendFetch = useCallback(async () => {
     if (!backendURL) return;
     const res = await fetch(`${backendURL}/sidebar/plateauview`);
+    console.log("BACKEND FETCHED: ", res);
     if (res.status !== 200) return;
     const resData = await res.json();
+    console.log("BACKEND FETCHED DATA: ", resData);
 
     setTemplates(resData.templates);
     setData(resData.data);
@@ -78,9 +79,13 @@ export default () => {
 
   useEffect(() => {
     if (data) {
+      console.log("DATA!!!!", data);
       if (!catalogData) {
+        console.log("NO CATALOG DATAAAAA");
         getDataCatalog("https://api.plateau.reearth.io/").then(res => {
+          console.log("CATALOG DATA FETCHED: ", res);
           const processedCatalog = handleDataCatalogProcessing(res, data);
+          console.log("PROCESSED CATALOG: ", processedCatalog);
           setCatalog(processedCatalog);
           postMsg({ action: "init", payload: { dataCatalog: processedCatalog } }); // Needed to trigger sending initialization data to sidebar
         });
@@ -297,17 +302,18 @@ export default () => {
 
   useEffect(() => {
     const eventListenerCallback = (e: MessageEvent<any>) => {
+      console.log("CALLBACK E: ", e);
       if (e.source !== parent) return;
       if (e.data.action === "msgFromModal") {
         if (e.data.payload.dataset) {
           handleProjectDatasetAdd(e.data.payload.dataset);
         }
       } else if (e.data.action === "init" && e.data.payload) {
+        console.log("INIT PAYLOAD: ", e.data.payload);
         setProjectID(e.data.payload.projectID);
         setInEditor(e.data.payload.inEditor);
         setBackendAccessToken(e.data.payload.backendAccessToken);
         setBackendURL(e.data.payload.backendURL);
-        // setCMSURL(`${e.data.payload.cmsURL}/api/p/plateau-2022`);
         setReearthURL(`${e.data.payload.reearthURL}`);
         if (e.data.payload.draftProject) {
           updateProject(e.data.payload.draftProject);
