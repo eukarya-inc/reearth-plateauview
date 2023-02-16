@@ -172,16 +172,18 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
   } else if (action === "updateCatalog") {
     dataCatalog = payload;
     // reearth.clientStorage.getAsync("draftProject").then((draftProject: Project) => {
-    //   draftProject.selectedDatasets.forEach(sd => {
-    //     const dataset = payload.find((d: DataCatalogItem) => d.dataID === sd.dataID);
-    //     if (addedDatasets.find(d => d[0] === sd.dataID)) {
+    //   draftProject.datasets.forEach(d => {
+    //     const dataset = payload.find((d: DataCatalogItem) => d.dataID === d.dataID);
+    //     if (addedDatasets.find(ad => ad[0] === d.dataID)) {
     //       const idx = addedDatasets.findIndex(ad => ad[0] === payload.dataset.dataID);
-    //       addedDatasets[idx][1] = "showing";
-    //       reearth.layers.show(addedDatasets[idx][2]);
+    //       if (addedDatasets[idx][1] !== "showing") {
+    //         addedDatasets[idx][1] = "showing";
+    //         reearth.layers.show(addedDatasets[idx][2]);
+    //       }
     //     } else {
     //       const data = createLayer(dataset ?? {});
     //       const layerID = reearth.layers.add(data);
-    //       addedDatasets.push([sd.dataID, sd.visible ? "showing" : "hidden", layerID]);
+    //       addedDatasets.push([d.dataID, d.visible ? "showing" : "hidden", layerID]);
     //     }
     //   });
     // });

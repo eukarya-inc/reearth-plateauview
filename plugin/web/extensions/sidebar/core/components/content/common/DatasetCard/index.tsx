@@ -184,7 +184,7 @@ const DatasetCard: React.FC<Props> = ({
                 key={idx}
                 field={c}
                 isActive={!!activeComponentIDs?.find(id => id === c.id)}
-                datasetID={dataset.id}
+                dataID={dataset.dataID}
                 editMode={inEditor && currentTab === "edit"}
                 selectGroups={dataset.fieldGroups}
                 onUpdate={handleFieldUpdate}
