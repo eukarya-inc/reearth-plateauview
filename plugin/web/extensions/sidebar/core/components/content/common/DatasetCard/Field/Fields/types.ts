@@ -185,7 +185,7 @@ export type Fields = {
 
 export type BaseFieldProps<T extends keyof Fields> = {
   value: Fields[T];
-  datasetID: string;
+  dataID?: string;
   editMode?: boolean;
   isActive?: boolean;
   fieldGroups?: Group[];
