@@ -232,13 +232,19 @@ export default () => {
 
       const indexData: IndexData[] = [];
 
+      const allIndexes =
+        typeof rawDatasetData.searchIndex === "string"
+          ? [{ url: rawDatasetData.searchIndex }]
+          : rawDatasetData.searchIndex;
+
       (async () => {
         await Promise.all(
-          rawDatasetData.searchIndex.map(async si => {
-            const baseURL = si.url.replace(".zip", "");
+          allIndexes.map(async si => {
+            const baseURL = si.url.replace("/indexRoot.json", "").replace(".zip", "");
 
             const indexRootRes = await fetch(`${baseURL}/indexRoot.json`);
             if (indexRootRes.status !== 200) return;
+
             const indexRoot = await indexRootRes.json();
             if (indexRoot && searchIndexes.current) {
               searchIndexes.current.push({
@@ -271,9 +277,12 @@ export default () => {
         });
         setConditions(indexData.map(index => ({ field: index.field, values: [] })));
 
-        searchIndexes.current?.forEach(si => {
-          loadResultsData(si);
-        });
+        // preload results data
+        setTimeout(() => {
+          searchIndexes.current?.forEach(si => {
+            loadResultsData(si);
+          });
+        }, 0);
       })();
 
       // const datasetIndexes = ((window as any).buildingSearchInit?.data ??
