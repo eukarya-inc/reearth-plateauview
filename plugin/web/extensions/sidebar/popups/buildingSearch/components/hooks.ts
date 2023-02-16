@@ -91,6 +91,7 @@ export default () => {
   const onClickResult = useCallback(() => {
     setActiveTab("result");
   }, []);
+  const [conditionsState, setConditionsState] = useState<"loading" | "empty" | "ready">("loading");
 
   // Data
   const [datasetIndexes, setDatasetIndexes] = useState<DatasetIndexes>();
@@ -226,64 +227,67 @@ export default () => {
 
   const initDatasetData = useCallback(
     (rawDatasetData: RawDatasetData) => {
-      if (!rawDatasetData) return;
+      if (!rawDatasetData) {
+        setConditionsState("empty");
+      } else {
+        searchIndexes.current = [];
 
-      searchIndexes.current = [];
+        const indexData: IndexData[] = [];
 
-      const indexData: IndexData[] = [];
+        const allIndexes =
+          typeof rawDatasetData.searchIndex === "string"
+            ? [{ url: rawDatasetData.searchIndex }]
+            : rawDatasetData.searchIndex;
 
-      const allIndexes =
-        typeof rawDatasetData.searchIndex === "string"
-          ? [{ url: rawDatasetData.searchIndex }]
-          : rawDatasetData.searchIndex;
+        (async () => {
+          await Promise.all(
+            allIndexes.map(async si => {
+              const baseURL = si.url.replace("/indexRoot.json", "").replace(".zip", "");
 
-      (async () => {
-        await Promise.all(
-          allIndexes.map(async si => {
-            const baseURL = si.url.replace("/indexRoot.json", "").replace(".zip", "");
+              const indexRootRes = await fetch(`${baseURL}/indexRoot.json`);
+              if (indexRootRes.status !== 200) return;
 
-            const indexRootRes = await fetch(`${baseURL}/indexRoot.json`);
-            if (indexRootRes.status !== 200) return;
+              const indexRoot = await indexRootRes.json();
+              if (indexRoot && searchIndexes.current) {
+                searchIndexes.current.push({
+                  baseURL,
+                  indexRoot,
+                });
 
-            const indexRoot = await indexRootRes.json();
-            if (indexRoot && searchIndexes.current) {
-              searchIndexes.current.push({
-                baseURL,
-                indexRoot,
-              });
+                Object.keys(indexRoot.indexes).forEach(field => {
+                  const f = indexData.find(mi => mi.field === field);
+                  if (!f) {
+                    indexData.push({
+                      field,
+                      values: Object.keys(indexRoot.indexes[field].values),
+                    });
+                  } else {
+                    f.values.push(...Object.keys(indexRoot.indexes[field].values));
+                  }
+                });
+              }
+            }),
+          );
 
-              Object.keys(indexRoot.indexes).forEach(field => {
-                const f = indexData.find(mi => mi.field === field);
-                if (!f) {
-                  indexData.push({
-                    field,
-                    values: Object.keys(indexRoot.indexes[field].values),
-                  });
-                } else {
-                  f.values.push(...Object.keys(indexRoot.indexes[field].values));
-                }
-              });
-            }
-          }),
-        );
-
-        indexData.forEach(indexDataItem => {
-          indexDataItem.values = uniq(indexDataItem.values);
-        });
-
-        setDatasetIndexes({
-          title: rawDatasetData.title,
-          indexes: indexData,
-        });
-        setConditions(indexData.map(index => ({ field: index.field, values: [] })));
-
-        // preload results data
-        setTimeout(() => {
-          searchIndexes.current?.forEach(si => {
-            loadResultsData(si);
+          indexData.forEach(indexDataItem => {
+            indexDataItem.values = uniq(indexDataItem.values);
           });
-        }, 0);
-      })();
+
+          setDatasetIndexes({
+            title: rawDatasetData.title,
+            indexes: indexData,
+          });
+          setConditions(indexData.map(index => ({ field: index.field, values: [] })));
+          setConditionsState("ready");
+
+          // preload results data
+          setTimeout(() => {
+            searchIndexes.current?.forEach(si => {
+              loadResultsData(si);
+            });
+          }, 0);
+        })();
+      }
 
       // const datasetIndexes = ((window as any).buildingSearchInit?.data ??
       //   TEST_DATASET_INDEX_DATA) as DatasetIndexes;
@@ -347,6 +351,7 @@ export default () => {
     showMatchingOnly,
     selected,
     isSearching,
+    conditionsState,
     onClickCondition,
     onClickResult,
     toggleMinimize,

@@ -360,8 +360,7 @@ export default () => {
   // ThreeDTilesSearch
   const handleThreeDTilesSearch = useCallback(
     (dataID: string) => {
-      const name = dataID.split("-").pop();
-      const plateauItem = catalogData.find(pd => pd["name"] === name);
+      const plateauItem = catalogData.find(pd => pd.id === dataID);
       const searchIndex = plateauItem?.["search_index"];
 
       postMsg({

@@ -16,6 +16,7 @@ const BuildingSearch: React.FC = () => {
     showMatchingOnly,
     selected,
     isSearching,
+    conditionsState,
     onClickCondition,
     onClickResult,
     toggleMinimize,
@@ -65,6 +66,7 @@ const BuildingSearch: React.FC = () => {
           <ConditionPanel
             active={activeTab === "condition"}
             datasetIndexes={datasetIndexes}
+            conditionsState={conditionsState}
             setConditions={setConditions}
             conditionApply={conditionApply}
           />

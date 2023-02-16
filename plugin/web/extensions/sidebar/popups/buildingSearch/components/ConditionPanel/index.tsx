@@ -1,4 +1,4 @@
-import { Icon } from "@web/sharedComponents";
+import { Empty, Icon } from "@web/sharedComponents";
 import { styled } from "@web/theme";
 
 import type { DatasetIndexes, Condition as ConditionType } from "../../types";
@@ -8,6 +8,7 @@ import Condition from "./Condition";
 type Props = {
   active: boolean;
   datasetIndexes?: DatasetIndexes;
+  conditionsState: "loading" | "empty" | "ready";
   conditionApply: () => void;
   setConditions: React.Dispatch<React.SetStateAction<ConditionType[]>>;
 };
@@ -15,23 +16,38 @@ type Props = {
 const ConditionPanel: React.FC<Props> = ({
   active,
   datasetIndexes,
+  conditionsState,
   conditionApply,
   setConditions,
 }) => {
   return (
     <Wrapper active={active}>
-      <DatasetInfo>
-        <Icon icon="database" size={24} />
-        <DatasetName>{datasetIndexes?.title}</DatasetName>
-      </DatasetInfo>
-      <Conditions>
-        {datasetIndexes?.indexes.map(indexItem => (
-          <Condition key={indexItem.field} indexItem={indexItem} setConditions={setConditions} />
-        ))}
-      </Conditions>
-      <ButtonWrapper>
-        <Button onClick={conditionApply}>Apply</Button>
-      </ButtonWrapper>
+      {conditionsState === "loading" && <Loading>Loading...</Loading>}
+      {conditionsState === "ready" && (
+        <ConditionWrapper>
+          <DatasetInfo>
+            <Icon icon="database" size={24} />
+            <DatasetName>{datasetIndexes?.title}</DatasetName>
+          </DatasetInfo>
+          <Conditions>
+            {datasetIndexes?.indexes.map(indexItem => (
+              <Condition
+                key={indexItem.field}
+                indexItem={indexItem}
+                setConditions={setConditions}
+              />
+            ))}
+          </Conditions>
+          <ButtonWrapper>
+            <Button onClick={conditionApply}>Apply</Button>
+          </ButtonWrapper>
+        </ConditionWrapper>
+      )}
+      {conditionsState === "empty" && (
+        <EmptyWrapper>
+          <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
+        </EmptyWrapper>
+      )}
     </Wrapper>
   );
 };
@@ -39,7 +55,28 @@ const ConditionPanel: React.FC<Props> = ({
 const Wrapper = styled.div<{ active: boolean }>`
   display: ${({ active }) => (active ? "flex" : "none")};
   padding: 8px 0;
+  align-items: center;
+  height: 100%;
+  overflow: hidden;
+`;
+
+const ConditionWrapper = styled.div`
+  display: flex;
   flex-direction: column;
+  width: 100%;
+`;
+
+const Loading = styled.div`
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  color: #8c8c8c;
+`;
+
+const EmptyWrapper = styled.div`
+  width: 100%;
+  display: flex;
+  justify-content: center;
 `;
 
 const DatasetInfo = styled.div`
