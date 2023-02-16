@@ -1,9 +1,8 @@
+import { DataCatalogItem } from "@web/extensions/sidebar/core/types";
 import { UserDataItem } from "@web/extensions/sidebar/modals/datacatalog/types";
 import { Icon } from "@web/sharedComponents";
 import { styled } from "@web/theme";
 import { ComponentType, useCallback, useState } from "react";
-
-import { DataCatalogItem } from "../../api/api";
 
 export type Props = {
   dataset: DataCatalogItem | UserDataItem;
@@ -21,6 +20,7 @@ const DatasetDetails: React.FC<Props> = ({
   onDatasetAdd,
 }) => {
   const [published, setAsPublished] = useState(false);
+  const showShareButton = false;
 
   const handlePublish = useCallback(() => {
     // TODO: implement me
@@ -47,10 +47,12 @@ const DatasetDetails: React.FC<Props> = ({
             {!addDisabled && <Icon icon="plusCircle" />}
             {addDisabled ? "シーンに追加済み" : "シーンに追加"}
           </AddButton>
-          <ShareButton isShareable={isShareable}>
-            <Icon icon="share" />
-            シェア
-          </ShareButton>
+          {showShareButton && (
+            <ShareButton isShareable={isShareable}>
+              <Icon icon="share" />
+              シェア
+            </ShareButton>
+          )}
         </ButtonWrapper>
       </TopWrapper>
       {ContentSection && (
