@@ -14,7 +14,7 @@ const MobileDropdown: React.FC = () => {
   const [currentTab, setCurrentTab] = useState<Tab>();
 
   const {
-    catalogData,
+    catalog,
     project,
     selectedDatasets,
     reearthURL,
@@ -63,8 +63,8 @@ const MobileDropdown: React.FC = () => {
   });
 
   const addedDatasetIds = useMemo(
-    () => project.selectedDatasets.map(dataset => dataset.dataID),
-    [project.selectedDatasets],
+    () => project.datasets.map(dataset => dataset.dataID),
+    [project.datasets],
   );
 
   return (
@@ -75,7 +75,7 @@ const MobileDropdown: React.FC = () => {
             <Catalog
               addedDatasetIds={addedDatasetIds}
               isMobile
-              catalogData={catalogData}
+              catalogData={catalog}
               onDatasetAdd={handleDatasetAdd}
             />
           ),
@@ -92,7 +92,7 @@ const MobileDropdown: React.FC = () => {
             <Menu
               project={{
                 sceneOverrides: project.sceneOverrides,
-                selectedDatasets: selectedDatasets,
+                datasets: selectedDatasets,
               }}
               backendURL={backendURL}
               reearthURL={reearthURL}
