@@ -17,7 +17,7 @@ import { FieldComponent as FieldComponentType, fieldName } from "./Fields/types"
 
 export type Props = {
   field: FieldComponentType;
-  dataID: string;
+  dataID?: string;
   isActive: boolean;
   editMode?: boolean;
   selectGroups?: Group[];
@@ -117,7 +117,6 @@ const FieldComponent: React.FC<Props> = ({
           {FieldContent && (
             <FieldContent
               value={{ ...field }}
-              dataID={dataID}
               editMode={editMode}
               isActive={isActive}
               fieldGroups={selectGroups}
