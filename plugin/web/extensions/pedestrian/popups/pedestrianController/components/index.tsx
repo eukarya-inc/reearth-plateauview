@@ -15,6 +15,7 @@ const PedestrianController: React.FC = () => {
     moveUpOn,
     moveDownOn,
     miniMapViewRotate,
+    visible,
     handleMoveForwardClick,
     handleMoveBackwardClick,
     handleMoveLeftClick,
@@ -26,7 +27,7 @@ const PedestrianController: React.FC = () => {
   } = useHooks();
 
   return (
-    <Wrapper>
+    <Wrapper visible={visible}>
       <Header>
         <TitleWrapper>
           <Icon icon="personSimpleWalk" size={20} />
@@ -109,11 +110,13 @@ const PedestrianController: React.FC = () => {
   );
 };
 
-const Wrapper = styled.div`
+const Wrapper = styled.div<{ visible: boolean }>`
   width: 100%;
   height: 100%;
   background-color: #fff;
   border-radius: 4px;
+  opacity: ${({ visible }) => (visible ? 1 : 0)};
+  transition: all 0.25s ease;
 `;
 
 const Header = styled.div`

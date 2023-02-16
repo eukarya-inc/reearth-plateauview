@@ -6,6 +6,7 @@ import { useCallback, useEffect, useState, useRef } from "react";
 export default () => {
   const [mainButtonText, setMainButtonText] = useState<"始める" | "終わる">("始める");
   const [mode, setMode] = useState<"ready" | "picking" | "pedestrian">("ready");
+  const [visible, setVisible] = useState(false);
 
   const [moveForwardOn, setMoveForwardOn] = useState(false);
   const [moveBackwardOn, setMoveBackwardOn] = useState(false);
@@ -232,6 +233,10 @@ export default () => {
     }
   }, []);
 
+  const handleControllerReady = useCallback(() => {
+    setVisible(true);
+  }, []);
+
   const onMessage = useCallback(
     (e: MessageEvent<any>) => {
       if (e.source !== parent) return;
@@ -242,11 +247,14 @@ export default () => {
         case "updateMiniMap":
           handleUpdateMiniMap(e.data.payload);
           break;
+        case "controllerReady":
+          handleControllerReady();
+          break;
         default:
           break;
       }
     },
-    [handlePickingDone, handleUpdateMiniMap],
+    [handlePickingDone, handleUpdateMiniMap, handleControllerReady],
   );
 
   useEffect(() => {
@@ -256,6 +264,8 @@ export default () => {
     if (!miniMap.current) {
       initMiniMap();
     }
+
+    postMsg("controllerReady");
   }, [initMiniMap]);
 
   useEffect(() => {
@@ -289,6 +299,7 @@ export default () => {
     moveUpOn,
     moveDownOn,
     miniMapViewRotate,
+    visible,
     handleMoveForwardClick,
     handleMoveBackwardClick,
     handleMoveLeftClick,

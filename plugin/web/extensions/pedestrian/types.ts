@@ -3,7 +3,8 @@ export type ActionType =
   | "pedestrianClose"
   | "pickingStart"
   | "pedestrianExit"
-  | "cameraMove";
+  | "cameraMove"
+  | "controllerReady";
 
 export type PostMessageProps = { action: ActionType; payload?: any };
 

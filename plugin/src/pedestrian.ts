@@ -16,6 +16,20 @@ if (reearth.viewport.isMobile) {
   let initCamera: Camera | undefined = undefined;
   let controllerShown = false;
 
+  const initControllerOptions = {
+    width: 208,
+    height: 356,
+    position: "bottom-end",
+    offset: 4,
+  };
+
+  const fullControllerOptions = {
+    width: 208,
+    height: 568,
+    position: "bottom-end",
+    offset: 4,
+  };
+
   const flags = {
     looking: false,
     moveForward: false,
@@ -117,24 +131,14 @@ if (reearth.viewport.isMobile) {
     reearth.camera.enableScreenSpaceController(true);
 
     if (controllerShown) {
-      reearth.popup.update({
-        width: 208,
-        height: 356,
-        position: "bottom-end",
-        offset: 4,
-      });
+      reearth.popup.update(initControllerOptions);
     }
   };
 
   reearth.on("message", ({ action, payload }: PostMessageProps) => {
     if (action === "pedestrianShow") {
       controllerShown = true;
-      reearth.popup.show(pedestrianControllerHtml, {
-        width: 208,
-        height: 356,
-        position: "bottom-end",
-        offset: 4,
-      });
+      reearth.popup.show(pedestrianControllerHtml, initControllerOptions);
     } else if (action === "pedestrianClose") {
       controllerShown = false;
       reearth.popup.close();
@@ -145,6 +149,13 @@ if (reearth.viewport.isMobile) {
       handlePedestrianExit();
     } else if (action === "cameraMove") {
       handleCameraMove(payload);
+    } else if (action === "controllerReady") {
+      if (controllerShown) {
+        reearth.popup.update(initControllerOptions);
+        reearth.popup.postMessage({
+          type: "controllerReady",
+        });
+      }
     }
   });
 
@@ -172,12 +183,7 @@ if (reearth.viewport.isMobile) {
         payload: mouseData,
       });
       mode = "pedestrian";
-      reearth.popup.update({
-        width: 208,
-        height: 568,
-        position: "bottom-end",
-        offset: 4,
-      });
+      reearth.popup.update(fullControllerOptions);
     }
   });
 
