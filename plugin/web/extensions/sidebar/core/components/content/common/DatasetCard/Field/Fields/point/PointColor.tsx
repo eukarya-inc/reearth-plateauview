@@ -4,26 +4,29 @@ import { useCallback, useState } from "react";
 
 import { BaseFieldProps, Cond } from "../types";
 
-import { ColorField, ConditionField, ItemControls } from "./common";
-import { ButtonWrapper, Item, Wrapper } from "./commonComponents";
+import { ButtonWrapper, Wrapper } from "./commonComponents";
+import PointColorItem from "./PointColorItem";
 
 const PointColor: React.FC<BaseFieldProps<"pointColor">> = ({ value, editMode, onUpdate }) => {
   const [pointColors, updatePointColors] = useState(value.pointColors);
 
+  const swapElements = (array: any[], index1: number, index2: number) => {
+    const temp = array[index1];
+    array[index1] = array[index2];
+    array[index2] = temp;
+  };
+
   const handleMoveUp = useCallback(
     (idx: number) => {
       if (idx === 0) return;
-      updatePointColors(c => {
-        let newPointColors: { condition: Cond<number>; color: string }[] | undefined = undefined;
-        if (c) {
-          newPointColors = c;
-          array_move(newPointColors, idx, idx - 1);
-        }
+      updatePointColors(prevPointColors => {
+        const copy = [...(prevPointColors ?? [])];
+        swapElements(copy, idx, idx - 1);
         onUpdate({
           ...value,
-          pointColors: newPointColors,
+          pointColors: copy,
         });
-        return newPointColors;
+        return copy;
       });
     },
     [value, onUpdate],
@@ -84,19 +87,33 @@ const PointColor: React.FC<BaseFieldProps<"pointColor">> = ({ value, editMode, o
     [value, onUpdate],
   );
 
+  const handleItemUpdate = (item: { condition: Cond<number>; color: string }, index: number) => {
+    updatePointColors(c => {
+      let newPointColors: { condition: Cond<number>; color: string }[] | undefined = undefined;
+      if (c) {
+        newPointColors = c;
+        newPointColors.splice(index, 1, item);
+      }
+      onUpdate({
+        ...value,
+        pointColors: newPointColors,
+      });
+      return newPointColors;
+    });
+  };
+
   return editMode ? (
     <Wrapper>
-      {value.pointColors?.map((c, idx) => (
-        <Item key={idx}>
-          <ItemControls
-            index={idx}
-            handleMoveDown={handleMoveDown}
-            handleMoveUp={handleMoveUp}
-            handleRemove={handleRemove}
-          />
-          <ConditionField title="if" fieldGap={8} condition={c.condition} />
-          <ColorField title="色" titleWidth={82} color={c.color} />
-        </Item>
+      {pointColors?.map((c, idx) => (
+        <PointColorItem
+          key={idx}
+          index={idx}
+          item={c}
+          handleMoveDown={handleMoveDown}
+          handleMoveUp={handleMoveUp}
+          handleRemove={handleRemove}
+          onItemUpdate={handleItemUpdate}
+        />
       ))}
       <ButtonWrapper>
         <AddButton text="Add Condition" height={24} onClick={handleAdd} />
