@@ -1,6 +1,6 @@
 import { omit, makeTree, mapTree } from "./utils";
 
-export type DataCatalogItem = {
+export type RawDataCatalogItem = {
   id: string;
   name: string;
   pref: string;
@@ -24,14 +24,14 @@ export type DataCatalogItem = {
   search_index?: string;
 };
 
-export type DataCatalogGroup = {
+export type RawDataCatalogGroup = {
   name: string;
-  children: (DataCatalogItem | DataCatalogGroup)[];
+  children: (RawDataCatalogItem | RawDataCatalogGroup)[];
 };
 
 export type GroupBy = "city" | "type" | "tag"; // Tag not implemented yet
 
-export async function getDataCatalog(base: string): Promise<DataCatalogItem[]> {
+export async function getDataCatalog(base: string): Promise<RawDataCatalogItem[]> {
   const res = await fetch(base + "/datacatalog");
   if (res.status !== 200) {
     throw new Error("failed to fetch data catalog");
@@ -40,10 +40,10 @@ export async function getDataCatalog(base: string): Promise<DataCatalogItem[]> {
 }
 
 export function getDataCatalogTree(
-  items: DataCatalogItem[],
+  items: RawDataCatalogItem[],
   groupBy: GroupBy,
   q?: string | undefined,
-): (DataCatalogGroup | DataCatalogItem)[] {
+): (RawDataCatalogGroup | RawDataCatalogItem)[] {
   const allItems = filter(q, items)
     .map(i => ({
       ...i,
@@ -53,7 +53,7 @@ export function getDataCatalogTree(
     }))
     .sort((a, b) => sortBy(a, b, groupBy));
 
-  return mapTree(makeTree(allItems), (item): DataCatalogGroup | DataCatalogItem =>
+  return mapTree(makeTree(allItems), (item): RawDataCatalogGroup | RawDataCatalogItem =>
     item.item
       ? omit(item.item, "path", "code")
       : {
@@ -63,15 +63,15 @@ export function getDataCatalogTree(
   );
 }
 
-function path(i: DataCatalogItem, groupBy: GroupBy): string[] {
+function path(i: RawDataCatalogItem, groupBy: GroupBy): string[] {
   return groupBy === "type"
     ? [i.type, i.pref, ...(i.ward ? [i.city] : []), ...i.name.split("/")]
     : [i.pref, i.city, ...(i.ward ? [i.ward] : []), ...i.name.split("/")];
 }
 
 function sortBy(
-  a: DataCatalogItem & { code: number },
-  b: DataCatalogItem & { code: number },
+  a: RawDataCatalogItem & { code: number },
+  b: RawDataCatalogItem & { code: number },
   sort: GroupBy,
 ): number {
   return sort === "type"
@@ -80,8 +80,8 @@ function sortBy(
 }
 
 function sortByCity(
-  a: DataCatalogItem & { code: number },
-  b: DataCatalogItem & { code: number },
+  a: RawDataCatalogItem & { code: number },
+  b: RawDataCatalogItem & { code: number },
 ): number {
   return (
     (zenkoku.includes(b.pref) ? 1 : 0) - (zenkoku.includes(a.pref) ? 1 : 0) ||
@@ -92,11 +92,11 @@ function sortByCity(
     types.indexOf(a.type_en) - types.indexOf(b.type_en)
   );
 }
-function sortByType(a: DataCatalogItem, b: DataCatalogItem): number {
+function sortByType(a: RawDataCatalogItem, b: RawDataCatalogItem): number {
   return types.indexOf(a.type_en) - types.indexOf(b.type_en);
 }
 
-function filter(q: string | undefined, items: DataCatalogItem[]): DataCatalogItem[] {
+function filter(q: string | undefined, items: RawDataCatalogItem[]): RawDataCatalogItem[] {
   if (!q) return items;
   return items.filter(
     i => i.name.includes(q) || i.pref.includes(q) || i.city?.includes(q) || i.ward?.includes(q),

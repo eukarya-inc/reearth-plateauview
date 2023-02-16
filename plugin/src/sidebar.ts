@@ -1,4 +1,4 @@
-import { DataCatalogItem } from "@web/extensions/sidebar/modals/datacatalog/api/api";
+import { DataCatalogItem } from "@web/extensions/sidebar/core/types";
 import { PostMessageProps, Project, PluginMessage } from "@web/extensions/sidebar/types";
 
 import html from "../dist/web/sidebar/core/index.html?raw";
@@ -14,6 +14,16 @@ import mobileDropdownHtml from "../dist/web/sidebar/popups/mobileDropdown/index.
 const defaultProject: Project = {
   sceneOverrides: {
     default: {
+      camera: {
+        lat: 35.65075152248653,
+        lng: 139.7617718208305,
+        altitude: 2219.7187259974316,
+        heading: 6.132702058010316,
+        pitch: -0.5672459184621266,
+        roll: 0.00019776785897196447,
+        fov: 1.0471975511965976,
+        height: 2219.7187259974316,
+      },
       sceneMode: "3d",
       depthTestAgainstTerrain: false,
     },
@@ -137,7 +147,7 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
           draftProject,
         };
         draftProject.selectedDatasets.forEach(sd => {
-          const dataset = payload.dataCatalog.find((d: DataCatalogItem) => d.id === sd.id);
+          const dataset = payload.dataCatalog.find((d: DataCatalogItem) => d.dataID === sd.dataID);
           const data = createLayer(dataset ?? {});
           const layerID = reearth.layers.add(data);
           addedDatasets.push([sd.dataID, sd.visible ? "showing" : "hidden", layerID]);
@@ -167,6 +177,8 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
     });
   } else if (action === "storageDelete") {
     reearth.clientStorage.deleteAsync(payload.key);
+  } else if (action === "updateCatalog") {
+    dataCatalog = payload;
   } else if (action === "updateProject") {
     reearth.visualizer.overrideProperty(payload.sceneOverrides);
     reearth.clientStorage.setAsync("draftProject", payload);
@@ -176,6 +188,7 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
       addedDatasets[idx][1] = "showing";
       reearth.layers.show(addedDatasets[idx][2]);
     } else {
+      console.log("PAYLOAD: ", payload.dataset);
       const data = createLayer(payload.dataset, payload.updates);
       const layerID = reearth.layers.add(data);
       addedDatasets.push([payload.dataset.dataID, "showing", layerID]);
@@ -200,7 +213,7 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
     action === "screenshotSave"
   ) {
     reearth.ui.postMessage({
-      type: action,
+      action,
       payload: reearth.scene.captureScreen(undefined, 0.01),
     });
   } else if (action === "msgFromModal") {
@@ -273,7 +286,17 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
     });
     buildingSearchIsOpen = true;
   } else if (action === "cameraFlyTo") {
-    reearth.camera.flyTo(...payload);
+    if (Array.isArray(payload)) {
+      reearth.camera.flyTo(...payload);
+    } else {
+      const layerID = addedDatasets.find(ad => ad[0] === payload)?.[2];
+      console.log("ALLYER ADDED DATASETS: ", addedDatasets);
+      console.log("ALLYER: ", payload);
+      console.log("ALLYER: ", layerID);
+      reearth.camera.flyTo(layerID);
+    }
+  } else if (action === "getCurrentCamera") {
+    reearth.ui.postMessage({ action, payload: reearth.camera.position });
   } else if (action === "checkIfMobile") {
     reearth.ui.postMessage({ action, payload: reearth.viewport.isMobile });
   } else if (action === "extendPopup") {

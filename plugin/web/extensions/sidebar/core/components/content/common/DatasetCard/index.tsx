@@ -57,7 +57,7 @@ const DatasetCard: React.FC<Props> = ({
         title: "カメラ",
         icon: "mapPin",
         value: 1,
-        onClick: () => alert("MOVE CAMERA"),
+        onClick: () => postMsg({ action: "cameraFlyTo", payload: dataset.dataID }),
       },
       { id: "about", title: "About Data", icon: "about", value: "www.plateau.org/data-url" },
       {

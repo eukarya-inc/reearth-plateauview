@@ -3,15 +3,25 @@ import { generateID, mergeProperty, postMsg } from "@web/extensions/sidebar/util
 import { Story } from "@web/extensions/storytelling/types";
 import { useCallback, useEffect, useState } from "react";
 
-import { DataCatalogItem, getDataCatalog } from "../../modals/datacatalog/api/api";
+import { getDataCatalog, RawDataCatalogItem } from "../../modals/datacatalog/api/api";
 import { UserDataItem } from "../../modals/datacatalog/types";
-import { Data, Template } from "../types";
+import { Data, DataCatalogItem, Template } from "../types";
 
 import { Pages } from "./Header";
 
 export const defaultProject: Project = {
   sceneOverrides: {
     default: {
+      camera: {
+        lat: 35.65075152248653,
+        lng: 139.7617718208305,
+        altitude: 2219.7187259974316,
+        heading: 6.132702058010316,
+        pitch: -0.5672459184621266,
+        roll: 0.00019776785897196447,
+        fov: 1.0471975511965976,
+        height: 2219.7187259974316,
+      },
       sceneMode: "3d",
       depthTestAgainstTerrain: false,
     },
@@ -61,11 +71,26 @@ export default () => {
   const [catalogData, setCatalog] = useState<DataCatalogItem[]>([]);
 
   useEffect(() => {
-    getDataCatalog("https://api.plateau.reearth.io/").then(res => {
-      setCatalog(res);
-      postMsg({ action: "init", payload: { dataCatalog: res } }); // Needed to trigger sending initialization data to sidebar
-    });
-  }, []);
+    if (backendURL) {
+      handleBackendFetch();
+    }
+  }, [backendURL]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    if (data) {
+      if (!catalogData) {
+        getDataCatalog("https://api.plateau.reearth.io/").then(res => {
+          const processedCatalog = handleDataCatalogProcessing(res, data);
+          setCatalog(processedCatalog);
+          postMsg({ action: "init", payload: { dataCatalog: processedCatalog } }); // Needed to trigger sending initialization data to sidebar
+        });
+      } else {
+        const processedCatalog = handleDataCatalogProcessing(catalogData, data);
+        setCatalog(processedCatalog);
+        postMsg({ action: "updateCatalog", payload: processedCatalog });
+      }
+    }
+  }, [catalogData, data]);
   // ****************************************
 
   // ****************************************
@@ -86,7 +111,7 @@ export default () => {
   );
 
   const handleProjectDatasetAdd = useCallback(
-    (dataset: DataCatalogItem | UserDataItem) => {
+    (dataset: RawDataCatalogItem | UserDataItem) => {
       updateProject(({ sceneOverrides, selectedDatasets }) => {
         let datasetToAdd = data?.find(d => d.dataID === `plateau-2022-${dataset.name}`);
 
@@ -325,32 +350,6 @@ export default () => {
     }
   }, [projectID, backendURL, handleInitUserStory]);
 
-  useEffect(() => {
-    if (backendURL) {
-      handleBackendFetch();
-    }
-  }, [backendURL]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  const handleDatasetProcessing = useCallback((dataset: Data, savedData?: Data[]) => {
-    if (!savedData) return dataset;
-
-    const datasetSavedData = savedData.find(d => d.dataID === dataset.dataID);
-    if (datasetSavedData) {
-      return {
-        ...dataset,
-        ...datasetSavedData,
-      };
-    } else {
-      return dataset;
-    }
-  }, []);
-
-  useEffect(() => {
-    setProcessedSelectedDatasets(
-      project.selectedDatasets.map(sd => handleDatasetProcessing(sd, data)),
-    );
-  }, [data, project.selectedDatasets, handleDatasetProcessing]);
-
   const [currentPage, setCurrentPage] = useState<Pages>("data");
 
   const handlePageChange = useCallback((p: Pages) => {
@@ -410,3 +409,32 @@ function updateExtended(e: { vertically: boolean }) {
     root?.classList.remove("extended");
   }
 }
+
+const newItem = (ri: RawDataCatalogItem) => {
+  return {
+    ...ri,
+    dataID: ri.id,
+    public: false,
+    fieldGroups: [],
+  };
+};
+
+const handleDataCatalogProcessing = (
+  catalog: (DataCatalogItem | RawDataCatalogItem)[],
+  savedData?: Data[],
+): DataCatalogItem[] =>
+  catalog.map(item => {
+    if (!savedData) return newItem(item);
+
+    const savedData2 = savedData.find(d => {
+      d.dataID === ("dataID" in item ? item.dataID : item.id);
+    });
+    if (savedData2) {
+      return {
+        ...item,
+        ...savedData2,
+      };
+    } else {
+      return newItem(item);
+    }
+  });
