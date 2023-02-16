@@ -128,6 +128,13 @@ export default ({
       name: fieldName["buttonLink"],
       onClick: handleFieldAdd({}),
     },
+    story: {
+      name: fieldName["story"],
+      onClick: handleFieldAdd([
+        { title: "掛川城を外から眺める", id: "1" },
+        { title: "掛川城の内部を見てみる", id: "2" },
+      ]),
+    },
   };
 
   const pointFields: FieldDropdownItem = {
