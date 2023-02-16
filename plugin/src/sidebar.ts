@@ -194,6 +194,12 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
       reearth.layers.hide(ad[2]);
       ad[1] = "removed";
     });
+  } else if (action === "findLayerIdFromAddedDataset") {
+    const dataset = addedDatasets.find(d => d[0] === payload.dataID);
+    reearth.ui.postMessage({
+      action,
+      payload: { layerId: dataset?.[2] },
+    });
   } else if (
     action === "screenshot" ||
     action === "screenshotPreview" ||

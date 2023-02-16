@@ -87,13 +87,14 @@ export default () => {
 
   const handleProjectDatasetAdd = useCallback(
     (dataset: DataCatalogItem | UserDataItem) => {
+      const dataID = `plateau-2022-${dataset.name}`;
       updateProject(({ sceneOverrides, selectedDatasets }) => {
-        let datasetToAdd = data?.find(d => d.dataID === `plateau-2022-${dataset.name}`);
+        let datasetToAdd = data?.find(d => d.dataID === dataID);
 
         if (!datasetToAdd) {
           datasetToAdd = {
             id: dataset.id,
-            dataID: `plateau-2022-${dataset.name}`,
+            dataID,
             type: dataset.type,
             name: dataset.name,
             url:
@@ -112,7 +113,7 @@ export default () => {
       });
 
       // const options = data?.find(d => d.id === dataset.id)?.components;
-      postMsg({ action: "addDatasetToScene", payload: { dataset } });
+      postMsg({ action: "addDatasetToScene", payload: { dataset: { ...dataset, dataID } } });
     },
     [data],
   );

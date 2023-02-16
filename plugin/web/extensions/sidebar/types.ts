@@ -19,6 +19,7 @@ type ActionType =
   | "updateDatasetInScene"
   | "removeDatasetFromScene"
   | "removeAllDatasetsFromScene"
+  | "findLayerIdFromAddedDataset"
   | "catalogModalOpen"
   | "triggerCatalogOpen"
   | "triggerHelpOpen"
