@@ -28,8 +28,7 @@ export default () => {
   );
 
   useEffect(() => {
-    // Needed to trigger sending selected dataset ids from Sidebar
-    postMsg({ action: "initDataCatalog" });
+    postMsg({ action: "initDataCatalog" }); // Needed to trigger sending selected dataset ids from Sidebar
   }, []);
 
   useEffect(() => {

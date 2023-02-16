@@ -47,7 +47,7 @@ export type PostMessageProps = { action: ActionType; payload?: any };
 
 export type Project = {
   sceneOverrides: ReearthApi;
-  selectedDatasets: Data[];
+  datasets: Data[];
   userStory?: Story;
 };
 

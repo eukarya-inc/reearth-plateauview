@@ -1,7 +1,7 @@
 import { Project, ReearthApi } from "@web/extensions/sidebar/types";
 import { generateID, mergeProperty, postMsg } from "@web/extensions/sidebar/utils";
 import { Story } from "@web/extensions/storytelling/types";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { getDataCatalog, RawDataCatalogItem } from "../../modals/datacatalog/api/api";
 import { UserDataItem } from "../../modals/datacatalog/types";
@@ -40,7 +40,7 @@ export const defaultProject: Project = {
       },
     ],
   },
-  selectedDatasets: [],
+  datasets: [],
   userStory: undefined,
 };
 
@@ -58,10 +58,8 @@ export default () => {
   const handleBackendFetch = useCallback(async () => {
     if (!backendURL) return;
     const res = await fetch(`${backendURL}/sidebar/plateauview`);
-    console.log("BACKEND FETCHED: ", res);
     if (res.status !== 200) return;
     const resData = await res.json();
-    console.log("BACKEND FETCHED DATA: ", resData);
 
     setTemplates(resData.templates);
     setData(resData.data);
@@ -69,7 +67,14 @@ export default () => {
 
   // ****************************************
   // Init
-  const [catalogData, setCatalog] = useState<DataCatalogItem[]>([]);
+  const [catalogData, setCatalog] = useState<RawDataCatalogItem[]>([]);
+
+  useEffect(() => {
+    postMsg({ action: "init" }); // Needed to trigger sending initialization data to sidebar
+    getDataCatalog("https://api.plateau.reearth.io/").then(res => {
+      setCatalog(res);
+    });
+  }, []);
 
   useEffect(() => {
     if (backendURL) {
@@ -77,25 +82,15 @@ export default () => {
     }
   }, [backendURL]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  const processedCatalog = useMemo(
+    () => handleDataCatalogProcessing(catalogData, data),
+    [catalogData, data],
+  );
+
   useEffect(() => {
-    if (data) {
-      console.log("DATA!!!!", data);
-      if (!catalogData) {
-        console.log("NO CATALOG DATAAAAA");
-        getDataCatalog("https://api.plateau.reearth.io/").then(res => {
-          console.log("CATALOG DATA FETCHED: ", res);
-          const processedCatalog = handleDataCatalogProcessing(res, data);
-          console.log("PROCESSED CATALOG: ", processedCatalog);
-          setCatalog(processedCatalog);
-          postMsg({ action: "init", payload: { dataCatalog: processedCatalog } }); // Needed to trigger sending initialization data to sidebar
-        });
-      } else {
-        const processedCatalog = handleDataCatalogProcessing(catalogData, data);
-        setCatalog(processedCatalog);
-        postMsg({ action: "updateCatalog", payload: processedCatalog });
-      }
-    }
-  }, [catalogData, data]);
+    postMsg({ action: "updateCatalog", payload: processedCatalog });
+  }, [processedCatalog]);
+
   // ****************************************
 
   // ****************************************
@@ -103,10 +98,10 @@ export default () => {
 
   const handleProjectSceneUpdate = useCallback(
     (updatedProperties: Partial<ReearthApi>) => {
-      updateProject(({ sceneOverrides, selectedDatasets }) => {
+      updateProject(({ sceneOverrides, datasets }) => {
         const updatedProject: Project = {
           sceneOverrides: [sceneOverrides, updatedProperties].reduce((p, v) => mergeProperty(p, v)),
-          selectedDatasets,
+          datasets,
         };
         postMsg({ action: "updateProject", payload: updatedProject });
         return updatedProject;
@@ -131,9 +126,12 @@ export default () => {
 
         const updatedProject: Project = {
           ...project,
-          selectedDatasets: [...project.selectedDatasets, dataToAdd],
+          datasets: [...project.datasets, dataToAdd],
         };
+
         postMsg({ action: "updateProject", payload: updatedProject });
+        setSelectedDatasets(sds => [...sds, dataset]);
+
         return updatedProject;
       });
 
@@ -144,10 +142,10 @@ export default () => {
   );
 
   const handleProjectDatasetRemove = useCallback((dataID: string) => {
-    updateProject(({ sceneOverrides, selectedDatasets }) => {
+    updateProject(({ sceneOverrides, datasets }) => {
       const updatedProject = {
         sceneOverrides,
-        selectedDatasets: selectedDatasets.filter(d => d.dataID !== dataID),
+        datasets: datasets.filter(d => d.dataID !== dataID),
       };
       postMsg({ action: "updateProject", payload: updatedProject });
       return updatedProject;
@@ -159,7 +157,7 @@ export default () => {
     updateProject(({ sceneOverrides }) => {
       const updatedProject = {
         sceneOverrides,
-        selectedDatasets: [],
+        datasets: [],
       };
       postMsg({ action: "updateProject", payload: updatedProject });
       return updatedProject;
@@ -169,12 +167,11 @@ export default () => {
 
   const handleDatasetUpdate = useCallback((updatedDataset: DataCatalogItem) => {
     setSelectedDatasets(selectedDatasets => {
-      if (selectedDatasets.length < 1) return selectedDatasets;
-
       const updatedDatasets = [...selectedDatasets];
       const datasetIndex = updatedDatasets.findIndex(d2 => d2.dataID === updatedDataset.dataID);
-
-      updatedDatasets[datasetIndex] = updatedDataset;
+      if (datasetIndex >= 0) {
+        updatedDatasets[datasetIndex] = updatedDataset;
+      }
       return updatedDatasets;
     });
   }, []);
@@ -302,14 +299,12 @@ export default () => {
 
   useEffect(() => {
     const eventListenerCallback = (e: MessageEvent<any>) => {
-      console.log("CALLBACK E: ", e);
       if (e.source !== parent) return;
       if (e.data.action === "msgFromModal") {
         if (e.data.payload.dataset) {
           handleProjectDatasetAdd(e.data.payload.dataset);
         }
       } else if (e.data.action === "init" && e.data.payload) {
-        console.log("INIT PAYLOAD: ", e.data.payload);
         setProjectID(e.data.payload.projectID);
         setInEditor(e.data.payload.inEditor);
         setBackendAccessToken(e.data.payload.backendAccessToken);
@@ -365,7 +360,7 @@ export default () => {
   }, []);
 
   return {
-    catalogData,
+    catalog: processedCatalog,
     project,
     selectedDatasets,
     inEditor,
@@ -428,9 +423,7 @@ const handleDataCatalogProcessing = (
   catalog.map(item => {
     if (!savedData) return newItem(item);
 
-    const savedData2 = savedData.find(d => {
-      d.dataID === ("dataID" in item ? item.dataID : item.id);
-    });
+    const savedData2 = savedData.find(d => d.dataID === ("dataID" in item ? item.dataID : item.id));
     if (savedData2) {
       return {
         ...item,

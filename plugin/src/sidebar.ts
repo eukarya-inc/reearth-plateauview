@@ -42,7 +42,7 @@ const defaultProject: Project = {
       },
     ],
   },
-  selectedDatasets: [],
+  datasets: [],
 };
 
 type PluginExtensionInstance = {
@@ -63,6 +63,7 @@ const defaultLocation = { zone: "outer", section: "left", area: "middle" };
 const mobileLocation = { zone: "outer", section: "center", area: "top" };
 
 let dataCatalog: DataCatalogItem[] = [];
+
 const addedDatasets: [
   dataID: string,
   status: "showing" | "hidden" | "removed",
@@ -133,8 +134,6 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
 
   // Sidebar
   if (action === "init") {
-    dataCatalog = payload.dataCatalog;
-
     reearth.clientStorage.getAsync("isMobile").then((isMobile: boolean) => {
       reearth.clientStorage.getAsync("draftProject").then((draftProject: Project) => {
         const outBoundPayload = {
@@ -142,16 +141,9 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
           inEditor: reearth.scene.inEditor,
           backendAccessToken: reearth.widget.property.default?.plateauAccessToken ?? "",
           backendURL: reearth.widget.property.default?.plateauURL ?? "",
-          cmsURL: reearth.widget.property.default?.cmsURL ?? "",
           reearthURL: reearth.widget.property.default?.reearthURL ?? "",
           draftProject,
         };
-        draftProject.selectedDatasets.forEach(sd => {
-          const dataset = payload.dataCatalog.find((d: DataCatalogItem) => d.dataID === sd.dataID);
-          const data = createLayer(dataset ?? {});
-          const layerID = reearth.layers.add(data);
-          addedDatasets.push([sd.dataID, sd.visible ? "showing" : "hidden", layerID]);
-        });
         if (isMobile) {
           reearth.popup.postMessage({ action, payload: outBoundPayload });
         } else {
@@ -179,6 +171,20 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
     reearth.clientStorage.deleteAsync(payload.key);
   } else if (action === "updateCatalog") {
     dataCatalog = payload;
+    // reearth.clientStorage.getAsync("draftProject").then((draftProject: Project) => {
+    //   draftProject.selectedDatasets.forEach(sd => {
+    //     const dataset = payload.find((d: DataCatalogItem) => d.dataID === sd.dataID);
+    //     if (addedDatasets.find(d => d[0] === sd.dataID)) {
+    //       const idx = addedDatasets.findIndex(ad => ad[0] === payload.dataset.dataID);
+    //       addedDatasets[idx][1] = "showing";
+    //       reearth.layers.show(addedDatasets[idx][2]);
+    //     } else {
+    //       const data = createLayer(dataset ?? {});
+    //       const layerID = reearth.layers.add(data);
+    //       addedDatasets.push([sd.dataID, sd.visible ? "showing" : "hidden", layerID]);
+    //     }
+    //   });
+    // });
   } else if (action === "updateProject") {
     reearth.visualizer.overrideProperty(payload.sceneOverrides);
     reearth.clientStorage.setAsync("draftProject", payload);
@@ -188,7 +194,6 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
       addedDatasets[idx][1] = "showing";
       reearth.layers.show(addedDatasets[idx][2]);
     } else {
-      console.log("PAYLOAD: ", payload.dataset);
       const data = createLayer(payload.dataset, payload.updates);
       const layerID = reearth.layers.add(data);
       addedDatasets.push([payload.dataset.dataID, "showing", layerID]);
@@ -290,9 +295,6 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
       reearth.camera.flyTo(...payload);
     } else {
       const layerID = addedDatasets.find(ad => ad[0] === payload)?.[2];
-      console.log("ALLYER ADDED DATASETS: ", addedDatasets);
-      console.log("ALLYER: ", payload);
-      console.log("ALLYER: ", layerID);
       reearth.camera.flyTo(layerID);
     }
   } else if (action === "getCurrentCamera") {
