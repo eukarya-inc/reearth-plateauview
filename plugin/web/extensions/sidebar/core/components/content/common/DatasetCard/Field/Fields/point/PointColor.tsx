@@ -10,18 +10,12 @@ import PointColorItem from "./PointColorItem";
 const PointColor: React.FC<BaseFieldProps<"pointColor">> = ({ value, editMode, onUpdate }) => {
   const [pointColors, updatePointColors] = useState(value.pointColors);
 
-  const swapElements = (array: any[], index1: number, index2: number) => {
-    const temp = array[index1];
-    array[index1] = array[index2];
-    array[index2] = temp;
-  };
-
   const handleMoveUp = useCallback(
     (idx: number) => {
       if (idx === 0) return;
       updatePointColors(prevPointColors => {
         const copy = [...(prevPointColors ?? [])];
-        swapElements(copy, idx, idx - 1);
+        array_move(copy, idx, idx - 1);
         onUpdate({
           ...value,
           pointColors: copy,
@@ -35,17 +29,14 @@ const PointColor: React.FC<BaseFieldProps<"pointColor">> = ({ value, editMode, o
   const handleMoveDown = useCallback(
     (idx: number) => {
       if (pointColors && idx >= pointColors.length - 1) return;
-      updatePointColors(c => {
-        let newPointColors: { condition: Cond<number>; color: string }[] | undefined = undefined;
-        if (c) {
-          newPointColors = c;
-          array_move(newPointColors, idx, idx + 1);
-        }
+      updatePointColors(prevPointColors => {
+        const copy = [...(prevPointColors ?? [])];
+        array_move(copy, idx, idx + 1);
         onUpdate({
           ...value,
-          pointColors: newPointColors,
+          pointColors: copy,
         });
-        return newPointColors;
+        return copy;
       });
     },
     [value, pointColors, onUpdate],
@@ -55,12 +46,12 @@ const PointColor: React.FC<BaseFieldProps<"pointColor">> = ({ value, editMode, o
     updatePointColors(c => {
       const newPointColor: { condition: Cond<number>; color: string } = {
         condition: {
-          key: "ARGH",
+          key: Math.random().toString(16).slice(2),
           operator: "=",
-          operand: "AField",
+          operand: "width",
           value: 1,
         },
-        color: "brown",
+        color: "",
       };
       onUpdate({
         ...value,
@@ -72,33 +63,27 @@ const PointColor: React.FC<BaseFieldProps<"pointColor">> = ({ value, editMode, o
 
   const handleRemove = useCallback(
     (idx: number) => {
-      updatePointColors(c => {
-        let newPointColors: { condition: Cond<number>; color: string }[] | undefined = undefined;
-        if (c) {
-          newPointColors = c.filter((_, idx2) => idx2 != idx);
-        }
+      updatePointColors(prevState => {
+        const copy = [...(prevState ?? [])].filter((_, idx2) => idx2 != idx);
         onUpdate({
           ...value,
-          pointColors: newPointColors,
+          pointColors: copy,
         });
-        return newPointColors;
+        return copy;
       });
     },
     [value, onUpdate],
   );
 
   const handleItemUpdate = (item: { condition: Cond<number>; color: string }, index: number) => {
-    updatePointColors(c => {
-      let newPointColors: { condition: Cond<number>; color: string }[] | undefined = undefined;
-      if (c) {
-        newPointColors = c;
-        newPointColors.splice(index, 1, item);
-      }
+    updatePointColors(prevState => {
+      const copy = [...(prevState ?? [])];
+      copy.splice(index, 1, item);
       onUpdate({
         ...value,
-        pointColors: newPointColors,
+        pointColors: copy,
       });
-      return newPointColors;
+      return copy;
     });
   };
 
