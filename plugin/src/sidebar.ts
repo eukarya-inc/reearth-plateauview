@@ -204,8 +204,8 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
       payload.update,
     );
   } else if (action === "removeDatasetFromScene") {
-    reearth.layers.hide(addedDatasets.find(ad => ad[0] === payload.dataID)?.[2]);
-    const idx = addedDatasets.findIndex(ad => ad[0] === payload.dataID);
+    reearth.layers.hide(addedDatasets.find(ad => ad[0] === payload)?.[2]);
+    const idx = addedDatasets.findIndex(ad => ad[0] === payload);
     addedDatasets[idx][1] = "removed";
   } else if (action === "removeAllDatasetsFromScene") {
     addedDatasets.forEach(ad => {

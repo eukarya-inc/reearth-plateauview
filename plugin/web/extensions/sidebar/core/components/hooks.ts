@@ -150,6 +150,7 @@ export default () => {
       postMsg({ action: "updateProject", payload: updatedProject });
       return updatedProject;
     });
+    setSelectedDatasets(sds => sds.filter(sd => sd.dataID !== dataID));
     postMsg({ action: "removeDatasetFromScene", payload: dataID });
   }, []);
 
@@ -162,6 +163,7 @@ export default () => {
       postMsg({ action: "updateProject", payload: updatedProject });
       return updatedProject;
     });
+    setSelectedDatasets([]);
     postMsg({ action: "removeAllDatasetsFromScene" });
   }, []);
 
