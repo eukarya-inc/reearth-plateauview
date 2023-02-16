@@ -54,7 +54,7 @@ export default () => {
 
   const [data, setData] = useState<Data[]>();
   const [project, updateProject] = useState<Project>(defaultProject);
-  const [processedSelectedDatasets, setProcessedSelectedDatasets] = useState<Data[]>([]);
+  const [selectedDatasets, setSelectedDatasets] = useState<DataCatalogItem[]>([]);
 
   const handleBackendFetch = useCallback(async () => {
     if (!backendURL) return;
@@ -111,26 +111,22 @@ export default () => {
   );
 
   const handleProjectDatasetAdd = useCallback(
-    (dataset: RawDataCatalogItem | UserDataItem) => {
-      updateProject(({ sceneOverrides, selectedDatasets }) => {
-        let datasetToAdd = data?.find(d => d.dataID === `plateau-2022-${dataset.name}`);
+    (dataset: DataCatalogItem | UserDataItem) => {
+      updateProject(project => {
+        if (!("dataID" in dataset)) {
+          postMsg({ action: "addDatasetToScene", payload: { dataset } });
+          return project;
+        }
 
-        if (!datasetToAdd) {
-          datasetToAdd = {
-            id: dataset.id,
-            dataID: `plateau-2022-${dataset.name}`,
-            type: dataset.type,
-            name: dataset.name,
-            url:
-              "dataUrl" in dataset ? dataset.dataUrl : "url" in dataset ? dataset.url : undefined,
-            visible: true,
-            fieldGroups: [{ id: generateID(), name: "グループ1" }],
-          };
+        let dataToAdd = data?.find(d => d.dataID === dataset.dataID);
+
+        if (!dataToAdd) {
+          dataToAdd = convertToData(dataset);
         }
 
         const updatedProject: Project = {
-          sceneOverrides,
-          selectedDatasets: [...selectedDatasets, datasetToAdd],
+          ...project,
+          selectedDatasets: [...project.selectedDatasets, dataToAdd],
         };
         postMsg({ action: "updateProject", payload: updatedProject });
         return updatedProject;
@@ -166,32 +162,32 @@ export default () => {
     postMsg({ action: "removeAllDatasetsFromScene" });
   }, []);
 
-  const handleDatasetUpdate = useCallback(
-    (updatedDataset: Data) => {
-      if (processedSelectedDatasets.length < 1) return;
+  const handleDatasetUpdate = useCallback((updatedDataset: DataCatalogItem) => {
+    setSelectedDatasets(selectedDatasets => {
+      if (selectedDatasets.length < 1) return selectedDatasets;
 
-      const updatedProcessedDatasets = [...processedSelectedDatasets];
-      const datasetIndex = updatedProcessedDatasets.findIndex(
-        d2 => d2.dataID === updatedDataset.dataID,
-      );
+      const updatedDatasets = [...selectedDatasets];
+      const datasetIndex = updatedDatasets.findIndex(d2 => d2.dataID === updatedDataset.dataID);
 
-      updatedProcessedDatasets[datasetIndex] = updatedDataset;
-      setProcessedSelectedDatasets(updatedProcessedDatasets);
-    },
-    [processedSelectedDatasets],
-  );
+      updatedDatasets[datasetIndex] = updatedDataset;
+      return updatedDatasets;
+    });
+  }, []);
 
   const handleDatasetSave = useCallback(
     (dataID: string) => {
       (async () => {
         if (!inEditor) return;
-        const datasetToSave = processedSelectedDatasets.find(d => d.dataID === dataID);
+        const selectedDataset = selectedDatasets.find(d => d.dataID === dataID);
+
+        if (!backendURL || !backendAccessToken || !selectedDataset) return;
+
+        const datasetToSave = convertToData(selectedDataset);
+
         const isNew = !data?.find(d => d.dataID === dataID);
 
-        if (!backendURL || !backendAccessToken || !datasetToSave) return;
-
         const fetchURL = !isNew
-          ? `${backendURL}/sidebar/plateauview/data/${datasetToSave.id}` // should be id and not dataID because id here is the CMS item's id
+          ? `${backendURL}/sidebar/plateauview/data/${selectedDataset.id}` // should be id and not dataID because id here is the CMS item's id
           : `${backendURL}/sidebar/plateauview/data`;
 
         const method = !isNew ? "PATCH" : "POST";
@@ -213,7 +209,7 @@ export default () => {
         handleBackendFetch(); // MAYBE UPDATE THIS LATER TO JUST UPDATE THE LOCAL VALUE
       })();
     },
-    [data, processedSelectedDatasets, inEditor, backendAccessToken, backendURL, handleBackendFetch],
+    [data, selectedDatasets, inEditor, backendAccessToken, backendURL, handleBackendFetch],
   );
 
   // ****************************************
@@ -365,7 +361,7 @@ export default () => {
   return {
     catalogData,
     project,
-    processedSelectedDatasets,
+    selectedDatasets,
     inEditor,
     reearthURL,
     backendURL,
@@ -410,12 +406,12 @@ function updateExtended(e: { vertically: boolean }) {
   }
 }
 
-const newItem = (ri: RawDataCatalogItem) => {
+const newItem = (ri: RawDataCatalogItem): DataCatalogItem => {
   return {
     ...ri,
     dataID: ri.id,
     public: false,
-    fieldGroups: [],
+    fieldGroups: [{ id: generateID(), name: "グループ1" }],
   };
 };
 
@@ -438,3 +434,14 @@ const handleDataCatalogProcessing = (
       return newItem(item);
     }
   });
+
+const convertToData = (item: DataCatalogItem): Data => {
+  return {
+    dataID: item.dataID,
+    public: item.public,
+    visible: item.visible,
+    template: item.template,
+    components: item.components,
+    fieldGroups: item.fieldGroups,
+  };
+};
