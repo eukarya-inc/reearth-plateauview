@@ -1,4 +1,8 @@
+import { DataCatalogGroup, DataCatalogItem } from "@web/extensions/sidebar/core/types";
+
 import { omit, makeTree, mapTree } from "./utils";
+
+export type { DataCatalogItem, DataCatalogGroup };
 
 export type RawDataCatalogItem = {
   id: string;
@@ -24,11 +28,6 @@ export type RawDataCatalogItem = {
   search_index?: string;
 };
 
-export type RawDataCatalogGroup = {
-  name: string;
-  children: (RawDataCatalogItem | RawDataCatalogGroup)[];
-};
-
 export type GroupBy = "city" | "type" | "tag"; // Tag not implemented yet
 
 export async function getDataCatalog(base: string): Promise<RawDataCatalogItem[]> {
@@ -40,10 +39,10 @@ export async function getDataCatalog(base: string): Promise<RawDataCatalogItem[]
 }
 
 export function getDataCatalogTree(
-  items: RawDataCatalogItem[],
+  items: DataCatalogItem[],
   groupBy: GroupBy,
   q?: string | undefined,
-): (RawDataCatalogGroup | RawDataCatalogItem)[] {
+): (DataCatalogGroup | DataCatalogItem)[] {
   const allItems = filter(q, items)
     .map(i => ({
       ...i,
@@ -53,7 +52,7 @@ export function getDataCatalogTree(
     }))
     .sort((a, b) => sortBy(a, b, groupBy));
 
-  return mapTree(makeTree(allItems), (item): RawDataCatalogGroup | RawDataCatalogItem =>
+  return mapTree(makeTree(allItems), (item): DataCatalogGroup | DataCatalogItem =>
     item.item
       ? omit(item.item, "path", "code")
       : {
@@ -63,15 +62,15 @@ export function getDataCatalogTree(
   );
 }
 
-function path(i: RawDataCatalogItem, groupBy: GroupBy): string[] {
+function path(i: DataCatalogItem, groupBy: GroupBy): string[] {
   return groupBy === "type"
     ? [i.type, i.pref, ...(i.ward ? [i.city] : []), ...i.name.split("/")]
     : [i.pref, i.city, ...(i.ward ? [i.ward] : []), ...i.name.split("/")];
 }
 
 function sortBy(
-  a: RawDataCatalogItem & { code: number },
-  b: RawDataCatalogItem & { code: number },
+  a: DataCatalogItem & { code: number },
+  b: DataCatalogItem & { code: number },
   sort: GroupBy,
 ): number {
   return sort === "type"
@@ -80,8 +79,8 @@ function sortBy(
 }
 
 function sortByCity(
-  a: RawDataCatalogItem & { code: number },
-  b: RawDataCatalogItem & { code: number },
+  a: DataCatalogItem & { code: number },
+  b: DataCatalogItem & { code: number },
 ): number {
   return (
     (zenkoku.includes(b.pref) ? 1 : 0) - (zenkoku.includes(a.pref) ? 1 : 0) ||
@@ -92,11 +91,11 @@ function sortByCity(
     types.indexOf(a.type_en) - types.indexOf(b.type_en)
   );
 }
-function sortByType(a: RawDataCatalogItem, b: RawDataCatalogItem): number {
+function sortByType(a: DataCatalogItem, b: DataCatalogItem): number {
   return types.indexOf(a.type_en) - types.indexOf(b.type_en);
 }
 
-function filter(q: string | undefined, items: RawDataCatalogItem[]): RawDataCatalogItem[] {
+function filter(q: string | undefined, items: DataCatalogItem[]): DataCatalogItem[] {
   if (!q) return items;
   return items.filter(
     i => i.name.includes(q) || i.pref.includes(q) || i.city?.includes(q) || i.ward?.includes(q),

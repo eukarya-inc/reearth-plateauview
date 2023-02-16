@@ -7,6 +7,11 @@ export type Root = {
   templates: Template[];
 };
 
+export type DataCatalogGroup = {
+  name: string;
+  children: (DataCatalogItem | DataCatalogGroup)[];
+};
+
 export type DataCatalogItem = RawDataCatalogItem & Data;
 
 export type Data = {

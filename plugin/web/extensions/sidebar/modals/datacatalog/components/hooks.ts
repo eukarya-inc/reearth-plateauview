@@ -1,8 +1,7 @@
+import { DataCatalogItem } from "@web/extensions/sidebar/core/types";
 import { UserDataItem } from "@web/extensions/sidebar/modals/datacatalog/types";
 import { postMsg } from "@web/extensions/sidebar/utils";
 import { useCallback, useEffect, useState } from "react";
-
-import { DataCatalogItem } from "../api/api";
 
 export type Tab = "dataset" | "your-data";
 
