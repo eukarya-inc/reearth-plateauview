@@ -339,7 +339,6 @@ const mountClippingBox = (initialState: ClippingBoxState): ClippingBoxRenderer =
           if (boxBottomHeight < floorHeight) {
             return boxBottomHeight + (floorHeight - boxBottomHeight);
           }
-          return location.height;
         }
 
         const scale =
