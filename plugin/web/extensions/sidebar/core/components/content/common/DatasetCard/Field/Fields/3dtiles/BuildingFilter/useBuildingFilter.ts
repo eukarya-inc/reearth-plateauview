@@ -53,6 +53,7 @@ export const useBuildingFilter = ({
       });
     }
     if (!layerId && renderer.current) {
+      renderer.current.unmount();
       renderer.current = undefined;
     }
   }, [value, findLayerIdFromDataset]);
@@ -74,6 +75,7 @@ export type State = {
 
 type Renderer = {
   update: (state: State) => void;
+  unmount: () => void;
 };
 
 const mountTileset = (initialState: State): Renderer => {
@@ -135,5 +137,12 @@ const mountTileset = (initialState: State): Renderer => {
     updateState(next);
     updateTileset();
   };
-  return { update };
+  const unmount = () => {
+    reearth.layers.override(state.layerId, {
+      "3dtiles": {
+        show: true,
+      },
+    });
+  };
+  return { update, unmount };
 };
