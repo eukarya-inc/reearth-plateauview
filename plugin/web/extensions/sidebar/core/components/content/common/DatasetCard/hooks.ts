@@ -212,6 +212,12 @@ export default ({
         basementFloor: [0, 5],
       }),
     },
+    buildingShadow: {
+      name: fieldName["buildingShadow"],
+      onClick: handleFieldAdd({
+        shadow: "disabled",
+      }),
+    },
     clipping: {
       name: fieldName["clipping"],
       onClick: handleFieldAdd({
