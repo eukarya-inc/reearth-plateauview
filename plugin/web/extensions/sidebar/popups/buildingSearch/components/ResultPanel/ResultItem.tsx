@@ -6,10 +6,11 @@ import { Result } from "../../types";
 type Props = {
   item: Result;
   selected: Result[];
+  hasBorderBottom: boolean;
   onSelect: (selected: Result[]) => void;
 };
 
-const ResultItem: React.FC<Props> = ({ item, selected, onSelect }) => {
+const ResultItem: React.FC<Props> = ({ item, selected, hasBorderBottom, onSelect }) => {
   const onClick = useCallback(() => {
     if (selected.find(s => s.gml_id === item.gml_id)) {
       onSelect(selected.filter(s => s.gml_id !== item.gml_id));
@@ -18,13 +19,16 @@ const ResultItem: React.FC<Props> = ({ item, selected, onSelect }) => {
     }
   }, [onSelect, item, selected]);
   return (
-    <StyledResultItem onClick={onClick} active={!!selected.find(s => s.gml_id === item.gml_id)}>
+    <StyledResultItem
+      onClick={onClick}
+      active={!!selected.find(s => s.gml_id === item.gml_id)}
+      hasBorderBottom={hasBorderBottom}>
       {item.gml_id}
     </StyledResultItem>
   );
 };
 
-const StyledResultItem = styled.div<{ active: boolean }>`
+const StyledResultItem = styled.div<{ active: boolean; hasBorderBottom: boolean }>`
   display: flex;
   align-items: center;
   width: 100%;
@@ -37,7 +41,7 @@ const StyledResultItem = styled.div<{ active: boolean }>`
   cursor: pointer;
 
   &:last-child {
-    border-bottom: none;
+    border-bottom: ${({ hasBorderBottom }) => (hasBorderBottom ? "1px solid #d9d9d9" : "none")};
   }
 `;
 

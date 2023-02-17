@@ -58,7 +58,13 @@ const ResultPanel: React.FC<Props> = ({
       <ResultWrapper>
         {!isSearching &&
           results?.map((item, index) => (
-            <ResultItem key={index} item={item} onSelect={onSelect} selected={selected} />
+            <ResultItem
+              key={index}
+              item={item}
+              onSelect={onSelect}
+              selected={selected}
+              hasBorderBottom={results.length < 10}
+            />
           ))}
         {!isSearching && results.length === 0 && (
           <EmptyWrapper>
