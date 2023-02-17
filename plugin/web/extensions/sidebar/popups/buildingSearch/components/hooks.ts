@@ -97,6 +97,7 @@ export default () => {
   const [datasetIndexes, setDatasetIndexes] = useState<DatasetIndexes>();
   const [conditions, setConditions] = useState<Condition[]>([]);
   const [results, setResults] = useState<Result[]>([]);
+  const [resultStyleCondition, setResultStyleCondition] = useState<string>();
   const [highlightAll, setHighlightAll] = useState<boolean>(true);
   const [showMatchingOnly, setShowMatchingOnly] = useState<boolean>(false);
   const [selected, setSelected] = useState<Result[]>([]);
@@ -127,6 +128,63 @@ export default () => {
         }).data;
       });
   }, []);
+
+  useEffect(() => {
+    if (!datasetIndexes?.dataID) return;
+
+    const colorConditions: [string, string][] = [];
+
+    if (highlightAll && resultStyleCondition) {
+      colorConditions.push([resultStyleCondition, "color('red')"]);
+    } else {
+      if (selected) {
+        let selectedConditon = "";
+        selected.forEach(bldg => {
+          if (selectedConditon) selectedConditon += " || ";
+          selectedConditon += "${gml_id} === '" + bldg.gml_id + "'";
+        });
+        if (selectedConditon) {
+          colorConditions.push([selectedConditon, "color('red')"]);
+        }
+      }
+    }
+
+    colorConditions.push(["true", "color()"]);
+
+    const showConditions: [string, string][] = [];
+
+    if (showMatchingOnly) {
+      if (resultStyleCondition) {
+        showConditions.push([resultStyleCondition, "true"]);
+      }
+      showConditions.push(["true", "false"]);
+    } else {
+      showConditions.push(["true", "true"]);
+    }
+
+    const styles = {
+      "3dtiles": {
+        color: {
+          expression: {
+            conditions: colorConditions,
+          },
+        },
+        show: {
+          expression: {
+            conditions: showConditions,
+          },
+        },
+      },
+    };
+
+    postMsg({
+      action: "updateDatasetInScene",
+      payload: {
+        dataID: datasetIndexes.dataID,
+        update: styles,
+      },
+    });
+  }, [selected, resultStyleCondition, datasetIndexes?.dataID, highlightAll, showMatchingOnly]);
 
   const conditionApply = useCallback(() => {
     searchResults.current = [];
@@ -178,6 +236,22 @@ export default () => {
         // combine results from different search index
         setResults(combinedResults);
         setIsSearching(false);
+        setResultStyleCondition(() => {
+          let resultCondition = "";
+          conditions.map(c => {
+            if (c.values.length > 0) {
+              if (resultCondition) resultCondition += " && ";
+              let currentCondition = "(";
+              c.values.map(value => {
+                if (currentCondition !== "(") currentCondition += " || ";
+                currentCondition += "${" + c.field + "} === '" + value + "'";
+              });
+              currentCondition += ")";
+              resultCondition += currentCondition;
+            }
+          });
+          return resultCondition;
+        });
       }
     })();
 
@@ -220,10 +294,6 @@ export default () => {
       });
     }
   }, [results]);
-
-  useEffect(() => {
-    // TODO: Update 3D tiles style
-  }, [highlightAll, showMatchingOnly, selected, results]);
 
   const initDatasetData = useCallback(
     (rawDatasetData: RawDatasetData) => {
@@ -275,6 +345,7 @@ export default () => {
 
           setDatasetIndexes({
             title: rawDatasetData.title,
+            dataID: rawDatasetData.dataID,
             indexes: indexData,
           });
           setConditions(indexData.map(index => ({ field: index.field, values: [] })));

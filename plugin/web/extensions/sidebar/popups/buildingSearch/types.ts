@@ -1,5 +1,6 @@
 export type RawDatasetData = {
   title: string;
+  dataID: string;
   searchIndex: {
     url: string;
   }[];
@@ -31,6 +32,7 @@ export type SearchResults = {
 //
 export type DatasetIndexes = {
   title: string;
+  dataID: string;
   indexes: IndexData[];
 };
 

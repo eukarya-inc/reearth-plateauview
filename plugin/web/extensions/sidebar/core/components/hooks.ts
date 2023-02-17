@@ -377,6 +377,7 @@ export default () => {
         action: "buildingSearchOpen",
         payload: {
           title: plateauItem?.["name"] ?? "",
+          dataID,
           searchIndex,
         },
       });
