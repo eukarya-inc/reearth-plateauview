@@ -264,14 +264,15 @@ export default () => {
   }, [conditions, loadDetailData, loadResultsData]);
 
   useEffect(() => {
-    // TODO: flyTo the selected feature
     if (selected.length === 1) {
       postMsg({
-        action: "cameraFlyTo",
+        action: "cameraLookAt",
         payload: [
           {
-            lng: selected[0].Longitude,
-            lat: selected[0].Latitude,
+            lng: Number(selected[0].Longitude),
+            lat: Number(selected[0].Latitude),
+            height: Number(selected[0].Height) + 100,
+            range: 200,
           },
           { duration: 2 },
         ],
@@ -280,14 +281,15 @@ export default () => {
   }, [selected]);
 
   useEffect(() => {
-    // TODO: flyTo the result (feature) if only one
-    if (results.length === 1) {
+    if (results.length > 0) {
       postMsg({
-        action: "cameraFlyTo",
+        action: "cameraLookAt",
         payload: [
           {
-            lng: results[0].Longitude,
-            lat: results[0].Latitude,
+            lng: Number(results[0].Longitude),
+            lat: Number(results[0].Latitude),
+            height: Number(results[0].Height) + 100,
+            range: 200,
           },
           { duration: 2 },
         ],
