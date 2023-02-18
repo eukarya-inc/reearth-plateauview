@@ -82,10 +82,10 @@ export default () => {
     }
   }, [backendURL]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const processedCatalog = useMemo(
-    () => handleDataCatalogProcessing(catalogData, data),
-    [catalogData, data],
-  );
+  const processedCatalog = useMemo(() => {
+    const c = handleDataCatalogProcessing(catalogData, data);
+    return inEditor ? c : c.filter(c => !!c.public);
+  }, [catalogData, inEditor, data]);
 
   useEffect(() => {
     postMsg({ action: "updateCatalog", payload: processedCatalog });
