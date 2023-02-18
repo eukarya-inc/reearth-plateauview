@@ -1,13 +1,15 @@
 import { DataCatalogItem } from "@web/extensions/sidebar/core/types";
 import { Button, Icon } from "@web/sharedComponents";
 import { styled } from "@web/theme";
-import { useCallback, useMemo } from "react";
+import { useCallback, useEffect, useMemo } from "react";
 
 export type Props = {
   item: DataCatalogItem;
   isMobile?: boolean;
   nestLevel: number;
   selectedID?: string;
+  showParentIndicator?: boolean;
+  onShowParentIndicator?: React.Dispatch<React.SetStateAction<boolean>>;
   addDisabled: (dataID: string) => boolean;
   onDatasetAdd: (dataset: DataCatalogItem) => void;
   onOpenDetails?: (item?: DataCatalogItem) => void;
@@ -19,6 +21,8 @@ const File: React.FC<Props> = ({
   isMobile,
   nestLevel,
   selectedID,
+  showParentIndicator,
+  onShowParentIndicator,
   addDisabled,
   onDatasetAdd,
   onOpenDetails,
@@ -38,11 +42,17 @@ const File: React.FC<Props> = ({
     [selectedID, item],
   );
 
+  useEffect(() => {
+    if (showParentIndicator || showParentIndicator === !item.public) return;
+    onShowParentIndicator?.(!item.public);
+  }, [item.public, showParentIndicator, onShowParentIndicator]);
+
   return (
     <Wrapper nestLevel={nestLevel} selected={selected}>
-      <NameWrapper onClick={handleOpenDetails}>
+      <NameWrapper isMobile={isMobile} onClick={handleOpenDetails}>
         <Icon icon="file" size={20} />
-        <Name isMobile={isMobile}>{item.name}</Name>
+        {!item.public && <UnpublishedIndicator />}
+        <Name>{item.name}</Name>
       </NameWrapper>
       <StyledButton
         type="link"
@@ -62,7 +72,7 @@ const Wrapper = styled.div<{ nestLevel: number; selected?: boolean }>`
   justify-content: space-between;
   box-sizing: border-box;
   gap: 8px;
-  min-height: 29px;
+  height: 29px;
   ${({ selected }) =>
     selected &&
     `
@@ -80,17 +90,19 @@ const Wrapper = styled.div<{ nestLevel: number; selected?: boolean }>`
   }
 `;
 
-const NameWrapper = styled.div`
+const NameWrapper = styled.div<{ isMobile?: boolean }>`
   display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
 `;
 
-const Name = styled.p<{ isMobile?: boolean }>`
-  margin: 0 0 0 8px;
+const Name = styled.p`
+  margin: 0;
   user-select: none;
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden;
-  width: ${({ isMobile }) => (isMobile ? "calc(100vw - 150px)" : "175px")};
 `;
 
 const StyledButton = styled(Button)<{ disabled: boolean }>`
@@ -102,4 +114,11 @@ const StyledIcon = styled(Icon)<{ selected: boolean }>`
   ${Wrapper}:hover & {
     color: #ffffff;
   }
+`;
+
+const UnpublishedIndicator = styled.div`
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #6d6d6d;
 `;

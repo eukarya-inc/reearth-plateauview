@@ -1,3 +1,5 @@
+import { useEffect, useState } from "react";
+
 import { DataCatalogGroup, DataCatalogItem } from "../../../../api/api";
 
 import File from "./File";
@@ -10,6 +12,8 @@ type Props = {
   addedDatasetDataIDs?: string[];
   selectedID?: string;
   nestLevel: number;
+  showParentIndicator?: boolean;
+  onShowParentIndicator?: React.Dispatch<React.SetStateAction<boolean>>;
   addDisabled: (dataID: string) => boolean;
   onDatasetAdd: (dataset: DataCatalogItem) => void;
   onOpenDetails?: (item?: DataCatalogItem) => void;
@@ -23,11 +27,21 @@ const TreeBuilder: React.FC<Props> = ({
   addedDatasetDataIDs,
   selectedID,
   nestLevel,
+  showParentIndicator,
+  onShowParentIndicator,
   addDisabled,
   onDatasetAdd,
   onOpenDetails,
   onSelect,
 }) => {
+  const [showIndicator, setShowIndicator] = useState(false);
+
+  useEffect(() => {
+    if (showIndicator && showParentIndicator !== showIndicator) {
+      onShowParentIndicator?.(showIndicator);
+    }
+  }, [showIndicator, showParentIndicator, onShowParentIndicator]);
+
   return (
     <>
       {Array.isArray(catalogItem) ? (
@@ -38,12 +52,15 @@ const TreeBuilder: React.FC<Props> = ({
               name={item.name}
               nestLevel={nestLevel + 1}
               isMobile={isMobile}
-              expandAll={expandAll}>
+              expandAll={expandAll}
+              showIndicator={showIndicator}>
               <TreeBuilder
                 catalogItem={item.children}
                 addedDatasetDataIDs={addedDatasetDataIDs}
                 selectedID={selectedID}
                 nestLevel={nestLevel + 1}
+                showParentIndicator={showIndicator}
+                onShowParentIndicator={setShowIndicator}
                 addDisabled={addDisabled}
                 onDatasetAdd={onDatasetAdd}
                 onOpenDetails={onOpenDetails}
@@ -56,6 +73,8 @@ const TreeBuilder: React.FC<Props> = ({
               addedDatasetDataIDs={addedDatasetDataIDs}
               selectedID={selectedID}
               nestLevel={nestLevel + 1}
+              showParentIndicator={showIndicator}
+              onShowParentIndicator={setShowIndicator}
               addDisabled={addDisabled}
               onDatasetAdd={onDatasetAdd}
               onOpenDetails={onOpenDetails}
@@ -69,12 +88,15 @@ const TreeBuilder: React.FC<Props> = ({
           name={catalogItem.name}
           nestLevel={nestLevel + 1}
           isMobile={isMobile}
-          expandAll={expandAll}>
+          expandAll={expandAll}
+          showIndicator={showIndicator}>
           <TreeBuilder
             catalogItem={catalogItem.children}
             addedDatasetDataIDs={addedDatasetDataIDs}
             selectedID={selectedID}
             nestLevel={nestLevel + 1}
+            showParentIndicator={showIndicator}
+            onShowParentIndicator={setShowIndicator}
             addDisabled={addDisabled}
             onDatasetAdd={onDatasetAdd}
             onOpenDetails={onOpenDetails}
@@ -87,6 +109,8 @@ const TreeBuilder: React.FC<Props> = ({
           isMobile={isMobile}
           nestLevel={nestLevel + 1}
           selectedID={selectedID}
+          showParentIndicator={showParentIndicator}
+          onShowParentIndicator={onShowParentIndicator}
           addDisabled={addDisabled}
           onDatasetAdd={onDatasetAdd}
           onOpenDetails={onOpenDetails}
