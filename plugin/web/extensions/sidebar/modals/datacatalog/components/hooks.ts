@@ -7,7 +7,7 @@ export type Tab = "dataset" | "your-data";
 
 export default () => {
   const [currentTab, changeTabs] = useState<Tab>("dataset");
-  const [addedDatasetIds, setAddedDatasetIds] = useState<string[]>();
+  const [addedDatasetDataIDs, setAddedDatasetDataIDs] = useState<string[]>();
   const [catalog, setCatalog] = useState<DataCatalogItem[]>([]);
 
   const handleClose = useCallback(() => {
@@ -35,7 +35,7 @@ export default () => {
     const eventListenerCallback = (e: MessageEvent<any>) => {
       if (e.source !== parent) return;
       if (e.data.type === "initDataCatalog") {
-        setAddedDatasetIds(e.data.payload.addedDatasets);
+        setAddedDatasetDataIDs(e.data.payload.addedDatasets);
         setCatalog(e.data.payload.dataCatalog);
       }
     };
@@ -48,7 +48,7 @@ export default () => {
   return {
     currentTab,
     catalog,
-    addedDatasetIds,
+    addedDatasetDataIDs,
     handleClose,
     handleTabChange: changeTabs,
     handleDatasetAdd,

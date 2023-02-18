@@ -2,7 +2,7 @@ import { DataCatalogItem } from "@web/extensions/sidebar/core/types";
 import { UserDataItem } from "@web/extensions/sidebar/modals/datacatalog/types";
 import { Icon } from "@web/sharedComponents";
 import { styled } from "@web/theme";
-import { ComponentType, useCallback, useState } from "react";
+import { ComponentType, useCallback, useMemo, useState } from "react";
 
 export type Props = {
   dataset: DataCatalogItem | UserDataItem;
@@ -19,28 +19,37 @@ const DatasetDetails: React.FC<Props> = ({
   contentSection: ContentSection,
   onDatasetAdd,
 }) => {
-  const [published, setAsPublished] = useState(false);
-  const showShareButton = false;
+  const datasetType: "catalog" | "user" = useMemo(
+    () => ("dataID" in dataset ? "catalog" : "user"),
+    [dataset],
+  );
+  const [published, setPublished] = useState(
+    datasetType === "user" ? undefined : (dataset as DataCatalogItem).public,
+  );
+  const showShareButton = false; // This code can be removed when decision about share button is made
 
   const handlePublish = useCallback(() => {
-    // TODO: implement me
-    setAsPublished(true);
-  }, [setAsPublished]);
+    if (datasetType === "user") return;
+
+    setPublished(true);
+  }, [datasetType, setPublished]);
 
   const handleDatasetAdd = useCallback(() => {
-    if (!dataset) return;
+    if (!dataset || addDisabled) return;
     onDatasetAdd(dataset);
-  }, [dataset, onDatasetAdd]);
+  }, [dataset, addDisabled, onDatasetAdd]);
 
   return (
     <>
       <TopWrapper>
         <HeaderWrapper>
           <Title>{dataset.name}</Title>
-          <PublishButton onClick={handlePublish} published={published} isShareable={isShareable}>
-            <HoverText published={published}>公開</HoverText>
-            <Text published={published}>{published ? "公開済み" : "未公開"}</Text>
-          </PublishButton>
+          {datasetType === "catalog" && (
+            <PublishButton published={published} onClick={handlePublish}>
+              <HoverText published={published}>公開</HoverText>
+              <Text published={published}>{published ? "公開済み" : "未公開"}</Text>
+            </PublishButton>
+          )}
         </HeaderWrapper>
         <ButtonWrapper>
           <AddButton disabled={addDisabled} onClick={handleDatasetAdd}>
@@ -95,7 +104,7 @@ const ButtonWrapper = styled.div`
   gap: 12px;
 `;
 
-const BaseButton = styled.button<{ disabled?: boolean; isShareable?: boolean }>`
+const BaseButton = styled.button<{ disabled?: boolean }>`
   display: flex;
   justify-content: center;
   align-items: center;
@@ -121,8 +130,8 @@ const ShareButton = styled(BaseButton)<{ isShareable?: boolean }>`
   cursor: pointer;
 `;
 
-const PublishButton = styled(BaseButton)<{ published?: boolean; isShareable?: boolean }>`
-  display: ${({ isShareable }) => (isShareable !== false ? "flex" : "none")};
+const PublishButton = styled(BaseButton)<{ published?: boolean }>`
+  display: flex;
   min-width: 120px;
   color: #ffffff;
   background-color: ${({ published }) => (published ? "#00bebe" : "#BFBFBF")};

@@ -2,7 +2,8 @@ import { DataCatalogItem } from "@web/extensions/sidebar/core/types";
 import DetailsComponent from "@web/extensions/sidebar/modals/datacatalog/components/content/DatasetDetails";
 import { Icon } from "@web/sharedComponents";
 import { styled } from "@web/theme";
-import { useCallback } from "react";
+
+import { UserDataItem } from "../../../types";
 
 // import { useCallback, useMemo } from "react";
 
@@ -16,7 +17,7 @@ export type Props = {
   isMobile?: boolean;
   addDisabled: boolean;
   onTagSelect?: (tag: TagType) => void;
-  onDatasetAdd: (dataset: DataCatalogItem) => void;
+  onDatasetAdd: (dataset: DataCatalogItem | UserDataItem) => void;
 };
 
 const DatasetDetails: React.FC<Props> = ({
@@ -31,11 +32,6 @@ const DatasetDetails: React.FC<Props> = ({
   //   [dataset],
   // );
 
-  const handleDatasetAdd = useCallback(() => {
-    if (!dataset || addDisabled) return;
-    onDatasetAdd(dataset);
-  }, [dataset, addDisabled, onDatasetAdd]);
-
   const ContentComponent: React.FC = () => (
     <>
       {/* {!isMobile && <Tags tags={datasetTags} onTagSelect={onTagSelect} />} */}
@@ -47,7 +43,7 @@ const DatasetDetails: React.FC<Props> = ({
     <DetailsComponent
       dataset={dataset}
       addDisabled={addDisabled}
-      onDatasetAdd={handleDatasetAdd}
+      onDatasetAdd={onDatasetAdd}
       contentSection={ContentComponent}
     />
   ) : (

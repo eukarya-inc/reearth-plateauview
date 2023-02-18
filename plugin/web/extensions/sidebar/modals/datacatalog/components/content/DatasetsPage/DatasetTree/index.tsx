@@ -11,7 +11,7 @@ import FileTree from "./FileTree";
 export type Tag = TagType;
 
 export type Props = {
-  addedDatasetIds?: string[];
+  addedDatasetDataIDs?: string[];
   selectedDataset?: DataCatalogItem;
   isMobile?: boolean;
   catalog?: DataCatalogItem[];
@@ -52,7 +52,7 @@ export type Props = {
 // }
 
 const DatasetTree: React.FC<Props> = ({
-  addedDatasetIds,
+  addedDatasetDataIDs,
   isMobile,
   catalog,
   selectedTags,
@@ -119,7 +119,7 @@ const DatasetTree: React.FC<Props> = ({
         <Tabs.TabPane key="prefecture" tab="都道府県">
           {dataCatalogTree && (
             <FileTree
-              addedDatasetIds={addedDatasetIds}
+              addedDatasetDataIDs={addedDatasetDataIDs}
               catalog={dataCatalogTree}
               isMobile={isMobile}
               expandAll={expandAll}
@@ -131,7 +131,7 @@ const DatasetTree: React.FC<Props> = ({
         <Tabs.TabPane key="type" tab="種類">
           {dataCatalogTree && (
             <FileTree
-              addedDatasetIds={addedDatasetIds}
+              addedDatasetDataIDs={addedDatasetDataIDs}
               catalog={dataCatalogTree}
               isMobile={isMobile}
               expandAll={expandAll}

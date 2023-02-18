@@ -6,18 +6,18 @@ import { useCallback, useMemo } from "react";
 export type Props = {
   item: DataCatalogItem;
   isMobile?: boolean;
-  addedDatasetIds?: string[];
+  addedDatasetDataIDs?: string[];
   nestLevel: number;
   selectedID?: string;
   onDatasetAdd: (dataset: DataCatalogItem) => void;
   onOpenDetails?: (item?: DataCatalogItem) => void;
-  onSelect?: (id: string) => void;
+  onSelect?: (dataID: string) => void;
 };
 
 const File: React.FC<Props> = ({
   item,
   isMobile,
-  addedDatasetIds,
+  addedDatasetDataIDs,
   nestLevel,
   selectedID,
   onDatasetAdd,
@@ -29,14 +29,13 @@ const File: React.FC<Props> = ({
   }, [item, onDatasetAdd]);
 
   const handleOpenDetails = useCallback(() => {
-    if (!item.id) return;
     onOpenDetails?.(item);
-    onSelect?.(item.id);
+    onSelect?.(item.dataID);
   }, [item, onOpenDetails, onSelect]);
 
   const addDisabled = useMemo(
-    () => !!addedDatasetIds?.find(id => item?.type === "item" && id === item.id),
-    [addedDatasetIds, item],
+    () => !!addedDatasetDataIDs?.find(id => item?.type === "item" && id === item.id),
+    [addedDatasetDataIDs, item],
   );
 
   const selected = useMemo(
