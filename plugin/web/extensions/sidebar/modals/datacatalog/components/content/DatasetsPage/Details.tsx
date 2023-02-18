@@ -15,7 +15,7 @@ export type Tag = TagType;
 export type Props = {
   dataset?: DataCatalogItem;
   isMobile?: boolean;
-  addDisabled: boolean;
+  addDisabled: (dataID: string) => boolean;
   onTagSelect?: (tag: TagType) => void;
   onDatasetAdd: (dataset: DataCatalogItem | UserDataItem) => void;
 };
@@ -42,7 +42,7 @@ const DatasetDetails: React.FC<Props> = ({
   return dataset ? (
     <DetailsComponent
       dataset={dataset}
-      addDisabled={addDisabled}
+      addDisabled={addDisabled(dataset.dataID)}
       onDatasetAdd={onDatasetAdd}
       contentSection={ContentComponent}
     />

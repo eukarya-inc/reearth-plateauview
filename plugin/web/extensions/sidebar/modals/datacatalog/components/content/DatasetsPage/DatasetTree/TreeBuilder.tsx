@@ -10,6 +10,7 @@ type Props = {
   addedDatasetDataIDs?: string[];
   selectedID?: string;
   nestLevel: number;
+  addDisabled: (dataID: string) => boolean;
   onDatasetAdd: (dataset: DataCatalogItem) => void;
   onOpenDetails?: (item?: DataCatalogItem) => void;
   onSelect?: (dataID: string) => void;
@@ -22,6 +23,7 @@ const TreeBuilder: React.FC<Props> = ({
   addedDatasetDataIDs,
   selectedID,
   nestLevel,
+  addDisabled,
   onDatasetAdd,
   onOpenDetails,
   onSelect,
@@ -42,6 +44,7 @@ const TreeBuilder: React.FC<Props> = ({
                 addedDatasetDataIDs={addedDatasetDataIDs}
                 selectedID={selectedID}
                 nestLevel={nestLevel + 1}
+                addDisabled={addDisabled}
                 onDatasetAdd={onDatasetAdd}
                 onOpenDetails={onOpenDetails}
                 onSelect={onSelect}
@@ -53,6 +56,7 @@ const TreeBuilder: React.FC<Props> = ({
               addedDatasetDataIDs={addedDatasetDataIDs}
               selectedID={selectedID}
               nestLevel={nestLevel + 1}
+              addDisabled={addDisabled}
               onDatasetAdd={onDatasetAdd}
               onOpenDetails={onOpenDetails}
               onSelect={onSelect}
@@ -71,6 +75,7 @@ const TreeBuilder: React.FC<Props> = ({
             addedDatasetDataIDs={addedDatasetDataIDs}
             selectedID={selectedID}
             nestLevel={nestLevel + 1}
+            addDisabled={addDisabled}
             onDatasetAdd={onDatasetAdd}
             onOpenDetails={onOpenDetails}
             onSelect={onSelect}
@@ -79,10 +84,10 @@ const TreeBuilder: React.FC<Props> = ({
       ) : (
         <File
           item={catalogItem}
-          addedDatasetDataIDs={addedDatasetDataIDs}
           isMobile={isMobile}
           nestLevel={nestLevel + 1}
           selectedID={selectedID}
+          addDisabled={addDisabled}
           onDatasetAdd={onDatasetAdd}
           onOpenDetails={onOpenDetails}
           onSelect={onSelect}

@@ -1,6 +1,6 @@
 import { DataCatalogItem } from "@web/extensions/sidebar/core/types";
 import PageLayout from "@web/extensions/sidebar/modals/datacatalog/components/content/PageLayout";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useState } from "react";
 
 import { GroupBy } from "../../../api/api";
 import { UserDataItem } from "../../../types";
@@ -39,9 +39,10 @@ const DatasetsPage: React.FC<Props> = ({ catalog, addedDatasetDataIDs, onDataset
     [handleFilter],
   );
 
-  const addDisabled = useMemo(() => {
-    return !!addedDatasetDataIDs?.find(dataID => dataID === selectedDataset?.dataID);
-  }, [addedDatasetDataIDs, selectedDataset]);
+  const addDisabled = useCallback(
+    (dataID: string) => !!addedDatasetDataIDs?.find(dataID2 => dataID2 === dataID),
+    [addedDatasetDataIDs],
+  );
 
   return (
     <PageLayout
@@ -52,6 +53,7 @@ const DatasetsPage: React.FC<Props> = ({ catalog, addedDatasetDataIDs, onDataset
           catalog={catalog}
           selectedTags={selectedTags}
           filter={filter}
+          addDisabled={addDisabled}
           onFilter={handleFilter}
           onTagSelect={handleTagSelect}
           onOpenDetails={handleOpenDetails}

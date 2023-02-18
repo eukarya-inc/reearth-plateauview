@@ -17,6 +17,7 @@ export type Props = {
   catalog?: DataCatalogItem[];
   selectedTags?: Tag[];
   filter: GroupBy;
+  addDisabled: (dataID: string) => boolean;
   onFilter: (filter: GroupBy) => void;
   onTagSelect?: (tag: Tag) => void;
   onDatasetAdd: (dataset: DataCatalogItem) => void;
@@ -57,6 +58,7 @@ const DatasetTree: React.FC<Props> = ({
   catalog,
   selectedTags,
   filter,
+  addDisabled,
   onFilter,
   onTagSelect,
   onDatasetAdd,
@@ -123,6 +125,7 @@ const DatasetTree: React.FC<Props> = ({
               catalog={dataCatalogTree}
               isMobile={isMobile}
               expandAll={expandAll}
+              addDisabled={addDisabled}
               onDatasetAdd={onDatasetAdd}
               onOpenDetails={onOpenDetails}
             />
@@ -135,6 +138,7 @@ const DatasetTree: React.FC<Props> = ({
               catalog={dataCatalogTree}
               isMobile={isMobile}
               expandAll={expandAll}
+              addDisabled={addDisabled}
               onDatasetAdd={onDatasetAdd}
               onOpenDetails={onOpenDetails}
             />

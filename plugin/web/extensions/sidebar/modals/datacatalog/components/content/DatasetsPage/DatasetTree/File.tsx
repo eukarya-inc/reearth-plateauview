@@ -6,9 +6,9 @@ import { useCallback, useMemo } from "react";
 export type Props = {
   item: DataCatalogItem;
   isMobile?: boolean;
-  addedDatasetDataIDs?: string[];
   nestLevel: number;
   selectedID?: string;
+  addDisabled: (dataID: string) => boolean;
   onDatasetAdd: (dataset: DataCatalogItem) => void;
   onOpenDetails?: (item?: DataCatalogItem) => void;
   onSelect?: (dataID: string) => void;
@@ -17,9 +17,9 @@ export type Props = {
 const File: React.FC<Props> = ({
   item,
   isMobile,
-  addedDatasetDataIDs,
   nestLevel,
   selectedID,
+  addDisabled,
   onDatasetAdd,
   onOpenDetails,
   onSelect,
@@ -32,11 +32,6 @@ const File: React.FC<Props> = ({
     onOpenDetails?.(item);
     onSelect?.(item.dataID);
   }, [item, onOpenDetails, onSelect]);
-
-  const addDisabled = useMemo(
-    () => !!addedDatasetDataIDs?.find(id => item?.type === "item" && id === item.id),
-    [addedDatasetDataIDs, item],
-  );
 
   const selected = useMemo(
     () => (item.type !== "group" ? selectedID === item.id : false),
@@ -53,7 +48,7 @@ const File: React.FC<Props> = ({
         type="link"
         icon={<StyledIcon icon="plusCircle" selected={selected ?? false} />}
         onClick={handleClick}
-        disabled={addDisabled}
+        disabled={addDisabled(item.dataID)}
       />
     </Wrapper>
   );
