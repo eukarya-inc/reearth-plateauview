@@ -43,7 +43,7 @@ const fields: Fields<FieldComponent> = {
   // 3d-model
   clipping: { Component: Clipping, hasUI: true },
   buildingFilter: { Component: BuildingFilter, hasUI: true },
-  buildingTransparency: { Component: BuildingTransparency, hasUI: false },
+  buildingTransparency: { Component: BuildingTransparency, hasUI: true },
   // 3d-tile
   // realtime: Realtime,
   // template: Template,

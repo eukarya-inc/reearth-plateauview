@@ -30,7 +30,7 @@ const BuildingTransparency: React.FC<BaseFieldProps<"buildingTransparency">> = (
     [],
   );
 
-  return editMode ? (
+  return editMode ? null : (
     <FieldWrapper>
       <Slider
         value={options.transparency}
@@ -40,7 +40,7 @@ const BuildingTransparency: React.FC<BaseFieldProps<"buildingTransparency">> = (
         {...styleProps}
       />
     </FieldWrapper>
-  ) : null;
+  );
 };
 
 export default BuildingTransparency;
