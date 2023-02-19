@@ -41,7 +41,7 @@ const fields: Fields<FieldComponent> = {
   // polygon
   // 3d-model
   clipping: { Component: Clipping, hasUI: true },
-  buildingFilter: { Component: BuildingFilter, hasUI: false },
+  buildingFilter: { Component: BuildingFilter, hasUI: true },
   // 3d-tile
   // realtime: Realtime,
   // template: Template,

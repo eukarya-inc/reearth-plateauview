@@ -40,7 +40,7 @@ const BuildingFilter: React.FC<BaseFieldProps<"buildingFilter">> = ({
     [],
   );
 
-  return editMode ? (
+  return editMode ? null : (
     <div>
       <FieldWrapper>
         <LabelWrapper>
@@ -86,7 +86,7 @@ const BuildingFilter: React.FC<BaseFieldProps<"buildingFilter">> = ({
         />
       </FieldWrapper>
     </div>
-  ) : null;
+  );
 };
 
 export default BuildingFilter;
