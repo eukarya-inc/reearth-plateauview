@@ -271,13 +271,15 @@ func (i *PlateauIntermediateItem) DataCatalogItem(t string, an AssetName, assetU
 		cityOrWardName = wardName
 	}
 
-	name := ""
+	var name, t2, t2en string
 	if an.Feature == "urf" {
 		urfName := urfFeatureTypes[an.UrfFeatureType]
 		if urfName == "" {
 			urfName = an.UrfFeatureType
 		}
 		name = fmt.Sprintf("%s（%s）", urfName, cityOrWardName)
+		t2 = urfName
+		t2en = an.UrfFeatureType
 	} else {
 		name = fmt.Sprintf("%s（%s）", t, cityOrWardName)
 	}
@@ -298,6 +300,8 @@ func (i *PlateauIntermediateItem) DataCatalogItem(t string, an AssetName, assetU
 		ID:          id,
 		Type:        t,
 		TypeEn:      an.Feature,
+		Type2:       t2,
+		Type2En:     t2en,
 		Name:        name,
 		Prefecture:  i.Prefecture,
 		City:        i.City,
