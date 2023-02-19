@@ -21,6 +21,10 @@ export function mergeProperty(a: any, b: any) {
   );
 }
 
+export const swap = (arr: any[], index1: number, index2: number) => {
+  [arr[index1], arr[index2]] = [arr[index2], arr[index1]];
+};
+
 export function array_move(arr: any[], old_index: number, new_index: number) {
   if (new_index >= arr.length) {
     let k = new_index - arr.length + 1;

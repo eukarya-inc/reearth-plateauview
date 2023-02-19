@@ -1,5 +1,5 @@
 import AddButton from "@web/extensions/sidebar/core/components/content/common/DatasetCard/AddButton";
-import { array_move } from "@web/extensions/sidebar/utils";
+import { swap } from "@web/extensions/sidebar/utils";
 import { useCallback, useState } from "react";
 
 import { BaseFieldProps, Cond } from "../types";
@@ -15,7 +15,7 @@ const PointColor: React.FC<BaseFieldProps<"pointColor">> = ({ value, editMode, o
       if (idx === 0) return;
       updatePointColors(prevPointColors => {
         const copy = [...(prevPointColors ?? [])];
-        array_move(copy, idx, idx - 1);
+        swap(copy, idx, idx - 1);
         onUpdate({
           ...value,
           pointColors: copy,
@@ -31,7 +31,7 @@ const PointColor: React.FC<BaseFieldProps<"pointColor">> = ({ value, editMode, o
       if (pointColors && idx >= pointColors.length - 1) return;
       updatePointColors(prevPointColors => {
         const copy = [...(prevPointColors ?? [])];
-        array_move(copy, idx, idx + 1);
+        swap(copy, idx, idx + 1);
         onUpdate({
           ...value,
           pointColors: copy,
