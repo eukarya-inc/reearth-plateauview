@@ -17,7 +17,7 @@ const BuildingShadow: React.FC<BaseFieldProps<"buildingShadow">> = ({
     onUpdate,
   });
 
-  return editMode ? (
+  return editMode ? null : (
     <StyledSelect
       defaultValue="disabled"
       style={{ width: "100%" }}
@@ -42,7 +42,7 @@ const BuildingShadow: React.FC<BaseFieldProps<"buildingShadow">> = ({
         },
       ]}
     />
-  ) : null;
+  );
 };
 
 export default BuildingShadow;
