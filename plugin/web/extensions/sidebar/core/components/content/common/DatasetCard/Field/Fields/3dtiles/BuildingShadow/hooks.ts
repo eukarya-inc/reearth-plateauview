@@ -1,3 +1,4 @@
+import isEqual from "lodash/isEqual";
 import { useCallback, useEffect, useState } from "react";
 
 import { BaseFieldProps } from "../../types";
@@ -34,8 +35,10 @@ const useHooks = ({
   );
 
   useEffect(() => {
-    setOptions({ ...value });
-  }, [value, onUpdate]);
+    if (!isEqual(options, value)) {
+      setOptions({ ...value });
+    }
+  }, [value, options]);
 
   useBuildingShadow({ value, dataID });
 
