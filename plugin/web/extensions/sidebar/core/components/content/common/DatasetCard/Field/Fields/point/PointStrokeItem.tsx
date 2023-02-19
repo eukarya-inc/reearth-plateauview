@@ -2,7 +2,7 @@ import { useCallback } from "react";
 
 import { Cond } from "../types";
 
-import { ColorField, ConditionField, ItemControls } from "./common";
+import { ColorField, ConditionField, ItemControls, NumberField } from "./common";
 import { Item } from "./commonComponents";
 
 const PointStrokeItem: React.FC<{
@@ -36,6 +36,14 @@ const PointStrokeItem: React.FC<{
     [index, item, onItemUpdate],
   );
 
+  const handleStrokeWidthUpdate = useCallback(
+    (strokeWidth: number) => {
+      const copy = { ...item, strokeWidth };
+      onItemUpdate(copy, index);
+    },
+    [index, item, onItemUpdate],
+  );
+
   return (
     <Item>
       <ItemControls
@@ -55,6 +63,12 @@ const PointStrokeItem: React.FC<{
         titleWidth={82}
         color={item.strokeColor}
         onChange={handleStrokeColorUpdate}
+      />
+      <NumberField
+        title="StrokeWidth"
+        titleWidth={82}
+        value={item.strokeWidth}
+        onChange={handleStrokeWidthUpdate}
       />
     </Item>
   );

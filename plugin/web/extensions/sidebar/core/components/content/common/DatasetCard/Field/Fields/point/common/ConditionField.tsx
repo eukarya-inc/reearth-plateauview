@@ -1,9 +1,8 @@
-import { Select, InputNumber } from "@web/sharedComponents";
-import { styled } from "@web/theme";
+import { Select } from "@web/sharedComponents";
 import { useEffect, useState } from "react";
 
 import { Cond } from "../../types";
-import { FieldTitle, FieldValue, FieldWrapper } from "../commonComponents";
+import { FieldTitle, FieldValue, FieldWrapper, NumberInput } from "../commonComponents";
 
 const operatorOptions = [
   { value: ">", label: ">" },
@@ -83,16 +82,3 @@ const ConditionField: React.FC<Props> = ({ title, fieldGap, condition, onChange 
 };
 
 export default ConditionField;
-
-const NumberInput = styled(InputNumber)`
-  height: 100%;
-  width: 100%;
-  flex: 1;
-  padding: 0 12px;
-  border: none;
-  outline: none;
-
-  :focus {
-    border: none;
-  }
-`;
