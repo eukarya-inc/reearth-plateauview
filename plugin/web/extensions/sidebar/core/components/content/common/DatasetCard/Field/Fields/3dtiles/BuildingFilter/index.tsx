@@ -1,6 +1,6 @@
 import { Slider } from "@web/sharedComponents";
 import { styled } from "@web/theme";
-import { CSSProperties, useMemo } from "react";
+import { CSSProperties } from "react";
 
 import { BaseFieldProps } from "../../types";
 
@@ -8,6 +8,22 @@ import useHooks from "./hooks";
 import { MAX_ABOVEGROUND_FLOOR, MAX_BASEMENT_FLOOR, MAX_HEIGHT } from "./useBuildingFilter";
 
 const rangeToText = (range: [from: number, to: number]) => range.join(" ~ ");
+
+const styleProps = {
+  trackStyle: [
+    {
+      backgroundColor: "#00BEBE",
+    },
+  ] as CSSProperties[],
+  handleStyle: [
+    {
+      border: "2px solid #00BEBE",
+    },
+    {
+      border: "2px solid #00BEBE",
+    },
+  ] as CSSProperties[],
+};
 
 const BuildingFilter: React.FC<BaseFieldProps<"buildingFilter">> = ({
   value,
@@ -21,26 +37,7 @@ const BuildingFilter: React.FC<BaseFieldProps<"buildingFilter">> = ({
     onUpdate,
   });
 
-  const styleProps = useMemo(
-    () => ({
-      trackStyle: [
-        {
-          backgroundColor: "#00BEBE",
-        },
-      ] as CSSProperties[],
-      handleStyle: [
-        {
-          border: "2px solid #00BEBE",
-        },
-        {
-          border: "2px solid #00BEBE",
-        },
-      ] as CSSProperties[],
-    }),
-    [],
-  );
-
-  return editMode ? (
+  return editMode ? null : (
     <div>
       <FieldWrapper>
         <LabelWrapper>
@@ -86,7 +83,7 @@ const BuildingFilter: React.FC<BaseFieldProps<"buildingFilter">> = ({
         />
       </FieldWrapper>
     </div>
-  ) : null;
+  );
 };
 
 export default BuildingFilter;
