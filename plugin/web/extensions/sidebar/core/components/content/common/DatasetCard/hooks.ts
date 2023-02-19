@@ -1,4 +1,4 @@
-import { Data, Group } from "@web/extensions/sidebar/core/types";
+import { DataCatalogItem, Group } from "@web/extensions/sidebar/core/types";
 import { generateID } from "@web/extensions/sidebar/utils";
 import { useCallback } from "react";
 
@@ -13,9 +13,9 @@ export default ({
   inEditor,
   onDatasetUpdate,
 }: {
-  dataset: Data;
+  dataset: DataCatalogItem;
   inEditor?: boolean;
-  onDatasetUpdate: (dataset: Data) => void;
+  onDatasetUpdate: (dataset: DataCatalogItem) => void;
 }) => {
   const handleFieldAdd =
     (property: any) =>
@@ -35,10 +35,10 @@ export default ({
     };
 
   const handleFieldUpdate = useCallback(
-    (property: any) => {
+    (id: string) => (property: any) => {
       if (!inEditor) return;
       const newDatasetComponents = dataset.components ? [...dataset.components] : [];
-      const componentIndex = newDatasetComponents?.findIndex(c => c.type === property.type);
+      const componentIndex = newDatasetComponents?.findIndex(c => c.id === id);
 
       if (!newDatasetComponents || componentIndex === undefined) return;
 
@@ -53,10 +53,10 @@ export default ({
   );
 
   const handleFieldRemove = useCallback(
-    (type: string) => {
+    (id: string) => {
       if (!inEditor) return;
       const newDatasetComponents = dataset.components ? [...dataset.components] : [];
-      const componentIndex = newDatasetComponents?.findIndex(c => c.type === type);
+      const componentIndex = newDatasetComponents?.findIndex(c => c.id === id);
 
       if (!newDatasetComponents || componentIndex === undefined) return;
 
@@ -91,8 +91,8 @@ export default ({
   );
 
   const generalFields: FieldDropdownItem = {
-    camera: {
-      name: fieldName["camera"],
+    idealZoom: {
+      name: fieldName["idealZoom"],
       onClick: handleFieldAdd({
         position: {
           lng: 0,
