@@ -1,5 +1,5 @@
 import AddButton from "@web/extensions/sidebar/core/components/content/common/DatasetCard/AddButton";
-import { swap } from "@web/extensions/sidebar/utils";
+import { generateID, moveItemDown, moveItemUp, removeItem } from "@web/extensions/sidebar/utils";
 import { useCallback, useState } from "react";
 
 import { BaseFieldProps, Cond } from "../types";
@@ -12,10 +12,8 @@ const PointColor: React.FC<BaseFieldProps<"pointColor">> = ({ value, editMode, o
 
   const handleMoveUp = useCallback(
     (idx: number) => {
-      if (idx === 0) return;
       updatePointColors(c => {
-        const newPointColors = [...(c ?? [])];
-        swap(newPointColors, idx, idx - 1);
+        const newPointColors = moveItemUp(idx, c) ?? c;
         onUpdate({
           ...value,
           pointColors: newPointColors,
@@ -28,10 +26,8 @@ const PointColor: React.FC<BaseFieldProps<"pointColor">> = ({ value, editMode, o
 
   const handleMoveDown = useCallback(
     (idx: number) => {
-      if (pointColors && idx >= pointColors.length - 1) return;
       updatePointColors(c => {
-        const newPointColors = [...(c ?? [])];
-        swap(newPointColors, idx, idx + 1);
+        const newPointColors = moveItemDown(idx, c) ?? c;
         onUpdate({
           ...value,
           pointColors: newPointColors,
@@ -39,14 +35,14 @@ const PointColor: React.FC<BaseFieldProps<"pointColor">> = ({ value, editMode, o
         return newPointColors;
       });
     },
-    [value, pointColors, onUpdate],
+    [onUpdate, value],
   );
 
   const handleAdd = useCallback(() => {
     updatePointColors(c => {
       const newPointColor: { condition: Cond<number>; color: string } = {
         condition: {
-          key: Math.random().toString(16).slice(2),
+          key: generateID(),
           operator: "=",
           operand: "width",
           value: 1,
@@ -64,7 +60,7 @@ const PointColor: React.FC<BaseFieldProps<"pointColor">> = ({ value, editMode, o
   const handleRemove = useCallback(
     (idx: number) => {
       updatePointColors(c => {
-        const newPointColors = [...(c ?? [])].filter((_, idx2) => idx2 != idx);
+        const newPointColors = removeItem(idx, c) ?? c;
         onUpdate({
           ...value,
           pointColors: newPointColors,

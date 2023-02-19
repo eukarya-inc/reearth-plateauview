@@ -1,5 +1,5 @@
 import AddButton from "@web/extensions/sidebar/core/components/content/common/DatasetCard/AddButton";
-import { swap } from "@web/extensions/sidebar/utils";
+import { generateID, moveItemDown, moveItemUp, removeItem } from "@web/extensions/sidebar/utils";
 import { useCallback, useState } from "react";
 
 import { BaseFieldProps, Cond } from "../types";
@@ -14,8 +14,7 @@ const PointStroke: React.FC<BaseFieldProps<"pointStroke">> = ({ value, editMode,
     (idx: number) => {
       if (idx === 0) return;
       updateItems(c => {
-        const newItems = [...(c ?? [])];
-        swap(newItems, idx, idx - 1);
+        const newItems = moveItemUp(idx, c) ?? c;
         onUpdate({
           ...value,
           items: newItems,
@@ -30,8 +29,7 @@ const PointStroke: React.FC<BaseFieldProps<"pointStroke">> = ({ value, editMode,
     (idx: number) => {
       if (items && idx >= items.length - 1) return;
       updateItems(c => {
-        const newItems = [...(c ?? [])];
-        swap(newItems, idx, idx + 1);
+        const newItems = moveItemDown(idx, c) ?? c;
         onUpdate({
           ...value,
           items: newItems,
@@ -52,7 +50,7 @@ const PointStroke: React.FC<BaseFieldProps<"pointStroke">> = ({ value, editMode,
         strokeColor: "",
         strokeWidth: 0,
         condition: {
-          key: Math.random().toString(16).slice(2),
+          key: generateID(),
           operator: "=",
           operand: "width",
           value: 1,
@@ -69,7 +67,7 @@ const PointStroke: React.FC<BaseFieldProps<"pointStroke">> = ({ value, editMode,
   const handleRemove = useCallback(
     (idx: number) => {
       updateItems(c => {
-        const newItems = [...(c ?? [])].filter((_, idx2) => idx2 != idx);
+        const newItems = removeItem(idx, c) ?? c;
         onUpdate({
           ...value,
           items: newItems,
