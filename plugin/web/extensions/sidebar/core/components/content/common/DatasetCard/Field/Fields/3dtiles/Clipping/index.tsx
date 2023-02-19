@@ -15,7 +15,7 @@ const Clipping: React.FC<BaseFieldProps<"clipping">> = ({ value, dataID, editMod
     onUpdate,
   });
 
-  return editMode ? (
+  return editMode ? null : (
     <div>
       <FieldWrapper>
         <SwitchField
@@ -57,7 +57,7 @@ const Clipping: React.FC<BaseFieldProps<"clipping">> = ({ value, dataID, editMod
         ]}
       />
     </div>
-  ) : null;
+  );
 };
 
 export default Clipping;
