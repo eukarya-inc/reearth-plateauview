@@ -1,6 +1,6 @@
 import { Select, InputNumber } from "@web/sharedComponents";
 import { styled } from "@web/theme";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { Cond } from "../../types";
 import { FieldTitle, FieldValue, FieldWrapper } from "../commonComponents";
@@ -27,6 +27,10 @@ type Props = {
 
 const ConditionField: React.FC<Props> = ({ title, fieldGap, condition, onChange }) => {
   const [cond, setCond] = useState<Cond<any>>(condition);
+
+  useEffect(() => {
+    setCond(condition);
+  }, [condition]);
 
   const handleOperandChange = (operand: any) => {
     setCond(prevCond => {

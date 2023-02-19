@@ -25,7 +25,6 @@ const PointColorItem: React.FC<{
 
   const handleConditionUpdate = useCallback(
     (condition: Cond<number>) => {
-      console.log(condition);
       if (condition) {
         const copy = { ...item, condition };
         onItemUpdate(copy, index);
