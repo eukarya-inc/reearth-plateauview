@@ -1,5 +1,5 @@
 import { styled } from "@web/theme";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 
 import { BaseFieldProps } from "../types";
 
@@ -20,28 +20,25 @@ const ButtonLink: React.FC<BaseFieldProps<"buttonLink">> = ({ value, editMode, o
 
   const handleChangeButtonLink = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
-      let url = e.currentTarget.value;
-      const prefix = "https://";
-      if (!url.match(/^[a-zA-Z]+:\/\//)) {
-        url = prefix + url;
-      }
-      setLink(url);
+      setLink(e.currentTarget.value);
       onUpdate({
         ...value,
-        link: url,
+        link: link,
       });
     },
-    [value, onUpdate],
+    [onUpdate, value, link],
   );
 
-  useEffect(() => {
-    let url = link;
+  const handleButtonClick = useCallback(() => {
+    if (!link) return;
     const prefix = "https://";
-    if (url && !url.match(/^[a-zA-Z]+:\/\//)) {
+    let url = link;
+    if (!url.match(/^[a-zA-Z]+:\/\//)) {
       url = prefix + url;
     }
-    setLink(url);
+    window.open(url, "_blank", "noopener");
   }, [link]);
+
   return editMode ? (
     <Wrapper>
       <Field>
@@ -59,9 +56,7 @@ const ButtonLink: React.FC<BaseFieldProps<"buttonLink">> = ({ value, editMode, o
       </Field>
     </Wrapper>
   ) : (
-    <StyledButton onClick={() => link && window.open(link, "_blank", "noopener")}>
-      {title && <Text>{title}</Text>}
-    </StyledButton>
+    <StyledButton onClick={handleButtonClick}>{title && <Text>{title}</Text>}</StyledButton>
   );
 };
 
