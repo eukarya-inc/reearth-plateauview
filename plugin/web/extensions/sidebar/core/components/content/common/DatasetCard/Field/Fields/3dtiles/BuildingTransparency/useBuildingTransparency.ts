@@ -4,8 +4,6 @@ import { useCallback, useEffect, useMemo, useRef } from "react";
 
 import { BaseFieldProps } from "../../types";
 
-import { getRGBAFromString } from "./utils";
-
 export const useBuildingTransparency = ({
   value,
   dataID,
@@ -13,55 +11,41 @@ export const useBuildingTransparency = ({
   const renderer = useRef<Renderer>();
   const renderRef = useRef<() => void>();
   const debouncedRender = useMemo(
-    () => debounce(() => renderRef.current?.(), 100, { maxWait: 300 }),
+    () => debounce(() => renderRef.current?.(), 50, { maxWait: 100 }),
     [],
   );
 
-  const findLayerIdFromDataset = useCallback(() => {
-    return new Promise<string | undefined>(resolve => {
-      const eventListenerCallback = (e: MessageEvent<any>) => {
-        if (e.source !== parent) return;
-        if (e.data.action === "findLayerIdFromAddedDataset") {
-          resolve(e.data.payload.layerId as string);
-          removeEventListener("message", eventListenerCallback);
-        }
-        resolve(undefined);
-      };
-      addEventListener("message", eventListenerCallback);
-      postMsg({ action: "findLayerIdFromAddedDataset", payload: { dataID } });
-    });
-  }, [dataID]);
-
   const render = useCallback(async () => {
-    const layerId = await findLayerIdFromDataset();
-    if (layerId && !renderer.current) {
+    if (!renderer.current) {
       renderer.current = mountTileset({
-        layerId,
+        dataID,
         transparency: value.transparency,
       });
     }
-    if (layerId && renderer.current) {
+    if (renderer.current) {
       renderer.current.update({
-        layerId,
+        dataID,
         transparency: value.transparency,
       });
     }
-    if (!layerId && renderer.current) {
-      renderer.current.unmount();
-      renderer.current = undefined;
-    }
-  }, [value, findLayerIdFromDataset]);
+  }, [value, dataID]);
 
   useEffect(() => {
     renderRef.current = render;
     debouncedRender();
   }, [render, debouncedRender]);
+
+  useEffect(
+    () => () => {
+      renderer.current?.unmount();
+      renderer.current = undefined;
+    },
+    [render, debouncedRender],
+  );
 };
 
-const reearth = (globalThis.parent as any).reearth;
-
 export type State = {
-  layerId: string;
+  dataID: string | undefined;
   transparency: number;
 };
 
@@ -70,7 +54,6 @@ type Renderer = {
   unmount: () => void;
 };
 
-const DEFAULT_RGBA = [255, 255, 255, 1];
 const mountTileset = (initialState: State): Renderer => {
   const state: Partial<State> = {};
   const updateState = (next: State) => {
@@ -79,18 +62,12 @@ const mountTileset = (initialState: State): Renderer => {
     });
   };
 
-  let prevLayerId: string;
-  let curLayer: any;
   const updateTileset = () => {
-    if (prevLayerId === state.layerId) {
-      curLayer = reearth.layers.findById(state.layerId);
-      prevLayerId = state.layerId;
-    }
-    const prevRGBA = getRGBAFromString(curLayer?.["3dtiles"]?.color) || DEFAULT_RGBA;
-    const prevRGBStr = prevRGBA?.slice(0, -1).join(",");
-    reearth.layers.override(state.layerId, {
-      "3dtiles": {
-        color: `rgba(${prevRGBStr}, ${(state.transparency ?? 100) / 100})`,
+    postMsg({
+      action: "update3dtilesTransparency",
+      payload: {
+        dataID: state.dataID,
+        transparency: (state.transparency ?? 100) / 100,
       },
     });
   };
@@ -104,9 +81,10 @@ const mountTileset = (initialState: State): Renderer => {
     updateTileset();
   };
   const unmount = () => {
-    reearth.layers.override(state.layerId, {
-      "3dtiles": {
-        color: undefined,
+    postMsg({
+      action: "reset3dtilesTransparency",
+      payload: {
+        dataID: state.dataID,
       },
     });
   };
