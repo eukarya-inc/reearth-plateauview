@@ -1,5 +1,5 @@
 import { postMsg } from "@web/extensions/sidebar/utils";
-import { useCallback, useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 
 import { BaseFieldProps } from "../../types";
 
@@ -9,47 +9,31 @@ export const useClippingBox = ({
 }: Pick<BaseFieldProps<"clipping">, "value" | "dataID">) => {
   const renderer = useRef<ClippingBoxRenderer>();
 
-  const findLayerIdFromDataset = useCallback(() => {
-    return new Promise<string | undefined>(resolve => {
-      const eventListenerCallback = (e: MessageEvent<any>) => {
-        if (e.source !== parent) return;
-        if (e.data.action === "findLayerIdFromAddedDataset") {
-          resolve(e.data.payload.layerId as string);
-          removeEventListener("message", eventListenerCallback);
-        }
-        resolve(undefined);
-      };
-      addEventListener("message", eventListenerCallback);
-      postMsg({ action: "findLayerIdFromAddedDataset", payload: { dataID } });
-    });
-  }, [dataID]);
-
   useEffect(() => {
     const render = async () => {
-      const tilesetLayerId = await findLayerIdFromDataset();
-      if (value.enabled && tilesetLayerId && !renderer.current) {
-        renderer.current = mountClippingBox({
-          tilesetLayerId,
+      if (value.enabled && !renderer.current) {
+        renderer.current = await mountClippingBox({
+          dataID,
           keepBoxAboveGround: value.aboveGroundOnly,
           show: value.show,
           direction: value.direction,
         });
       }
-      if (tilesetLayerId && renderer.current) {
+      if (renderer.current) {
         renderer.current.update({
-          tilesetLayerId,
+          dataID,
           keepBoxAboveGround: value.aboveGroundOnly,
           show: value.show,
           direction: value.direction,
         });
       }
-      if ((!value.enabled || !tilesetLayerId) && renderer.current) {
+      if (!value.enabled && renderer.current) {
         renderer.current.unmount();
         renderer.current = undefined;
       }
     };
     render();
-  }, [value, findLayerIdFromDataset]);
+  }, [value, dataID]);
 };
 
 const reearth = (globalThis.parent as any).reearth;
@@ -70,7 +54,7 @@ type BoxState = {
 };
 
 type ClippingBoxState = {
-  tilesetLayerId: string;
+  dataID: string | undefined;
   keepBoxAboveGround: boolean;
   direction: "inside" | "outside";
   show: boolean;
@@ -81,7 +65,7 @@ type ClippingBoxRenderer = {
   unmount: () => void;
 };
 
-const mountClippingBox = (initialState: ClippingBoxState): ClippingBoxRenderer => {
+const mountClippingBox = async (initialState: ClippingBoxState): Promise<ClippingBoxRenderer> => {
   const SIDE_PLANES = [
     {
       normal: {
@@ -133,10 +117,14 @@ const mountClippingBox = (initialState: ClippingBoxState): ClippingBoxRenderer =
     },
   ];
 
-  const viewport = reearth.camera.viewport;
+  const viewport = reearth.viewport;
+  const centerOnScreen = reearth.scene.getLocationFromScreen(
+    viewport.width / 2,
+    viewport.height / 2,
+  );
   const location: LatLngHeight = {
-    lng: (viewport.east + viewport.west) / 2,
-    lat: (viewport.north + viewport.south) / 2,
+    lng: centerOnScreen.lng,
+    lat: centerOnScreen.lat,
     height: 0,
   };
   const dimensions = {
@@ -163,7 +151,7 @@ const mountClippingBox = (initialState: ClippingBoxState): ClippingBoxRenderer =
 
   const state = {
     keepBoxAboveGround: !!initialState.keepBoxAboveGround,
-    tilesetLayerId: initialState.tilesetLayerId,
+    dataID: initialState.dataID,
     isVisible: !!initialState.show,
     direction: initialState.direction,
   };
@@ -173,34 +161,48 @@ const mountClippingBox = (initialState: ClippingBoxState): ClippingBoxRenderer =
     ...box,
   };
 
-  const boxId = reearth.layers.add({
-    type: "simple",
-    data: {
-      type: "geojson",
-      value: {
-        type: "Feature",
-        geometry: {
-          type: "Point",
-          coordinates: [location.lng, location.lat, location.height],
+  const boxId = await (() =>
+    new Promise(resolve => {
+      const waitReturnedPostMsg = (e: MessageEvent<any>) => {
+        if (e.source !== parent) return;
+        if (e.data.action === "addClippingBox") {
+          resolve(e.data.payload.layerID as string);
+          removeEventListener("message", waitReturnedPostMsg);
+        }
+        resolve(undefined);
+      };
+      addEventListener("message", waitReturnedPostMsg);
+      postMsg({
+        action: "addClippingBox",
+        payload: {
+          dataID: state.dataID,
+          box: {
+            type: "simple",
+            data: {
+              type: "geojson",
+              value: {
+                type: "Feature",
+                geometry: {
+                  type: "Point",
+                  coordinates: [location.lng, location.lat, location.height],
+                },
+              },
+            },
+            visible: state.isVisible,
+            box: {
+              ...boxProperties,
+            },
+          },
+          clipping: {
+            planes: SIDE_PLANES,
+            ...boxProperties,
+            location: { ...location },
+            visible: state.isVisible,
+            direction: state.direction,
+          },
         },
-      },
-    },
-    visible: state.isVisible,
-    box: {
-      ...boxProperties,
-    },
-  });
-  reearth.layers.override(state.tilesetLayerId, {
-    "3dtiles": {
-      experimental_clipping: {
-        planes: SIDE_PLANES,
-        ...boxProperties,
-        location: { ...location },
-        visible: state.isVisible,
-        direction: state.direction,
-      },
-    },
-  });
+      });
+    }))();
 
   const lookAt = (position: LatLngHeight | null) => {
     reearth.camera.lookAt(position, { animation: false });
@@ -224,43 +226,40 @@ const mountClippingBox = (initialState: ClippingBoxState): ClippingBoxRenderer =
   };
 
   const updateBox = (shouldUpdateClipping?: boolean) => {
-    reearth.layers.override(boxId, {
-      visible: state.isVisible,
-      data: {
-        type: "geojson",
-        value: {
-          type: "Feature",
-          geometry: {
-            type: "Point",
-            coordinates: [location.lng, location.lat, location.height],
-          },
-        },
-      },
-      box: {
-        ...boxProperties,
-        cursor: boxState.cursor,
-        activeBox: boxState.activeBox,
-        activeScalePointIndex: boxState.activeScalePointIndex,
-        activeEdgeIndex: boxState.activeEdgeIndex,
-      },
-    });
-
-    if (shouldUpdateClipping) {
-      new Promise(resolve => {
-        reearth.layers.override(state.tilesetLayerId, {
-          "3dtiles": {
-            experimental_clipping: {
-              planes: SIDE_PLANES,
-              ...boxProperties,
-              location: { ...location },
-              visible: state.isVisible,
-              direction: state.direction,
+    postMsg({
+      action: "updateClippingBox",
+      payload: {
+        dataID: state.dataID,
+        shouldUpdateClipping,
+        box: {
+          visible: state.isVisible,
+          data: {
+            type: "geojson",
+            value: {
+              type: "Feature",
+              geometry: {
+                type: "Point",
+                coordinates: [location.lng, location.lat, location.height],
+              },
             },
           },
-        });
-        resolve(undefined);
-      });
-    }
+          box: {
+            ...boxProperties,
+            cursor: boxState.cursor,
+            activeBox: boxState.activeBox,
+            activeScalePointIndex: boxState.activeScalePointIndex,
+            activeEdgeIndex: boxState.activeEdgeIndex,
+          },
+        },
+        clipping: {
+          planes: SIDE_PLANES,
+          ...boxProperties,
+          location: { ...location },
+          visible: state.isVisible,
+          direction: state.direction,
+        },
+      },
+    });
   };
 
   reearth.on("mousedown", (e: any) => {
@@ -446,17 +445,17 @@ const mountClippingBox = (initialState: ClippingBoxState): ClippingBoxRenderer =
   });
 
   const update = (next: ClippingBoxState) => {
-    state.tilesetLayerId = next.tilesetLayerId;
+    state.dataID = next.dataID;
     state.isVisible = next.show;
     state.keepBoxAboveGround = next.keepBoxAboveGround;
     state.direction = next.direction;
     updateBox(true);
   };
   const unmount = () => {
-    reearth.layers.delete(boxId);
-    reearth.layers.override(state.tilesetLayerId, {
-      "3dtiles": {
-        experimental_clipping: undefined,
+    postMsg({
+      action: "removeClippingBox",
+      payload: {
+        dataID: state.dataID,
       },
     });
   };

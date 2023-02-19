@@ -19,44 +19,24 @@ export const useBuildingFilter = ({
     [],
   );
 
-  const findLayerIdFromDataset = useCallback(() => {
-    return new Promise<string | undefined>(resolve => {
-      const eventListenerCallback = (e: MessageEvent<any>) => {
-        if (e.source !== parent) return;
-        if (e.data.action === "findLayerIdFromAddedDataset") {
-          resolve(e.data.payload.layerId as string);
-          removeEventListener("message", eventListenerCallback);
-        }
-        resolve(undefined);
-      };
-      addEventListener("message", eventListenerCallback);
-      postMsg({ action: "findLayerIdFromAddedDataset", payload: { dataID } });
-    });
-  }, [dataID]);
-
   const render = useCallback(async () => {
-    const layerId = await findLayerIdFromDataset();
-    if (layerId && !renderer.current) {
+    if (!renderer.current) {
       renderer.current = mountTileset({
-        layerId,
+        dataID,
         height: value.height,
         abovegroundFloor: value.abovegroundFloor,
         basementFloor: value.basementFloor,
       });
     }
-    if (layerId && renderer.current) {
+    if (renderer.current) {
       renderer.current.update({
-        layerId,
+        dataID,
         height: value.height,
         abovegroundFloor: value.abovegroundFloor,
         basementFloor: value.basementFloor,
       });
     }
-    if (!layerId && renderer.current) {
-      renderer.current.unmount();
-      renderer.current = undefined;
-    }
-  }, [value, findLayerIdFromDataset]);
+  }, [value, dataID]);
 
   useEffect(() => {
     renderRef.current = render;
@@ -64,10 +44,8 @@ export const useBuildingFilter = ({
   }, [render, debouncedRender]);
 };
 
-const reearth = (globalThis.parent as any).reearth;
-
 export type State = {
-  layerId: string;
+  dataID: string | undefined;
   height: [from: number, to: number];
   abovegroundFloor: [from: number, to: number];
   basementFloor: [from: number, to: number];
@@ -75,7 +53,6 @@ export type State = {
 
 type Renderer = {
   update: (state: State) => void;
-  unmount: () => void;
 };
 
 const mountTileset = (initialState: State): Renderer => {
@@ -112,8 +89,10 @@ const mountTileset = (initialState: State): Renderer => {
       state.basementFloor,
       conditionalBasementFloor,
     );
-    reearth.layers.override(state.layerId, {
-      "3dtiles": {
+    postMsg({
+      action: "update3dtilesShow",
+      payload: {
+        dataID: state.dataID,
         show: {
           expression: {
             conditions: [
@@ -137,12 +116,5 @@ const mountTileset = (initialState: State): Renderer => {
     updateState(next);
     updateTileset();
   };
-  const unmount = () => {
-    reearth.layers.override(state.layerId, {
-      "3dtiles": {
-        show: true,
-      },
-    });
-  };
-  return { update, unmount };
+  return { update };
 };

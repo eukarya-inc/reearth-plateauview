@@ -136,7 +136,7 @@ export default () => {
       });
 
       // const options = data?.find(d => d.id === dataset.id)?.components;
-      postMsg({ action: "addDatasetToScene", payload: { dataset: { ...dataset } } });
+      postMsg({ action: "addDatasetToScene", payload: { dataset } });
     },
     [data],
   );
