@@ -90,7 +90,7 @@ const mountTileset = (initialState: State): Renderer => {
     const prevRGBStr = prevRGBA?.slice(0, -1).join(",");
     reearth.layers.override(state.layerId, {
       "3dtiles": {
-        color: `rgba(${prevRGBStr}, ${(state.transparency || 100) / 100})`,
+        color: `rgba(${prevRGBStr}, ${(state.transparency ?? 100) / 100})`,
       },
     });
   };
