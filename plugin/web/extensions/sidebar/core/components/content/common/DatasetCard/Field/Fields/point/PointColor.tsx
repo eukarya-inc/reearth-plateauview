@@ -13,14 +13,14 @@ const PointColor: React.FC<BaseFieldProps<"pointColor">> = ({ value, editMode, o
   const handleMoveUp = useCallback(
     (idx: number) => {
       if (idx === 0) return;
-      updatePointColors(prevPointColors => {
-        const copy = [...(prevPointColors ?? [])];
-        swap(copy, idx, idx - 1);
+      updatePointColors(c => {
+        const newPointColors = [...(c ?? [])];
+        swap(newPointColors, idx, idx - 1);
         onUpdate({
           ...value,
-          pointColors: copy,
+          pointColors: newPointColors,
         });
-        return copy;
+        return newPointColors;
       });
     },
     [value, onUpdate],
@@ -29,14 +29,14 @@ const PointColor: React.FC<BaseFieldProps<"pointColor">> = ({ value, editMode, o
   const handleMoveDown = useCallback(
     (idx: number) => {
       if (pointColors && idx >= pointColors.length - 1) return;
-      updatePointColors(prevPointColors => {
-        const copy = [...(prevPointColors ?? [])];
-        swap(copy, idx, idx + 1);
+      updatePointColors(c => {
+        const newPointColors = [...(c ?? [])];
+        swap(newPointColors, idx, idx + 1);
         onUpdate({
           ...value,
-          pointColors: copy,
+          pointColors: newPointColors,
         });
-        return copy;
+        return newPointColors;
       });
     },
     [value, pointColors, onUpdate],
@@ -63,27 +63,27 @@ const PointColor: React.FC<BaseFieldProps<"pointColor">> = ({ value, editMode, o
 
   const handleRemove = useCallback(
     (idx: number) => {
-      updatePointColors(prevState => {
-        const copy = [...(prevState ?? [])].filter((_, idx2) => idx2 != idx);
+      updatePointColors(c => {
+        const newPointColors = [...(c ?? [])].filter((_, idx2) => idx2 != idx);
         onUpdate({
           ...value,
-          pointColors: copy,
+          pointColors: newPointColors,
         });
-        return copy;
+        return newPointColors;
       });
     },
     [value, onUpdate],
   );
 
   const handleItemUpdate = (item: { condition: Cond<number>; color: string }, index: number) => {
-    updatePointColors(prevState => {
-      const copy = [...(prevState ?? [])];
-      copy.splice(index, 1, item);
+    updatePointColors(c => {
+      const newPointColors = [...(c ?? [])];
+      newPointColors.splice(index, 1, item);
       onUpdate({
         ...value,
-        pointColors: copy,
+        pointColors: newPointColors,
       });
-      return copy;
+      return newPointColors;
     });
   };
 

@@ -12,6 +12,7 @@ const operatorOptions = [
   { value: "=", label: "=" },
 ];
 
+// should be updated
 const operandOptions = [
   { value: "height", label: "height" },
   { value: "width", label: "width" },
