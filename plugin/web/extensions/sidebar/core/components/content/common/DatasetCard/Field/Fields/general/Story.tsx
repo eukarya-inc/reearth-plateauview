@@ -43,8 +43,8 @@ const Story: React.FC<BaseFieldProps<"story">> = ({ value, editMode, onUpdate })
 
   const handleItemRemove = useCallback(
     (id: string) => {
+      if (!value.stories) return;
       const newStories = value.stories?.filter(st => st.id !== id);
-      if (!newStories) return;
       onUpdate({ ...value, stories: newStories });
       forceUpdate();
     },
@@ -52,10 +52,10 @@ const Story: React.FC<BaseFieldProps<"story">> = ({ value, editMode, onUpdate })
   );
 
   const handleStoryTitleChange = useCallback(
-    (title: string, index: number) => {
+    (index: number) => (e: React.ChangeEvent<HTMLInputElement>) => {
       if (!value.stories) return;
       const updatedStories = value.stories;
-      updatedStories[index].title = title;
+      updatedStories[index].title = e.currentTarget.value;
       onUpdate({ ...value, stories: updatedStories });
       forceUpdate();
     },
@@ -78,12 +78,7 @@ const Story: React.FC<BaseFieldProps<"story">> = ({ value, editMode, onUpdate })
           <Field>
             <FieldTitle>Title </FieldTitle>
             <FieldValue>
-              <TextInput
-                defaultValue={g.title}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                  handleStoryTitleChange(e.target.value, idx);
-                }}
-              />
+              <TextInput defaultValue={g.title} onChange={handleStoryTitleChange(idx)} />
             </FieldValue>
           </Field>
           <EditButton onClick={handleStoryEdit}>
