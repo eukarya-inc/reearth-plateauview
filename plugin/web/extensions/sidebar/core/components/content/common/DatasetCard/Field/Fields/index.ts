@@ -24,7 +24,7 @@ export type Fields<FC extends FieldComponent> = {
 
 const fields: Fields<FieldComponent> = {
   // general
-  camera: { Component: IdealZoom, hasUI: false },
+  idealZoom: { Component: IdealZoom, hasUI: false },
   legend: { Component: Legend, hasUI: true },
   description: { Component: Description, hasUI: true },
   switchGroup: { Component: SwitchGroup, hasUI: true },
@@ -40,7 +40,7 @@ const fields: Fields<FieldComponent> = {
   // polyline
   // polygon
   // 3d-model
-  clipping: { Component: Clipping, hasUI: false },
+  clipping: { Component: Clipping, hasUI: true },
   buildingFilter: { Component: BuildingFilter, hasUI: false },
   // 3d-tile
   // realtime: Realtime,

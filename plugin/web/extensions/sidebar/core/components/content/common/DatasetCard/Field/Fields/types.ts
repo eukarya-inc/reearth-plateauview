@@ -1,7 +1,7 @@
 import { Group } from "@web/extensions/sidebar/core/types";
 
 export const fieldName = {
-  camera: "カメラ",
+  idealZoom: "カメラ",
   legend: "凡例",
   realtime: "リアルタイム",
   switchGroup: "スイッチグループ",
@@ -21,7 +21,7 @@ export const fieldName = {
 
 // type Component = Camera | Legend | Realtime | Point | Polyline | Polygon | Model | Description;
 export type FieldComponent =
-  | Camera
+  | IdealZoom
   | Legend
   | Description
   | SwitchGroup
@@ -42,15 +42,17 @@ type FieldBase<T extends keyof typeof fieldName> = {
   group?: string;
 };
 
-export type Camera = FieldBase<"camera"> & {
-  position: {
-    lng: number;
-    lat: number;
-    height: number;
-    pitch: number;
-    heading: number;
-    roll: number;
-  };
+type CameraPosition = {
+  lng: number;
+  lat: number;
+  height: number;
+  pitch: number;
+  heading: number;
+  roll: number;
+};
+
+export type IdealZoom = FieldBase<"idealZoom"> & {
+  position: CameraPosition;
 };
 
 export type LegendStyleType = "square" | "circle" | "line" | "icon";
@@ -166,7 +168,7 @@ type BuildingFilter = FieldBase<"buildingFilter"> & {
 
 export type Fields = {
   // general
-  camera: Camera;
+  idealZoom: IdealZoom;
   legend: Legend;
   description: Description;
   switchGroup: SwitchGroup;
@@ -189,7 +191,6 @@ export type Fields = {
 
 export type BaseFieldProps<T extends keyof Fields> = {
   value: Fields[T];
-  datasetID: string;
   dataID?: string;
   editMode?: boolean;
   isActive?: boolean;

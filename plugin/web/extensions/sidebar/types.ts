@@ -20,7 +20,6 @@ type ActionType =
   | "updateDatasetInScene"
   | "removeDatasetFromScene"
   | "removeAllDatasetsFromScene"
-  | "findLayerIdFromAddedDataset"
   | "catalogModalOpen"
   | "triggerCatalogOpen"
   | "triggerHelpOpen"
@@ -42,7 +41,10 @@ type ActionType =
   | "saveGroups"
   | "cameraFlyTo"
   | "getCurrentCamera"
-  | "storyPlay";
+  | "storyPlay"
+  | "addClippingBox"
+  | "updateClippingBox"
+  | "removeClippingBox";
 
 export type PostMessageProps = { action: ActionType; payload?: any };
 
