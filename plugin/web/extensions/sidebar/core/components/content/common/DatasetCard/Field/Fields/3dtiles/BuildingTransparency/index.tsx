@@ -1,10 +1,19 @@
 import { Slider } from "@web/sharedComponents";
 import { styled } from "@web/theme";
-import { CSSProperties, useMemo } from "react";
+import { CSSProperties } from "react";
 
 import { BaseFieldProps } from "../../types";
 
 import useHooks from "./hooks";
+
+const styleProps = {
+  trackStyle: {
+    backgroundColor: "#00BEBE",
+  } as CSSProperties,
+  handleStyle: {
+    border: "2px solid #00BEBE",
+  } as CSSProperties,
+};
 
 const BuildingTransparency: React.FC<BaseFieldProps<"buildingTransparency">> = ({
   value,
@@ -17,18 +26,6 @@ const BuildingTransparency: React.FC<BaseFieldProps<"buildingTransparency">> = (
     dataID,
     onUpdate,
   });
-
-  const styleProps = useMemo(
-    () => ({
-      trackStyle: {
-        backgroundColor: "#00BEBE",
-      } as CSSProperties,
-      handleStyle: {
-        border: "2px solid #00BEBE",
-      } as CSSProperties,
-    }),
-    [],
-  );
 
   return editMode ? null : (
     <FieldWrapper>
