@@ -8,55 +8,43 @@ export const MAX_ABOVEGROUND_FLOOR = 50;
 export const MAX_BASEMENT_FLOOR = 5;
 
 export const useBuildingShadow = ({
-  value,
+  options,
   dataID,
-}: Pick<BaseFieldProps<"buildingShadow">, "value" | "dataID">) => {
+}: Pick<BaseFieldProps<"buildingShadow">, "dataID"> & {
+  options: Omit<BaseFieldProps<"buildingShadow">["value"], "id" | "group" | "type">;
+}) => {
   const renderer = useRef<Renderer>();
 
-  const findLayerIdFromDataset = useCallback(() => {
-    return new Promise<string | undefined>(resolve => {
-      const eventListenerCallback = (e: MessageEvent<any>) => {
-        if (e.source !== parent) return;
-        if (e.data.action === "findLayerIdFromAddedDataset") {
-          resolve(e.data.payload.layerId as string);
-          removeEventListener("message", eventListenerCallback);
-        }
-        resolve(undefined);
-      };
-      addEventListener("message", eventListenerCallback);
-      postMsg({ action: "findLayerIdFromAddedDataset", payload: { dataID } });
-    });
-  }, [dataID]);
-
   const render = useCallback(async () => {
-    const layerId = await findLayerIdFromDataset();
-    if (layerId && !renderer.current) {
+    if (!renderer.current) {
       renderer.current = mountTileset({
-        layerId,
-        shadow: value.shadow,
+        dataID,
+        shadow: options.shadow,
       });
     }
-    if (layerId && renderer.current) {
+    if (renderer.current) {
       renderer.current.update({
-        layerId,
-        shadow: value.shadow,
+        dataID,
+        shadow: options.shadow,
       });
     }
-    if (!layerId && renderer.current) {
-      renderer.current.unmount();
-      renderer.current = undefined;
-    }
-  }, [value, findLayerIdFromDataset]);
+  }, [options, dataID]);
 
   useEffect(() => {
     render();
   }, [render]);
+
+  useEffect(
+    () => () => {
+      renderer.current?.unmount();
+      renderer.current = undefined;
+    },
+    [],
+  );
 };
 
-const reearth = (globalThis.parent as any).reearth;
-
 export type State = {
-  layerId: string;
+  dataID: string | undefined;
   shadow: BaseFieldProps<"buildingShadow">["value"]["shadow"];
 };
 
@@ -74,8 +62,10 @@ const mountTileset = (initialState: State): Renderer => {
   };
 
   const updateTileset = () => {
-    reearth.layers.override(state.layerId, {
-      "3dtiles": {
+    postMsg({
+      action: "update3dtilesShadow",
+      payload: {
+        dataID: state.dataID,
         shadows: state.shadow,
       },
     });
@@ -90,9 +80,10 @@ const mountTileset = (initialState: State): Renderer => {
     updateTileset();
   };
   const unmount = () => {
-    reearth.layers.override(state.layerId, {
-      "3dtiles": {
-        shadows: undefined,
+    postMsg({
+      action: "reset3dtilesShadow",
+      payload: {
+        dataID: state.dataID,
       },
     });
   };

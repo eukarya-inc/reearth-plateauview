@@ -1,5 +1,5 @@
 import isEqual from "lodash/isEqual";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import { BaseFieldProps } from "../../types";
 
@@ -34,13 +34,26 @@ const useHooks = ({
     [handleUpdate],
   );
 
+  const initialized = useRef(false);
   useEffect(() => {
+    if (!initialized.current) return;
     if (!isEqual(options, value)) {
       setOptions({ ...value });
     }
   }, [value, options]);
 
-  useBuildingShadow({ value, dataID });
+  // This is workaround.
+  // Initializing shadow with "disabled" makes tileset shadow to keep "enabled",
+  // so we need to initialize with "enabled", then change shadow with "disabled".
+  useEffect(() => {
+    setOptions({ shadow: "enabled" });
+    setTimeout(() => {
+      setOptions({ shadow: "disabled" });
+      initialized.current = true;
+    }, 10);
+  }, []);
+
+  useBuildingShadow({ options, dataID });
 
   return {
     options,
