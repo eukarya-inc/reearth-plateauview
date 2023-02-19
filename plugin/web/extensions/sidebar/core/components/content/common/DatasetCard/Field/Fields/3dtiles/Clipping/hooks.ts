@@ -1,3 +1,4 @@
+import { isEqual } from "lodash";
 import { useCallback, useEffect, useState } from "react";
 
 import { BaseFieldProps } from "../../types";
@@ -44,8 +45,10 @@ const useHooks = ({
   );
 
   useEffect(() => {
-    setOptions({ ...value });
-  }, [value, onUpdate]);
+    if (!isEqual(options, value)) {
+      setOptions({ ...value });
+    }
+  }, [options, value, onUpdate]);
 
   useClippingBox({ value, dataID });
 
