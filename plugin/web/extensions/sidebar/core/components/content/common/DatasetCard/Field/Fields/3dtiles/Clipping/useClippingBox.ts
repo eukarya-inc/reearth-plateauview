@@ -28,7 +28,7 @@ export const useClippingBox = ({
         });
       }
       if (!value.enabled && renderer.current) {
-        renderer.current.unmount(dataID);
+        renderer.current.unmount();
         renderer.current = undefined;
       }
     };
@@ -62,7 +62,7 @@ type ClippingBoxState = {
 
 type ClippingBoxRenderer = {
   update: (state: ClippingBoxState) => void;
-  unmount: (dataID: string | undefined) => void;
+  unmount: () => void;
 };
 
 const mountClippingBox = async (initialState: ClippingBoxState): Promise<ClippingBoxRenderer> => {
@@ -451,11 +451,11 @@ const mountClippingBox = async (initialState: ClippingBoxState): Promise<Clippin
     state.direction = next.direction;
     updateBox(true);
   };
-  const unmount = (dataID: string | undefined) => {
+  const unmount = () => {
     postMsg({
       action: "removeClippingBox",
       payload: {
-        dataID,
+        dataID: state.dataID,
       },
     });
   };
