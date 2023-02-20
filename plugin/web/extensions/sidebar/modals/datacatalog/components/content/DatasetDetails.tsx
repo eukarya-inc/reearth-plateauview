@@ -43,7 +43,9 @@ const DatasetDetails: React.FC<Props> = ({
             <PublishButton
               published={(dataset as DataCatalogItem).public}
               onClick={handleDatasetPublish}>
-              <HoverText published={(dataset as DataCatalogItem).public}>公開</HoverText>
+              <HoverText published={(dataset as DataCatalogItem).public}>
+                {(dataset as DataCatalogItem).public ? "未公開" : "公開"}
+              </HoverText>
               <Text published={(dataset as DataCatalogItem).public}>
                 {(dataset as DataCatalogItem).public ? "公開済み" : "未公開"}
               </Text>
@@ -133,10 +135,11 @@ const PublishButton = styled(BaseButton)<{ published?: boolean }>`
   display: flex;
   min-width: 120px;
   color: #ffffff;
-  background-color: ${({ published }) => (published ? "#00bebe" : "#BFBFBF")};
-  ${({ published }) => !published && "cursor: pointer;"};
+  background-color: ${({ published }) => (published ? "#00bebe" : "#bfbfbf")};
+  cursor: pointer;
+
   &:hover {
-    background-color: #00bebe;
+    background-color: ${({ published }) => (published ? "#bfbfbf" : "#00bebe")};
   }
 `;
 
@@ -144,7 +147,7 @@ const HoverText = styled.p<{ published?: boolean }>`
   display: none;
   margin-bottom: 0;
   ${PublishButton}:hover & {
-    display: ${({ published }) => (published ? "none" : "initial")};
+    display: initial;
   }
 `;
 
@@ -152,6 +155,6 @@ const Text = styled.p<{ published?: boolean }>`
   display: initial;
   margin-bottom: 0;
   ${PublishButton}:hover & {
-    display: ${({ published }) => (published ? "initial" : "none")};
+    display: none;
   }
 `;
