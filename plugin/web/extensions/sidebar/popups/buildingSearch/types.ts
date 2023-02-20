@@ -1,3 +1,8 @@
+export type InitData = {
+  viewport: Viewport;
+  data: RawDatasetData;
+};
+
 export type RawDatasetData = {
   title: string;
   dataID: string;

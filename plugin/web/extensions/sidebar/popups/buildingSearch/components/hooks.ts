@@ -4,6 +4,7 @@ import Papa from "papaparse";
 import { useCallback, useEffect, useState, useRef } from "react";
 
 import type {
+  InitData,
   DatasetIndexes,
   Condition,
   Result,
@@ -299,7 +300,12 @@ export default () => {
 
   const initDatasetData = useCallback(
     (rawDatasetData: RawDatasetData) => {
-      if (!rawDatasetData) {
+      setResults([]);
+      setSelected([]);
+      setActiveTab("condition");
+      setConditionsState("loading");
+
+      if (!rawDatasetData.searchIndex) {
         setConditionsState("empty");
       } else {
         searchIndexes.current = [];
@@ -361,12 +367,6 @@ export default () => {
           }, 0);
         })();
       }
-
-      // const datasetIndexes = ((window as any).buildingSearchInit?.data ??
-      //   TEST_DATASET_INDEX_DATA) as DatasetIndexes;
-
-      // setDatasetIndexes(datasetIndexes);
-      // setConditions(datasetIndexes.indexes.map(index => ({ field: index.field, values: [] })));
     },
     [loadResultsData],
   );
@@ -375,21 +375,26 @@ export default () => {
     postMsg({ action: "popupClose" });
   }, []);
 
-  useEffect(() => {
-    if ((window as any).buildingSearchInit) {
-      const init = (window as any).buildingSearchInit;
-      if (init.viewport.isMobile) {
+  const onInit = useCallback(
+    (initData: InitData | undefined) => {
+      if (!initData) return;
+      if (initData.viewport.isMobile) {
         setIsMobile(true);
         setSizes({
           ...sizes,
-          mobile: { width: init.viewport.width * 0.9, height: sizes.mobile.height },
+          mobile: { width: initData.viewport.width * 0.9, height: sizes.mobile.height },
         });
       }
-    }
+      setMinimized(false);
+      initDatasetData((window as any).buildingSearchInit?.data);
+    },
+    [initDatasetData, sizes],
+  );
 
+  useEffect(() => {
     document.documentElement.style.setProperty("--theme-color", "#00BEBE");
+    onInit((window as any).buildingSearchInit);
 
-    initDatasetData((window as any).buildingSearchInit?.data);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -400,11 +405,14 @@ export default () => {
         case "resize":
           handleResize(e.data.payload);
           break;
+        case "buildingSearchInit":
+          onInit(e.data.payload);
+          break;
         default:
           break;
       }
     },
-    [handleResize],
+    [handleResize, onInit],
   );
 
   useEffect(() => {

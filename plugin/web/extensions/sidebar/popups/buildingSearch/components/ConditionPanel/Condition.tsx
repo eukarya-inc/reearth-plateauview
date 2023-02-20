@@ -31,6 +31,7 @@ const Condition: React.FC<Props> = ({ indexItem, setConditions }) => {
         mode="multiple"
         showArrow
         placeholder="Type in key word"
+        listHeight={200}
         onChange={handleChange}
         options={options}
       />
