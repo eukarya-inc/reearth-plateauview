@@ -5,6 +5,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { Tab } from "../../core/components/Mobile";
 import { DataCatalogItem } from "../../modals/datacatalog/api/api";
+import { UserDataItem } from "../../modals/datacatalog/types";
 
 import Catalog from "./Catalog";
 import Menu from "./Menu";
@@ -37,7 +38,7 @@ const MobileDropdown: React.FC = () => {
   );
 
   const handleDatasetAdd = useCallback(
-    (dataset: DataCatalogItem) => {
+    (dataset: DataCatalogItem | UserDataItem) => {
       handleProjectDatasetAdd(dataset);
       changeTab("selection");
     },
@@ -63,7 +64,7 @@ const MobileDropdown: React.FC = () => {
     };
   });
 
-  const addedDatasetIds = useMemo(
+  const addedDatasetDataIDs = useMemo(
     () => project.datasets.map(dataset => dataset.dataID),
     [project.datasets],
   );
@@ -74,7 +75,7 @@ const MobileDropdown: React.FC = () => {
         {
           catalog: (
             <Catalog
-              addedDatasetIds={addedDatasetIds}
+              addedDatasetDataIDs={addedDatasetDataIDs}
               isMobile
               catalogData={catalog}
               onDatasetAdd={handleDatasetAdd}

@@ -53,6 +53,7 @@ import { ReactComponent as RectMaximize } from "./Icons/rectMaximize.svg";
 import { ReactComponent as Funnel } from "./Icons/funnel.svg";
 import { ReactComponent as ListNumbers } from "./Icons/listNumbers.svg";
 import { ReactComponent as Save } from "./Icons/save.svg";
+import { ReactComponent as Clock } from "./Icons/clock.svg";
 import { ReactComponent as Transparent } from "./Icons/transparent.svg";
 import { ReactComponent as FileDotted } from "./Icons/fileDotted.svg";
 
@@ -112,6 +113,7 @@ export default {
   funnel: Funnel,
   listNumbers: ListNumbers,
   save: Save,
+  clock: Clock,
   transparent: Transparent,
   fileDotted: FileDotted,
 };

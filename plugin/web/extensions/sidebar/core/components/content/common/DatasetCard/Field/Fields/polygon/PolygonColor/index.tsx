@@ -1,24 +1,27 @@
 import AddButton from "@web/extensions/sidebar/core/components/content/common/DatasetCard/AddButton";
+import {
+  ButtonWrapper,
+  Wrapper,
+} from "@web/extensions/sidebar/core/components/content/common/DatasetCard/Field/commonComponents";
 import { generateID, moveItemDown, moveItemUp, removeItem } from "@web/extensions/sidebar/utils";
 import { useCallback, useState } from "react";
 
-import { BaseFieldProps, Cond } from "../types";
+import { BaseFieldProps, Cond } from "../../types";
 
-import { ButtonWrapper, Wrapper } from "./commonComponents";
-import PointColorItem from "./PointColorItem";
+import PolygonColorItem from "./PolygonColorItem";
 
-const PointColor: React.FC<BaseFieldProps<"pointColor">> = ({ value, editMode, onUpdate }) => {
-  const [pointColors, updatePointColors] = useState(value.pointColors);
+const PolygonColor: React.FC<BaseFieldProps<"polygonColor">> = ({ value, editMode, onUpdate }) => {
+  const [items, updateItems] = useState(value.items);
 
   const handleMoveUp = useCallback(
     (idx: number) => {
-      updatePointColors(c => {
-        const newPointColors = moveItemUp(idx, c) ?? c;
+      updateItems(c => {
+        const newItems = moveItemUp(idx, c) ?? c;
         onUpdate({
           ...value,
-          pointColors: newPointColors,
+          items: newItems,
         });
-        return newPointColors;
+        return newItems;
       });
     },
     [value, onUpdate],
@@ -26,21 +29,21 @@ const PointColor: React.FC<BaseFieldProps<"pointColor">> = ({ value, editMode, o
 
   const handleMoveDown = useCallback(
     (idx: number) => {
-      updatePointColors(c => {
-        const newPointColors = moveItemDown(idx, c) ?? c;
+      updateItems(c => {
+        const newItems = moveItemDown(idx, c) ?? c;
         onUpdate({
           ...value,
-          pointColors: newPointColors,
+          items: newItems,
         });
-        return newPointColors;
+        return newItems;
       });
     },
     [onUpdate, value],
   );
 
   const handleAdd = useCallback(() => {
-    updatePointColors(c => {
-      const newPointColor: { condition: Cond<number>; color: string } = {
+    updateItems(c => {
+      const newItem: { condition: Cond<number>; color: string } = {
         condition: {
           key: generateID(),
           operator: "=",
@@ -51,42 +54,42 @@ const PointColor: React.FC<BaseFieldProps<"pointColor">> = ({ value, editMode, o
       };
       onUpdate({
         ...value,
-        pointColors: value.pointColors ? [...value.pointColors, newPointColor] : [newPointColor],
+        items: value.items ? [...value.items, newItem] : [newItem],
       });
-      return c ? [...c, newPointColor] : [newPointColor];
+      return c ? [...c, newItem] : [newItem];
     });
   }, [value, onUpdate]);
 
   const handleRemove = useCallback(
     (idx: number) => {
-      updatePointColors(c => {
-        const newPointColors = removeItem(idx, c) ?? c;
+      updateItems(c => {
+        const newItems = removeItem(idx, c) ?? c;
         onUpdate({
           ...value,
-          pointColors: newPointColors,
+          items: newItems,
         });
-        return newPointColors;
+        return newItems;
       });
     },
     [value, onUpdate],
   );
 
   const handleItemUpdate = (item: { condition: Cond<number>; color: string }, index: number) => {
-    updatePointColors(c => {
-      const newPointColors = [...(c ?? [])];
-      newPointColors.splice(index, 1, item);
+    updateItems(c => {
+      const newItems = [...(c ?? [])];
+      newItems.splice(index, 1, item);
       onUpdate({
         ...value,
-        pointColors: newPointColors,
+        items: newItems,
       });
-      return newPointColors;
+      return newItems;
     });
   };
 
   return editMode ? (
     <Wrapper>
-      {pointColors?.map((c, idx) => (
-        <PointColorItem
+      {items?.map((c, idx) => (
+        <PolygonColorItem
           key={idx}
           index={idx}
           item={c}
@@ -103,4 +106,4 @@ const PointColor: React.FC<BaseFieldProps<"pointColor">> = ({ value, editMode, o
   ) : null;
 };
 
-export default PointColor;
+export default PolygonColor;

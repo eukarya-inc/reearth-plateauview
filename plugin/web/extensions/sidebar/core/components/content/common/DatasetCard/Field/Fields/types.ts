@@ -6,29 +6,39 @@ export const fieldName = {
   realtime: "リアルタイム",
   switchGroup: "スイッチグループ",
   buttonLink: "リンクボタン",
+  styleCode: "Style code (General)",
   point: "ポイント",
   description: "説明",
   pointColor: "色",
-  pointColorGradient: "色（Gradient)",
+  pointColorGradient: "色（Gradient）",
   pointSize: "サイズ",
   pointIcon: "アイコン",
   pointLabel: "ラベル",
   pointModel: "モデル",
   pointStroke: "ストロック",
   search: "Search",
+  polygonColor: "ポリゴン色",
+  polygonColorGradient: "ポリゴン色（Gradient）",
+  polygonStroke: "ポリゴンストロック",
   clipping: "クリッピング",
   buildingFilter: "建物フィルター",
-  buildingShadow: "影",
   buildingTransparency: "透明度",
+  buildingColor: "色分け",
+  buildingShadow: "影",
+  polylineColor: "ポリライン色",
+  polylineColorGradient: "ポリライン色（Gradient）",
+  polylineStrokeWeight: "ポリラインストロック",
 };
 
 // type Component = Camera | Legend | Realtime | Point | Polyline | Polygon | Model | Description;
 export type FieldComponent =
   | IdealZoom
   | Legend
+  | StyleCode
+  | ButtonLink
   | Description
   | SwitchGroup
-  | ButtonLink
+  | Realtime
   | PointColor
   | PointColorGradient
   | PointSize
@@ -37,10 +47,17 @@ export type FieldComponent =
   | PointModel
   | PointStroke
   | Search
+  | PolylineColor
+  | PolylineColorGradient
+  | PolylineStrokeWeight
+  | PolygonColor
+  | PolygonColorGradient
+  | PolygonStroke
   | Clipping
   | BuildingFilter
-  | BuildingShadow
-  | BuildingTransparency;
+  | BuildingTransparency
+  | BuildingColor
+  | BuildingShadow;
 
 type FieldBase<T extends keyof typeof fieldName> = {
   id: string;
@@ -74,17 +91,18 @@ export type Legend = FieldBase<"legend"> & {
   items?: LegendItem[];
 };
 
-// type Realtime = {
-//   type: "realtime";
-//   group?: string;
-//   updateInterval: number; // 1000 * 60 -> 1m
-// };
+type Realtime = FieldBase<"realtime"> & {
+  updateInterval: number; // 1000 * 60 -> 1m
+};
 
 export type Description = FieldBase<"description"> & {
   content?: string;
   isMarkdown?: boolean;
 };
 
+export type StyleCode = FieldBase<"styleCode"> & {
+  src: string;
+};
 export type GroupItem = {
   id: string;
   title: string;
@@ -100,7 +118,6 @@ export type ButtonLink = FieldBase<"buttonLink"> & {
   title?: string;
   link?: string;
 };
-
 // MAYBE POINT TYPE IS JUST TO CONCEPTUALIZE THE JSONNNN
 // type Point = {
 //   type: "point";
@@ -161,6 +178,28 @@ type PointStroke = FieldBase<"pointStroke"> & {
 
 type Search = FieldBase<"search">;
 
+type PolygonColor = FieldBase<"polygonColor"> & {
+  items?: {
+    condition: Cond<number>;
+    color: string;
+  }[];
+};
+
+type PolygonColorGradient = FieldBase<"polygonColorGradient"> & {
+  field?: string;
+  startColor?: string;
+  endColor?: string;
+  step?: number;
+};
+
+type PolygonStroke = FieldBase<"polygonStroke"> & {
+  items?: {
+    strokeColor: string;
+    strokeWidth: number;
+    condition: Cond<string | number>;
+  }[];
+};
+
 type Clipping = FieldBase<"clipping"> & {
   enabled: boolean;
   show: boolean;
@@ -182,13 +221,37 @@ type BuildingTransparency = FieldBase<"buildingTransparency"> & {
   transparency: number;
 };
 
+type BuildingColor = FieldBase<"buildingColor"> & {
+  colorType: string;
+};
+
+type PolylineColor = FieldBase<"polylineColor"> & {
+  items?: {
+    condition: Cond<number>;
+    color: string;
+  }[];
+};
+
+type PolylineColorGradient = FieldBase<"polylineColorGradient"> & {
+  field?: string;
+  startColor?: string;
+  endColor?: string;
+  step?: number;
+};
+
+type PolylineStrokeWeight = FieldBase<"polylineStrokeWeight"> & {
+  strokeWidth: number;
+};
+
 export type Fields = {
   // general
   idealZoom: IdealZoom;
   legend: Legend;
   description: Description;
+  styleCode: StyleCode;
   switchGroup: SwitchGroup;
   buttonLink: ButtonLink;
+  realtime: Realtime;
   // point
   pointColor: PointColor;
   pointColorGradient: PointColorGradient;
@@ -198,14 +261,21 @@ export type Fields = {
   pointModel: PointModel;
   pointStroke: PointStroke;
   // polyline
+  polylineColor: PolylineColor;
+  polylineColorGradient: PolylineColorGradient;
+  polylineStrokeWeight: PolylineStrokeWeight;
   // polygon
+  polygonColor: PolygonColor;
+  polygonColorGradient: PolygonColorGradient;
+  polygonStroke: PolygonStroke;
   // 3d-model
   // 3d-tile
   search: Search;
   clipping: Clipping;
   buildingFilter: BuildingFilter;
-  buildingShadow: BuildingShadow;
   buildingTransparency: BuildingTransparency;
+  buildingColor: BuildingColor;
+  buildingShadow: BuildingShadow;
 };
 
 export type BaseFieldProps<T extends keyof Fields> = {

@@ -1,11 +1,15 @@
+import {
+  ColorField,
+  ConditionField,
+  ItemControls,
+  NumberField,
+} from "@web/extensions/sidebar/core/components/content/common/DatasetCard/Field/common";
+import { Item } from "@web/extensions/sidebar/core/components/content/common/DatasetCard/Field/commonComponents";
 import { useCallback } from "react";
 
-import { Cond } from "../types";
+import { Cond } from "../../types";
 
-import { ColorField, ConditionField, ItemControls, NumberField } from "./common";
-import { Item } from "./commonComponents";
-
-const PointStrokeItem: React.FC<{
+const PolygonStrokeItem: React.FC<{
   index: number;
   item: { condition: Cond<string | number>; strokeColor: string; strokeWidth: number };
   handleMoveDown: (index: number) => void;
@@ -74,4 +78,4 @@ const PointStrokeItem: React.FC<{
   );
 };
 
-export default PointStrokeItem;
+export default PolygonStrokeItem;
