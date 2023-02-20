@@ -18,7 +18,7 @@ export type Props = {
   addDisabled: (dataID: string) => boolean;
   onTagSelect?: (tag: TagType) => void;
   onDatasetAdd: (dataset: DataCatalogItem | UserDataItem) => void;
-  onDatasetPublish: (dataID: string, publish: boolean) => void;
+  onDatasetPublish?: (dataID: string, publish: boolean) => void;
 };
 
 const DatasetDetails: React.FC<Props> = ({
