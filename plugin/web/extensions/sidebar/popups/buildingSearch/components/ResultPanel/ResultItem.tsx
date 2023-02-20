@@ -1,5 +1,5 @@
 import { styled } from "@web/theme";
-import { useCallback } from "react";
+import { useCallback, useMemo } from "react";
 
 import { Result } from "../../types";
 
@@ -18,11 +18,13 @@ const ResultItem: React.FC<Props> = ({ item, selected, hasBorderBottom, onSelect
       onSelect([item]);
     }
   }, [onSelect, item, selected]);
+
+  const isActive = useMemo(() => {
+    return !!selected.find(s => s.gml_id === item.gml_id);
+  }, [selected, item]);
+
   return (
-    <StyledResultItem
-      onClick={onClick}
-      active={!!selected.find(s => s.gml_id === item.gml_id)}
-      hasBorderBottom={hasBorderBottom}>
+    <StyledResultItem onClick={onClick} active={isActive} hasBorderBottom={hasBorderBottom}>
       {item.gml_id}
     </StyledResultItem>
   );
