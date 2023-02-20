@@ -17,19 +17,19 @@ import { FieldComponent as FieldComponentType, fieldName } from "./Fields/types"
 
 export type Props = {
   field: FieldComponentType;
-  datasetID: string;
+  dataID: string;
   isActive: boolean;
   editMode?: boolean;
   selectGroups?: Group[];
-  onUpdate?: (property: any) => void;
-  onRemove: (type: string) => void;
+  onUpdate?: (id: string) => (property: any) => void;
+  onRemove: (id: string) => void;
   onGroupsUpdate: (groups: Group[], selectedGroup?: string) => void;
   onCurrentGroupChange: (fieldGroupID: string) => void;
 };
 
 const FieldComponent: React.FC<Props> = ({
   field,
-  datasetID,
+  dataID,
   isActive,
   editMode,
   selectGroups,
@@ -56,7 +56,7 @@ const FieldComponent: React.FC<Props> = ({
   const handleRemove = useCallback(
     (e: React.MouseEvent<HTMLDivElement, MouseEvent> | undefined) => {
       e?.stopPropagation();
-      onRemove?.(field.type);
+      onRemove?.(field.id);
     },
     [field, onRemove],
   );
@@ -120,8 +120,8 @@ const FieldComponent: React.FC<Props> = ({
               editMode={editMode}
               isActive={isActive}
               fieldGroups={selectGroups}
-              datasetID={datasetID}
-              onUpdate={onUpdate}
+              dataID={dataID}
+              onUpdate={onUpdate?.(field.id)}
               onCurrentGroupChange={onCurrentGroupChange}
             />
           )}
