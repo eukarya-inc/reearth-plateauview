@@ -10,7 +10,7 @@ export type Props = {
   addDisabled: boolean;
   contentSection?: ComponentType;
   onDatasetAdd: (dataset: DataCatalogItem | UserDataItem) => void;
-  onDatasetPublish: (dataID: string, publish: boolean) => void;
+  onDatasetPublish?: (dataID: string, publish: boolean) => void;
 };
 
 const showShareButton = false; // This code can be removed when decision about share button is made
@@ -26,7 +26,7 @@ const DatasetDetails: React.FC<Props> = ({
   const handleDatasetPublish = useCallback(() => {
     if (!("dataID" in dataset)) return;
     const datasetToUpdate = dataset as DataCatalogItem;
-    onDatasetPublish(datasetToUpdate.dataID, !datasetToUpdate.public);
+    onDatasetPublish?.(datasetToUpdate.dataID, !datasetToUpdate.public);
   }, [dataset, onDatasetPublish]);
 
   const handleDatasetAdd = useCallback(() => {
