@@ -1,6 +1,6 @@
 //GCS周り
-resource "google_storage_bucket" "static" {
-  name          = "${var.service_prefix}-reearth-static-bucket"
+resource "google_storage_bucket" "assets" {
+  name          = "${var.service_prefix}-cms-assets-bucket"
   location      = "ASIA"
   storage_class = "MULTI_REGIONAL"
 
@@ -26,8 +26,8 @@ resource "google_storage_bucket" "static" {
   }
 }
 
-resource "google_storage_bucket_iam_binding" "static_public_read" {
-  bucket = google_storage_bucket.static.name
+resource "google_storage_bucket_iam_binding" "assets_public_read" {
+  bucket = google_storage_bucket.assets.name
   role   = "roles/storage.objectViewer"
   members = [
     "allUsers",

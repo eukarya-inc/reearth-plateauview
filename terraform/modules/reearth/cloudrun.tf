@@ -52,7 +52,7 @@ resource "google_cloud_run_service" "reearth_api" {
         }
         env {
           name  = "REEARTH_GCS_BUCKETNAME"
-          value = local.static_reearth_domain
+          value = google_storage_bucket.static.name
         }
         env {
           name  = "REEARTH_ASSETBASEURL"
@@ -83,7 +83,7 @@ resource "google_cloud_run_service" "reearth_api" {
           value = "https://${local.reearth_domain}"
         }
         env {
-          name  = "REEARTH_AUTH_AUD"
+          name  = "REEARTH_AUTH0_AUDIENCE"
           value = "https://${local.api_reearth_domain}"
         }
         env {
@@ -97,6 +97,14 @@ resource "google_cloud_run_service" "reearth_api" {
         env {
           name  = "REEARTH_PUBLISHED_HOST"
           value = "{}.${local.reearth_domain}"
+        }
+        env {
+          name  = "REEARTH_AUTH0_WEBCLIENTID"
+          value = module.auth0.auth0_client_spa.client_id
+        }
+        env {
+          name  = "REEARTH_WEB"
+          value = var.cesium_ion_access_token != "" ? "cesiumIonAccessToken:${var.cesium_ion_access_token}" : ""
         }
       }
     }
@@ -159,17 +167,17 @@ resource "google_secret_manager_secret_version" "reearth_api_dummy" {
 
 resource "google_secret_manager_secret_version" "reearth_api_auth0_clientsecret" {
   secret      = google_secret_manager_secret.reearth_api["REEARTH_AUTH0_CLIENTSECRET"].id
-  secret_data = auth0_client.reearth_api.client_secret
+  secret_data = module.auth0.auth0_client_m2m.client_secret
 }
 
 resource "google_secret_manager_secret_version" "reearth_api_auth0_clientid" {
   secret      = google_secret_manager_secret.reearth_api["REEARTH_AUTH0_CLIENTID"].id
-  secret_data = auth0_client.reearth_api.client_id
+  secret_data = module.auth0.auth0_client_m2m.client_id
 }
 
 resource "google_secret_manager_secret_version" "reearth_api_signupsecret" {
   secret      = google_secret_manager_secret.reearth_api["REEARTH_SIGNUPSECRET"].id
-  secret_data = random_string.reeart_app_action_secret.result
+  secret_data = module.auth0.action_secret.result
 }
 
 data "google_iam_policy" "noauth" {

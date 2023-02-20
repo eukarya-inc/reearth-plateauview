@@ -38,16 +38,9 @@ variable "auth0" {
   description = "auth0に関する設定を指定してください"
 }
 
-variable "auth0_provider" {
-  type = object({
-    domain    = string
-    client_id = string
-  })
-  default = {
-    domain    = null
-    client_id = null
-  }
-  description = "auth0 providerに関する設定を指定してください"
+variable "reearth_version" {
+  type    = string
+  default = "0.14.1"
 }
 
 variable "plateauview" {

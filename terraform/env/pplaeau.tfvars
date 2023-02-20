@@ -14,3 +14,15 @@ auth0_provider = {
   client_id = ""
   domain    = ""
 }
+
+#plateauview-apiの設定
+plateauview = {
+  fme_baseurl            = ""
+  fme_skip_quality_check = false
+  ckan_base_url          = "dummy"
+  ckan_org               = "dummy"
+  cms_system_project     = ""
+  option_to              = ""
+  option_from            = ""
+  cms_plateau_project    = ""
+}
