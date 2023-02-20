@@ -234,7 +234,6 @@ export default () => {
           }),
         );
 
-        // combine results from different search index
         setResults(combinedResults);
         setIsSearching(false);
         setResultStyleCondition(() => {

@@ -11,19 +11,23 @@ export type RawDatasetData = {
   }[];
 };
 
+type EnumIndex = {
+  kind: string;
+  values: {
+    [key: string]: EnumValue;
+  };
+};
+
+type EnumValue = {
+  count: number;
+  url: string;
+};
+
 export type SearchIndex = {
   baseURL: string;
   indexRoot: {
     indexes: {
-      [key: string]: {
-        kind: string;
-        values: {
-          [key: string]: {
-            count: number;
-            url: string;
-          };
-        };
-      };
+      [key: string]: EnumIndex;
     };
   };
   resultsData?: any[];
