@@ -42,6 +42,14 @@ export const useBuildingFilter = ({
     renderRef.current = render;
     debouncedRender();
   }, [render, debouncedRender]);
+
+  useEffect(
+    () => () => {
+      renderer.current?.unmount();
+      renderer.current = undefined;
+    },
+    [],
+  );
 };
 
 export type State = {
@@ -53,6 +61,7 @@ export type State = {
 
 type Renderer = {
   update: (state: State) => void;
+  unmount: () => void;
 };
 
 const mountTileset = (initialState: State): Renderer => {
@@ -116,5 +125,13 @@ const mountTileset = (initialState: State): Renderer => {
     updateState(next);
     updateTileset();
   };
-  return { update };
+  const unmount = () => {
+    postMsg({
+      action: "reset3dtilesShow",
+      payload: {
+        dataID: state.dataID,
+      },
+    });
+  };
+  return { update, unmount };
 };

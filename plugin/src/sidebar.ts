@@ -338,6 +338,7 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
       },
     });
   };
+
   // For clipping box
   if (action === "addClippingBox") {
     const { dataID, box, clipping } = payload;
