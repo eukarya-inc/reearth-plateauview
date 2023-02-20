@@ -20,12 +20,12 @@ const PolylineColor: React.FC<BaseFieldProps<"polylineColor">> = ({
   const handleMoveUp = useCallback(
     (idx: number) => {
       updateItems(c => {
-        const newPointColors = moveItemUp(idx, c) ?? c;
+        const newItems = moveItemUp(idx, c) ?? c;
         onUpdate({
           ...value,
-          items: newPointColors,
+          items: newItems,
         });
-        return newPointColors;
+        return newItems;
       });
     },
     [value, onUpdate],
@@ -34,12 +34,12 @@ const PolylineColor: React.FC<BaseFieldProps<"polylineColor">> = ({
   const handleMoveDown = useCallback(
     (idx: number) => {
       updateItems(c => {
-        const newPointColors = moveItemDown(idx, c) ?? c;
+        const newItems = moveItemDown(idx, c) ?? c;
         onUpdate({
           ...value,
-          items: newPointColors,
+          items: newItems,
         });
-        return newPointColors;
+        return newItems;
       });
     },
     [onUpdate, value],
@@ -47,7 +47,7 @@ const PolylineColor: React.FC<BaseFieldProps<"polylineColor">> = ({
 
   const handleAdd = useCallback(() => {
     updateItems(c => {
-      const newPointColor: { condition: Cond<number>; color: string } = {
+      const newItem: { condition: Cond<number>; color: string } = {
         condition: {
           key: generateID(),
           operator: "=",
@@ -58,21 +58,21 @@ const PolylineColor: React.FC<BaseFieldProps<"polylineColor">> = ({
       };
       onUpdate({
         ...value,
-        items: value.items ? [...value.items, newPointColor] : [newPointColor],
+        items: value.items ? [...value.items, newItem] : [newItem],
       });
-      return c ? [...c, newPointColor] : [newPointColor];
+      return c ? [...c, newItem] : [newItem];
     });
   }, [value, onUpdate]);
 
   const handleRemove = useCallback(
     (idx: number) => {
       updateItems(c => {
-        const newPointColors = removeItem(idx, c) ?? c;
+        const newItems = removeItem(idx, c) ?? c;
         onUpdate({
           ...value,
-          items: newPointColors,
+          items: newItems,
         });
-        return newPointColors;
+        return newItems;
       });
     },
     [value, onUpdate],
@@ -80,13 +80,13 @@ const PolylineColor: React.FC<BaseFieldProps<"polylineColor">> = ({
 
   const handleItemUpdate = (item: { condition: Cond<number>; color: string }, index: number) => {
     updateItems(c => {
-      const newPointColors = [...(c ?? [])];
-      newPointColors.splice(index, 1, item);
+      const newItems = [...(c ?? [])];
+      newItems.splice(index, 1, item);
       onUpdate({
         ...value,
-        items: newPointColors,
+        items: newItems,
       });
-      return newPointColors;
+      return newItems;
     });
   };
 
