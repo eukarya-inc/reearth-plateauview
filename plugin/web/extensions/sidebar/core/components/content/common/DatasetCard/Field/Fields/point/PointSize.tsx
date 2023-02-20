@@ -1,6 +1,6 @@
+import { Field } from "@web/extensions/sidebar/core/components/content/common/DatasetCard/Field/common";
+import { TextInput } from "@web/extensions/sidebar/core/components/content/common/DatasetCard/Field/commonComponents";
 import { useCallback, useState } from "react";
-import { Field } from "web/extensions/sidebar/core/components/content/common/DatasetCard/Field/common";
-import { TextInput } from "web/extensions/sidebar/core/components/content/common/DatasetCard/Field/commonComponents";
 
 import { BaseFieldProps } from "../types";
 

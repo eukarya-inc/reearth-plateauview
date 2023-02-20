@@ -1,12 +1,12 @@
-import { styled } from "@web/theme";
-import { ChangeEvent, useCallback, useState } from "react";
 import {
   ColorField,
   SelectField,
   SwitchField,
   TextField,
-} from "web/extensions/sidebar/core/components/content/common/DatasetCard/Field/common";
-import { Wrapper } from "web/extensions/sidebar/core/components/content/common/DatasetCard/Field/commonComponents";
+} from "@web/extensions/sidebar/core/components/content/common/DatasetCard/Field/common";
+import { Wrapper } from "@web/extensions/sidebar/core/components/content/common/DatasetCard/Field/commonComponents";
+import { styled } from "@web/theme";
+import { ChangeEvent, useCallback, useState } from "react";
 
 import { BaseFieldProps, Fields } from "../types";
 
