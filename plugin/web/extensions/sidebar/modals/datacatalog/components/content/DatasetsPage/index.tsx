@@ -1,6 +1,6 @@
 import { DataCatalogItem } from "@web/extensions/sidebar/core/types";
 import PageLayout from "@web/extensions/sidebar/modals/datacatalog/components/content/PageLayout";
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 
 import { GroupBy } from "../../../api/api";
 import { UserDataItem } from "../../../types";
@@ -12,15 +12,21 @@ export type Props = {
   catalog?: DataCatalogItem[];
   addedDatasetDataIDs?: string[];
   onDatasetAdd: (dataset: DataCatalogItem | UserDataItem) => void;
+  onDatasetPublish: (dataID: string, publish: boolean) => void;
 };
 
-const DatasetsPage: React.FC<Props> = ({ catalog, addedDatasetDataIDs, onDatasetAdd }) => {
-  const [selectedDataset, setDataset] = useState<DataCatalogItem>();
+const DatasetsPage: React.FC<Props> = ({
+  catalog,
+  addedDatasetDataIDs,
+  onDatasetAdd,
+  onDatasetPublish,
+}) => {
+  const [selectedDatasetID, setDatasetID] = useState<string>();
   const [selectedTags, selectTags] = useState<Tag[]>([]);
   const [filter, setFilter] = useState<GroupBy>("city");
 
   const handleOpenDetails = useCallback((data?: DataCatalogItem) => {
-    setDataset(data);
+    setDatasetID(data?.dataID);
   }, []);
 
   const handleFilter = useCallback((filter: GroupBy) => {
@@ -42,6 +48,11 @@ const DatasetsPage: React.FC<Props> = ({ catalog, addedDatasetDataIDs, onDataset
   const addDisabled = useCallback(
     (dataID: string) => !!addedDatasetDataIDs?.find(dataID2 => dataID2 === dataID),
     [addedDatasetDataIDs],
+  );
+
+  const selectedDataset = useMemo(
+    () => catalog?.find(item => item.dataID === selectedDatasetID),
+    [catalog, selectedDatasetID],
   );
 
   return (
@@ -66,6 +77,7 @@ const DatasetsPage: React.FC<Props> = ({ catalog, addedDatasetDataIDs, onDataset
           addDisabled={addDisabled}
           onTagSelect={handleTagSelect}
           onDatasetAdd={onDatasetAdd}
+          onDatasetPublish={onDatasetPublish}
         />
       }
     />

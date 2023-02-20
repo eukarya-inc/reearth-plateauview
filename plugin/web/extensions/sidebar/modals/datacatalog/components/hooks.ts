@@ -27,6 +27,10 @@ export default () => {
     [handleClose],
   );
 
+  const handleDatasetPublish = useCallback((dataID: string, publish: boolean) => {
+    postMsg({ action: "updateDataset", payload: { dataID, publish } });
+  }, []);
+
   useEffect(() => {
     postMsg({ action: "initDataCatalog" }); // Needed to trigger sending selected dataset ids from Sidebar
   }, []);
@@ -34,9 +38,11 @@ export default () => {
   useEffect(() => {
     const eventListenerCallback = (e: MessageEvent<any>) => {
       if (e.source !== parent) return;
-      if (e.data.type === "initDataCatalog") {
+      if (e.data.action === "initDataCatalog") {
         setAddedDatasetDataIDs(e.data.payload.addedDatasets);
         setCatalog(e.data.payload.dataCatalog);
+      } else if (e.data.action === "updateCatalog") {
+        setCatalog(e.data.payload);
       }
     };
     addEventListener("message", eventListenerCallback);
@@ -52,5 +58,6 @@ export default () => {
     handleClose,
     handleTabChange: changeTabs,
     handleDatasetAdd,
+    handleDatasetPublish,
   };
 };

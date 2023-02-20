@@ -18,6 +18,7 @@ export type Props = {
   addDisabled: (dataID: string) => boolean;
   onTagSelect?: (tag: TagType) => void;
   onDatasetAdd: (dataset: DataCatalogItem | UserDataItem) => void;
+  onDatasetPublish: (dataID: string, publish: boolean) => void;
 };
 
 const DatasetDetails: React.FC<Props> = ({
@@ -26,6 +27,7 @@ const DatasetDetails: React.FC<Props> = ({
   addDisabled,
   // onTagSelect,
   onDatasetAdd,
+  onDatasetPublish,
 }) => {
   // const datasetTags = useMemo(
   //   () => (dataset?.type !== "group" ? dataset?.tags?.map(tag => tag) : undefined),
@@ -43,8 +45,9 @@ const DatasetDetails: React.FC<Props> = ({
     <DetailsComponent
       dataset={dataset}
       addDisabled={addDisabled(dataset.dataID)}
-      onDatasetAdd={onDatasetAdd}
       contentSection={ContentComponent}
+      onDatasetAdd={onDatasetAdd}
+      onDatasetPublish={onDatasetPublish}
     />
   ) : (
     <NoData>

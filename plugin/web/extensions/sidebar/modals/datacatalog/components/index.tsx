@@ -13,6 +13,7 @@ const DataCatalog: React.FC = () => {
     handleClose,
     handleTabChange,
     handleDatasetAdd,
+    handleDatasetPublish,
   } = useHooks();
 
   return (
@@ -40,6 +41,7 @@ const DataCatalog: React.FC = () => {
           catalog={catalog}
           addedDatasetDataIDs={addedDatasetDataIDs}
           onDatasetAdd={handleDatasetAdd}
+          onDatasetPublish={handleDatasetPublish}
         />
       )}
     </Wrapper>

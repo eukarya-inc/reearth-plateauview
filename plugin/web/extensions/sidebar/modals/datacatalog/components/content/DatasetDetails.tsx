@@ -2,7 +2,7 @@ import { DataCatalogItem } from "@web/extensions/sidebar/core/types";
 import { UserDataItem } from "@web/extensions/sidebar/modals/datacatalog/types";
 import { Icon } from "@web/sharedComponents";
 import { styled } from "@web/theme";
-import { ComponentType, useCallback, useMemo, useState } from "react";
+import { ComponentType, useCallback } from "react";
 
 export type Props = {
   dataset: DataCatalogItem | UserDataItem;
@@ -10,7 +10,10 @@ export type Props = {
   addDisabled: boolean;
   contentSection?: ComponentType;
   onDatasetAdd: (dataset: DataCatalogItem | UserDataItem) => void;
+  onDatasetPublish: (dataID: string, publish: boolean) => void;
 };
+
+const showShareButton = false; // This code can be removed when decision about share button is made
 
 const DatasetDetails: React.FC<Props> = ({
   dataset,
@@ -18,21 +21,13 @@ const DatasetDetails: React.FC<Props> = ({
   addDisabled,
   contentSection: ContentSection,
   onDatasetAdd,
+  onDatasetPublish,
 }) => {
-  const datasetType: "catalog" | "user" = useMemo(
-    () => ("dataID" in dataset ? "catalog" : "user"),
-    [dataset],
-  );
-  const [published, setPublished] = useState(
-    datasetType === "user" ? undefined : (dataset as DataCatalogItem).public,
-  );
-  const showShareButton = false; // This code can be removed when decision about share button is made
-
-  const handlePublish = useCallback(() => {
-    if (datasetType === "user") return;
-
-    setPublished(true);
-  }, [datasetType, setPublished]);
+  const handleDatasetPublish = useCallback(() => {
+    if (!("dataID" in dataset)) return;
+    const datasetToUpdate = dataset as DataCatalogItem;
+    onDatasetPublish(datasetToUpdate.dataID, !datasetToUpdate.public);
+  }, [dataset, onDatasetPublish]);
 
   const handleDatasetAdd = useCallback(() => {
     if (!dataset || addDisabled) return;
@@ -44,10 +39,14 @@ const DatasetDetails: React.FC<Props> = ({
       <TopWrapper>
         <HeaderWrapper>
           <Title>{dataset.name}</Title>
-          {datasetType === "catalog" && (
-            <PublishButton published={published} onClick={handlePublish}>
-              <HoverText published={published}>公開</HoverText>
-              <Text published={published}>{published ? "公開済み" : "未公開"}</Text>
+          {"dataID" in dataset && (
+            <PublishButton
+              published={(dataset as DataCatalogItem).public}
+              onClick={handleDatasetPublish}>
+              <HoverText published={(dataset as DataCatalogItem).public}>公開</HoverText>
+              <Text published={(dataset as DataCatalogItem).public}>
+                {(dataset as DataCatalogItem).public ? "公開済み" : "未公開"}
+              </Text>
             </PublishButton>
           )}
         </HeaderWrapper>
