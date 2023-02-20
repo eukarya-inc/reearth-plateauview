@@ -1,4 +1,4 @@
-import { Empty, Icon } from "@web/sharedComponents";
+import { Icon } from "@web/sharedComponents";
 import { styled } from "@web/theme";
 
 import type { DatasetIndexes, Condition as ConditionType } from "../../types";
@@ -39,13 +39,16 @@ const ConditionPanel: React.FC<Props> = ({
             ))}
           </Conditions>
           <ButtonWrapper>
-            <Button onClick={conditionApply}>Apply</Button>
+            <Button onClick={conditionApply}>検索</Button>
           </ButtonWrapper>
         </ConditionWrapper>
       )}
       {conditionsState === "empty" && (
         <EmptyWrapper>
-          <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
+          <Empty>
+            <Icon icon="fileDotted" size={24} />
+            <EmptyInfo>データがありません</EmptyInfo>
+          </Empty>
         </EmptyWrapper>
       )}
     </Wrapper>
@@ -78,6 +81,17 @@ const EmptyWrapper = styled.div`
   display: flex;
   justify-content: center;
 `;
+
+const Empty = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  color: #bfbfbf;
+`;
+
+const EmptyInfo = styled.span``;
 
 const DatasetInfo = styled.div`
   height: 40px;

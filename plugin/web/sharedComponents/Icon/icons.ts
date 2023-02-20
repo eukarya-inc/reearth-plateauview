@@ -54,6 +54,7 @@ import { ReactComponent as Funnel } from "./Icons/funnel.svg";
 import { ReactComponent as ListNumbers } from "./Icons/listNumbers.svg";
 import { ReactComponent as Save } from "./Icons/save.svg";
 import { ReactComponent as Transparent } from "./Icons/transparent.svg";
+import { ReactComponent as FileDotted } from "./Icons/fileDotted.svg";
 
 // Ant Design Icons
 export { InboxOutlined } from "@ant-design/icons";
@@ -112,4 +113,5 @@ export default {
   listNumbers: ListNumbers,
   save: Save,
   transparent: Transparent,
+  fileDotted: FileDotted,
 };

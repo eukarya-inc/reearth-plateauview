@@ -33,7 +33,7 @@ const BuildingSearch: React.FC = () => {
       <Header>
         <TitleWrapper>
           <Icon icon="magnifyingGlass" size={20} />
-          <Title>Search Data</Title>
+          <Title>データを検索</Title>
         </TitleWrapper>
         <ButtonWrapper>
           <Button onClick={toggleMinimize}>
@@ -45,7 +45,7 @@ const BuildingSearch: React.FC = () => {
         </ButtonWrapper>
       </Header>
       <MiniContent active={minimized} disabled={results.length === 0}>
-        {`${results.length} matches found`}
+        {results.length === 0 ? `検索結果がありません` : `${results.length} 件が見つかりました`}
       </MiniContent>
       <Content active={!minimized}>
         <Tabs>
@@ -53,13 +53,13 @@ const BuildingSearch: React.FC = () => {
             <TabIcon>
               <Icon icon="funnel" size={24} />
             </TabIcon>
-            <TabTitle>Condition</TabTitle>
+            <TabTitle>条件</TabTitle>
           </Tab>
           <Tab active={activeTab === "result"} onClick={onClickResult}>
             <TabIcon>
               <Icon icon="listNumbers" size={24} />
             </TabIcon>
-            <TabTitle>Result</TabTitle>
+            <TabTitle>結果</TabTitle>
           </Tab>
         </Tabs>
         <TabContent>
