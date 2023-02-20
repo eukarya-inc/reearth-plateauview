@@ -61,7 +61,10 @@ export default () => {
     if (res.status !== 200) return;
     const resData = await res.json();
 
-    setTemplates(resData.templates);
+    if (resData.templates) {
+      setFieldTemplates(resData.templates.filter((t: Template) => t.type === "field"));
+      // TODO: send type "infobox" to the infobox block
+    }
     setData(resData.data);
   }, [backendURL]);
 
@@ -241,7 +244,7 @@ export default () => {
 
   // ****************************************
   // Templates
-  const [templates, setTemplates] = useState<Template[]>([]);
+  const [fieldTemplates, setFieldTemplates] = useState<Template[]>([]);
 
   const handleTemplateAdd = useCallback(async () => {
     if (!backendURL || !backendAccessToken) return;
@@ -254,7 +257,7 @@ export default () => {
     });
     if (res.status !== 200) return;
     const newTemplate = await res.json();
-    setTemplates(t => [...t, newTemplate]);
+    setFieldTemplates(t => [...t, newTemplate]);
     return newTemplate as Template;
   }, [backendURL, backendAccessToken]);
 
@@ -270,7 +273,7 @@ export default () => {
       });
       if (res.status !== 200) return;
       const updatedTemplate = await res.json();
-      setTemplates(t => {
+      setFieldTemplates(t => {
         return t.map(t2 => {
           if (t2.id === updatedTemplate.id) {
             return updatedTemplate;
@@ -292,7 +295,7 @@ export default () => {
         method: "DELETE",
       });
       if (res.status !== 200) return;
-      setTemplates(t => t.filter(t2 => t2.id !== id));
+      setFieldTemplates(t => t.filter(t2 => t2.id !== id));
     },
     [backendURL, backendAccessToken],
   );
@@ -400,7 +403,7 @@ export default () => {
     inEditor,
     reearthURL,
     backendURL,
-    templates,
+    templates: fieldTemplates,
     currentPage,
     handlePageChange,
     handleTemplateAdd,
