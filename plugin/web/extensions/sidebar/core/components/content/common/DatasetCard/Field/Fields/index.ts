@@ -2,6 +2,7 @@ import { ComponentType } from "react";
 
 import BuildingColor from "./3dtiles/BuildingColor";
 import BuildingFilter from "./3dtiles/BuildingFilter";
+import BuildingShadow from "./3dtiles/BuildingShadow";
 import BuildingTransparency from "./3dtiles/BuildingTransparency";
 import Clipping from "./3dtiles/Clipping";
 import ButtonLink from "./general/ButtonLink";
@@ -46,6 +47,7 @@ const fields: Fields<FieldComponent> = {
   buildingFilter: { Component: BuildingFilter, hasUI: true },
   buildingTransparency: { Component: BuildingTransparency, hasUI: true },
   buildingColor: { Component: BuildingColor, hasUI: true },
+  buildingShadow: { Component: BuildingShadow, hasUI: true },
   // 3d-tile
   // realtime: Realtime,
   // template: Template,

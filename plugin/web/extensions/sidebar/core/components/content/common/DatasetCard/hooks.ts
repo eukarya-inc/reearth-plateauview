@@ -203,7 +203,6 @@ export default ({
   //     },
   //   };
 
-  const ThreeDModelFields: FieldDropdownItem = {
     buildingColor: {
       name: fieldName["buildingColor"],
       onClick: handleFieldAdd({
@@ -217,6 +216,12 @@ export default ({
         abovegroundFloor: [1, 50],
         basementFloor: [0, 5],
       }),
+    },
+    buildingShadow: {
+      name: fieldName["buildingShadow"],
+      onClick: handleFieldAdd({
+        shadow: "disabled",
+      })
     },
     buildingTransparency: {
       name: fieldName["buildingTransparency"],

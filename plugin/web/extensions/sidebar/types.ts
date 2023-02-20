@@ -51,7 +51,9 @@ type ActionType =
   | "reset3dtilesTransparency"
   | "update3dtilesColor"
   | "reset3dtilesColor"
-  | "findTileset";
+  | "findTileset"
+  | "update3dtilesShadow"
+  | "reset3dtilesShadow";
 
 export type PostMessageProps = { action: ActionType; payload?: any };
 

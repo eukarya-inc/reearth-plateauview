@@ -354,6 +354,7 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
       },
     });
   };
+
   // For clipping box
   if (action === "addClippingBox") {
     const { dataID, box, clipping } = payload;
@@ -409,6 +410,14 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
       show: true,
     });
   }
+
+  // For 3dtiles shadow
+  if (action === "update3dtilesShadow") {
+    const { dataID, shadows } = payload;
+    override3dtiles(dataID, { shadows });
+  } else if (action === "reset3dtilesShadow") {
+    const { dataID } = payload;
+    override3dtiles(dataID, { shadows: "enabled" });
 
   // FIXME(@keiya): We need to compose transparency with color,
   //                but currently rgba is not working on NLS.
