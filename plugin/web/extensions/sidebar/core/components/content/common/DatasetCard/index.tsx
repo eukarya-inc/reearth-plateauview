@@ -14,6 +14,7 @@ import {
 
 import AddButton from "./AddButton";
 import Field from "./Field";
+import { IdealZoom } from "./Field/Fields/types";
 import useHooks from "./hooks";
 
 type Tabs = "default" | "edit";
@@ -59,7 +60,15 @@ const DatasetCard: React.FC<Props> = ({
         title: "カメラ",
         icon: "mapPin",
         value: 1,
-        onClick: () => postMsg({ action: "cameraFlyTo", payload: dataset.dataID }),
+        onClick: () => {
+          const idealZoomField = dataset.components?.find(c => c.type === "idealZoom");
+          postMsg({
+            action: "cameraFlyTo",
+            payload: idealZoomField
+              ? [(idealZoomField as IdealZoom).position, { duration: 2 }]
+              : dataset.dataID,
+          });
+        },
       },
       { id: "about", title: "About Data", icon: "about", value: "www.plateau.org/data-url" },
       {
