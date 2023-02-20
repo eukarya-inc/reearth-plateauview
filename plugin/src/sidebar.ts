@@ -418,6 +418,7 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
   } else if (action === "reset3dtilesShadow") {
     const { dataID } = payload;
     override3dtiles(dataID, { shadows: "enabled" });
+  }
 
   // FIXME(@keiya): We need to compose transparency with color,
   //                but currently rgba is not working on NLS.

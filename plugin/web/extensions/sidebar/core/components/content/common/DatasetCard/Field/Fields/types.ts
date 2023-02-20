@@ -174,7 +174,7 @@ type BuildingFilter = FieldBase<"buildingFilter"> & {
 
 type BuildingShadow = FieldBase<"buildingShadow"> & {
   shadow: "disabled" | "enabled" | "cast_only" | "receive_only";
-}
+};
 
 type BuildingTransparency = FieldBase<"buildingTransparency"> & {
   transparency: number;
