@@ -7,18 +7,10 @@ export type Props = {
   isMobile?: boolean;
   expandAll?: boolean;
   nestLevel: number;
-  showIndicator: boolean;
   children?: React.ReactNode;
 };
 
-const Folder: React.FC<Props> = ({
-  name,
-  isMobile,
-  expandAll,
-  nestLevel,
-  showIndicator,
-  children,
-}) => {
+const Folder: React.FC<Props> = ({ name, isMobile, expandAll, nestLevel, children }) => {
   const [isOpen, open] = useState(false);
 
   useEffect(() => {
@@ -30,7 +22,6 @@ const Folder: React.FC<Props> = ({
       <FolderItem nestLevel={nestLevel} onClick={() => open(!isOpen)}>
         <NameWrapper isMobile={isMobile}>
           <Icon icon={isOpen ? "folderOpen" : "folder"} size={20} />
-          {showIndicator && <UnpublishedIndicator />}
           <Name>{name}</Name>
         </NameWrapper>
       </FolderItem>
@@ -90,11 +81,4 @@ const Name = styled.p`
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden;
-`;
-
-const UnpublishedIndicator = styled.div`
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: #6d6d6d;
 `;

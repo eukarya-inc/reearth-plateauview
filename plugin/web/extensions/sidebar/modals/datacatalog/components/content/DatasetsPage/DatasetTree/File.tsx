@@ -1,15 +1,13 @@
 import { DataCatalogItem } from "@web/extensions/sidebar/core/types";
 import { Button, Icon } from "@web/sharedComponents";
 import { styled } from "@web/theme";
-import { useCallback, useEffect, useMemo } from "react";
+import { useCallback, useMemo } from "react";
 
 export type Props = {
   item: DataCatalogItem;
   isMobile?: boolean;
   nestLevel: number;
   selectedID?: string;
-  showParentIndicator?: boolean;
-  onShowParentIndicator?: React.Dispatch<React.SetStateAction<boolean>>;
   addDisabled: (dataID: string) => boolean;
   onDatasetAdd: (dataset: DataCatalogItem) => void;
   onOpenDetails?: (item?: DataCatalogItem) => void;
@@ -21,8 +19,6 @@ const File: React.FC<Props> = ({
   isMobile,
   nestLevel,
   selectedID,
-  showParentIndicator,
-  onShowParentIndicator,
   addDisabled,
   onDatasetAdd,
   onOpenDetails,
@@ -41,11 +37,6 @@ const File: React.FC<Props> = ({
     () => (item.type !== "group" ? selectedID === item.id : false),
     [selectedID, item],
   );
-
-  useEffect(() => {
-    if (showParentIndicator || showParentIndicator === !item.public) return;
-    onShowParentIndicator?.(!item.public);
-  }, [item.public, showParentIndicator, onShowParentIndicator]);
 
   return (
     <Wrapper nestLevel={nestLevel} selected={selected}>
