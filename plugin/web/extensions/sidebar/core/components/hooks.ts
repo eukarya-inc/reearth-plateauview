@@ -203,7 +203,6 @@ export default () => {
         return;
       }
       const data2 = await res.json();
-      // setTemplates(t => [...t, data.results]);
       console.log("DATA JUST SAVED: ", data2);
       handleBackendFetch(); // MAYBE UPDATE THIS LATER TO JUST UPDATE THE LOCAL VALUE
     },
@@ -270,7 +269,7 @@ export default () => {
         body: JSON.stringify(template),
       });
       if (res.status !== 200) return;
-      const updatedTemplate = (await res.json()).results;
+      const updatedTemplate = await res.json();
       setTemplates(t => {
         return t.map(t2 => {
           if (t2.id === updatedTemplate.id) {
