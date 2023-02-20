@@ -9,7 +9,7 @@ export const fieldName = {
   point: "ポイント",
   description: "説明",
   pointColor: "色",
-  pointColorGradient: "色（Gradient)",
+  pointColorGradient: "色（Gradient）",
   pointSize: "サイズ",
   pointIcon: "アイコン",
   pointLabel: "ラベル",
@@ -20,9 +20,9 @@ export const fieldName = {
   buildingTransparency: "透明度",
   buildingColor: "色分け",
   buildingShadow: "影",
-  polylineColor: "polylineColor",
-  polylineColorGradient: "polylineColorGradient",
-  polylineStrokeWeight: "polylineStrokeWeight",
+  polylineColor: "ポリライン色",
+  polylineColorGradient: "ポリライン色（Gradient）",
+  polylineStrokeWeight: "ポリラインストロック",
 };
 
 // type Component = Camera | Legend | Realtime | Point | Polyline | Polygon | Model | Description;
