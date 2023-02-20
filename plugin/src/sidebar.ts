@@ -11,6 +11,8 @@ import groupSelectPopupHtml from "../dist/web/sidebar/popups/groupSelect/index.h
 import helpPopupHtml from "../dist/web/sidebar/popups/help/index.html?raw";
 import mobileDropdownHtml from "../dist/web/sidebar/popups/mobileDropdown/index.html?raw";
 
+import { getRGBAFromString, RGBA, rgbaToString } from "./utils/color";
+
 const defaultProject: Project = {
   sceneOverrides: {
     default: {
@@ -69,6 +71,23 @@ const addedDatasets: [
   status: "showing" | "hidden" | "removed",
   layerID?: string,
 ][] = [];
+
+// For clipping box
+const addedBoxIDs: {
+  [dataID: string]: {
+    layerID: string;
+  };
+} = {};
+
+// For storing 3dtiles color
+const colorStoreFor3dtiles: {
+  [dataID: string]:
+    | {
+        color?: string | { expression: { conditions: [expression: string, color: string][] } };
+        transparency?: number;
+      }
+    | undefined;
+} = {};
 
 const sidebarInstance: PluginExtensionInstance = reearth.plugins.instances.find(
   (i: PluginExtensionInstance) => i.id === reearth.widget.id,
@@ -321,6 +340,172 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
       payload,
     });
   }
+
+  // ************************************************
+  // For 3dtiles
+  if (action === "findTileset") {
+    const { dataID } = payload;
+    const tilesetLayerID = addedDatasets.find(a => a[0] === dataID)?.[2];
+    const tilesetLayer = reearth.layers.findById(tilesetLayerID);
+    reearth.ui.postMessage({
+      action,
+      payload: {
+        layer: {
+          id: tilesetLayer.id,
+          data: tilesetLayer.data,
+          ["3dtiles"]: tilesetLayer?.["3dtiles"],
+        },
+      },
+    });
+  }
+
+  const override3dtiles = (dataID: string, property: Record<string, any>) => {
+    const tilesetLayerID = addedDatasets.find(a => a[0] === dataID)?.[2];
+    const tilesetLayer = reearth.layers.findById(tilesetLayerID);
+    reearth.layers.override(tilesetLayerID, {
+      "3dtiles": {
+        ...(tilesetLayer?.["3dtiles"] || {}),
+        ...property,
+      },
+    });
+  };
+
+  // For clipping box
+  if (action === "addClippingBox") {
+    const { dataID, box, clipping } = payload;
+    if (addedBoxIDs[dataID]) {
+      return;
+    }
+    const boxID = reearth.layers.add(box);
+    addedBoxIDs[dataID] = { layerID: boxID };
+
+    override3dtiles(dataID, { experimental_clipping: clipping });
+    reearth.ui.postMessage({
+      action,
+      payload: { layerID: boxID },
+    });
+  } else if (action === "updateClippingBox") {
+    const { dataID, shouldUpdateClipping, box, clipping } = payload;
+    const addedBoxID = addedBoxIDs[dataID];
+    if (!addedBoxID) {
+      return;
+    }
+    const boxID = addedBoxID.layerID;
+    reearth.layers.override(boxID, box);
+
+    if (shouldUpdateClipping) {
+      new Promise(resolve => {
+        override3dtiles(dataID, { experimental_clipping: clipping });
+        resolve(undefined);
+      });
+    }
+  } else if (action === "removeClippingBox") {
+    const { dataID } = payload;
+    const addedBoxID = addedBoxIDs[dataID];
+    if (!addedBoxID) {
+      return;
+    }
+    const boxID = addedBoxID.layerID;
+    reearth.layers.delete(boxID);
+
+    override3dtiles(dataID, {
+      experimental_clipping: undefined,
+    });
+
+    delete addedBoxIDs[dataID];
+  }
+  // For 3dtiles show
+  if (action === "update3dtilesShow") {
+    const { dataID, show } = payload;
+    override3dtiles(dataID, { show });
+  } else if (action === "reset3dtilesShow") {
+    const { dataID } = payload;
+
+    override3dtiles(dataID, {
+      show: true,
+    });
+  }
+
+  // For 3dtiles shadow
+  if (action === "update3dtilesShadow") {
+    const { dataID, shadows } = payload;
+    override3dtiles(dataID, { shadows });
+  } else if (action === "reset3dtilesShadow") {
+    const { dataID } = payload;
+    override3dtiles(dataID, { shadows: "enabled" });
+  }
+
+  // For 3dtiles transparency
+  if (action === "update3dtilesTransparency") {
+    const { dataID, transparency } = payload;
+    const storedObj = colorStoreFor3dtiles[dataID];
+    const color = storedObj?.color;
+    colorStoreFor3dtiles[dataID] = {
+      ...(storedObj || {}),
+      transparency,
+    };
+
+    const defaultRGBA = rgbaToString([255, 255, 255, transparency]);
+    const expression = (() => {
+      if (!color) {
+        return defaultRGBA;
+      }
+      if (typeof color === "string") {
+        const rgba = getRGBAFromString(color);
+        return rgba ? rgbaToString([...rgba.slice(0, -1), transparency] as RGBA) : defaultRGBA;
+      }
+      return {
+        expression: {
+          conditions: color.expression.conditions.map(([k, v]: [string, string]) => {
+            const rgba = getRGBAFromString(v);
+            if (!rgba) {
+              return [k, defaultRGBA];
+            }
+            const composedRGBA = [...rgba.slice(0, -1), transparency] as RGBA;
+            return [k, rgbaToString(composedRGBA)];
+          }),
+        },
+      };
+    })();
+    override3dtiles(dataID, { color: expression });
+  } else if (action === "reset3dtilesTransparency") {
+    const { dataID } = payload;
+    const storedObj = colorStoreFor3dtiles[dataID];
+    delete colorStoreFor3dtiles[dataID]?.transparency;
+    override3dtiles(dataID, { color: storedObj?.color || "rgba(255, 255, 255, 1)" });
+  }
+  // For 3dtiles color
+  if (action === "update3dtilesColor") {
+    const { dataID, color } = payload;
+    const storedObj = colorStoreFor3dtiles[dataID];
+    const transparency = storedObj?.transparency;
+    colorStoreFor3dtiles[dataID] = {
+      ...(storedObj || {}),
+      color,
+    };
+
+    const expression = {
+      ...color,
+      expression: {
+        ...color.expression,
+        conditions: color.expression.conditions.map(([k, v]: [string, string]) => {
+          const rgba = getRGBAFromString(v);
+          if (!rgba) {
+            return [k, v];
+          }
+          const composedRGBA = [...rgba.slice(0, -1), transparency || rgba[3]] as RGBA;
+          return [k, rgbaToString(composedRGBA)];
+        }),
+      },
+    };
+    override3dtiles(dataID, { color: expression });
+  } else if (action === "reset3dtilesColor") {
+    const { dataID } = payload;
+    const storedObj = colorStoreFor3dtiles[dataID];
+    delete colorStoreFor3dtiles[dataID]?.color;
+    override3dtiles(dataID, { color: `rgba(255, 255, 255, ${storedObj?.transparency || 1})` });
+  }
+  // ************************************************
 });
 
 reearth.on("update", () => {

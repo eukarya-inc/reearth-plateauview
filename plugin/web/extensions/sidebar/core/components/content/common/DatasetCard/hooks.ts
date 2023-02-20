@@ -115,6 +115,14 @@ export default ({
         items: [{ title: "hey", color: "red" }],
       }),
     },
+    realtime: {
+      name: fieldName["realtime"],
+      onClick: handleFieldAdd({ updateInterval: 30 }),
+    },
+    styleCode: {
+      name: fieldName["styleCode"],
+      onClick: handleFieldAdd({ src: " " }),
+    },
     switchGroup: {
       name: fieldName["switchGroup"],
       onClick: handleFieldAdd({
@@ -165,45 +173,65 @@ export default ({
     },
   };
 
-  //   const polylineFields: {
-  //     [key: string]: { name: string; onClick?: (property: any) => void };
-  //   } = {
-  //     camera: {
-  //       name: "カメラ",
-  //       onClick: () =>
-  //         handleFieldAdd({
-  //           position: {
-  //             lng: 0,
-  //             lat: 0,
-  //             height: 0,
-  //             pitch: 0,
-  //             heading: 0,
-  //             roll: 0,
-  //           },
-  //         }),
-  //     },
-  //   };
+  const polylineFields = {
+    polylineColor: {
+      name: fieldName["polylineColor"],
+      onClick: handleFieldAdd({}),
+    },
+    // polylineColorGradient: {
+    //   name: fieldName["polylineColorGradient"],
+    //   onClick: handleFieldAdd({}),
+    // },
+    polylineStrokeWeight: {
+      name: fieldName["polylineStrokeWeight"],
+      onClick: handleFieldAdd({}),
+    },
+  };
 
-  //   const polygonFields: {
-  //     [key: string]: { name: string; onClick?: (property: any) => void };
-  //   } = {
-  //     camera: {
-  //       name: "カメラ",
-  //       onClick: () =>
-  //         handleFieldAdd({
-  //           position: {
-  //             lng: 0,
-  //             lat: 0,
-  //             height: 0,
-  //             pitch: 0,
-  //             heading: 0,
-  //             roll: 0,
-  //           },
-  //         }),
-  //     },
-  //   };
+  const polygonFields: {
+    [key: string]: { name: string; onClick?: (property: any) => void };
+  } = {
+    polygonColor: {
+      name: fieldName["polygonColor"],
+      onClick: handleFieldAdd({}),
+    },
+    // polygonColorGradient: {
+    //   name: fieldName["polygonColorGradient"],
+    //   onClick: ({ key }) => console.log("do something: ", key),
+    // },
+    polygonStroke: {
+      name: fieldName["polygonStroke"],
+      onClick: handleFieldAdd({}),
+    },
+  };
 
   const ThreeDModelFields: FieldDropdownItem = {
+    buildingColor: {
+      name: fieldName["buildingColor"],
+      onClick: handleFieldAdd({
+        colorType: "none",
+      }),
+    },
+    buildingFilter: {
+      name: fieldName["buildingFilter"],
+      onClick: handleFieldAdd({
+        height: [0, 200],
+        abovegroundFloor: [1, 50],
+        basementFloor: [0, 5],
+      }),
+    },
+    buildingShadow: {
+      name: fieldName["buildingShadow"],
+      onClick: handleFieldAdd({
+        shadow: "disabled",
+      }),
+    },
+    buildingTransparency: {
+      name: fieldName["buildingTransparency"],
+      onClick: handleFieldAdd({
+        transparency: 100,
+      }),
+    },
     clipping: {
       name: fieldName["clipping"],
       onClick: handleFieldAdd({
@@ -272,9 +300,9 @@ export default ({
       name: "ポイント",
       fields: filterFields(pointFields),
     },
-    // polyline: { name: "ポリライン", fields: polylineFields },
-    // polygone: { name: "ポリゴン", fields: polygonFields },
-    "3d-model": { name: "3Dモデル", fields: ThreeDModelFields },
+    polygone: { name: "ポリゴン", fields: polygonFields },
+    polyline: { name: "ポリライン", fields: polylineFields },
+    "3d-model": { name: "3Dモデル", fields: filterFields(ThreeDModelFields) },
     // "3d-tile": { name: "3Dタイル", fields: ThreeDTileFields },
   };
   return {
