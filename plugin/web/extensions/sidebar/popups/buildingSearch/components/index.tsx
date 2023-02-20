@@ -10,7 +10,7 @@ const BuildingSearch: React.FC = () => {
     minimized,
     size,
     activeTab,
-    datasetIndexes,
+    dataset,
     results,
     highlightAll,
     showMatchingOnly,
@@ -65,7 +65,7 @@ const BuildingSearch: React.FC = () => {
         <TabContent>
           <ConditionPanel
             active={activeTab === "condition"}
-            datasetIndexes={datasetIndexes}
+            dataset={dataset}
             conditionsState={conditionsState}
             setConditions={setConditions}
             conditionApply={conditionApply}

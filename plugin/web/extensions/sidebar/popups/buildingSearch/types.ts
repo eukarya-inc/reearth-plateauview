@@ -35,7 +35,7 @@ export type SearchResults = {
 };
 
 //
-export type DatasetIndexes = {
+export type Dataset = {
   title: string;
   dataID: string;
   indexes: IndexData[];

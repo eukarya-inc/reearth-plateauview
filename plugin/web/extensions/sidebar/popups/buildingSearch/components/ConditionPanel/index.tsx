@@ -1,13 +1,13 @@
 import { Icon } from "@web/sharedComponents";
 import { styled } from "@web/theme";
 
-import type { DatasetIndexes, Condition as ConditionType } from "../../types";
+import type { Dataset, Condition as ConditionType } from "../../types";
 
 import Condition from "./Condition";
 
 type Props = {
   active: boolean;
-  datasetIndexes?: DatasetIndexes;
+  dataset?: Dataset;
   conditionsState: "loading" | "empty" | "ready";
   conditionApply: () => void;
   setConditions: React.Dispatch<React.SetStateAction<ConditionType[]>>;
@@ -15,7 +15,7 @@ type Props = {
 
 const ConditionPanel: React.FC<Props> = ({
   active,
-  datasetIndexes,
+  dataset,
   conditionsState,
   conditionApply,
   setConditions,
@@ -27,10 +27,10 @@ const ConditionPanel: React.FC<Props> = ({
         <ConditionWrapper>
           <DatasetInfo>
             <Icon icon="database" size={24} />
-            <DatasetName>{datasetIndexes?.title}</DatasetName>
+            <DatasetName>{dataset?.title}</DatasetName>
           </DatasetInfo>
           <Conditions>
-            {datasetIndexes?.indexes.map(indexItem => (
+            {dataset?.indexes.map(indexItem => (
               <Condition
                 key={indexItem.field}
                 indexItem={indexItem}

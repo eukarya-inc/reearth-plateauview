@@ -5,7 +5,7 @@ import { useCallback, useEffect, useState, useRef } from "react";
 
 import type {
   InitData,
-  DatasetIndexes,
+  Dataset,
   Condition,
   Result,
   Viewport,
@@ -95,7 +95,7 @@ export default () => {
   const [conditionsState, setConditionsState] = useState<"loading" | "empty" | "ready">("loading");
 
   // Data
-  const [datasetIndexes, setDatasetIndexes] = useState<DatasetIndexes>();
+  const [dataset, setDataset] = useState<Dataset>();
   const [conditions, setConditions] = useState<Condition[]>([]);
   const [results, setResults] = useState<Result[]>([]);
   const [resultStyleCondition, setResultStyleCondition] = useState<string>();
@@ -131,7 +131,7 @@ export default () => {
   }, []);
 
   useEffect(() => {
-    if (!datasetIndexes?.dataID) return;
+    if (!dataset?.dataID) return;
 
     const colorConditions: [string, string][] = [];
 
@@ -181,11 +181,11 @@ export default () => {
     postMsg({
       action: "updateDatasetInScene",
       payload: {
-        dataID: datasetIndexes.dataID,
+        dataID: dataset.dataID,
         update: styles,
       },
     });
-  }, [selected, resultStyleCondition, datasetIndexes?.dataID, highlightAll, showMatchingOnly]);
+  }, [selected, resultStyleCondition, dataset?.dataID, highlightAll, showMatchingOnly]);
 
   const conditionApply = useCallback(() => {
     searchResults.current = [];
@@ -351,7 +351,7 @@ export default () => {
             indexDataItem.values = uniq(indexDataItem.values);
           });
 
-          setDatasetIndexes({
+          setDataset({
             title: rawDatasetData.title,
             dataID: rawDatasetData.dataID,
             indexes: indexData,
@@ -426,7 +426,7 @@ export default () => {
     size,
     minimized,
     activeTab,
-    datasetIndexes,
+    dataset,
     results,
     highlightAll,
     showMatchingOnly,
