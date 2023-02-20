@@ -20,9 +20,16 @@ gcloud auth application-default login
 ### GCP APIの有効化
 
 ```
-gcloud services enable secretmanager.googleapis.com
 gcloud services enable certificatemanager.googleapis.com
-#TODO: その他必要なものもあるが、事前有効化済みだったので後で確認する
+gcloud services enable secretmanager.googleapis.com
+gcloud services enable cloudbuild.googleapis.com
+gcloud services enable cloudresourcemanager.googleapis.com
+gcloud services enable cloudtasks.googleapis.com
+gcloud services enable compute.googleapis.com
+gcloud services enable dns.googleapis.com
+gcloud services enable iam.googleapis.com
+gcloud services enable run.googleapis.com
+gcloud services enable sts.googleapis.com
 ```
 
 ### CloudDNSのセットアップ
@@ -43,18 +50,18 @@ gcloud services enable certificatemanager.googleapis.com
 [example.tfvars](./env/example.tfvars) をコピーし、必要な設定を追記する。
 
 ### backendの作成
-
+リソース全般の作成に必要なSERVICE_PREFIXを決める。
 ```
 export SERVICE_PREFIX=""
-gcloud storage buckets create gs://$(SERVICE_PREFIX)-terraform-tfstate
+gcloud storage buckets create gs://${SERVICE_PREFIX}-terraform-tfstate
 ```
 
-[terraform.tf](terraform.tf)の `backend`のbucketを設定する
+[terraform.tf](terraform.tf)の`backend`のbucketを設定する
 
 ```diff
   backend "gcs" {
 -    bucket = ""
-+    bucket = "$(SERVICE_PREFIX)-terraform-tfstate"
++    bucket = "${SERVICE_PREFIX}-terraform-tfstate"
   }
 ```
 
@@ -91,7 +98,7 @@ gsutil -m -h "Cache-Control:no-store" rsync -x "^reearth_config\\.json$" -dr ree
 ### reearthのdeploy
 ```bash
 gcloud run deploy reearth-api \
-            --image reearth/reearth:0.14.1 \
+            --image reearth/reearth:0.14.2 \
             --region asia-northeast1 \
             --platform managed \
             --quiet
