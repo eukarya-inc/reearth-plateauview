@@ -338,6 +338,7 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
       },
     });
   };
+
   // For clipping box
   if (action === "addClippingBox") {
     const { dataID, box, clipping } = payload;
@@ -393,6 +394,7 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
       show: true,
     });
   }
+
   // For 3dtiles shadow
   if (action === "update3dtilesShadow") {
     const { dataID, shadows } = payload;
@@ -400,6 +402,15 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
   } else if (action === "reset3dtilesShadow") {
     const { dataID } = payload;
     override3dtiles(dataID, { shadows: "enabled" });
+
+  // For 3dtiles color
+  if (action === "update3dtilesTransparency") {
+    const { dataID, transparency } = payload;
+    const rgba = [255, 255, 255, transparency];
+    override3dtiles(dataID, { color: `rgba(${rgba.join(",")})` });
+  } else if (action === "reset3dtilesTransparency") {
+    const { dataID } = payload;
+    override3dtiles(dataID, { color: "rgba(255, 255, 255, 1)" });
   }
   // ************************************************
 });

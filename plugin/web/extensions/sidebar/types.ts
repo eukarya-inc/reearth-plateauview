@@ -48,7 +48,9 @@ type ActionType =
   | "update3dtilesShow"
   | "reset3dtilesShow"
   | "update3dtilesShadow"
-  | "reset3dtilesShadow";
+  | "reset3dtilesShadow"
+  | "update3dtilesTransparency"
+  | "reset3dtilesTransparency";
 
 export type PostMessageProps = { action: ActionType; payload?: any };
 

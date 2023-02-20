@@ -216,6 +216,12 @@ export default ({
       name: fieldName["buildingShadow"],
       onClick: handleFieldAdd({
         shadow: "disabled",
+      })
+    },
+    buildingTransparency: {
+      name: fieldName["buildingTransparency"],
+      onClick: handleFieldAdd({
+        transparency: 100,
       }),
     },
     clipping: {
