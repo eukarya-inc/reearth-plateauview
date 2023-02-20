@@ -2,7 +2,7 @@ import { DataCatalogItem, Template } from "@web/extensions/sidebar/core/types";
 // import { postMsg } from "@web/extensions/sidebar/utils";
 import { Dropdown, Icon, Menu } from "@web/sharedComponents";
 import { styled } from "@web/theme";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import {
   Accordion,
   AccordionItem,
@@ -80,10 +80,9 @@ const TemplateCard: React.FC<Props> = ({
   onTemplateUpdate,
 }) => {
   const [currentTab, changeTab] = useState<Tabs>("edit");
+  const [hidden, setHidden] = useState(false);
 
-  useEffect(() => {
-    console.log("T: ", template);
-  }, [template]);
+  const [editTitle, setEditTitle] = useState(false);
 
   const { fieldComponentsList, handleFieldUpdate, handleFieldRemove, handleGroupsUpdate } =
     useHooks({
@@ -100,7 +99,21 @@ const TemplateCard: React.FC<Props> = ({
     onTemplateSave(template);
   }, [template, onTemplateSave]);
 
-  const [hidden, setHidden] = useState(false);
+  const handleTemplateNameUpdate = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      e.stopPropagation();
+      onTemplateUpdate?.({ ...template, name: e.currentTarget.value });
+    },
+    [template, onTemplateUpdate],
+  );
+
+  const handleToggleTitleEdit = useCallback(
+    (e: React.MouseEvent<HTMLDivElement, MouseEvent> | undefined) => {
+      e?.stopPropagation();
+      setEditTitle(!editTitle);
+    },
+    [editTitle],
+  );
 
   return (
     <StyledAccordionComponent allowZeroExpanded preExpanded={["templatecard"]}>
@@ -119,7 +132,18 @@ const TemplateCard: React.FC<Props> = ({
                         setHidden(!hidden);
                       }}
                     />
-                    <Title>{template.name}</Title>
+                    <NameWrapper>
+                      {editTitle ? (
+                        <input
+                          defaultValue={template.name}
+                          onChange={handleTemplateNameUpdate}
+                          onClick={e => e.stopPropagation()}
+                        />
+                      ) : (
+                        <Title>{template.name}</Title>
+                      )}
+                      <EditIcon icon="edit" size={16} onClick={handleToggleTitleEdit} />
+                    </NameWrapper>
                   </LeftMain>
                   <ArrowIcon icon="arrowDown" size={16} expanded={expanded} />
                 </HeaderContents>
@@ -222,7 +246,7 @@ const Title = styled.p`
   font-size: 16px;
   text-overflow: ellipsis;
   overflow: hidden;
-  width: 250px;
+  max-width: 230px;
   white-space: nowrap;
 `;
 
@@ -301,4 +325,18 @@ const SaveButton = styled.div`
 const Text = styled.p`
   margin: 0;
   line-height: 15px;
+`;
+
+const NameWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 5px;
+`;
+
+const EditIcon = styled(Icon)`
+  padding: 3px;
+
+  :hover {
+    cursor: pointer;
+  }
 `;
