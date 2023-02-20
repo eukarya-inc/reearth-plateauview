@@ -5,9 +5,12 @@ import { ComponentProps, useCallback, useEffect, useState } from "react";
 
 import { BaseFieldProps } from "../../types";
 
+import { INDEPENDENT_COLOR_TYPE } from "./constants";
 import { useBuildingColor } from "./useBuildingColor";
 
 type OptionsState = Omit<BaseFieldProps<"buildingColor">["value"], "id" | "group" | "type">;
+
+type RadioItem = { id: string; label: string; featurePropertyName: string };
 
 const useHooks = ({
   value,
@@ -17,9 +20,8 @@ const useHooks = ({
   const [options, setOptions] = useState<OptionsState>({
     colorType: value.colorType,
   });
-  const [floods, setFloods] = useState<
-    { id: string; label: string; featurePropertyName: string }[]
-  >([]);
+  const [independentColorTypes, setIndependentColorTypes] = useState<RadioItem[]>([]);
+  const [floods, setFloods] = useState<RadioItem[]>([]);
   const [initialized, setInitialized] = useState(false);
 
   const handleUpdate = useCallback(
@@ -48,8 +50,46 @@ const useHooks = ({
   }, [value, options]);
 
   useEffect(() => {
-    const MARK_TEXT = ["洪水浸水想定区域", "浸水予想区域"];
-    const EXCLUDING_RANGE_NAME = ["改定"];
+    const handleIndependentColorTypes = (data: any) => {
+      const tempTypes: typeof independentColorTypes = [];
+      Object.entries(data?.properties || {}).forEach(([k]) => {
+        Object.entries(INDEPENDENT_COLOR_TYPE).forEach(([, type]) => {
+          if (k === type.featurePropertyName) {
+            tempTypes.push(type);
+          }
+        });
+      });
+      setIndependentColorTypes(tempTypes);
+    };
+    const handleFloods = (data: any) => {
+      const MARK_TEXT = ["洪水浸水想定区域", "浸水予想区域"];
+      const EXCLUDING_RANGE_NAME = ["改定"];
+      const tempFloods: typeof floods = [];
+      Object.entries(data?.properties || {}).forEach(([k, v]) => {
+        if (k.endsWith("_浸水ランク") && v && typeof v === "object" && Object.keys(v).length > 0) {
+          const marker = MARK_TEXT.find(s => k.includes(s));
+          if (!marker) {
+            return;
+          }
+          const [label, rest] = k.split(`${marker}`);
+          const matches = rest.match(/(（.*）)?_(.*)_浸水ランク/);
+          if (!matches) {
+            return;
+          }
+          const range = matches[1]?.match(/（(.*)）/)?.[1];
+          const scale = matches[2];
+          const level = scale === "想定最大規模" ? "L2" : "L1";
+          tempFloods.push({
+            id: `floods-${tempFloods.length}`,
+            label: `${level || ""}${scale ? `(${scale})` : ""}_浸水ランク(${label}${
+              range && !EXCLUDING_RANGE_NAME.includes(range) ? `: ${range}` : ""
+            })`,
+            featurePropertyName: k,
+          });
+        }
+      });
+      setFloods(tempFloods);
+    };
     const waitReturnedPostMsg = async (e: MessageEvent<any>) => {
       if (e.source !== parent) return;
       if (e.data.action === "findTileset") {
@@ -65,38 +105,9 @@ const useHooks = ({
             console.error(e);
           }
         })();
+        handleIndependentColorTypes(data);
+        handleFloods(data);
 
-        Object.entries(data?.properties || {}).forEach(([k, v]) => {
-          if (
-            k.endsWith("_浸水ランク") &&
-            v &&
-            typeof v === "object" &&
-            Object.keys(v).length > 0
-          ) {
-            const marker = MARK_TEXT.find(s => k.includes(s));
-            if (!marker) {
-              return;
-            }
-            const [label, rest] = k.split(`${marker}`);
-            const matches = rest.match(/(（.*）)?_(.*)_浸水ランク/);
-            if (!matches) {
-              return;
-            }
-            const range = matches[1]?.match(/（(.*)）/)?.[1];
-            const scale = matches[2];
-            const level = scale === "想定最大規模" ? "L2" : "L1";
-            setFloods(v => [
-              ...v,
-              {
-                id: `floods-${v.length}`,
-                label: `${level || ""}${scale ? `(${scale})` : ""}_浸水ランク(${label}${
-                  range && !EXCLUDING_RANGE_NAME.includes(range) ? `: ${range}` : ""
-                })`,
-                featurePropertyName: k,
-              },
-            ]);
-          }
-        });
         removeEventListener("message", waitReturnedPostMsg);
         setInitialized(true);
       }
@@ -114,6 +125,7 @@ const useHooks = ({
 
   return {
     options,
+    independentColorTypes,
     floods,
     handleUpdateColorType,
   };

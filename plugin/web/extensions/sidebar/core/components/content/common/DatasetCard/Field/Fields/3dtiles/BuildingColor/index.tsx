@@ -11,7 +11,7 @@ const BuildingColor: React.FC<BaseFieldProps<"buildingColor">> = ({
   editMode,
   onUpdate,
 }) => {
-  const { options, floods, handleUpdateColorType } = useHooks({
+  const { options, floods, independentColorTypes, handleUpdateColorType } = useHooks({
     value,
     dataID,
     onUpdate,
@@ -22,18 +22,11 @@ const BuildingColor: React.FC<BaseFieldProps<"buildingColor">> = ({
       <StyledRadio value="none">
         <Label>色分けなし</Label>
       </StyledRadio>
-      <StyledRadio value="height">
-        <Label>高さによる塗分け</Label>
-      </StyledRadio>
-      <StyledRadio value="purpose">
-        <Label>用途による塗分け</Label>
-      </StyledRadio>
-      <StyledRadio value="structure">
-        <Label>建物構造による塗分け</Label>
-      </StyledRadio>
-      <StyledRadio value="fireproof">
-        <Label>耐火構造種別による塗分け</Label>
-      </StyledRadio>
+      {independentColorTypes.map(type => (
+        <StyledRadio key={type.id} value={type.id}>
+          <Label>{type.label}</Label>
+        </StyledRadio>
+      ))}
       {floods.map(flood => (
         <StyledRadio key={flood.id} value={flood.id}>
           <Label>{flood.label}</Label>

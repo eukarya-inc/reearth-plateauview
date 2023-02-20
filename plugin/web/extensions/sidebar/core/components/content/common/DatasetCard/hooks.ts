@@ -203,6 +203,7 @@ export default ({
   //     },
   //   };
 
+  const ThreeDModelFields: FieldDropdownItem = {
     buildingColor: {
       name: fieldName["buildingColor"],
       onClick: handleFieldAdd({

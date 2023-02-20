@@ -1,4 +1,4 @@
-import { BaseFieldProps } from "../../types";
+import { INDEPENDENT_COLOR_TYPE } from "./constants";
 
 const defaultConditionalNumber = (prop: string, defaultValue?: number) =>
   `((\${${prop}} === "" || \${${prop}} === null || isNaN(Number(\${${prop}}))) ? ${
@@ -60,6 +60,14 @@ const STRUCTURE_CONDITIONS: Condition[] = [
   DEFAULT_CONDITION,
 ];
 
+const conditionalStructureType = "建物利用現況_構造種別";
+const STRUCTURE_TYPE_CONDITIONS: Condition[] = [
+  [equalString(conditionalStructureType, "木造・土蔵造"), "color('#b2b48c')"],
+  [equalString(conditionalStructureType, "耐火"), "color('#7f7b85')"],
+  [equalString(conditionalStructureType, "簡易耐火"), "color('#8c9bb1')"],
+  DEFAULT_CONDITION,
+];
+
 const conditionalFireproof = "建物利用現況_耐火構造種別";
 const FIREPROOF_CONDITIONS: Condition[] = [
   [equalString(conditionalFireproof, "耐火"), "color('#7c7b87')"],
@@ -83,11 +91,12 @@ export const makeSelectedFloodCondition = (
     : undefined;
 
 export const COLOR_TYPE_CONDITIONS: {
-  [K in BaseFieldProps<"buildingColor">["value"]["colorType"]]: Condition[];
+  [K in keyof typeof INDEPENDENT_COLOR_TYPE | "none"]: Condition[];
 } = {
   none: [DEFAULT_CONDITION],
   height: HEIGHT_CONDITIONS,
   purpose: PURPOSE_CONDITIONS,
   structure: STRUCTURE_CONDITIONS,
+  structureType: STRUCTURE_TYPE_CONDITIONS,
   fireproof: FIREPROOF_CONDITIONS,
 };

@@ -5,6 +5,7 @@ import { useCallback, useEffect, useMemo, useRef } from "react";
 import { BaseFieldProps } from "../../types";
 
 import { COLOR_TYPE_CONDITIONS, makeSelectedFloodCondition } from "./conditions";
+import { INDEPENDENT_COLOR_TYPE } from "./constants";
 
 export const useBuildingColor = ({
   value,
@@ -59,7 +60,7 @@ export const useBuildingColor = ({
 export type State = {
   dataID: string | undefined;
   floods: { id: string; label: string; featurePropertyName: string }[];
-  colorType: BaseFieldProps<"buildingColor">["value"]["colorType"];
+  colorType: string;
 };
 
 type Renderer = {
@@ -83,7 +84,9 @@ const mountTileset = (initialState: State): Renderer => {
         color: {
           expression: {
             conditions:
-              COLOR_TYPE_CONDITIONS[state.colorType || "none"] ??
+              COLOR_TYPE_CONDITIONS[
+                (state.colorType as keyof typeof INDEPENDENT_COLOR_TYPE) || "none"
+              ] ??
               makeSelectedFloodCondition(
                 state.floods?.find(f => f.id === state.colorType)?.featurePropertyName,
               ),
