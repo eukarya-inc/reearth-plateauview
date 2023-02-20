@@ -7,7 +7,7 @@ const PolygonColorGradient: React.FC<BaseFieldProps<"polygonColorGradient">> = (
 }) => {
   // remember to update the BaseFieldProps type!
   console.log(value, editMode, onUpdate);
-  return <div>Polygon Color</div>;
+  return <div>Polygon Color Gradient</div>;
 };
 
 export default PolygonColorGradient;
