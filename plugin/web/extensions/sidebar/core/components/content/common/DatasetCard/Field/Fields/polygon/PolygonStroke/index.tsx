@@ -1,25 +1,27 @@
 import AddButton from "@web/extensions/sidebar/core/components/content/common/DatasetCard/AddButton";
-import { array_move } from "@web/extensions/sidebar/utils";
+import {
+  ButtonWrapper,
+  Wrapper,
+} from "@web/extensions/sidebar/core/components/content/common/DatasetCard/Field/commonComponents";
+import { generateID, moveItemDown, moveItemUp, removeItem } from "@web/extensions/sidebar/utils";
 import { useCallback, useState } from "react";
 
-import { BaseFieldProps, Cond, Fields } from "../types";
+import { BaseFieldProps, Cond } from "../../types";
 
-import { ColorField, ConditionField, Field, ItemControls } from "./common";
-import { ButtonWrapper, Item, TextInput, Wrapper } from "./commonComponents";
+import PolygonStrokeItem from "./PolygonStrokeItem";
 
-const PointStroke: React.FC<BaseFieldProps<"pointStroke">> = ({ value, editMode, onUpdate }) => {
+const PolygonStroke: React.FC<BaseFieldProps<"polygonStroke">> = ({
+  value,
+  editMode,
+  onUpdate,
+}) => {
   const [items, updateItems] = useState(value.items);
 
   const handleMoveUp = useCallback(
     (idx: number) => {
       if (idx === 0) return;
       updateItems(c => {
-        let newItems: Fields["pointStroke"]["items"] = undefined;
-
-        if (c) {
-          newItems = c;
-          array_move(newItems, idx, idx - 1);
-        }
+        const newItems = moveItemUp(idx, c) ?? c;
         onUpdate({
           ...value,
           items: newItems,
@@ -34,11 +36,7 @@ const PointStroke: React.FC<BaseFieldProps<"pointStroke">> = ({ value, editMode,
     (idx: number) => {
       if (items && idx >= items.length - 1) return;
       updateItems(c => {
-        let newItems: Fields["pointStroke"]["items"] = undefined;
-        if (c) {
-          newItems = c;
-          array_move(newItems, idx, idx + 1);
-        }
+        const newItems = moveItemDown(idx, c) ?? c;
         onUpdate({
           ...value,
           items: newItems,
@@ -56,12 +54,12 @@ const PointStroke: React.FC<BaseFieldProps<"pointStroke">> = ({ value, editMode,
         strokeWidth: number;
         condition: Cond<string | number>;
       } = {
-        strokeColor: "brown",
-        strokeWidth: 10,
+        strokeColor: "",
+        strokeWidth: 0,
         condition: {
-          key: "ARGH",
+          key: generateID(),
           operator: "=",
-          operand: "AField",
+          operand: "width",
           value: 1,
         },
       };
@@ -76,10 +74,7 @@ const PointStroke: React.FC<BaseFieldProps<"pointStroke">> = ({ value, editMode,
   const handleRemove = useCallback(
     (idx: number) => {
       updateItems(c => {
-        let newItems: Fields["pointStroke"]["items"] = undefined;
-        if (c) {
-          newItems = c.filter((_, idx2) => idx2 != idx);
-        }
+        const newItems = removeItem(idx, c) ?? c;
         onUpdate({
           ...value,
           items: newItems,
@@ -90,20 +85,33 @@ const PointStroke: React.FC<BaseFieldProps<"pointStroke">> = ({ value, editMode,
     [value, onUpdate],
   );
 
+  const handleItemUpdate = (
+    item: { condition: Cond<string | number>; strokeColor: string; strokeWidth: number },
+    index: number,
+  ) => {
+    updateItems(c => {
+      const newItems = [...(c ?? [])];
+      newItems.splice(index, 1, item);
+      onUpdate({
+        ...value,
+        items: newItems,
+      });
+      return newItems;
+    });
+  };
+
   return editMode ? (
     <Wrapper>
-      {value.items?.map((c, idx) => (
-        <Item key={idx}>
-          <ItemControls
-            index={idx}
-            handleMoveDown={handleMoveDown}
-            handleMoveUp={handleMoveUp}
-            handleRemove={handleRemove}
-          />
-          <ConditionField title="if" fieldGap={8} condition={c.condition} />
-          <ColorField title="strokeColor" titleWidth={82} color={c.strokeColor} />
-          <Field title="strokeWidth" titleWidth={82} value={<TextInput value={c.strokeWidth} />} />
-        </Item>
+      {items?.map((c, idx) => (
+        <PolygonStrokeItem
+          key={idx}
+          index={idx}
+          item={c}
+          handleMoveDown={handleMoveDown}
+          handleMoveUp={handleMoveUp}
+          handleRemove={handleRemove}
+          onItemUpdate={handleItemUpdate}
+        />
       ))}
       <ButtonWrapper>
         <AddButton text="Add Condition" height={24} onClick={handleAdd} />
@@ -112,4 +120,4 @@ const PointStroke: React.FC<BaseFieldProps<"pointStroke">> = ({ value, editMode,
   ) : null;
 };
 
-export default PointStroke;
+export default PolygonStroke;

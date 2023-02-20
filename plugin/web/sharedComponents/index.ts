@@ -9,11 +9,14 @@ import Empty from "@web/sharedComponents/Empty";
 import Form from "@web/sharedComponents/Form";
 import Icon from "@web/sharedComponents/Icon";
 import Input from "@web/sharedComponents/Input";
+import InputNumber from "@web/sharedComponents/InputNumber";
 import { Content, Footer } from "@web/sharedComponents/Layout";
 import message from "@web/sharedComponents/message";
 import Pagination from "@web/sharedComponents/Pagination";
+import Radio from "@web/sharedComponents/Radio";
 import Row from "@web/sharedComponents/Row";
 import Select from "@web/sharedComponents/Select";
+import Slider from "@web/sharedComponents/Slider";
 import Space from "@web/sharedComponents/Space";
 import Switch from "@web/sharedComponents/Switch";
 import Tabs from "@web/sharedComponents/Tabs";
@@ -30,11 +33,14 @@ export {
   Form,
   Icon,
   Input,
+  InputNumber,
   Content,
   Footer,
   message,
+  Radio,
   Row,
   Select,
+  Slider,
   Space,
   Switch,
   Tabs,

@@ -41,7 +41,19 @@ type ActionType =
   | "saveGroups"
   | "cameraFlyTo"
   | "getCurrentCamera"
-  | "storyPlay";
+  | "storyPlay"
+  | "addClippingBox"
+  | "updateClippingBox"
+  | "removeClippingBox"
+  | "update3dtilesShow"
+  | "reset3dtilesShow"
+  | "update3dtilesTransparency"
+  | "reset3dtilesTransparency"
+  | "update3dtilesColor"
+  | "reset3dtilesColor"
+  | "findTileset"
+  | "update3dtilesShadow"
+  | "reset3dtilesShadow";
 
 export type PostMessageProps = { action: ActionType; payload?: any };
 

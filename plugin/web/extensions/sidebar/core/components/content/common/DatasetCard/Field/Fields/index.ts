@@ -1,5 +1,9 @@
 import { ComponentType } from "react";
 
+import BuildingColor from "./3dtiles/BuildingColor";
+import BuildingFilter from "./3dtiles/BuildingFilter";
+import BuildingShadow from "./3dtiles/BuildingShadow";
+import BuildingTransparency from "./3dtiles/BuildingTransparency";
 import Clipping from "./3dtiles/Clipping";
 import ButtonLink from "./general/ButtonLink";
 import Description from "./general/Description";
@@ -15,6 +19,9 @@ import PointLabel from "./point/PointLabel";
 import PointModel from "./point/PointModel";
 import PointSize from "./point/PointSize";
 import PointStroke from "./point/PointStroke";
+import PolygonColor from "./polygon/PolygonColor";
+import PolygonColorGradient from "./polygon/PolygonColorGradient";
+import PolygonStroke from "./polygon/PolygonStroke";
 import { FieldComponent } from "./types";
 
 // import Template from "./Template";
@@ -43,8 +50,15 @@ const fields: Fields<FieldComponent> = {
   pointStroke: { Component: PointStroke, hasUI: false },
   // polyline
   // polygon
+  polygonColor: { Component: PolygonColor, hasUI: false },
+  polygonColorGradient: { Component: PolygonColorGradient, hasUI: false },
+  polygonStroke: { Component: PolygonStroke, hasUI: false },
   // 3d-model
-  clipping: { Component: Clipping, hasUI: false },
+  clipping: { Component: Clipping, hasUI: true },
+  buildingFilter: { Component: BuildingFilter, hasUI: true },
+  buildingTransparency: { Component: BuildingTransparency, hasUI: true },
+  buildingColor: { Component: BuildingColor, hasUI: true },
+  buildingShadow: { Component: BuildingShadow, hasUI: true },
   // 3d-tile
   // realtime: Realtime,
   // template: Template,
