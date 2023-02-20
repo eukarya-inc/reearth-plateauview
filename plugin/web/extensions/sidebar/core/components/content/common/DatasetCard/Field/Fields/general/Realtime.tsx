@@ -62,7 +62,6 @@ const Realtime: React.FC<BaseFieldProps<"realtime">> = ({ value, editMode, onUpd
 
   useEffect(() => {
     if (enableUpdate) {
-      setTimer("00:00:30");
       startTimer(intervalInSecond);
     } else clearTimer();
   }, [clearTimer, enableUpdate, intervalInSecond, startTimer]);
