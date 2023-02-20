@@ -273,6 +273,7 @@ func (i *PlateauIntermediateItem) DataCatalogItem(t string, an AssetName, assetU
 		Format:      an.Format,
 		Year:        y,
 		Layers:      layers,
+		// OpenDataURL: i.OpenDataURL, // TODO
 	}
 }
 

@@ -95,6 +95,7 @@ func (i UsecaseItem) DataCatalogs() []DataCatalogItem {
 		Config:      c,
 		Layers:      layers,
 		Year:        y,
+		OpenDataURL: i.OpenDataURL,
 	}}
 }
 

@@ -26,6 +26,7 @@ type DataCatalogItem struct {
 	Description       string   `json:"desc,omitempty"`
 	SearchIndex       string   `json:"search_index,omitempty"`
 	Year              int      `json:"year,omitempty"`
+	OpenDataURL       string   `json:"openDataUrl,omitempty"`
 	Config            any      `json:"config,omitempty"`
 }
 

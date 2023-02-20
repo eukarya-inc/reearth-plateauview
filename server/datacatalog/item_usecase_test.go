@@ -22,6 +22,7 @@ func TestUsecaseItem_DataCatalogs(t *testing.T) {
 		Description: "desc",
 		Year:        2021,
 		Config:      map[string]any{"a": "b"},
+		OpenDataURL: "https://example.com",
 	}}, UsecaseItem{
 		ID:          "id",
 		Name:        "name",
