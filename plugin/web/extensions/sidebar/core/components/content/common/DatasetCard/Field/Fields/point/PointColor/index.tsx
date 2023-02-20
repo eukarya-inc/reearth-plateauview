@@ -3,14 +3,26 @@ import {
   ButtonWrapper,
   Wrapper,
 } from "@web/extensions/sidebar/core/components/content/common/DatasetCard/Field/commonComponents";
-import { generateID, moveItemDown, moveItemUp, removeItem } from "@web/extensions/sidebar/utils";
-import { useCallback, useState } from "react";
+import {
+  generateID,
+  moveItemDown,
+  moveItemUp,
+  removeItem,
+  postMsg,
+} from "@web/extensions/sidebar/utils";
+import { useCallback, useState, useEffect } from "react";
 
 import { BaseFieldProps, Cond } from "../../types";
 
 import PointColorItem from "./PointColorItem";
 
-const PointColor: React.FC<BaseFieldProps<"pointColor">> = ({ value, editMode, onUpdate }) => {
+const PointColor: React.FC<BaseFieldProps<"pointColor">> = ({
+  dataID,
+  value,
+  editMode,
+  isActive,
+  onUpdate,
+}) => {
   const [pointColors, updatePointColors] = useState(value.pointColors);
 
   const handleMoveUp = useCallback(
@@ -85,6 +97,22 @@ const PointColor: React.FC<BaseFieldProps<"pointColor">> = ({ value, editMode, o
       return newPointColors;
     });
   };
+
+  useEffect(() => {
+    if (!isActive || !dataID) return;
+    const timer = setTimeout(() => {
+      postMsg({
+        action: "updateDatasetInScene",
+        payload: {
+          dataID,
+          update: { marker: { style: "image", pointColors } },
+        },
+      });
+    }, 500);
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [dataID, isActive, pointColors]);
 
   return editMode ? (
     <Wrapper>

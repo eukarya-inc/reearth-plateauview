@@ -5,8 +5,9 @@ import {
   TextField,
 } from "@web/extensions/sidebar/core/components/content/common/DatasetCard/Field/common";
 import { Wrapper } from "@web/extensions/sidebar/core/components/content/common/DatasetCard/Field/commonComponents";
+import { postMsg } from "@web/extensions/sidebar/utils";
 import { styled } from "@web/theme";
-import { ChangeEvent, useCallback, useState } from "react";
+import { ChangeEvent, useCallback, useState, useEffect } from "react";
 
 import { BaseFieldProps, Fields } from "../types";
 
@@ -16,7 +17,13 @@ const options = [
   { value: "Option2", label: "Option2" },
 ];
 
-const PointLabel: React.FC<BaseFieldProps<"pointLabel">> = ({ value, editMode, onUpdate }) => {
+const PointLabel: React.FC<BaseFieldProps<"pointLabel">> = ({
+  dataID,
+  value,
+  editMode,
+  isActive,
+  onUpdate,
+}) => {
   const [pointLabel, setPointLabel] = useState(value);
 
   const updatePointLabelByProp = useCallback(
@@ -90,6 +97,22 @@ const PointLabel: React.FC<BaseFieldProps<"pointLabel">> = ({ value, editMode, o
     },
     [updatePointLabelByProp],
   );
+
+  useEffect(() => {
+    if (!isActive || !dataID) return;
+    const timer = setTimeout(() => {
+      postMsg({
+        action: "updateDatasetInScene",
+        payload: {
+          dataID,
+          update: { marker: { style: "image", ...pointLabel } },
+        },
+      });
+    }, 500);
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [dataID, isActive, pointLabel]);
 
   return editMode ? (
     <Wrapper>

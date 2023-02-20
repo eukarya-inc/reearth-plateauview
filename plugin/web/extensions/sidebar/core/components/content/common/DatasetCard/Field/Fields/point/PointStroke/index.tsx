@@ -3,14 +3,26 @@ import {
   ButtonWrapper,
   Wrapper,
 } from "@web/extensions/sidebar/core/components/content/common/DatasetCard/Field/commonComponents";
-import { generateID, moveItemDown, moveItemUp, removeItem } from "@web/extensions/sidebar/utils";
-import { useCallback, useState } from "react";
+import {
+  generateID,
+  moveItemDown,
+  moveItemUp,
+  removeItem,
+  postMsg,
+} from "@web/extensions/sidebar/utils";
+import { useCallback, useState, useEffect } from "react";
 
 import { BaseFieldProps, Cond } from "../../types";
 
 import PointStrokeItem from "./PointStrokeItem";
 
-const PointStroke: React.FC<BaseFieldProps<"pointStroke">> = ({ value, editMode, onUpdate }) => {
+const PointStroke: React.FC<BaseFieldProps<"pointStroke">> = ({
+  dataID,
+  value,
+  editMode,
+  isActive,
+  onUpdate,
+}) => {
   const [items, updateItems] = useState(value.items);
 
   const handleMoveUp = useCallback(
@@ -95,6 +107,22 @@ const PointStroke: React.FC<BaseFieldProps<"pointStroke">> = ({ value, editMode,
       return newItems;
     });
   };
+
+  useEffect(() => {
+    if (!isActive || !dataID) return;
+    const timer = setTimeout(() => {
+      postMsg({
+        action: "updateDatasetInScene",
+        payload: {
+          dataID,
+          update: { marker: { style: "image", items } },
+        },
+      });
+    }, 500);
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [dataID, isActive, items]);
 
   return editMode ? (
     <Wrapper>
