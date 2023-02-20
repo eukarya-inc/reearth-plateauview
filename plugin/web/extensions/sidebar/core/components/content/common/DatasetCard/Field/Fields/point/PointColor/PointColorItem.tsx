@@ -1,9 +1,12 @@
 import { useCallback } from "react";
+import {
+  ColorField,
+  ConditionField,
+  ItemControls,
+} from "web/extensions/sidebar/core/components/content/common/DatasetCard/Field/common";
+import { Item } from "web/extensions/sidebar/core/components/content/common/DatasetCard/Field/commonComponents";
 
-import { ColorField, ConditionField, ItemControls } from "../../../common";
 import { Cond } from "../../types";
-
-import { Item } from "./../../../commonComponents";
 
 const PointColorItem: React.FC<{
   index: number;
