@@ -1,6 +1,41 @@
 import { expect, test } from "vitest";
 
-import { getDataCatalogTree, type DataCatalogItem } from "./api";
+import {
+  getDataCatalogTree,
+  modifyDataCatalog,
+  RawDataCatalogItem,
+  type DataCatalogItem,
+} from "./api";
+
+test("modifyDataCatalog", () => {
+  const d: RawDataCatalogItem = {
+    id: "a",
+    name: "name",
+    pref: "pref",
+    desc: "",
+    format: "",
+    url: "",
+    type: "ユースケース",
+    type_en: "usecase",
+    type2: "type2",
+    type2_en: "type2",
+    city: "city",
+    city_code: "11111",
+    ward: "ward",
+    ward_code: "11112",
+    city_en: "city",
+    year: 2022,
+  };
+  expect(modifyDataCatalog(d)).toEqual({
+    ...d,
+    tags: [
+      { type: "type", value: "ユースケース" },
+      { type: "type", value: "type2" },
+      { type: "location", value: "city" },
+      { type: "location", value: "ward" },
+    ],
+  });
+});
 
 test("getDataCatalogTree by cities", () => {
   expect(getDataCatalogTree(dataCatalog, "city", "")).toEqual([
@@ -32,7 +67,10 @@ test("getDataCatalogTree by cities", () => {
       children: [
         {
           name: "宇都宮市",
-          children: [utsunomiyashiBldg],
+          children: [
+            utsunomiyashiBldg,
+            { name: "都市計画決定情報モデル", children: [utsunomiyashiUseDictrict] },
+          ],
         },
       ],
     },
@@ -57,6 +95,20 @@ test("getDataCatalogTree by types", () => {
         {
           name: "栃木県",
           children: [utsunomiyashiBldg],
+        },
+      ],
+    },
+    {
+      name: "都市計画決定情報モデル",
+      children: [
+        {
+          name: "栃木県",
+          children: [
+            {
+              name: "宇都宮市",
+              children: [utsunomiyashiUseDictrict],
+            },
+          ],
         },
       ],
     },
@@ -268,6 +320,24 @@ const utsunomiyashiBldg = {
   year: 2022,
   fieldGroups: [],
 };
+const utsunomiyashiUseDictrict = {
+  id: "h",
+  dataID: "h2",
+  type: "都市計画決定情報モデル",
+  type_en: "urf",
+  type2: "用途地域",
+  type2_en: "UseDistrict",
+  name: "用途地域（宇都宮市）",
+  pref: "栃木県",
+  city: "宇都宮市",
+  city_en: "utsunomiya-shi",
+  city_code: "09201",
+  format: "",
+  url: "",
+  desc: "",
+  year: 2022,
+  fieldGroups: [],
+};
 
 const dataCatalog: DataCatalogItem[] = [
   utsunomiyashiBldg,
@@ -278,4 +348,5 @@ const dataCatalog: DataCatalogItem[] = [
   chiyodakuShelter,
   setagayakuBldg,
   hachiojiLandmark,
+  utsunomiyashiUseDictrict,
 ];

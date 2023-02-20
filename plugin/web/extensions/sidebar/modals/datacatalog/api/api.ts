@@ -16,12 +16,16 @@ export type RawDataCatalogItem = {
   ward_code?: string;
   type: string;
   type_en: string;
+  type2?: string;
+  type2_en?: string;
   format: string;
   layers?: string[];
   url: string;
   desc: string;
   year: number;
-  config?: any;
+  tags?: { type: "type" | "location"; value: string }[];
+  openDataUrl?: string;
+  config?: { data?: { type: string; url: string; layers?: string[] }[] };
   // bldg only fields
   bldg_low_texture_url?: string;
   bldg_no_texture_url?: string;
@@ -32,10 +36,24 @@ export type GroupBy = "city" | "type" | "tag"; // Tag not implemented yet
 
 export async function getDataCatalog(base: string): Promise<RawDataCatalogItem[]> {
   const res = await fetch(base + "/datacatalog");
-  if (res.status !== 200) {
+  if (!res.ok) {
     throw new Error("failed to fetch data catalog");
   }
-  return res.json();
+
+  const data: RawDataCatalogItem[] = await res.json();
+  return data.map(modifyDataCatalog);
+}
+
+export function modifyDataCatalog(d: RawDataCatalogItem): RawDataCatalogItem {
+  return {
+    ...d,
+    tags: [
+      { type: "type", value: d.type },
+      ...(d.type2 ? [{ type: "type", value: d.type2 } as const] : []),
+      ...(d.city ? [{ type: "location", value: d.city } as const] : []),
+      ...(d.ward ? [{ type: "location", value: d.ward } as const] : []),
+    ],
+  };
 }
 
 export function getDataCatalogTree(
@@ -64,8 +82,14 @@ export function getDataCatalogTree(
 
 function path(i: DataCatalogItem, groupBy: GroupBy): string[] {
   return groupBy === "type"
-    ? [i.type, i.pref, ...(i.ward ? [i.city] : []), ...i.name.split("/")]
-    : [i.pref, i.city, ...(i.ward ? [i.ward] : []), ...i.name.split("/")];
+    ? [i.type, i.pref, ...(i.ward || i.type2 ? [i.city] : []), ...i.name.split("/")]
+    : [
+        i.pref,
+        i.city,
+        ...(i.ward ? [i.ward] : []),
+        ...(i.type2 ? [i.type] : []),
+        ...i.name.split("/"),
+      ];
 }
 
 function sortBy(
