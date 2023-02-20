@@ -7,7 +7,8 @@ import (
 type DataCatalogItem struct {
 	ID                string   `json:"id,omitempty"`
 	Name              string   `json:"name,omitempty"`
-	Prefecture        string   `json:"pref,omitempty"`
+	Pref              string   `json:"pref,omitempty"`
+	PrefCode          string   `json:"pref_code,omitempty"`
 	City              string   `json:"city,omitempty"`
 	CityEn            string   `json:"city_en,omitempty"`
 	CityCode          string   `json:"city_code,omitempty"`

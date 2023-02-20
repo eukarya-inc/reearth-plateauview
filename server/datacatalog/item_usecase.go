@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/eukarya-inc/jpareacode"
 	"github.com/eukarya-inc/reearth-plateauview/server/cms"
 	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
@@ -91,14 +92,19 @@ func (i UsecaseItem) DataCatalogs() []DataCatalogItem {
 		name = fmt.Sprintf("%s（%s）", t, cityOrWard)
 	}
 
+	pref, prefCode := normalizePref(i.Prefecture)
+
 	return []DataCatalogItem{{
 		ID:          i.ID,
 		Name:        name,
 		Type:        t,
 		TypeEn:      usecaseTypes[i.Type],
-		Prefecture:  i.Prefecture,
+		Pref:        pref,
+		PrefCode:    jpareacode.FormatPrefectureCode(prefCode),
 		City:        city,
+		CityCode:    cityCode("", city, prefCode),
 		Ward:        ward,
+		WardCode:    cityCode("", ward, prefCode),
 		Format:      f,
 		URL:         assetURLFromFormat(u, f),
 		Description: i.Description,
