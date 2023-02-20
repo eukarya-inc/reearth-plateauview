@@ -204,6 +204,26 @@ export default ({
   //   };
 
   const ThreeDModelFields: FieldDropdownItem = {
+    buildingFilter: {
+      name: fieldName["buildingFilter"],
+      onClick: handleFieldAdd({
+        height: [0, 200],
+        abovegroundFloor: [1, 50],
+        basementFloor: [0, 5],
+      }),
+    },
+    buildingShadow: {
+      name: fieldName["buildingShadow"],
+      onClick: handleFieldAdd({
+        shadow: "disabled",
+      }),
+    },
+    buildingTransparency: {
+      name: fieldName["buildingTransparency"],
+      onClick: handleFieldAdd({
+        transparency: 100,
+      }),
+    },
     clipping: {
       name: fieldName["clipping"],
       onClick: handleFieldAdd({
@@ -262,7 +282,7 @@ export default ({
     },
     // polyline: { name: "ポリライン", fields: polylineFields },
     // polygone: { name: "ポリゴン", fields: polygonFields },
-    "3d-model": { name: "3Dモデル", fields: ThreeDModelFields },
+    "3d-model": { name: "3Dモデル", fields: filterFields(ThreeDModelFields) },
     "3d-tile": { name: "3Dタイル", fields: filterFields(ThreeDTileFields) },
   };
   return {

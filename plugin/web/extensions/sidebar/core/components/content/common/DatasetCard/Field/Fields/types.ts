@@ -17,6 +17,9 @@ export const fieldName = {
   pointStroke: "ストロック",
   search: "Search",
   clipping: "クリッピング",
+  buildingFilter: "建物フィルター",
+  buildingShadow: "影",
+  buildingTransparency: "透明度",
 };
 
 // type Component = Camera | Legend | Realtime | Point | Polyline | Polygon | Model | Description;
@@ -34,7 +37,10 @@ export type FieldComponent =
   | PointModel
   | PointStroke
   | Search
-  | Clipping;
+  | Clipping
+  | BuildingFilter
+  | BuildingShadow
+  | BuildingTransparency;
 
 type FieldBase<T extends keyof typeof fieldName> = {
   id: string;
@@ -162,6 +168,20 @@ type Clipping = FieldBase<"clipping"> & {
   direction: "inside" | "outside";
 };
 
+type BuildingFilter = FieldBase<"buildingFilter"> & {
+  height: [from: number, to: number];
+  abovegroundFloor: [from: number, to: number];
+  basementFloor: [from: number, to: number];
+};
+
+type BuildingShadow = FieldBase<"buildingShadow"> & {
+  shadow: "disabled" | "enabled" | "cast_only" | "receive_only";
+};
+
+type BuildingTransparency = FieldBase<"buildingTransparency"> & {
+  transparency: number;
+};
+
 export type Fields = {
   // general
   idealZoom: IdealZoom;
@@ -183,6 +203,9 @@ export type Fields = {
   // 3d-tile
   search: Search;
   clipping: Clipping;
+  buildingFilter: BuildingFilter;
+  buildingShadow: BuildingShadow;
+  buildingTransparency: BuildingTransparency;
 };
 
 export type BaseFieldProps<T extends keyof Fields> = {

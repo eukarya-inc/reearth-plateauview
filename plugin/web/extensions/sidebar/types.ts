@@ -42,7 +42,16 @@ type ActionType =
   | "cameraFlyTo"
   | "cameraLookAt"
   | "getCurrentCamera"
-  | "storyPlay";
+  | "storyPlay"
+  | "addClippingBox"
+  | "updateClippingBox"
+  | "removeClippingBox"
+  | "update3dtilesShow"
+  | "reset3dtilesShow"
+  | "update3dtilesShadow"
+  | "reset3dtilesShadow"
+  | "update3dtilesTransparency"
+  | "reset3dtilesTransparency";
 
 export type PostMessageProps = { action: ActionType; payload?: any };
 
