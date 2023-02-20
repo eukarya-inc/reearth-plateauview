@@ -34,7 +34,7 @@ export type SearchIndex = {
 };
 
 export type SearchResults = {
-  threeDTilesId: string;
+  tilesetId: string;
   results: Result[];
 };
 

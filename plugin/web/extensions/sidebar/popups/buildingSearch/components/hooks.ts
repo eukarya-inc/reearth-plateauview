@@ -196,7 +196,7 @@ export default () => {
         await Promise.all(
           searchIndexes.current.map(async si => {
             // get all conditions groups for current search index
-            const threeDTilesId = si.baseURL.split("/").pop() ?? "";
+            const tilesetId = si.baseURL.split("/").pop() ?? "";
             const condGroups: DataRowIds[] = [];
 
             await Promise.all(
@@ -226,7 +226,7 @@ export default () => {
             }
 
             searchResults.current?.push({
-              threeDTilesId,
+              tilesetId,
               results,
             });
 
@@ -346,24 +346,28 @@ export default () => {
             }),
           );
 
-          indexData.forEach(indexDataItem => {
-            indexDataItem.values = uniq(indexDataItem.values);
-          });
-
-          setDataset({
-            title: rawDatasetData.title,
-            dataID: rawDatasetData.dataID,
-            indexes: indexData,
-          });
-          setConditions(indexData.map(index => ({ field: index.field, values: [] })));
-          setConditionsState("ready");
-
-          // preload results data
-          setTimeout(() => {
-            searchIndexes.current?.forEach(si => {
-              loadResultsData(si);
+          if (indexData.length > 0) {
+            indexData.forEach(indexDataItem => {
+              indexDataItem.values = uniq(indexDataItem.values);
             });
-          }, 0);
+
+            setDataset({
+              title: rawDatasetData.title,
+              dataID: rawDatasetData.dataID,
+              indexes: indexData,
+            });
+            setConditions(indexData.map(index => ({ field: index.field, values: [] })));
+            setConditionsState("ready");
+
+            // preload results data
+            setTimeout(() => {
+              searchIndexes.current?.forEach(si => {
+                loadResultsData(si);
+              });
+            }, 0);
+          } else {
+            setConditionsState("empty");
+          }
         })();
       }
     },
