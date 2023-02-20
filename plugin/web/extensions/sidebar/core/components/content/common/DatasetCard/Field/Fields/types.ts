@@ -20,6 +20,9 @@ export const fieldName = {
   buildingTransparency: "透明度",
   buildingColor: "色分け",
   buildingShadow: "影",
+  polylineColor: "polylineColor",
+  polylineColorGradient: "polylineColorGradient",
+  polylineStrokeWeight: "polylineStrokeWeight",
 };
 
 // type Component = Camera | Legend | Realtime | Point | Polyline | Polygon | Model | Description;
@@ -36,6 +39,9 @@ export type FieldComponent =
   | PointLabel
   | PointModel
   | PointStroke
+  | PolylineColor
+  | PolylineColorGradient
+  | PolylineStrokeWeight
   | Clipping
   | BuildingFilter
   | BuildingTransparency
@@ -184,6 +190,24 @@ type BuildingColor = FieldBase<"buildingColor"> & {
   colorType: string;
 };
 
+type PolylineColor = FieldBase<"polylineColor"> & {
+  items?: {
+    condition: Cond<number>;
+    color: string;
+  }[];
+};
+
+type PolylineColorGradient = FieldBase<"polylineColorGradient"> & {
+  field?: string;
+  startColor?: string;
+  endColor?: string;
+  step?: number;
+};
+
+type PolylineStrokeWeight = FieldBase<"polylineStrokeWeight"> & {
+  strokeWidth: number;
+};
+
 export type Fields = {
   // general
   idealZoom: IdealZoom;
@@ -200,6 +224,9 @@ export type Fields = {
   pointModel: PointModel;
   pointStroke: PointStroke;
   // polyline
+  polylineColor: PolylineColor;
+  polylineColorGradient: PolylineColorGradient;
+  polylineStrokeWeight: PolylineStrokeWeight;
   // polygon
   // 3d-model
   // 3d-tile
