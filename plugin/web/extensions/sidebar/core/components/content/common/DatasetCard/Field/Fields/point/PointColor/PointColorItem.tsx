@@ -1,9 +1,9 @@
 import { useCallback } from "react";
 
-import { Cond } from "../types";
+import { ColorField, ConditionField, ItemControls } from "../../../common";
+import { Cond } from "../../types";
 
-import { ColorField, ConditionField, ItemControls } from "./common";
-import { Item } from "./commonComponents";
+import { Item } from "./../../../commonComponents";
 
 const PointColorItem: React.FC<{
   index: number;

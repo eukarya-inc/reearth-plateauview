@@ -1,9 +1,9 @@
 import { useCallback, useState } from "react";
 
+import { Field } from "../../common";
 import { BaseFieldProps } from "../types";
 
-import { Field } from "./common";
-import { TextInput, Wrapper } from "./commonComponents";
+import { TextInput, Wrapper } from "./../../commonComponents";
 
 const PointModel: React.FC<BaseFieldProps<"pointModel">> = ({ value, editMode, onUpdate }) => {
   const [modelURL, setModelURL] = useState(value.modelURL ?? "");
