@@ -15,6 +15,9 @@ export const fieldName = {
   pointLabel: "ラベル",
   pointModel: "モデル",
   pointStroke: "ストロック",
+  polygonColor: "ポリゴン色",
+  polygonColorGradient: "ポリゴン色（Gradient）",
+  polygonStroke: "ポリゴンストロック",
   clipping: "クリッピング",
   buildingFilter: "建物フィルター",
   buildingTransparency: "透明度",
@@ -42,6 +45,9 @@ export type FieldComponent =
   | PolylineColor
   | PolylineColorGradient
   | PolylineStrokeWeight
+  | PolygonColor
+  | PolygonColorGradient
+  | PolygonStroke
   | Clipping
   | BuildingFilter
   | BuildingTransparency
@@ -165,6 +171,28 @@ type PointStroke = FieldBase<"pointStroke"> & {
   }[];
 };
 
+type PolygonColor = FieldBase<"polygonColor"> & {
+  items?: {
+    condition: Cond<number>;
+    color: string;
+  }[];
+};
+
+type PolygonColorGradient = FieldBase<"polygonColorGradient"> & {
+  field?: string;
+  startColor?: string;
+  endColor?: string;
+  step?: number;
+};
+
+type PolygonStroke = FieldBase<"polygonStroke"> & {
+  items?: {
+    strokeColor: string;
+    strokeWidth: number;
+    condition: Cond<string | number>;
+  }[];
+};
+
 type Clipping = FieldBase<"clipping"> & {
   enabled: boolean;
   show: boolean;
@@ -228,6 +256,9 @@ export type Fields = {
   polylineColorGradient: PolylineColorGradient;
   polylineStrokeWeight: PolylineStrokeWeight;
   // polygon
+  polygonColor: PolygonColor;
+  polygonColorGradient: PolygonColorGradient;
+  polygonStroke: PolygonStroke;
   // 3d-model
   // 3d-tile
   clipping: Clipping;

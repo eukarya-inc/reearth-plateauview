@@ -180,24 +180,22 @@ export default ({
     },
   };
 
-  //   const polygonFields: {
-  //     [key: string]: { name: string; onClick?: (property: any) => void };
-  //   } = {
-  //     camera: {
-  //       name: "カメラ",
-  //       onClick: () =>
-  //         handleFieldAdd({
-  //           position: {
-  //             lng: 0,
-  //             lat: 0,
-  //             height: 0,
-  //             pitch: 0,
-  //             heading: 0,
-  //             roll: 0,
-  //           },
-  //         }),
-  //     },
-  //   };
+  const polygonFields: {
+    [key: string]: { name: string; onClick?: (property: any) => void };
+  } = {
+    polygonColor: {
+      name: fieldName["polygonColor"],
+      onClick: handleFieldAdd({}),
+    },
+    // polygonColorGradient: {
+    //   name: fieldName["polygonColorGradient"],
+    //   onClick: ({ key }) => console.log("do something: ", key),
+    // },
+    polygonStroke: {
+      name: fieldName["polygonStroke"],
+      onClick: handleFieldAdd({}),
+    },
+  };
 
   const ThreeDModelFields: FieldDropdownItem = {
     buildingColor: {
@@ -294,8 +292,8 @@ export default ({
       name: "ポイント",
       fields: filterFields(pointFields),
     },
+    polygone: { name: "ポリゴン", fields: polygonFields },
     polyline: { name: "ポリライン", fields: polylineFields },
-    // polygone: { name: "ポリゴン", fields: polygonFields },
     "3d-model": { name: "3Dモデル", fields: filterFields(ThreeDModelFields) },
     // "3d-tile": { name: "3Dタイル", fields: ThreeDTileFields },
   };
