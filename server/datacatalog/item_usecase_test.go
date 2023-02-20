@@ -10,7 +10,7 @@ import (
 func TestUsecaseItem_DataCatalogs(t *testing.T) {
 	assert.Equal(t, []DataCatalogItem{{
 		ID:          "id",
-		Name:        "name",
+		Name:        "公園情報（北区）",
 		Type:        "公園情報",
 		TypeEn:      "park",
 		Prefecture:  "pref",

@@ -2,6 +2,7 @@ package datacatalog
 
 import (
 	"encoding/json"
+	"fmt"
 	"regexp"
 	"strconv"
 	"strings"
@@ -81,9 +82,18 @@ func (i UsecaseItem) DataCatalogs() []DataCatalogItem {
 		city, ward, _ = strings.Cut(i.CityName, "/")
 	}
 
+	name := i.Name
+	if t != "" && t != "ユースケース" {
+		cityOrWard := city
+		if ward != "" {
+			cityOrWard = ward
+		}
+		name = fmt.Sprintf("%s（%s）", t, cityOrWard)
+	}
+
 	return []DataCatalogItem{{
 		ID:          i.ID,
-		Name:        i.Name,
+		Name:        name,
 		Type:        t,
 		TypeEn:      usecaseTypes[i.Type],
 		Prefecture:  i.Prefecture,
