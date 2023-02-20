@@ -244,28 +244,25 @@ export default () => {
   // Templates
   const [templates, setTemplates] = useState<Template[]>([]);
 
-  const handleTemplateAdd = useCallback(
-    async (newTemplate?: Template) => {
-      if (!backendURL || !backendAccessToken) return;
-      const res = await fetch(`${backendURL}/sidebar/plateauview/templates`, {
-        headers: {
-          authorization: `Bearer ${backendAccessToken}`,
-        },
-        method: "POST",
-        body: JSON.stringify(newTemplate),
-      });
-      if (res.status !== 200) return;
-      const data = await res.json();
-      setTemplates(t => [...t, data.results]);
-      return data.results as Template;
-    },
-    [backendURL, backendAccessToken],
-  );
+  const handleTemplateAdd = useCallback(async () => {
+    if (!backendURL || !backendAccessToken) return;
+    const res = await fetch(`${backendURL}/sidebar/plateauview/templates`, {
+      headers: {
+        authorization: `Bearer ${backendAccessToken}`,
+      },
+      method: "POST",
+      body: JSON.stringify({ type: "field", name: "新しいテンプレート" }),
+    });
+    if (res.status !== 200) return;
+    const newTemplate = await res.json();
+    setTemplates(t => [...t, newTemplate]);
+    return newTemplate as Template;
+  }, [backendURL, backendAccessToken]);
 
-  const handleTemplateUpdate = useCallback(
+  const handleTemplateSave = useCallback(
     async (template: Template) => {
-      if (!template.modelId || !backendURL || !backendAccessToken) return;
-      const res = await fetch(`${backendURL}/sidebar/plateauview/templates/${template.modelId}`, {
+      if (!backendURL || !backendAccessToken) return;
+      const res = await fetch(`${backendURL}/sidebar/plateauview/templates/${template.id}`, {
         headers: {
           authorization: `Bearer ${backendAccessToken}`,
         },
@@ -287,16 +284,16 @@ export default () => {
   );
 
   const handleTemplateRemove = useCallback(
-    async (template: Template) => {
-      if (!template.modelId || !backendURL || !backendAccessToken) return;
-      const res = await fetch(`${backendURL}/sidebar/plateauview/templates/${template.modelId}`, {
+    async (id: string) => {
+      if (!backendURL || !backendAccessToken) return;
+      const res = await fetch(`${backendURL}/sidebar/plateauview/templates/${id}`, {
         headers: {
           authorization: `Bearer ${backendAccessToken}`,
         },
         method: "DELETE",
       });
       if (res.status !== 200) return;
-      setTemplates(t => t.filter(t2 => t2.modelId !== template.modelId));
+      setTemplates(t => t.filter(t2 => t2.id !== id));
     },
     [backendURL, backendAccessToken],
   );
@@ -408,7 +405,7 @@ export default () => {
     currentPage,
     handlePageChange,
     handleTemplateAdd,
-    handleTemplateUpdate,
+    handleTemplateSave,
     handleTemplateRemove,
     handleDatasetSave,
     handleDatasetUpdate,
