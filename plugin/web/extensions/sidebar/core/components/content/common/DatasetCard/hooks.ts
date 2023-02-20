@@ -166,10 +166,10 @@ export default ({
   };
 
   const polylineFields = {
-    // polylineColor: {
-    //   name: fieldName["polylineColor"],
-    //   onClick: handleFieldAdd({}),
-    // },
+    polylineColor: {
+      name: fieldName["polylineColor"],
+      onClick: handleFieldAdd({}),
+    },
     // polylineColorGradient: {
     //   name: fieldName["polylineColorGradient"],
     //   onClick: handleFieldAdd({}),
