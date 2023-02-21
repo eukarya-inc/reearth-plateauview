@@ -186,7 +186,7 @@ export default ({
     };
   }, [onFieldAdd]);
 
-  const ThreeDModelFields: FieldDropdownItem = {};
+  // const ThreeDModelFields: FieldDropdownItem = {};
 
   const TemplateFields: FieldDropdownItem | undefined = useMemo(
     () =>
@@ -232,14 +232,7 @@ export default ({
       fieldGroups["templates"] = { name: "テンプレート", fields: TemplateFields };
     }
     return fieldGroups;
-  }, [
-    generalFields,
-    pointFields,
-    polygonFields,
-    polylineFields,
-    ThreeDModelFields,
-    TemplateFields,
-  ]);
+  }, [generalFields, pointFields, polygonFields, polylineFields, ThreeDTileFields, TemplateFields]);
 
   return fieldComponentsList;
 };
