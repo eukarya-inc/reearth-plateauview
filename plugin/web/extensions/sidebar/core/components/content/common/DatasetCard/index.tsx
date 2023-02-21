@@ -170,9 +170,6 @@ const DatasetCard: React.FC<Props> = ({
     [selectedGroup, dataset.components, dataset.fieldGroups, defaultTemplate?.components],
   );
 
-  console.log("DT: ", defaultTemplate);
-  console.log("active ids: ", activeComponentIDs);
-
   return (
     <StyledAccordionComponent allowZeroExpanded preExpanded={["datasetcard"]}>
       <AccordionItem uuid="datasetcard">
