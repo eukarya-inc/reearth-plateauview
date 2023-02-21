@@ -12,6 +12,7 @@ import helpPopupHtml from "../dist/web/sidebar/popups/help/index.html?raw";
 import mobileDropdownHtml from "../dist/web/sidebar/popups/mobileDropdown/index.html?raw";
 
 import { getRGBAFromString, RGBA, rgbaToString } from "./utils/color";
+import { proxyGTFS } from "./utils/proxy";
 
 const defaultProject: Project = {
   sceneOverrides: {
@@ -190,6 +191,7 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
     reearth.clientStorage.deleteAsync(payload.key);
   } else if (action === "updateCatalog") {
     dataCatalog = payload;
+    reearth.modal.postMessage({ action, payload });
     // reearth.clientStorage.getAsync("draftProject").then((draftProject: Project) => {
     //   draftProject.datasets.forEach(d => {
     //     const dataset = payload.find((d: DataCatalogItem) => d.dataID === d.dataID);
@@ -220,9 +222,11 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
       addedDatasets.push([payload.dataset.dataID, "showing", layerID]);
     }
   } else if (action === "updateDatasetInScene") {
+    const layerId = addedDatasets.find(ad => ad[0] === payload.dataID)?.[2];
+    const layer = reearth.layers.findById(layerId);
     reearth.layers.override(
       addedDatasets.find(ad => ad[0] === payload.dataID)?.[2],
-      payload.update,
+      layer.data.type === "gtfs" ? proxyGTFS(payload.update) : payload.update,
     );
   } else if (action === "removeDatasetFromScene") {
     reearth.layers.hide(addedDatasets.find(ad => ad[0] === payload)?.[2]);
@@ -233,6 +237,8 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
       reearth.layers.hide(ad[2]);
       ad[1] = "removed";
     });
+  } else if (action === "updateDataset") {
+    reearth.ui.postMessage({ action, payload });
   } else if (
     action === "screenshot" ||
     action === "screenshotPreview" ||
@@ -261,7 +267,7 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
     welcomePageIsOpen = false;
   } else if (action === "initDataCatalog") {
     reearth.modal.postMessage({
-      type: action,
+      action,
       payload: {
         dataCatalog,
         addedDatasets: addedDatasets.filter(ad => ad[1] !== "removed").map(d => d[0]),
@@ -318,6 +324,8 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
       const layerID = addedDatasets.find(ad => ad[0] === payload)?.[2];
       reearth.camera.flyTo(layerID);
     }
+  } else if (action === "cameraLookAt") {
+    reearth.camera.lookAt(...payload);
   } else if (action === "getCurrentCamera") {
     reearth.ui.postMessage({ action, payload: reearth.camera.position });
   } else if (action === "checkIfMobile") {
@@ -336,6 +344,18 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
       action: "storyPlay",
       payload,
     });
+  } else if (action === "updateInterval") {
+    const { dataID, interval } = payload;
+    const layerId = addedDatasets.find(ad => ad[0] === dataID)?.[2];
+    const layer = reearth.layers.findById(layerId);
+    if (layer) {
+      reearth.layers.override(layerId, {
+        data: {
+          ...layer.data,
+          updateInterval: interval,
+        },
+      });
+    }
   }
 
   // ************************************************
@@ -553,12 +573,13 @@ reearth.on("pluginmessage", (pluginMessage: PluginMessage) => {
 });
 
 function createLayer(dataset: DataCatalogItem, options?: any) {
+  const format = dataset.format.toLowerCase();
   return {
     type: "simple",
     title: dataset.name,
     data: {
-      type: dataset.format.toLowerCase(),
-      url: dataset.url ?? dataset.config.data[0].url,
+      type: format,
+      url: dataset.config?.data?.[0].url ?? dataset.url,
     },
     visible: true,
     infobox: {
@@ -575,7 +596,7 @@ function createLayer(dataset: DataCatalogItem, options?: any) {
     },
     ...(options
       ? options
-      : dataset.format === "geojson"
+      : format === "geojson"
       ? {
           marker: {
             // style: "point",
@@ -587,6 +608,8 @@ function createLayer(dataset: DataCatalogItem, options?: any) {
             // labelBackground: true,
           },
         }
+      : format === "gtfs"
+      ? proxyGTFS(options)
       : { ...(options ?? {}) }),
   };
 }

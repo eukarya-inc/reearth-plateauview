@@ -1,8 +1,8 @@
-import { DataCatalogItem } from "@web/extensions/sidebar/core/types";
-import { postMsg } from "@web/extensions/sidebar/utils";
+import { DataCatalogItem, Template } from "@web/extensions/sidebar/core/types";
+// import { postMsg } from "@web/extensions/sidebar/utils";
 import { Dropdown, Icon, Menu } from "@web/sharedComponents";
 import { styled } from "@web/theme";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useState } from "react";
 import {
   Accordion,
   AccordionItem,
@@ -12,12 +12,10 @@ import {
   AccordionItemState,
 } from "react-accessible-accordion";
 
-import AddButton from "./AddButton";
-import Field from "./Field";
-import { IdealZoom } from "./Field/Fields/types";
-import useHooks from "./hooks";
+import AddButton from "../common/DatasetCard/AddButton";
+import Field from "../common/DatasetCard/Field";
 
-type Tabs = "default" | "edit";
+import useHooks from "./hooks";
 
 type BaseFieldType = Partial<DataCatalogItem> & {
   title?: string;
@@ -26,141 +24,100 @@ type BaseFieldType = Partial<DataCatalogItem> & {
   onClick?: () => void;
 };
 
+type Tabs = "default" | "edit";
+
+const baseFields: BaseFieldType[] = [
+  {
+    id: "zoom",
+    title: "カメラ",
+    icon: "mapPin",
+    value: 1,
+  },
+  { id: "about", title: "About Data", icon: "about", value: "www.plateau.org/data-url" },
+  {
+    id: "remove",
+    icon: "trash",
+  },
+];
+
+const menuGenerator = (menuItems: { [key: string]: any }) => (
+  <Menu>
+    {Object.keys(menuItems).map(i => {
+      if (menuItems[i].fields) {
+        return (
+          <Menu.Item key={menuItems[i].key}>
+            <Dropdown
+              overlay={menuGenerator(menuItems[i].fields)}
+              placement="bottom"
+              trigger={["click"]}>
+              <div onClick={e => e.stopPropagation()}>
+                <p style={{ margin: 0 }}>{menuItems[i].name}</p>
+              </div>
+            </Dropdown>
+          </Menu.Item>
+        );
+      } else {
+        return (
+          <Menu.Item key={i} onClick={menuItems[i]?.onClick}>
+            <p style={{ margin: 0 }}>{menuItems[i].name}</p>
+          </Menu.Item>
+        );
+      }
+    })}
+  </Menu>
+);
+
 export type Props = {
-  dataset: DataCatalogItem;
-  inEditor?: boolean;
-  onDatasetSave: (dataID: string) => void;
-  onDatasetRemove?: (dataID: string) => void;
-  onDatasetUpdate: (dataset: DataCatalogItem) => void;
-  onUpdateField?: (id: string) => void;
-  onThreeDTilesSearch: (id: string) => void;
+  template: Template;
+  onTemplateSave: (template: Template) => Promise<void>;
+  onTemplateRemove?: (id: string) => void;
+  onTemplateUpdate?: (template: Template) => void;
 };
-const DatasetCard: React.FC<Props> = ({
-  dataset,
-  inEditor,
-  onDatasetSave,
-  onDatasetRemove,
-  onDatasetUpdate,
-  // onUpdateField,
-  onThreeDTilesSearch,
+const TemplateCard: React.FC<Props> = ({
+  template,
+  onTemplateSave,
+  //   onTemplateRemove,
+  onTemplateUpdate,
 }) => {
-  const [currentTab, changeTab] = useState<Tabs>("default");
+  const [currentTab, changeTab] = useState<Tabs>("edit");
+  const [hidden, setHidden] = useState(false);
+
+  const [editTitle, setEditTitle] = useState(false);
 
   const { fieldComponentsList, handleFieldUpdate, handleFieldRemove, handleGroupsUpdate } =
     useHooks({
-      dataset,
-      inEditor,
-      onDatasetUpdate,
+      template,
+      onTemplateUpdate,
     });
-
-  const baseFields: BaseFieldType[] = useMemo(() => {
-    const fields = [
-      {
-        id: "zoom",
-        title: "カメラ",
-        icon: "mapPin",
-        value: 1,
-        onClick: () => {
-          const idealZoomField = dataset.components?.find(c => c.type === "idealZoom");
-          postMsg({
-            action: "cameraFlyTo",
-            payload: idealZoomField
-              ? [(idealZoomField as IdealZoom).position, { duration: 2 }]
-              : dataset.dataID,
-          });
-        },
-      },
-      { id: "about", title: "About Data", icon: "about", value: "www.plateau.org/data-url" },
-      {
-        id: "remove",
-        icon: "trash",
-        onClick: () => onDatasetRemove?.(dataset.dataID),
-      },
-    ];
-    if (currentTab === "default" && dataset.components?.find(c => c.type === "search")) {
-      fields.push({
-        id: "search",
-        title: "データを検索",
-        icon: "search",
-        value: 1,
-        onClick: () => {
-          onThreeDTilesSearch(dataset.dataID);
-        },
-      });
-    }
-    return fields;
-  }, [currentTab, dataset, onDatasetRemove, onThreeDTilesSearch]);
 
   const handleTabChange: React.MouseEventHandler<HTMLParagraphElement> = useCallback(e => {
     e.stopPropagation();
     changeTab(e.currentTarget.id as Tabs);
   }, []);
 
-  const handleFieldSave = useCallback(() => {
-    if (!inEditor) return;
-    onDatasetSave(dataset.dataID);
-  }, [dataset.dataID, inEditor, onDatasetSave]);
+  const handleTemplateSave = useCallback(() => {
+    onTemplateSave(template);
+  }, [template, onTemplateSave]);
 
-  useEffect(() => {
-    const eventListenerCallback = (e: any) => {
-      if (e.source !== parent) return;
-      if (e.data.action === "fieldGroups") {
-        postMsg({ action: "msgToPopup", payload: { groups: dataset.fieldGroups } });
-      }
-    };
-    (globalThis as any).addEventListener("message", eventListenerCallback);
-    return () => {
-      (globalThis as any).removeEventListener("message", eventListenerCallback);
-    };
-  });
-
-  const menuGenerator = (menuItems: { [key: string]: any }) => (
-    <Menu>
-      {Object.keys(menuItems).map(i => {
-        if (menuItems[i].fields) {
-          return (
-            <Menu.Item key={menuItems[i].key}>
-              <Dropdown
-                overlay={menuGenerator(menuItems[i].fields)}
-                placement="bottom"
-                trigger={["click"]}>
-                <div onClick={e => e.stopPropagation()}>
-                  <p style={{ margin: 0 }}>{menuItems[i].name}</p>
-                </div>
-              </Dropdown>
-            </Menu.Item>
-          );
-        } else {
-          return (
-            <Menu.Item key={i} onClick={menuItems[i]?.onClick}>
-              <p style={{ margin: 0 }}>{menuItems[i].name}</p>
-            </Menu.Item>
-          );
-        }
-      })}
-    </Menu>
+  const handleTemplateNameUpdate = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      e.stopPropagation();
+      onTemplateUpdate?.({ ...template, name: e.currentTarget.value });
+    },
+    [template, onTemplateUpdate],
   );
 
-  const [selectedGroup, setGroup] = useState<string>();
-
-  const handleCurrentGroupChange = useCallback((fieldGroupID: string) => {
-    setGroup(fieldGroupID);
-  }, []);
-
-  const activeComponentIDs = useMemo(
-    () =>
-      (!dataset.components?.find(c => c.type === "switchGroup") || !dataset.fieldGroups
-        ? dataset.components
-        : dataset.components.filter(
-            c => (c.group && c.group === selectedGroup) || c.type === "switchGroup",
-          )
-      )?.map(c => c.id),
-    [selectedGroup, dataset.components, dataset.fieldGroups],
+  const handleToggleTitleEdit = useCallback(
+    (e: React.MouseEvent<HTMLDivElement, MouseEvent> | undefined) => {
+      e?.stopPropagation();
+      setEditTitle(!editTitle);
+    },
+    [editTitle],
   );
 
   return (
-    <StyledAccordionComponent allowZeroExpanded preExpanded={["datasetcard"]}>
-      <AccordionItem uuid="datasetcard">
+    <StyledAccordionComponent allowZeroExpanded preExpanded={["templatecard"]}>
+      <AccordionItem uuid="templatecard">
         <AccordionItemState>
           {({ expanded }) => (
             <Header expanded={expanded}>
@@ -168,18 +125,29 @@ const DatasetCard: React.FC<Props> = ({
                 <HeaderContents>
                   <LeftMain>
                     <Icon
-                      icon={!dataset.visible ? "hidden" : "visible"}
+                      icon={hidden ? "hidden" : "visible"}
                       size={20}
                       onClick={e => {
                         e?.stopPropagation();
-                        onDatasetUpdate({ ...dataset, visible: !dataset.visible });
+                        setHidden(!hidden);
                       }}
                     />
-                    <Title>{dataset.name}</Title>
+                    <NameWrapper>
+                      {editTitle ? (
+                        <input
+                          defaultValue={template.name}
+                          onChange={handleTemplateNameUpdate}
+                          onClick={e => e.stopPropagation()}
+                        />
+                      ) : (
+                        <Title>{template.name}</Title>
+                      )}
+                      <EditIcon icon="edit" size={16} onClick={handleToggleTitleEdit} />
+                    </NameWrapper>
                   </LeftMain>
                   <ArrowIcon icon="arrowDown" size={16} expanded={expanded} />
                 </HeaderContents>
-                {inEditor && expanded && (
+                {expanded && (
                   <TabWrapper>
                     <Tab id="default" selected={currentTab === "default"} onClick={handleTabChange}>
                       公開
@@ -201,25 +169,22 @@ const DatasetCard: React.FC<Props> = ({
                 {field.title && <FieldName>{field.title}</FieldName>}
               </BaseField>
             ))}
-            {dataset.components?.map((c, idx) => (
+            {template.components?.map((c, idx) => (
               <Field
                 key={idx}
                 field={c}
-                isActive={!!activeComponentIDs?.find(id => id === c.id)}
-                dataID={dataset.dataID}
-                editMode={inEditor && currentTab === "edit"}
-                selectGroups={dataset.fieldGroups}
+                isActive
+                editMode={currentTab === "edit"}
                 onUpdate={handleFieldUpdate}
                 onRemove={handleFieldRemove}
                 onGroupsUpdate={handleGroupsUpdate(c.id)}
-                onCurrentGroupChange={handleCurrentGroupChange}
               />
             ))}
           </Content>
-          {inEditor && currentTab === "edit" && (
+          {currentTab === "edit" && (
             <>
               <StyledAddButton text="フィルドを追加" items={menuGenerator(fieldComponentsList)} />
-              <SaveButton onClick={handleFieldSave}>
+              <SaveButton onClick={handleTemplateSave}>
                 <Icon icon="save" size={14} />
                 <Text>保存</Text>
               </SaveButton>
@@ -231,7 +196,7 @@ const DatasetCard: React.FC<Props> = ({
   );
 };
 
-export default DatasetCard;
+export default TemplateCard;
 
 const StyledAccordionComponent = styled(Accordion)`
   width: 100%;
@@ -281,7 +246,7 @@ const Title = styled.p`
   font-size: 16px;
   text-overflow: ellipsis;
   overflow: hidden;
-  width: 250px;
+  max-width: 230px;
   white-space: nowrap;
 `;
 
@@ -362,12 +327,16 @@ const Text = styled.p`
   line-height: 15px;
 `;
 
-// const StyledDropdownButton = styled.div`
-//   display: flex;
-//   justify-content: space-between;
-//   align-items: center;
-//   width: 100%;
-//   align-content: center;
-//   padding: 0 16px;
-//   cursor: pointer;
-// `;
+const NameWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 5px;
+`;
+
+const EditIcon = styled(Icon)`
+  padding: 3px;
+
+  :hover {
+    cursor: pointer;
+  }
+`;
