@@ -12,20 +12,21 @@ const operatorOptions = [
   { value: "=", label: "=" },
 ];
 
-// should be updated
-const operandOptions = [
-  { value: "height", label: "height" },
-  { value: "width", label: "width" },
-];
-
 type Props = {
   title: string;
   fieldGap?: number;
   condition: Cond<any>;
+  operandOptions: { value: string; label: string }[];
   onChange?: (condition: Cond<any>) => void;
 };
 
-const ConditionField: React.FC<Props> = ({ title, fieldGap, condition, onChange }) => {
+const ConditionField: React.FC<Props> = ({
+  title,
+  fieldGap,
+  condition,
+  operandOptions,
+  onChange,
+}) => {
   const [cond, setCond] = useState<Cond<any>>(condition);
 
   useEffect(() => {

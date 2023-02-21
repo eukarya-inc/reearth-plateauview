@@ -13,6 +13,11 @@ import PointStrokeItem from "./PointStrokeItem";
 const PointStroke: React.FC<BaseFieldProps<"pointStroke">> = ({ value, editMode, onUpdate }) => {
   const [items, updateItems] = useState(value.items);
 
+  const operandOptions = [
+    { value: "pointOutlineColor", label: "strokeColor" },
+    { value: "pointOutlineWidth", label: "strokeWidth" },
+  ];
+
   const handleMoveUp = useCallback(
     (idx: number) => {
       if (idx === 0) return;
@@ -103,6 +108,7 @@ const PointStroke: React.FC<BaseFieldProps<"pointStroke">> = ({ value, editMode,
           key={idx}
           index={idx}
           item={c}
+          operandOptions={operandOptions}
           handleMoveDown={handleMoveDown}
           handleMoveUp={handleMoveUp}
           handleRemove={handleRemove}

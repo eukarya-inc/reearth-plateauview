@@ -3,15 +3,30 @@ import {
   ButtonWrapper,
   Wrapper,
 } from "@web/extensions/sidebar/core/components/content/common/DatasetCard/Field/commonComponents";
-import { generateID, moveItemDown, moveItemUp, removeItem } from "@web/extensions/sidebar/utils";
-import { useCallback, useState } from "react";
+import {
+  generateID,
+  moveItemDown,
+  moveItemUp,
+  removeItem,
+  postMsg,
+  compare,
+} from "@web/extensions/sidebar/utils";
+import { useCallback, useEffect, useState } from "react";
 
 import { BaseFieldProps, Cond } from "../../types";
 
 import PointColorItem from "./PointColorItem";
 
-const PointColor: React.FC<BaseFieldProps<"pointColor">> = ({ value, editMode, onUpdate }) => {
+const PointColor: React.FC<BaseFieldProps<"pointColor">> = ({
+  dataID,
+  value,
+  editMode,
+  isActive,
+  onUpdate,
+}) => {
   const [pointColors, updatePointColors] = useState(value.pointColors);
+
+  const operandOptions = [{ value: "pointSize", label: "size" }];
 
   const handleMoveUp = useCallback(
     (idx: number) => {
@@ -86,6 +101,35 @@ const PointColor: React.FC<BaseFieldProps<"pointColor">> = ({ value, editMode, o
     });
   };
 
+  useEffect(() => {
+    if (!isActive || !dataID) return;
+    const timer = setTimeout(() => {
+      pointColors?.forEach(item => {
+        const operand = 1; // should be something like item[pointSize]
+        const color = compare(operand, item.condition.operator, item.condition.value)
+          ? item.color
+          : "";
+        postMsg({
+          action: "updateDatasetInScene",
+          payload: {
+            dataID,
+            update: { marker: { style: "point", pointColor: color } },
+          },
+        });
+      });
+    }, 500);
+    return () => {
+      clearTimeout(timer);
+      postMsg({
+        action: "updateDatasetInScene",
+        payload: {
+          dataID,
+          update: { marker: undefined },
+        },
+      });
+    };
+  }, [dataID, isActive, pointColors]);
+
   return editMode ? (
     <Wrapper>
       {pointColors?.map((c, idx) => (
@@ -93,6 +137,7 @@ const PointColor: React.FC<BaseFieldProps<"pointColor">> = ({ value, editMode, o
           key={idx}
           index={idx}
           item={c}
+          operandOptions={operandOptions}
           handleMoveDown={handleMoveDown}
           handleMoveUp={handleMoveUp}
           handleRemove={handleRemove}
