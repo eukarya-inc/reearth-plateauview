@@ -61,7 +61,10 @@ export default () => {
     if (res.status !== 200) return;
     const resData = await res.json();
 
-    setTemplates(resData.templates);
+    if (resData.templates) {
+      setFieldTemplates(resData.templates.filter((t: Template) => t.type === "field"));
+      // TODO: send type "infobox" to the infobox block
+    }
     setData(resData.data);
   }, [backendURL]);
 
@@ -82,10 +85,10 @@ export default () => {
     }
   }, [backendURL]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const processedCatalog = useMemo(
-    () => handleDataCatalogProcessing(catalogData, data),
-    [catalogData, data],
-  );
+  const processedCatalog = useMemo(() => {
+    const c = handleDataCatalogProcessing(catalogData, data);
+    return inEditor ? c : c.filter(c => !!c.public);
+  }, [catalogData, inEditor, data]);
 
   useEffect(() => {
     postMsg({ action: "updateCatalog", payload: processedCatalog });
@@ -178,72 +181,90 @@ export default () => {
     });
   }, []);
 
+  const handleDataRequest = useCallback(
+    async (dataset?: DataCatalogItem) => {
+      if (!backendURL || !backendAccessToken || !dataset) return;
+      const datasetToSave = convertToData(dataset);
+
+      const isNew = !data?.find(d => d.dataID === dataset.dataID);
+
+      const fetchURL = !isNew
+        ? `${backendURL}/sidebar/plateauview/data/${dataset.id}` // should be id and not dataID because id here is the CMS item's id
+        : `${backendURL}/sidebar/plateauview/data`;
+
+      const method = !isNew ? "PATCH" : "POST";
+
+      const res = await fetch(fetchURL, {
+        headers: {
+          authorization: `Bearer ${backendAccessToken}`,
+        },
+        method,
+        body: JSON.stringify(datasetToSave),
+      });
+      if (res.status !== 200) {
+        handleBackendFetch();
+        return;
+      }
+      const data2 = await res.json();
+      console.log("DATA JUST SAVED: ", data2);
+      handleBackendFetch(); // MAYBE UPDATE THIS LATER TO JUST UPDATE THE LOCAL VALUE
+    },
+    [data, backendAccessToken, backendURL, handleBackendFetch],
+  );
+
   const handleDatasetSave = useCallback(
     (dataID: string) => {
       (async () => {
         if (!inEditor) return;
         const selectedDataset = selectedDatasets.find(d => d.dataID === dataID);
 
-        if (!backendURL || !backendAccessToken || !selectedDataset) return;
-
-        const datasetToSave = convertToData(selectedDataset);
-
-        const isNew = !data?.find(d => d.dataID === dataID);
-
-        const fetchURL = !isNew
-          ? `${backendURL}/sidebar/plateauview/data/${selectedDataset.id}` // should be id and not dataID because id here is the CMS item's id
-          : `${backendURL}/sidebar/plateauview/data`;
-
-        const method = !isNew ? "PATCH" : "POST";
-
-        const res = await fetch(fetchURL, {
-          headers: {
-            authorization: `Bearer ${backendAccessToken}`,
-          },
-          method,
-          body: JSON.stringify(datasetToSave),
-        });
-        if (res.status !== 200) {
-          handleBackendFetch();
-          return;
-        }
-        const data2 = await res.json();
-        // setTemplates(t => [...t, data.results]);
-        console.log("DATA JUST SAVED: ", data2);
-        handleBackendFetch(); // MAYBE UPDATE THIS LATER TO JUST UPDATE THE LOCAL VALUE
+        await handleDataRequest(selectedDataset);
       })();
     },
-    [data, selectedDatasets, inEditor, backendAccessToken, backendURL, handleBackendFetch],
+    [selectedDatasets, inEditor, handleDataRequest],
+  );
+
+  const handleDatasetPublish = useCallback(
+    (dataID: string, publish: boolean) => {
+      (async () => {
+        if (!inEditor || !processedCatalog) return;
+        const dataset = processedCatalog.find(item => item.dataID === dataID);
+
+        if (!dataset) return;
+
+        dataset.public = publish;
+
+        await handleDataRequest(dataset);
+      })();
+    },
+    [processedCatalog, inEditor, handleDataRequest],
   );
 
   // ****************************************
 
   // ****************************************
   // Templates
-  const [templates, setTemplates] = useState<Template[]>([]);
+  const [fieldTemplates, setFieldTemplates] = useState<Template[]>([]);
 
-  const handleTemplateAdd = useCallback(
-    async (newTemplate?: Template) => {
-      if (!backendURL || !backendAccessToken) return;
-      const res = await fetch(`${backendURL}/sidebar/plateauview/templates`, {
-        headers: {
-          authorization: `Bearer ${backendAccessToken}`,
-        },
-        method: "POST",
-        body: JSON.stringify(newTemplate),
-      });
-      if (res.status !== 200) return;
-      const data = await res.json();
-      setTemplates(t => [...t, data.results]);
-      return data.results as Template;
-    },
-    [backendURL, backendAccessToken],
-  );
+  const handleTemplateAdd = useCallback(async () => {
+    if (!backendURL || !backendAccessToken) return;
+    const res = await fetch(`${backendURL}/sidebar/plateauview/templates`, {
+      headers: {
+        authorization: `Bearer ${backendAccessToken}`,
+      },
+      method: "POST",
+      body: JSON.stringify({ type: "field", name: "新しいテンプレート" }),
+    });
+    if (res.status !== 200) return;
+    const newTemplate = await res.json();
+    setFieldTemplates(t => [...t, newTemplate]);
+    return newTemplate as Template;
+  }, [backendURL, backendAccessToken]);
 
-  const handleTemplateUpdate = useCallback(
+  const handleTemplateSave = useCallback(
     async (template: Template) => {
-      if (!template.modelId || !backendURL || !backendAccessToken) return;
-      const res = await fetch(`${backendURL}/sidebar/plateauview/templates/${template.modelId}`, {
+      if (!backendURL || !backendAccessToken) return;
+      const res = await fetch(`${backendURL}/sidebar/plateauview/templates/${template.id}`, {
         headers: {
           authorization: `Bearer ${backendAccessToken}`,
         },
@@ -251,8 +272,8 @@ export default () => {
         body: JSON.stringify(template),
       });
       if (res.status !== 200) return;
-      const updatedTemplate = (await res.json()).results;
-      setTemplates(t => {
+      const updatedTemplate = await res.json();
+      setFieldTemplates(t => {
         return t.map(t2 => {
           if (t2.id === updatedTemplate.id) {
             return updatedTemplate;
@@ -265,16 +286,16 @@ export default () => {
   );
 
   const handleTemplateRemove = useCallback(
-    async (template: Template) => {
-      if (!template.modelId || !backendURL || !backendAccessToken) return;
-      const res = await fetch(`${backendURL}/sidebar/plateauview/templates/${template.modelId}`, {
+    async (id: string) => {
+      if (!backendURL || !backendAccessToken) return;
+      const res = await fetch(`${backendURL}/sidebar/plateauview/templates/${id}`, {
         headers: {
           authorization: `Bearer ${backendAccessToken}`,
         },
         method: "DELETE",
       });
       if (res.status !== 200) return;
-      setTemplates(t => t.filter(t2 => t2.modelId !== template.modelId));
+      setFieldTemplates(t => t.filter(t2 => t2.id !== id));
     },
     [backendURL, backendAccessToken],
   );
@@ -332,6 +353,8 @@ export default () => {
         if (e.data.payload.draftProject) {
           updateProject(e.data.payload.draftProject);
         }
+      } else if (e.data.action === "updateDataset") {
+        handleDatasetPublish(e.data.payload.dataID, e.data.payload.publish);
       } else if (e.data.action === "triggerCatalogOpen") {
         handleModalOpen();
       } else if (e.data.action === "triggerHelpOpen") {
@@ -348,7 +371,7 @@ export default () => {
     return () => {
       removeEventListener("message", eventListenerCallback);
     };
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [handleDatasetPublish]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const fetchedSharedProject = useRef(false);
 
@@ -384,6 +407,24 @@ export default () => {
     setCurrentPage(p);
   }, []);
 
+  // ThreeDTilesSearch
+  const handleThreeDTilesSearch = useCallback(
+    (dataID: string) => {
+      const plateauItem = catalogData.find(pd => pd.id === dataID);
+      const searchIndex = plateauItem?.["search_index"];
+
+      postMsg({
+        action: "buildingSearchOpen",
+        payload: {
+          title: plateauItem?.["name"] ?? "",
+          dataID,
+          searchIndex,
+        },
+      });
+    },
+    [catalogData],
+  );
+
   const handleModalOpen = useCallback(() => {
     postMsg({
       action: "catalogModalOpen",
@@ -397,11 +438,11 @@ export default () => {
     inEditor,
     reearthURL,
     backendURL,
-    templates,
+    templates: fieldTemplates,
     currentPage,
     handlePageChange,
     handleTemplateAdd,
-    handleTemplateUpdate,
+    handleTemplateSave,
     handleTemplateRemove,
     handleDatasetSave,
     handleDatasetUpdate,
@@ -410,6 +451,7 @@ export default () => {
     handleProjectDatasetRemoveAll,
     handleProjectSceneUpdate,
     handleModalOpen,
+    handleThreeDTilesSearch,
   };
 };
 
