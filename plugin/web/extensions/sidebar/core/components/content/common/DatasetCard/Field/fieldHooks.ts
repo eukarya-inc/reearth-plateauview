@@ -193,7 +193,7 @@ export default ({
       templates
         ?.map(t => {
           return {
-            template: {
+            [`template-${t.id}`]: {
               name: t.name,
               onClick: onFieldAdd({
                 templateID: t.id,

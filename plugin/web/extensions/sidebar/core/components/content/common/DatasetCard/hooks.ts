@@ -27,7 +27,7 @@ export default ({
           ...(dataset.components ?? []),
           {
             id: generateID(),
-            type: key,
+            type: key.includes("template") ? "template" : key,
             ...property,
           },
         ],
