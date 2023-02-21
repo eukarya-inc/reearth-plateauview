@@ -130,12 +130,7 @@ export default ({
     },
     story: {
       name: fieldName["story"],
-      onClick: handleFieldAdd({
-        stories: [
-          { id: generateID(), title: "掛川城を外から眺める" },
-          { id: generateID(), title: "掛川城の内部を見てみる" },
-        ],
-      }),
+      onClick: handleFieldAdd({}),
     },
   };
 

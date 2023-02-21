@@ -1,65 +1,70 @@
 import AddButton from "@web/extensions/sidebar/core/components/content/common/DatasetCard/AddButton";
-import { array_move, generateID } from "@web/extensions/sidebar/utils";
+import { generateID, moveItemDown, moveItemUp } from "@web/extensions/sidebar/utils";
 import { Icon } from "@web/sharedComponents";
 import { styled } from "@web/theme";
 import { useCallback, useState } from "react";
 
-import { BaseFieldProps, StoryItem } from "../types";
+import { BaseFieldProps } from "../types";
 
 const Story: React.FC<BaseFieldProps<"story">> = ({ value, editMode, onUpdate }) => {
-  const [, updateState] = useState<any>();
-  const forceUpdate = useCallback(() => updateState({}), []);
+  const [stories, updateStories] = useState(value.stories);
 
   const handleStoryAdd = useCallback(() => {
-    const newStory: StoryItem = {
-      id: generateID(),
-      title: "title",
-    };
-    onUpdate({ ...value, stories: value.stories ? [...value.stories, newStory] : [newStory] });
-    forceUpdate();
-  }, [forceUpdate, onUpdate, value]);
+    updateStories(s => {
+      const newItem = {
+        id: generateID(),
+        title: "title",
+      };
+      const newStories = s ? [...s, newItem] : [newItem];
+      onUpdate({ ...value, stories: newStories });
+      return newStories;
+    });
+  }, [onUpdate, value]);
 
   const handleItemMoveUp = useCallback(
     (idx: number) => {
-      if (idx === 0 || !value.stories) return;
-      const newStories = [...value.stories];
-      array_move(newStories, idx, idx - 1);
-      onUpdate({ ...value, stories: newStories });
-      forceUpdate();
+      updateStories(s => {
+        const newStories = moveItemUp(idx, s) ?? s;
+        onUpdate({ ...value, stories: newStories });
+        return newStories;
+      });
     },
-    [onUpdate, forceUpdate, value],
+    [onUpdate, value],
   );
 
   const handleItemMoveDown = useCallback(
     (idx: number) => {
-      if (!value.stories || idx >= value.stories.length - 1) return;
-      const newStories = [...value.stories];
-      array_move(newStories, idx, idx + 1);
-      onUpdate({ ...value, stories: newStories });
-      forceUpdate();
+      updateStories(s => {
+        const newStories = moveItemDown(idx, s) ?? s;
+        onUpdate({ ...value, stories: newStories });
+        return newStories;
+      });
     },
-    [onUpdate, forceUpdate, value],
+    [onUpdate, value],
   );
 
   const handleItemRemove = useCallback(
     (id: string) => {
-      if (!value.stories) return;
-      const newStories = value.stories?.filter(st => st.id !== id);
-      onUpdate({ ...value, stories: newStories });
-      forceUpdate();
+      updateStories(s => {
+        const newStories = s?.filter(st => st.id !== id);
+        onUpdate({ ...value, stories: newStories });
+        return newStories;
+      });
     },
-    [onUpdate, forceUpdate, value],
+    [onUpdate, value],
   );
 
   const handleStoryTitleChange = useCallback(
     (index: number) => (e: React.ChangeEvent<HTMLInputElement>) => {
-      if (!value.stories) return;
-      const updatedStories = value.stories;
-      updatedStories[index].title = e.currentTarget.value;
-      onUpdate({ ...value, stories: updatedStories });
-      forceUpdate();
+      updateStories(s => {
+        if (!s) return s;
+        const updatedStories = s;
+        updatedStories[index].title = e.currentTarget.value;
+        onUpdate({ ...value, stories: updatedStories });
+        return updatedStories;
+      });
     },
-    [onUpdate, forceUpdate, value],
+    [onUpdate, value],
   );
 
   const handleStoryEdit = useCallback(() => {}, []);
@@ -68,7 +73,7 @@ const Story: React.FC<BaseFieldProps<"story">> = ({ value, editMode, onUpdate })
   return editMode ? (
     <Wrapper>
       <AddButton text="New Story" onClick={handleStoryAdd} />
-      {value.stories?.map((g, idx) => (
+      {stories?.map((g, idx) => (
         <Item key={idx}>
           <ItemControls>
             <Icon icon="arrowUpThin" size={16} onClick={() => handleItemMoveUp(idx)} />
@@ -90,7 +95,7 @@ const Story: React.FC<BaseFieldProps<"story">> = ({ value, editMode, onUpdate })
     </Wrapper>
   ) : (
     <Wrapper>
-      {value.stories?.map(story => (
+      {stories?.map(story => (
         <StoryButton key={story.id} onClick={handleStoryShow}>
           <Icon icon="circledPlay" size={24} />
           <Text>{story.title}</Text>
