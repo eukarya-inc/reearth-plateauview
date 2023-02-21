@@ -19,8 +19,6 @@ export default ({
     (property: any) =>
     ({ key }: { key: string }) => {
       if (!inEditor) return;
-      console.log("property", property);
-      console.log("key", key);
       onDatasetUpdate?.({
         ...dataset,
         components: [

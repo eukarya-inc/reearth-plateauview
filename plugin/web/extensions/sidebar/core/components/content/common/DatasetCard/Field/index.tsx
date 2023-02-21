@@ -38,7 +38,7 @@ const FieldComponent: React.FC<Props> = ({
   onGroupsUpdate,
   onCurrentGroupChange,
 }) => {
-  const { Component: FieldContent, hasUI } = fields[field.type];
+  const Field = field.type === "template" ? null : fields[field.type];
   const [groupPopupOpen, setGroupPopup] = useState(false);
 
   const handleGroupSelectOpen = useCallback(
@@ -80,15 +80,20 @@ const FieldComponent: React.FC<Props> = ({
   }, [groupPopupOpen, onGroupsUpdate]);
 
   return !editMode && !isActive ? null : (
-    <StyledAccordionComponent allowZeroExpanded preExpanded={[field.id]} hide={!editMode && !hasUI}>
+    <StyledAccordionComponent
+      allowZeroExpanded
+      preExpanded={[field.id]}
+      hide={!editMode && !Field?.hasUI}>
       <AccordionItem uuid={field.id}>
         <AccordionItemState>
           {({ expanded }) => (
-            <Header expanded={expanded}>
+            <Header expanded={expanded} hideBorder={field.type === "template"}>
               {editMode ? (
                 <HeaderContents>
                   <LeftContents>
-                    <ArrowIcon icon="arrowDown" size={16} direction="right" expanded={expanded} />
+                    {Field && (
+                      <ArrowIcon icon="arrowDown" size={16} direction="right" expanded={expanded} />
+                    )}
                     <Title>{field.type === "template" ? field.name : fieldName[field.type]}</Title>
                   </LeftContents>
                   <RightContents>
@@ -110,9 +115,9 @@ const FieldComponent: React.FC<Props> = ({
             </Header>
           )}
         </AccordionItemState>
-        <BodyWrapper>
-          {FieldContent && (
-            <FieldContent
+        {Field?.Component && (
+          <BodyWrapper>
+            <Field.Component
               value={{ ...field }}
               editMode={editMode}
               isActive={isActive}
@@ -121,8 +126,8 @@ const FieldComponent: React.FC<Props> = ({
               onUpdate={onUpdate?.(field.id)}
               onCurrentGroupChange={onCurrentGroupChange}
             />
-          )}
-        </BodyWrapper>
+          </BodyWrapper>
+        )}
       </AccordionItem>
     </StyledAccordionComponent>
   );
@@ -138,11 +143,15 @@ const StyledAccordionComponent = styled(Accordion)<{ hide: boolean }>`
   background: #ffffff;
 `;
 
-const Header = styled(AccordionItemHeading)<{ expanded?: boolean }>`
-  border-bottom-width: 1px;
-  border-bottom-style: solid;
-  border-bottom-color: transparent;
-  ${({ expanded }) => expanded && "border-bottom-color: #e0e0e0;"}
+const Header = styled(AccordionItemHeading)<{ expanded?: boolean; hideBorder?: boolean }>`
+  ${({ hideBorder, expanded }) =>
+    !hideBorder &&
+    `
+border-bottom-width: 1px;
+border-bottom-style: solid;
+border-bottom-color: transparent;
+${expanded && "border-bottom-color: #e0e0e0;"}
+`}
   display: flex;
   height: 30px;
 `;

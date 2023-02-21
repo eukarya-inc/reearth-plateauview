@@ -290,8 +290,6 @@ export type Fields = {
   buildingTransparency: BuildingTransparency;
   buildingColor: BuildingColor;
   buildingShadow: BuildingShadow;
-  // template
-  template: Template;
 };
 
 export type BaseFieldProps<T extends keyof Fields> = {

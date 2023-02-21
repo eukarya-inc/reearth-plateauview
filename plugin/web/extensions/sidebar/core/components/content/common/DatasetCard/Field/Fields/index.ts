@@ -27,11 +27,10 @@ import PolygonStroke from "./polygon/PolygonStroke";
 import PolylineColor from "./polyline/PolylineColor";
 import PolylineColorGradient from "./polyline/PolylineColorGradient";
 import PolylineStrokeWeight from "./polyline/PolylineStrokeWeight";
-import Template from "./Template";
 import { FieldComponent } from "./types";
 
 export type Fields<FC extends FieldComponent> = {
-  [F in FC["type"]]: { Component: ComponentType<FieldComponent & any>; hasUI: boolean };
+  [F in FC["type"]]: { Component: ComponentType<FieldComponent & any>; hasUI: boolean } | null;
 };
 
 const fields: Fields<FieldComponent> = {
@@ -68,8 +67,7 @@ const fields: Fields<FieldComponent> = {
   buildingShadow: { Component: BuildingShadow, hasUI: true },
   search: { Component: Search, hasUI: false },
   // 3d-model
-  // template
-  template: { Component: Template, hasUI: false },
+  template: null,
 };
 
 export default fields;

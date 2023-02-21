@@ -205,11 +205,8 @@ const DatasetCard: React.FC<Props> = ({
               </BaseField>
             ))}
             {dataset.components?.map((c, idx) => {
-              console.log("c:", c);
               if (c.type === "template") {
                 const template = templates?.find(t => t.id === c.templateID);
-                console.log("template:", template);
-                console.log("show template comp:", inEditor && currentTab === "edit");
                 return inEditor && currentTab === "edit" ? (
                   <Field
                     key={idx}
