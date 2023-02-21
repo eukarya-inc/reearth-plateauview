@@ -41,6 +41,15 @@ const PointSize: React.FC<BaseFieldProps<"pointSize">> = ({
     }, 500);
     return () => {
       clearTimeout(timer);
+      postMsg({
+        action: "updateDatasetInScene",
+        payload: {
+          dataID,
+          update: {
+            marker: undefined,
+          },
+        },
+      });
     };
   }, [dataID, isActive, size]);
 

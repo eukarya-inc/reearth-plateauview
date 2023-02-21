@@ -56,6 +56,15 @@ const PointModel: React.FC<BaseFieldProps<"pointModel">> = ({
     }, 500);
     return () => {
       clearTimeout(timer);
+      postMsg({
+        action: "updateDatasetInScene",
+        payload: {
+          dataID,
+          update: {
+            model: undefined,
+          },
+        },
+      });
     };
   }, [dataID, isActive, modelURL, scale]);
 

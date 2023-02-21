@@ -124,6 +124,15 @@ const PointLabel: React.FC<BaseFieldProps<"pointLabel">> = ({
     }, 500);
     return () => {
       clearTimeout(timer);
+      postMsg({
+        action: "updateDatasetInScene",
+        payload: {
+          dataID,
+          update: {
+            marker: undefined,
+          },
+        },
+      });
     };
   }, [dataID, isActive, pointLabel]);
 
