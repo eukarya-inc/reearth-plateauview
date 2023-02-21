@@ -129,7 +129,9 @@ export default ({
     },
   };
 
-  const ThreeDModelFields: FieldDropdownItem = {
+  const ThreeDModelFields: FieldDropdownItem = {};
+
+  const ThreeDTileFields: FieldDropdownItem = {
     buildingColor: {
       name: fieldName["buildingColor"],
       onClick: onFieldAdd({
@@ -165,9 +167,6 @@ export default ({
         direction: "inside",
       }),
     },
-  };
-
-  const ThreeDTileFields: FieldDropdownItem = {
     search: {
       name: fieldName["search"],
       onClick: onFieldAdd({}),
