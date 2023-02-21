@@ -48,7 +48,7 @@ const FileTypeSelect: React.FC<Props> = ({ onFileTypeSelect }) => {
     },
     {
       value: "3dtiles",
-      label: "3Dタイル",
+      label: "3D Tiles",
     },
     // {
     //   value: "json",
