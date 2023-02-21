@@ -32,7 +32,7 @@ export type Props = {
   onTemplateUpdate?: (template: Template) => void;
 };
 const TemplateCard: React.FC<Props> = ({ template, onTemplateSave, onTemplateUpdate }) => {
-  const [currentTab, changeTab] = useState<Tabs>("default");
+  const [currentTab, changeTab] = useState<Tabs>("edit");
   const [hidden, setHidden] = useState(false);
 
   const [editTitle, setEditTitle] = useState(false);
@@ -138,7 +138,9 @@ const TemplateCard: React.FC<Props> = ({ template, onTemplateSave, onTemplateUpd
                       ) : (
                         <Title>{template.name}</Title>
                       )}
-                      <EditIcon icon="edit" size={16} onClick={handleToggleTitleEdit} />
+                      {currentTab === "edit" && (
+                        <EditIcon icon="edit" size={16} onClick={handleToggleTitleEdit} />
+                      )}
                     </NameWrapper>
                   </LeftMain>
                   <ArrowIcon icon="arrowDown" size={16} expanded={expanded} />
