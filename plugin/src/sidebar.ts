@@ -62,6 +62,9 @@ let welcomePageIsOpen = false;
 let mobileDropdownIsOpen = false;
 let buildingSearchIsOpen = false;
 
+// this is used for a temp solution of infobox
+let currentSelected: string | undefined = undefined;
+
 const defaultLocation = { zone: "outer", section: "left", area: "middle" };
 const mobileLocation = { zone: "outer", section: "center", area: "top" };
 
@@ -582,12 +585,19 @@ reearth.on("pluginmessage", (pluginMessage: PluginMessage) => {
     reearth.ui.postMessage(pluginMessage.data);
   } else if (pluginMessage.data.action === "storySaveData") {
     reearth.ui.postMessage(pluginMessage.data);
-  } else if (pluginMessage.data.action === "infoboxFetchFields") {
+  } else if (pluginMessage.data.action === "infoboxFieldsFetch") {
     reearth.ui.postMessage({
-      action: "infoboxFetchFields",
-      payload: addedDatasets.find(ad => ad[2] === pluginMessage.data.payload)?.[0],
+      action: "infoboxFieldsFetch",
+      payload: addedDatasets.find(ad => ad[2] === currentSelected)?.[0],
     });
+  } else if (pluginMessage.data.action === "infoboxFieldsSave") {
+    reearth.ui.postMessage(pluginMessage.data);
   }
+});
+
+reearth.on("select", (selected: string | undefined) => {
+  // This is for a temp solution of infobox
+  currentSelected = selected;
 });
 
 function createLayer(dataset: DataCatalogItem, options?: any) {
@@ -607,17 +617,11 @@ function createLayer(dataset: DataCatalogItem, options?: any) {
             (i: PluginExtensionInstance) => i.name === "plateau-plugin",
           ).pluginId,
           extensionId: "infobox",
-          property: {
-            default: {
-              bgcolor: "#d9d9d9ff",
-              heightType: "auto",
-              showTitle: false,
-              size: "medium",
-            },
-          },
         },
       ],
-      property: { default: { size: "medium" } },
+      property: {
+        default: { bgcolor: "#d9d9d9ff", heightType: "auto", showTitle: false, size: "medium" },
+      },
     },
     ...(options
       ? options

@@ -1,45 +1,42 @@
-export type ActionType = "getInEditor" | "savePublicSetting" | "init";
+import type { Template } from "@web/extensions/sidebar/core/types";
+
+export type { Field } from "@web/extensions/sidebar/core/types";
+export type ActionType = "getInEditor" | "saveFields" | "init";
 
 export type PostMessageProps = { action: ActionType; payload?: any };
 
-export type Layer = {
-  id: string;
-  primitives: Primitive[];
+// export type Layer = {
+//   id: string;
+//   primitives: Primitive[];
+// };
+
+// export type Primitive = {
+//   type?: TilesType;
+//   properties: PrimitiveProperty[];
+// };
+
+// export type PrimitiveProperty = { key: string; value?: any };
+
+// export type TilesType = "building" | "bridge";
+// export type TilesTypeTitle = "建物情報" | "ブリッジ情報";
+
+// export type PublicSetting = {
+//   type: TilesType;
+//   typeTitle?: TilesTypeTitle;
+//   properties: PublicProperty[];
+// };
+
+// export type PublicProperty = {
+//   key: string;
+//   title?: string;
+//   hidden?: boolean;
+// };
+
+export type Fields = Omit<Template, "components">;
+
+export type Feature = {
+  properties: { key: string; value?: any }[];
 };
-
-export type Primitive = {
-  type?: TilesType;
-  properties: PrimitiveProperty[];
-};
-
-export type PrimitiveProperty = { key: string; value?: any };
-
-export type TilesType = "building" | "bridge";
-export type TilesTypeTitle = "建物情報" | "ブリッジ情報";
-
-export type PublicSetting = {
-  type: TilesType;
-  typeTitle?: TilesTypeTitle;
-  properties: PublicProperty[];
-};
-
-export type PublicProperty = {
-  key: string;
-  title?: string;
-  hidden?: boolean;
-};
-
-export type InfoboxFields = {
-  type: string;
-  title: string;
-  fields: {
-    title: string;
-    path: string;
-    visible: boolean;
-  }[];
-};
-
-export type InfoboxFieldsList = InfoboxFields[];
 
 // Reearth types
 export type PluginExtensionInstance = {
@@ -72,46 +69,46 @@ export type PluginMessage = {
 // Since there might be multiple select (not sure), the layerIds is an array.
 
 // infobox -> sidebar
-export type Request3DTilesType = {
-  action: "request3DTilesType";
-  payload: {
-    layerIds: string[];
-  };
-};
+// export type Request3DTilesType = {
+//   action: "request3DTilesType";
+//   payload: {
+//     layerIds: string[];
+//   };
+// };
 
-// sidebar -> infobox
-export type LayerType = {
-  layerId: string;
-  tilesType: TilesType;
-};
+// // sidebar -> infobox
+// export type LayerType = {
+//   layerId: string;
+//   tilesType: TilesType;
+// };
 
-export type Get3DTilesType = {
-  action: "Get3DTilesType";
-  payload: {
-    layerTypes: LayerType[];
-  };
-};
+// export type Get3DTilesType = {
+//   action: "Get3DTilesType";
+//   payload: {
+//     layerTypes: LayerType[];
+//   };
+// };
 
-// infobox -> sidebar
-export type RequestPublicSettings = {
-  action: "requestPublicSettings";
-  payload: {
-    types: string[];
-  };
-};
+// // infobox -> sidebar
+// export type RequestPublicSettings = {
+//   action: "requestPublicSettings";
+//   payload: {
+//     types: string[];
+//   };
+// };
 
-// sidebar -> infobox
-export type GetPublicSettings = {
-  action: "getPublicSettings";
-  payload: {
-    publicSettings: PublicSetting[];
-  };
-};
+// // sidebar -> infobox
+// export type GetPublicSettings = {
+//   action: "getPublicSettings";
+//   payload: {
+//     publicSettings: PublicSetting[];
+//   };
+// };
 
-// infobox -> sidebar
-export type SavePublicSetting = {
-  action: "savePublicSetting";
-  payload: {
-    publicSetting: PublicSetting;
-  };
-};
+// // infobox -> sidebar
+// export type SavePublicSetting = {
+//   action: "savePublicSetting";
+//   payload: {
+//     publicSetting: PublicSetting;
+//   };
+// };

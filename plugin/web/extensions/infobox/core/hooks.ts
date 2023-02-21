@@ -1,44 +1,30 @@
 import { useCallback, useEffect, useState } from "react";
 
 import { postMsg } from "../core/utils";
-import { Primitive, PublicSetting } from "../types";
-
-import { TEST_SELECTED_LAYERS, TEST_PUBLIC_SETTINGS, TEST_LAYER_TYPES } from "./TEST_DATA";
+import { Feature, Fields } from "../types";
 
 type Mode = "edit" | "view" | "pending";
 
 export default () => {
   const [mode, setMode] = useState<Mode>("pending");
   const [dataState, setDataState] = useState<"loading" | "empty" | "ready">("loading");
-  const [primitives, setPrimitives] = useState<Primitive[]>([]);
-  const [publicSettings, setPublicSettings] = useState<PublicSetting[]>([]);
-
-  useEffect(() => {
-    const allPrimitives: Primitive[] = [];
-    TEST_SELECTED_LAYERS.forEach(layer => {
-      layer.primitives.forEach(p => {
-        allPrimitives.push({
-          type: TEST_LAYER_TYPES.find(lt => lt.layerId === layer.id)?.tilesType,
-          ...p,
-        });
-      });
-    });
-    setPrimitives(allPrimitives); // DEV ONLY
-    setPublicSettings(TEST_PUBLIC_SETTINGS); // DEV ONLY
-    setMode("edit"); // DEV ONLY
-  }, []);
+  const [feature, setFeature] = useState<Feature>();
+  const [fields, setFields] = useState<Fields>();
 
   const handleInEditor = useCallback((inEditor: boolean) => {
     setMode(inEditor ? "edit" : "view");
   }, []);
 
-  const handleFillData = useCallback((data: any) => {
-    console.log("filldata", data);
+  const handleFillData = useCallback((data: { feature: Feature; fields: Fields }) => {
+    setFeature(data.feature);
+    if (data.fields) {
+      setFields(data.fields);
+    }
     setDataState("ready");
   }, []);
 
-  const savePublicSetting = useCallback((publicSetting: PublicSetting) => {
-    postMsg("savePublicSetting", publicSetting);
+  const saveFields = useCallback((fields: Fields) => {
+    postMsg("saveFields", fields);
   }, []);
 
   const onMessage = useCallback(
@@ -72,11 +58,19 @@ export default () => {
     postMsg("init");
   }, []);
 
+  // TEST
+  // useEffect(() => {
+  //   setFeature(TEST_FILL_DATA.feature);
+  //   setFields(TEST_FILL_DATA.fields);
+  //   setDataState("ready");
+  //   setMode("edit");
+  // }, []);
+
   return {
     mode,
     dataState,
-    primitives,
-    publicSettings,
-    savePublicSetting,
+    feature,
+    fields,
+    saveFields,
   };
 };

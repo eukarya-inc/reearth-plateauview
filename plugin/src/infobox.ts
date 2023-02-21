@@ -1,7 +1,6 @@
 import {
   PostMessageProps,
   PluginExtensionInstance,
-  SavePublicSetting,
   PluginMessage,
 } from "@web/extensions/infobox/types";
 
@@ -22,11 +21,11 @@ const getSidebarId = () => {
 };
 getSidebarId();
 
-const infoboxFetchFields = () => {
+const infoboxFieldsFetch = () => {
   getSidebarId();
   if (!sidebarId) return;
   reearth.plugins.postMessage(sidebarId, {
-    action: "infoboxFetchFields",
+    action: "infoboxFieldsFetch",
     payload: currentLayerId,
   });
 };
@@ -37,43 +36,87 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
       action: "getInEditor",
       payload: reearth.scene.inEditor,
     });
-    infoboxFetchFields();
-  } else if (action === "savePublicSetting") {
+    infoboxFieldsFetch();
+  } else if (action === "saveFields") {
     getSidebarId();
     if (!sidebarId) return;
     reearth.plugins.postMessage(sidebarId, {
-      action: "savePublicSetting",
+      action: "infoboxFieldsSave",
       payload,
-    } as SavePublicSetting);
+    });
   }
 });
 
-reearth.on("pluginMessage", (pluginMessage: PluginMessage) => {
+reearth.on("pluginmessage", (pluginMessage: PluginMessage) => {
+  reearth.ui.postMessage(pluginMessage.data);
   if (pluginMessage.data.action === "infoboxFields") {
-    reearth.ui.postMessage({
-      action: "fillData",
-      payload: {
-        primitive: reearth.layers.selectedFeature,
-        fileds: pluginMessage.data,
-      },
-    });
+    if (reearth.layers.selectedFeature) {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { attributes, ...rawProperties } = reearth.layers.selectedFeature.properties;
+      const properties: { key: string; value?: any }[] = [];
+      Object.keys(rawProperties).forEach(key => {
+        properties.push({
+          key,
+          value: rawProperties[key],
+        });
+      });
+      reearth.ui.postMessage({
+        action: "fillData",
+        payload: {
+          feature: {
+            properties,
+          },
+          fields: pluginMessage.data.payload,
+        },
+      });
+    }
   }
 });
 
-reearth.on("select", () => {
-  if (reearth.layers.selected?.id !== currentLayerId) {
-    currentLayerId = reearth.layers.selected.id;
-    infoboxFetchFields();
-    reearth.ui.postMessage({
-      action: "setLoading",
-    });
-  } else {
-    reearth.ui.postMessage({
-      action: "fillData",
-      payload: {
-        primitive: reearth.layers.selectedFeature,
-        fileds: undefined,
-      },
-    });
-  }
+// reearth.on("pluginMessage", (pluginMessage: PluginMessage) => {
+//   console.log("get data from sidebar", pluginMessage);
+//   if (pluginMessage.data.action === "infoboxFields") {
+//     console.log(
+//       "infoboxFields: get data from sidebar",
+//       reearth.layers.selectedFeature,
+//       pluginMessage.data,
+//     );
+//     reearth.ui.postMessage({
+//       action: "fillData",
+//       payload: {
+//         feature: reearth.layers.selectedFeature,
+//         fileds: pluginMessage.data,
+//       },
+//     });
+//   }
+// });
+
+reearth.on("select", (layerId: string) => {
+  currentLayerId = layerId;
+
+  getSidebarId();
+  if (!sidebarId) return;
+  reearth.plugins.postMessage(sidebarId, {
+    action: "infoboxFieldsFetch",
+    payload: currentLayerId,
+  });
+
+  reearth.ui.postMessage({
+    action: "setLoading",
+  });
+
+  // if (reearth.layers.selected?.id !== currentLayerId) {
+  //   currentLayerId = reearth.layers.selected.id;
+  //   infoboxFieldsFetch();
+  //   reearth.ui.postMessage({
+  //     action: "setLoading",
+  //   });
+  // } else {
+  //   reearth.ui.postMessage({
+  //     action: "fillData",
+  //     payload: {
+  //       feature: reearth.layers.selectedFeature,
+  //     },
+  //   });
+  // }
 });

@@ -6,46 +6,37 @@ import Viewer from "./components/viewer";
 import useHooks from "./hooks";
 
 const Infobox: React.FC = () => {
-  const { mode, dataState, primitives, publicSettings, savePublicSetting } = useHooks();
+  const { mode, dataState, feature, fields, saveFields } = useHooks();
 
   return (
     <Wrapper>
       {dataState === "loading" && <SimplePane>Loading...</SimplePane>}
       {dataState === "empty" && <SimplePane>Empty</SimplePane>}
-      {dataState === "ready" && mode === "edit" && (
+      {dataState === "ready" && mode === "edit" && fields && feature && (
         <StyledCollapse
           bordered={false}
           collapsible={"header"}
-          defaultActiveKey={publicSettings?.map(publicSetting => publicSetting.type)}
+          defaultActiveKey={[0]}
           expandIconPosition="end"
           expandIcon={({ isActive }: { isActive?: boolean }) => (
             <IconWrapper active={!!isActive}>
               <Icon icon="arrowDown" color="#000000" size={18} />
             </IconWrapper>
           )}>
-          {publicSettings?.map(publicSetting => (
-            <Editor
-              key={publicSetting.type}
-              publicSetting={publicSetting}
-              primitives={primitives}
-              savePublicSetting={savePublicSetting}
-            />
-          ))}
+          <Editor key={0} fields={fields} feature={feature} saveFields={saveFields} />
         </StyledCollapse>
       )}
-      {dataState === "ready" && mode === "view" && (
+      {dataState === "ready" && mode === "view" && feature && fields && (
         <StyledCollapse
           bordered={false}
-          defaultActiveKey={primitives?.map((primitive, index) => index)}
+          defaultActiveKey={[0]}
           expandIconPosition="end"
           expandIcon={({ isActive }: { isActive?: boolean }) => (
             <IconWrapper active={!!isActive}>
               <Icon icon="arrowDown" color="#000000" size={18} />
             </IconWrapper>
           )}>
-          {primitives?.map((primitive, index) => (
-            <Viewer primitive={primitive} publicSettings={publicSettings} key={index} />
-          ))}
+          <Viewer feature={feature} fields={fields} key={0} />
         </StyledCollapse>
       )}
     </Wrapper>
@@ -58,12 +49,11 @@ const Wrapper = styled.div`
 
 const SimplePane = styled.div`
   width: 100%;
-  height: 100px;
+  padding: 12px 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 2px;
-  background-color: #fff;
+  color: #666;
 `;
 
 const StyledCollapse = styled(Collapse)`

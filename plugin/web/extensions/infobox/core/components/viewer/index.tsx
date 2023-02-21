@@ -1,57 +1,70 @@
-import type { Primitive, PublicSetting } from "@web/extensions/infobox/types";
+import type { Feature, Fields } from "@web/extensions/infobox/types";
 import { Collapse } from "@web/sharedComponents";
 import { styled } from "@web/theme";
 import { useEffect, useState } from "react";
 
 type Props = {
   key: number;
-  primitive: Primitive;
-  publicSettings: PublicSetting[];
+  feature: Feature;
+  fields: Fields;
 };
 
-type PropertyItemType = {
-  key: string;
+type FieldItemType = {
+  path: string;
   title: string;
   value?: any;
 };
 
-const Viewer: React.FC<Props> = ({ primitive, publicSettings, key, ...props }) => {
-  const [propertyList, setPropertyList] = useState<PropertyItemType[]>([]);
+const Viewer: React.FC<Props> = ({ feature, fields, key, ...props }) => {
+  const [fieldList, setFieldList] = useState<FieldItemType[]>([]);
 
   useEffect(() => {
-    const propertyItem: PropertyItemType[] = [];
-    const publicSetting = publicSettings.find(ps => ps.type === primitive.type);
-    if (!publicSetting || publicSetting.properties.length === 0) {
-      primitive.properties.forEach(property => {
-        propertyItem.push({
-          ...property,
-          title: property.key,
+    const fieldItems: FieldItemType[] = [];
+
+    if (!fields.fields || fields.fields?.length === 0) {
+      feature.properties.forEach(p => {
+        fieldItems.push({
+          path: p.key,
+          title: p.key,
+          value: p.value,
         });
       });
     } else {
-      publicSetting.properties
-        .filter(psp => !psp.hidden)
-        .forEach(property => {
-          propertyItem.push({
-            key: property.key,
-            title: property.title ?? property.key,
-            value: primitive.properties.find(pp => pp.key === property.key)?.value,
+      const processedFields: string[] = [];
+      fields.fields.forEach(f => {
+        if (f.visible) {
+          // field may not exist on feature
+          const property = feature.properties.find(fp => fp.key === f.path);
+          if (property) {
+            fieldItems.push({
+              path: f.path,
+              title: f.title ?? f.path,
+              value: property.value,
+            });
+          }
+        }
+        processedFields.push(f.path);
+      });
+      feature.properties
+        .filter(fp => !processedFields.includes(fp.key))
+        .forEach(fp => {
+          fieldItems.push({
+            path: fp.key,
+            title: fp.key,
+            value: fp.value,
           });
         });
     }
-    setPropertyList(propertyItem);
-  }, [primitive, publicSettings]);
+    setFieldList(fieldItems);
+  }, [feature, fields]);
 
   return (
-    <StyledPanel
-      header={primitive.properties?.find(p => p.key === "建物ID")?.value}
-      key={key}
-      {...props}>
+    <StyledPanel header={fields.name} key={key} {...props}>
       <Wrapper>
-        {propertyList.map(property => (
-          <PropertyItem key={property.key}>
-            <Title>{property.title}</Title>
-            <Value>{property.value}</Value>
+        {fieldList.map(field => (
+          <PropertyItem key={field.path}>
+            <Title>{field.title}</Title>
+            <Value>{field.value}</Value>
           </PropertyItem>
         ))}
       </Wrapper>

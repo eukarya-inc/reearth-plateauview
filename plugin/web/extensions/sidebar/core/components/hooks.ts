@@ -323,17 +323,43 @@ export default () => {
   // ****************************************
 
   // for infobox
-  const handleInfoboxFetchFields = useCallback(
+  const handleInfoboxFieldsFetch = useCallback(
     (dataID: string) => {
-      const dataset = data?.find(d => d.dataID === dataID);
-      console.log(dataset);
+      const name = catalogData?.find(d => d.id === dataID)?.type ?? "";
+      const fields = fieldTemplates.find(ft => ft.type === "infobox" && ft.name === name) ?? {
+        id: "",
+        type: "infobox",
+        name,
+        fields: [],
+      };
       postMsg({
         action: "infoboxFields",
-        payload: undefined,
+        payload: fields,
       });
     },
-    [data],
+    [catalogData, fieldTemplates],
   );
+  const handleInfoboxFieldsFetchRef = useRef<any>();
+  handleInfoboxFieldsFetchRef.current = handleInfoboxFieldsFetch;
+
+  const handleInfoboxFieldsSave = useCallback(
+    async (fields: Template) => {
+      if (fields.id) {
+        handleTemplateSave(fields);
+      } else {
+        const newTemplate = await handleTemplateAdd();
+        if (newTemplate) {
+          await handleTemplateSave({
+            ...fields,
+            id: newTemplate?.id,
+          });
+        }
+      }
+    },
+    [handleTemplateSave, handleTemplateAdd],
+  );
+  const handleInfoboxFieldsSaveRef = useRef<any>();
+  handleInfoboxFieldsSaveRef.current = handleInfoboxFieldsSave;
 
   // ****************************************
 
@@ -363,8 +389,10 @@ export default () => {
         setCurrentPage("share");
       } else if (e.data.action === "storySaveData") {
         handleStorySaveData(e.data.payload);
-      } else if (e.data.action === "infoboxFetchFields") {
-        handleInfoboxFetchFields(e.data.payload);
+      } else if (e.data.action === "infoboxFieldsFetch") {
+        handleInfoboxFieldsFetchRef.current(e.data.payload);
+      } else if (e.data.action === "infoboxFieldsSave") {
+        handleInfoboxFieldsSaveRef.current(e.data.payload);
       }
     };
     addEventListener("message", eventListenerCallback);
