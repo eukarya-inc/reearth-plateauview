@@ -2,7 +2,7 @@ import { DataCatalogItem, Template } from "@web/extensions/sidebar/core/types";
 // import { postMsg } from "@web/extensions/sidebar/utils";
 import { Dropdown, Icon, Menu } from "@web/sharedComponents";
 import { styled } from "@web/theme";
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import {
   Accordion,
   AccordionItem,
@@ -26,69 +26,38 @@ type BaseFieldType = Partial<DataCatalogItem> & {
 
 type Tabs = "default" | "edit";
 
-const baseFields: BaseFieldType[] = [
-  {
-    id: "zoom",
-    title: "カメラ",
-    icon: "mapPin",
-    value: 1,
-  },
-  { id: "about", title: "About Data", icon: "about", value: "www.plateau.org/data-url" },
-  {
-    id: "remove",
-    icon: "trash",
-  },
-];
-
-const menuGenerator = (menuItems: { [key: string]: any }) => (
-  <Menu>
-    {Object.keys(menuItems).map(i => {
-      if (menuItems[i].fields) {
-        return (
-          <Menu.Item key={menuItems[i].key}>
-            <Dropdown
-              overlay={menuGenerator(menuItems[i].fields)}
-              placement="bottom"
-              trigger={["click"]}>
-              <div onClick={e => e.stopPropagation()}>
-                <p style={{ margin: 0 }}>{menuItems[i].name}</p>
-              </div>
-            </Dropdown>
-          </Menu.Item>
-        );
-      } else {
-        return (
-          <Menu.Item key={i} onClick={menuItems[i]?.onClick}>
-            <p style={{ margin: 0 }}>{menuItems[i].name}</p>
-          </Menu.Item>
-        );
-      }
-    })}
-  </Menu>
-);
-
 export type Props = {
   template: Template;
   onTemplateSave: (template: Template) => Promise<void>;
-  onTemplateRemove?: (id: string) => void;
   onTemplateUpdate?: (template: Template) => void;
 };
-const TemplateCard: React.FC<Props> = ({
-  template,
-  onTemplateSave,
-  //   onTemplateRemove,
-  onTemplateUpdate,
-}) => {
-  const [currentTab, changeTab] = useState<Tabs>("edit");
+const TemplateCard: React.FC<Props> = ({ template, onTemplateSave, onTemplateUpdate }) => {
+  const [currentTab, changeTab] = useState<Tabs>("default");
   const [hidden, setHidden] = useState(false);
 
   const [editTitle, setEditTitle] = useState(false);
 
-  const { fieldComponentsList, handleFieldUpdate, handleFieldRemove, handleGroupsUpdate } =
-    useHooks({
-      template,
-      onTemplateUpdate,
-    });
+  const { fieldComponentsList, handleFieldUpdate, handleFieldRemove } = useHooks({
+    template,
+    onTemplateUpdate,
+  });
+
+  const baseFields: BaseFieldType[] = useMemo(
+    () => [
+      {
+        id: "zoom",
+        title: "カメラ",
+        icon: "mapPin",
+        value: 1,
+      },
+      { id: "about", title: "About Data", icon: "about", value: "www.plateau.org/data-url" },
+      {
+        id: "remove",
+        icon: "trash",
+      },
+    ],
+    [],
+  );
 
   const handleTabChange: React.MouseEventHandler<HTMLParagraphElement> = useCallback(e => {
     e.stopPropagation();
@@ -113,6 +82,33 @@ const TemplateCard: React.FC<Props> = ({
       setEditTitle(!editTitle);
     },
     [editTitle],
+  );
+
+  const menuGenerator = (menuItems: { [key: string]: any }) => (
+    <Menu>
+      {Object.keys(menuItems).map(i => {
+        if (menuItems[i].fields) {
+          return (
+            <Menu.Item key={menuItems[i].key}>
+              <Dropdown
+                overlay={menuGenerator(menuItems[i].fields)}
+                placement="bottom"
+                trigger={["click"]}>
+                <div onClick={e => e.stopPropagation()}>
+                  <p style={{ margin: 0 }}>{menuItems[i].name}</p>
+                </div>
+              </Dropdown>
+            </Menu.Item>
+          );
+        } else {
+          return (
+            <Menu.Item key={i} onClick={menuItems[i]?.onClick}>
+              <p style={{ margin: 0 }}>{menuItems[i].name}</p>
+            </Menu.Item>
+          );
+        }
+      })}
+    </Menu>
   );
 
   return (
@@ -173,11 +169,10 @@ const TemplateCard: React.FC<Props> = ({
               <Field
                 key={idx}
                 field={c}
-                isActive
-                editMode={currentTab === "edit"}
+                isActive={true}
+                editMode={currentTab === "edit" ? true : false}
                 onUpdate={handleFieldUpdate}
                 onRemove={handleFieldRemove}
-                onGroupsUpdate={handleGroupsUpdate(c.id)}
               />
             ))}
           </Content>

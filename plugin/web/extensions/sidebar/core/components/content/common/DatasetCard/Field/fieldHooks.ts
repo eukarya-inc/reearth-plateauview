@@ -209,7 +209,7 @@ export default ({
   );
 
   const fieldComponentsList = useMemo(() => {
-    const fieldGroups: {
+    const groups: {
       [key: string]: {
         name: string;
         fields: FieldDropdownItem;
@@ -229,9 +229,9 @@ export default ({
       "3d-tile": { name: "3Dタイル", fields: ThreeDTileFields },
     };
     if (TemplateFields) {
-      fieldGroups["templates"] = { name: "テンプレート", fields: TemplateFields };
+      groups["templates"] = { name: "テンプレート", fields: TemplateFields };
     }
-    return fieldGroups;
+    return groups;
   }, [generalFields, pointFields, polygonFields, polylineFields, ThreeDTileFields, TemplateFields]);
 
   return fieldComponentsList;
