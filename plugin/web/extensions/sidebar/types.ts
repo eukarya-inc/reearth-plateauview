@@ -55,7 +55,8 @@ type ActionType =
   | "findTileset"
   | "update3dtilesShadow"
   | "reset3dtilesShadow"
-  | "updateInterval";
+  | "updateInterval"
+  | "updateTimeBasedDisplay";
 
 export type PostMessageProps = { action: ActionType; payload?: any };
 
