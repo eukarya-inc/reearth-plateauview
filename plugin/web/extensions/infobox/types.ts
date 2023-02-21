@@ -1,4 +1,4 @@
-export type ActionType = "getInEditor" | "savePublicSetting";
+export type ActionType = "getInEditor" | "savePublicSetting" | "init";
 
 export type PostMessageProps = { action: ActionType; payload?: any };
 
@@ -29,6 +29,18 @@ export type PublicProperty = {
   hidden?: boolean;
 };
 
+export type InfoboxFields = {
+  type: string;
+  title: string;
+  fields: {
+    title: string;
+    path: string;
+    visible: boolean;
+  }[];
+};
+
+export type InfoboxFieldsList = InfoboxFields[];
+
 // Reearth types
 export type PluginExtensionInstance = {
   id: string;
@@ -36,6 +48,16 @@ export type PluginExtensionInstance = {
   name: string;
   extensionId: string;
   extensionType: "widget" | "block";
+};
+
+type PluginActionType = "infoboxFields";
+
+export type PluginMessage = {
+  data: {
+    action: PluginActionType;
+    payload: any;
+  };
+  sender: string;
 };
 
 // Communication

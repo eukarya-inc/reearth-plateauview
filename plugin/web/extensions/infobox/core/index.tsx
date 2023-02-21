@@ -6,11 +6,13 @@ import Viewer from "./components/viewer";
 import useHooks from "./hooks";
 
 const Infobox: React.FC = () => {
-  const { mode, primitives, publicSettings, savePublicSetting } = useHooks();
+  const { mode, dataState, primitives, publicSettings, savePublicSetting } = useHooks();
 
   return (
     <Wrapper>
-      {mode === "edit" && (
+      {dataState === "loading" && <SimplePane>Loading...</SimplePane>}
+      {dataState === "empty" && <SimplePane>Empty</SimplePane>}
+      {dataState === "ready" && mode === "edit" && (
         <StyledCollapse
           bordered={false}
           collapsible={"header"}
@@ -31,7 +33,7 @@ const Infobox: React.FC = () => {
           ))}
         </StyledCollapse>
       )}
-      {mode === "view" && (
+      {dataState === "ready" && mode === "view" && (
         <StyledCollapse
           bordered={false}
           defaultActiveKey={primitives?.map((primitive, index) => index)}
@@ -52,6 +54,16 @@ const Infobox: React.FC = () => {
 
 const Wrapper = styled.div`
   padding: 0 12px;
+`;
+
+const SimplePane = styled.div`
+  width: 100%;
+  height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 2px;
+  background-color: #fff;
 `;
 
 const StyledCollapse = styled(Collapse)`

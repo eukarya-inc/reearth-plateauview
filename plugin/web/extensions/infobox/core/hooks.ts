@@ -9,6 +9,7 @@ type Mode = "edit" | "view" | "pending";
 
 export default () => {
   const [mode, setMode] = useState<Mode>("pending");
+  const [dataState, setDataState] = useState<"loading" | "empty" | "ready">("loading");
   const [primitives, setPrimitives] = useState<Primitive[]>([]);
   const [publicSettings, setPublicSettings] = useState<PublicSetting[]>([]);
 
@@ -31,8 +32,9 @@ export default () => {
     setMode(inEditor ? "edit" : "view");
   }, []);
 
-  useEffect(() => {
-    postMsg("getInEditor");
+  const handleFillData = useCallback((data: any) => {
+    console.log("filldata", data);
+    setDataState("ready");
   }, []);
 
   const savePublicSetting = useCallback((publicSetting: PublicSetting) => {
@@ -46,11 +48,17 @@ export default () => {
         case "getInEditor":
           handleInEditor(e.data.payload);
           break;
+        case "fillData":
+          handleFillData(e.data.payload);
+          break;
+        case "setLoading":
+          setDataState("loading");
+          break;
         default:
           break;
       }
     },
-    [handleInEditor],
+    [handleInEditor, handleFillData],
   );
 
   useEffect(() => {
@@ -60,8 +68,13 @@ export default () => {
     };
   }, [onMessage]);
 
+  useEffect(() => {
+    postMsg("init");
+  }, []);
+
   return {
     mode,
+    dataState,
     primitives,
     publicSettings,
     savePublicSetting,

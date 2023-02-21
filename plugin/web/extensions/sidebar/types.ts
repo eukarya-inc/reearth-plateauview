@@ -50,7 +50,8 @@ type ActionType =
   | "update3dtilesShadow"
   | "reset3dtilesShadow"
   | "update3dtilesTransparency"
-  | "reset3dtilesTransparency";
+  | "reset3dtilesTransparency"
+  | "infoboxFields";
 
 export type PostMessageProps = { action: ActionType; payload?: any };
 

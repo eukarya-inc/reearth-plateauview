@@ -327,6 +327,19 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
   }
 
   // ************************************************
+  // for infobox
+  else if (action === "infoboxFields") {
+    const infoboxInstanceId = reearth.plugins.instances.find(
+      (instance: PluginExtensionInstance) => instance.extensionId === "infobox",
+    )?.id;
+    if (!infoboxInstanceId) return;
+    reearth.plugins.postMessage(infoboxInstanceId, {
+      action: "infoboxFields",
+      payload,
+    });
+  }
+
+  // ************************************************
   // For 3dtiles
   const override3dtiles = (dataID: string, property: Record<string, any>) => {
     const tilesetLayerID = addedDatasets.find(a => a[0] === dataID)?.[2];
@@ -460,6 +473,11 @@ reearth.on("pluginmessage", (pluginMessage: PluginMessage) => {
     reearth.ui.postMessage(pluginMessage.data);
   } else if (pluginMessage.data.action === "storySaveData") {
     reearth.ui.postMessage(pluginMessage.data);
+  } else if (pluginMessage.data.action === "infoboxFetchFields") {
+    reearth.ui.postMessage({
+      action: "infoboxFetchFields",
+      payload: addedDatasets.find(ad => ad[2] === pluginMessage.data.payload)?.[0],
+    });
   }
 });
 
@@ -479,7 +497,14 @@ function createLayer(dataset: DataCatalogItem, options?: any) {
             (i: PluginExtensionInstance) => i.name === "plateau-plugin",
           ).pluginId,
           extensionId: "infobox",
-          property: { default: {} },
+          property: {
+            default: {
+              bgcolor: "#d9d9d9ff",
+              heightType: "auto",
+              showTitle: false,
+              size: "medium",
+            },
+          },
         },
       ],
       property: { default: { size: "medium" } },

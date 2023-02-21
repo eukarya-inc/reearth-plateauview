@@ -301,6 +301,21 @@ export default () => {
 
   // ****************************************
 
+  // for infobox
+  const handleInfoboxFetchFields = useCallback(
+    (dataID: string) => {
+      const dataset = data?.find(d => d.dataID === dataID);
+      console.log(dataset);
+      postMsg({
+        action: "infoboxFields",
+        payload: undefined,
+      });
+    },
+    [data],
+  );
+
+  // ****************************************
+
   useEffect(() => {
     const eventListenerCallback = (e: MessageEvent<any>) => {
       if (e.source !== parent) return;
@@ -325,6 +340,8 @@ export default () => {
         setCurrentPage("share");
       } else if (e.data.action === "storySaveData") {
         handleStorySaveData(e.data.payload);
+      } else if (e.data.action === "infoboxFetchFields") {
+        handleInfoboxFetchFields(e.data.payload);
       }
     };
     addEventListener("message", eventListenerCallback);
