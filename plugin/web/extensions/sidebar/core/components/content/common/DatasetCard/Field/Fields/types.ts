@@ -16,7 +16,7 @@ export const fieldName = {
   pointLabel: "ラベル",
   pointModel: "モデル",
   pointStroke: "ストロック",
-  search: "Search",
+  search: "データを検索",
   polygonColor: "ポリゴン色",
   polygonColorGradient: "ポリゴン色（Gradient）",
   polygonStroke: "ポリゴンストロック",

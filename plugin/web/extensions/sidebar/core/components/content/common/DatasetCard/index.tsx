@@ -80,7 +80,7 @@ const DatasetCard: React.FC<Props> = ({
     if (currentTab === "default" && dataset.components?.find(c => c.type === "search")) {
       fields.push({
         id: "search",
-        title: "Search Data",
+        title: "データを検索",
         icon: "search",
         value: 1,
         onClick: () => {
