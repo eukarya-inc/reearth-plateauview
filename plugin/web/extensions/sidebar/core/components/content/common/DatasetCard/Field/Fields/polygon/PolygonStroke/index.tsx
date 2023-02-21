@@ -17,6 +17,11 @@ const PolygonStroke: React.FC<BaseFieldProps<"polygonStroke">> = ({
 }) => {
   const [items, updateItems] = useState(value.items);
 
+  const operandOptions = [
+    { value: "pointOutlineColor", label: "strokeColor" },
+    { value: "pointOutlineWidth", label: "strokeWidth" },
+  ];
+
   const handleMoveUp = useCallback(
     (idx: number) => {
       if (idx === 0) return;
@@ -107,6 +112,7 @@ const PolygonStroke: React.FC<BaseFieldProps<"polygonStroke">> = ({
           key={idx}
           index={idx}
           item={c}
+          operandOptions={operandOptions}
           handleMoveDown={handleMoveDown}
           handleMoveUp={handleMoveUp}
           handleRemove={handleRemove}

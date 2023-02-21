@@ -17,6 +17,8 @@ const PolylineColor: React.FC<BaseFieldProps<"polylineColor">> = ({
 }) => {
   const [items, updateItems] = useState(value.items);
 
+  const operandOptions = [{ value: "pointSize", label: "size" }];
+
   const handleMoveUp = useCallback(
     (idx: number) => {
       updateItems(c => {
@@ -97,6 +99,7 @@ const PolylineColor: React.FC<BaseFieldProps<"polylineColor">> = ({
           key={idx}
           index={idx}
           item={c}
+          operandOptions={operandOptions}
           handleMoveDown={handleMoveDown}
           handleMoveUp={handleMoveUp}
           handleRemove={handleRemove}

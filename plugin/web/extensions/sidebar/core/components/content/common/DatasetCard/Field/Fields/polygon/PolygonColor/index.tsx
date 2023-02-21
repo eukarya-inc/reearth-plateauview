@@ -13,6 +13,8 @@ import PolygonColorItem from "./PolygonColorItem";
 const PolygonColor: React.FC<BaseFieldProps<"polygonColor">> = ({ value, editMode, onUpdate }) => {
   const [items, updateItems] = useState(value.items);
 
+  const operandOptions = [{ value: "pointSize", label: "size" }];
+
   const handleMoveUp = useCallback(
     (idx: number) => {
       updateItems(c => {
@@ -93,6 +95,7 @@ const PolygonColor: React.FC<BaseFieldProps<"polygonColor">> = ({ value, editMod
           key={idx}
           index={idx}
           item={c}
+          operandOptions={operandOptions}
           handleMoveDown={handleMoveDown}
           handleMoveUp={handleMoveUp}
           handleRemove={handleRemove}
