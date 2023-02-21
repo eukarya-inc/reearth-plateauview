@@ -23,7 +23,7 @@ export type Props = {
   selectGroups?: Group[];
   onUpdate?: (id: string) => (property: any) => void;
   onRemove: (id: string) => void;
-  onGroupsUpdate: (groups: Group[], selectedGroup?: string) => void;
+  onGroupsUpdate?: (groups: Group[], selectedGroup?: string) => void;
   onCurrentGroupChange?: (fieldGroupID: string) => void;
 };
 
@@ -66,7 +66,7 @@ const FieldComponent: React.FC<Props> = ({
       if (e.source !== parent) return;
       if (groupPopupOpen) {
         if (e.data.action === "saveGroups") {
-          onGroupsUpdate(e.data.payload.groups, e.data.payload.selected);
+          onGroupsUpdate?.(e.data.payload.groups, e.data.payload.selected);
           setGroupPopup(false);
         } else if (e.data.action === "popupClose") {
           setGroupPopup(false);
@@ -80,11 +80,8 @@ const FieldComponent: React.FC<Props> = ({
   }, [groupPopupOpen, onGroupsUpdate]);
 
   return !editMode && !isActive ? null : (
-    <StyledAccordionComponent
-      allowZeroExpanded
-      preExpanded={[field.type]}
-      hide={!editMode && !hasUI}>
-      <AccordionItem uuid={field.type}>
+    <StyledAccordionComponent allowZeroExpanded preExpanded={[field.id]} hide={!editMode && !hasUI}>
+      <AccordionItem uuid={field.id}>
         <AccordionItemState>
           {({ expanded }) => (
             <Header expanded={expanded}>
@@ -92,7 +89,7 @@ const FieldComponent: React.FC<Props> = ({
                 <HeaderContents>
                   <LeftContents>
                     <ArrowIcon icon="arrowDown" size={16} direction="right" expanded={expanded} />
-                    <Title>{fieldName[field.type]}</Title>
+                    <Title>{field.type === "template" ? field.name : fieldName[field.type]}</Title>
                   </LeftContents>
                   <RightContents>
                     <StyledIcon
