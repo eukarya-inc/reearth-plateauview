@@ -204,7 +204,7 @@ export default ({
         })
         .reduce((acc, field) => {
           return { ...acc, ...field };
-        }),
+        }, {}),
     [templates, onFieldAdd],
   );
 
