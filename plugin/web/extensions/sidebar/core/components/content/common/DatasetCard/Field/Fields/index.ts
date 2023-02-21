@@ -12,7 +12,9 @@ import IdealZoom from "./general/IdealZoom";
 import Legend from "./general/Legend";
 import Realtime from "./general/Realtime";
 import StyleCode from "./general/StyleCode";
+import SwitchDataset from "./general/SwitchDataset";
 import SwitchGroup from "./general/SwitchGroup";
+import Timeline from "./general/Timeline";
 import PointColor from "./point/PointColor";
 import PointColorGradient from "./point/PointColorGradient";
 import PointIcon from "./point/PointIcon";
@@ -28,10 +30,8 @@ import PolylineColorGradient from "./polyline/PolylineColorGradient";
 import PolylineStrokeWeight from "./polyline/PolylineStrokeWeight";
 import { FieldComponent } from "./types";
 
-// import Template from "./Template";
-
 export type Fields<FC extends FieldComponent> = {
-  [F in FC["type"]]: { Component: ComponentType<FieldComponent & any>; hasUI: boolean };
+  [F in FC["type"]]: { Component: ComponentType<FieldComponent & any>; hasUI: boolean } | null;
 };
 
 const fields: Fields<FieldComponent> = {
@@ -43,7 +43,8 @@ const fields: Fields<FieldComponent> = {
   buttonLink: { Component: ButtonLink, hasUI: true },
   styleCode: { Component: StyleCode, hasUI: false },
   realtime: { Component: Realtime, hasUI: true },
-
+  timeline: { Component: Timeline, hasUI: true },
+  switchDataset: { Component: SwitchDataset, hasUI: true },
   // point
   pointColor: { Component: PointColor, hasUI: false },
   pointColorGradient: { Component: PointColorGradient, hasUI: false },
@@ -60,16 +61,15 @@ const fields: Fields<FieldComponent> = {
   polygonColor: { Component: PolygonColor, hasUI: false },
   polygonColorGradient: { Component: PolygonColorGradient, hasUI: false },
   polygonStroke: { Component: PolygonStroke, hasUI: false },
-  // 3d-model
+  // 3d-tile
   clipping: { Component: Clipping, hasUI: true },
   buildingFilter: { Component: BuildingFilter, hasUI: true },
   buildingTransparency: { Component: BuildingTransparency, hasUI: true },
   buildingColor: { Component: BuildingColor, hasUI: true },
   buildingShadow: { Component: BuildingShadow, hasUI: true },
-  // 3d-tile
   search: { Component: Search, hasUI: false },
-  // realtime: Realtime,
-  // template: Template,
+  // 3d-model
+  template: null,
 };
 
 export default fields;

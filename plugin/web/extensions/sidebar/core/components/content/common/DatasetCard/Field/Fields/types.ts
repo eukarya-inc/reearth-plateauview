@@ -4,9 +4,11 @@ export const fieldName = {
   idealZoom: "カメラ",
   legend: "凡例",
   realtime: "リアルタイム",
+  timeline: "タイムラインデータ",
   switchGroup: "スイッチグループ",
   buttonLink: "リンクボタン",
   styleCode: "Style code (General)",
+  switchDataset: "スイッチデータセット",
   point: "ポイント",
   description: "説明",
   pointColor: "色",
@@ -28,6 +30,7 @@ export const fieldName = {
   polylineColor: "ポリライン色",
   polylineColorGradient: "ポリライン色（Gradient）",
   polylineStrokeWeight: "ポリラインストロック",
+  template: "テンプレート",
 };
 
 // type Component = Camera | Legend | Realtime | Point | Polyline | Polygon | Model | Description;
@@ -39,6 +42,8 @@ export type FieldComponent =
   | Description
   | SwitchGroup
   | Realtime
+  | Timeline
+  | SwitchDataset
   | PointColor
   | PointColorGradient
   | PointSize
@@ -57,12 +62,18 @@ export type FieldComponent =
   | BuildingFilter
   | BuildingTransparency
   | BuildingColor
-  | BuildingShadow;
+  | BuildingShadow
+  | Template;
 
 type FieldBase<T extends keyof typeof fieldName> = {
   id: string;
   type: T;
   group?: string;
+};
+
+type Template = FieldBase<"template"> & {
+  templateID: string;
+  name: string;
 };
 
 type CameraPosition = {
@@ -95,6 +106,10 @@ type Realtime = FieldBase<"realtime"> & {
   updateInterval: number; // 1000 * 60 -> 1m
 };
 
+export type Timeline = FieldBase<"timeline"> & {
+  timeBasedDisplay: boolean;
+};
+
 export type Description = FieldBase<"description"> & {
   content?: string;
   isMarkdown?: boolean;
@@ -103,6 +118,7 @@ export type Description = FieldBase<"description"> & {
 export type StyleCode = FieldBase<"styleCode"> & {
   src: string;
 };
+
 export type GroupItem = {
   id: string;
   title: string;
@@ -112,6 +128,10 @@ export type GroupItem = {
 export type SwitchGroup = FieldBase<"switchGroup"> & {
   title: string;
   groups: GroupItem[];
+};
+
+export type SwitchDataset = FieldBase<"switchDataset"> & {
+  uiStyle?: "dropdown" | "radio";
 };
 
 export type ButtonLink = FieldBase<"buttonLink"> & {
@@ -252,6 +272,8 @@ export type Fields = {
   switchGroup: SwitchGroup;
   buttonLink: ButtonLink;
   realtime: Realtime;
+  timeline: Timeline;
+  switchDataset: SwitchDataset;
   // point
   pointColor: PointColor;
   pointColorGradient: PointColorGradient;
@@ -284,9 +306,12 @@ export type BaseFieldProps<T extends keyof Fields> = {
   editMode?: boolean;
   isActive?: boolean;
   fieldGroups?: Group[];
+  configData?: ConfigData[];
   onUpdate: (property: Fields[T]) => void;
   onCurrentGroupChange: (fieldGroupID: string) => void;
 };
+
+export type ConfigData = { name: string; type: string; url: string; layers?: string[] };
 
 export type Expression<T extends string | number | boolean = string | number | boolean> =
   | T
