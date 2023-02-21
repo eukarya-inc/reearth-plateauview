@@ -341,6 +341,18 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
       action: "storyPlay",
       payload,
     });
+  } else if (action === "updateInterval") {
+    const { dataID, interval } = payload;
+    const layerId = addedDatasets.find(ad => ad[0] === dataID)?.[2];
+    const layer = reearth.layers.findById(layerId);
+    if (layer) {
+      reearth.layers.override(layerId, {
+        data: {
+          ...layer.data,
+          updateInterval: interval,
+        },
+      });
+    }
   }
 
   // ************************************************
@@ -563,7 +575,7 @@ function createLayer(dataset: DataCatalogItem, options?: any) {
     title: dataset.name,
     data: {
       type: dataset.format.toLowerCase(),
-      url: dataset.url ?? dataset.config.data[0].url,
+      url: dataset.config?.data?.[0].url ?? dataset.url,
     },
     visible: true,
     infobox: {

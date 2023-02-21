@@ -9,10 +9,12 @@ export type Root = {
 
 export type DataCatalogGroup = {
   name: string;
-  children: (DataCatalogItem | DataCatalogGroup)[];
+  children: DataCatalogTreeItem[];
 };
 
 export type DataCatalogItem = RawDataCatalogItem & Data;
+
+export type DataCatalogTreeItem = DataCatalogGroup | DataCatalogItem;
 
 export type Data = {
   dataID: string;
@@ -33,7 +35,14 @@ export type Group = {
 
 export type Template = {
   id: string;
-  modelId: string;
-  name?: string;
+  type: "field" | "infobox";
+  name: string;
+  fields?: Field[];
   components?: FieldComponent[];
+};
+
+type Field = {
+  title: string;
+  path: string;
+  visible: boolean;
 };
