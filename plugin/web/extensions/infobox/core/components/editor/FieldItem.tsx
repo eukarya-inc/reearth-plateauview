@@ -102,7 +102,12 @@ const FieldItem: React.FC<Props> = ({
       <ContentWrapper>
         <JsonPath>{field.path}</JsonPath>
         <Title>
-          <TitleInput onChange={onTitleChange} data-path={field.path} disabled={!field.visible} />
+          <TitleInput
+            onChange={onTitleChange}
+            data-path={field.path}
+            disabled={!field.visible}
+            value={field.title}
+          />
         </Title>
         <Value>{field.value}</Value>
       </ContentWrapper>
