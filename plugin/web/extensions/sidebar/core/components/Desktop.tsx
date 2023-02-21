@@ -27,7 +27,7 @@ const DesktopSidebar: React.FC<Props> = ({ className }) => {
     currentPage,
     handlePageChange,
     handleTemplateAdd,
-    handleTemplateUpdate,
+    handleTemplateSave,
     handleTemplateRemove,
     handleDatasetSave,
     handleProjectDatasetRemove,
@@ -35,6 +35,7 @@ const DesktopSidebar: React.FC<Props> = ({ className }) => {
     handleProjectDatasetRemoveAll,
     handleProjectSceneUpdate,
     handleModalOpen,
+    handleThreeDTilesSearch,
   } = useHooks();
 
   const [minimized, setMinimize] = useState(false);
@@ -83,6 +84,7 @@ const DesktopSidebar: React.FC<Props> = ({ className }) => {
                   onDatasetRemove={handleProjectDatasetRemove}
                   onDatasetRemoveAll={handleProjectDatasetRemoveAll}
                   onModalOpen={handleModalOpen}
+                  onThreeDTilesSearch={handleThreeDTilesSearch}
                 />
               ),
               map: (
@@ -98,7 +100,7 @@ const DesktopSidebar: React.FC<Props> = ({ className }) => {
                 <Templates
                   templates={templates}
                   onTemplateAdd={handleTemplateAdd}
-                  onTemplateUpdate={handleTemplateUpdate}
+                  onTemplateSave={handleTemplateSave}
                   onTemplateRemove={handleTemplateRemove}
                 />
               ),
