@@ -1,13 +1,20 @@
 import AddButton from "@web/extensions/sidebar/core/components/content/common/DatasetCard/AddButton";
+import {
+  ButtonWrapper,
+  Wrapper,
+} from "@web/extensions/sidebar/core/components/content/common/DatasetCard/Field/commonComponents";
 import { generateID, moveItemDown, moveItemUp, removeItem } from "@web/extensions/sidebar/utils";
 import { useCallback, useState } from "react";
 
-import { BaseFieldProps, Cond } from "../types";
+import { BaseFieldProps, Cond } from "../../types";
 
-import { ButtonWrapper, Wrapper } from "./commonComponents";
-import PointStrokeItem from "./PointStrokeItem";
+import PolygonStrokeItem from "./PolygonStrokeItem";
 
-const PointStroke: React.FC<BaseFieldProps<"pointStroke">> = ({ value, editMode, onUpdate }) => {
+const PolygonStroke: React.FC<BaseFieldProps<"polygonStroke">> = ({
+  value,
+  editMode,
+  onUpdate,
+}) => {
   const [items, updateItems] = useState(value.items);
 
   const handleMoveUp = useCallback(
@@ -96,7 +103,7 @@ const PointStroke: React.FC<BaseFieldProps<"pointStroke">> = ({ value, editMode,
   return editMode ? (
     <Wrapper>
       {items?.map((c, idx) => (
-        <PointStrokeItem
+        <PolygonStrokeItem
           key={idx}
           index={idx}
           item={c}
@@ -113,4 +120,4 @@ const PointStroke: React.FC<BaseFieldProps<"pointStroke">> = ({ value, editMode,
   ) : null;
 };
 
-export default PointStroke;
+export default PolygonStroke;

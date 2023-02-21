@@ -20,6 +20,7 @@ type ActionType =
   | "updateDatasetInScene"
   | "removeDatasetFromScene"
   | "removeAllDatasetsFromScene"
+  | "updateDataset"
   | "catalogModalOpen"
   | "triggerCatalogOpen"
   | "triggerHelpOpen"
@@ -40,6 +41,7 @@ type ActionType =
   | "groupSelectOpen"
   | "saveGroups"
   | "cameraFlyTo"
+  | "cameraLookAt"
   | "getCurrentCamera"
   | "storyPlay"
   | "addClippingBox"
@@ -47,10 +49,14 @@ type ActionType =
   | "removeClippingBox"
   | "update3dtilesShow"
   | "reset3dtilesShow"
+  | "update3dtilesTransparency"
+  | "reset3dtilesTransparency"
+  | "update3dtilesColor"
+  | "reset3dtilesColor"
+  | "findTileset"
   | "update3dtilesShadow"
   | "reset3dtilesShadow"
-  | "update3dtilesTransparency"
-  | "reset3dtilesTransparency";
+  | "updateInterval";
 
 export type PostMessageProps = { action: ActionType; payload?: any };
 
