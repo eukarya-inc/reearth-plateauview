@@ -35,7 +35,7 @@ const PointSize: React.FC<BaseFieldProps<"pointSize">> = ({
         action: "updateDatasetInScene",
         payload: {
           dataID,
-          update: { marker: { style: "image", size } },
+          update: { marker: { style: "point", pointSize: size } },
         },
       });
     }, 500);

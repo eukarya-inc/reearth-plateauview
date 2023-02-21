@@ -50,7 +50,7 @@ const PointModel: React.FC<BaseFieldProps<"pointModel">> = ({
         action: "updateDatasetInScene",
         payload: {
           dataID,
-          update: { marker: { style: "image", modelURL, scale } },
+          update: { model: { url: modelURL, scale } },
         },
       });
     }, 500);

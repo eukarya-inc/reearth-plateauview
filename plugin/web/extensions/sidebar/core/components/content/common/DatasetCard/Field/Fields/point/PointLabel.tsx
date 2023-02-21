@@ -105,7 +105,20 @@ const PointLabel: React.FC<BaseFieldProps<"pointLabel">> = ({
         action: "updateDatasetInScene",
         payload: {
           dataID,
-          update: { marker: { style: "image", ...pointLabel } },
+          update: {
+            marker: {
+              style: "point",
+              labelTypography: {
+                fontSize: pointLabel.fontSize,
+                color: pointLabel.fontColor,
+              },
+              field: "", // should be updated
+              height: "", // should be updated
+              extruded: pointLabel.extruded,
+              labelBackground: pointLabel.useBackground,
+              backgroundColor: pointLabel.backgroundColor,
+            },
+          },
         },
       });
     }, 500);
