@@ -338,6 +338,7 @@ const Title = styled.p`
   overflow: hidden;
   width: 250px;
   white-space: nowrap;
+  user-select: none;
 `;
 
 const Content = styled.div`
@@ -372,6 +373,7 @@ const ArrowIcon = styled(Icon)<{ expanded?: boolean }>`
 
 const FieldName = styled.p`
   margin: 0;
+  user-select: none;
 `;
 
 const TabWrapper = styled.div`
@@ -388,6 +390,7 @@ const Tab = styled.p<{ selected?: boolean }>`
   border-bottom-color: ${({ selected }) => (selected ? "#1890FF" : "transparent")};
   color: ${({ selected }) => (selected ? "#1890FF" : "inherit")};
   cursor: pointer;
+  user-select: none;
 `;
 
 const StyledAddButton = styled(AddButton)`
@@ -415,14 +418,5 @@ const SaveButton = styled.div`
 const Text = styled.p`
   margin: 0;
   line-height: 15px;
+  user-select: none;
 `;
-
-// const StyledDropdownButton = styled.div`
-//   display: flex;
-//   justify-content: space-between;
-//   align-items: center;
-//   width: 100%;
-//   align-content: center;
-//   padding: 0 16px;
-//   cursor: pointer;
-// `;
