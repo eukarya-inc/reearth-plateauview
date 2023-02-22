@@ -1,5 +1,5 @@
 import type { Field, Fields, Feature } from "@web/extensions/infobox/types";
-import { Collapse, Button } from "@web/sharedComponents";
+import { Button } from "@web/sharedComponents";
 import { styled } from "@web/theme";
 import update from "immutability-helper";
 import { useCallback, useEffect, useState } from "react";
@@ -12,10 +12,13 @@ import PropertyItem from "./FieldItem";
 type Props = {
   fields: Fields;
   feature?: Feature;
+  isSaving: boolean;
+  ready: boolean;
   saveFields: (fields: Fields) => void;
+  updateSize: () => void;
 };
 
-const Editor: React.FC<Props> = ({ feature, fields, saveFields, ...props }) => {
+const Editor: React.FC<Props> = ({ feature, fields, isSaving, ready, saveFields, updateSize }) => {
   const [fieldList, setFieldList] = useState<FieldItemType[]>([]);
 
   useEffect(() => {
@@ -100,16 +103,18 @@ const Editor: React.FC<Props> = ({ feature, fields, saveFields, ...props }) => {
     });
   }, [fieldList, fields, saveFields]);
 
+  useEffect(() => {
+    updateSize();
+  }, [fieldList, updateSize]);
+
   return (
-    <StyledPanel
-      header={fields.name}
-      key={fields.name}
-      extra={
-        <StyledButton size="small" onClick={onSave}>
+    <StyledEditor ready={ready}>
+      <Header>
+        <EditorTitle>{fields.name}</EditorTitle>
+        <StyledButton size="small" onClick={onSave} loading={isSaving}>
           保存
         </StyledButton>
-      }
-      {...props}>
+      </Header>
       <Wrapper>
         <PropertyHeader>
           <IconsWrapper />
@@ -133,27 +138,43 @@ const Editor: React.FC<Props> = ({ feature, fields, saveFields, ...props }) => {
           ))}
         </DndProvider>
       </Wrapper>
-    </StyledPanel>
+    </StyledEditor>
   );
 };
 
-const StyledPanel = styled(Collapse.Panel)`
+const StyledEditor = styled.div<{ ready: boolean }>`
   background: #f4f4f4;
   margin-bottom: 6px;
   box-shadow: 1px 2px 4px rgba(0, 0, 0, 0.25);
   border-radius: 4px !important;
   overflow: hidden;
+  opacity: ${({ ready }) => (ready ? 1 : 0.2)};
+  transition: all 0.25s ease;
+`;
+
+const Header = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #fff;
+  padding: 12px;
+`;
+
+const EditorTitle = styled.div`
+  font-size: 16px;
+  color: #000;
 `;
 
 const StyledButton = styled(Button)`
   border-radius: 4px;
-  margin-right: 10px;
 `;
 
 const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
   gap: 8px;
+  border-top: 1px solid #e0e0e0;
+  padding: 12px;
 `;
 
 const PropertyHeader = styled.div`

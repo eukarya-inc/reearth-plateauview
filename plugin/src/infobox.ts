@@ -8,8 +8,6 @@ import html from "../dist/web/infobox/core/index.html?raw";
 
 const reearth = (globalThis as any).reearth;
 
-let currentLayerId: string | undefined = reearth.layers.selected;
-
 reearth.ui.show(html);
 
 let sidebarId: string;
@@ -26,7 +24,6 @@ const infoboxFieldsFetch = () => {
   if (!sidebarId) return;
   reearth.plugins.postMessage(sidebarId, {
     action: "infoboxFieldsFetch",
-    payload: currentLayerId,
   });
 };
 
@@ -48,8 +45,7 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
 });
 
 reearth.on("pluginmessage", (pluginMessage: PluginMessage) => {
-  reearth.ui.postMessage(pluginMessage.data);
-  if (pluginMessage.data.action === "infoboxFields") {
+  if (pluginMessage.data.action === "infoboxFieldsFetch") {
     if (reearth.layers.selectedFeature) {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { attributes, ...rawProperties } = reearth.layers.selectedFeature.properties;
@@ -69,54 +65,22 @@ reearth.on("pluginmessage", (pluginMessage: PluginMessage) => {
           fields: pluginMessage.data.payload,
         },
       });
+    } else {
+      reearth.ui.postMessage({
+        action: "setEmpty",
+      });
     }
+  } else if (pluginMessage.data.action === "infoboxFieldsSaved") {
+    reearth.ui.postMessage({
+      action: "saveFinish",
+    });
   }
 });
 
-// reearth.on("pluginMessage", (pluginMessage: PluginMessage) => {
-//   console.log("get data from sidebar", pluginMessage);
-//   if (pluginMessage.data.action === "infoboxFields") {
-//     console.log(
-//       "infoboxFields: get data from sidebar",
-//       reearth.layers.selectedFeature,
-//       pluginMessage.data,
-//     );
-//     reearth.ui.postMessage({
-//       action: "fillData",
-//       payload: {
-//         feature: reearth.layers.selectedFeature,
-//         fileds: pluginMessage.data,
-//       },
-//     });
-//   }
-// });
-
-reearth.on("select", (layerId: string) => {
-  currentLayerId = layerId;
-
-  getSidebarId();
-  if (!sidebarId) return;
-  reearth.plugins.postMessage(sidebarId, {
-    action: "infoboxFieldsFetch",
-    payload: currentLayerId,
-  });
+reearth.on("select", () => {
+  infoboxFieldsFetch();
 
   reearth.ui.postMessage({
     action: "setLoading",
   });
-
-  // if (reearth.layers.selected?.id !== currentLayerId) {
-  //   currentLayerId = reearth.layers.selected.id;
-  //   infoboxFieldsFetch();
-  //   reearth.ui.postMessage({
-  //     action: "setLoading",
-  //   });
-  // } else {
-  //   reearth.ui.postMessage({
-  //     action: "fillData",
-  //     payload: {
-  //       feature: reearth.layers.selectedFeature,
-  //     },
-  //   });
-  // }
 });

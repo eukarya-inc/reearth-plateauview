@@ -57,7 +57,8 @@ type ActionType =
   | "update3dtilesShadow"
   | "reset3dtilesShadow"
   | "updateInterval"
-  | "infoboxFields"
+  | "infoboxFieldsFetch"
+  | "infoboxFieldsSaved"
   | "updateTimeBasedDisplay";
 
 export type PostMessageProps = { action: ActionType; payload?: any };

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, useRef } from "react";
 
 import { postMsg } from "../core/utils";
 import { Feature, Fields } from "../types";
@@ -10,6 +10,7 @@ export default () => {
   const [dataState, setDataState] = useState<"loading" | "empty" | "ready">("loading");
   const [feature, setFeature] = useState<Feature>();
   const [fields, setFields] = useState<Fields>();
+  const [isSaving, setIsSaving] = useState<boolean>(false);
 
   const handleInEditor = useCallback((inEditor: boolean) => {
     setMode(inEditor ? "edit" : "view");
@@ -24,6 +25,7 @@ export default () => {
   }, []);
 
   const saveFields = useCallback((fields: Fields) => {
+    setIsSaving(true);
     postMsg("saveFields", fields);
   }, []);
 
@@ -40,12 +42,25 @@ export default () => {
         case "setLoading":
           setDataState("loading");
           break;
+        case "setEmpty":
+          setDataState("empty");
+          break;
+        case "saveFinish":
+          setIsSaving(false);
+          break;
         default:
           break;
       }
     },
     [handleInEditor, handleFillData],
   );
+
+  const wrapperRef = useRef<HTMLDivElement>(null);
+  const updateSize = useCallback(() => {
+    if (wrapperRef.current) {
+      document.documentElement.style.height = `${wrapperRef.current.clientHeight}px`;
+    }
+  }, []);
 
   useEffect(() => {
     addEventListener("message", onMessage);
@@ -58,19 +73,14 @@ export default () => {
     postMsg("init");
   }, []);
 
-  // TEST
-  // useEffect(() => {
-  //   setFeature(TEST_FILL_DATA.feature);
-  //   setFields(TEST_FILL_DATA.fields);
-  //   setDataState("ready");
-  //   setMode("edit");
-  // }, []);
-
   return {
     mode,
     dataState,
     feature,
     fields,
+    wrapperRef,
+    isSaving,
     saveFields,
+    updateSize,
   };
 };

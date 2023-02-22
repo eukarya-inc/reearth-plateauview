@@ -372,14 +372,22 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
 
   // ************************************************
   // for infobox
-  else if (action === "infoboxFields") {
+  else if (action === "infoboxFieldsFetch") {
     const infoboxInstanceId = reearth.plugins.instances.find(
       (instance: PluginExtensionInstance) => instance.extensionId === "infobox",
     )?.id;
     if (!infoboxInstanceId) return;
     reearth.plugins.postMessage(infoboxInstanceId, {
-      action: "infoboxFields",
+      action: "infoboxFieldsFetch",
       payload,
+    });
+  } else if (action === "infoboxFieldsSaved") {
+    const infoboxInstanceId = reearth.plugins.instances.find(
+      (instance: PluginExtensionInstance) => instance.extensionId === "infobox",
+    )?.id;
+    if (!infoboxInstanceId) return;
+    reearth.plugins.postMessage(infoboxInstanceId, {
+      action: "infoboxFieldsSaved",
     });
   }
 

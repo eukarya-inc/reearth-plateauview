@@ -363,6 +363,9 @@ export default () => {
           return t2;
         });
       });
+      postMsg({
+        action: "infoboxFieldsSaved",
+      });
     },
     [backendURL, backendAccessToken],
   );
@@ -377,7 +380,7 @@ export default () => {
         fields: [],
       };
       postMsg({
-        action: "infoboxFields",
+        action: "infoboxFieldsFetch",
         payload: fields,
       });
     },
