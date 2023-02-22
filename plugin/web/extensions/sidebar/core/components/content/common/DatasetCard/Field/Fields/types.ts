@@ -96,7 +96,7 @@ export type ButtonLink = FieldBase<"buttonLink"> & {
 };
 export type StoryItem = {
   id: string;
-  title: string;
+  title?: string;
 };
 
 export type Story = FieldBase<"story"> & {
