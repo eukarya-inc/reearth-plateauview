@@ -37,6 +37,9 @@ gcloud services enable sts.googleapis.com
 今回セットアップしたいドメインをcloud dnsでホスティングできるように設定する。
 手順は各種レジストラの手順を参照。
 
+```
+ gcloud dns managed-zones create ${ZONE_NAME} --dns-name ${DOMAIN} --description "${DESCRIPTION}"
+```
 
 ### Auth0 Management APIの設定
 
@@ -61,7 +64,7 @@ gcloud storage buckets create gs://${SERVICE_PREFIX}-terraform-tfstate
 ```diff
   backend "gcs" {
 -    bucket = ""
-+    bucket = "${SERVICE_PREFIX}-terraform-tfstate"
++    bucket = "${SERVICE_PREFIXで指定した値を入れる}-terraform-tfstate"
   }
 ```
 
@@ -80,8 +83,14 @@ terraform apply -var-file=env/example.tfvars
 ### terraform実行後のシークレットへの値追加
 
 ```bash
-echo -n "${MONGO_CONNECTION}"| gcloud secrets versions add reearth-api-REEARTH_DB --data-file=-
+echo -n "${REEARTH_DB}"| gcloud secrets versions add reearth-api-REEARTH_DB --data-file=-
 echo -n "${REEARTH_API_SECRET}"| gcloud secrets versions add reearth-api-REEARTH_MARKETPLACE_SECRET --data-file=-
+echo -n "${REEARTH_CMS_WORKER_DB}" | gcloud secrets versions add reearth-api-reearth-cms-REEARTH_CMS_WORKER_DB --data-file=-
+echo -n "${REEARTH_CMS_DB}" | gcloud secrets versions add reearth-api-reearth-cms-REEARTH_CMS_DB --data-file=-
+echo -n "${REEARTH_PLATEAUVIEW_CMS_TOKEN}" | gcloud secrets versions add reearth-api-reearth-cms-REEARTH_PLATEAUVIEW_CMS_TOKEN --data-file=-
+echo -n "${REEARTH_PLATEAUVIEW_FME_TOKEN}" | gcloud secrets versions add reearth-api-reearth-cms-REEARTH_PLATEAUVIEW_FME_TOKEN --data-file=-
+echo -n "${REEARTH_PLATEAUVIEW_CKAN_TOKEN}" | gcloud secrets versions add reearth-api-reearth-cms-REEARTH_PLATEAUVIEW_CKAN_TOKEN --data-file=-
+echo -n "${REEARTH_PLATEAUVIEW_SENDGRID_APIKEY}" | gcloud secrets versions add reearth-api-reearth-cms-REEARTH_PLATEAUVIEW_SENDGRID_APIKEY --data-file=-
 ```
 
 ### reearth-app用静的ファイルのアップロード
@@ -98,7 +107,48 @@ gsutil -m -h "Cache-Control:no-store" rsync -x "^reearth_config\\.json$" -dr ree
 ### reearthのdeploy
 ```bash
 gcloud run deploy reearth-api \
-            --image reearth/reearth:0.14.2 \
+            --image reearth/reearth:nightly \
+            --region asia-northeast1 \
+            --platform managed \
+            --quiet
+```
+
+```
+gcloud run deploy reearth-cms-api \
+            --image reearth/reearth-cms:nightly \
+            --region asia-northeast1 \
+            --platform managed \
+            --quiet
+```
+
+```
+gcloud run deploy reearth-cms-worker \
+            --image reearth/reearth-cms-worker:nightly \
+            --region asia-northeast1 \
+            --platform managed \
+            --quiet
+
+```
+
+```
+gcloud run deploy plateauview-api \
+            --image eukarya/plateauview-api:latest \
+            --region asia-northeast1 \
+            --platform managed \
+            --quiet
+
+```
+
+
+###  CMS_TOKENの設定
+CMS UIで発行したTOKENを登録する
+```
+echo -n "${REEARTH_PLATEAUVIEW_CMS_TOKEN}" | gcloud secrets versions add 	reearth-cms-REEARTH_PLATEAUVIEW_CMS_TOKEN --data-file=-
+```
+
+```
+gcloud run deploy plateauview-api \
+            --image eukarya/plateauview-api:latest \
             --region asia-northeast1 \
             --platform managed \
             --quiet
