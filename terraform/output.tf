@@ -1,3 +1,7 @@
+output "plateauview_cms_webhook_url" {
+  value = "https://api.${var.base_domain}/webhook"
+}
+
 output "plateauview_cms_webhook_secret" {
   value = module.reearth-cms.plateauview_cms_webhook_secret
 }
