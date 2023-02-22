@@ -62,7 +62,7 @@ const PolygonColor: React.FC<BaseFieldProps<"polygonColor">> = ({
         condition: {
           key: generateID(),
           operator: "=",
-          operand: "width",
+          operand: "size",
           value: 1,
         },
         color: "",

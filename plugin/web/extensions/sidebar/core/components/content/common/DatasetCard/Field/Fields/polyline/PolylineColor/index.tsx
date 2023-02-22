@@ -62,7 +62,7 @@ const PolylineColor: React.FC<BaseFieldProps<"polylineColor">> = ({
         condition: {
           key: generateID(),
           operator: "=",
-          operand: "width",
+          operand: "size",
           value: 1,
         },
         color: "",

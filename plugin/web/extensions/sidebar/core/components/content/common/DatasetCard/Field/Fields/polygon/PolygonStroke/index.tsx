@@ -26,10 +26,7 @@ const PolygonStroke: React.FC<BaseFieldProps<"polygonStroke">> = ({
 }) => {
   const [items, updateItems] = useState(value.items);
 
-  const operandOptions = [
-    { value: "pointOutlineColor", label: "strokeColor" },
-    { value: "pointOutlineWidth", label: "strokeWidth" },
-  ];
+  const operandOptions = [{ value: "pointSize", label: "size" }];
 
   const handleMoveUp = useCallback(
     (idx: number) => {
@@ -73,7 +70,7 @@ const PolygonStroke: React.FC<BaseFieldProps<"polygonStroke">> = ({
         condition: {
           key: generateID(),
           operator: "=",
-          operand: "width",
+          operand: "size",
           value: 1,
         },
       };
