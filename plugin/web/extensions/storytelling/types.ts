@@ -17,7 +17,6 @@ export type PostMessageProps = { action: ActionType; payload?: any };
 
 export type Story = {
   id?: string;
-  dataID?: string;
   title?: string;
   scenes: Scene[];
 };

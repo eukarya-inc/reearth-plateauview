@@ -1,5 +1,4 @@
-import { Story } from "../storytelling/types";
-
+import { StoryItem } from "./core/components/content/common/DatasetCard/Field/Fields/types";
 import { Data } from "./core/types";
 
 type ActionType =
@@ -72,7 +71,7 @@ export type PostMessageProps = { action: ActionType; payload?: any };
 export type Project = {
   sceneOverrides: ReearthApi;
   datasets: Data[];
-  userStory?: Story;
+  userStory?: Omit<StoryItem, "id">;
 };
 
 export type ReearthApi = {
