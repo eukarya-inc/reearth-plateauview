@@ -1,7 +1,7 @@
 import { DataCatalogItem } from "@web/extensions/sidebar/core/types";
 import { UserDataItem } from "@web/extensions/sidebar/modals/datacatalog/types";
 import { postMsg } from "@web/extensions/sidebar/utils";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 export type Tab = "dataset" | "your-data";
 
@@ -10,6 +10,16 @@ export default () => {
   const [addedDatasetDataIDs, setAddedDatasetDataIDs] = useState<string[]>();
   const [catalog, setCatalog] = useState<DataCatalogItem[]>([]);
   const [inEditor, setEditorState] = useState(false);
+  const [selectedDatasetID, setDatasetID] = useState<string>();
+
+  const selectedDataset = useMemo(
+    () => catalog?.find(item => item.dataID === selectedDatasetID),
+    [catalog, selectedDatasetID],
+  );
+
+  const handleOpenDetails = useCallback((data?: DataCatalogItem) => {
+    setDatasetID(data?.dataID);
+  }, []);
 
   const handleClose = useCallback(() => {
     postMsg({ action: "modalClose" });
@@ -58,6 +68,8 @@ export default () => {
     catalog,
     addedDatasetDataIDs,
     inEditor,
+    selectedDataset,
+    handleOpenDetails,
     handleClose,
     handleTabChange: changeTabs,
     handleDatasetAdd,
