@@ -12,7 +12,6 @@ import helpPopupHtml from "../dist/web/sidebar/popups/help/index.html?raw";
 import mobileDropdownHtml from "../dist/web/sidebar/popups/mobileDropdown/index.html?raw";
 
 import { getRGBAFromString, RGBA, rgbaToString } from "./utils/color";
-import { getLocationNamesFromFeatureProperties } from "./utils/csv";
 import { proxyGTFS } from "./utils/proxy";
 
 const defaultProject: Project = {
@@ -395,17 +394,19 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
         csv: undefined,
       },
     });
-  } else if (action === "getLocationNamesFromCSVFeatureProperty") {
-    const { dataID } = payload;
-    const layerId = addedDatasets.find(ad => ad[0] === dataID)?.[2];
-    const layer = reearth.layers.findById(layerId);
-    reearth.ui.postMessage({
-      action,
-      locationNames: getLocationNamesFromFeatureProperties({
-        ...(layer.computed?.features[0] || {}),
-      }),
-    });
   }
+  // FIXME(@keiya01): support auto csv field complement
+  // else if (action === "getLocationNamesFromCSVFeatureProperty") {
+  // const { dataID } = payload;
+  // const layerId = addedDatasets.find(ad => ad[0] === dataID)?.[2];
+  // const layer = reearth.layers.findById(layerId);
+  // reearth.ui.postMessage({
+  //   action,
+  //   locationNames: getLocationNamesFromFeatureProperties({
+  //     ...(layer.computed?.features[0] || {}),
+  //   }),
+  // });
+  // }
 
   // ************************************************
   // For 3dtiles

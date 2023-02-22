@@ -59,8 +59,9 @@ type ActionType =
   | "updateInterval"
   | "updateTimeBasedDisplay"
   | "updatePointCSV"
-  | "resetPointCSV"
-  | "getLocationNamesFromCSVFeatureProperty";
+  | "resetPointCSV";
+// FIXME(@keiya01): support auto csv field complement
+// | "getLocationNamesFromCSVFeatureProperty"
 
 export type PostMessageProps = { action: ActionType; payload?: any };
 
