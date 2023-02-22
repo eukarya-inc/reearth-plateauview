@@ -268,6 +268,7 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
       payload: {
         dataCatalog,
         addedDatasets: addedDatasets.map(d => d[0]),
+        inEditor: reearth.scene.inEditor,
       },
     });
   } else if (action === "helpPopupOpen") {
@@ -369,6 +370,41 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
       });
     }
   }
+
+  // CSV
+  if (action === "updatePointCSV") {
+    const { dataID, lng, lat, height } = payload;
+    const layerId = addedDatasets.find(ad => ad[0] === dataID)?.[2];
+    reearth.layers.override(layerId, {
+      data: {
+        csv: {
+          lngColumn: lng,
+          latColumn: lat,
+          heightColumn: height,
+        },
+      },
+    });
+  } else if (action === "resetPointCSV") {
+    const { dataID } = payload;
+    const layerId = addedDatasets.find(ad => ad[0] === dataID)?.[2];
+    reearth.layers.override(layerId, {
+      data: {
+        csv: undefined,
+      },
+    });
+  }
+  // FIXME(@keiya01): support auto csv field complement
+  // else if (action === "getLocationNamesFromCSVFeatureProperty") {
+  // const { dataID } = payload;
+  // const layerId = addedDatasets.find(ad => ad[0] === dataID)?.[2];
+  // const layer = reearth.layers.findById(layerId);
+  // reearth.ui.postMessage({
+  //   action,
+  //   locationNames: getLocationNamesFromFeatureProperties({
+  //     ...(layer.computed?.features[0] || {}),
+  //   }),
+  // });
+  // }
 
   // ************************************************
   // for infobox
@@ -614,13 +650,15 @@ reearth.on("select", (selected: string | undefined) => {
 });
 
 function createLayer(dataset: DataCatalogItem, options?: any) {
-  const format = dataset.format.toLowerCase();
+  const format = dataset.format?.toLowerCase();
   return {
     type: "simple",
     title: dataset.name,
     data: {
       type: format,
       url: dataset.config?.data?.[0].url ?? dataset.url,
+      layers:
+        format === "mvt" ? dataset.config?.data?.[0].layers?.[0] ?? dataset.layers?.[0] : undefined,
     },
     visible: true,
     infobox: {
@@ -640,18 +678,16 @@ function createLayer(dataset: DataCatalogItem, options?: any) {
       ? options
       : format === "geojson"
       ? {
-          marker: {
-            style: "point",
-            // pointOutlineColor: "red",
-            // pointOutlineWidth: 6,
-            // label: true,
-            // labelText: "SOME TEXT",
-            // labelPosition: "right",
-            // labelBackground: true,
-          },
+          marker: {},
         }
       : format === "gtfs"
       ? proxyGTFS(options)
+      : format === "mvt"
+      ? {
+          polygon: {},
+        }
+      : format === "czml"
+      ? { resource: {} }
       : { ...(options ?? {}) }),
   };
 }

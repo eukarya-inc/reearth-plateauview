@@ -59,7 +59,11 @@ type ActionType =
   | "updateInterval"
   | "infoboxFieldsFetch"
   | "infoboxFieldsSaved"
-  | "updateTimeBasedDisplay";
+  | "updateTimeBasedDisplay"
+  | "updatePointCSV"
+  | "resetPointCSV";
+// FIXME(@keiya01): support auto csv field complement
+// | "getLocationNamesFromCSVFeatureProperty"
 
 export type PostMessageProps = { action: ActionType; payload?: any };
 
