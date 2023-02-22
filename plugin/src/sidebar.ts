@@ -67,11 +67,7 @@ const mobileLocation = { zone: "outer", section: "center", area: "top" };
 
 let dataCatalog: DataCatalogItem[] = [];
 
-const addedDatasets: [
-  dataID: string,
-  status: "showing" | "hidden" | "removed",
-  layerID?: string,
-][] = [];
+let addedDatasets: [dataID: string, status: "showing" | "hidden", layerID?: string][] = [];
 
 // For clipping box
 const addedBoxIDs: {
@@ -229,14 +225,12 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
       layer.data.type === "gtfs" ? proxyGTFS(payload.update) : payload.update,
     );
   } else if (action === "removeDatasetFromScene") {
-    reearth.layers.hide(addedDatasets.find(ad => ad[0] === payload)?.[2]);
+    reearth.layers.delete(addedDatasets.find(ad => ad[0] === payload)?.[2]);
     const idx = addedDatasets.findIndex(ad => ad[0] === payload);
-    addedDatasets[idx][1] = "removed";
+    addedDatasets.splice(idx, 1);
   } else if (action === "removeAllDatasetsFromScene") {
-    addedDatasets.forEach(ad => {
-      reearth.layers.hide(ad[2]);
-      ad[1] = "removed";
-    });
+    reearth.layers.delete(...addedDatasets.map(ad => ad[2]));
+    addedDatasets = [];
   } else if (action === "updateDataset") {
     reearth.ui.postMessage({ action, payload });
   } else if (
@@ -270,7 +264,7 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
       action,
       payload: {
         dataCatalog,
-        addedDatasets: addedDatasets.filter(ad => ad[1] !== "removed").map(d => d[0]),
+        addedDatasets: addedDatasets.map(d => d[0]),
       },
     });
   } else if (action === "helpPopupOpen") {
@@ -619,13 +613,15 @@ reearth.on("pluginmessage", (pluginMessage: PluginMessage) => {
 });
 
 function createLayer(dataset: DataCatalogItem, options?: any) {
-  const format = dataset.format.toLowerCase();
+  const format = dataset.format?.toLowerCase();
   return {
     type: "simple",
     title: dataset.name,
     data: {
       type: format,
       url: dataset.config?.data?.[0].url ?? dataset.url,
+      layers:
+        format === "mvt" ? dataset.config?.data?.[0].layers?.[0] ?? dataset.layers?.[0] : undefined,
     },
     visible: true,
     infobox: {
@@ -644,18 +640,16 @@ function createLayer(dataset: DataCatalogItem, options?: any) {
       ? options
       : format === "geojson"
       ? {
-          marker: {
-            // style: "point",
-            // pointOutlineColor: "red",
-            // pointOutlineWidth: 6,
-            // label: true,
-            // labelText: "SOME TEXT",
-            // labelPosition: "right",
-            // labelBackground: true,
-          },
+          marker: {},
         }
       : format === "gtfs"
       ? proxyGTFS(options)
+      : format === "mvt"
+      ? {
+          polygon: {},
+        }
+      : format === "czml"
+      ? { resource: {} }
       : { ...(options ?? {}) }),
   };
 }
