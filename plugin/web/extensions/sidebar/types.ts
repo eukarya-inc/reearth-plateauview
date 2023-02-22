@@ -59,6 +59,8 @@ type ActionType =
   | "update3dtilesShadow"
   | "reset3dtilesShadow"
   | "updateInterval"
+  | "infoboxFieldsFetch"
+  | "infoboxFieldsSaved"
   | "updateTimeBasedDisplay"
   | "updatePointCSV"
   | "resetPointCSV";
@@ -91,6 +93,18 @@ export type ReearthApi = {
     depthTestAgainstTerrain?: boolean;
   };
   tiles?: Tile[];
+  atmosphere?: {
+    enable_sun?: boolean;
+    enable_lighting?: boolean;
+    ground_atmosphere?: boolean;
+    sky_atmosphere?: boolean;
+    shadows?: boolean;
+    fog?: boolean;
+    fog_density?: number;
+    brightness_shift?: number;
+    hue_shift?: number;
+    surturation_shift?: number;
+  };
 };
 
 type SceneMode = "3d" | "2d";

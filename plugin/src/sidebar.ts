@@ -44,6 +44,7 @@ const defaultProject: Project = {
         tile_type: "url",
       },
     ],
+    atmosphere: { shadows: true },
   },
   datasets: [],
 };
@@ -61,6 +62,9 @@ const reearth = (globalThis as any).reearth;
 let welcomePageIsOpen = false;
 let mobileDropdownIsOpen = false;
 let buildingSearchIsOpen = false;
+
+// this is used for infobox
+let currentSelected: string | undefined = undefined;
 
 const defaultLocation = { zone: "outer", section: "left", area: "middle" };
 const mobileLocation = { zone: "outer", section: "center", area: "top" };
@@ -426,6 +430,27 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
   // }
 
   // ************************************************
+  // for infobox
+  else if (action === "infoboxFieldsFetch") {
+    const infoboxInstanceId = reearth.plugins.instances.find(
+      (instance: PluginExtensionInstance) => instance.extensionId === "infobox",
+    )?.id;
+    if (!infoboxInstanceId) return;
+    reearth.plugins.postMessage(infoboxInstanceId, {
+      action: "infoboxFieldsFetch",
+      payload,
+    });
+  } else if (action === "infoboxFieldsSaved") {
+    const infoboxInstanceId = reearth.plugins.instances.find(
+      (instance: PluginExtensionInstance) => instance.extensionId === "infobox",
+    )?.id;
+    if (!infoboxInstanceId) return;
+    reearth.plugins.postMessage(infoboxInstanceId, {
+      action: "infoboxFieldsSaved",
+    });
+  }
+
+  // ************************************************
   // For 3dtiles
   if (action === "findTileset") {
     const { dataID } = payload;
@@ -632,7 +657,19 @@ reearth.on("pluginmessage", (pluginMessage: PluginMessage) => {
     reearth.ui.postMessage(pluginMessage.data);
   } else if (pluginMessage.data.action === "storySaveData") {
     reearth.ui.postMessage(pluginMessage.data);
+  } else if (pluginMessage.data.action === "infoboxFieldsFetch") {
+    reearth.ui.postMessage({
+      action: "infoboxFieldsFetch",
+      payload: addedDatasets.find(ad => ad[2] === currentSelected)?.[0],
+    });
+  } else if (pluginMessage.data.action === "infoboxFieldsSave") {
+    reearth.ui.postMessage(pluginMessage.data);
   }
+});
+
+reearth.on("select", (selected: string | undefined) => {
+  // this is used for infobox
+  currentSelected = selected;
 });
 
 function createLayer(dataset: DataCatalogItem, options?: any) {
@@ -654,10 +691,11 @@ function createLayer(dataset: DataCatalogItem, options?: any) {
             (i: PluginExtensionInstance) => i.name === "plateau-plugin",
           ).pluginId,
           extensionId: "infobox",
-          property: { default: {} },
         },
       ],
-      property: { default: { size: "medium" } },
+      property: {
+        default: { bgcolor: "#d9d9d9ff", heightType: "auto", showTitle: false, size: "medium" },
+      },
     },
     ...(options
       ? options
