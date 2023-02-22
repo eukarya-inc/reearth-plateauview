@@ -213,6 +213,12 @@ const DatasetCard: React.FC<Props> = ({
                 {field.title && <FieldName>{field.title}</FieldName>}
               </BaseField>
             ))}
+            {dataset.openDataUrl && (
+              <OpenDataButton
+                onClick={() => window.open(dataset.openDataUrl, "_blank", "noopener")}>
+                <Text>オープンデータを入手</Text>
+              </OpenDataButton>
+            )}
             {defaultTemplate?.components?.map((tc, idx) => {
               if (currentTab === "edit") return;
               return (
@@ -422,4 +428,16 @@ const Text = styled.p`
   margin: 0;
   line-height: 15px;
   user-select: none;
+`;
+
+const OpenDataButton = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 38px;
+  width: 100%;
+  background: #ffffff;
+  border: 1px solid #e6e6e6;
+  border-radius: 4px;
+  cursor: pointer;
 `;
