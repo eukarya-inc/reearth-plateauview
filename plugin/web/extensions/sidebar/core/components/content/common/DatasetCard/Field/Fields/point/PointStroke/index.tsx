@@ -3,14 +3,27 @@ import {
   ButtonWrapper,
   Wrapper,
 } from "@web/extensions/sidebar/core/components/content/common/DatasetCard/Field/commonComponents";
-import { generateID, moveItemDown, moveItemUp, removeItem } from "@web/extensions/sidebar/utils";
-import { useCallback, useState } from "react";
+import {
+  generateID,
+  moveItemDown,
+  moveItemUp,
+  removeItem,
+  postMsg,
+  compare,
+} from "@web/extensions/sidebar/utils";
+import { useCallback, useEffect, useState } from "react";
 
 import { BaseFieldProps, Cond } from "../../types";
 
 import PointStrokeItem from "./PointStrokeItem";
 
-const PointStroke: React.FC<BaseFieldProps<"pointStroke">> = ({ value, editMode, onUpdate }) => {
+const PointStroke: React.FC<BaseFieldProps<"pointStroke">> = ({
+  dataID,
+  value,
+  editMode,
+  isActive,
+  onUpdate,
+}) => {
   const [items, updateItems] = useState(value.items);
 
   const operandOptions = [
@@ -100,6 +113,40 @@ const PointStroke: React.FC<BaseFieldProps<"pointStroke">> = ({ value, editMode,
       return newItems;
     });
   };
+
+  useEffect(() => {
+    if (!isActive || !dataID) return;
+    const timer = setTimeout(() => {
+      items?.forEach(item => {
+        const operand = 1; // should be something like item[pointSize]
+        const color = compare(operand, item.condition.operator, item.condition.value)
+          ? item.strokeColor
+          : "";
+        const width = compare(operand, item.condition.operator, item.condition.value)
+          ? item.strokeWidth
+          : 0;
+        postMsg({
+          action: "updateDatasetInScene",
+          payload: {
+            dataID,
+            update: {
+              marker: { style: "point", pointOutlineColor: color, pointOutlineWidth: width },
+            },
+          },
+        });
+      });
+    }, 500);
+    return () => {
+      clearTimeout(timer);
+      postMsg({
+        action: "updateDatasetInScene",
+        payload: {
+          dataID,
+          update: { marker: undefined },
+        },
+      });
+    };
+  }, [dataID, isActive, items]);
 
   return editMode ? (
     <Wrapper>
