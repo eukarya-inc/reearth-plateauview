@@ -62,7 +62,7 @@ let welcomePageIsOpen = false;
 let mobileDropdownIsOpen = false;
 let buildingSearchIsOpen = false;
 
-// this is used for a temp solution of infobox
+// this is used for infobox
 let currentSelected: string | undefined = undefined;
 
 const defaultLocation = { zone: "outer", section: "left", area: "middle" };
@@ -645,7 +645,7 @@ reearth.on("pluginmessage", (pluginMessage: PluginMessage) => {
 });
 
 reearth.on("select", (selected: string | undefined) => {
-  // This is for a temp solution of infobox
+  // this is used for infobox
   currentSelected = selected;
 });
 
