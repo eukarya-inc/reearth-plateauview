@@ -218,7 +218,6 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
     );
   } else if (action === "updateDatasetVisibility") {
     const idx = addedDatasets.findIndex(ad => ad[0] === payload.dataID);
-    console.log("PAY", payload);
     if (payload.hide) {
       reearth.layers.hide(addedDatasets[idx][2]);
       addedDatasets[idx][1] = "hidden";
