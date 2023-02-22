@@ -1,21 +1,16 @@
 import { styled } from "@web/theme";
-import { useCallback, useState } from "react";
 
-import { BaseFieldProps } from "../types";
+import { BaseFieldProps } from "../../types";
 
-const StyleCode: React.FC<BaseFieldProps<"styleCode">> = ({ value, editMode, onUpdate }) => {
-  const [code, editCode] = useState(value.src);
+import useHooks from "./hooks";
 
-  const handleEditCode = useCallback(
-    (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-      editCode(e.currentTarget.value);
-      onUpdate({
-        ...value,
-        src: code,
-      });
-    },
-    [code, onUpdate, value],
-  );
+const StyleCode: React.FC<BaseFieldProps<"styleCode">> = ({
+  value,
+  dataID,
+  editMode,
+  onUpdate,
+}) => {
+  const { code, handleEditCode } = useHooks({ value, dataID, onUpdate });
 
   return editMode ? (
     <Wrapper>
@@ -52,6 +47,7 @@ const CodeEditor = styled.textarea`
   overflow: auto;
   background: #f3f3f3;
   outline: none;
+  resize: none;
   :focus {
     border: none;
   }

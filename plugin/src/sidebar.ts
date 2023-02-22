@@ -368,6 +368,19 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
     }
   }
 
+  // ************************************************
+  // Style code
+  else if (action === "updateLayerStyleCode") {
+    const { dataID, code } = payload;
+    const layerId = addedDatasets.find(ad => ad[0] === dataID)?.[2];
+    if (layerId) {
+      reearth.layers.override(layerId, {
+        code, // TODO
+      });
+    }
+  }
+
+  // ************************************************
   // CSV
   if (action === "updatePointCSV") {
     const { dataID, lng, lat, height } = payload;
