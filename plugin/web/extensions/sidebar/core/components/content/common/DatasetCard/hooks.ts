@@ -1,19 +1,17 @@
-import { DataCatalogItem, Group } from "@web/extensions/sidebar/core/types";
+import { DataCatalogItem, Group, Template } from "@web/extensions/sidebar/core/types";
 import { generateID } from "@web/extensions/sidebar/utils";
 import { useCallback } from "react";
 
-import { fieldName } from "./Field/Fields/types";
-
-type FieldDropdownItem = {
-  [key: string]: { name: string; onClick: (property: any) => void };
-};
+import generateFieldComponentsList from "./Field/fieldHooks";
 
 export default ({
   dataset,
+  templates,
   inEditor,
   onDatasetUpdate,
 }: {
   dataset: DataCatalogItem;
+  templates?: Template[];
   inEditor?: boolean;
   onDatasetUpdate: (dataset: DataCatalogItem) => void;
 }) => {
@@ -27,7 +25,7 @@ export default ({
           ...(dataset.components ?? []),
           {
             id: generateID(),
-            type: key,
+            type: key.includes("template") ? "template" : key,
             ...property,
           },
         ],
@@ -133,154 +131,12 @@ export default ({
       onClick: handleFieldAdd({}),
     },
   };
+  const fieldComponentsList = generateFieldComponentsList({
+    fieldGroups: dataset.fieldGroups,
+    templates,
+    onFieldAdd: handleFieldAdd,
+  });
 
-  const pointFields: FieldDropdownItem = {
-    pointColor: {
-      name: fieldName["pointColor"],
-      onClick: handleFieldAdd({}),
-    },
-    // pointColorGradient: {
-    //   name: fieldName["pointColorGradient"],
-    //   onClick: ({ key }) => console.log("do something: ", key),
-    // },
-    pointSize: {
-      name: fieldName["pointSize"],
-      onClick: handleFieldAdd({}),
-    },
-    pointIcon: {
-      name: fieldName["pointIcon"],
-      onClick: handleFieldAdd({
-        size: 1,
-      }),
-    },
-    pointLabel: {
-      name: fieldName["pointLabel"],
-      onClick: handleFieldAdd({}),
-    },
-    pointModel: {
-      name: fieldName["pointModel"],
-      onClick: handleFieldAdd({
-        scale: 1,
-      }),
-    },
-    pointStroke: {
-      name: fieldName["pointStroke"],
-      onClick: handleFieldAdd({}),
-    },
-  };
-
-  //   const polylineFields: {
-  //     [key: string]: { name: string; onClick?: (property: any) => void };
-  //   } = {
-  //     camera: {
-  //       name: "カメラ",
-  //       onClick: () =>
-  //         handleFieldAdd({
-  //           position: {
-  //             lng: 0,
-  //             lat: 0,
-  //             height: 0,
-  //             pitch: 0,
-  //             heading: 0,
-  //             roll: 0,
-  //           },
-  //         }),
-  //     },
-  //   };
-
-  //   const polygonFields: {
-  //     [key: string]: { name: string; onClick?: (property: any) => void };
-  //   } = {
-  //     camera: {
-  //       name: "カメラ",
-  //       onClick: () =>
-  //         handleFieldAdd({
-  //           position: {
-  //             lng: 0,
-  //             lat: 0,
-  //             height: 0,
-  //             pitch: 0,
-  //             heading: 0,
-  //             roll: 0,
-  //           },
-  //         }),
-  //     },
-  //   };
-
-  const ThreeDModelFields: FieldDropdownItem = {
-    clipping: {
-      name: fieldName["clipping"],
-      onClick: handleFieldAdd({
-        enabled: false,
-        show: false,
-        aboveGroundOnly: false,
-        direction: "inside",
-      }),
-    },
-  };
-
-  //   const ThreeDTileFields: {
-  //     [key: string]: { name: string; onClick?: (property: any) => void };
-  //   } = {
-  //     camera: {
-  //       name: "カメラ",
-  //       onClick: () =>
-  //         handleFieldAdd({
-  //           position: {
-  //             lng: 0,
-  //             lat: 0,
-  //             height: 0,
-  //             pitch: 0,
-  //             heading: 0,
-  //             roll: 0,
-  //           },
-  //         }),
-  //     },
-  //   };
-
-  const filterFields = (fields: {
-    [key: string]: {
-      name: string;
-      onClick: (property: any) => void;
-    };
-  }) =>
-    Object.keys(fields)
-      .filter(fieldKey => !dataset.components?.find(c => c.type === fieldKey))
-      .reduce(
-        (
-          obj: {
-            [key: string]: {
-              name: string;
-              onClick: (property: any) => void;
-            };
-          },
-          key,
-        ) => {
-          obj[key] = fields[key];
-          return obj;
-        },
-        {},
-      );
-
-  const fieldComponentsList: {
-    [key: string]: {
-      name: string;
-      fields: { [key: string]: { name: string; onClick?: (property: any) => void } };
-    };
-  } = {
-    general: {
-      name: "一般",
-      fields: filterFields(generalFields),
-    },
-    point: {
-      name: "ポイント",
-      fields: filterFields(pointFields),
-    },
-    // polyline: { name: "ポリライン", fields: polylineFields },
-    // polygone: { name: "ポリゴン", fields: polygonFields },
-    "3d-model": { name: "3Dモデル", fields: ThreeDModelFields },
-    // "3d-tile": { name: "3Dタイル", fields: ThreeDTileFields },
-  };
   return {
     fieldComponentsList,
     handleFieldUpdate,

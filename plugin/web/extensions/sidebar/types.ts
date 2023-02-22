@@ -20,6 +20,7 @@ type ActionType =
   | "updateDatasetInScene"
   | "removeDatasetFromScene"
   | "removeAllDatasetsFromScene"
+  | "updateDataset"
   | "catalogModalOpen"
   | "triggerCatalogOpen"
   | "triggerHelpOpen"
@@ -40,8 +41,27 @@ type ActionType =
   | "groupSelectOpen"
   | "saveGroups"
   | "cameraFlyTo"
+  | "cameraLookAt"
   | "getCurrentCamera"
-  | "storyPlay";
+  | "storyPlay"
+  | "addClippingBox"
+  | "updateClippingBox"
+  | "removeClippingBox"
+  | "update3dtilesShow"
+  | "reset3dtilesShow"
+  | "update3dtilesTransparency"
+  | "reset3dtilesTransparency"
+  | "update3dtilesColor"
+  | "reset3dtilesColor"
+  | "findTileset"
+  | "update3dtilesShadow"
+  | "reset3dtilesShadow"
+  | "updateInterval"
+  | "updateTimeBasedDisplay"
+  | "updatePointCSV"
+  | "resetPointCSV";
+// FIXME(@keiya01): support auto csv field complement
+// | "getLocationNamesFromCSVFeatureProperty"
 
 export type PostMessageProps = { action: ActionType; payload?: any };
 

@@ -11,6 +11,9 @@ import groupSelectPopupHtml from "../dist/web/sidebar/popups/groupSelect/index.h
 import helpPopupHtml from "../dist/web/sidebar/popups/help/index.html?raw";
 import mobileDropdownHtml from "../dist/web/sidebar/popups/mobileDropdown/index.html?raw";
 
+import { getRGBAFromString, RGBA, rgbaToString } from "./utils/color";
+import { proxyGTFS } from "./utils/proxy";
+
 const defaultProject: Project = {
   sceneOverrides: {
     default: {
@@ -64,11 +67,24 @@ const mobileLocation = { zone: "outer", section: "center", area: "top" };
 
 let dataCatalog: DataCatalogItem[] = [];
 
-const addedDatasets: [
-  dataID: string,
-  status: "showing" | "hidden" | "removed",
-  layerID?: string,
-][] = [];
+let addedDatasets: [dataID: string, status: "showing" | "hidden", layerID?: string][] = [];
+
+// For clipping box
+const addedBoxIDs: {
+  [dataID: string]: {
+    layerID: string;
+  };
+} = {};
+
+// For storing 3dtiles color
+const colorStoreFor3dtiles: {
+  [dataID: string]:
+    | {
+        color?: string | { expression: { conditions: [expression: string, color: string][] } };
+        transparency?: number;
+      }
+    | undefined;
+} = {};
 
 const sidebarInstance: PluginExtensionInstance = reearth.plugins.instances.find(
   (i: PluginExtensionInstance) => i.id === reearth.widget.id,
@@ -171,6 +187,7 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
     reearth.clientStorage.deleteAsync(payload.key);
   } else if (action === "updateCatalog") {
     dataCatalog = payload;
+    reearth.modal.postMessage({ action, payload });
     // reearth.clientStorage.getAsync("draftProject").then((draftProject: Project) => {
     //   draftProject.datasets.forEach(d => {
     //     const dataset = payload.find((d: DataCatalogItem) => d.dataID === d.dataID);
@@ -201,19 +218,21 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
       addedDatasets.push([payload.dataset.dataID, "showing", layerID]);
     }
   } else if (action === "updateDatasetInScene") {
+    const layerId = addedDatasets.find(ad => ad[0] === payload.dataID)?.[2];
+    const layer = reearth.layers.findById(layerId);
     reearth.layers.override(
       addedDatasets.find(ad => ad[0] === payload.dataID)?.[2],
-      payload.update,
+      layer.data.type === "gtfs" ? proxyGTFS(payload.update) : payload.update,
     );
   } else if (action === "removeDatasetFromScene") {
-    reearth.layers.hide(addedDatasets.find(ad => ad[0] === payload)?.[2]);
+    reearth.layers.delete(addedDatasets.find(ad => ad[0] === payload)?.[2]);
     const idx = addedDatasets.findIndex(ad => ad[0] === payload);
-    addedDatasets[idx][1] = "removed";
+    addedDatasets.splice(idx, 1);
   } else if (action === "removeAllDatasetsFromScene") {
-    addedDatasets.forEach(ad => {
-      reearth.layers.hide(ad[2]);
-      ad[1] = "removed";
-    });
+    reearth.layers.delete(...addedDatasets.map(ad => ad[2]));
+    addedDatasets = [];
+  } else if (action === "updateDataset") {
+    reearth.ui.postMessage({ action, payload });
   } else if (
     action === "screenshot" ||
     action === "screenshotPreview" ||
@@ -242,10 +261,11 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
     welcomePageIsOpen = false;
   } else if (action === "initDataCatalog") {
     reearth.modal.postMessage({
-      type: action,
+      action,
       payload: {
         dataCatalog,
-        addedDatasets: addedDatasets.filter(ad => ad[1] !== "removed").map(d => d[0]),
+        addedDatasets: addedDatasets.map(d => d[0]),
+        inEditor: reearth.scene.inEditor,
       },
     });
   } else if (action === "helpPopupOpen") {
@@ -299,6 +319,8 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
       const layerID = addedDatasets.find(ad => ad[0] === payload)?.[2];
       reearth.camera.flyTo(layerID);
     }
+  } else if (action === "cameraLookAt") {
+    reearth.camera.lookAt(...payload);
   } else if (action === "getCurrentCamera") {
     reearth.ui.postMessage({ action, payload: reearth.camera.position });
   } else if (action === "checkIfMobile") {
@@ -317,7 +339,231 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
       action: "storyPlay",
       payload,
     });
+  } else if (action === "updateInterval") {
+    const { dataID, interval } = payload;
+    const layerId = addedDatasets.find(ad => ad[0] === dataID)?.[2];
+    reearth.layers.override(layerId, {
+      data: {
+        updateInterval: interval,
+      },
+    });
+  } else if (action === "updateTimeBasedDisplay") {
+    const { dataID, timeBasedDisplay } = payload;
+    const layerId = addedDatasets.find(ad => ad[0] === dataID)?.[2];
+    if (timeBasedDisplay) {
+      reearth.layers.override(layerId, {
+        data: {
+          time: {
+            property: "time",
+            interval: 86400000,
+          },
+        },
+      });
+    } else {
+      reearth.layers.override(layerId, {
+        data: {
+          time: undefined,
+        },
+      });
+    }
   }
+
+  // CSV
+  if (action === "updatePointCSV") {
+    const { dataID, lng, lat, height } = payload;
+    const layerId = addedDatasets.find(ad => ad[0] === dataID)?.[2];
+    reearth.layers.override(layerId, {
+      data: {
+        csv: {
+          lngColumn: lng,
+          latColumn: lat,
+          heightColumn: height,
+        },
+      },
+    });
+  } else if (action === "resetPointCSV") {
+    const { dataID } = payload;
+    const layerId = addedDatasets.find(ad => ad[0] === dataID)?.[2];
+    reearth.layers.override(layerId, {
+      data: {
+        csv: undefined,
+      },
+    });
+  }
+  // FIXME(@keiya01): support auto csv field complement
+  // else if (action === "getLocationNamesFromCSVFeatureProperty") {
+  // const { dataID } = payload;
+  // const layerId = addedDatasets.find(ad => ad[0] === dataID)?.[2];
+  // const layer = reearth.layers.findById(layerId);
+  // reearth.ui.postMessage({
+  //   action,
+  //   locationNames: getLocationNamesFromFeatureProperties({
+  //     ...(layer.computed?.features[0] || {}),
+  //   }),
+  // });
+  // }
+
+  // ************************************************
+  // For 3dtiles
+  if (action === "findTileset") {
+    const { dataID } = payload;
+    const tilesetLayerID = addedDatasets.find(a => a[0] === dataID)?.[2];
+    const tilesetLayer = reearth.layers.findById(tilesetLayerID);
+    reearth.ui.postMessage({
+      action,
+      payload: {
+        layer: {
+          id: tilesetLayer.id,
+          data: tilesetLayer.data,
+          ["3dtiles"]: tilesetLayer?.["3dtiles"],
+        },
+      },
+    });
+  }
+
+  const override3dtiles = (dataID: string, property: Record<string, any>) => {
+    const tilesetLayerID = addedDatasets.find(a => a[0] === dataID)?.[2];
+    reearth.layers.override(tilesetLayerID, {
+      "3dtiles": property,
+    });
+  };
+
+  // For clipping box
+  if (action === "addClippingBox") {
+    const { dataID, box, clipping } = payload;
+    if (addedBoxIDs[dataID]) {
+      return;
+    }
+    const boxID = reearth.layers.add(box);
+    addedBoxIDs[dataID] = { layerID: boxID };
+
+    override3dtiles(dataID, { experimental_clipping: clipping });
+    reearth.ui.postMessage({
+      action,
+      payload: { layerID: boxID },
+    });
+  } else if (action === "updateClippingBox") {
+    const { dataID, shouldUpdateClipping, box, clipping } = payload;
+    const addedBoxID = addedBoxIDs[dataID];
+    if (!addedBoxID) {
+      return;
+    }
+    const boxID = addedBoxID.layerID;
+    reearth.layers.override(boxID, box);
+
+    if (shouldUpdateClipping) {
+      new Promise(resolve => {
+        override3dtiles(dataID, { experimental_clipping: clipping });
+        resolve(undefined);
+      });
+    }
+  } else if (action === "removeClippingBox") {
+    const { dataID } = payload;
+    const addedBoxID = addedBoxIDs[dataID];
+    if (!addedBoxID) {
+      return;
+    }
+    const boxID = addedBoxID.layerID;
+    reearth.layers.delete(boxID);
+
+    override3dtiles(dataID, {
+      experimental_clipping: undefined,
+    });
+
+    delete addedBoxIDs[dataID];
+  }
+  // For 3dtiles show
+  if (action === "update3dtilesShow") {
+    const { dataID, show } = payload;
+    override3dtiles(dataID, { show });
+  } else if (action === "reset3dtilesShow") {
+    const { dataID } = payload;
+
+    override3dtiles(dataID, {
+      show: true,
+    });
+  }
+
+  // For 3dtiles shadow
+  if (action === "update3dtilesShadow") {
+    const { dataID, shadows } = payload;
+    override3dtiles(dataID, { shadows });
+  } else if (action === "reset3dtilesShadow") {
+    const { dataID } = payload;
+    override3dtiles(dataID, { shadows: "enabled" });
+  }
+
+  // For 3dtiles transparency
+  if (action === "update3dtilesTransparency") {
+    const { dataID, transparency } = payload;
+    const storedObj = colorStoreFor3dtiles[dataID];
+    const color = storedObj?.color;
+    colorStoreFor3dtiles[dataID] = {
+      ...(storedObj || {}),
+      transparency,
+    };
+
+    const defaultRGBA = rgbaToString([255, 255, 255, transparency]);
+    const expression = (() => {
+      if (!color) {
+        return defaultRGBA;
+      }
+      if (typeof color === "string") {
+        const rgba = getRGBAFromString(color);
+        return rgba ? rgbaToString([...rgba.slice(0, -1), transparency] as RGBA) : defaultRGBA;
+      }
+      return {
+        expression: {
+          conditions: color.expression.conditions.map(([k, v]: [string, string]) => {
+            const rgba = getRGBAFromString(v);
+            if (!rgba) {
+              return [k, defaultRGBA];
+            }
+            const composedRGBA = [...rgba.slice(0, -1), transparency] as RGBA;
+            return [k, rgbaToString(composedRGBA)];
+          }),
+        },
+      };
+    })();
+    override3dtiles(dataID, { color: expression });
+  } else if (action === "reset3dtilesTransparency") {
+    const { dataID } = payload;
+    const storedObj = colorStoreFor3dtiles[dataID];
+    delete colorStoreFor3dtiles[dataID]?.transparency;
+    override3dtiles(dataID, { color: storedObj?.color || "rgba(255, 255, 255, 1)" });
+  }
+  // For 3dtiles color
+  if (action === "update3dtilesColor") {
+    const { dataID, color } = payload;
+    const storedObj = colorStoreFor3dtiles[dataID];
+    const transparency = storedObj?.transparency;
+    colorStoreFor3dtiles[dataID] = {
+      ...(storedObj || {}),
+      color,
+    };
+
+    const expression = {
+      ...color,
+      expression: {
+        ...color.expression,
+        conditions: color.expression.conditions.map(([k, v]: [string, string]) => {
+          const rgba = getRGBAFromString(v);
+          if (!rgba) {
+            return [k, v];
+          }
+          const composedRGBA = [...rgba.slice(0, -1), transparency || rgba[3]] as RGBA;
+          return [k, rgbaToString(composedRGBA)];
+        }),
+      },
+    };
+    override3dtiles(dataID, { color: expression });
+  } else if (action === "reset3dtilesColor") {
+    const { dataID } = payload;
+    const storedObj = colorStoreFor3dtiles[dataID];
+    delete colorStoreFor3dtiles[dataID]?.color;
+    override3dtiles(dataID, { color: `rgba(255, 255, 255, ${storedObj?.transparency || 1})` });
+  }
+  // ************************************************
 });
 
 reearth.on("update", () => {
@@ -368,12 +614,15 @@ reearth.on("pluginmessage", (pluginMessage: PluginMessage) => {
 });
 
 function createLayer(dataset: DataCatalogItem, options?: any) {
+  const format = dataset.format?.toLowerCase();
   return {
     type: "simple",
     title: dataset.name,
     data: {
-      type: dataset.format.toLowerCase(),
-      url: dataset.url ?? dataset.config.data[0].url,
+      type: format,
+      url: dataset.config?.data?.[0].url ?? dataset.url,
+      layers:
+        format === "mvt" ? dataset.config?.data?.[0].layers?.[0] ?? dataset.layers?.[0] : undefined,
     },
     visible: true,
     infobox: {
@@ -390,18 +639,18 @@ function createLayer(dataset: DataCatalogItem, options?: any) {
     },
     ...(options
       ? options
-      : dataset.format === "geojson"
+      : format === "geojson"
       ? {
-          marker: {
-            // style: "point",
-            // pointOutlineColor: "red",
-            // pointOutlineWidth: 6,
-            // label: true,
-            // labelText: "SOME TEXT",
-            // labelPosition: "right",
-            // labelBackground: true,
-          },
+          marker: {},
         }
+      : format === "gtfs"
+      ? proxyGTFS(options)
+      : format === "mvt"
+      ? {
+          polygon: {},
+        }
+      : format === "czml"
+      ? { resource: {} }
       : { ...(options ?? {}) }),
   };
 }

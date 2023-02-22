@@ -7,8 +7,9 @@ export type Tab = "dataset" | "your-data";
 
 export default () => {
   const [currentTab, changeTabs] = useState<Tab>("dataset");
-  const [addedDatasetIds, setAddedDatasetIds] = useState<string[]>();
+  const [addedDatasetDataIDs, setAddedDatasetDataIDs] = useState<string[]>();
   const [catalog, setCatalog] = useState<DataCatalogItem[]>([]);
+  const [inEditor, setEditorState] = useState(false);
 
   const handleClose = useCallback(() => {
     postMsg({ action: "modalClose" });
@@ -27,6 +28,10 @@ export default () => {
     [handleClose],
   );
 
+  const handleDatasetPublish = useCallback((dataID: string, publish: boolean) => {
+    postMsg({ action: "updateDataset", payload: { dataID, publish } });
+  }, []);
+
   useEffect(() => {
     postMsg({ action: "initDataCatalog" }); // Needed to trigger sending selected dataset ids from Sidebar
   }, []);
@@ -34,9 +39,12 @@ export default () => {
   useEffect(() => {
     const eventListenerCallback = (e: MessageEvent<any>) => {
       if (e.source !== parent) return;
-      if (e.data.type === "initDataCatalog") {
-        setAddedDatasetIds(e.data.payload.addedDatasets);
+      if (e.data.action === "initDataCatalog") {
+        setAddedDatasetDataIDs(e.data.payload.addedDatasets);
         setCatalog(e.data.payload.dataCatalog);
+        setEditorState(e.data.payload.inEditor);
+      } else if (e.data.action === "updateCatalog") {
+        setCatalog(e.data.payload);
       }
     };
     addEventListener("message", eventListenerCallback);
@@ -48,9 +56,11 @@ export default () => {
   return {
     currentTab,
     catalog,
-    addedDatasetIds,
+    addedDatasetDataIDs,
+    inEditor,
     handleClose,
     handleTabChange: changeTabs,
     handleDatasetAdd,
+    handleDatasetPublish,
   };
 };

@@ -3,23 +3,32 @@ import PageLayout from "@web/extensions/sidebar/modals/datacatalog/components/co
 import { useCallback, useMemo, useState } from "react";
 
 import { GroupBy } from "../../../api/api";
+import { UserDataItem } from "../../../types";
 
 import DatasetTree from "./DatasetTree";
 import DatasetDetails, { Tag } from "./Details";
 
 export type Props = {
   catalog?: DataCatalogItem[];
-  addedDatasetIds?: string[];
-  onDatasetAdd: (dataset: DataCatalogItem) => void;
+  addedDatasetDataIDs?: string[];
+  inEditor?: boolean;
+  onDatasetAdd: (dataset: DataCatalogItem | UserDataItem) => void;
+  onDatasetPublish: (dataID: string, publish: boolean) => void;
 };
 
-const DatasetsPage: React.FC<Props> = ({ catalog, addedDatasetIds, onDatasetAdd }) => {
-  const [selectedDataset, setDataset] = useState<DataCatalogItem>();
+const DatasetsPage: React.FC<Props> = ({
+  catalog,
+  addedDatasetDataIDs,
+  inEditor,
+  onDatasetAdd,
+  onDatasetPublish,
+}) => {
+  const [selectedDatasetID, setDatasetID] = useState<string>();
   const [selectedTags, selectTags] = useState<Tag[]>([]);
   const [filter, setFilter] = useState<GroupBy>("city");
 
   const handleOpenDetails = useCallback((data?: DataCatalogItem) => {
-    setDataset(data);
+    setDatasetID(data?.dataID);
   }, []);
 
   const handleFilter = useCallback((filter: GroupBy) => {
@@ -38,21 +47,26 @@ const DatasetsPage: React.FC<Props> = ({ catalog, addedDatasetIds, onDatasetAdd 
     [handleFilter],
   );
 
-  const addDisabled = useMemo(() => {
-    return !!addedDatasetIds?.find(
-      id => selectedDataset?.type === "item" && id === selectedDataset.id,
-    );
-  }, [addedDatasetIds, selectedDataset]);
+  const addDisabled = useCallback(
+    (dataID: string) => !!addedDatasetDataIDs?.find(dataID2 => dataID2 === dataID),
+    [addedDatasetDataIDs],
+  );
+
+  const selectedDataset = useMemo(
+    () => catalog?.find(item => item.dataID === selectedDatasetID),
+    [catalog, selectedDatasetID],
+  );
 
   return (
     <PageLayout
       left={
         <DatasetTree
-          addedDatasetIds={addedDatasetIds}
+          addedDatasetDataIDs={addedDatasetDataIDs}
           selectedDataset={selectedDataset}
           catalog={catalog}
           selectedTags={selectedTags}
           filter={filter}
+          addDisabled={addDisabled}
           onFilter={handleFilter}
           onTagSelect={handleTagSelect}
           onOpenDetails={handleOpenDetails}
@@ -62,9 +76,11 @@ const DatasetsPage: React.FC<Props> = ({ catalog, addedDatasetIds, onDatasetAdd 
       right={
         <DatasetDetails
           dataset={selectedDataset}
+          inEditor={inEditor}
           addDisabled={addDisabled}
           onTagSelect={handleTagSelect}
           onDatasetAdd={onDatasetAdd}
+          onDatasetPublish={onDatasetPublish}
         />
       }
     />

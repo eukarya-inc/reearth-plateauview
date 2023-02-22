@@ -5,28 +5,49 @@ export const fieldName = {
   legend: "凡例",
   realtime: "リアルタイム",
   story: "Story",
+  timeline: "タイムラインデータ",
   switchGroup: "スイッチグループ",
   buttonLink: "リンクボタン",
+  styleCode: "Style code (General)",
+  switchDataset: "スイッチデータセット",
   point: "ポイント",
   description: "説明",
   pointColor: "色",
-  pointColorGradient: "色（Gradient)",
+  pointColorGradient: "色（Gradient）",
   pointSize: "サイズ",
   pointIcon: "アイコン",
   pointLabel: "ラベル",
   pointModel: "モデル",
   pointStroke: "ストロック",
+  pointCSV: "ポイントに変換（CSV）",
+  search: "データを検索",
+  polygonColor: "ポリゴン色",
+  polygonColorGradient: "ポリゴン色（Gradient）",
+  polygonStroke: "ポリゴンストロック",
   clipping: "クリッピング",
+  buildingFilter: "建物フィルター",
+  buildingTransparency: "透明度",
+  buildingColor: "色分け",
+  buildingShadow: "影",
+  polylineColor: "ポリライン色",
+  polylineColorGradient: "ポリライン色（Gradient）",
+  polylineStrokeWeight: "ポリラインストロック",
+  template: "テンプレート",
 };
 
 // type Component = Camera | Legend | Realtime | Point | Polyline | Polygon | Model | Description;
 export type FieldComponent =
   | IdealZoom
   | Legend
+  | StyleCode
+  | ButtonLink
   | Description
   | SwitchGroup
   | ButtonLink
   | Story
+  | Realtime
+  | Timeline
+  | SwitchDataset
   | PointColor
   | PointColorGradient
   | PointSize
@@ -34,12 +55,30 @@ export type FieldComponent =
   | PointLabel
   | PointModel
   | PointStroke
-  | Clipping;
+  | PointCSV
+  | Search
+  | PolylineColor
+  | PolylineColorGradient
+  | PolylineStrokeWeight
+  | PolygonColor
+  | PolygonColorGradient
+  | PolygonStroke
+  | Clipping
+  | BuildingFilter
+  | BuildingTransparency
+  | BuildingColor
+  | BuildingShadow
+  | Template;
 
 type FieldBase<T extends keyof typeof fieldName> = {
   id: string;
   type: T;
   group?: string;
+};
+
+type Template = FieldBase<"template"> & {
+  templateID: string;
+  name: string;
 };
 
 type CameraPosition = {
@@ -68,15 +107,21 @@ export type Legend = FieldBase<"legend"> & {
   items?: LegendItem[];
 };
 
-// type Realtime = {
-//   type: "realtime";
-//   group?: string;
-//   updateInterval: number; // 1000 * 60 -> 1m
-// };
+type Realtime = FieldBase<"realtime"> & {
+  updateInterval: number; // 1000 * 60 -> 1m
+};
+
+export type Timeline = FieldBase<"timeline"> & {
+  timeBasedDisplay: boolean;
+};
 
 export type Description = FieldBase<"description"> & {
   content?: string;
   isMarkdown?: boolean;
+};
+
+export type StyleCode = FieldBase<"styleCode"> & {
+  src: string;
 };
 
 export type GroupItem = {
@@ -88,6 +133,10 @@ export type GroupItem = {
 export type SwitchGroup = FieldBase<"switchGroup"> & {
   title: string;
   groups: GroupItem[];
+};
+
+export type SwitchDataset = FieldBase<"switchDataset"> & {
+  uiStyle?: "dropdown" | "radio";
 };
 
 export type ButtonLink = FieldBase<"buttonLink"> & {
@@ -161,6 +210,36 @@ type PointStroke = FieldBase<"pointStroke"> & {
   }[];
 };
 
+type PointCSV = FieldBase<"pointCSV"> & {
+  lng?: string;
+  lat?: string;
+  height?: string;
+};
+
+type Search = FieldBase<"search">;
+
+type PolygonColor = FieldBase<"polygonColor"> & {
+  items?: {
+    condition: Cond<number>;
+    color: string;
+  }[];
+};
+
+type PolygonColorGradient = FieldBase<"polygonColorGradient"> & {
+  field?: string;
+  startColor?: string;
+  endColor?: string;
+  step?: number;
+};
+
+type PolygonStroke = FieldBase<"polygonStroke"> & {
+  items?: {
+    strokeColor: string;
+    strokeWidth: number;
+    condition: Cond<string | number>;
+  }[];
+};
+
 type Clipping = FieldBase<"clipping"> & {
   enabled: boolean;
   show: boolean;
@@ -168,14 +247,54 @@ type Clipping = FieldBase<"clipping"> & {
   direction: "inside" | "outside";
 };
 
+type BuildingFilter = FieldBase<"buildingFilter"> & {
+  height: [from: number, to: number];
+  abovegroundFloor: [from: number, to: number];
+  basementFloor: [from: number, to: number];
+};
+
+type BuildingShadow = FieldBase<"buildingShadow"> & {
+  shadow: "disabled" | "enabled" | "cast_only" | "receive_only";
+};
+
+type BuildingTransparency = FieldBase<"buildingTransparency"> & {
+  transparency: number;
+};
+
+type BuildingColor = FieldBase<"buildingColor"> & {
+  colorType: string;
+};
+
+type PolylineColor = FieldBase<"polylineColor"> & {
+  items?: {
+    condition: Cond<number>;
+    color: string;
+  }[];
+};
+
+type PolylineColorGradient = FieldBase<"polylineColorGradient"> & {
+  field?: string;
+  startColor?: string;
+  endColor?: string;
+  step?: number;
+};
+
+type PolylineStrokeWeight = FieldBase<"polylineStrokeWeight"> & {
+  strokeWidth: number;
+};
+
 export type Fields = {
   // general
   idealZoom: IdealZoom;
   legend: Legend;
   description: Description;
+  styleCode: StyleCode;
   switchGroup: SwitchGroup;
   buttonLink: ButtonLink;
   story: Story;
+  realtime: Realtime;
+  timeline: Timeline;
+  switchDataset: SwitchDataset;
   // point
   pointColor: PointColor;
   pointColorGradient: PointColorGradient;
@@ -184,11 +303,23 @@ export type Fields = {
   pointLabel: PointLabel;
   pointModel: PointModel;
   pointStroke: PointStroke;
+  pointCSV: PointCSV;
   // polyline
+  polylineColor: PolylineColor;
+  polylineColorGradient: PolylineColorGradient;
+  polylineStrokeWeight: PolylineStrokeWeight;
   // polygon
+  polygonColor: PolygonColor;
+  polygonColorGradient: PolygonColorGradient;
+  polygonStroke: PolygonStroke;
   // 3d-model
   // 3d-tile
+  search: Search;
   clipping: Clipping;
+  buildingFilter: BuildingFilter;
+  buildingTransparency: BuildingTransparency;
+  buildingColor: BuildingColor;
+  buildingShadow: BuildingShadow;
 };
 
 export type BaseFieldProps<T extends keyof Fields> = {
@@ -197,9 +328,12 @@ export type BaseFieldProps<T extends keyof Fields> = {
   editMode?: boolean;
   isActive?: boolean;
   fieldGroups?: Group[];
+  configData?: ConfigData[];
   onUpdate: (property: Fields[T]) => void;
   onCurrentGroupChange: (fieldGroupID: string) => void;
 };
+
+export type ConfigData = { name: string; type: string; url: string; layers?: string[] };
 
 export type Expression<T extends string | number | boolean = string | number | boolean> =
   | T

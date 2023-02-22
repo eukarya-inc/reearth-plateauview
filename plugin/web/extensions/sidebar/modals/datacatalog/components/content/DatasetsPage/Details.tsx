@@ -2,7 +2,8 @@ import { DataCatalogItem } from "@web/extensions/sidebar/core/types";
 import DetailsComponent from "@web/extensions/sidebar/modals/datacatalog/components/content/DatasetDetails";
 import { Icon } from "@web/sharedComponents";
 import { styled } from "@web/theme";
-import { useCallback } from "react";
+
+import { UserDataItem } from "../../../types";
 
 // import { useCallback, useMemo } from "react";
 
@@ -14,27 +15,26 @@ export type Tag = TagType;
 export type Props = {
   dataset?: DataCatalogItem;
   isMobile?: boolean;
-  addDisabled: boolean;
+  inEditor?: boolean;
+  addDisabled: (dataID: string) => boolean;
   onTagSelect?: (tag: TagType) => void;
-  onDatasetAdd: (dataset: DataCatalogItem) => void;
+  onDatasetAdd: (dataset: DataCatalogItem | UserDataItem) => void;
+  onDatasetPublish?: (dataID: string, publish: boolean) => void;
 };
 
 const DatasetDetails: React.FC<Props> = ({
   dataset,
   // isMobile,
+  inEditor,
   addDisabled,
   // onTagSelect,
   onDatasetAdd,
+  onDatasetPublish,
 }) => {
   // const datasetTags = useMemo(
   //   () => (dataset?.type !== "group" ? dataset?.tags?.map(tag => tag) : undefined),
   //   [dataset],
   // );
-
-  const handleDatasetAdd = useCallback(() => {
-    if (!dataset || addDisabled) return;
-    onDatasetAdd(dataset);
-  }, [dataset, addDisabled, onDatasetAdd]);
 
   const ContentComponent: React.FC = () => (
     <>
@@ -46,9 +46,11 @@ const DatasetDetails: React.FC<Props> = ({
   return dataset ? (
     <DetailsComponent
       dataset={dataset}
-      addDisabled={addDisabled}
-      onDatasetAdd={handleDatasetAdd}
+      addDisabled={addDisabled(dataset.dataID)}
+      inEditor={inEditor}
       contentSection={ContentComponent}
+      onDatasetAdd={onDatasetAdd}
+      onDatasetPublish={onDatasetPublish}
     />
   ) : (
     <NoData>

@@ -2,45 +2,57 @@ import { DataCatalogItem } from "@web/extensions/sidebar/core/types";
 import { UserDataItem } from "@web/extensions/sidebar/modals/datacatalog/types";
 import { Icon } from "@web/sharedComponents";
 import { styled } from "@web/theme";
-import { ComponentType, useCallback, useState } from "react";
+import { ComponentType, useCallback } from "react";
 
 export type Props = {
   dataset: DataCatalogItem | UserDataItem;
   isShareable?: boolean;
   addDisabled: boolean;
+  inEditor?: boolean;
   contentSection?: ComponentType;
   onDatasetAdd: (dataset: DataCatalogItem | UserDataItem) => void;
+  onDatasetPublish?: (dataID: string, publish: boolean) => void;
 };
+
+const showShareButton = false; // This code can be removed when decision about share button is made
 
 const DatasetDetails: React.FC<Props> = ({
   dataset,
   isShareable,
   addDisabled,
+  inEditor,
   contentSection: ContentSection,
   onDatasetAdd,
+  onDatasetPublish,
 }) => {
-  const [published, setAsPublished] = useState(false);
-  const showShareButton = false;
-
-  const handlePublish = useCallback(() => {
-    // TODO: implement me
-    setAsPublished(true);
-  }, [setAsPublished]);
+  const handleDatasetPublish = useCallback(() => {
+    if (!("dataID" in dataset)) return;
+    const datasetToUpdate = dataset as DataCatalogItem;
+    onDatasetPublish?.(datasetToUpdate.dataID, !datasetToUpdate.public);
+  }, [dataset, onDatasetPublish]);
 
   const handleDatasetAdd = useCallback(() => {
-    if (!dataset) return;
+    if (!dataset || addDisabled) return;
     onDatasetAdd(dataset);
-  }, [dataset, onDatasetAdd]);
+  }, [dataset, addDisabled, onDatasetAdd]);
 
   return (
     <>
       <TopWrapper>
         <HeaderWrapper>
           <Title>{dataset.name}</Title>
-          <PublishButton onClick={handlePublish} published={published} isShareable={isShareable}>
-            <HoverText published={published}>公開</HoverText>
-            <Text published={published}>{published ? "公開済み" : "未公開"}</Text>
-          </PublishButton>
+          {"dataID" in dataset && inEditor && (
+            <PublishButton
+              published={(dataset as DataCatalogItem).public}
+              onClick={handleDatasetPublish}>
+              <HoverText published={(dataset as DataCatalogItem).public}>
+                {(dataset as DataCatalogItem).public ? "未公開" : "公開"}
+              </HoverText>
+              <Text published={(dataset as DataCatalogItem).public}>
+                {(dataset as DataCatalogItem).public ? "公開済み" : "未公開"}
+              </Text>
+            </PublishButton>
+          )}
         </HeaderWrapper>
         <ButtonWrapper>
           <AddButton disabled={addDisabled} onClick={handleDatasetAdd}>
@@ -95,7 +107,7 @@ const ButtonWrapper = styled.div`
   gap: 12px;
 `;
 
-const BaseButton = styled.button<{ disabled?: boolean; isShareable?: boolean }>`
+const BaseButton = styled.button<{ disabled?: boolean }>`
   display: flex;
   justify-content: center;
   align-items: center;
@@ -121,14 +133,15 @@ const ShareButton = styled(BaseButton)<{ isShareable?: boolean }>`
   cursor: pointer;
 `;
 
-const PublishButton = styled(BaseButton)<{ published?: boolean; isShareable?: boolean }>`
-  display: ${({ isShareable }) => (isShareable !== false ? "flex" : "none")};
+const PublishButton = styled(BaseButton)<{ published?: boolean }>`
+  display: flex;
   min-width: 120px;
   color: #ffffff;
-  background-color: ${({ published }) => (published ? "#00bebe" : "#BFBFBF")};
-  ${({ published }) => !published && "cursor: pointer;"};
+  background-color: ${({ published }) => (published ? "#00bebe" : "#bfbfbf")};
+  cursor: pointer;
+
   &:hover {
-    background-color: #00bebe;
+    background-color: ${({ published }) => (published ? "#bfbfbf" : "#00bebe")};
   }
 `;
 
@@ -136,7 +149,7 @@ const HoverText = styled.p<{ published?: boolean }>`
   display: none;
   margin-bottom: 0;
   ${PublishButton}:hover & {
-    display: ${({ published }) => (published ? "none" : "initial")};
+    display: initial;
   }
 `;
 
@@ -144,6 +157,6 @@ const Text = styled.p<{ published?: boolean }>`
   display: initial;
   margin-bottom: 0;
   ${PublishButton}:hover & {
-    display: ${({ published }) => (published ? "initial" : "none")};
+    display: none;
   }
 `;

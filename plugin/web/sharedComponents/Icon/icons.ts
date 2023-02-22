@@ -53,8 +53,20 @@ import { ReactComponent as RectMaximize } from "./Icons/rectMaximize.svg";
 import { ReactComponent as Funnel } from "./Icons/funnel.svg";
 import { ReactComponent as ListNumbers } from "./Icons/listNumbers.svg";
 import { ReactComponent as Save } from "./Icons/save.svg";
+import { ReactComponent as PersonSimpleWalk } from "./Icons/personSimpleWalk.svg";
+import { ReactComponent as ArrowLeftRegular } from "./Icons/arrowLeftRegular.svg";
+import { ReactComponent as ArrowRightRegular } from "./Icons/arrowRightRegular.svg";
+import { ReactComponent as ArrowDownRegular } from "./Icons/arrowDownRegular.svg";
+import { ReactComponent as ArrowUpRegular } from "./Icons/arrowUpRegular.svg";
+import { ReactComponent as ArrowLineDownRegular } from "./Icons/arrowLineDownRegular.svg";
+import { ReactComponent as ArrowLineUpRegular } from "./Icons/arrowLineUpRegular.svg";
+import { ReactComponent as Crosshair } from "./Icons/crosshair.svg";
+import { ReactComponent as Mousetip } from "./Icons/mousetip.svg";
+import { ReactComponent as ViewIndicator } from "./Icons/viewIndicator.svg";
+import { ReactComponent as Clock } from "./Icons/clock.svg";
 import { ReactComponent as Transparent } from "./Icons/transparent.svg";
 import { ReactComponent as CircledPlay } from "./Icons/circledPlay.svg";
+import { ReactComponent as FileDotted } from "./Icons/fileDotted.svg";
 
 // Ant Design Icons
 export { InboxOutlined } from "@ant-design/icons";
@@ -112,6 +124,18 @@ export default {
   funnel: Funnel,
   listNumbers: ListNumbers,
   save: Save,
+  personSimpleWalk: PersonSimpleWalk,
+  arrowLeftRegular: ArrowLeftRegular,
+  arrowRightRegular: ArrowRightRegular,
+  arrowDownRegular: ArrowDownRegular,
+  arrowUpRegular: ArrowUpRegular,
+  arrowLineDownRegular: ArrowLineDownRegular,
+  arrowLineUpRegular: ArrowLineUpRegular,
+  crosshair: Crosshair,
+  mousetip: Mousetip,
+  viewIndicator: ViewIndicator,
+  clock: Clock,
   transparent: Transparent,
   circledPlay: CircledPlay,
+  fileDotted: FileDotted,
 };
