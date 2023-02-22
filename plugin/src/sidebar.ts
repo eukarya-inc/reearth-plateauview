@@ -12,6 +12,7 @@ import helpPopupHtml from "../dist/web/sidebar/popups/help/index.html?raw";
 import mobileDropdownHtml from "../dist/web/sidebar/popups/mobileDropdown/index.html?raw";
 
 import { getRGBAFromString, RGBA, rgbaToString } from "./utils/color";
+import { getLocationNamesFromFeatureProperties } from "./utils/csv";
 import { proxyGTFS } from "./utils/proxy";
 
 const defaultProject: Project = {
@@ -371,6 +372,39 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
         },
       });
     }
+  }
+
+  // CSV
+  if (action === "updatePointCSV") {
+    const { dataID, lng, lat, height } = payload;
+    const layerId = addedDatasets.find(ad => ad[0] === dataID)?.[2];
+    reearth.layers.override(layerId, {
+      data: {
+        csv: {
+          lngColumn: lng,
+          latColumn: lat,
+          heightColumn: height,
+        },
+      },
+    });
+  } else if (action === "resetPointCSV") {
+    const { dataID } = payload;
+    const layerId = addedDatasets.find(ad => ad[0] === dataID)?.[2];
+    reearth.layers.override(layerId, {
+      data: {
+        csv: undefined,
+      },
+    });
+  } else if (action === "getLocationNamesFromCSVFeatureProperty") {
+    const { dataID } = payload;
+    const layerId = addedDatasets.find(ad => ad[0] === dataID)?.[2];
+    const layer = reearth.layers.findById(layerId);
+    reearth.ui.postMessage({
+      action,
+      locationNames: getLocationNamesFromFeatureProperties({
+        ...(layer.computed?.features[0] || {}),
+      }),
+    });
   }
 
   // ************************************************

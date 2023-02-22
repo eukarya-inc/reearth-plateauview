@@ -99,6 +99,10 @@ export default ({
       name: fieldName["pointStroke"],
       onClick: onFieldAdd({}),
     },
+    pointCSV: {
+      name: fieldName["pointCSV"],
+      onClick: onFieldAdd({}),
+    },
   };
 
   const polylineFields = {

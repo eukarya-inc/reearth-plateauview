@@ -57,7 +57,10 @@ type ActionType =
   | "update3dtilesShadow"
   | "reset3dtilesShadow"
   | "updateInterval"
-  | "updateTimeBasedDisplay";
+  | "updateTimeBasedDisplay"
+  | "updatePointCSV"
+  | "resetPointCSV"
+  | "getLocationNamesFromCSVFeatureProperty";
 
 export type PostMessageProps = { action: ActionType; payload?: any };
 
