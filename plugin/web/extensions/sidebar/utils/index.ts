@@ -62,23 +62,3 @@ export const removeItem = (index: number, array?: any[]) => {
 export function generateID() {
   return Date.now().toString(36) + Math.random().toString(16).slice(2);
 }
-
-export const swap = (arr: any[], index1: number, index2: number) => {
-  [arr[index1], arr[index2]] = [arr[index2], arr[index1]];
-};
-
-export const moveItemUp = (index: number, array?: any[]) => {
-  if (!array || index === 0) return;
-
-  const newArray = [...array];
-  swap(newArray, index, index - 1);
-  return newArray;
-};
-
-export const moveItemDown = (index: number, array?: any[]) => {
-  if (!array || (array && index >= array.length - 1)) return;
-
-  const newArray = [...array];
-  swap(newArray, index, index + 1);
-  return newArray;
-};
