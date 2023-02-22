@@ -38,6 +38,10 @@ resource "google_pubsub_subscription" "cms_webhook" {
     maximum_backoff = "600s"
     minimum_backoff = "10s"
   }
+  
+  expiration_policy {
+    ttl = ""
+  }
 }
 
 resource "google_pubsub_topic" "cms_decompress" {
@@ -61,5 +65,9 @@ resource "google_pubsub_subscription" "cms_notify" {
   retry_policy {
     maximum_backoff = "600s"
     minimum_backoff = "10s"
+  }
+
+  expiration_policy {
+    ttl = ""
   }
 }
