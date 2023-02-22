@@ -213,16 +213,19 @@ const DatasetCard: React.FC<Props> = ({
                 {field.title && <FieldName>{field.title}</FieldName>}
               </BaseField>
             ))}
-            {defaultTemplate?.components?.map((tc, idx) => (
-              <Field
-                key={idx}
-                field={tc}
-                isActive={!!activeComponentIDs?.find(id => id === tc.id)}
-                dataID={dataset.dataID}
-                selectGroups={dataset.fieldGroups}
-                onUpdate={handleFieldUpdate}
-              />
-            )) ??
+            {defaultTemplate?.components?.map((tc, idx) => {
+              if (currentTab === "edit") return;
+              return (
+                <Field
+                  key={idx}
+                  field={tc}
+                  isActive={!!activeComponentIDs?.find(id => id === tc.id)}
+                  dataID={dataset.dataID}
+                  selectGroups={dataset.fieldGroups}
+                  onUpdate={handleFieldUpdate}
+                />
+              );
+            }) ??
               dataset.components?.map((c, idx) => {
                 if (c.type === "template") {
                   const template = templates?.find(t => t.id === c.templateID);
