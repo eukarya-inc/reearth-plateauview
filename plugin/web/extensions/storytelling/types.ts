@@ -17,6 +17,7 @@ export type PostMessageProps = { action: ActionType; payload?: any };
 
 export type Story = {
   id?: string;
+  dataID?: string;
   title?: string;
   scenes: Scene[];
 };
@@ -55,7 +56,7 @@ export type PluginExtensionInstance = {
 
 // Communications
 export type PluginMessage = {
-  data: StoryEdit | StorySave | StoryDelete | StoryPlay | StoryCancelPlay;
+  data: StoryEdit | StoryDelete | StoryPlay | StoryCancelPlay;
   sender: string;
 };
 
@@ -64,15 +65,9 @@ export type StoryEdit = {
   action: "storyEdit";
   payload: {
     id: string;
+    dataID?: string;
     scenes: string;
     title?: string;
-  };
-};
-
-export type StorySave = {
-  action: "storySave";
-  payload: {
-    id: string;
   };
 };
 

@@ -330,15 +330,6 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
       height: reearth.viewport.height - 68,
       width: reearth.viewport.width - 12,
     });
-  } else if (action === "storyPlay") {
-    const storyTellingWidgetId = reearth.plugins.instances.find(
-      (instance: PluginExtensionInstance) => instance.extensionId === "storytelling",
-    )?.id;
-    if (!storyTellingWidgetId) return;
-    reearth.plugins.postMessage(storyTellingWidgetId, {
-      action: "storyPlay",
-      payload,
-    });
   } else if (action === "updateInterval") {
     const { dataID, interval } = payload;
     const layerId = addedDatasets.find(ad => ad[0] === dataID)?.[2];
@@ -366,6 +357,37 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
         },
       });
     }
+  }
+
+  // ************************************************
+  // For story
+  else if (action === "storyPlay") {
+    const storyTellingWidgetId = reearth.plugins.instances.find(
+      (instance: PluginExtensionInstance) => instance.extensionId === "storytelling",
+    )?.id;
+    if (!storyTellingWidgetId) return;
+    reearth.plugins.postMessage(storyTellingWidgetId, {
+      action: "storyPlay",
+      payload,
+    });
+  } else if (action === "storyEdit") {
+    const storyTellingWidgetId = reearth.plugins.instances.find(
+      (instance: PluginExtensionInstance) => instance.extensionId === "storytelling",
+    )?.id;
+    if (!storyTellingWidgetId) return;
+    reearth.plugins.postMessage(storyTellingWidgetId, {
+      action: "storyEdit",
+      payload,
+    });
+  } else if (action === "storyDelete") {
+    const storyTellingWidgetId = reearth.plugins.instances.find(
+      (instance: PluginExtensionInstance) => instance.extensionId === "storytelling",
+    )?.id;
+    if (!storyTellingWidgetId) return;
+    reearth.plugins.postMessage(storyTellingWidgetId, {
+      action: "storyDelete",
+      payload,
+    });
   }
 
   // CSV

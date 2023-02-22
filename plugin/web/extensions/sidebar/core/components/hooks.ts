@@ -7,6 +7,7 @@ import { getDataCatalog, RawDataCatalogItem } from "../../modals/datacatalog/api
 import { UserDataItem } from "../../modals/datacatalog/types";
 import { Data, DataCatalogItem, Template } from "../types";
 
+import { StoryItem } from "./content/common/DatasetCard/Field/Fields/types";
 import { Pages } from "./Header";
 
 export const defaultProject: Project = {
@@ -296,19 +297,32 @@ export default () => {
   );
 
   // ****************************************
-
+  // story
   const handleStorySaveData = useCallback((story: Story) => {
-    // save user story
-    updateProject(project => {
-      const updatedProject: Project = {
-        ...project,
-        userStory: {
-          scenes: story.scenes,
-        },
-      };
-      postMsg({ action: "updateProject", payload: updatedProject });
-      return updatedProject;
-    });
+    if (story.id && story.dataID) {
+      // save database story
+      setSelectedDatasets(sd => {
+        const tarStory = (
+          sd.find(s => s.dataID === story.dataID)?.components?.find(c => c.type === "story") as any
+        )?.stories?.find((st: StoryItem) => st.id === story.id);
+        if (tarStory) {
+          tarStory.scenes = story.scenes;
+        }
+        return sd;
+      });
+    } else {
+      // save user story
+      updateProject(project => {
+        const updatedProject: Project = {
+          ...project,
+          userStory: {
+            scenes: story.scenes,
+          },
+        };
+        postMsg({ action: "updateProject", payload: updatedProject });
+        return updatedProject;
+      });
+    }
   }, []);
 
   const handleInitUserStory = useCallback((story: Story) => {
