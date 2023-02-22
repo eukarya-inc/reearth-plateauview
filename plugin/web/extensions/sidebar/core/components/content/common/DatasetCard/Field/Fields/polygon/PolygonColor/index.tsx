@@ -3,14 +3,27 @@ import {
   ButtonWrapper,
   Wrapper,
 } from "@web/extensions/sidebar/core/components/content/common/DatasetCard/Field/commonComponents";
-import { generateID, moveItemDown, moveItemUp, removeItem } from "@web/extensions/sidebar/utils";
-import { useCallback, useState } from "react";
+import {
+  generateID,
+  moveItemDown,
+  moveItemUp,
+  removeItem,
+  postMsg,
+  compare,
+} from "@web/extensions/sidebar/utils";
+import { useCallback, useEffect, useState } from "react";
 
 import { BaseFieldProps, Cond } from "../../types";
 
 import PolygonColorItem from "./PolygonColorItem";
 
-const PolygonColor: React.FC<BaseFieldProps<"polygonColor">> = ({ value, editMode, onUpdate }) => {
+const PolygonColor: React.FC<BaseFieldProps<"polygonColor">> = ({
+  dataID,
+  value,
+  editMode,
+  isActive,
+  onUpdate,
+}) => {
   const [items, updateItems] = useState(value.items);
 
   const operandOptions = [{ value: "pointSize", label: "size" }];
@@ -87,6 +100,36 @@ const PolygonColor: React.FC<BaseFieldProps<"polygonColor">> = ({ value, editMod
       return newItems;
     });
   };
+
+  useEffect(() => {
+    if (!isActive || !dataID) return;
+    const timer = setTimeout(() => {
+      items?.forEach(item => {
+        const operand = 1; // should be something like item[pointSize]
+        const fillColor = compare(operand, item.condition.operator, item.condition.value)
+          ? item.color
+          : "";
+        const fill = compare(operand, item.condition.operator, item.condition.value);
+        postMsg({
+          action: "updateDatasetInScene",
+          payload: {
+            dataID,
+            update: { polygon: { fill, fillColor } },
+          },
+        });
+      });
+    }, 500);
+    return () => {
+      clearTimeout(timer);
+      postMsg({
+        action: "updateDatasetInScene",
+        payload: {
+          dataID,
+          update: { polygon: undefined },
+        },
+      });
+    };
+  }, [dataID, isActive, items]);
 
   return editMode ? (
     <Wrapper>

@@ -106,14 +106,14 @@ const PointColor: React.FC<BaseFieldProps<"pointColor">> = ({
     const timer = setTimeout(() => {
       pointColors?.forEach(item => {
         const operand = 1; // should be something like item[pointSize]
-        const color = compare(operand, item.condition.operator, item.condition.value)
+        const pointColor = compare(operand, item.condition.operator, item.condition.value)
           ? item.color
           : "";
         postMsg({
           action: "updateDatasetInScene",
           payload: {
             dataID,
-            update: { marker: { style: "point", pointColor: color } },
+            update: { marker: { style: "point", pointColor } },
           },
         });
       });

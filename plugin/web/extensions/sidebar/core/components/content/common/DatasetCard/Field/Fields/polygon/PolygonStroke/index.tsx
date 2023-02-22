@@ -3,16 +3,25 @@ import {
   ButtonWrapper,
   Wrapper,
 } from "@web/extensions/sidebar/core/components/content/common/DatasetCard/Field/commonComponents";
-import { generateID, moveItemDown, moveItemUp, removeItem } from "@web/extensions/sidebar/utils";
-import { useCallback, useState } from "react";
+import {
+  generateID,
+  moveItemDown,
+  moveItemUp,
+  removeItem,
+  postMsg,
+  compare,
+} from "@web/extensions/sidebar/utils";
+import { useCallback, useEffect, useState } from "react";
 
 import { BaseFieldProps, Cond } from "../../types";
 
 import PolygonStrokeItem from "./PolygonStrokeItem";
 
 const PolygonStroke: React.FC<BaseFieldProps<"polygonStroke">> = ({
+  dataID,
   value,
   editMode,
+  isActive,
   onUpdate,
 }) => {
   const [items, updateItems] = useState(value.items);
@@ -104,6 +113,41 @@ const PolygonStroke: React.FC<BaseFieldProps<"polygonStroke">> = ({
       return newItems;
     });
   };
+
+  useEffect(() => {
+    if (!isActive || !dataID) return;
+    const timer = setTimeout(() => {
+      items?.forEach(item => {
+        const operand = 1; // should be something like item[pointSize]
+        const stroke = compare(operand, item.condition.operator, item.condition.value);
+        const strokeColor = compare(operand, item.condition.operator, item.condition.value)
+          ? item.strokeColor
+          : "";
+        const strokeWidth = compare(operand, item.condition.operator, item.condition.value)
+          ? item.strokeWidth
+          : 0;
+        postMsg({
+          action: "updateDatasetInScene",
+          payload: {
+            dataID,
+            update: {
+              polygon: { stroke, strokeColor, strokeWidth },
+            },
+          },
+        });
+      });
+    }, 500);
+    return () => {
+      clearTimeout(timer);
+      postMsg({
+        action: "updateDatasetInScene",
+        payload: {
+          dataID,
+          update: { polygon: undefined },
+        },
+      });
+    };
+  }, [dataID, isActive, items]);
 
   return editMode ? (
     <Wrapper>

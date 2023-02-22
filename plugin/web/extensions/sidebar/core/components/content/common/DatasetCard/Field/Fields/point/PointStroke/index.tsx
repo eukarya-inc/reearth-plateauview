@@ -119,10 +119,10 @@ const PointStroke: React.FC<BaseFieldProps<"pointStroke">> = ({
     const timer = setTimeout(() => {
       items?.forEach(item => {
         const operand = 1; // should be something like item[pointSize]
-        const color = compare(operand, item.condition.operator, item.condition.value)
+        const pointOutlineColor = compare(operand, item.condition.operator, item.condition.value)
           ? item.strokeColor
           : "";
-        const width = compare(operand, item.condition.operator, item.condition.value)
+        const pointOutlineWidth = compare(operand, item.condition.operator, item.condition.value)
           ? item.strokeWidth
           : 0;
         postMsg({
@@ -130,7 +130,7 @@ const PointStroke: React.FC<BaseFieldProps<"pointStroke">> = ({
           payload: {
             dataID,
             update: {
-              marker: { style: "point", pointOutlineColor: color, pointOutlineWidth: width },
+              marker: { style: "point", pointOutlineColor, pointOutlineWidth },
             },
           },
         });

@@ -3,16 +3,25 @@ import {
   ButtonWrapper,
   Wrapper,
 } from "@web/extensions/sidebar/core/components/content/common/DatasetCard/Field/commonComponents";
-import { generateID, moveItemDown, moveItemUp, removeItem } from "@web/extensions/sidebar/utils";
-import { useCallback, useState } from "react";
+import {
+  generateID,
+  moveItemDown,
+  moveItemUp,
+  removeItem,
+  postMsg,
+  compare,
+} from "@web/extensions/sidebar/utils";
+import { useCallback, useEffect, useState } from "react";
 
 import { BaseFieldProps, Cond } from "../../types";
 
 import PolylineColorItem from "./PolylineColorItem";
 
 const PolylineColor: React.FC<BaseFieldProps<"polylineColor">> = ({
+  dataID,
   value,
   editMode,
+  isActive,
   onUpdate,
 }) => {
   const [items, updateItems] = useState(value.items);
@@ -91,6 +100,35 @@ const PolylineColor: React.FC<BaseFieldProps<"polylineColor">> = ({
       return newItems;
     });
   };
+
+  useEffect(() => {
+    if (!isActive || !dataID) return;
+    const timer = setTimeout(() => {
+      items?.forEach(item => {
+        const operand = 1; // should be something like item[pointSize]
+        const strokeColor = compare(operand, item.condition.operator, item.condition.value)
+          ? item.color
+          : "";
+        postMsg({
+          action: "updateDatasetInScene",
+          payload: {
+            dataID,
+            update: { polyline: { strokeColor } },
+          },
+        });
+      });
+    }, 500);
+    return () => {
+      clearTimeout(timer);
+      postMsg({
+        action: "updateDatasetInScene",
+        payload: {
+          dataID,
+          update: { polyline: undefined },
+        },
+      });
+    };
+  }, [dataID, isActive, items]);
 
   return editMode ? (
     <Wrapper>
