@@ -1,30 +1,53 @@
-# Reearth Plateauview for Terraform
+# Terradform
 
-Reearth Plateauviewを構築するTerraformです。
+PLATEAU VIEW 2.0（CMS・エディタ・ビューワ）を構築するTerraformです。
 
-## 事前準備
 
- * コマンドラインツールのインストール
-   * gcloud
-   * terraform
+## セットアップ手順
 
-## gcloud のセットアップ
+### GCP のセットアップ
 
+プロジェクトを作成
+
+### MongoDB Atlas のセットアップ
+
+データベースクラスタを作成して接続文字列を取得する。**必ず読取/書込権限を有するDBユーザーの作成・IPアドレスの許可（全IP許可）を忘れずに。**
+
+```bash
+export REEARTH_DB=""
 ```
+
+### Auth0 のセットアップ
+
+Auth0テナントを作成した後、[公式のQuick Start](https://github.com/auth0/terraform-provider-auth0/blob/main/docs/guides/quickstart.md)を参考に、アプリケーションをセットアップ。
+
+```bash
+export AUTH0_CLIENT_SECRET=""
+```
+
+### コマンドラインツールのインストール
+
+公式ドキュメントに従ってインストール。
+
+ - gcloud
+ - terraform
+
+### gcloud のセットアップ
+
+```bash
 # GCP Project ID
 export PROJECT_ID=""
 # 使いたいドメイン 例: plateauview.example.com
 export DOMAIN=""
 # 20文字以内・半角英数ハイフンで自由に決めて良い。例: plateauview-test
 export SERVICE_PREFIX=""
-# 20文字以内・半角英数ハイフンで自由に決めて良い。SERVICE_PREFIXと同じで問題ない。
-export ZONE_NAME=${SERVICE_PREFIX}
 
 gcloud components update
 gcloud config configurations create ${SERVICE_PREFIX}
 gcloud config set project ${PROJECT_ID}
 gcloud auth login
 
+# GCPのAPIの有効化。中には完了まで少し時間を要するものもある。
 gcloud services enable certificatemanager.googleapis.com
 gcloud services enable secretmanager.googleapis.com
 gcloud services enable cloudbuild.googleapis.com
@@ -40,12 +63,16 @@ gcloud config set compute/region asia-northeast1
 gcloud auth application-default login
 ```
 
-### CloudDNSのセットアップ
+### Cloud DNS のセットアップ
 
+descriptionがないとエラーになるので注意。
+
+```bash
+gcloud dns managed-zones create ${SERVICE_PREFIX} --dns-name ${DOMAIN} --description "${SERVICE_PREFIX}"
+gcloud dns record-sets list --zone ${ZONE_NAME}
 ```
- gcloud dns managed-zones create ${ZONE_NAME} --dns-name ${DOMAIN} --description "${ZONE_NAME}"
- gcloud dns record-sets list --zone ${ZONE_NAME}
-```
+
+以下のような出力が得られる。
 
 ```
 NAME                           TYPE  TTL    DATA
@@ -53,39 +80,21 @@ NAME                           TYPE  TTL    DATA
 *********  SOA   21600  ns-cloud-a1.googledomains.com. cloud-dns-hostmaster.google.com. 1 21600 3600 259200 300
 ```
 
-今回セットアップしたいドメインをcloud dnsでホスティングできるように設定する。
-出力されたNSレコードの情報を用いて、ネームサーバーを変更する。手順は各種レジストラの手順を参照。
-
-### MongoDB Atlas のセットアップ
-
-データベースを作成して接続文字列を取得する。DBユーザーの作成やIPアドレスの許可（全IP許可）を忘れずに。
-
-```bash
-export REEARTH_DB=""
-```
-
-### Auth0 のセットアップ
-
-Auth0テナントを作成した後、[公式のQuick Start](https://github.com/auth0/terraform-provider-auth0/blob/main/docs/guides/quickstart.md)を参考に、M2Mのアプリケーションをセットアップ
-
-```bash
-export AUTH0_CLIENT_SECRET=""
-```
-
-## Terraform実行手順
+今回セットアップしたいドメインを、Cloud DNSでホスティングできるように、各種レジストラの設定を変更する。具体的には、出力のNSレコードのDATAの部分を使用して「NSレコード」を設定することで、ネームサーバーを変更する。手順は各種レジストラの手順を参照。
 
 ### 設定ファイルの準備
 
 今回設定したい環境の設定ファイル(tfvars)を準備する。実行環境費に合わせて必要な情報をセットアップを行う。
-[example.tfvars](./env/example.tfvars) をコピーし、必要な設定を追記する。
 
-### backendの作成
-リソース全般の作成に必要なSERVICE_PREFIXを決める。
-```
+[example.tfvars](./env/example.tfvars) を編集して必要な設定を追記する。（別名としてコピーして編集しても良い）
+
+### Terraform の backend を作成
+
+```bash
 gcloud storage buckets create gs://${SERVICE_PREFIX}-terraform-tfstate
 ```
 
-[terraform.tf](terraform.tf)の`backend`のbucketを設定する
+[terraform.tf](terraform.tf) の `backend` の `bucket` を変更する
 
 ```diff
   backend "gcs" {
@@ -104,24 +113,52 @@ terraform init
 terraform apply -var-file=env/example.tfvars
 ```
 
+途中でyesを入力して実行を進めること。しばらく時間を要するが、以下のような出力が得られれば成功。
 
-### terraform実行後のシークレットへの値追加
+```
+Apply complete! Resources: * added, * changed, * destroyed.
+
+Outputs:
+
+plateauview_cms_webhook_secret = "********"
+plateauview_cms_webhook_url = "********"
+plateauview_sdk_token = "********"
+plateauview_sidebar_token = "********"
+```
+
+これらの outputs は後で使う。なおもう一度 outputs を表示したいときは `terraform output` コマンドで表示可能。
+
+なお、outputs内の以下の値は、ここでは説明しないが、別のセットアップで使用するので留意する。
+
+- plateauview_sdk_token: PLATEAU SDK用のトークン。SDKのUIで設定する。
+- plateauview_sidebar_token: ビューワのサイドバー用のAPIトークン。エディタ上でサイドバーウィジェットの設定から設定する。
+
+### シークレットの設定
+
+GCPのシークレットマネージャにシークレットを設定する。
 
 ```bash
 echo -n "${REEARTH_DB}" | gcloud secrets versions add reearth-api-REEARTH_DB --data-file=-
 echo -n "${REEARTH_DB}" | gcloud secrets versions add reearth-cms-REEARTH_CMS_WORKER_DB --data-file=-
 echo -n "${REEARTH_DB}" | gcloud secrets versions add reearth-cms-REEARTH_CMS_DB --data-file=-
+```
 
-# 以下は必要に応じて設定する。設定しなくても次に進むことは可能。
+なお、以下は必要に応じて設定する。各 `${...}` は変更して実行すること。設定しなくても次に進むことは可能。
+
+```bash
 # FMEのトークン
 echo -n "${REEARTH_PLATEAUVIEW_FME_TOKEN}" | gcloud secrets versions add reearth-cms-REEARTH_PLATEAUVIEW_FME_TOKEN --data-file=-
 # G空間情報センターのAPIトークン
 echo -n "${REEARTH_PLATEAUVIEW_CKAN_TOKEN}" | gcloud secrets versions add reearth-cms-REEARTH_PLATEAUVIEW_CKAN_TOKEN --data-file=-
 # SendGridのAPIキー
 echo -n "${REEARTH_PLATEAUVIEW_SENDGRID_APIKEY}" | gcloud secrets versions add reearth-cms-REEARTH_PLATEAUVIEW_SENDGRID_APIKEY --data-file=-
+# マーケットプレースのシークレットキー
+echo -n "${REEARTH_MARKETPLACE_SECRET}" | gcloud secrets versions add reearth-api-REEARTH_MARKETPLACE_SECRET --data-file=-
 ```
 
 ### Cloud Run のデプロイ
+
+4つの Cloud Run サービスをデプロイする。
 
 ```bash
 gcloud run deploy reearth-api \
@@ -131,7 +168,7 @@ gcloud run deploy reearth-api \
             --quiet
 ```
 
-```
+```bash
 gcloud run deploy reearth-cms-api \
             --image reearth/reearth-cms:nightly \
             --region asia-northeast1 \
@@ -139,7 +176,7 @@ gcloud run deploy reearth-cms-api \
             --quiet
 ```
 
-```
+```bash
 gcloud run deploy reearth-cms-worker \
             --image reearth/reearth-cms-worker:nightly \
             --region asia-northeast1 \
@@ -147,7 +184,7 @@ gcloud run deploy reearth-cms-worker \
             --quiet
 ```
 
-```
+```bash
 gcloud run deploy plateauview-api \
             --image eukarya/plateauview-api:latest \
             --region asia-northeast1 \
@@ -155,9 +192,9 @@ gcloud run deploy plateauview-api \
             --quiet
 ```
 
-### DNS・ロードバランサ・証明書のデプロイ完了まで待機する
+### DNS・ロードバランサ・証明書のデプロイ完了まで待機
 
-```
+```bash
 curl https://api.${DOMAIN}/ping
 ```
 
@@ -165,9 +202,12 @@ curl https://api.${DOMAIN}/ping
 
 ### Auth0 ユーザー作成
 
+
 先ほど作成したAuth0テナントにてユーザーを作成する。メールアドレスの認証を忘れずに。
 
-### CMS ログイン
+**必ず上記ステップでデプロイ完了を確認してから、Auth0のユーザーを作成すること。そうでないと正常にRe:EarthやCMSにログインできなくなる。**
+
+### CMS インテグレーション設定
 
 CMSにログインする。
 
@@ -175,23 +215,23 @@ https://cms.${DOMAIN}
 
 ログイン後、ワークスペース・Myインテグレーションを作成する。
 
-次に、インテグレーション内に以下の通りWebhookを作成する。作成後、有効化を忘れないこと。
+次に、インテグレーション内に以下の通り webhook を作成する。作成後、有効化を忘れないこと。
 
 - URL: terraform outputs の plateauview_cms_webhook_url
 - シークレット: terraform outputs の plateauview_cms_webhook_secret
-- 種類: 全てにチェックを入れる。
+- イベント: 全てのチェックボックスにチェックを入れる。
 
 作成後、作成したワークスペースに作成したインテグレーションを追加し、オーナー権限に変更する。
 
-### CMS_TOKENの設定
+先ほど作成したインテグレーションの詳細画面でインテグレーショントークンをコピーし、以下の `${REEARTH_PLATEAUVIEW_CMS_TOKEN}` に貼り付けて以下のコマンドを実行する。
 
-CMSのUIで発行したインテグレーションのトークンを登録する。
-
-```
-echo -n "${REEARTH_PLATEAUVIEW_CMS_TOKEN}" | gcloud secrets versions add 	reearth-cms-REEARTH_PLATEAUVIEW_CMS_TOKEN --data-file=-
+```bash
+echo -n "${REEARTH_PLATEAUVIEW_CMS_TOKEN}" | gcloud secrets versions add reearth-cms-REEARTH_PLATEAUVIEW_CMS_TOKEN --data-file=-
 ```
 
-```
+環境変数の変更を適用するため、もう一度 Cloud Run をデプロイする。
+
+```bash
 gcloud run deploy plateauview-api \
             --image eukarya/plateauview-api:latest \
             --region asia-northeast1 \
@@ -201,10 +241,7 @@ gcloud run deploy plateauview-api \
 
 ### 完了
 
-- Re:Earth: https://reearth.${DOMAIN}
-- CMS: https://cms.${DOMAIN}
+以下のアプリケーションにログインし、正常に使用できることを確認する。 `${DOMAIN}` はドメイン。
 
-なお、terraform outputs で得られた以下は別のセットアップで使用する。
-
-- plateauview_sdk_token: SDKのトークン。SDKのUIで設定する。
-- plateauview_sidebar_token: サイドバーのAPIトークン。エディタ上でサイドバーウィジェットの設定から設定する。
+- Re:Earth: `https://reearth.${DOMAIN}`
+- CMS: `https://cms.${DOMAIN}`
