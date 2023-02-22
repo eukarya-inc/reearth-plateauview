@@ -88,49 +88,6 @@ export default ({
     [dataset, inEditor, onDatasetUpdate],
   );
 
-  const generalFields: FieldDropdownItem = {
-    idealZoom: {
-      name: fieldName["idealZoom"],
-      onClick: handleFieldAdd({
-        position: {
-          lng: 0,
-          lat: 0,
-          height: 0,
-          pitch: 0,
-          heading: 0,
-          roll: 0,
-        },
-      }),
-    },
-    description: {
-      name: fieldName["description"],
-      onClick: handleFieldAdd({}),
-    },
-    legend: {
-      name: fieldName["legend"],
-      onClick: handleFieldAdd({
-        style: "square",
-        items: [{ title: "hey", color: "red" }],
-      }),
-    },
-    switchGroup: {
-      name: fieldName["switchGroup"],
-      onClick: handleFieldAdd({
-        title: "Switch Group",
-        groups: dataset.fieldGroups[0]
-          ? [{ id: generateID(), title: "新グループ1", fieldGroupID: dataset.fieldGroups[0].id }]
-          : [],
-      }),
-    },
-    buttonLink: {
-      name: fieldName["buttonLink"],
-      onClick: handleFieldAdd({}),
-    },
-    story: {
-      name: fieldName["story"],
-      onClick: handleFieldAdd({}),
-    },
-  };
   const fieldComponentsList = generateFieldComponentsList({
     fieldGroups: dataset.fieldGroups,
     templates,
