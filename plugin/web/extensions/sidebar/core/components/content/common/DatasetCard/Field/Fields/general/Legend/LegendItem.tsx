@@ -4,7 +4,7 @@ import {
   ItemControls,
 } from "@web/extensions/sidebar/core/components/content/common/DatasetCard/Field/common";
 import { Item } from "@web/extensions/sidebar/core/components/content/common/DatasetCard/Field/commonComponents";
-import { useCallback } from "react";
+import { useCallback, ChangeEvent } from "react";
 
 import { LegendItem, LegendStyleType } from "../../types";
 
@@ -28,9 +28,9 @@ const LegendItemComponent: React.FC<{
   );
 
   const handleTitleChange = useCallback(
-    (title: string) => {
-      if (title) {
-        const copy = { ...item, title };
+    (e: ChangeEvent<HTMLInputElement>) => {
+      if (e.currentTarget.value) {
+        const copy = { ...item, title: e.currentTarget.value };
         onItemUpdate(copy, index);
       }
     },
@@ -38,9 +38,9 @@ const LegendItemComponent: React.FC<{
   );
 
   const handleURLChange = useCallback(
-    (url: string) => {
-      if (url) {
-        const copy = { ...item, url };
+    (e: ChangeEvent<HTMLInputElement>) => {
+      if (e.currentTarget.value) {
+        const copy = { ...item, url: e.currentTarget.value };
         onItemUpdate(copy, index);
       }
     },
@@ -56,16 +56,11 @@ const LegendItemComponent: React.FC<{
         handleRemove={handleRemove}
       />
       {legendStyle === "icon" && (
-        <TextField title="URL" titleWidth={82} defaultValue={item.url} onChange={handleURLChange} />
+        <TextField title="URL" titleWidth={82} value={item.url} onChange={handleURLChange} />
       )}
 
       <ColorField title="色" titleWidth={82} color={item.color} onChange={handleColorChange} />
-      <TextField
-        title="タイトル"
-        titleWidth={82}
-        defaultValue={item.title}
-        onChange={handleTitleChange}
-      />
+      <TextField title="タイトル" titleWidth={82} value={item.title} onChange={handleTitleChange} />
     </Item>
   );
 };
