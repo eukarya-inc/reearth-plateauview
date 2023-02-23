@@ -65,7 +65,7 @@ const Wrapper = styled.div`
   padding: 0px 16px;
   gap: 24px;
   width: 333px;
-  height: 712px;
+  height: 670px;
 `;
 
 const ImgWrapper = styled.div`
