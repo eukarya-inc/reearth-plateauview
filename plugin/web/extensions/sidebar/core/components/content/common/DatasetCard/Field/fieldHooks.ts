@@ -55,6 +55,10 @@ export default ({
         name: fieldName["styleCode"],
         onClick: onFieldAdd({ src: " " }),
       },
+      story: {
+        name: fieldName["story"],
+        onClick: onFieldAdd({}),
+      },
       buttonLink: {
         name: fieldName["buttonLink"],
         onClick: onFieldAdd({}),
@@ -107,6 +111,10 @@ export default ({
       },
       pointStroke: {
         name: fieldName["pointStroke"],
+        onClick: onFieldAdd({}),
+      },
+      pointCSV: {
+        name: fieldName["pointCSV"],
         onClick: onFieldAdd({}),
       },
     };
@@ -194,21 +202,23 @@ export default ({
 
   const TemplateFields: FieldDropdownItem | undefined = useMemo(
     () =>
-      templates
-        ?.map(t => {
-          return {
-            [`template-${t.id}`]: {
-              name: t.name,
-              onClick: onFieldAdd({
-                templateID: t.id,
-                name: t.name,
-              }),
-            },
-          };
-        })
-        .reduce((acc, field) => {
-          return { ...acc, ...field };
-        }),
+      templates?.length
+        ? templates
+            .map(t => {
+              return {
+                [`template-${t.id}`]: {
+                  name: t.name,
+                  onClick: onFieldAdd({
+                    templateID: t.id,
+                    name: t.name,
+                  }),
+                },
+              };
+            })
+            .reduce((acc, field) => {
+              return { ...acc, ...field };
+            })
+        : undefined,
     [templates, onFieldAdd],
   );
 

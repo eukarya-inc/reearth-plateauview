@@ -11,12 +11,14 @@ import Description from "./general/Description";
 import IdealZoom from "./general/IdealZoom";
 import Legend from "./general/Legend";
 import Realtime from "./general/Realtime";
+import Story from "./general/Story";
 import StyleCode from "./general/StyleCode";
 import SwitchDataset from "./general/SwitchDataset";
 import SwitchGroup from "./general/SwitchGroup";
 import Timeline from "./general/Timeline";
 import PointColor from "./point/PointColor";
 import PointColorGradient from "./point/PointColorGradient";
+import PointCSV from "./point/PointCSV";
 import PointIcon from "./point/PointIcon";
 import PointLabel from "./point/PointLabel";
 import PointModel from "./point/PointModel";
@@ -41,6 +43,7 @@ const fields: Fields<FieldComponent> = {
   description: { Component: Description, hasUI: true },
   switchGroup: { Component: SwitchGroup, hasUI: true },
   buttonLink: { Component: ButtonLink, hasUI: true },
+  story: { Component: Story, hasUI: true },
   styleCode: { Component: StyleCode, hasUI: false },
   realtime: { Component: Realtime, hasUI: true },
   timeline: { Component: Timeline, hasUI: true },
@@ -53,6 +56,7 @@ const fields: Fields<FieldComponent> = {
   pointLabel: { Component: PointLabel, hasUI: false },
   pointModel: { Component: PointModel, hasUI: false },
   pointStroke: { Component: PointStroke, hasUI: false },
+  pointCSV: { Component: PointCSV, hasUI: false },
   // polyline
   polylineColor: { Component: PolylineColor, hasUI: false },
   polylineColorGradient: { Component: PolylineColorGradient, hasUI: false },
