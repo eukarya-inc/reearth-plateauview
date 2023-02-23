@@ -25,22 +25,19 @@ const Folder: React.FC<Props> = ({
 }) => {
   const [isOpen, open] = useState(false);
 
-  // TODO: should find a better way to improve performance
+  // TODO: should improve performance later
   const isChildSelected = useCallback(
     (
       item: DataCatalogGroup | DataCatalogItem | (DataCatalogItem | DataCatalogGroup)[],
     ): boolean => {
       if (!("children" in item)) return "dataID" in item && item.dataID === selectedID;
-      for (const child of item.children) {
-        return isChildSelected(child);
-      }
-      return false;
+      return item.children.some(child => isChildSelected(child));
     },
     [selectedID],
   );
 
   useEffect(() => {
-    expandAll || isChildSelected(item) ? open(true) : open(false);
+    open(() => expandAll || (!!selectedID && isChildSelected(item)));
   }, [expandAll, isChildSelected, item, selectedID]);
 
   return (
