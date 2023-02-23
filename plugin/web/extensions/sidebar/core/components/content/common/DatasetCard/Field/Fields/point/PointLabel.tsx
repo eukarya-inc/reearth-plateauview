@@ -1,6 +1,5 @@
 import {
   ColorField,
-  SelectField,
   SwitchField,
   TextField,
 } from "@web/extensions/sidebar/core/components/content/common/DatasetCard/Field/common";
@@ -10,12 +9,6 @@ import { styled } from "@web/theme";
 import { ChangeEvent, useCallback, useState, useEffect } from "react";
 
 import { BaseFieldProps, Fields } from "../types";
-
-// TODO: list all options for select field dropdown
-const options = [
-  { value: "Option1", label: "Option1" },
-  { value: "Option2", label: "Option2" },
-];
 
 const PointLabel: React.FC<BaseFieldProps<"pointLabel">> = ({
   dataID,
@@ -44,8 +37,8 @@ const PointLabel: React.FC<BaseFieldProps<"pointLabel">> = ({
   );
 
   const handleFieldChange = useCallback(
-    (field: any) => {
-      updatePointLabelByProp("field", field);
+    (e: ChangeEvent<HTMLInputElement>) => {
+      updatePointLabelByProp("field", e.target.value);
     },
     [updatePointLabelByProp],
   );
@@ -63,16 +56,6 @@ const PointLabel: React.FC<BaseFieldProps<"pointLabel">> = ({
   const handleFontColorUpdate = useCallback(
     (color: string) => {
       if (color) updatePointLabelByProp("color", color);
-    },
-    [updatePointLabelByProp],
-  );
-
-  const handleHeightUpdate = useCallback(
-    (e: ChangeEvent<HTMLInputElement>) => {
-      const height = !isNaN(parseFloat(e.currentTarget.value))
-        ? parseFloat(e.currentTarget.value)
-        : 1;
-      updatePointLabelByProp("height", height);
     },
     [updatePointLabelByProp],
   );
@@ -101,6 +84,7 @@ const PointLabel: React.FC<BaseFieldProps<"pointLabel">> = ({
   useEffect(() => {
     if (!isActive || !dataID) return;
     const timer = setTimeout(() => {
+      console.log("pointLabel: ", pointLabel);
       postMsg({
         action: "updateDatasetInScene",
         payload: {
@@ -112,11 +96,10 @@ const PointLabel: React.FC<BaseFieldProps<"pointLabel">> = ({
                 fontSize: pointLabel.fontSize,
                 color: pointLabel.fontColor,
               },
-              field: "", // should be updated
-              height: "", // should be updated
-              extruded: pointLabel.extruded,
+              labelText: pointLabel.field,
+              extrude: pointLabel.extruded,
               labelBackground: pointLabel.useBackground,
-              backgroundColor: pointLabel.backgroundColor,
+              labelBackgroundColor: pointLabel.backgroundColor,
             },
           },
         },
@@ -138,10 +121,10 @@ const PointLabel: React.FC<BaseFieldProps<"pointLabel">> = ({
 
   return editMode ? (
     <Wrapper>
-      <SelectField
-        title="Choose field"
+      <TextField
+        title="Text"
         titleWidth={82}
-        options={options}
+        defaultValue={pointLabel.fontSize}
         onChange={handleFieldChange}
       />
       <TextField
@@ -156,13 +139,6 @@ const PointLabel: React.FC<BaseFieldProps<"pointLabel">> = ({
         titleWidth={82}
         color={pointLabel.fontColor}
         onChange={handleFontColorUpdate}
-      />
-      <TextField
-        title="Height"
-        titleWidth={82}
-        defaultValue={pointLabel.height}
-        suffix={<Suffix>m</Suffix>}
-        onChange={handleHeightUpdate}
       />
       <SwitchField
         title="Extruded"
