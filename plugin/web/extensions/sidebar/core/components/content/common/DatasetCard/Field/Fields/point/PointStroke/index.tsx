@@ -9,10 +9,10 @@ import {
   moveItemUp,
   removeItem,
   postMsg,
-  compare,
 } from "@web/extensions/sidebar/utils";
 import { useCallback, useEffect, useState } from "react";
 
+import { stringifyCondition } from "../../../utils";
 import { BaseFieldProps, Cond } from "../../types";
 
 import PointStrokeItem from "./PointStrokeItem";
@@ -69,9 +69,9 @@ const PointStroke: React.FC<BaseFieldProps<"pointStroke">> = ({
         strokeWidth: 0,
         condition: {
           key: generateID(),
-          operator: "=",
-          operand: "size",
-          value: 1,
+          operator: "",
+          operand: "",
+          value: "",
         },
       };
       onUpdate({
@@ -114,20 +114,33 @@ const PointStroke: React.FC<BaseFieldProps<"pointStroke">> = ({
   useEffect(() => {
     if (!isActive || !dataID) return;
     const timer = setTimeout(() => {
+      const pointOutlineColorConditions: [string, string][] = [["true", 'color("white")']];
+      const pointOutlineWidthConditions: [string, string][] = [["true", "1"]];
       items?.forEach(item => {
-        const operand = 1; // should be something like item[pointSize]
-        const pointOutlineColor = compare(operand, item.condition.operator, item.condition.value)
-          ? item.strokeColor
-          : "";
-        const pointOutlineWidth = compare(operand, item.condition.operator, item.condition.value)
-          ? item.strokeWidth
-          : 0;
+        const resStrokeColor = "color" + `("${item.strokeColor}")`;
+        const resStrokeWidth = String(item.strokeWidth);
+        const cond = stringifyCondition(item.condition);
+        pointOutlineColorConditions.unshift([cond, resStrokeColor]);
+        pointOutlineWidthConditions.unshift([cond, resStrokeWidth]);
+
         postMsg({
           action: "updateDatasetInScene",
           payload: {
             dataID,
             update: {
-              marker: { style: "point", pointOutlineColor, pointOutlineWidth },
+              marker: {
+                style: "point",
+                pointOutlineColor: {
+                  expression: {
+                    conditions: pointOutlineColorConditions,
+                  },
+                },
+                pointOutlineWidth: {
+                  expression: {
+                    conditions: pointOutlineWidthConditions,
+                  },
+                },
+              },
             },
           },
         });
