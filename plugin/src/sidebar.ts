@@ -354,16 +354,6 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
   }
 
   // ************************************************
-  // Style code
-  else if (action === "styleCodeUpdate") {
-    const { dataID, styleObject } = payload;
-    const layerID = addedDatasets.find(ad => ad[0] === dataID)?.[2];
-    if (layerID) {
-      reearth.layers.override(layerID, styleObject);
-    }
-  }
-
-  // ************************************************
   // Story
   else if (
     action === "storyPlay" ||

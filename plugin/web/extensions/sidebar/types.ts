@@ -63,8 +63,7 @@ type ActionType =
   | "infoboxFieldsSaved"
   | "updateTimeBasedDisplay"
   | "updatePointCSV"
-  | "resetPointCSV"
-  | "styleCodeUpdate";
+  | "resetPointCSV";
 // FIXME(@keiya01): support auto csv field complement
 // | "getLocationNamesFromCSVFeatureProperty"
 
