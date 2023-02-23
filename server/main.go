@@ -36,6 +36,7 @@ func main() {
 		middleware.CORSWithConfig(middleware.CORSConfig{
 			AllowOrigins: conf.Origin,
 		}),
+		private,
 	)
 
 	e.GET("/ping", func(c echo.Context) error {
@@ -54,13 +55,11 @@ func main() {
 		}
 	}
 
-	if len(webhookHandlers) > 0 {
-		cmswebhook.Echo(
-			e.Group("/webhook"),
-			[]byte(conf.CMS_Webhook_Secret),
-			webhookHandlers...,
-		)
-	}
+	cmswebhook.Echo(
+		e.Group("/webhook"),
+		[]byte(conf.CMS_Webhook_Secret),
+		webhookHandlers...,
+	)
 
 	log.Infof("enabled services: %v", serviceNames)
 	addr := fmt.Sprintf("[::]:%d", conf.Port)
@@ -126,4 +125,11 @@ func (cv *customValidator) Validate(i any) error {
 
 func funcName(i interface{}) string {
 	return strings.TrimPrefix(runtime.FuncForPC(reflect.ValueOf(i).Pointer()).Name(), "main.")
+}
+
+func private(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		c.Response().Header().Set(echo.HeaderCacheControl, "private, no-store, no-cache, must-revalidate")
+		return next(c)
+	}
 }
