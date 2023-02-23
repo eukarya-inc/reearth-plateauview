@@ -206,7 +206,7 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
     const layerId = addedDatasets.find(ad => ad[0] === payload.dataID)?.[2];
     const layer = reearth.layers.findById(layerId);
     reearth.layers.override(
-      addedDatasets.find(ad => ad[0] === payload.dataID)?.[2],
+      layerId,
       layer.data.type === "gtfs" ? proxyGTFS(payload.update) : payload.update,
     );
   } else if (action === "updateDatasetVisibility") {
@@ -357,9 +357,9 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
   // Style code
   else if (action === "styleCodeUpdate") {
     const { dataID, styleObject } = payload;
-    const layerId = addedDatasets.find(ad => ad[0] === dataID)?.[2];
-    if (layerId) {
-      reearth.layers.override(layerId, styleObject);
+    const layerID = addedDatasets.find(ad => ad[0] === dataID)?.[2];
+    if (layerID) {
+      reearth.layers.override(layerID, styleObject);
     }
   }
 

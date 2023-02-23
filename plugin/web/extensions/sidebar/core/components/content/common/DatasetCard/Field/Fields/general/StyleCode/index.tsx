@@ -29,15 +29,6 @@ const Wrapper = styled.div`
   gap: 8px;
 `;
 
-// const Field = styled.div<{ gap?: number }>`
-//   display: flex;
-//   align-items: center;
-//   ${({ gap }) => gap && `gap: ${gap}px;`}
-//   height: 160px;
-//   padding: 8px;
-//   gap: 8px;
-// `;
-
 const CodeEditor = styled.textarea`
   height: 144px;
   width: 100%;

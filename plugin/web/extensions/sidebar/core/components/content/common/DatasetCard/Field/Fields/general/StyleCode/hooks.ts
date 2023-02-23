@@ -16,7 +16,7 @@ export default ({
       if (styleStr) {
         try {
           const styleObject = JSON5.parse(styleStr);
-          postMsg({ action: "styleCodeUpdate", payload: { dataID, styleObject } });
+          postMsg({ action: "updateDatasetInScene", payload: { dataID, update: styleObject } });
           // eslint-disable-next-line no-empty
         } catch (error) {}
       }
