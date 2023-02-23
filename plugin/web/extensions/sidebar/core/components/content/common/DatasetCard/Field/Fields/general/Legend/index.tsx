@@ -209,7 +209,7 @@ const FieldValue = styled.div`
   width: 100%;
 `;
 
-const ColorBlock = styled.div<{ color: string; legendStyle?: "circle" | "square" | "line" }>`
+const ColorBlock = styled.div<{ color?: string; legendStyle?: "circle" | "square" | "line" }>`
   width: 30px;
   height: ${({ legendStyle }) => (legendStyle === "line" ? "3px" : "30px")};
   background: ${({ color }) => color ?? "#d9d9d9"};
@@ -227,13 +227,13 @@ const StyledImgWrapper = styled.div`
   position: relative;
 `;
 
-const BlendColor = styled.div<{ color: string }>`
+const BlendColor = styled.div<{ color?: string }>`
   position: absolute;
   width: 100%;
   height: 100%;
   left: 0;
   top: 0;
-  background-color: ${({ color }) => color};
+  background-color: ${({ color }) => color ?? "#d9d9d9"};
   mix-blend-mode: color;
 `;
 
