@@ -1,5 +1,4 @@
-import { Story } from "../storytelling/types";
-
+import { StoryItem } from "./core/components/content/common/DatasetCard/Field/Fields/types";
 import { Data } from "./core/types";
 
 type ActionType =
@@ -18,6 +17,7 @@ type ActionType =
   | "screenshotSave"
   | "addDatasetToScene"
   | "updateDatasetInScene"
+  | "updateDatasetVisibility"
   | "removeDatasetFromScene"
   | "removeAllDatasetsFromScene"
   | "updateDataset"
@@ -44,7 +44,9 @@ type ActionType =
   | "cameraLookAt"
   | "getCurrentCamera"
   | "storyPlay"
-  | "addClippingBox"
+  | "storyEdit"
+  | "storyEditFinish"
+  | "storyDelete"
   | "updateClippingBox"
   | "removeClippingBox"
   | "update3dtilesShow"
@@ -57,6 +59,8 @@ type ActionType =
   | "update3dtilesShadow"
   | "reset3dtilesShadow"
   | "updateInterval"
+  | "infoboxFieldsFetch"
+  | "infoboxFieldsSaved"
   | "updateTimeBasedDisplay"
   | "updatePointCSV"
   | "resetPointCSV"
@@ -69,7 +73,7 @@ export type PostMessageProps = { action: ActionType; payload?: any };
 export type Project = {
   sceneOverrides: ReearthApi;
   datasets: Data[];
-  userStory?: Story;
+  userStory?: Omit<StoryItem, "id">;
 };
 
 export type ReearthApi = {
@@ -90,6 +94,18 @@ export type ReearthApi = {
     depthTestAgainstTerrain?: boolean;
   };
   tiles?: Tile[];
+  atmosphere?: {
+    enable_sun?: boolean;
+    enable_lighting?: boolean;
+    ground_atmosphere?: boolean;
+    sky_atmosphere?: boolean;
+    shadows?: boolean;
+    fog?: boolean;
+    fog_density?: number;
+    brightness_shift?: number;
+    hue_shift?: number;
+    surturation_shift?: number;
+  };
 };
 
 type SceneMode = "3d" | "2d";
