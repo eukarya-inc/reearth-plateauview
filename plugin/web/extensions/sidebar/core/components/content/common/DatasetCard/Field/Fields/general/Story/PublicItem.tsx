@@ -16,7 +16,7 @@ const PublicStoryItem: React.FC<Props> = ({ story, handleStoryPlay }) => {
 
   return (
     <StoryButton key={story.id} onClick={onPlay}>
-      <Icon icon="circledPlay" size={24} />
+      <StyledIcon icon="circledPlay" size={24} />
       <Text>{story.title}</Text>
     </StoryButton>
   );
@@ -27,6 +27,10 @@ const Text = styled.p`
   line-height: 24px;
   font-weight: 400;
   font-size: 14px;
+`;
+
+const StyledIcon = styled(Icon)`
+  color: #00bebe;
 `;
 
 const StoryButton = styled.div`
