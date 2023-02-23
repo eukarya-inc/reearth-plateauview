@@ -42,7 +42,7 @@ const Wrapper = styled.div`
   padding: 0px 16px;
   gap: 24px;
   width: 333px;
-  height: 954px;
+  height: 781px;
 `;
 
 const Title = styled.p`
