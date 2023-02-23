@@ -263,6 +263,9 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
   } else if (action === "modalClose") {
     reearth.modal.close();
     welcomePageIsOpen = false;
+  } else if (action === "openDatasetDetails") {
+    reearth.modal.show(dataCatalogHtml, { background: "transparent" });
+    reearth.modal.postMessage({ action: "openDatasetDetails", payload });
   } else if (action === "initDataCatalog") {
     reearth.modal.postMessage({
       action,

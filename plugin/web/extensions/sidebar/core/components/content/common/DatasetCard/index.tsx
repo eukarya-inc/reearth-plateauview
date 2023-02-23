@@ -73,7 +73,18 @@ const DatasetCard: React.FC<Props> = ({
           });
         },
       },
-      { id: "about", title: "About Data", icon: "about", value: "www.plateau.org/data-url" },
+      {
+        id: "about",
+        title: "About Data",
+        icon: "about",
+        value: "www.plateau.org/data-url",
+        onClick: () => {
+          postMsg({
+            action: "openDatasetDetails",
+            payload: dataset,
+          });
+        },
+      },
       {
         id: "remove",
         icon: "trash",
@@ -191,7 +202,7 @@ const DatasetCard: React.FC<Props> = ({
                   </LeftMain>
                   <ArrowIcon icon="arrowDown" size={16} expanded={expanded} />
                 </HeaderContents>
-                {inEditor && expanded && (
+                {expanded && (
                   <TabWrapper>
                     <Tab id="default" selected={currentTab === "default"} onClick={handleTabChange}>
                       公開
@@ -271,7 +282,7 @@ const DatasetCard: React.FC<Props> = ({
                 );
               })}
           </Content>
-          {inEditor && currentTab === "edit" && (
+          {currentTab === "edit" && (
             <>
               <StyledAddButton text="フィルドを追加" items={menuGenerator(fieldComponentsList)} />
               <SaveButton onClick={handleFieldSave}>
