@@ -1,12 +1,12 @@
 import { Project, ReearthApi } from "@web/extensions/sidebar/types";
 import { generateID, mergeProperty, postMsg } from "@web/extensions/sidebar/utils";
-import { Story } from "@web/extensions/storytelling/types";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { getDataCatalog, RawDataCatalogItem } from "../../modals/datacatalog/api/api";
 import { UserDataItem } from "../../modals/datacatalog/types";
 import { Data, DataCatalogItem, Template } from "../types";
 
+import { Story as FieldStory, StoryItem } from "./content/common/DatasetCard/Field/Fields/types";
 import { Pages } from "./Header";
 
 export const defaultProject: Project = {
@@ -39,6 +39,7 @@ export const defaultProject: Project = {
         tile_type: "url",
       },
     ],
+    atmosphere: { shadows: true },
   },
   datasets: [],
   userStory: undefined,
@@ -63,7 +64,7 @@ export default () => {
 
     if (resData.templates) {
       setFieldTemplates(resData.templates.filter((t: Template) => t.type === "field"));
-      // TODO: send type "infobox" to the infobox block
+      setInfoboxTemplates(resData.templates.filter((t: Template) => t.type === "infobox"));
     }
     setData(resData.data);
   }, [backendURL]);
@@ -116,15 +117,10 @@ export default () => {
   const handleProjectDatasetAdd = useCallback(
     (dataset: DataCatalogItem | UserDataItem) => {
       updateProject(project => {
-        if (!("dataID" in dataset)) {
-          postMsg({ action: "addDatasetToScene", payload: { dataset } });
-          return project;
-        }
-
         let dataToAdd = data?.find(d => d.dataID === dataset.dataID);
 
         if (!dataToAdd) {
-          dataToAdd = convertToData(dataset);
+          dataToAdd = convertToData(dataset as DataCatalogItem);
         }
 
         const updatedProject: Project = {
@@ -133,7 +129,7 @@ export default () => {
         };
 
         postMsg({ action: "updateProject", payload: updatedProject });
-        setSelectedDatasets(sds => [...sds, dataset]);
+        setSelectedDatasets(sds => [...sds, dataset as DataCatalogItem]);
 
         return updatedProject;
       });
@@ -175,6 +171,12 @@ export default () => {
       const updatedDatasets = [...selectedDatasets];
       const datasetIndex = updatedDatasets.findIndex(d2 => d2.dataID === updatedDataset.dataID);
       if (datasetIndex >= 0) {
+        if (updatedDatasets[datasetIndex].visible !== updatedDataset.visible) {
+          postMsg({
+            action: "updateDatasetVisibility",
+            payload: { dataID: updatedDataset.dataID, hide: !updatedDataset.visible },
+          });
+        }
         updatedDatasets[datasetIndex] = updatedDataset;
       }
       return updatedDatasets;
@@ -301,8 +303,23 @@ export default () => {
   );
 
   // ****************************************
+  // Story
+  const handleStorySaveData = useCallback((story: StoryItem & { dataID?: string }) => {
+    if (story.id && story.dataID) {
+      // save database story
+      setSelectedDatasets(sd => {
+        const tarStory = (
+          sd
+            .find(s => s.dataID === story.dataID)
+            ?.components?.find(c => c.type === "story") as FieldStory
+        )?.stories?.find((st: StoryItem) => st.id === story.id);
+        if (tarStory) {
+          tarStory.scenes = story.scenes;
+        }
+        return sd;
+      });
+    }
 
-  const handleStorySaveData = useCallback((story: Story) => {
     // save user story
     updateProject(project => {
       const updatedProject: Project = {
@@ -316,9 +333,93 @@ export default () => {
     });
   }, []);
 
-  const handleInitUserStory = useCallback((story: Story) => {
+  const handleInitUserStory = useCallback((story: StoryItem) => {
     postMsg({ action: "storyPlay", payload: story });
   }, []);
+
+  // ****************************************
+
+  // Infobox
+  const [infoboxTemplates, setInfoboxTemplates] = useState<Template[]>([]);
+
+  const handleInfoboxTemplateAdd = useCallback(
+    async (template: Omit<Template, "id">) => {
+      if (!backendURL || !backendAccessToken) return;
+      const res = await fetch(`${backendURL}/sidebar/plateauview/templates`, {
+        headers: {
+          authorization: `Bearer ${backendAccessToken}`,
+        },
+        method: "POST",
+        body: JSON.stringify(template),
+      });
+      if (res.status !== 200) return;
+      const newTemplate = await res.json();
+      setInfoboxTemplates(t => [...t, newTemplate]);
+      return newTemplate as Template;
+    },
+    [backendURL, backendAccessToken],
+  );
+
+  const handleInfoboxTemplateSave = useCallback(
+    async (template: Template) => {
+      if (!backendURL || !backendAccessToken) return;
+      const res = await fetch(`${backendURL}/sidebar/plateauview/templates/${template.id}`, {
+        headers: {
+          authorization: `Bearer ${backendAccessToken}`,
+        },
+        method: "PATCH",
+        body: JSON.stringify(template),
+      });
+      if (res.status !== 200) return;
+      const updatedTemplate = await res.json();
+      setInfoboxTemplates(t => {
+        return t.map(t2 => {
+          if (t2.id === updatedTemplate.id) {
+            return updatedTemplate;
+          }
+          return t2;
+        });
+      });
+      postMsg({
+        action: "infoboxFieldsSaved",
+      });
+    },
+    [backendURL, backendAccessToken],
+  );
+
+  const handleInfoboxFieldsFetch = useCallback(
+    (dataID: string) => {
+      const name = catalogData?.find(d => d.id === dataID)?.type ?? "";
+      const fields = infoboxTemplates.find(ft => ft.type === "infobox" && ft.name === name) ?? {
+        id: "",
+        type: "infobox",
+        name,
+        fields: [],
+      };
+      postMsg({
+        action: "infoboxFieldsFetch",
+        payload: fields,
+      });
+    },
+    [catalogData, infoboxTemplates],
+  );
+  const handleInfoboxFieldsFetchRef = useRef<any>();
+  handleInfoboxFieldsFetchRef.current = handleInfoboxFieldsFetch;
+
+  const handleInfoboxFieldsSave = useCallback(
+    async (template: Template) => {
+      if (template.id) {
+        handleInfoboxTemplateSave(template);
+      } else {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { id, ...templateData } = template;
+        handleInfoboxTemplateAdd(templateData);
+      }
+    },
+    [handleInfoboxTemplateAdd, handleInfoboxTemplateSave],
+  );
+  const handleInfoboxFieldsSaveRef = useRef<any>();
+  handleInfoboxFieldsSaveRef.current = handleInfoboxFieldsSave;
 
   // ****************************************
 
@@ -348,6 +449,10 @@ export default () => {
         setCurrentPage("share");
       } else if (e.data.action === "storySaveData") {
         handleStorySaveData(e.data.payload);
+      } else if (e.data.action === "infoboxFieldsFetch") {
+        handleInfoboxFieldsFetchRef.current(e.data.payload);
+      } else if (e.data.action === "infoboxFieldsSave") {
+        handleInfoboxFieldsSaveRef.current(e.data.payload);
       }
     };
     addEventListener("message", eventListenerCallback);
@@ -468,6 +573,7 @@ const newItem = (ri: RawDataCatalogItem): DataCatalogItem => {
     ...ri,
     dataID: ri.id,
     public: false,
+    visible: true,
     fieldGroups: [{ id: generateID(), name: "グループ1" }],
   };
 };

@@ -23,7 +23,7 @@ export type Props = {
   selectGroups?: Group[];
   configData?: ConfigData[];
   onUpdate?: (id: string) => (property: any) => void;
-  onRemove: (id: string) => void;
+  onRemove?: (id: string) => void;
   onGroupsUpdate?: (groups: Group[], selectedGroup?: string) => void;
   onCurrentGroupChange?: (fieldGroupID: string) => void;
 };
@@ -172,6 +172,7 @@ const BodyWrapper = styled(AccordionItemPanel)`
 
 const Title = styled.p`
   margin: 0;
+  user-select: none;
 `;
 
 const StyledIcon = styled(Icon)`
