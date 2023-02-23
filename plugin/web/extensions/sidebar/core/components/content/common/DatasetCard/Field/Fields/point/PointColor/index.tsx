@@ -9,10 +9,10 @@ import {
   moveItemUp,
   removeItem,
   postMsg,
-  compare,
 } from "@web/extensions/sidebar/utils";
 import { useCallback, useEffect, useState } from "react";
 
+import { stringifyCondition } from "../../../utils";
 import { BaseFieldProps, Cond } from "../../types";
 
 import PointColorItem from "./PointColorItem";
@@ -25,8 +25,6 @@ const PointColor: React.FC<BaseFieldProps<"pointColor">> = ({
   onUpdate,
 }) => {
   const [pointColors, updatePointColors] = useState(value.pointColors);
-
-  const operandOptions = [{ value: "pointSize", label: "size" }];
 
   const handleMoveUp = useCallback(
     (idx: number) => {
@@ -58,12 +56,12 @@ const PointColor: React.FC<BaseFieldProps<"pointColor">> = ({
 
   const handleAdd = useCallback(() => {
     updatePointColors(c => {
-      const newPointColor: { condition: Cond<number>; color: string } = {
+      const newPointColor: { condition: Cond<any>; color: string } = {
         condition: {
           key: generateID(),
-          operator: "=",
-          operand: "size",
-          value: 1,
+          operator: "",
+          operand: "",
+          value: "",
         },
         color: "",
       };
@@ -103,17 +101,28 @@ const PointColor: React.FC<BaseFieldProps<"pointColor">> = ({
 
   useEffect(() => {
     if (!isActive || !dataID) return;
+
     const timer = setTimeout(() => {
+      const conditions: [string, string][] = [["true", 'color("white")']];
       pointColors?.forEach(item => {
-        const operand = 1; // should be something like item[pointSize]
-        const pointColor = compare(operand, item.condition.operator, item.condition.value)
-          ? item.color
-          : "";
+        const res = "color" + `("${item.color}")`;
+        const cond = stringifyCondition(item.condition);
+        conditions.unshift([cond, res]);
+        console.log("conditions: ", conditions);
         postMsg({
           action: "updateDatasetInScene",
           payload: {
             dataID,
-            update: { marker: { style: "point", pointColor } },
+            update: {
+              marker: {
+                style: "point",
+                pointColor: {
+                  expression: {
+                    conditions,
+                  },
+                },
+              },
+            },
           },
         });
       });
@@ -137,7 +146,6 @@ const PointColor: React.FC<BaseFieldProps<"pointColor">> = ({
           key={idx}
           index={idx}
           item={c}
-          operandOptions={operandOptions}
           handleMoveDown={handleMoveDown}
           handleMoveUp={handleMoveUp}
           handleRemove={handleRemove}

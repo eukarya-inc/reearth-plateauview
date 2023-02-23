@@ -66,7 +66,7 @@ export function generateID() {
 export const compare = (
   operand: number,
   operator: "=" | ">=" | "<=" | ">" | "<" | "!=",
-  value: string | number,
+  value: number,
 ) => {
   switch (operator) {
     case ">":

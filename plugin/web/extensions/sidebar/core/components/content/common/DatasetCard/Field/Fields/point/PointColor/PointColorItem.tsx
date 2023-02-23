@@ -11,20 +11,11 @@ import { Cond } from "../../types";
 const PointColorItem: React.FC<{
   index: number;
   item: { condition: Cond<number>; color: string };
-  operandOptions: { value: string; label: string }[];
   handleMoveDown: (index: number) => void;
   handleMoveUp: (index: number) => void;
   handleRemove: (index: number) => void;
   onItemUpdate: (item: { condition: Cond<number>; color: string }, index: number) => void;
-}> = ({
-  index,
-  item,
-  operandOptions,
-  handleMoveDown,
-  handleMoveUp,
-  handleRemove,
-  onItemUpdate,
-}) => {
+}> = ({ index, item, handleMoveDown, handleMoveUp, handleRemove, onItemUpdate }) => {
   const handleBackgroundColorUpdate = useCallback(
     (color: string) => {
       if (color) {
@@ -57,7 +48,6 @@ const PointColorItem: React.FC<{
         title="if"
         fieldGap={8}
         condition={item.condition}
-        operandOptions={operandOptions}
         onChange={handleConditionUpdate}
       />
       <ColorField
