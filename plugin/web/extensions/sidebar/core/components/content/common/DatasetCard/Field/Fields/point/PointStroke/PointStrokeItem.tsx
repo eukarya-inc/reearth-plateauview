@@ -12,7 +12,6 @@ import { Cond } from "../../types";
 const PointStrokeItem: React.FC<{
   index: number;
   item: { condition: Cond<string | number>; strokeColor: string; strokeWidth: number };
-  operandOptions: { value: string; label: string }[];
   handleMoveDown: (index: number) => void;
   handleMoveUp: (index: number) => void;
   handleRemove: (index: number) => void;

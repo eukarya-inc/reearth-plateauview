@@ -9,10 +9,10 @@ import {
   moveItemUp,
   removeItem,
   postMsg,
-  compare,
 } from "@web/extensions/sidebar/utils";
 import { useCallback, useEffect, useState } from "react";
 
+import { stringifyCondition } from "../../../utils";
 import { BaseFieldProps, Cond } from "../../types";
 
 import PolylineColorItem from "./PolylineColorItem";
@@ -25,8 +25,6 @@ const PolylineColor: React.FC<BaseFieldProps<"polylineColor">> = ({
   onUpdate,
 }) => {
   const [items, updateItems] = useState(value.items);
-
-  const operandOptions = [{ value: "pointSize", label: "size" }];
 
   const handleMoveUp = useCallback(
     (idx: number) => {
@@ -58,12 +56,12 @@ const PolylineColor: React.FC<BaseFieldProps<"polylineColor">> = ({
 
   const handleAdd = useCallback(() => {
     updateItems(c => {
-      const newItem: { condition: Cond<number>; color: string } = {
+      const newItem: { condition: Cond<any>; color: string } = {
         condition: {
           key: generateID(),
-          operator: "=",
-          operand: "size",
-          value: 1,
+          operator: "",
+          operand: "",
+          value: "",
         },
         color: "",
       };
@@ -104,16 +102,24 @@ const PolylineColor: React.FC<BaseFieldProps<"polylineColor">> = ({
   useEffect(() => {
     if (!isActive || !dataID) return;
     const timer = setTimeout(() => {
+      const strokeColorConditions: [string, string][] = [["true", 'color("white")']];
       items?.forEach(item => {
-        const operand = 1; // should be something like item[pointSize]
-        const strokeColor = compare(operand, item.condition.operator, item.condition.value)
-          ? item.color
-          : "";
+        const resStrokeColor = "color" + `("${item.color}")`;
+        const cond = stringifyCondition(item.condition);
+        strokeColorConditions.unshift([cond, resStrokeColor]);
         postMsg({
           action: "updateDatasetInScene",
           payload: {
             dataID,
-            update: { polyline: { strokeColor } },
+            update: {
+              polyline: {
+                strokeColor: {
+                  expression: {
+                    conditions: strokeColorConditions,
+                  },
+                },
+              },
+            },
           },
         });
       });
@@ -137,7 +143,6 @@ const PolylineColor: React.FC<BaseFieldProps<"polylineColor">> = ({
           key={idx}
           index={idx}
           item={c}
-          operandOptions={operandOptions}
           handleMoveDown={handleMoveDown}
           handleMoveUp={handleMoveUp}
           handleRemove={handleRemove}

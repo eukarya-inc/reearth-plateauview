@@ -9,10 +9,10 @@ import {
   moveItemUp,
   removeItem,
   postMsg,
-  compare,
 } from "@web/extensions/sidebar/utils";
 import { useCallback, useEffect, useState } from "react";
 
+import { stringifyCondition } from "../../../utils";
 import { BaseFieldProps, Cond } from "../../types";
 
 import PolygonStrokeItem from "./PolygonStrokeItem";
@@ -25,8 +25,6 @@ const PolygonStroke: React.FC<BaseFieldProps<"polygonStroke">> = ({
   onUpdate,
 }) => {
   const [items, updateItems] = useState(value.items);
-
-  const operandOptions = [{ value: "pointSize", label: "size" }];
 
   const handleMoveUp = useCallback(
     (idx: number) => {
@@ -69,9 +67,9 @@ const PolygonStroke: React.FC<BaseFieldProps<"polygonStroke">> = ({
         strokeWidth: 0,
         condition: {
           key: generateID(),
-          operator: "=",
-          operand: "size",
-          value: 1,
+          operator: "",
+          operand: "",
+          value: "",
         },
       };
       onUpdate({
@@ -114,21 +112,39 @@ const PolygonStroke: React.FC<BaseFieldProps<"polygonStroke">> = ({
   useEffect(() => {
     if (!isActive || !dataID) return;
     const timer = setTimeout(() => {
+      const strokeConditions: [string, string][] = [["true", "true"]];
+      const strokeColorConditions: [string, string][] = [["true", 'color("white")']];
+      const strokeWidthConditions: [string, string][] = [["true", "1"]];
       items?.forEach(item => {
-        const operand = 1; // should be something like item[pointSize]
-        const stroke = compare(operand, item.condition.operator, item.condition.value);
-        const strokeColor = compare(operand, item.condition.operator, item.condition.value)
-          ? item.strokeColor
-          : "";
-        const strokeWidth = compare(operand, item.condition.operator, item.condition.value)
-          ? item.strokeWidth
-          : 0;
+        const resStrokeColor = "color" + `("${item.strokeColor}")`;
+        const resStrokeWidth = String(item.strokeWidth);
+        const cond = stringifyCondition(item.condition);
+        strokeColorConditions.unshift([cond, resStrokeColor]);
+        strokeWidthConditions.unshift([cond, resStrokeWidth]);
+        strokeConditions.unshift([cond, cond]);
+
         postMsg({
           action: "updateDatasetInScene",
           payload: {
             dataID,
             update: {
-              polygon: { stroke, strokeColor, strokeWidth },
+              polygon: {
+                stroke: {
+                  expression: {
+                    conditions: strokeConditions,
+                  },
+                },
+                strokeColor: {
+                  expression: {
+                    conditions: strokeColorConditions,
+                  },
+                },
+                strokeWidth: {
+                  expression: {
+                    conditions: strokeColorConditions,
+                  },
+                },
+              },
             },
           },
         });
@@ -153,7 +169,6 @@ const PolygonStroke: React.FC<BaseFieldProps<"polygonStroke">> = ({
           key={idx}
           index={idx}
           item={c}
-          operandOptions={operandOptions}
           handleMoveDown={handleMoveDown}
           handleMoveUp={handleMoveUp}
           handleRemove={handleRemove}

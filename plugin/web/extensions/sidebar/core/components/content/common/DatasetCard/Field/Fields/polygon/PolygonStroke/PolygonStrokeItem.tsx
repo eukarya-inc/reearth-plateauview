@@ -12,7 +12,6 @@ import { Cond } from "../../types";
 const PolygonStrokeItem: React.FC<{
   index: number;
   item: { condition: Cond<string | number>; strokeColor: string; strokeWidth: number };
-  operandOptions: { value: string; label: string }[];
   handleMoveDown: (index: number) => void;
   handleMoveUp: (index: number) => void;
   handleRemove: (index: number) => void;
@@ -20,15 +19,7 @@ const PolygonStrokeItem: React.FC<{
     item: { condition: Cond<string | number>; strokeColor: string; strokeWidth: number },
     index: number,
   ) => void;
-}> = ({
-  index,
-  item,
-  operandOptions,
-  handleMoveDown,
-  handleMoveUp,
-  handleRemove,
-  onItemUpdate,
-}) => {
+}> = ({ index, item, handleMoveDown, handleMoveUp, handleRemove, onItemUpdate }) => {
   const handleStrokeColorUpdate = useCallback(
     (color: string) => {
       if (color) {
@@ -69,7 +60,6 @@ const PolygonStrokeItem: React.FC<{
         title="if"
         fieldGap={8}
         condition={item.condition}
-        operandOptions={operandOptions}
         onChange={handleConditionUpdate}
       />
       <ColorField

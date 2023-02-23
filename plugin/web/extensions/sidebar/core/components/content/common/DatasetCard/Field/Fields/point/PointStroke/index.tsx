@@ -26,8 +26,6 @@ const PointStroke: React.FC<BaseFieldProps<"pointStroke">> = ({
 }) => {
   const [items, updateItems] = useState(value.items);
 
-  const operandOptions = [{ value: "pointSize", label: "size" }];
-
   const handleMoveUp = useCallback(
     (idx: number) => {
       if (idx === 0) return;
@@ -165,7 +163,6 @@ const PointStroke: React.FC<BaseFieldProps<"pointStroke">> = ({
           key={idx}
           index={idx}
           item={c}
-          operandOptions={operandOptions}
           handleMoveDown={handleMoveDown}
           handleMoveUp={handleMoveUp}
           handleRemove={handleRemove}

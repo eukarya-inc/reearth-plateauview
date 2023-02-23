@@ -9,10 +9,10 @@ import {
   moveItemUp,
   removeItem,
   postMsg,
-  compare,
 } from "@web/extensions/sidebar/utils";
 import { useCallback, useEffect, useState } from "react";
 
+import { stringifyCondition } from "../../../utils";
 import { BaseFieldProps, Cond } from "../../types";
 
 import PolygonColorItem from "./PolygonColorItem";
@@ -25,8 +25,6 @@ const PolygonColor: React.FC<BaseFieldProps<"polygonColor">> = ({
   onUpdate,
 }) => {
   const [items, updateItems] = useState(value.items);
-
-  const operandOptions = [{ value: "pointSize", label: "size" }];
 
   const handleMoveUp = useCallback(
     (idx: number) => {
@@ -58,12 +56,12 @@ const PolygonColor: React.FC<BaseFieldProps<"polygonColor">> = ({
 
   const handleAdd = useCallback(() => {
     updateItems(c => {
-      const newItem: { condition: Cond<number>; color: string } = {
+      const newItem: { condition: Cond<any>; color: string } = {
         condition: {
           key: generateID(),
-          operator: "=",
-          operand: "size",
-          value: 1,
+          operator: "",
+          operand: "",
+          value: "",
         },
         color: "",
       };
@@ -104,17 +102,23 @@ const PolygonColor: React.FC<BaseFieldProps<"polygonColor">> = ({
   useEffect(() => {
     if (!isActive || !dataID) return;
     const timer = setTimeout(() => {
+      const fillColorConditions: [string, string][] = [["true", 'color("white")']];
+      const fillConditions: [string, string][] = [["true", "true"]];
       items?.forEach(item => {
-        const operand = 1; // should be something like item[pointSize]
-        const fillColor = compare(operand, item.condition.operator, item.condition.value)
-          ? item.color
-          : "";
-        const fill = compare(operand, item.condition.operator, item.condition.value);
+        const resFillColor = "color" + `("${item.color}")`;
+        const cond = stringifyCondition(item.condition);
+        fillColorConditions.unshift([cond, resFillColor]);
+        fillConditions.unshift([cond, cond]);
         postMsg({
           action: "updateDatasetInScene",
           payload: {
             dataID,
-            update: { polygon: { fill, fillColor } },
+            update: {
+              polygon: {
+                fill: { expression: { conditions: fillConditions } },
+                fillColor: { expression: { conditions: fillColorConditions } },
+              },
+            },
           },
         });
       });
@@ -138,7 +142,6 @@ const PolygonColor: React.FC<BaseFieldProps<"polygonColor">> = ({
           key={idx}
           index={idx}
           item={c}
-          operandOptions={operandOptions}
           handleMoveDown={handleMoveDown}
           handleMoveUp={handleMoveUp}
           handleRemove={handleRemove}
