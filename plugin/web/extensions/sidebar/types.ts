@@ -44,7 +44,6 @@ type ActionType =
   | "cameraLookAt"
   | "getCurrentCamera"
   | "storyPlay"
-  | "addClippingBox"
   | "updateClippingBox"
   | "removeClippingBox"
   | "update3dtilesShow"
