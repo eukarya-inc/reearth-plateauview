@@ -20,15 +20,7 @@ const PointStrokeItem: React.FC<{
     item: { condition: Cond<string | number>; strokeColor: string; strokeWidth: number },
     index: number,
   ) => void;
-}> = ({
-  index,
-  item,
-  operandOptions,
-  handleMoveDown,
-  handleMoveUp,
-  handleRemove,
-  onItemUpdate,
-}) => {
+}> = ({ index, item, handleMoveDown, handleMoveUp, handleRemove, onItemUpdate }) => {
   const handleStrokeColorUpdate = useCallback(
     (color: string) => {
       if (color) {
@@ -69,7 +61,6 @@ const PointStrokeItem: React.FC<{
         title="if"
         fieldGap={8}
         condition={item.condition}
-        operandOptions={operandOptions}
         onChange={handleConditionUpdate}
       />
       <ColorField
