@@ -92,10 +92,12 @@ const PointLabel: React.FC<BaseFieldProps<"pointLabel">> = ({
           update: {
             marker: {
               style: "point",
+              label: true,
               labelTypography: {
                 fontSize: pointLabel.fontSize,
                 color: pointLabel.fontColor,
               },
+              heightReference: "relative",
               labelText: pointLabel.field,
               extrude: pointLabel.extruded,
               labelBackground: pointLabel.useBackground,
