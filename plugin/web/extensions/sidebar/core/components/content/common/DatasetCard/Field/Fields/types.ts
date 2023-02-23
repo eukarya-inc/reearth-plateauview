@@ -8,7 +8,7 @@ export const fieldName = {
   timeline: "タイムラインデータ",
   switchGroup: "スイッチグループ",
   buttonLink: "リンクボタン",
-  styleCode: "Style code (General)",
+  styleCode: "スタイルコード",
   switchDataset: "スイッチデータセット",
   point: "ポイント",
   description: "説明",
@@ -113,6 +113,7 @@ type Realtime = FieldBase<"realtime"> & {
 
 export type Timeline = FieldBase<"timeline"> & {
   timeBasedDisplay: boolean;
+  timeFieldName: string;
 };
 
 export type Description = FieldBase<"description"> & {
