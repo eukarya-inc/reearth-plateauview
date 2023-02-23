@@ -15,7 +15,7 @@ export default ({
       const newItem = {
         id: generateID(),
         dataID,
-        title: "title",
+        title: "タイトル",
       };
       const newStories = s ? [...s, newItem] : [newItem];
       onUpdate({ ...value, stories: newStories });

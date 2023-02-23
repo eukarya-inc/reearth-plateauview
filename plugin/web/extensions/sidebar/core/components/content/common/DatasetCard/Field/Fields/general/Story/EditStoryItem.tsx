@@ -66,18 +66,18 @@ const EditStoryItem: React.FC<Props> = ({
         <TrashIcon icon="trash" size={16} onClick={onRemove} />
       </ItemControls>
       <Field>
-        <FieldTitle>Title </FieldTitle>
+        <FieldTitle>タイトル</FieldTitle>
         <FieldValue>
           <TextInput value={story.title} onChange={onTitleChange} />
         </FieldValue>
       </Field>
       <EditButton onClick={onEdit}>
         <StyledIcon icon="editUnderline" size={14} />
-        <Text>Edit Story</Text>
+        <Text>編集</Text>
       </EditButton>
       <EditButton onClick={onFinish}>
         <StyledIcon icon="editStop" size={14} />
-        <Text>Finish Edit</Text>
+        <Text>編集を終了する</Text>
       </EditButton>
     </Item>
   );

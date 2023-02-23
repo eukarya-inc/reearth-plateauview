@@ -22,7 +22,7 @@ const Story: React.FC<BaseFieldProps<"story">> = ({ value, editMode, dataID, onU
 
   return editMode ? (
     <Wrapper>
-      <AddButton text="New Story" onClick={handleStoryAdd} />
+      <AddButton text="新しいストーリーを追加" onClick={handleStoryAdd} />
       {stories?.map((story, idx) => (
         <EditStoryItem
           story={story}

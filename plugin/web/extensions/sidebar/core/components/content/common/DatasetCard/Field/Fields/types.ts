@@ -4,7 +4,7 @@ export const fieldName = {
   idealZoom: "カメラ",
   legend: "凡例",
   realtime: "リアルタイム",
-  story: "Story",
+  story: "ストーリー",
   timeline: "タイムラインデータ",
   switchGroup: "スイッチグループ",
   buttonLink: "リンクボタン",
