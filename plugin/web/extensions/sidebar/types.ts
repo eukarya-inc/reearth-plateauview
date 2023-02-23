@@ -17,6 +17,7 @@ type ActionType =
   | "screenshotSave"
   | "addDatasetToScene"
   | "updateDatasetInScene"
+  | "updateDatasetVisibility"
   | "removeDatasetFromScene"
   | "removeAllDatasetsFromScene"
   | "updateDataset"
