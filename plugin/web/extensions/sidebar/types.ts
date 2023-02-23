@@ -45,6 +45,7 @@ type ActionType =
   | "getCurrentCamera"
   | "storyPlay"
   | "storyEdit"
+  | "storyEditFinish"
   | "storyDelete"
   | "addClippingBox"
   | "updateClippingBox"

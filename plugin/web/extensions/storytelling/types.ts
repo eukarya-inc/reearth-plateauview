@@ -70,6 +70,13 @@ export type StoryEdit = {
   };
 };
 
+export type StoryEditFinish = {
+  action: "storyEditFinish";
+  payload: {
+    id: string;
+  };
+};
+
 export type StoryDelete = {
   action: "storyDelete";
   payload: {

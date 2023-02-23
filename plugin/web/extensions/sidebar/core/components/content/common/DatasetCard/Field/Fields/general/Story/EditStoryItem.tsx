@@ -1,6 +1,6 @@
 import { Icon } from "@web/sharedComponents";
 import { styled } from "@web/theme";
-import { useCallback } from "react";
+import { useCallback, useEffect } from "react";
 
 import type { StoryItem } from "../../types";
 
@@ -12,6 +12,7 @@ type Props = {
   handleItemRemove: (id: string) => void;
   handleStoryTitleChange: (id: string, title: string) => void;
   handleStoryEdit: (story: StoryItem) => void;
+  handleStoryEditFinish: (id: string) => void;
 };
 
 const EditStoryItem: React.FC<Props> = ({
@@ -22,6 +23,7 @@ const EditStoryItem: React.FC<Props> = ({
   handleItemRemove,
   handleStoryTitleChange,
   handleStoryEdit,
+  handleStoryEditFinish,
 }: Props) => {
   const onMoveUp = useCallback(() => {
     handleItemMoveUp(idx);
@@ -46,6 +48,16 @@ const EditStoryItem: React.FC<Props> = ({
     handleStoryEdit(story);
   }, [handleStoryEdit, story]);
 
+  const onFinish = useCallback(() => {
+    handleStoryEditFinish(story.id);
+  }, [handleStoryEditFinish, story]);
+
+  useEffect(() => {
+    return () => {
+      onFinish();
+    };
+  }, [onFinish]);
+
   return (
     <Item>
       <ItemControls>
@@ -60,8 +72,12 @@ const EditStoryItem: React.FC<Props> = ({
         </FieldValue>
       </Field>
       <EditButton onClick={onEdit}>
-        <Icon icon="edit" size={14} />
+        <StyledIcon icon="editUnderline" size={14} />
         <Text>Edit Story</Text>
+      </EditButton>
+      <EditButton onClick={onFinish}>
+        <StyledIcon icon="editStop" size={14} />
+        <Text>Finish Edit</Text>
       </EditButton>
     </Item>
   );
@@ -107,6 +123,10 @@ const EditButton = styled.div`
   :hover {
     background: #f4f4f4;
   }
+`;
+
+const StyledIcon = styled(Icon)`
+  font-size: 0;
 `;
 
 const Field = styled.div<{ gap?: number }>`

@@ -361,36 +361,24 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
   }
 
   // ************************************************
-  // For story
-  else if (action === "storyPlay") {
+  // Story
+  else if (
+    action === "storyPlay" ||
+    action === "storyEdit" ||
+    action === "storyEditFinish" ||
+    action === "storyDelete"
+  ) {
     const storyTellingWidgetId = reearth.plugins.instances.find(
       (instance: PluginExtensionInstance) => instance.extensionId === "storytelling",
     )?.id;
     if (!storyTellingWidgetId) return;
     reearth.plugins.postMessage(storyTellingWidgetId, {
-      action: "storyPlay",
-      payload,
-    });
-  } else if (action === "storyEdit") {
-    const storyTellingWidgetId = reearth.plugins.instances.find(
-      (instance: PluginExtensionInstance) => instance.extensionId === "storytelling",
-    )?.id;
-    if (!storyTellingWidgetId) return;
-    reearth.plugins.postMessage(storyTellingWidgetId, {
-      action: "storyEdit",
-      payload,
-    });
-  } else if (action === "storyDelete") {
-    const storyTellingWidgetId = reearth.plugins.instances.find(
-      (instance: PluginExtensionInstance) => instance.extensionId === "storytelling",
-    )?.id;
-    if (!storyTellingWidgetId) return;
-    reearth.plugins.postMessage(storyTellingWidgetId, {
-      action: "storyDelete",
+      action,
       payload,
     });
   }
 
+  // ************************************************
   // CSV
   if (action === "updatePointCSV") {
     const { dataID, lng, lat, height } = payload;

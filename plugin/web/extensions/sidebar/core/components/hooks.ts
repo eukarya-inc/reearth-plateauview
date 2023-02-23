@@ -303,7 +303,7 @@ export default () => {
   );
 
   // ****************************************
-  // story
+  // Story
   const handleStorySaveData = useCallback((story: StoryItem & { dataID?: string }) => {
     if (story.id && story.dataID) {
       // save database story
@@ -318,19 +318,19 @@ export default () => {
         }
         return sd;
       });
-    } else {
-      // save user story
-      updateProject(project => {
-        const updatedProject: Project = {
-          ...project,
-          userStory: {
-            scenes: story.scenes,
-          },
-        };
-        postMsg({ action: "updateProject", payload: updatedProject });
-        return updatedProject;
-      });
     }
+
+    // save user story
+    updateProject(project => {
+      const updatedProject: Project = {
+        ...project,
+        userStory: {
+          scenes: story.scenes,
+        },
+      };
+      postMsg({ action: "updateProject", payload: updatedProject });
+      return updatedProject;
+    });
   }, []);
 
   const handleInitUserStory = useCallback((story: StoryItem) => {

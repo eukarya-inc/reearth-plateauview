@@ -29,7 +29,6 @@ export default ({
         if (!s) return s;
         const newStories = moveItemUp(idx, s) ?? s;
         onUpdate({ ...value, stories: newStories });
-        console.log("up", [...newStories]);
         return newStories;
       });
     },
@@ -42,7 +41,6 @@ export default ({
         if (!s) return s;
         const newStories = moveItemDown(idx, s) ?? s;
         onUpdate({ ...value, stories: newStories });
-        console.log("down", [...newStories]);
         return newStories;
       });
     },
@@ -90,6 +88,13 @@ export default ({
     [dataID],
   );
 
+  const handleStoryEditFinish = useCallback((id: string) => {
+    postMsg({
+      action: "storyEditFinish",
+      payload: { id },
+    });
+  }, []);
+
   const handleStoryPlay = useCallback((story: StoryItem) => {
     postMsg({
       action: "storyPlay",
@@ -105,6 +110,7 @@ export default ({
     handleItemRemove,
     handleStoryTitleChange,
     handleStoryEdit,
+    handleStoryEditFinish,
     handleStoryPlay,
   };
 };

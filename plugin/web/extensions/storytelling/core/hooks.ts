@@ -6,6 +6,7 @@ import type {
   Scene,
   Viewport,
   StoryEdit,
+  StoryEditFinish,
   StoryDelete,
   StoryPlay,
   StoryCancelPlay,
@@ -67,8 +68,6 @@ export default () => {
         setMode(newMode);
         if (newMode === "editor") {
           setPlayerHeight(0);
-          storyId.current = undefined;
-          curDataID.current = undefined;
         }
       }
     },
@@ -182,9 +181,12 @@ export default () => {
   const curDataID = useRef<string | undefined>();
 
   const storyClear = useCallback(() => {
+    setScenes([]);
+  }, []);
+
+  const unlinkDatasetStory = useCallback(() => {
     storyId.current = undefined;
     curDataID.current = undefined;
-    setScenes([]);
   }, []);
 
   const storyShare = useCallback(() => {
@@ -212,17 +214,28 @@ export default () => {
     [handleSetMode, minimized, handleMinimize],
   );
 
-  const handleStoryDelete = useCallback(({ id }: StoryDelete["payload"]) => {
-    if (storyId.current === id) {
-      storyId.current = undefined;
-      curDataID.current = undefined;
-      setScenes([]);
-    }
-  }, []);
+  const handleStoryEditFinish = useCallback(
+    ({ id }: StoryEditFinish["payload"]) => {
+      if (id === storyId.current) {
+        unlinkDatasetStory();
+        setScenes([]);
+      }
+    },
+    [unlinkDatasetStory],
+  );
+
+  const handleStoryDelete = useCallback(
+    ({ id }: StoryDelete["payload"]) => {
+      if (storyId.current === id) {
+        unlinkDatasetStory();
+        setScenes([]);
+      }
+    },
+    [unlinkDatasetStory],
+  );
 
   const handleStoryPlay = useCallback(
-    ({ id, scenes }: StoryPlay["payload"]) => {
-      storyId.current = id;
+    ({ scenes }: StoryPlay["payload"]) => {
       setScenes(JSON.parse(scenes ?? "[]"));
       handleSetMode("player");
       if (minimized) {
@@ -294,6 +307,9 @@ export default () => {
         case "storyEdit":
           handleStoryEdit(e.data.payload);
           break;
+        case "storyEditFinish":
+          handleStoryEditFinish(e.data.payload);
+          break;
         case "storyDelete":
           handleStoryDelete(e.data.payload);
           break;
@@ -313,6 +329,7 @@ export default () => {
       handleSceneRecapture,
       handleSceneSave,
       handleStoryEdit,
+      handleStoryEditFinish,
       handleStoryDelete,
       handleStoryPlay,
       handleStoryCancelPlay,

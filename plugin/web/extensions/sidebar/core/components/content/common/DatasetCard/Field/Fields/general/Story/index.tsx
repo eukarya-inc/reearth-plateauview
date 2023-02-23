@@ -16,6 +16,7 @@ const Story: React.FC<BaseFieldProps<"story">> = ({ value, editMode, dataID, onU
     handleItemRemove,
     handleStoryTitleChange,
     handleStoryEdit,
+    handleStoryEditFinish,
     handleStoryPlay,
   } = useHooks({ value, dataID, onUpdate });
 
@@ -32,6 +33,7 @@ const Story: React.FC<BaseFieldProps<"story">> = ({ value, editMode, dataID, onU
           handleItemRemove={handleItemRemove}
           handleStoryTitleChange={handleStoryTitleChange}
           handleStoryEdit={handleStoryEdit}
+          handleStoryEditFinish={handleStoryEditFinish}
         />
       ))}
     </Wrapper>
