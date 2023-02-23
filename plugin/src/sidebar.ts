@@ -152,10 +152,11 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
         const outBoundPayload = {
           projectID: reearth.viewport.query.projectID,
           inEditor: reearth.scene.inEditor,
-          backendAccessToken: reearth.widget.property.default?.plateauAccessToken ?? "",
           catalogURL: reearth.widget.property.default?.catalogURL ?? "",
-          backendURL: reearth.widget.property.default?.plateauURL ?? "",
           reearthURL: reearth.widget.property.default?.reearthURL ?? "",
+          backendURL: reearth.widget.property.default?.plateauURL ?? "",
+          backendProjectName: reearth.widget.property.default?.projectName ?? "",
+          backendAccessToken: reearth.widget.property.default?.plateauAccessToken ?? "",
           draftProject,
         };
         if (isMobile) {
