@@ -1,5 +1,4 @@
-import { Story } from "../storytelling/types";
-
+import { StoryItem } from "./core/components/content/common/DatasetCard/Field/Fields/types";
 import { Data } from "./core/types";
 
 type ActionType =
@@ -18,6 +17,7 @@ type ActionType =
   | "screenshotSave"
   | "addDatasetToScene"
   | "updateDatasetInScene"
+  | "updateDatasetVisibility"
   | "removeDatasetFromScene"
   | "removeAllDatasetsFromScene"
   | "updateDataset"
@@ -45,7 +45,9 @@ type ActionType =
   | "cameraLookAt"
   | "getCurrentCamera"
   | "storyPlay"
-  | "addClippingBox"
+  | "storyEdit"
+  | "storyEditFinish"
+  | "storyDelete"
   | "updateClippingBox"
   | "removeClippingBox"
   | "update3dtilesShow"
@@ -71,7 +73,7 @@ export type PostMessageProps = { action: ActionType; payload?: any };
 export type Project = {
   sceneOverrides: ReearthApi;
   datasets: Data[];
-  userStory?: Story;
+  userStory?: Omit<StoryItem, "id">;
 };
 
 export type ReearthApi = {

@@ -1,12 +1,12 @@
 import { Project, ReearthApi } from "@web/extensions/sidebar/types";
 import { generateID, mergeProperty, postMsg } from "@web/extensions/sidebar/utils";
-import { Story } from "@web/extensions/storytelling/types";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { getDataCatalog, RawDataCatalogItem } from "../../modals/datacatalog/api/api";
 import { UserDataItem } from "../../modals/datacatalog/types";
 import { Data, DataCatalogItem, Template } from "../types";
 
+import { Story as FieldStory, StoryItem } from "./content/common/DatasetCard/Field/Fields/types";
 import { Pages } from "./Header";
 
 export const defaultProject: Project = {
@@ -171,6 +171,12 @@ export default () => {
       const updatedDatasets = [...selectedDatasets];
       const datasetIndex = updatedDatasets.findIndex(d2 => d2.dataID === updatedDataset.dataID);
       if (datasetIndex >= 0) {
+        if (updatedDatasets[datasetIndex].visible !== updatedDataset.visible) {
+          postMsg({
+            action: "updateDatasetVisibility",
+            payload: { dataID: updatedDataset.dataID, hide: !updatedDataset.visible },
+          });
+        }
         updatedDatasets[datasetIndex] = updatedDataset;
       }
       return updatedDatasets;
@@ -297,8 +303,23 @@ export default () => {
   );
 
   // ****************************************
+  // Story
+  const handleStorySaveData = useCallback((story: StoryItem & { dataID?: string }) => {
+    if (story.id && story.dataID) {
+      // save database story
+      setSelectedDatasets(sd => {
+        const tarStory = (
+          sd
+            .find(s => s.dataID === story.dataID)
+            ?.components?.find(c => c.type === "story") as FieldStory
+        )?.stories?.find((st: StoryItem) => st.id === story.id);
+        if (tarStory) {
+          tarStory.scenes = story.scenes;
+        }
+        return sd;
+      });
+    }
 
-  const handleStorySaveData = useCallback((story: Story) => {
     // save user story
     updateProject(project => {
       const updatedProject: Project = {
@@ -312,7 +333,7 @@ export default () => {
     });
   }, []);
 
-  const handleInitUserStory = useCallback((story: Story) => {
+  const handleInitUserStory = useCallback((story: StoryItem) => {
     postMsg({ action: "storyPlay", payload: story });
   }, []);
 
@@ -552,6 +573,7 @@ const newItem = (ri: RawDataCatalogItem): DataCatalogItem => {
     ...ri,
     dataID: ri.id,
     public: false,
+    visible: true,
     fieldGroups: [{ id: generateID(), name: "グループ1" }],
   };
 };
