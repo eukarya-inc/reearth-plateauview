@@ -47,7 +47,6 @@ type ActionType =
   | "storyEdit"
   | "storyEditFinish"
   | "storyDelete"
-  | "addClippingBox"
   | "updateClippingBox"
   | "removeClippingBox"
   | "update3dtilesShow"
