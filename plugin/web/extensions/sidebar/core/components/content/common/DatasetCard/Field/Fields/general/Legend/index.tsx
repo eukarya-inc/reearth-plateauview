@@ -156,7 +156,10 @@ const Legend: React.FC<BaseFieldProps<"legend">> = ({ value, editMode, onUpdate 
       {legend.items?.map((item, idx) => (
         <Field key={idx} gap={12}>
           {legend.style === "icon" ? (
-            <StyledImg src={item.url} />
+            <StyledImgWrapper>
+              <BlendColor color={item.color} />
+              <StyledImg src={item.url} />
+            </StyledImgWrapper>
           ) : (
             <ColorBlock color={item.color} legendStyle={legend.style} />
           )}
@@ -221,6 +224,20 @@ const ColorBlock = styled.div<{ color: string; legendStyle?: "circle" | "square"
         ? "5px"
         : "2px"
       : "1px 0 0 1px"};
+`;
+
+const StyledImgWrapper = styled.div`
+  position: relative;
+`;
+
+const BlendColor = styled.div<{ color: string }>`
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  left: 0;
+  top: 0;
+  background-color: ${({ color }) => color};
+  mix-blend-mode: color;
 `;
 
 const StyledImg = styled.img`
