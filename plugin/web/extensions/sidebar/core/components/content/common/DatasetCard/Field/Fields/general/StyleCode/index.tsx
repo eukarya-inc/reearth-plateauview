@@ -10,13 +10,12 @@ const StyleCode: React.FC<BaseFieldProps<"styleCode">> = ({
   editMode,
   onUpdate,
 }) => {
-  const { code, handleEditCode } = useHooks({ value, dataID, onUpdate });
+  const { code, onEdit, onApply } = useHooks({ value, dataID, onUpdate });
 
   return editMode ? (
     <Wrapper>
-      <Field>
-        <CodeEditor value={code} onChange={handleEditCode} />
-      </Field>
+      <CodeEditor value={code} onChange={onEdit} />
+      <Button onClick={onApply}>Apply</Button>
     </Wrapper>
   ) : null;
 };
@@ -26,23 +25,23 @@ export default StyleCode;
 const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
+  align-items: flex-end;
   gap: 8px;
 `;
 
-const Field = styled.div<{ gap?: number }>`
-  display: flex;
-  align-items: center;
-  ${({ gap }) => gap && `gap: ${gap}px;`}
-  height: 160px;
-  padding: 8px;
-  gap: 8px;
-`;
+// const Field = styled.div<{ gap?: number }>`
+//   display: flex;
+//   align-items: center;
+//   ${({ gap }) => gap && `gap: ${gap}px;`}
+//   height: 160px;
+//   padding: 8px;
+//   gap: 8px;
+// `;
 
 const CodeEditor = styled.textarea`
   height: 144px;
-  width: 280px;
-  flex: 1;
-  padding: 0 12px;
+  width: 100%;
+  padding: 12px;
   border: none;
   overflow: auto;
   background: #f3f3f3;
@@ -51,4 +50,16 @@ const CodeEditor = styled.textarea`
   :focus {
     border: none;
   }
+`;
+
+const Button = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 16px;
+  height: 32px;
+  border: 1px solid #d9d9d9;
+  border-radius: 2px;
+  box-shadow: 0px 2px 0px rgba(0, 0, 0, 0.016);
+  cursor: pointer;
 `;

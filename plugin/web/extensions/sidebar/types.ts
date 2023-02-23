@@ -64,7 +64,7 @@ type ActionType =
   | "updateTimeBasedDisplay"
   | "updatePointCSV"
   | "resetPointCSV"
-  | "updateLayerStyleCode";
+  | "styleCodeUpdate";
 // FIXME(@keiya01): support auto csv field complement
 // | "getLocationNamesFromCSVFeatureProperty"
 

@@ -355,17 +355,14 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
 
   // ************************************************
   // Style code
-  else if (action === "updateLayerStyleCode") {
-    const { dataID, code } = payload;
+  else if (action === "styleCodeUpdate") {
+    const { dataID, styleObject } = payload;
     const layerId = addedDatasets.find(ad => ad[0] === dataID)?.[2];
     if (layerId) {
-      reearth.layers.override(layerId, {
-        code, // TODO
-      });
+      reearth.layers.override(layerId, styleObject);
     }
   }
 
-  // ************************************************
   // ************************************************
   // Story
   else if (

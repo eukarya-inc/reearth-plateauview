@@ -8,7 +8,7 @@ export const fieldName = {
   timeline: "タイムラインデータ",
   switchGroup: "スイッチグループ",
   buttonLink: "リンクボタン",
-  styleCode: "Style code (General)",
+  styleCode: "Style code",
   switchDataset: "スイッチデータセット",
   point: "ポイント",
   description: "説明",
