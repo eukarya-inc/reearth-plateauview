@@ -108,7 +108,6 @@ const PointColor: React.FC<BaseFieldProps<"pointColor">> = ({
         const res = "color" + `("${item.color}")`;
         const cond = stringifyCondition(item.condition);
         conditions.unshift([cond, res]);
-        console.log("conditions: ", conditions);
         postMsg({
           action: "updateDatasetInScene",
           payload: {
