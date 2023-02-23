@@ -91,7 +91,11 @@ const DatasetCard: React.FC<Props> = ({
         onClick: () => onDatasetRemove?.(dataset.dataID),
       },
     ];
-    if (currentTab === "default" && dataset.components?.find(c => c.type === "search")) {
+    if (
+      currentTab === "default" &&
+      (dataset.components?.find(c => c.type === "search") ||
+        templates?.find(t => t.components?.find(c => c.type === "search")))
+    ) {
       fields.push({
         id: "search",
         title: "データを検索",
@@ -103,7 +107,7 @@ const DatasetCard: React.FC<Props> = ({
       });
     }
     return fields;
-  }, [currentTab, dataset, onDatasetRemove, onThreeDTilesSearch]);
+  }, [currentTab, dataset, templates, onDatasetRemove, onThreeDTilesSearch]);
 
   const handleTabChange: React.MouseEventHandler<HTMLParagraphElement> = useCallback(e => {
     e.stopPropagation();
