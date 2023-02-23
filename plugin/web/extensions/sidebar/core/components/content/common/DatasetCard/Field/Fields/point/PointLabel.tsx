@@ -55,7 +55,7 @@ const PointLabel: React.FC<BaseFieldProps<"pointLabel">> = ({
 
   const handleFontColorUpdate = useCallback(
     (color: string) => {
-      if (color) updatePointLabelByProp("color", color);
+      if (color) updatePointLabelByProp("fontColor", color);
     },
     [updatePointLabelByProp],
   );
@@ -76,7 +76,7 @@ const PointLabel: React.FC<BaseFieldProps<"pointLabel">> = ({
 
   const handleBackgroundColorUpdate = useCallback(
     (color: string) => {
-      if (color) updatePointLabelByProp("color", color);
+      if (color) updatePointLabelByProp("backgroudColor", color);
     },
     [updatePointLabelByProp],
   );
