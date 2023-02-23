@@ -113,6 +113,7 @@ type Realtime = FieldBase<"realtime"> & {
 
 export type Timeline = FieldBase<"timeline"> & {
   timeBasedDisplay: boolean;
+  timeFieldName: string;
 };
 
 export type Description = FieldBase<"description"> & {
@@ -351,20 +352,7 @@ export type Expression<T extends string | number | boolean = string | number | b
 
 export type Cond<T> = {
   key: string;
-  operator: "=" | ">=" | "<=" | ">" | "<" | "!=";
-  operand: string;
+  operator: "===" | ">=" | "<=" | ">" | "<" | "!==" | "";
+  operand: T;
   value: T;
 };
-// export type Cond<T> =
-//   | {
-//       key: string;
-//       operator: "=" | ">=" | "<=" | ">" | "<" | "!=";
-//       operand: string;
-//       value: T;
-//     }
-//   | {
-//       and: Cond<T>[];
-//     }
-//   | {
-//       or: Cond<T>[];
-//     };
