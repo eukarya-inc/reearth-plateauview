@@ -62,24 +62,3 @@ export const removeItem = (index: number, array?: any[]) => {
 export function generateID() {
   return Date.now().toString(36) + Math.random().toString(16).slice(2);
 }
-
-export const compare = (
-  operand: number,
-  operator: "=" | ">=" | "<=" | ">" | "<" | "!=",
-  value: number,
-) => {
-  switch (operator) {
-    case ">":
-      return operand > value;
-    case "<":
-      return operand < value;
-    case ">=":
-      return operand >= value;
-    case "<=":
-      return operand <= value;
-    case "!=":
-      return operand !== value;
-    case "=":
-      return operand === value;
-  }
-};
