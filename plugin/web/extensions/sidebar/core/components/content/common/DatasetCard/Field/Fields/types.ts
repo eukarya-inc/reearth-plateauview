@@ -4,6 +4,7 @@ export const fieldName = {
   idealZoom: "カメラ",
   legend: "凡例",
   realtime: "リアルタイム",
+  story: "ストーリー",
   timeline: "タイムラインデータ",
   switchGroup: "スイッチグループ",
   buttonLink: "リンクボタン",
@@ -18,6 +19,7 @@ export const fieldName = {
   pointLabel: "ラベル",
   pointModel: "モデル",
   pointStroke: "ストロック",
+  pointCSV: "ポイントに変換（CSV）",
   search: "データを検索",
   polygonColor: "ポリゴン色",
   polygonColorGradient: "ポリゴン色（Gradient）",
@@ -41,6 +43,8 @@ export type FieldComponent =
   | ButtonLink
   | Description
   | SwitchGroup
+  | ButtonLink
+  | Story
   | Realtime
   | Timeline
   | SwitchDataset
@@ -51,6 +55,7 @@ export type FieldComponent =
   | PointLabel
   | PointModel
   | PointStroke
+  | PointCSV
   | Search
   | PolylineColor
   | PolylineColorGradient
@@ -138,6 +143,16 @@ export type ButtonLink = FieldBase<"buttonLink"> & {
   title?: string;
   link?: string;
 };
+export type StoryItem = {
+  id: string;
+  title?: string;
+  scenes?: string;
+};
+
+export type Story = FieldBase<"story"> & {
+  stories?: StoryItem[];
+};
+
 // MAYBE POINT TYPE IS JUST TO CONCEPTUALIZE THE JSONNNN
 // type Point = {
 //   type: "point";
@@ -194,6 +209,12 @@ type PointStroke = FieldBase<"pointStroke"> & {
     strokeWidth: number;
     condition: Cond<string | number>;
   }[];
+};
+
+type PointCSV = FieldBase<"pointCSV"> & {
+  lng?: string;
+  lat?: string;
+  height?: string;
 };
 
 type Search = FieldBase<"search">;
@@ -271,6 +292,7 @@ export type Fields = {
   styleCode: StyleCode;
   switchGroup: SwitchGroup;
   buttonLink: ButtonLink;
+  story: Story;
   realtime: Realtime;
   timeline: Timeline;
   switchDataset: SwitchDataset;
@@ -282,6 +304,7 @@ export type Fields = {
   pointLabel: PointLabel;
   pointModel: PointModel;
   pointStroke: PointStroke;
+  pointCSV: PointCSV;
   // polyline
   polylineColor: PolylineColor;
   polylineColorGradient: PolylineColorGradient;

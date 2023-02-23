@@ -150,15 +150,24 @@ const DatasetCard: React.FC<Props> = ({
     setGroup(fieldGroupID);
   }, []);
 
+  const defaultTemplate = useMemo(() => {
+    const t = templates?.find(t => t.name === dataset.type || t.name === dataset.type2);
+    if (t && !dataset.components?.length) {
+      return t;
+    }
+  }, [templates, dataset]);
+
   const activeComponentIDs = useMemo(
     () =>
-      (!dataset.components?.find(c => c.type === "switchGroup") || !dataset.fieldGroups
-        ? dataset.components
-        : dataset.components.filter(
-            c => (c.group && c.group === selectedGroup) || c.type === "switchGroup",
-          )
+      (
+        defaultTemplate?.components ??
+        (!dataset.components?.find(c => c.type === "switchGroup") || !dataset.fieldGroups
+          ? dataset.components
+          : dataset.components.filter(
+              c => (c.group && c.group === selectedGroup) || c.type === "switchGroup",
+            ))
       )?.map(c => c.id),
-    [selectedGroup, dataset.components, dataset.fieldGroups],
+    [selectedGroup, dataset.components, dataset.fieldGroups, defaultTemplate?.components],
   );
 
   return (
@@ -204,10 +213,57 @@ const DatasetCard: React.FC<Props> = ({
                 {field.title && <FieldName>{field.title}</FieldName>}
               </BaseField>
             ))}
-            {dataset.components?.map((c, idx) => {
-              if (c.type === "template") {
-                const template = templates?.find(t => t.id === c.templateID);
-                return inEditor && currentTab === "edit" ? (
+            {dataset.openDataUrl && (
+              <OpenDataButton
+                onClick={() => window.open(dataset.openDataUrl, "_blank", "noopener")}>
+                <Text>オープンデータを入手</Text>
+              </OpenDataButton>
+            )}
+            {defaultTemplate?.components?.map((tc, idx) => {
+              if (currentTab === "edit") return;
+              return (
+                <Field
+                  key={idx}
+                  field={tc}
+                  isActive={!!activeComponentIDs?.find(id => id === tc.id)}
+                  dataID={dataset.dataID}
+                  selectGroups={dataset.fieldGroups}
+                  onUpdate={handleFieldUpdate}
+                />
+              );
+            }) ??
+              dataset.components?.map((c, idx) => {
+                if (c.type === "template") {
+                  const template = templates?.find(t => t.id === c.templateID);
+                  return inEditor && currentTab === "edit" ? (
+                    <Field
+                      key={idx}
+                      field={c}
+                      isActive={!!activeComponentIDs?.find(id => id === c.id)}
+                      dataID={dataset.dataID}
+                      editMode={inEditor && currentTab === "edit"}
+                      selectGroups={dataset.fieldGroups}
+                      onUpdate={handleFieldUpdate}
+                      onRemove={handleFieldRemove}
+                      onGroupsUpdate={handleGroupsUpdate(c.id)}
+                      onCurrentGroupChange={handleCurrentGroupChange}
+                    />
+                  ) : (
+                    template?.components?.map((tc, idx2) => (
+                      <Field
+                        key={idx2}
+                        field={tc}
+                        isActive={!!activeComponentIDs?.find(id => id === c.id)}
+                        dataID={dataset.dataID}
+                        selectGroups={dataset.fieldGroups}
+                        onUpdate={handleFieldUpdate}
+                        onRemove={handleFieldRemove}
+                        onCurrentGroupChange={handleCurrentGroupChange}
+                      />
+                    ))
+                  );
+                }
+                return (
                   <Field
                     key={idx}
                     field={c}
@@ -215,42 +271,14 @@ const DatasetCard: React.FC<Props> = ({
                     dataID={dataset.dataID}
                     editMode={inEditor && currentTab === "edit"}
                     selectGroups={dataset.fieldGroups}
+                    configData={dataset.config?.data}
                     onUpdate={handleFieldUpdate}
                     onRemove={handleFieldRemove}
                     onGroupsUpdate={handleGroupsUpdate(c.id)}
                     onCurrentGroupChange={handleCurrentGroupChange}
                   />
-                ) : (
-                  template?.components?.map((tc, idx2) => (
-                    <Field
-                      key={idx2}
-                      field={tc}
-                      isActive={!!activeComponentIDs?.find(id => id === c.id)}
-                      dataID={dataset.dataID}
-                      selectGroups={dataset.fieldGroups}
-                      onUpdate={handleFieldUpdate}
-                      onRemove={handleFieldRemove}
-                      onCurrentGroupChange={handleCurrentGroupChange}
-                    />
-                  ))
                 );
-              }
-              return (
-                <Field
-                  key={idx}
-                  field={c}
-                  isActive={!!activeComponentIDs?.find(id => id === c.id)}
-                  dataID={dataset.dataID}
-                  editMode={inEditor && currentTab === "edit"}
-                  selectGroups={dataset.fieldGroups}
-                  configData={dataset.config?.data}
-                  onUpdate={handleFieldUpdate}
-                  onRemove={handleFieldRemove}
-                  onGroupsUpdate={handleGroupsUpdate(c.id)}
-                  onCurrentGroupChange={handleCurrentGroupChange}
-                />
-              );
-            })}
+              })}
           </Content>
           {inEditor && currentTab === "edit" && (
             <>
@@ -319,6 +347,7 @@ const Title = styled.p`
   overflow: hidden;
   width: 250px;
   white-space: nowrap;
+  user-select: none;
 `;
 
 const Content = styled.div`
@@ -353,6 +382,7 @@ const ArrowIcon = styled(Icon)<{ expanded?: boolean }>`
 
 const FieldName = styled.p`
   margin: 0;
+  user-select: none;
 `;
 
 const TabWrapper = styled.div`
@@ -369,6 +399,7 @@ const Tab = styled.p<{ selected?: boolean }>`
   border-bottom-color: ${({ selected }) => (selected ? "#1890FF" : "transparent")};
   color: ${({ selected }) => (selected ? "#1890FF" : "inherit")};
   cursor: pointer;
+  user-select: none;
 `;
 
 const StyledAddButton = styled(AddButton)`
@@ -396,14 +427,17 @@ const SaveButton = styled.div`
 const Text = styled.p`
   margin: 0;
   line-height: 15px;
+  user-select: none;
 `;
 
-// const StyledDropdownButton = styled.div`
-//   display: flex;
-//   justify-content: space-between;
-//   align-items: center;
-//   width: 100%;
-//   align-content: center;
-//   padding: 0 16px;
-//   cursor: pointer;
-// `;
+const OpenDataButton = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 38px;
+  width: 100%;
+  background: #ffffff;
+  border: 1px solid #e6e6e6;
+  border-radius: 4px;
+  cursor: pointer;
+`;
