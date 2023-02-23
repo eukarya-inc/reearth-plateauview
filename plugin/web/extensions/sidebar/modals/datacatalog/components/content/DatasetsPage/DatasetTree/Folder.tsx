@@ -1,21 +1,47 @@
 import { Icon } from "@web/sharedComponents";
 import { styled } from "@web/theme";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
+
+import { DataCatalogGroup, DataCatalogItem } from "../../../../api/api";
 
 export type Props = {
   name: string;
   isMobile?: boolean;
   expandAll?: boolean;
   nestLevel: number;
+  item: DataCatalogGroup | DataCatalogItem | (DataCatalogItem | DataCatalogGroup)[];
+  selectedID?: string;
   children?: React.ReactNode;
 };
 
-const Folder: React.FC<Props> = ({ name, isMobile, expandAll, nestLevel, children }) => {
+const Folder: React.FC<Props> = ({
+  name,
+  isMobile,
+  expandAll,
+  nestLevel,
+  item,
+  selectedID,
+  children,
+}) => {
   const [isOpen, open] = useState(false);
 
+  // TODO: should find a better way to improve performance
+  const isChildSelected = useCallback(
+    (
+      item: DataCatalogGroup | DataCatalogItem | (DataCatalogItem | DataCatalogGroup)[],
+    ): boolean => {
+      if (!("children" in item)) return "dataID" in item && item.dataID === selectedID;
+      for (const child of item.children) {
+        return isChildSelected(child);
+      }
+      return false;
+    },
+    [selectedID],
+  );
+
   useEffect(() => {
-    expandAll ? open(true) : open(false);
-  }, [expandAll]);
+    expandAll || isChildSelected(item) ? open(true) : open(false);
+  }, [expandAll, isChildSelected, item, selectedID]);
 
   return (
     <Wrapper key={name} isOpen={isOpen}>
