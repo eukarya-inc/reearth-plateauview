@@ -16,6 +16,9 @@ extensions:
             - id: plateauURL
               type: string
               title: PLATEAU Backend Base URL
+            - id: catalogURL
+              type: string
+              title: PLATEAU Data Catalog URL
             - id: reearthURL
               type: string
               title: Re:Earth Base URL

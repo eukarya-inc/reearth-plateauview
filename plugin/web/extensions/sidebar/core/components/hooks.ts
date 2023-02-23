@@ -49,6 +49,7 @@ export default () => {
   const [projectID, setProjectID] = useState<string>();
   const [inEditor, setInEditor] = useState(true);
   const [backendAccessToken, setBackendAccessToken] = useState<string>();
+  const [catalogURL, setCatalogURL] = useState<string>();
   const [backendURL, setBackendURL] = useState<string>();
   const [reearthURL, setReearthURL] = useState<string>();
 
@@ -75,10 +76,15 @@ export default () => {
 
   useEffect(() => {
     postMsg({ action: "init" }); // Needed to trigger sending initialization data to sidebar
-    getDataCatalog("https://api.plateau.reearth.io/").then(res => {
-      setCatalog(res);
-    });
   }, []);
+
+  useEffect(() => {
+    if (catalogURL) {
+      getDataCatalog(catalogURL).then(res => {
+        setCatalog(res);
+      });
+    }
+  }, [catalogURL]);
 
   useEffect(() => {
     if (backendURL) {
@@ -434,6 +440,7 @@ export default () => {
         setProjectID(e.data.payload.projectID);
         setInEditor(e.data.payload.inEditor);
         setBackendAccessToken(e.data.payload.backendAccessToken);
+        setCatalogURL(e.data.payload.catalogURL);
         setBackendURL(e.data.payload.backendURL);
         setReearthURL(`${e.data.payload.reearthURL}`);
         if (e.data.payload.draftProject) {

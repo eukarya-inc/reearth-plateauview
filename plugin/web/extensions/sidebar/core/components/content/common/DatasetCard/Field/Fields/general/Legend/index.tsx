@@ -68,10 +68,7 @@ const Legend: React.FC<BaseFieldProps<"legend">> = ({ value, editMode, onUpdate 
 
   const handleAdd = useCallback(() => {
     updateLegend(l => {
-      const newItem = {
-        title: "New Item",
-        color: "white",
-      };
+      const newItem = { title: "新しいアイテム", color: "#00bebe" };
       const newLegend = {
         ...l,
         items: l.items ? [...l.items, newItem] : [newItem],
