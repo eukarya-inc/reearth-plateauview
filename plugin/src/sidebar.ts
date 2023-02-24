@@ -152,9 +152,11 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
         const outBoundPayload = {
           projectID: reearth.viewport.query.projectID,
           inEditor: reearth.scene.inEditor,
-          backendAccessToken: reearth.widget.property.default?.plateauAccessToken ?? "",
-          backendURL: reearth.widget.property.default?.plateauURL ?? "",
+          catalogURL: reearth.widget.property.default?.catalogURL ?? "",
           reearthURL: reearth.widget.property.default?.reearthURL ?? "",
+          backendURL: reearth.widget.property.default?.plateauURL ?? "",
+          backendProjectName: reearth.widget.property.default?.projectName ?? "",
+          backendAccessToken: reearth.widget.property.default?.plateauAccessToken ?? "",
           draftProject,
         };
         if (isMobile) {
@@ -663,6 +665,8 @@ function createLayer(dataset: DataCatalogItem, options?: any) {
       : format === "geojson"
       ? {
           marker: {},
+          polygon: {},
+          polyline: {},
         }
       : format === "gtfs"
       ? proxyGTFS(options)
