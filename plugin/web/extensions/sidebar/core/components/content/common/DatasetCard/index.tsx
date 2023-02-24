@@ -147,7 +147,8 @@ const DatasetCard: React.FC<Props> = ({
               <Dropdown
                 overlay={menuGenerator(menuItems[i].fields)}
                 placement="bottom"
-                trigger={["click"]}>
+                trigger={["click"]}
+                getPopupContainer={trigger => trigger.parentElement ?? document.body}>
                 <div onClick={e => e.stopPropagation()}>
                   <p style={{ margin: 0 }}>{menuItems[i].name}</p>
                 </div>
@@ -318,14 +319,15 @@ const StyledAccordionItemButton = styled(AccordionItemButton)`
 const HeaderContents = styled.div`
   display: flex;
   align-items: center;
-  height: 46px;
-  padding: 0 12px;
+  height: auto;
+  padding: 12px;
   gap: 12px;
   outline: none;
   cursor: pointer;
 `;
 
 const BodyWrapper = styled(AccordionItemPanel)<{ noTransition?: boolean }>`
+  position: relative;
   width: 100%;
   border-radius: 0px 0px 4px 4px;
   background: #fafafa;
@@ -343,10 +345,9 @@ const LeftMain = styled.div`
 const Title = styled.p`
   margin: 0;
   font-size: 16px;
-  text-overflow: ellipsis;
-  overflow: hidden;
-  white-space: nowrap;
+  width: 250px;
   user-select: none;
+  overflow-wrap: break-word;
 `;
 
 const Content = styled.div`
