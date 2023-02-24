@@ -52,7 +52,7 @@ const Wrapper = styled.div`
   padding: 0px 16px;
   gap: 24px;
   width: 333px;
-  height: 751px;
+  height: 800px;
 `;
 const Title = styled.p`
   margin: 0;
@@ -68,7 +68,7 @@ const BottomWrapper = styled.div`
   padding: 0px;
   gap: 24px;
   width: 301px;
-  height: 322px;
+  height: 354px;
 `;
 
 const Paragraph = styled.p`
