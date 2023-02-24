@@ -11,8 +11,6 @@ const DataCatalog: React.FC = () => {
     catalog,
     addedDatasetDataIDs,
     inEditor,
-    selectedDataset,
-    handleOpenDetails,
     handleClose,
     handleTabChange,
     handleDatasetAdd,
@@ -43,9 +41,7 @@ const DataCatalog: React.FC = () => {
         <DatasetsPage
           catalog={catalog}
           addedDatasetDataIDs={addedDatasetDataIDs}
-          inEditor={inEditor}
-          selectedDataset={selectedDataset}
-          onOpenDetails={handleOpenDetails}
+            inEditor={inEditor}
           onDatasetAdd={handleDatasetAdd}
           onDatasetPublish={handleDatasetPublish}
         />
