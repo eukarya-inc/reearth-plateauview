@@ -6,6 +6,7 @@ const BasicOperation: React.FC = () => {
   return (
     <Wrapper>
       <TopWrapper>
+        <Title>視点や画面移動</Title>
         <InstructionWrapper>
           <ImgWrapper>
             <Icon icon="mouseMiddleButton" width={65} height={95} />
@@ -25,7 +26,6 @@ const BasicOperation: React.FC = () => {
             <CaptionText>トラッグ：拡大縮小</CaptionText>
           </ImgWrapper>
         </InstructionWrapper>
-        <Title>視点や画面移動</Title>
       </TopWrapper>
       <BottomWrapper>
         <Title>データの追加</Title>
