@@ -28,6 +28,19 @@ export default ({
     setGroup(fieldGroupID);
   }, []);
 
+  const hasSearchField = useMemo(
+    () =>
+      !!dataset.components?.find(c => c.type === "search") ||
+      !!defaultTemplate?.components?.find(c => c.type === "search") ||
+      !!dataset.components
+        ?.filter(c => c.type === "template")
+        ?.map(
+          c => !!templates?.find(t => t.id === c.id)?.components?.find(tc => tc.type === "search"),
+        )
+        ?.includes(true),
+    [dataset, defaultTemplate, templates],
+  );
+
   const activeComponentIDs = useMemo(
     () =>
       (
@@ -135,6 +148,7 @@ export default ({
     defaultTemplate,
     activeComponentIDs,
     fieldComponentsList,
+    hasSearchField,
     handleFieldUpdate,
     handleFieldRemove,
     handleCurrentGroupChange,

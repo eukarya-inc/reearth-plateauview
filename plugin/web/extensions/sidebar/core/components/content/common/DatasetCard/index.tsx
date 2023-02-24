@@ -52,6 +52,7 @@ const DatasetCard: React.FC<Props> = ({
     defaultTemplate,
     activeComponentIDs,
     fieldComponentsList,
+    hasSearchField,
     handleFieldUpdate,
     handleFieldRemove,
     handleCurrentGroupChange,
@@ -63,8 +64,8 @@ const DatasetCard: React.FC<Props> = ({
     onDatasetUpdate,
   });
 
-  const baseFields: BaseFieldType[] = useMemo(() => {
-    const fields = [
+  const baseFields: BaseFieldType[] = useMemo(
+    () => [
       {
         id: "zoom",
         title: "カメラ",
@@ -96,24 +97,21 @@ const DatasetCard: React.FC<Props> = ({
         icon: "trash",
         onClick: () => onDatasetRemove?.(dataset.dataID),
       },
-    ];
-    if (
-      currentTab === "default" &&
-      (dataset.components?.find(c => c.type === "search") ||
-        templates?.find(t => t.components?.find(c => c.type === "search")))
-    ) {
-      fields.push({
-        id: "search",
-        title: "データを検索",
-        icon: "search",
-        value: 1,
-        onClick: () => {
-          onThreeDTilesSearch(dataset.dataID);
-        },
-      });
-    }
-    return fields;
-  }, [currentTab, dataset, templates, onDatasetRemove, onThreeDTilesSearch]);
+      ...(currentTab === "default" && hasSearchField
+        ? [
+            {
+              id: "search",
+              title: "データを検索",
+              icon: "search",
+              onClick: () => {
+                onThreeDTilesSearch(dataset.dataID);
+              },
+            },
+          ]
+        : []),
+    ],
+    [currentTab, dataset, hasSearchField, onDatasetRemove, onThreeDTilesSearch],
+  );
 
   const handleTabChange: React.MouseEventHandler<HTMLParagraphElement> = useCallback(e => {
     e.stopPropagation();

@@ -55,8 +55,17 @@ const TemplateCard: React.FC<Props> = ({ template, onTemplateSave, onTemplateUpd
         id: "remove",
         icon: "trash",
       },
+      ...(currentTab === "default" && template.components?.find(c => c.type === "search")
+        ? [
+            {
+              id: "search",
+              title: "データを検索",
+              icon: "search",
+            },
+          ]
+        : []),
     ],
-    [],
+    [currentTab, template.components],
   );
 
   const handleTabChange: React.MouseEventHandler<HTMLParagraphElement> = useCallback(e => {
