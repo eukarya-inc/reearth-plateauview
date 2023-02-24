@@ -2,7 +2,7 @@ import { Group, Template } from "@web/extensions/sidebar/core/types";
 import { generateID } from "@web/extensions/sidebar/utils";
 import { useMemo } from "react";
 
-import { fieldName } from "./Fields/types";
+import { fieldName, mainFieldGroups } from "./Fields/types";
 
 type FieldDropdownItem = {
   [key: string]: { name: string; onClick: (property: any) => void };
@@ -226,20 +226,20 @@ export default ({
       };
     } = {
       general: {
-        name: "一般",
+        name: mainFieldGroups.general,
         fields: generalFields,
       },
       point: {
-        name: "ポイント",
+        name: mainFieldGroups.point,
         fields: pointFields,
       },
-      polygone: { name: "ポリゴン", fields: polygonFields },
-      polyline: { name: "ポリライン", fields: polylineFields },
-      // "3d-model": { name: "3Dモデル", fields: ThreeDModelFields },
-      "3d-tile": { name: "3Dタイル", fields: ThreeDTileFields },
+      polygone: { name: mainFieldGroups.polygon, fields: polygonFields },
+      polyline: { name: mainFieldGroups.polyline, fields: polylineFields },
+      // "3d-model": { name: mainFieldGroups["3d-model"], fields: ThreeDModelFields },
+      "3d-tile": { name: mainFieldGroups["3d-tile"], fields: ThreeDTileFields },
     };
     if (TemplateFields) {
-      groups["templates"] = { name: "テンプレート", fields: TemplateFields };
+      groups["templates"] = { name: mainFieldGroups.templates, fields: TemplateFields };
     }
     return groups;
   }, [generalFields, pointFields, polygonFields, polylineFields, ThreeDTileFields, TemplateFields]);
