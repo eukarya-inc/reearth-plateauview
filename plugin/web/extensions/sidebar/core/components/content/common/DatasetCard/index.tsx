@@ -86,8 +86,8 @@ const DatasetCard: React.FC<Props> = ({
         icon: "about",
         onClick: () => {
           postMsg({
-            action: "openDatasetDetails",
-            payload: dataset,
+            action: "catalogModalOpen",
+            payload: { dataset },
           });
         },
       },

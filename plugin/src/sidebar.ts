@@ -248,6 +248,9 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
     }
   } else if (action === "catalogModalOpen") {
     reearth.modal.show(dataCatalogHtml, { background: "transparent" });
+    if (payload) {
+      reearth.modal.postMessage({ action, payload });
+    }
   } else if (action === "triggerCatalogOpen") {
     reearth.ui.postMessage({ action });
   } else if (action === "triggerHelpOpen") {
@@ -255,9 +258,6 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
   } else if (action === "modalClose") {
     reearth.modal.close();
     welcomePageIsOpen = false;
-  } else if (action === "openDatasetDetails") {
-    reearth.modal.show(dataCatalogHtml, { background: "transparent" });
-    reearth.modal.postMessage({ action: "openDatasetDetails", payload });
   } else if (action === "initDataCatalog") {
     reearth.modal.postMessage({
       action,

@@ -27,7 +27,6 @@ type ActionType =
   | "mapModalOpen"
   | "clipModalOpen"
   | "modalClose"
-  | "openDatasetDetails"
   | "msgFromModal"
   | "helpPopupOpen"
   | "popupClose"
