@@ -74,7 +74,7 @@ type FieldBase<T extends keyof typeof fieldName> = {
   id: string;
   type: T;
   group?: string;
-  overrides?: any;
+  override?: any;
   cleanseOverride?: any;
 };
 

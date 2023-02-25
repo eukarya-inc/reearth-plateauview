@@ -29,7 +29,7 @@ const PointIcon: React.FC<BaseFieldProps<"pointIcon">> = ({
         ...value,
         url: imageURL,
         size: imageSize,
-        overrides: { marker: { style: "image", image: imageURL, imageSize } },
+        override: { marker: { style: "image", image: imageURL, imageSize } },
       });
     }, 500);
     return () => {

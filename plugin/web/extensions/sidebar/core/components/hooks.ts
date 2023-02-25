@@ -670,7 +670,7 @@ const processOverrides = (components?: FieldComponent[]) => {
   if (!components || !components.length) return;
   const overrides = {};
   for (let i = 0; i < components.length; i++) {
-    merge(overrides, components[i].overrides);
+    merge(overrides, components[i].override);
   }
   return overrides;
 };

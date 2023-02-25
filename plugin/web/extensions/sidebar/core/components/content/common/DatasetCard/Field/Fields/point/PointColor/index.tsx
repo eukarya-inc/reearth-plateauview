@@ -77,7 +77,7 @@ const PointColor: React.FC<BaseFieldProps<"pointColor">> = ({
       onUpdate({
         ...value,
         pointColors,
-        overrides: {
+        override: {
           marker: {
             style: "point",
             pointColor: {
