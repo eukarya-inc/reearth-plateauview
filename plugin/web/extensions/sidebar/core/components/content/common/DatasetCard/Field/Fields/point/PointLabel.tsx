@@ -5,6 +5,7 @@ import {
 } from "@web/extensions/sidebar/core/components/content/common/DatasetCard/Field/common";
 import { Wrapper } from "@web/extensions/sidebar/core/components/content/common/DatasetCard/Field/commonComponents";
 import { styled } from "@web/theme";
+import { isEqual } from "lodash";
 import { ChangeEvent, useCallback, useState, useEffect } from "react";
 
 import { BaseFieldProps, Fields } from "../types";
@@ -78,7 +79,7 @@ const PointLabel: React.FC<BaseFieldProps<"pointLabel">> = ({
   );
 
   useEffect(() => {
-    if (!isActive || !dataID) return;
+    if (!isActive || !dataID || isEqual(value, pointLabel)) return;
     const timer = setTimeout(() => {
       onUpdate({
         ...pointLabel,
