@@ -74,6 +74,8 @@ type FieldBase<T extends keyof typeof fieldName> = {
   id: string;
   type: T;
   group?: string;
+  overrides?: any;
+  cleanseOverride?: any;
 };
 
 type Template = FieldBase<"template"> & {

@@ -32,7 +32,7 @@ export type Props = {
   inEditor?: boolean;
   onDatasetSave: (dataID: string) => void;
   onDatasetRemove?: (dataID: string) => void;
-  onDatasetUpdate: (dataset: DataCatalogItem) => void;
+  onDatasetUpdate: (dataset: DataCatalogItem, cleanseOverride?: any) => void;
   onUpdateField?: (id: string) => void;
   onThreeDTilesSearch: (id: string) => void;
 };

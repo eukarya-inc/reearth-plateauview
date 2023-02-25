@@ -80,10 +80,13 @@ export default ({
   }, [fieldGroups, onFieldAdd]);
 
   const pointFields: FieldDropdownItem = useMemo(() => {
+    const cleanseOverride = { marker: undefined };
     return {
       pointColor: {
         name: fieldName["pointColor"],
-        onClick: onFieldAdd({}),
+        onClick: onFieldAdd({
+          cleanseOverride,
+        }),
       },
       // pointColorGradient: {
       //   name: fieldName["pointColorGradient"],
@@ -91,27 +94,35 @@ export default ({
       // },
       pointSize: {
         name: fieldName["pointSize"],
-        onClick: onFieldAdd({}),
+        onClick: onFieldAdd({
+          cleanseOverride,
+        }),
       },
       pointIcon: {
         name: fieldName["pointIcon"],
         onClick: onFieldAdd({
           size: 1,
+          cleanseOverride,
         }),
       },
       pointLabel: {
         name: fieldName["pointLabel"],
-        onClick: onFieldAdd({}),
+        onClick: onFieldAdd({
+          cleanseOverride,
+        }),
       },
       pointModel: {
         name: fieldName["pointModel"],
         onClick: onFieldAdd({
           scale: 1,
+          cleanseOverride,
         }),
       },
       pointStroke: {
         name: fieldName["pointStroke"],
-        onClick: onFieldAdd({}),
+        onClick: onFieldAdd({
+          cleanseOverride,
+        }),
       },
       pointCSV: {
         name: fieldName["pointCSV"],

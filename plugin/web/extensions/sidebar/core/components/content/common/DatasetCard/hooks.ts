@@ -13,7 +13,7 @@ export default ({
   dataset: DataCatalogItem;
   templates?: Template[];
   inEditor?: boolean;
-  onDatasetUpdate: (dataset: DataCatalogItem) => void;
+  onDatasetUpdate: (dataset: DataCatalogItem, cleanseOverride?: any) => void;
 }) => {
   const defaultTemplate = useMemo(() => {
     const t = templates?.find(t => t.name === dataset.type || t.name === dataset.type2);
@@ -88,7 +88,7 @@ export default ({
   );
 
   const handleFieldRemove = useCallback(
-    (id: string) => {
+    (id: string, cleanseOverride?: any) => {
       if (!inEditor) return;
       const newDatasetComponents = dataset.components ? [...dataset.components] : [];
       const componentIndex = newDatasetComponents?.findIndex(c => c.id === id);
@@ -97,10 +97,13 @@ export default ({
 
       newDatasetComponents.splice(componentIndex, 1);
 
-      onDatasetUpdate?.({
-        ...dataset,
-        components: newDatasetComponents,
-      });
+      onDatasetUpdate?.(
+        {
+          ...dataset,
+          components: newDatasetComponents,
+        },
+        cleanseOverride,
+      );
     },
     [dataset, inEditor, onDatasetUpdate],
   );
