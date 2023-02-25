@@ -103,7 +103,7 @@ const PointLabel: React.FC<BaseFieldProps<"pointLabel">> = ({
     return () => {
       clearTimeout(timer);
     };
-  }, [dataID, isActive, pointLabel, onUpdate]);
+  }, [dataID, isActive, pointLabel, value, onUpdate]);
 
   return editMode ? (
     <Wrapper>
