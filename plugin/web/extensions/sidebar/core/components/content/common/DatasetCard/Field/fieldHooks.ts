@@ -115,7 +115,7 @@ export default ({
         name: fieldName["pointModel"],
         onClick: onFieldAdd({
           scale: 1,
-          cleanseOverride,
+          cleanseOverride: { model: undefined },
         }),
       },
       pointStroke: {

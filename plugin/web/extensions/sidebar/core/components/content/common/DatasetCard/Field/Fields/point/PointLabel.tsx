@@ -4,7 +4,6 @@ import {
   TextField,
 } from "@web/extensions/sidebar/core/components/content/common/DatasetCard/Field/common";
 import { Wrapper } from "@web/extensions/sidebar/core/components/content/common/DatasetCard/Field/commonComponents";
-import { postMsg } from "@web/extensions/sidebar/utils";
 import { styled } from "@web/theme";
 import { ChangeEvent, useCallback, useState, useEffect } from "react";
 
@@ -19,22 +18,15 @@ const PointLabel: React.FC<BaseFieldProps<"pointLabel">> = ({
 }) => {
   const [pointLabel, setPointLabel] = useState(value);
 
-  const updatePointLabelByProp = useCallback(
-    (prop: string, value: any) => {
-      setPointLabel(pointLabel => {
-        const newPointLabel: Fields["pointLabel"] = {
-          ...pointLabel,
-          [prop]: value,
-        };
-        onUpdate({
-          ...pointLabel,
-          [prop]: value,
-        });
-        return newPointLabel;
-      });
-    },
-    [onUpdate],
-  );
+  const updatePointLabelByProp = useCallback((prop: string, value: any) => {
+    setPointLabel(pointLabel => {
+      const newPointLabel: Fields["pointLabel"] = {
+        ...pointLabel,
+        [prop]: value,
+      };
+      return newPointLabel;
+    });
+  }, []);
 
   const handleFieldChange = useCallback(
     (e: ChangeEvent<HTMLInputElement>) => {
@@ -55,7 +47,9 @@ const PointLabel: React.FC<BaseFieldProps<"pointLabel">> = ({
 
   const handleFontColorUpdate = useCallback(
     (color: string) => {
-      if (color) updatePointLabelByProp("fontColor", color);
+      if (color) {
+        updatePointLabelByProp("fontColor", color);
+      }
     },
     [updatePointLabelByProp],
   );
@@ -76,7 +70,9 @@ const PointLabel: React.FC<BaseFieldProps<"pointLabel">> = ({
 
   const handleBackgroundColorUpdate = useCallback(
     (color: string) => {
-      if (color) updatePointLabelByProp("backgroundColor", color);
+      if (color) {
+        updatePointLabelByProp("backgroundColor", color);
+      }
     },
     [updatePointLabelByProp],
   );
@@ -84,49 +80,36 @@ const PointLabel: React.FC<BaseFieldProps<"pointLabel">> = ({
   useEffect(() => {
     if (!isActive || !dataID) return;
     const timer = setTimeout(() => {
-      console.log("pointLabel: ", pointLabel);
-      postMsg({
-        action: "updateDatasetInScene",
-        payload: {
-          dataID,
-          update: {
-            marker: {
-              style: "point",
-              label: true,
-              labelTypography: {
-                fontSize: pointLabel.fontSize,
-                color: pointLabel.fontColor,
-              },
-              heightReference: "relative",
-              labelText: pointLabel.field,
-              extrude: pointLabel.extruded,
-              labelBackground: pointLabel.useBackground,
-              labelBackgroundColor: pointLabel.backgroundColor,
+      onUpdate({
+        ...pointLabel,
+        override: {
+          marker: {
+            style: "point",
+            label: true,
+            labelTypography: {
+              fontSize: pointLabel.fontSize,
+              color: pointLabel.fontColor,
             },
+            heightReference: "relative",
+            labelText: pointLabel.field,
+            extrude: pointLabel.extruded,
+            labelBackground: pointLabel.useBackground,
+            labelBackgroundColor: pointLabel.backgroundColor,
           },
         },
       });
     }, 500);
     return () => {
       clearTimeout(timer);
-      postMsg({
-        action: "updateDatasetInScene",
-        payload: {
-          dataID,
-          update: {
-            marker: undefined,
-          },
-        },
-      });
     };
-  }, [dataID, isActive, pointLabel]);
+  }, [dataID, isActive, pointLabel, onUpdate]);
 
   return editMode ? (
     <Wrapper>
       <TextField
         title="Text"
         titleWidth={82}
-        defaultValue={pointLabel.fontSize}
+        defaultValue={pointLabel.field}
         onChange={handleFieldChange}
       />
       <TextField
