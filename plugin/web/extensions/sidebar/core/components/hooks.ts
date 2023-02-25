@@ -156,7 +156,6 @@ export default () => {
       });
 
       const overrides = processOverrides(datasetToAdd.components);
-      console.log("Overrides: ", overrides);
 
       postMsg({
         action: "addDatasetToScene",
@@ -210,10 +209,6 @@ export default () => {
           if (updatedDataset.visible) {
             const prevOverrides = processOverrides(updatedDatasets[datasetIndex].components);
             const overrides = processOverrides(updatedDataset.components);
-            console.log("prev OVERRIDES: ", prevOverrides);
-            console.log("UPDATED OVERRIDES: ", overrides);
-            console.log("OVERRIDES equal!??!: ", isEqual(prevOverrides, overrides));
-            console.log("CLEANSEEEEE: ", cleanseOverride);
 
             if (!isEqual(prevOverrides, overrides) || cleanseOverride) {
               postMsg({
@@ -677,6 +672,5 @@ const processOverrides = (components?: FieldComponent[]) => {
   for (let i = 0; i < components.length; i++) {
     merge(overrides, components[i].overrides);
   }
-  console.log("CLONED AND MERGE FOR: ", overrides);
   return overrides;
 };
