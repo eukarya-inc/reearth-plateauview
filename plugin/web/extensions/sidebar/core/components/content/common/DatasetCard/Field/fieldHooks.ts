@@ -2,7 +2,15 @@ import { Group, Template } from "@web/extensions/sidebar/core/types";
 import { generateID } from "@web/extensions/sidebar/utils";
 import { useMemo } from "react";
 
-import { fieldName, mainFieldGroups } from "./Fields/types";
+import {
+  fieldName,
+  generalFieldName,
+  pointFieldName,
+  polygonFieldName,
+  polylineFieldName,
+  templateFieldName,
+  threeDFieldName,
+} from "./Fields/types";
 
 type FieldDropdownItem = {
   [key: string]: { name: string; onClick: (property: any) => void };
@@ -154,7 +162,7 @@ export default ({
     };
   }, [onFieldAdd]);
 
-  const ThreeDTileFields: FieldDropdownItem = useMemo(() => {
+  const threeDTileFields: FieldDropdownItem = useMemo(() => {
     return {
       buildingColor: {
         name: fieldName["buildingColor"],
@@ -194,9 +202,9 @@ export default ({
     };
   }, [onFieldAdd]);
 
-  // const ThreeDModelFields: FieldDropdownItem = {};
+  // const threeDModelFields: FieldDropdownItem = {};
 
-  const TemplateFields: FieldDropdownItem | undefined = useMemo(
+  const templateFields: FieldDropdownItem | undefined = useMemo(
     () =>
       templates?.length
         ? templates
@@ -226,23 +234,23 @@ export default ({
       };
     } = {
       general: {
-        name: mainFieldGroups.general,
+        name: generalFieldName.groupName,
         fields: generalFields,
       },
       point: {
-        name: mainFieldGroups.point,
+        name: pointFieldName.groupName,
         fields: pointFields,
       },
-      polygone: { name: mainFieldGroups.polygon, fields: polygonFields },
-      polyline: { name: mainFieldGroups.polyline, fields: polylineFields },
-      // "3d-model": { name: mainFieldGroups["3d-model"], fields: ThreeDModelFields },
-      "3d-tile": { name: mainFieldGroups["3d-tile"], fields: ThreeDTileFields },
+      polygone: { name: polygonFieldName.groupName, fields: polygonFields },
+      polyline: { name: polylineFieldName.groupName, fields: polylineFields },
+      // "3d-model": { name: threeDModelFieldName.groupName, fields: threeDModelFields },
+      "3d-tile": { name: threeDFieldName.groupName, fields: threeDTileFields },
     };
-    if (TemplateFields) {
-      groups["templates"] = { name: mainFieldGroups.templates, fields: TemplateFields };
+    if (templateFields) {
+      groups["templates"] = { name: templateFieldName.groupName, fields: templateFields };
     }
     return groups;
-  }, [generalFields, pointFields, polygonFields, polylineFields, ThreeDTileFields, TemplateFields]);
+  }, [generalFields, pointFields, polygonFields, polylineFields, threeDTileFields, templateFields]);
 
   return fieldComponentsList;
 };

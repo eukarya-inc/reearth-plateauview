@@ -18,7 +18,6 @@ import {
   FieldComponent as FieldComponentType,
   fieldName,
   generalFieldName,
-  mainFieldGroups,
   pointFieldName,
   polygonFieldName,
   polylineFieldName,
@@ -41,19 +40,19 @@ export type Props = {
 
 const getFieldGroup = (field: string) => {
   if (field in generalFieldName) {
-    return mainFieldGroups.general;
+    return generalFieldName.groupName;
   } else if (field in pointFieldName) {
-    return mainFieldGroups.point;
+    return pointFieldName.groupName;
   } else if (field in polygonFieldName) {
-    return mainFieldGroups.polygon;
+    return polygonFieldName.groupName;
   } else if (field in threeDFieldName) {
-    return mainFieldGroups["3d-tile"];
+    return threeDFieldName.groupName;
   } else if (field in polylineFieldName) {
-    return mainFieldGroups.polyline;
+    return polylineFieldName.groupName;
     // } else if (field in threeDModelFieldName) {
-    //   return mainFieldGroups["3d-model"];
+    //   return threeDModelFieldName.groupName;
   } else if (field in templateFieldName) {
-    return mainFieldGroups.templates;
+    return templateFieldName.groupName;
   }
 };
 
