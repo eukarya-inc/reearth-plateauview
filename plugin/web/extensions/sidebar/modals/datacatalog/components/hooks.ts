@@ -10,6 +10,7 @@ export default () => {
   const [addedDatasetDataIDs, setAddedDatasetDataIDs] = useState<string[]>();
   const [catalog, setCatalog] = useState<DataCatalogItem[]>([]);
   const [inEditor, setEditorState] = useState(false);
+  const [openingDataset, setOpenDataset] = useState<boolean>(false);
 
   const handleClose = useCallback(() => {
     postMsg({ action: "modalClose" });
@@ -17,6 +18,7 @@ export default () => {
 
   const handleDatasetAdd = useCallback(
     (dataset: DataCatalogItem | UserDataItem) => {
+      setOpenDataset(true);
       postMsg({
         action: "msgFromModal",
         payload: {
@@ -24,6 +26,7 @@ export default () => {
         },
       });
       handleClose();
+      setOpenDataset(false);
     },
     [handleClose],
   );
@@ -58,6 +61,7 @@ export default () => {
     catalog,
     addedDatasetDataIDs,
     inEditor,
+    openingDataset,
     handleClose,
     handleTabChange: changeTabs,
     handleDatasetAdd,

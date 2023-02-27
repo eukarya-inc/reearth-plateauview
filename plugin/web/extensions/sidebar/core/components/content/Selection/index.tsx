@@ -10,6 +10,7 @@ export type Props = {
   inEditor?: boolean;
   selectedDatasets?: DataCatalogItem[];
   templates?: Template[];
+  savingDataset: boolean;
   onDatasetSave: (dataID: string) => void;
   onDatasetUpdate: (dataset: DataCatalogItem) => void;
   onDatasetRemove: (dataID: string) => void;
@@ -23,6 +24,7 @@ const Selection: React.FC<Props> = ({
   inEditor,
   selectedDatasets,
   templates,
+  savingDataset,
   onDatasetSave,
   onDatasetUpdate,
   onDatasetRemove,
@@ -45,6 +47,7 @@ const Selection: React.FC<Props> = ({
               key={d.id}
               dataset={d}
               templates={templates}
+              savingDataset={savingDataset}
               inEditor={inEditor}
               onDatasetSave={onDatasetSave}
               onDatasetUpdate={onDatasetUpdate}
