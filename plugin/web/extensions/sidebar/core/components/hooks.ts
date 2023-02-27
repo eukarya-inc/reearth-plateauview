@@ -284,6 +284,23 @@ export default () => {
 
         dataset.public = publish;
 
+        setSelectedDatasets(selectedDatasets => {
+          const updatedDatasets = [...selectedDatasets];
+          const datasetIndex = updatedDatasets.findIndex(d2 => d2.dataID === dataID);
+          if (datasetIndex >= 0) {
+            updatedDatasets[datasetIndex] = dataset;
+          }
+
+          updateProject(project => {
+            return {
+              ...project,
+              datasets: updatedDatasets.map(ud => convertToData(ud)),
+            };
+          });
+
+          return updatedDatasets;
+        });
+
         await handleDataRequest(dataset);
       })();
     },
