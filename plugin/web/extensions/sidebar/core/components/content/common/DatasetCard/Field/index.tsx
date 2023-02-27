@@ -23,7 +23,7 @@ export type Props = {
   selectGroups?: Group[];
   configData?: ConfigData[];
   onUpdate?: (id: string) => (property: any) => void;
-  onRemove?: (id: string, cleanseOverride?: any) => void;
+  onRemove?: (id: string) => void;
   onGroupsUpdate?: (groups: Group[], selectedGroup?: string) => void;
   onCurrentGroupChange?: (fieldGroupID: string) => void;
 };
@@ -58,7 +58,7 @@ const FieldComponent: React.FC<Props> = ({
   const handleRemove = useCallback(
     (e: React.MouseEvent<HTMLDivElement, MouseEvent> | undefined) => {
       e?.stopPropagation();
-      onRemove?.(field.id, field.cleanseOverride);
+      onRemove?.(field.id);
     },
     [field, onRemove],
   );

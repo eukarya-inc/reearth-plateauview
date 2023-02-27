@@ -80,12 +80,16 @@ export default ({
   }, [fieldGroups, onFieldAdd]);
 
   const pointFields: FieldDropdownItem = useMemo(() => {
-    const cleanseOverride = { marker: undefined };
     return {
       pointColor: {
         name: fieldName["pointColor"],
         onClick: onFieldAdd({
-          cleanseOverride,
+          cleanseOverride: {
+            marker: {
+              style: null,
+              pointColor: null,
+            },
+          },
         }),
       },
       // pointColorGradient: {
@@ -95,33 +99,61 @@ export default ({
       pointSize: {
         name: fieldName["pointSize"],
         onClick: onFieldAdd({
-          cleanseOverride,
+          cleanseOverride: {
+            marker: {
+              style: null,
+              pointSize: null,
+            },
+          },
         }),
       },
       pointIcon: {
         name: fieldName["pointIcon"],
         onClick: onFieldAdd({
           size: 1,
-          cleanseOverride,
+          cleanseOverride: {
+            marker: {
+              style: null,
+              image: null,
+              imageSize: null,
+            },
+          },
         }),
       },
       pointLabel: {
         name: fieldName["pointLabel"],
         onClick: onFieldAdd({
-          cleanseOverride,
+          cleanseOverride: {
+            marker: {
+              style: null,
+              label: null,
+              labelTypography: null,
+              heightReference: null,
+              labelText: null,
+              extrude: null,
+              labelBackground: null,
+              labelBackgroundColor: null,
+            },
+          },
         }),
       },
       pointModel: {
         name: fieldName["pointModel"],
         onClick: onFieldAdd({
           scale: 1,
-          cleanseOverride: { model: undefined },
+          cleanseOverride: { model: null },
         }),
       },
       pointStroke: {
         name: fieldName["pointStroke"],
         onClick: onFieldAdd({
-          cleanseOverride,
+          cleanseOverride: {
+            marker: {
+              style: null,
+              pointOutlineColor: null,
+              pointOutlineWidth: null,
+            },
+          },
         }),
       },
       pointCSV: {

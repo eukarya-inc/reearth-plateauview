@@ -208,12 +208,12 @@ export default () => {
           }
           if (updatedDataset.visible) {
             const prevOverrides = processOverrides(updatedDatasets[datasetIndex].components);
-            const overrides = processOverrides(updatedDataset.components);
+            const overrides = processOverrides(updatedDataset.components, cleanseOverride);
 
-            if (!isEqual(prevOverrides, overrides) || cleanseOverride) {
+            if (!isEqual(prevOverrides, overrides)) {
               postMsg({
                 action: "updateDatasetInScene",
-                payload: { dataID: updatedDataset.dataID, overrides: overrides ?? cleanseOverride },
+                payload: { dataID: updatedDataset.dataID, overrides },
               });
             }
           }
@@ -666,11 +666,16 @@ const convertToData = (item: DataCatalogItem): Data => {
   };
 };
 
-export const processOverrides = (components?: FieldComponent[], cleanse?: boolean) => {
-  if (!components || !components.length) return;
-  const overrides = {};
+export const processOverrides = (components?: FieldComponent[], cleanseOverride?: any) => {
+  if (!components || !components.length) {
+    if (cleanseOverride) {
+      return cleanseOverride;
+    }
+    return;
+  }
+  const overrides = cleanseOverride ?? {};
   for (let i = 0; i < components.length; i++) {
-    merge(overrides, cleanse ? components[i].cleanseOverride : components[i].override);
+    merge(overrides, components[i].override);
   }
   return overrides;
 };

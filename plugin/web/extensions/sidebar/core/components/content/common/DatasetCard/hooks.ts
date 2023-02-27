@@ -69,21 +69,21 @@ export default ({
   );
 
   const handleFieldRemove = useCallback(
-    (id: string, cleanseOverride?: any) => {
+    (id: string) => {
       if (!inEditor) return;
       const newDatasetComponents = dataset.components ? [...dataset.components] : [];
       const componentIndex = newDatasetComponents?.findIndex(c => c.id === id);
 
       if (!newDatasetComponents || componentIndex === undefined) return;
 
-      newDatasetComponents.splice(componentIndex, 1);
+      const removedDataset = newDatasetComponents.splice(componentIndex, 1)[0];
 
       onDatasetUpdate?.(
         {
           ...dataset,
           components: newDatasetComponents,
         },
-        cleanseOverride,
+        removedDataset.cleanseOverride,
       );
     },
     [dataset, inEditor, onDatasetUpdate],
