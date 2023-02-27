@@ -1,7 +1,6 @@
 import { Group } from "@web/extensions/sidebar/core/types";
 
 export const generalFieldName = {
-  groupName: "一般",
   idealZoom: "カメラ",
   legend: "凡例",
   realtime: "リアルタイム",
@@ -16,7 +15,6 @@ export const generalFieldName = {
 };
 
 export const pointFieldName = {
-  groupName: "ポイント",
   pointColor: "色",
   pointColorGradient: "色（Gradient）",
   pointSize: "サイズ",
@@ -28,14 +26,12 @@ export const pointFieldName = {
 };
 
 export const polygonFieldName = {
-  groupName: "ポリゴン",
   polygonColor: "ポリゴン色",
   polygonColorGradient: "ポリゴン色（Gradient）",
   polygonStroke: "ポリゴンストロック",
 };
 
 export const threeDFieldName = {
-  groupName: "3Dタイル",
   search: "データを検索",
   clipping: "クリッピング",
   buildingFilter: "建物フィルター",
@@ -45,14 +41,12 @@ export const threeDFieldName = {
 };
 
 export const polylineFieldName = {
-  groupName: "ポリライン",
   polylineColor: "ポリライン色",
   polylineColorGradient: "ポリライン色（Gradient）",
   polylineStrokeWeight: "ポリラインストロック",
 };
 
 export const templateFieldName = {
-  groupName: "テンプレート",
   template: "テンプレート",
 };
 
@@ -63,7 +57,6 @@ export const fieldName = {
   ...threeDFieldName,
   ...polylineFieldName,
   ...templateFieldName,
-  groupName: "",
 };
 
 // type Component = Camera | Legend | Realtime | Point | Polyline | Polygon | Model | Description;

@@ -40,19 +40,17 @@ export type Props = {
 
 const getFieldGroup = (field: string) => {
   if (field in generalFieldName) {
-    return generalFieldName.groupName;
+    return "一般";
   } else if (field in pointFieldName) {
-    return pointFieldName.groupName;
+    return "ポイント";
   } else if (field in polygonFieldName) {
-    return polygonFieldName.groupName;
+    return "ポリゴン";
   } else if (field in threeDFieldName) {
-    return threeDFieldName.groupName;
+    return "3Dタイル";
   } else if (field in polylineFieldName) {
-    return polylineFieldName.groupName;
-    // } else if (field in threeDModelFieldName) {
-    //   return threeDModelFieldName.groupName;
+    return "ポリライン";
   } else if (field in templateFieldName) {
-    return templateFieldName.groupName;
+    return "テンプレート";
   }
 };
 
