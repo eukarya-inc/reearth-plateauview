@@ -666,11 +666,11 @@ const convertToData = (item: DataCatalogItem): Data => {
   };
 };
 
-const processOverrides = (components?: FieldComponent[]) => {
+export const processOverrides = (components?: FieldComponent[], cleanse?: boolean) => {
   if (!components || !components.length) return;
   const overrides = {};
   for (let i = 0; i < components.length; i++) {
-    merge(overrides, components[i].override);
+    merge(overrides, cleanse ? components[i].cleanseOverride : components[i].override);
   }
   return overrides;
 };
