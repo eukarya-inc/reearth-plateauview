@@ -2,15 +2,7 @@ import { Group, Template } from "@web/extensions/sidebar/core/types";
 import { generateID } from "@web/extensions/sidebar/utils";
 import { useMemo } from "react";
 
-import {
-  fieldName,
-  generalFieldName,
-  pointFieldName,
-  polygonFieldName,
-  polylineFieldName,
-  templateFieldName,
-  threeDFieldName,
-} from "./Fields/types";
+import { fieldName } from "./Fields/types";
 
 type FieldDropdownItem = {
   [key: string]: { name: string; onClick: (property: any) => void };
@@ -162,7 +154,7 @@ export default ({
     };
   }, [onFieldAdd]);
 
-  const threeDTileFields: FieldDropdownItem = useMemo(() => {
+  const ThreeDTileFields: FieldDropdownItem = useMemo(() => {
     return {
       buildingColor: {
         name: fieldName["buildingColor"],
@@ -202,9 +194,9 @@ export default ({
     };
   }, [onFieldAdd]);
 
-  // const threeDModelFields: FieldDropdownItem = {};
+  // const ThreeDModelFields: FieldDropdownItem = {};
 
-  const templateFields: FieldDropdownItem | undefined = useMemo(
+  const TemplateFields: FieldDropdownItem | undefined = useMemo(
     () =>
       templates?.length
         ? templates
@@ -234,23 +226,23 @@ export default ({
       };
     } = {
       general: {
-        name: generalFieldName.groupName,
+        name: "一般",
         fields: generalFields,
       },
       point: {
-        name: pointFieldName.groupName,
+        name: "ポイント",
         fields: pointFields,
       },
-      polygone: { name: polygonFieldName.groupName, fields: polygonFields },
-      polyline: { name: polylineFieldName.groupName, fields: polylineFields },
-      // "3d-model": { name: threeDModelFieldName.groupName, fields: threeDModelFields },
-      "3d-tile": { name: threeDFieldName.groupName, fields: threeDTileFields },
+      polygone: { name: "ポリゴン", fields: polygonFields },
+      polyline: { name: "ポリライン", fields: polylineFields },
+      // "3d-model": { name: "3Dモデル", fields: ThreeDModelFields },
+      "3d-tile": { name: "3Dタイル", fields: ThreeDTileFields },
     };
-    if (templateFields) {
-      groups["templates"] = { name: templateFieldName.groupName, fields: templateFields };
+    if (TemplateFields) {
+      groups["templates"] = { name: "テンプレート", fields: TemplateFields };
     }
     return groups;
-  }, [generalFields, pointFields, polygonFields, polylineFields, threeDTileFields, templateFields]);
+  }, [generalFields, pointFields, polygonFields, polylineFields, ThreeDTileFields, TemplateFields]);
 
   return fieldComponentsList;
 };
