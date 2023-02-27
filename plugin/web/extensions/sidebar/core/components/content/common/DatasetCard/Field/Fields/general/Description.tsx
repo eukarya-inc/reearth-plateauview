@@ -73,6 +73,6 @@ const SwitchWrapper = styled.div`
 
 const Markdown = styled.div`
   img {
-    width: 100%;
+    max-width: 100%;
   }
 `;
