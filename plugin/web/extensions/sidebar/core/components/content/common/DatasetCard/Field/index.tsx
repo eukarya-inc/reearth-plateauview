@@ -2,7 +2,7 @@ import { Group } from "@web/extensions/sidebar/core/types";
 import { postMsg } from "@web/extensions/sidebar/utils";
 import { Icon } from "@web/sharedComponents";
 import { styled } from "@web/theme";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   Accordion,
   AccordionItem,
@@ -107,6 +107,14 @@ const FieldComponent: React.FC<Props> = ({
     };
   }, [groupPopupOpen, onGroupsUpdate]);
 
+  const title = useMemo(
+    () =>
+      editMode && field.type === "template"
+        ? `${field.name}(${getFieldGroup(field.type)})`
+        : `${fieldName[field.type]}(${getFieldGroup(field.type)})`,
+    [editMode, field],
+  );
+
   return !editMode && !isActive ? null : (
     <StyledAccordionComponent
       allowZeroExpanded
@@ -122,11 +130,7 @@ const FieldComponent: React.FC<Props> = ({
                     {Field && (
                       <ArrowIcon icon="arrowDown" size={16} direction="right" expanded={expanded} />
                     )}
-                    <Title>
-                      {field.type === "template"
-                        ? `${field.name}(${getFieldGroup(field.type)})`
-                        : `${fieldName[field.type]}(${getFieldGroup(field.type)})`}
-                    </Title>
+                    <Title>{title}</Title>
                   </LeftContents>
                   <RightContents>
                     <StyledIcon
@@ -140,7 +144,7 @@ const FieldComponent: React.FC<Props> = ({
                 </HeaderContents>
               ) : (
                 <HeaderContents>
-                  <Title>{`${fieldName[field.type]}(${getFieldGroup(field.type)})`}</Title>
+                  <Title>{title}</Title>
                   <ArrowIcon icon="arrowDown" size={16} direction="left" expanded={expanded} />
                 </HeaderContents>
               )}
