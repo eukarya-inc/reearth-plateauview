@@ -61,7 +61,7 @@ const reearth = (globalThis as any).reearth;
 
 let welcomePageIsOpen = false;
 let mobileDropdownIsOpen = false;
-let buildingSearchIsOpen = false;
+let openedBuildingSearchDataID: string | null = null;
 
 // this is used for infobox
 let currentSelected: string | undefined = undefined;
@@ -196,7 +196,8 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
       addedDatasets[idx][1] = "showing";
       reearth.layers.show(addedDatasets[idx][2]);
     } else {
-      const data = createLayer(payload.dataset, payload.updates);
+      const data = createLayer(payload.dataset, payload.overrides);
+      console.log("DATA to add", data);
       const layerID = reearth.layers.add(data);
       const idx = addedDatasets.push([payload.dataset.dataID, "showing", layerID]);
       if (!payload.dataset.visible) {
@@ -209,7 +210,7 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
     const layer = reearth.layers.findById(layerId);
     reearth.layers.override(
       layerId,
-      layer.data.type === "gtfs" ? proxyGTFS(payload.update) : payload.update,
+      layer.data.type === "gtfs" ? proxyGTFS(payload.overrides) : payload.overrides,
     );
   } else if (action === "updateDatasetVisibility") {
     const idx = addedDatasets.findIndex(ad => ad[0] === payload.dataID);
@@ -224,9 +225,15 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
     reearth.layers.delete(addedDatasets.find(ad => ad[0] === payload)?.[2]);
     const idx = addedDatasets.findIndex(ad => ad[0] === payload);
     addedDatasets.splice(idx, 1);
+    if (openedBuildingSearchDataID && openedBuildingSearchDataID === payload) {
+      reearth.popup.close();
+    }
   } else if (action === "removeAllDatasetsFromScene") {
     reearth.layers.delete(...addedDatasets.map(ad => ad[2]));
     addedDatasets = [];
+    if (openedBuildingSearchDataID) {
+      reearth.popup.close();
+    }
   } else if (action === "updateDataset") {
     reearth.ui.postMessage({ action, payload });
   } else if (
@@ -310,7 +317,7 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
         data: payload,
       },
     });
-    buildingSearchIsOpen = true;
+    openedBuildingSearchDataID = payload.dataID;
   } else if (action === "cameraFlyTo") {
     if (Array.isArray(payload)) {
       reearth.camera.flyTo(...payload);
@@ -591,7 +598,7 @@ reearth.on("resize", () => {
     });
   }
 
-  if (buildingSearchIsOpen) {
+  if (openedBuildingSearchDataID) {
     reearth.popup.postMessage({
       type: "resize",
       payload: reearth.viewport,
@@ -677,7 +684,11 @@ reearth.on("select", (selected: string | undefined) => {
   }
 });
 
-function createLayer(dataset: DataCatalogItem, options?: any) {
+reearth.on("popupclose", () => {
+  openedBuildingSearchDataID = null;
+});
+
+function createLayer(dataset: DataCatalogItem, overrides?: any) {
   const format = dataset.format?.toLowerCase();
   return {
     type: "simple",
@@ -710,8 +721,8 @@ function createLayer(dataset: DataCatalogItem, options?: any) {
             },
           }
         : null,
-    ...(options
-      ? options
+    ...(overrides !== undefined
+      ? overrides
       : format === "geojson"
       ? {
           marker: {},
@@ -719,13 +730,13 @@ function createLayer(dataset: DataCatalogItem, options?: any) {
           polyline: {},
         }
       : format === "gtfs"
-      ? proxyGTFS(options)
+      ? proxyGTFS(overrides)
       : format === "mvt"
       ? {
           polygon: {},
         }
       : format === "czml"
       ? { resource: {} }
-      : { ...(options ?? {}) }),
+      : { ...(overrides ?? {}) }),
   };
 }
