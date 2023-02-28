@@ -1,17 +1,19 @@
 import { DataCatalogItem } from "@web/extensions/sidebar/core/types";
 import { Button, Icon } from "@web/sharedComponents";
 import { styled } from "@web/theme";
-import { useCallback, useMemo } from "react";
+import { useCallback, useEffect, useMemo } from "react";
 
 export type Props = {
   item: DataCatalogItem;
   isMobile?: boolean;
   nestLevel: number;
   selectedID?: string;
+  nodeKey: string;
   addDisabled: (dataID: string) => boolean;
   onDatasetAdd: (dataset: DataCatalogItem) => void;
   onOpenDetails?: (item?: DataCatalogItem) => void;
-  onSelect?: (dataID: string) => void;
+  onSelect?: (dataID: string, nodeKey?: string) => void;
+  setSelectedKey: (key: string) => void;
 };
 
 const File: React.FC<Props> = ({
@@ -19,10 +21,12 @@ const File: React.FC<Props> = ({
   isMobile,
   nestLevel,
   selectedID,
+  nodeKey,
   addDisabled,
   onDatasetAdd,
   onOpenDetails,
   onSelect,
+  setSelectedKey,
 }) => {
   const handleClick = useCallback(() => {
     onDatasetAdd(item);
@@ -37,6 +41,10 @@ const File: React.FC<Props> = ({
     () => (item.type !== "group" ? selectedID === item.id : false),
     [selectedID, item],
   );
+
+  useEffect(() => {
+    if (selected) setSelectedKey(nodeKey);
+  }, [nodeKey, selected, setSelectedKey]);
 
   return (
     <Wrapper nestLevel={nestLevel} selected={selected}>
