@@ -15,7 +15,7 @@ type Props = {
   addDisabled: (dataID: string) => boolean;
   onDatasetAdd: (dataset: DataCatalogItem) => void;
   onOpenDetails?: (item?: DataCatalogItem) => void;
-  onSelect?: (dataID: string, nodeKey?: string) => void;
+  onSelect?: (dataID: string) => void;
   onExpand: (key: string) => void;
   setSelectedKey: (key: string) => void;
 };

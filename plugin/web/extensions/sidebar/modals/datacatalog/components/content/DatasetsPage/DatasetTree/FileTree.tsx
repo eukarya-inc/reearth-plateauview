@@ -27,7 +27,7 @@ const FileTree: React.FC<Props> = ({
   const [selectedKey, setSelectedKey] = useState("");
   const [expandedKeys, setExpandedKeys] = useState<string[]>([]);
 
-  const handleExpand = (key: string) => {
+  const handleExpand = useCallback((key: string) => {
     setExpandedKeys((prevState: string[]) => {
       const newExpandedKeys = [...prevState];
       if (prevState.includes(key)) {
@@ -38,35 +38,33 @@ const FileTree: React.FC<Props> = ({
       }
       return newExpandedKeys;
     });
-  };
+  }, []);
 
   const handleSelect = useCallback((dataID?: string) => {
     select(dataID);
   }, []);
 
-  const expandAllParents = (key: string) => {
-    const arr = key.split("-");
-    while (arr.length > 1) {
-      arr.pop();
-      const parent = arr.join("-");
+  const expandAllParentKeys = useCallback((key: string) => {
+    const keyArr = key.split("-");
+    while (keyArr.length > 1) {
+      keyArr.pop();
+      const parent = keyArr.join("-");
       setExpandedKeys((prevState: string[]) => {
         const newExpandedKeys = [...prevState];
-        if (!prevState.includes(parent)) {
-          newExpandedKeys.push(parent);
-        }
+        if (!prevState.includes(parent)) newExpandedKeys.push(parent);
         return newExpandedKeys;
       });
     }
-  };
+  }, []);
 
   useEffect(() => {
     const { selectedDataset } = window as any;
     if (selectedDataset) {
       onOpenDetails?.(selectedDataset);
       handleSelect(selectedDataset.dataID);
-      if (selectedKey) expandAllParents(selectedKey);
+      if (selectedKey) expandAllParentKeys(selectedKey);
     }
-  }, [handleSelect, onOpenDetails, selectedKey]);
+  }, [expandAllParentKeys, handleSelect, onOpenDetails, selectedKey]);
 
   return (
     <TreeWrapper isMobile={isMobile}>
