@@ -33,7 +33,7 @@ export type Props = {
   savingDataset: boolean;
   onDatasetSave: (dataID: string) => void;
   onDatasetRemove?: (dataID: string) => void;
-  onDatasetUpdate: (dataset: DataCatalogItem) => void;
+  onDatasetUpdate: (dataset: DataCatalogItem, cleanseOverride?: any) => void;
   onUpdateField?: (id: string) => void;
   onThreeDTilesSearch: (id: string) => void;
 };
@@ -51,7 +51,6 @@ const DatasetCard: React.FC<Props> = ({
   const [currentTab, changeTab] = useState<Tabs>("default");
 
   const {
-    defaultTemplate,
     activeComponentIDs,
     fieldComponentsList,
     handleFieldUpdate,
@@ -217,54 +216,10 @@ const DatasetCard: React.FC<Props> = ({
                 <Text>オープンデータを入手</Text>
               </OpenDataButton>
             )}
-            {defaultTemplate?.components?.map((tc, idx) => {
-              if (currentTab === "edit") return;
-              return (
-                <Field
-                  key={idx}
-                  field={tc}
-                  isActive={!!activeComponentIDs?.find(id => id === tc.id)}
-                  dataID={dataset.dataID}
-                  selectGroups={dataset.fieldGroups}
-                  configData={dataset.config?.data}
-                  onUpdate={handleFieldUpdate}
-                />
-              );
-            }) ??
-              dataset.components?.map((c, idx) => {
-                if (c.type === "template") {
-                  const template = templates?.find(t => t.id === c.templateID);
-                  return inEditor && currentTab === "edit" ? (
-                    <Field
-                      key={idx}
-                      field={c}
-                      isActive={!!activeComponentIDs?.find(id => id === c.id)}
-                      dataID={dataset.dataID}
-                      editMode={inEditor && currentTab === "edit"}
-                      selectGroups={dataset.fieldGroups}
-                      configData={dataset.config?.data}
-                      onUpdate={handleFieldUpdate}
-                      onRemove={handleFieldRemove}
-                      onGroupsUpdate={handleGroupsUpdate(c.id)}
-                      onCurrentGroupChange={handleCurrentGroupChange}
-                    />
-                  ) : (
-                    template?.components?.map((tc, idx2) => (
-                      <Field
-                        key={idx2}
-                        field={tc}
-                        isActive={!!activeComponentIDs?.find(id => id === c.id)}
-                        dataID={dataset.dataID}
-                        selectGroups={dataset.fieldGroups}
-                        configData={dataset.config?.data}
-                        onUpdate={handleFieldUpdate}
-                        onRemove={handleFieldRemove}
-                        onCurrentGroupChange={handleCurrentGroupChange}
-                      />
-                    ))
-                  );
-                }
-                return (
+            {dataset.components?.map((c, idx) => {
+              if (c.type === "template") {
+                const template = templates?.find(t => t.id === c.templateID);
+                return inEditor && currentTab === "edit" ? (
                   <Field
                     key={idx}
                     field={c}
@@ -278,8 +233,38 @@ const DatasetCard: React.FC<Props> = ({
                     onGroupsUpdate={handleGroupsUpdate(c.id)}
                     onCurrentGroupChange={handleCurrentGroupChange}
                   />
+                ) : (
+                  template?.components?.map((tc, idx2) => (
+                    <Field
+                      key={idx2}
+                      field={tc}
+                      isActive={!!activeComponentIDs?.find(id => id === c.id)}
+                      dataID={dataset.dataID}
+                      selectGroups={dataset.fieldGroups}
+                      configData={dataset.config?.data}
+                      onUpdate={handleFieldUpdate}
+                      onRemove={handleFieldRemove}
+                      onCurrentGroupChange={handleCurrentGroupChange}
+                    />
+                  ))
                 );
-              })}
+              }
+              return (
+                <Field
+                  key={idx}
+                  field={c}
+                  isActive={!!activeComponentIDs?.find(id => id === c.id)}
+                  dataID={dataset.dataID}
+                  editMode={inEditor && currentTab === "edit"}
+                  selectGroups={dataset.fieldGroups}
+                  configData={dataset.config?.data}
+                  onUpdate={handleFieldUpdate}
+                  onRemove={handleFieldRemove}
+                  onGroupsUpdate={handleGroupsUpdate(c.id)}
+                  onCurrentGroupChange={handleCurrentGroupChange}
+                />
+              );
+            })}
           </Content>
           {inEditor && currentTab === "edit" && (
             <>

@@ -196,7 +196,8 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
       addedDatasets[idx][1] = "showing";
       reearth.layers.show(addedDatasets[idx][2]);
     } else {
-      const data = createLayer(payload.dataset, payload.updates);
+      const data = createLayer(payload.dataset, payload.overrides);
+      console.log("DATA to add", data);
       const layerID = reearth.layers.add(data);
       const idx = addedDatasets.push([payload.dataset.dataID, "showing", layerID]);
       if (!payload.dataset.visible) {
@@ -209,7 +210,7 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
     const layer = reearth.layers.findById(layerId);
     reearth.layers.override(
       layerId,
-      layer.data.type === "gtfs" ? proxyGTFS(payload.update) : payload.update,
+      layer.data.type === "gtfs" ? proxyGTFS(payload.overrides) : payload.overrides,
     );
   } else if (action === "updateDatasetVisibility") {
     const idx = addedDatasets.findIndex(ad => ad[0] === payload.dataID);
@@ -628,16 +629,66 @@ reearth.on("pluginmessage", (pluginMessage: PluginMessage) => {
   }
 });
 
+let currentClickedFeatureId: string;
+
 reearth.on("select", (selected: string | undefined) => {
   // this is used for infobox
   currentSelected = selected;
+
+  const feature = reearth.layers.selectedFeature;
+  currentClickedFeatureId = feature
+    ? feature?.properties?.gml_id // For 3dtiles
+    : undefined;
+
+  let nextConditions: any[] | undefined;
+  let shouldUpdateTilesetColor = true;
+
+  // Reset previous select color for 3dtiles
+  const prevOverriddenLayer = reearth.layers.overridden.find((l: any) => l.id === selected);
+  const prevCondition = prevOverriddenLayer?.["3dtiles"].color?.expression?.conditions;
+  if (
+    currentClickedFeatureId &&
+    prevOverriddenLayer &&
+    prevOverriddenLayer.data.type === "3dtiles"
+  ) {
+    shouldUpdateTilesetColor = !prevCondition?.find(
+      (c: [string, string]) => c[0] === `\${gml_id} === "${currentClickedFeatureId}"`,
+    );
+    nextConditions =
+      prevCondition?.filter((c: [string, string]) => !c[0].startsWith('${gml_id} === "')) ?? [];
+  }
+
+  // Handle select color for 3dtiles
+  const overriddenLayer = reearth.layers.overridden.find((l: any) => l.id === selected);
+  if (
+    !feature ||
+    overriddenLayer?.data?.type !== "3dtiles" ||
+    !currentClickedFeatureId ||
+    !shouldUpdateTilesetColor
+  ) {
+    return;
+  } else {
+    reearth.layers.override(selected, {
+      "3dtiles": {
+        color: {
+          expression: {
+            conditions: [
+              [`\${gml_id} === "${currentClickedFeatureId}"`, "color('red')"],
+              ...(nextConditions ??
+                (overriddenLayer?.["3dtiles"]?.color?.expression?.conditions || [])),
+            ],
+          },
+        },
+      },
+    });
+  }
 });
 
 reearth.on("popupclose", () => {
   openedBuildingSearchDataID = null;
 });
 
-function createLayer(dataset: DataCatalogItem, options?: any) {
+function createLayer(dataset: DataCatalogItem, overrides?: any) {
   const format = dataset.format?.toLowerCase();
   return {
     type: "simple",
@@ -670,8 +721,8 @@ function createLayer(dataset: DataCatalogItem, options?: any) {
             },
           }
         : null,
-    ...(options
-      ? options
+    ...(overrides !== undefined
+      ? overrides
       : format === "geojson"
       ? {
           marker: {},
@@ -679,13 +730,13 @@ function createLayer(dataset: DataCatalogItem, options?: any) {
           polyline: {},
         }
       : format === "gtfs"
-      ? proxyGTFS(options)
+      ? proxyGTFS(overrides)
       : format === "mvt"
       ? {
           polygon: {},
         }
       : format === "czml"
       ? { resource: {} }
-      : { ...(options ?? {}) }),
+      : { ...(overrides ?? {}) }),
   };
 }

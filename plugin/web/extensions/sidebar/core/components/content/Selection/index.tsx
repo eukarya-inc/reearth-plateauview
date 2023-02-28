@@ -12,7 +12,7 @@ export type Props = {
   templates?: Template[];
   savingDataset: boolean;
   onDatasetSave: (dataID: string) => void;
-  onDatasetUpdate: (dataset: DataCatalogItem) => void;
+  onDatasetUpdate: (dataset: DataCatalogItem, cleanseOverride?: any) => void;
   onDatasetRemove: (dataID: string) => void;
   onDatasetRemoveAll: () => void;
   onModalOpen?: () => void;
