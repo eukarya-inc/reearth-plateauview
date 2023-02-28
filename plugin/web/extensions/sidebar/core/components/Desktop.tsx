@@ -87,6 +87,7 @@ const DesktopSidebar: React.FC<Props> = ({ className }) => {
                   onDatasetRemoveAll={handleProjectDatasetRemoveAll}
                   onModalOpen={handleModalOpen}
                   onThreeDTilesSearch={handleThreeDTilesSearch}
+                  onProjectSceneUpdate={handleProjectSceneUpdate}
                 />
               ),
               map: (

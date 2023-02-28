@@ -8,11 +8,18 @@ import useHooks from "./hooks";
 import SelectField from "./SelectField";
 import SwitchField from "./SwitchField";
 
-const Clipping: React.FC<BaseFieldProps<"clipping">> = ({ value, dataID, editMode, onUpdate }) => {
+const Clipping: React.FC<BaseFieldProps<"clipping">> = ({
+  value,
+  dataID,
+  editMode,
+  onUpdate,
+  onProjectSceneUpdate,
+}) => {
   const { options, handleUpdateBool, handleUpdateSelect } = useHooks({
     value,
     dataID,
     onUpdate,
+    onProjectSceneUpdate,
   });
 
   return editMode ? null : (

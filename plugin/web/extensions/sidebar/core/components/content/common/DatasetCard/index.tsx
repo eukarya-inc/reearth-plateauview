@@ -1,4 +1,5 @@
 import { DataCatalogItem, Template } from "@web/extensions/sidebar/core/types";
+import { ReearthApi } from "@web/extensions/sidebar/types";
 import { postMsg } from "@web/extensions/sidebar/utils";
 import { Dropdown, Icon, Menu } from "@web/sharedComponents";
 import { styled } from "@web/theme";
@@ -35,6 +36,7 @@ export type Props = {
   onDatasetUpdate: (dataset: DataCatalogItem, cleanseOverride?: any) => void;
   onUpdateField?: (id: string) => void;
   onThreeDTilesSearch: (id: string) => void;
+  onProjectSceneUpdate: (updatedProperties: Partial<ReearthApi>) => void;
 };
 const DatasetCard: React.FC<Props> = ({
   dataset,
@@ -45,6 +47,7 @@ const DatasetCard: React.FC<Props> = ({
   onDatasetUpdate,
   // onUpdateField,
   onThreeDTilesSearch,
+  onProjectSceneUpdate,
 }) => {
   const [currentTab, changeTab] = useState<Tabs>("default");
 
@@ -230,6 +233,7 @@ const DatasetCard: React.FC<Props> = ({
                     onRemove={handleFieldRemove}
                     onGroupsUpdate={handleGroupsUpdate(c.id)}
                     onCurrentGroupChange={handleCurrentGroupChange}
+                    onProjectSceneUpdate={onProjectSceneUpdate}
                   />
                 ) : (
                   template?.components?.map((tc, idx2) => (
@@ -243,6 +247,7 @@ const DatasetCard: React.FC<Props> = ({
                       onUpdate={handleFieldUpdate}
                       onRemove={handleFieldRemove}
                       onCurrentGroupChange={handleCurrentGroupChange}
+                      onProjectSceneUpdate={onProjectSceneUpdate}
                     />
                   ))
                 );
@@ -260,6 +265,7 @@ const DatasetCard: React.FC<Props> = ({
                   onRemove={handleFieldRemove}
                   onGroupsUpdate={handleGroupsUpdate(c.id)}
                   onCurrentGroupChange={handleCurrentGroupChange}
+                  onProjectSceneUpdate={onProjectSceneUpdate}
                 />
               );
             })}

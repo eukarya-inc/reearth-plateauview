@@ -1,4 +1,5 @@
 import Footer from "@web/extensions/sidebar/core/components/Footer";
+import { ReearthApi } from "@web/extensions/sidebar/types";
 import { Icon } from "@web/sharedComponents";
 import { styled } from "@web/theme";
 
@@ -16,6 +17,7 @@ export type Props = {
   onDatasetRemoveAll: () => void;
   onModalOpen?: () => void;
   onThreeDTilesSearch: (id: string) => void;
+  onProjectSceneUpdate: (updatedProperties: Partial<ReearthApi>) => void;
 };
 
 const Selection: React.FC<Props> = ({
@@ -29,6 +31,7 @@ const Selection: React.FC<Props> = ({
   onDatasetRemoveAll,
   onModalOpen,
   onThreeDTilesSearch,
+  onProjectSceneUpdate,
 }) => {
   return (
     <Wrapper className={className}>
@@ -50,6 +53,7 @@ const Selection: React.FC<Props> = ({
               onDatasetUpdate={onDatasetUpdate}
               onDatasetRemove={onDatasetRemove}
               onThreeDTilesSearch={onThreeDTilesSearch}
+              onProjectSceneUpdate={onProjectSceneUpdate}
             />
           ))
           .reverse()}

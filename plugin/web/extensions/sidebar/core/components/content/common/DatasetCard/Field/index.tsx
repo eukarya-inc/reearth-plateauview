@@ -1,4 +1,5 @@
 import { Group } from "@web/extensions/sidebar/core/types";
+import { ReearthApi } from "@web/extensions/sidebar/types";
 import { postMsg } from "@web/extensions/sidebar/utils";
 import { Icon } from "@web/sharedComponents";
 import { styled } from "@web/theme";
@@ -36,6 +37,7 @@ export type Props = {
   onRemove?: (id: string) => void;
   onGroupsUpdate?: (groups: Group[], selectedGroup?: string) => void;
   onCurrentGroupChange?: (fieldGroupID: string) => void;
+  onProjectSceneUpdate: (updatedProperties: Partial<ReearthApi>) => void;
 };
 
 const getFieldGroup = (field: string) => {
@@ -65,6 +67,7 @@ const FieldComponent: React.FC<Props> = ({
   onRemove,
   onGroupsUpdate,
   onCurrentGroupChange,
+  onProjectSceneUpdate,
 }) => {
   const Field = field.type === "template" ? null : fields[field.type];
   const [groupPopupOpen, setGroupPopup] = useState(false);
@@ -162,6 +165,7 @@ const FieldComponent: React.FC<Props> = ({
               dataID={dataID}
               onUpdate={onUpdate?.(field.id)}
               onCurrentGroupChange={onCurrentGroupChange}
+              onProjectSceneUpdate={onProjectSceneUpdate}
             />
           </BodyWrapper>
         )}

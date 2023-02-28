@@ -12,7 +12,8 @@ const useHooks = ({
   value,
   dataID,
   onUpdate,
-}: Pick<BaseFieldProps<"clipping">, "value" | "dataID" | "onUpdate">) => {
+  onProjectSceneUpdate,
+}: Pick<BaseFieldProps<"clipping">, "value" | "dataID" | "onUpdate" | "onProjectSceneUpdate">) => {
   const [options, setOptions] = useState<OptionsState>({
     enabled: false,
     show: false,
@@ -25,10 +26,13 @@ const useHooks = ({
       setOptions(o => {
         const next = { ...o, [prop]: v ?? !o[prop] };
         onUpdate({ id: value.id, type: value.type, group: value.group, ...next });
+        if (prop === "aboveGroundOnly") {
+          onProjectSceneUpdate({ default: { allowEnterGround: !next.aboveGroundOnly } });
+        }
         return next;
       });
     },
-    [onUpdate, value],
+    [onUpdate, value, onProjectSceneUpdate],
   );
 
   const handleUpdateBool = useCallback(

@@ -16,7 +16,6 @@ export const useClippingBox = ({
       if (options.enabled && !renderer.current) {
         renderer.current = await mountClippingBox({
           dataID,
-          keepBoxAboveGround: options.aboveGroundOnly,
           show: options.show,
           direction: options.direction,
         });
@@ -24,7 +23,6 @@ export const useClippingBox = ({
       if (renderer.current) {
         renderer.current.update({
           dataID,
-          keepBoxAboveGround: options.aboveGroundOnly,
           show: options.show,
           direction: options.direction,
         });
@@ -57,7 +55,6 @@ type BoxState = {
 
 type ClippingBoxState = {
   dataID: string | undefined;
-  keepBoxAboveGround: boolean;
   direction: "inside" | "outside";
   show: boolean;
 };
@@ -73,15 +70,15 @@ const mountClippingBox = async (initialState: ClippingBoxState): Promise<Clippin
     viewport.width / 2,
     viewport.height / 2,
   );
-  const location: LatLngHeight = {
-    lng: centerOnScreen.lng,
-    lat: centerOnScreen.lat,
-    height: 0,
-  };
   const dimensions = {
     width: 100,
     height: 100,
     length: 100,
+  };
+  const location: LatLngHeight = {
+    lng: centerOnScreen.lng,
+    lat: centerOnScreen.lat,
+    height: dimensions.height,
   };
   // const clipping = {};
   const box = {
@@ -101,7 +98,6 @@ const mountClippingBox = async (initialState: ClippingBoxState): Promise<Clippin
   };
 
   const state = {
-    keepBoxAboveGround: !!initialState.keepBoxAboveGround,
     dataID: initialState.dataID,
     isVisible: !!initialState.show,
     direction: initialState.direction,
@@ -148,7 +144,6 @@ const mountClippingBox = async (initialState: ClippingBoxState): Promise<Clippin
   const update = (next: ClippingBoxState) => {
     state.dataID = next.dataID;
     state.isVisible = next.show;
-    state.keepBoxAboveGround = next.keepBoxAboveGround;
     state.direction = next.direction;
     updateBox();
   };

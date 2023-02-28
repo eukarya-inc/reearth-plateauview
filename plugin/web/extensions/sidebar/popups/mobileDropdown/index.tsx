@@ -90,6 +90,7 @@ const MobileDropdown: React.FC = () => {
               onDatasetRemove={handleProjectDatasetRemove}
               onDatasetRemoveAll={handleProjectDatasetRemoveAll}
               onThreeDTilesSearch={handleThreeDTilesSearch}
+              onProjectSceneUpdate={handleProjectSceneUpdate}
             />
           ),
           menu: (

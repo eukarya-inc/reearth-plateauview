@@ -1,5 +1,6 @@
 import SelectionComponent from "@web/extensions/sidebar/core/components/content/Selection";
 import { DataCatalogItem } from "@web/extensions/sidebar/core/types";
+import { ReearthApi } from "@web/extensions/sidebar/types";
 import { postMsg } from "@web/extensions/sidebar/utils";
 import { styled } from "@web/theme";
 import { useEffect } from "react";
@@ -13,6 +14,7 @@ type Props = {
   onDatasetRemove: (id: string) => void;
   onDatasetRemoveAll: () => void;
   onThreeDTilesSearch: (id: string) => void;
+  onProjectSceneUpdate: (updatedProperties: Partial<ReearthApi>) => void;
 };
 
 const Selection: React.FC<Props> = ({
@@ -22,6 +24,7 @@ const Selection: React.FC<Props> = ({
   onDatasetRemove,
   onDatasetRemoveAll,
   onThreeDTilesSearch,
+  onProjectSceneUpdate,
 }) => {
   useEffect(() => {
     postMsg({ action: "extendPopup" });
@@ -39,6 +42,7 @@ const Selection: React.FC<Props> = ({
         onDatasetRemove={onDatasetRemove}
         onDatasetRemoveAll={onDatasetRemoveAll}
         onThreeDTilesSearch={onThreeDTilesSearch}
+        onProjectSceneUpdate={onProjectSceneUpdate}
       />
     </Wrapper>
   );

@@ -1,4 +1,5 @@
 import { Group } from "@web/extensions/sidebar/core/types";
+import { ReearthApi } from "@web/extensions/sidebar/types";
 
 export const generalFieldName = {
   idealZoom: "カメラ",
@@ -359,6 +360,7 @@ export type BaseFieldProps<T extends keyof Fields> = {
   configData?: ConfigData[];
   onUpdate: (property: Fields[T]) => void;
   onCurrentGroupChange: (fieldGroupID: string) => void;
+  onProjectSceneUpdate: (updatedProperties: Partial<ReearthApi>) => void;
 };
 
 export type ConfigData = { name: string; type: string; url: string; layers?: string[] };
