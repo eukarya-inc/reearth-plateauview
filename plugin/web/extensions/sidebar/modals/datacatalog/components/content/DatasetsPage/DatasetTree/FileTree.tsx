@@ -63,6 +63,9 @@ const FileTree: React.FC<Props> = ({
       onOpenDetails?.(selectedDataset);
       handleSelect(selectedDataset.dataID);
       if (selectedKey) expandAllParentKeys(selectedKey);
+      setTimeout(() => {
+        (window as any).selectedDataset = undefined;
+      }, 500);
     }
   }, [expandAllParentKeys, handleSelect, onOpenDetails, selectedKey]);
 
