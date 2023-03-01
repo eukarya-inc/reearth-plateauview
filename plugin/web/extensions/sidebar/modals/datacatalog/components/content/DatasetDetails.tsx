@@ -39,10 +39,10 @@ const DatasetDetails: React.FC<Props> = ({
   }, [dataset, addDisabled, onDatasetAdd]);
 
   const popConfirmTitle = () => (
-    <div>
+    <>
       <p style={{ margin: 0 }}>Are you sure you want to publish</p>
       <p style={{ margin: 0 }}>this dataset?</p>
-    </div>
+    </>
   );
 
   return (
