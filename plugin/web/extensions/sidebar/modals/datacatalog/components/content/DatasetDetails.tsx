@@ -1,6 +1,7 @@
 import { DataCatalogItem } from "@web/extensions/sidebar/core/types";
 import { UserDataItem } from "@web/extensions/sidebar/modals/datacatalog/types";
 import { Icon, Popconfirm } from "@web/sharedComponents";
+import { PopconfirmProps } from "@web/sharedComponents/Popconfirm";
 import { styled } from "@web/theme";
 import { ComponentType, useCallback, useMemo } from "react";
 
@@ -38,12 +39,34 @@ const DatasetDetails: React.FC<Props> = ({
     onDatasetAdd(dataset);
   }, [dataset, addDisabled, onDatasetAdd]);
 
-  const popConfirmTitle = () => (
-    <>
-      <p style={{ margin: 0 }}>Are you sure you want to publish</p>
-      <p style={{ margin: 0 }}>this dataset?</p>
-    </>
-  );
+  const popConfirmProps: PopconfirmProps = {
+    title: (
+      <>
+        <PopConfirmText>Are you sure you want to publish</PopConfirmText>
+        <PopConfirmText>this dataset?</PopConfirmText>
+      </>
+    ),
+    placement: "topRight",
+    onConfirm: handleDatasetPublish,
+    okText: "Yes",
+    cancelText: "Cancel",
+    okButtonProps: {
+      style: {
+        backgroundColor: "#00BEBE",
+        width: "48%",
+        border: "none",
+      },
+    },
+    cancelButtonProps: {
+      type: "primary",
+      style: {
+        color: "#000000d9",
+        backgroundColor: "#FFFFFF",
+        width: "48%",
+        border: "1px solid #D9D9D9",
+      },
+    },
+  };
 
   return (
     <>
@@ -53,14 +76,7 @@ const DatasetDetails: React.FC<Props> = ({
           {"dataID" in dataset &&
             inEditor &&
             (!published ? (
-              <Popconfirm
-                title={popConfirmTitle}
-                placement="topRight"
-                onConfirm={handleDatasetPublish}
-                okText="Yes"
-                cancelText="Cancel"
-                okButtonProps={{ style: { backgroundColor: "#00BEBE", width: "48%" } }}
-                cancelButtonProps={{ style: { width: "48%" } }}>
+              <Popconfirm {...popConfirmProps}>
                 <PublishButton published={published}>
                   <HoverText published={published}>公開</HoverText>
                   <Text published={published}>未公開</Text>
@@ -178,4 +194,8 @@ const Text = styled.p<{ published?: boolean }>`
   ${PublishButton}:hover & {
     display: none;
   }
+`;
+
+const PopConfirmText = styled.p`
+  margin-bottom: 0;
 `;
