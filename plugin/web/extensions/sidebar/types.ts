@@ -63,7 +63,8 @@ type ActionType =
   | "infoboxFieldsSaved"
   | "updateTimeBasedDisplay"
   | "updatePointCSV"
-  | "resetPointCSV";
+  | "resetPointCSV"
+  | "getOverriddenLayerByDataID";
 // FIXME(@keiya01): support auto csv field complement
 // | "getLocationNamesFromCSVFeatureProperty"
 
