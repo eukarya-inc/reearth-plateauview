@@ -18,7 +18,7 @@ const MobileDropdown: React.FC = () => {
     catalog,
     project,
     selectedDatasets,
-    savingDataset,
+    loading,
     reearthURL,
     backendURL,
     backendProjectName,
@@ -86,7 +86,7 @@ const MobileDropdown: React.FC = () => {
           selection: (
             <Selection
               selectedDatasets={selectedDatasets}
-              savingDataset={savingDataset}
+              savingDataset={loading}
               onDatasetSave={handleDatasetSave}
               onDatasetUpdate={handleDatasetUpdate}
               onDatasetRemove={handleProjectDatasetRemove}
