@@ -1,7 +1,7 @@
 import { DataCatalogItem } from "@web/extensions/sidebar/core/types";
 import { UserDataItem } from "@web/extensions/sidebar/modals/datacatalog/types";
-import { Icon, Popconfirm } from "@web/sharedComponents";
-import { PopconfirmProps } from "@web/sharedComponents/Popconfirm";
+import { Icon } from "@web/sharedComponents";
+import Popconfirm, { PopconfirmProps } from "@web/sharedComponents/Popconfirm";
 import { styled } from "@web/theme";
 import { ComponentType, useCallback, useMemo } from "react";
 
