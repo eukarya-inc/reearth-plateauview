@@ -266,14 +266,14 @@ export default () => {
 
   const handleDatasetSave = useCallback(
     (dataID: string) => {
-      setSaveDataset(true);
       (async () => {
         if (!inEditor) return;
+        setSaveDataset(true);
         const selectedDataset = selectedDatasets.find(d => d.dataID === dataID);
 
         await handleDataRequest(selectedDataset);
+        setSaveDataset(false);
       })();
-      setSaveDataset(false);
     },
     [setSaveDataset, inEditor, selectedDatasets, handleDataRequest],
   );
