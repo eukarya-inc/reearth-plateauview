@@ -38,12 +38,13 @@ const DatasetDetails: React.FC<Props> = ({
     onDatasetAdd(dataset);
   }, [dataset, addDisabled, onDatasetAdd]);
 
-  const title = () => (
+  const popConfirmTitle = () => (
     <div>
       <p style={{ margin: 0 }}>Are you sure you want to publish</p>
       <p style={{ margin: 0 }}>this dataset?</p>
     </div>
   );
+
   return (
     <>
       <TopWrapper>
@@ -53,7 +54,7 @@ const DatasetDetails: React.FC<Props> = ({
             inEditor &&
             (!published ? (
               <Popconfirm
-                title={title}
+                title={popConfirmTitle}
                 placement="topRight"
                 onConfirm={handleDatasetPublish}
                 okText="Yes"
