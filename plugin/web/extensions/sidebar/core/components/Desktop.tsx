@@ -26,8 +26,7 @@ const DesktopSidebar: React.FC<Props> = ({ className }) => {
     backendProjectName,
     templates,
     currentPage,
-    savingTemplate,
-    savingDataset,
+    loading,
     handlePageChange,
     handleTemplateAdd,
     handleTemplateSave,
@@ -83,7 +82,7 @@ const DesktopSidebar: React.FC<Props> = ({ className }) => {
                   inEditor={inEditor}
                   selectedDatasets={selectedDatasets}
                   templates={templates}
-                  savingDataset={savingDataset}
+                  savingDataset={loading}
                   onDatasetSave={handleDatasetSave}
                   onDatasetUpdate={handleDatasetUpdate}
                   onDatasetRemove={handleProjectDatasetRemove}
@@ -111,7 +110,7 @@ const DesktopSidebar: React.FC<Props> = ({ className }) => {
               template: (
                 <Templates
                   templates={templates}
-                  savingTemplate={savingTemplate}
+                  savingTemplate={loading}
                   onTemplateAdd={handleTemplateAdd}
                   onTemplateSave={handleTemplateSave}
                   onTemplateRemove={handleTemplateRemove}
