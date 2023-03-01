@@ -1,6 +1,6 @@
 import { Project, ReearthApi } from "@web/extensions/sidebar/types";
 import { generateID, mergeProperty, postMsg } from "@web/extensions/sidebar/utils";
-import { isEqual, merge } from "lodash";
+import { merge } from "lodash";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { getDataCatalog, RawDataCatalogItem } from "../../modals/datacatalog/api/api";
@@ -64,6 +64,7 @@ export default () => {
   const [fieldTemplates, setFieldTemplates] = useState<Template[]>([]);
   const [project, updateProject] = useState<Project>(defaultProject);
   const [selectedDatasets, setSelectedDatasets] = useState<DataCatalogItem[]>([]);
+  const [cleanseOverride, setCleanseOverride] = useState<string>();
 
   const handleBackendFetch = useCallback(async () => {
     if (!backendURL) return;
@@ -155,7 +156,7 @@ export default () => {
         return updatedProject;
       });
 
-      const overrides = processOverrides(datasetToAdd.components);
+      const overrides = processOverrides("update", datasetToAdd.components);
 
       postMsg({
         action: "addDatasetToScene",
@@ -206,17 +207,27 @@ export default () => {
               payload: { dataID: updatedDataset.dataID, hide: !updatedDataset.visible },
             });
           }
-          if (updatedDataset.visible) {
-            const prevOverrides = processOverrides(updatedDatasets[datasetIndex].components);
-            const overrides = processOverrides(updatedDataset.components, cleanseOverride);
-
-            if (!isEqual(prevOverrides, overrides)) {
-              postMsg({
-                action: "updateDatasetInScene",
-                payload: { dataID: updatedDataset.dataID, overrides },
-              });
-            }
+          if (cleanseOverride) {
+            setCleanseOverride(cleanseOverride);
           }
+          // if (updatedDataset.visible) {
+          //   const prevOverrides = processOverrides(
+          //     "update",
+          //     updatedDatasets[datasetIndex].components,
+          //   );
+          //   const overrides = processOverrides(
+          //     "update",
+          //     updatedDataset.components,
+          //     cleanseOverride,
+          //   );
+
+          //   if (!isEqual(prevOverrides, overrides)) {
+          //     postMsg({
+          //       action: "updateDatasetInScene",
+          //       payload: { dataID: updatedDataset.dataID, overrides },
+          //     });
+          //   }
+          // }
           updatedDatasets[datasetIndex] = updatedDataset;
         }
         updateProject(project => {
@@ -305,6 +316,31 @@ export default () => {
       })();
     },
     [processedCatalog, inEditor, handleDataRequest],
+  );
+
+  const handleOverride = useCallback(
+    (dataID: string, activeIDs?: string[]) => {
+      console.log("LAKSJDFLKJSDF", dataID, activeIDs, cleanseOverride);
+      if (activeIDs) {
+        let overrides = undefined;
+        const dataset = selectedDatasets.find(sd => sd.dataID === dataID);
+        const activeFields = dataset?.components?.filter(c => !!activeIDs.find(id => id === c.id));
+        const inactivefields = dataset?.components?.filter(c => !activeIDs.find(id => id === c.id));
+
+        const cleanseOverrides = processOverrides("cleanse", inactivefields, cleanseOverride);
+        console.log("cleanseOverrides", cleanseOverrides);
+        overrides = processOverrides("update", activeFields, cleanseOverrides);
+        console.log("overridesoverridesoverrides", overrides);
+
+        setCleanseOverride(undefined);
+
+        postMsg({
+          action: "updateDatasetInScene",
+          payload: { dataID, overrides },
+        });
+      }
+    },
+    [selectedDatasets, cleanseOverride],
   );
 
   // ****************************************
@@ -551,7 +587,7 @@ export default () => {
               setSelectedDatasets(sds => [...sds, dataset]);
               postMsg({
                 action: "addDatasetToScene",
-                payload: { dataset, overrides: processOverrides(dataset.components) },
+                payload: { dataset, overrides: processOverrides("update", dataset.components) },
               });
             }
           });
@@ -616,6 +652,7 @@ export default () => {
     handleProjectSceneUpdate,
     handleModalOpen,
     handleThreeDTilesSearch,
+    handleOverride,
   };
 };
 
@@ -683,16 +720,20 @@ const convertToData = (item: DataCatalogItem): Data => {
   };
 };
 
-export const processOverrides = (components?: FieldComponent[], cleanseOverride?: any) => {
+export const processOverrides = (
+  action: "update" | "cleanse",
+  components?: FieldComponent[],
+  startingOverride?: any,
+) => {
   if (!components || !components.length) {
-    if (cleanseOverride) {
-      return cleanseOverride;
+    if (startingOverride) {
+      return startingOverride;
     }
     return;
   }
-  const overrides = cleanseOverride ?? {};
+  const overrides = startingOverride ?? {};
   for (let i = 0; i < components.length; i++) {
-    merge(overrides, components[i].override);
+    merge(overrides, action === "cleanse" ? components[i].cleanseOverride : components[i].override);
   }
   return overrides;
 };
