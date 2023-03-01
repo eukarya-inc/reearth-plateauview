@@ -1,4 +1,5 @@
 import { DataCatalogItem, Template } from "@web/extensions/sidebar/core/types";
+import { ReearthApi } from "@web/extensions/sidebar/types";
 // import { postMsg } from "@web/extensions/sidebar/utils";
 import { Dropdown, Icon, Menu } from "@web/sharedComponents";
 import { styled } from "@web/theme";
@@ -30,8 +31,14 @@ export type Props = {
   template: Template;
   onTemplateSave: (template: Template) => Promise<void>;
   onTemplateUpdate?: (template: Template) => void;
+  onProjectSceneUpdate: (updatedProperties: Partial<ReearthApi>) => void;
 };
-const TemplateCard: React.FC<Props> = ({ template, onTemplateSave, onTemplateUpdate }) => {
+const TemplateCard: React.FC<Props> = ({
+  template,
+  onTemplateSave,
+  onTemplateUpdate,
+  onProjectSceneUpdate,
+}) => {
   const [currentTab, changeTab] = useState<Tabs>("edit");
   const [hidden, setHidden] = useState(false);
 
@@ -176,6 +183,7 @@ const TemplateCard: React.FC<Props> = ({ template, onTemplateSave, onTemplateUpd
                 editMode={currentTab === "edit" ? true : false}
                 onUpdate={handleFieldUpdate}
                 onRemove={handleFieldRemove}
+                onProjectSceneUpdate={onProjectSceneUpdate}
               />
             ))}
           </Content>

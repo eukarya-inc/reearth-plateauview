@@ -112,6 +112,7 @@ const DesktopSidebar: React.FC<Props> = ({ className }) => {
                   onTemplateAdd={handleTemplateAdd}
                   onTemplateSave={handleTemplateSave}
                   onTemplateRemove={handleTemplateRemove}
+                  onProjectSceneUpdate={handleProjectSceneUpdate}
                 />
               ),
             }[currentPage]

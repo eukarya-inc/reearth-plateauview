@@ -1,4 +1,5 @@
 import CommonPage from "@web/extensions/sidebar/core/components/content/CommonPage";
+import { ReearthApi } from "@web/extensions/sidebar/types";
 import { Icon } from "@web/sharedComponents";
 import { styled } from "@web/theme";
 import { useCallback, useState } from "react";
@@ -19,6 +20,7 @@ export type Props = {
   onTemplateAdd: () => Promise<Template | undefined>;
   onTemplateSave: (template: Template) => Promise<void>;
   onTemplateRemove: (id: string) => Promise<void>;
+  onProjectSceneUpdate: (updatedProperties: Partial<ReearthApi>) => void;
 };
 
 const Templates: React.FC<Props> = ({
@@ -26,6 +28,7 @@ const Templates: React.FC<Props> = ({
   onTemplateAdd,
   onTemplateSave,
   onTemplateRemove,
+  onProjectSceneUpdate,
 }) => {
   const [selectedTemplate, changeSelectedTemplate] = useState<Template>();
 
@@ -58,6 +61,7 @@ const Templates: React.FC<Props> = ({
               template={selectedTemplate}
               onTemplateSave={onTemplateSave}
               onTemplateUpdate={handleTemplateUpdate}
+              onProjectSceneUpdate={onProjectSceneUpdate}
             />
           </TemplateEditWrapper>
         ) : (
