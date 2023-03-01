@@ -352,16 +352,6 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
         },
       });
     }
-  } else if (action === "getOverriddenLayerByDataID") {
-    const { dataID } = payload;
-    const layerID = addedDatasets.find(l => l[0] === dataID)?.[2];
-    const overriddenLayer = reearth.layers.overridden.find((l: any) => l.id === layerID);
-    reearth.ui.postMessage({
-      action,
-      payload: {
-        overriddenLayer,
-      },
-    });
   }
 
   // ************************************************

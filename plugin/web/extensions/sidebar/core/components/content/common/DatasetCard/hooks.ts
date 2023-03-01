@@ -58,7 +58,7 @@ export default ({
 
       if (!newDatasetComponents || componentIndex === undefined) return;
 
-      newDatasetComponents[componentIndex] = { ...property, updatedAt: new Date() };
+      newDatasetComponents[componentIndex] = property;
 
       onDatasetUpdate?.({
         ...dataset,

@@ -691,12 +691,9 @@ export const processOverrides = (components?: FieldComponent[], cleanseOverride?
     return;
   }
 
-  const sortedComponents = [...components].sort(
-    (a, b) => (a.updatedAt?.getTime() ?? 0) - (b.updatedAt?.getTime() ?? 0),
-  );
   const overrides = cleanseOverride ?? {};
   for (let i = 0; i < components.length; i++) {
-    merge(overrides, sortedComponents[i].override);
+    merge(overrides, components[i].override);
   }
   return overrides;
 };
