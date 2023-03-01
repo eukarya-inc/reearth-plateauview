@@ -1,6 +1,6 @@
 import { DataCatalogItem } from "@web/extensions/sidebar/core/types";
 import { UserDataItem } from "@web/extensions/sidebar/modals/datacatalog/types";
-import { Icon, Spin } from "@web/sharedComponents";
+import { Icon } from "@web/sharedComponents";
 import { styled } from "@web/theme";
 import { ComponentType, useCallback } from "react";
 
@@ -9,7 +9,6 @@ export type Props = {
   isShareable?: boolean;
   addDisabled: boolean;
   inEditor?: boolean;
-  openingDataset?: boolean;
   contentSection?: ComponentType;
   onDatasetAdd: (dataset: DataCatalogItem | UserDataItem) => void;
   onDatasetPublish?: (dataID: string, publish: boolean) => void;
@@ -22,7 +21,6 @@ const DatasetDetails: React.FC<Props> = ({
   isShareable,
   addDisabled,
   inEditor,
-  openingDataset,
   contentSection: ContentSection,
   onDatasetAdd,
   onDatasetPublish,
@@ -57,15 +55,9 @@ const DatasetDetails: React.FC<Props> = ({
           )}
         </HeaderWrapper>
         <ButtonWrapper>
-          <AddButton disabled={addDisabled || openingDataset} onClick={handleDatasetAdd}>
+          <AddButton disabled={addDisabled} onClick={handleDatasetAdd}>
             {!addDisabled && <Icon icon="plusCircle" />}
             {addDisabled ? "シーンに追加済み" : "シーンに追加"}
-
-            {openingDataset && (
-              <Loading>
-                <Spin />
-              </Loading>
-            )}
           </AddButton>
           {showShareButton && (
             <ShareButton isShareable={isShareable}>
@@ -167,16 +159,4 @@ const Text = styled.p<{ published?: boolean }>`
   ${PublishButton}:hover & {
     display: none;
   }
-`;
-
-const Loading = styled.div`
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  min-height: 200px;
-  left: 0;
-  top: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 `;

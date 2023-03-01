@@ -16,7 +16,6 @@ export type Props = {
   dataset?: DataCatalogItem;
   isMobile?: boolean;
   inEditor?: boolean;
-  openingDataset?: boolean;
   addDisabled: (dataID: string) => boolean;
   onTagSelect?: (tag: TagType) => void;
   onDatasetAdd: (dataset: DataCatalogItem | UserDataItem) => void;
@@ -28,7 +27,6 @@ const DatasetDetails: React.FC<Props> = ({
   // isMobile,
   inEditor,
   addDisabled,
-  openingDataset,
   // onTagSelect,
   onDatasetAdd,
   onDatasetPublish,
@@ -50,7 +48,6 @@ const DatasetDetails: React.FC<Props> = ({
       dataset={dataset}
       addDisabled={addDisabled(dataset.dataID)}
       inEditor={inEditor}
-      openingDataset={openingDataset}
       contentSection={ContentComponent}
       onDatasetAdd={onDatasetAdd}
       onDatasetPublish={onDatasetPublish}
