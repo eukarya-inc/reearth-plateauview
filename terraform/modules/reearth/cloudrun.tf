@@ -34,7 +34,8 @@ resource "google_cloud_run_service" "reearth_api" {
           }
         }
         ports {
-          name = "h2c"
+          container_port = 8080
+          name           = "h2c"
         }
 
         dynamic "env" {
