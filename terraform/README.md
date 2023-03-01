@@ -1,11 +1,12 @@
-# Terradform
+# Terraform
 
-PLATEAU VIEW 2.0（CMS・エディタ・ビューワ）を構築するTerraformです。
+PLATEAU VIEW 2.0（CMS・エディタ・ビューワ）を構築するためのTerraform用ファイルです。システム構築手順は「実証環境構築マニュアル」も併せて参照してください。
 
+PLATEAU VIEW 2.0のホスティングはGoogle Cloud Platform（GCP）のみ対応しています。AWSやオンプレミスのみでのホスティングはできません。
 
 ## セットアップ手順
 
-### GCP のセットアップ
+### GCPのセットアップ
 
 プロジェクトを作成
 
@@ -170,34 +171,34 @@ echo -n "${REEARTH_MARKETPLACE_SECRET}" | gcloud secrets versions add reearth-ap
 
 ```bash
 gcloud run deploy reearth-api \
-            --image reearth/reearth:nightly \
-            --region asia-northeast1 \
-            --platform managed \
-            --quiet
+  --image eukarya/plateauview2-reearth:latest \
+  --region asia-northeast1 \
+  --platform managed \
+  --quiet
 ```
 
 ```bash
 gcloud run deploy reearth-cms-api \
-            --image reearth/reearth-cms:nightly \
-            --region asia-northeast1 \
-            --platform managed \
-            --quiet
+  --image eukarya/plateauview2-reearth-cms:latest \
+  --region asia-northeast1 \
+  --platform managed \
+  --quiet
 ```
 
 ```bash
 gcloud run deploy reearth-cms-worker \
-            --image reearth/reearth-cms-worker:nightly \
-            --region asia-northeast1 \
-            --platform managed \
-            --quiet
+  --image eukarya/plateauview2-reearth-cms-worker:latest \
+  --region asia-northeast1 \
+  --platform managed \
+  --quiet
 ```
 
 ```bash
 gcloud run deploy plateauview-api \
-            --image eukarya/plateauview-api:latest \
-            --region asia-northeast1 \
-            --platform managed \
-            --quiet
+  --image eukarya/plateauview2-sidecar:latest \
+  --region asia-northeast1 \
+  --platform managed \
+  --quiet
 ```
 
 ### DNS・ロードバランサ・証明書のデプロイ完了まで待機
@@ -239,10 +240,10 @@ echo -n "${REEARTH_PLATEAUVIEW_CMS_TOKEN}" | gcloud secrets versions add reearth
 
 ```bash
 gcloud run deploy plateauview-api \
-            --image eukarya/plateauview-api:latest \
-            --region asia-northeast1 \
-            --platform managed \
-            --quiet
+  --image eukarya/plateauview2-sidecar:latest \
+  --region asia-northeast1 \
+  --platform managed \
+  --quiet
 ```
 
 ### 完了
