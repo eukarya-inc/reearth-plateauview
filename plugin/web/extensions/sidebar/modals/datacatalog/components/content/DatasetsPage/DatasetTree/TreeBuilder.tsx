@@ -16,7 +16,7 @@ type Props = {
   onDatasetAdd: (dataset: DataCatalogItem) => void;
   onOpenDetails?: (item?: DataCatalogItem) => void;
   onSelect?: (dataID: string) => void;
-  onExpand: (key: string) => void;
+  setExpandedKeys: React.Dispatch<React.SetStateAction<string[]>>;
   setSelectedKey: (key: string) => void;
 };
 
@@ -33,7 +33,7 @@ const TreeBuilder: React.FC<Props> = ({
   onDatasetAdd,
   onOpenDetails,
   onSelect,
-  onExpand,
+  setExpandedKeys,
   setSelectedKey,
 }) => {
   return (
@@ -49,7 +49,7 @@ const TreeBuilder: React.FC<Props> = ({
               expandedKeys={expandedKeys}
               isMobile={isMobile}
               expandAll={expandAll}
-              onExpand={onExpand}>
+              setExpandedKeys={setExpandedKeys}>
               <TreeBuilder
                 catalogItem={item.children}
                 addedDatasetDataIDs={addedDatasetDataIDs}
@@ -61,7 +61,7 @@ const TreeBuilder: React.FC<Props> = ({
                 onDatasetAdd={onDatasetAdd}
                 onOpenDetails={onOpenDetails}
                 onSelect={onSelect}
-                onExpand={onExpand}
+                setExpandedKeys={setExpandedKeys}
                 setSelectedKey={setSelectedKey}
               />
             </Folder>
@@ -77,7 +77,7 @@ const TreeBuilder: React.FC<Props> = ({
               onDatasetAdd={onDatasetAdd}
               onOpenDetails={onOpenDetails}
               onSelect={onSelect}
-              onExpand={onExpand}
+              setExpandedKeys={setExpandedKeys}
               setSelectedKey={setSelectedKey}
             />
           ),
@@ -91,7 +91,7 @@ const TreeBuilder: React.FC<Props> = ({
           expandedKeys={expandedKeys}
           isMobile={isMobile}
           expandAll={expandAll}
-          onExpand={onExpand}>
+          setExpandedKeys={setExpandedKeys}>
           <TreeBuilder
             catalogItem={catalogItem.children}
             addedDatasetDataIDs={addedDatasetDataIDs}
@@ -103,7 +103,7 @@ const TreeBuilder: React.FC<Props> = ({
             onDatasetAdd={onDatasetAdd}
             onOpenDetails={onOpenDetails}
             onSelect={onSelect}
-            onExpand={onExpand}
+            setExpandedKeys={setExpandedKeys}
             setSelectedKey={setSelectedKey}
           />
         </Folder>

@@ -27,19 +27,6 @@ const FileTree: React.FC<Props> = ({
   const [selectedKey, setSelectedKey] = useState("");
   const [expandedKeys, setExpandedKeys] = useState<string[]>([]);
 
-  const handleExpand = useCallback((key: string) => {
-    setExpandedKeys((prevState: string[]) => {
-      const newExpandedKeys = [...prevState];
-      if (prevState.includes(key)) {
-        const index = prevState.findIndex(item => item === key);
-        newExpandedKeys.splice(index, 1);
-      } else {
-        newExpandedKeys.push(key);
-      }
-      return newExpandedKeys;
-    });
-  }, []);
-
   const handleSelect = useCallback((dataID?: string) => {
     select(dataID);
   }, []);
@@ -85,7 +72,7 @@ const FileTree: React.FC<Props> = ({
           onDatasetAdd={onDatasetAdd}
           onOpenDetails={onOpenDetails}
           onSelect={handleSelect}
-          onExpand={handleExpand}
+          setExpandedKeys={setExpandedKeys}
           setSelectedKey={setSelectedKey}
         />
       </Tree>
