@@ -7,6 +7,7 @@ import { getDataCatalog, RawDataCatalogItem } from "../../modals/datacatalog/api
 import { UserDataItem } from "../../modals/datacatalog/types";
 import { Data, DataCatalogItem, Template } from "../types";
 
+import { cleanseOverrides } from "./content/common/DatasetCard/Field/fieldHooks";
 import {
   FieldComponent,
   Story as FieldStory,
@@ -733,7 +734,10 @@ export const processOverrides = (
   }
   const overrides = cloneDeep(startingOverride ?? {});
   for (let i = 0; i < components.length; i++) {
-    merge(overrides, action === "cleanse" ? components[i].cleanseOverride : components[i].override);
+    merge(
+      overrides,
+      action === "cleanse" ? cleanseOverrides[components[i].type] : components[i].override,
+    );
   }
   return overrides;
 };

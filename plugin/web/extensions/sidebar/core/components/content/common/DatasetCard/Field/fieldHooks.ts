@@ -248,12 +248,11 @@ export default ({
 };
 
 export const cleanseOverrides: { [key: string]: any } = {
-  pointSize: { marker: { style: undefined, pointSize: undefined } },
-  pointColor: { marker: { style: undefined, pointColor: undefined } },
-  pointIcon: { marker: { style: undefined, image: undefined, imageSize: undefined } },
+  pointSize: { marker: { pointSize: 10 } },
+  pointColor: { marker: { pointColor: "white" } },
+  pointIcon: { marker: { style: "point", image: undefined, imageSize: undefined } },
   pointLabel: {
     marker: {
-      style: undefined,
       label: undefined,
       labelTypography: undefined,
       heightReference: undefined,
@@ -266,7 +265,6 @@ export const cleanseOverrides: { [key: string]: any } = {
   pointModel: { model: undefined },
   pointStroke: {
     marker: {
-      style: undefined,
       pointOutlineColor: undefined,
       pointOutlineWidth: undefined,
     },
