@@ -321,7 +321,6 @@ export default () => {
 
   const handleOverride = useCallback(
     (dataID: string, activeIDs?: string[]) => {
-      console.log("LAKSJDFLKJSDF", dataID, activeIDs, cleanseOverride);
       if (activeIDs) {
         let overrides = undefined;
         const dataset = selectedDatasets.find(sd => sd.dataID === dataID);
@@ -329,9 +328,7 @@ export default () => {
         const inactivefields = dataset?.components?.filter(c => !activeIDs.find(id => id === c.id));
 
         const cleanseOverrides = processOverrides("cleanse", inactivefields, cleanseOverride);
-        console.log("cleanseOverrides", cleanseOverrides);
         overrides = processOverrides("update", activeFields, cleanseOverrides);
-        console.log("overridesoverridesoverrides", overrides);
 
         setCleanseOverride(undefined);
 

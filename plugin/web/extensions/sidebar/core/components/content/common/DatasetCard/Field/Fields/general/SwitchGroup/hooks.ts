@@ -20,7 +20,6 @@ export default ({
   const [selectedGroup, selectGroup] = useState(value.groups[0]);
 
   useEffect(() => {
-    console.log("USE EFFECTTTTTTTTT");
     onCurrentGroupUpdate(selectedGroup.fieldGroupID);
   }, [selectedGroup.fieldGroupID, onCurrentGroupUpdate]);
 

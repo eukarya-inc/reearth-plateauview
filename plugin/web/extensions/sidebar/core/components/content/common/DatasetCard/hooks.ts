@@ -32,20 +32,13 @@ export default ({
           ?.map(c => c.id)
       : dataset.components?.map(c => c.id);
 
-    console.log("USE EFFECT IN DATASET CARDDD CALLEDDD");
     if (newActiveIDs !== activeComponentIDs) {
-      console.log(
-        "CHANGING ACTIVE IDS AND ON GROUP OVERRIDDEEEE",
-        selectedGroup,
-        activeComponentIDs,
-      );
       setActiveIDs(newActiveIDs);
     }
   }, [selectedGroup, dataset.components]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (activeComponentIDs) {
-      console.log("OVERRIDING", activeComponentIDs);
       onOverride?.(dataset.dataID, activeComponentIDs);
     }
   }, [activeComponentIDs]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -53,7 +46,6 @@ export default ({
   const handleCurrentGroupUpdate = useCallback(
     (fieldGroupID?: string) => {
       if (fieldGroupID === selectedGroup) return;
-      console.log("fieldGroupID current grou pupdate", fieldGroupID);
       setGroup(fieldGroupID);
     },
     [selectedGroup],
@@ -102,7 +94,6 @@ export default ({
 
       const removedComponent = newDatasetComponents.splice(componentIndex, 1)[0];
 
-      console.log("REMOVED COMPONENT: ", removedComponent);
       if (removedComponent.type === "switchGroup") {
         handleCurrentGroupUpdate(undefined);
       }
