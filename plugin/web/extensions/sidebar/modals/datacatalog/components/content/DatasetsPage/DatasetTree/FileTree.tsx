@@ -1,6 +1,6 @@
 import { DataCatalogItem, DataCatalogGroup } from "@web/extensions/sidebar/core/types";
 import { styled } from "@web/theme";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 
 import TreeBuilder from "./TreeBuilder";
 
@@ -24,37 +24,11 @@ const FileTree: React.FC<Props> = ({
   onOpenDetails,
 }) => {
   const [selectedID, select] = useState<string>();
-  const [selectedKey, setSelectedKey] = useState("");
   const [expandedKeys, setExpandedKeys] = useState<string[]>([]);
 
   const handleSelect = useCallback((dataID?: string) => {
     select(dataID);
   }, []);
-
-  const expandAllParentKeys = useCallback((key: string) => {
-    const keyArr = key.split("-");
-    while (keyArr.length > 1) {
-      keyArr.pop();
-      const parent = keyArr.join("-");
-      setExpandedKeys((prevState: string[]) => {
-        const newExpandedKeys = [...prevState];
-        if (!prevState.includes(parent)) newExpandedKeys.push(parent);
-        return newExpandedKeys;
-      });
-    }
-  }, []);
-
-  useEffect(() => {
-    const { selectedDataset } = window as any;
-    if (selectedDataset) {
-      onOpenDetails?.(selectedDataset);
-      handleSelect(selectedDataset.dataID);
-      if (selectedKey) expandAllParentKeys(selectedKey);
-      setTimeout(() => {
-        (window as any).selectedDataset = undefined;
-      }, 500);
-    }
-  }, [expandAllParentKeys, handleSelect, onOpenDetails, selectedKey]);
 
   return (
     <TreeWrapper isMobile={isMobile}>
@@ -73,7 +47,6 @@ const FileTree: React.FC<Props> = ({
           onOpenDetails={onOpenDetails}
           onSelect={handleSelect}
           setExpandedKeys={setExpandedKeys}
-          setSelectedKey={setSelectedKey}
         />
       </Tree>
     </TreeWrapper>

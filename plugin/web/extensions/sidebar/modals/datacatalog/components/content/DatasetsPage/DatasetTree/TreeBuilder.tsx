@@ -17,7 +17,6 @@ type Props = {
   onOpenDetails?: (item?: DataCatalogItem) => void;
   onSelect?: (dataID: string) => void;
   setExpandedKeys: React.Dispatch<React.SetStateAction<string[]>>;
-  setSelectedKey: (key: string) => void;
 };
 
 const TreeBuilder: React.FC<Props> = ({
@@ -34,7 +33,6 @@ const TreeBuilder: React.FC<Props> = ({
   onOpenDetails,
   onSelect,
   setExpandedKeys,
-  setSelectedKey,
 }) => {
   return (
     <>
@@ -62,7 +60,6 @@ const TreeBuilder: React.FC<Props> = ({
                 onOpenDetails={onOpenDetails}
                 onSelect={onSelect}
                 setExpandedKeys={setExpandedKeys}
-                setSelectedKey={setSelectedKey}
               />
             </Folder>
           ) : (
@@ -78,7 +75,6 @@ const TreeBuilder: React.FC<Props> = ({
               onOpenDetails={onOpenDetails}
               onSelect={onSelect}
               setExpandedKeys={setExpandedKeys}
-              setSelectedKey={setSelectedKey}
             />
           ),
         )
@@ -104,7 +100,6 @@ const TreeBuilder: React.FC<Props> = ({
             onOpenDetails={onOpenDetails}
             onSelect={onSelect}
             setExpandedKeys={setExpandedKeys}
-            setSelectedKey={setSelectedKey}
           />
         </Folder>
       ) : (
@@ -118,7 +113,7 @@ const TreeBuilder: React.FC<Props> = ({
           onDatasetAdd={onDatasetAdd}
           onOpenDetails={onOpenDetails}
           onSelect={onSelect}
-          setSelectedKey={setSelectedKey}
+          setExpandedKeys={setExpandedKeys}
         />
       )}
     </>
