@@ -177,6 +177,7 @@ const TemplateCard: React.FC<Props> = ({
             {template.components?.map((c, idx) => (
               <Field
                 key={idx}
+                index={idx}
                 field={c}
                 isActive={true}
                 editMode={currentTab === "edit" ? true : false}
