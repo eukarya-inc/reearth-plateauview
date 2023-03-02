@@ -168,6 +168,16 @@ const DatasetCard: React.FC<Props> = ({
     </Menu>
   );
 
+  const handleMoveUp = (index: number) => {
+    // implement me
+    console.log(index);
+  };
+
+  const handleMoveDown = (index: number) => {
+    // implement me
+    console.log(index);
+  };
+
   return (
     <StyledAccordionComponent allowZeroExpanded preExpanded={["datasetcard"]}>
       <AccordionItem uuid="datasetcard">
@@ -223,12 +233,15 @@ const DatasetCard: React.FC<Props> = ({
                 return inEditor && currentTab === "edit" ? (
                   <Field
                     key={idx}
+                    index={idx}
                     field={c}
                     isActive={!!activeComponentIDs?.find(id => id === c.id)}
                     dataID={dataset.dataID}
                     editMode={inEditor && currentTab === "edit"}
                     selectGroups={dataset.fieldGroups}
                     configData={dataset.config?.data}
+                    onMoveUp={handleMoveUp}
+                    onMoveDown={handleMoveDown}
                     onUpdate={handleFieldUpdate}
                     onRemove={handleFieldRemove}
                     onGroupsUpdate={handleGroupsUpdate(c.id)}
@@ -238,11 +251,14 @@ const DatasetCard: React.FC<Props> = ({
                   template?.components?.map((tc, idx2) => (
                     <Field
                       key={idx2}
+                      index={idx2}
                       field={tc}
                       isActive={!!activeComponentIDs?.find(id => id === c.id)}
                       dataID={dataset.dataID}
                       selectGroups={dataset.fieldGroups}
                       configData={dataset.config?.data}
+                      onMoveUp={handleMoveUp}
+                      onMoveDown={handleMoveDown}
                       onUpdate={handleFieldUpdate}
                       onRemove={handleFieldRemove}
                       onCurrentGroupUpdate={handleCurrentGroupUpdate}
@@ -253,12 +269,15 @@ const DatasetCard: React.FC<Props> = ({
               return (
                 <Field
                   key={idx}
+                  index={idx}
                   field={c}
                   isActive={!!activeComponentIDs?.find(id => id === c.id)}
                   dataID={dataset.dataID}
                   editMode={inEditor && currentTab === "edit"}
                   selectGroups={dataset.fieldGroups}
                   configData={dataset.config?.data}
+                  onMoveUp={handleMoveUp}
+                  onMoveDown={handleMoveDown}
                   onUpdate={handleFieldUpdate}
                   onRemove={handleFieldRemove}
                   onGroupsUpdate={handleGroupsUpdate(c.id)}

@@ -26,12 +26,15 @@ import {
 } from "./Fields/types";
 
 export type Props = {
+  index: number;
   field: FieldComponentType;
   dataID?: string;
   isActive: boolean;
   editMode?: boolean;
   selectGroups?: Group[];
   configData?: ConfigData[];
+  onMoveUp?: (index: number) => void;
+  onMoveDown?: (index: number) => void;
   onUpdate?: (id: string) => (property: any) => void;
   onRemove?: (id: string) => void;
   onGroupsUpdate?: (groups: Group[], selectedGroup?: string) => void;
@@ -55,12 +58,15 @@ const getFieldGroup = (field: string) => {
 };
 
 const FieldComponent: React.FC<Props> = ({
+  index,
   field,
   dataID,
   isActive,
   editMode,
   selectGroups,
   configData,
+  onMoveUp,
+  onMoveDown,
   onUpdate,
   onRemove,
   onGroupsUpdate,
@@ -87,6 +93,22 @@ const FieldComponent: React.FC<Props> = ({
       onRemove?.(field.id);
     },
     [field, onRemove],
+  );
+
+  const handleUpClick = useCallback(
+    (e: React.MouseEvent<HTMLDivElement, MouseEvent> | undefined) => {
+      e?.stopPropagation();
+      onMoveUp?.(index);
+    },
+    [index, onMoveUp],
+  );
+
+  const handleDownClick = useCallback(
+    (e: React.MouseEvent<HTMLDivElement, MouseEvent> | undefined) => {
+      e?.stopPropagation();
+      onMoveDown?.(index);
+    },
+    [index, onMoveDown],
   );
 
   useEffect(() => {
@@ -133,6 +155,8 @@ const FieldComponent: React.FC<Props> = ({
                     <Title>{title}</Title>
                   </LeftContents>
                   <RightContents>
+                    <StyledIcon icon="arrowUpThin" size={16} onClick={handleUpClick} />
+                    <StyledIcon icon="arrowDownThin" size={16} onClick={handleDownClick} />
                     <StyledIcon
                       icon="group"
                       color={field.group ? "#00BEBE" : "inherit"}
@@ -208,7 +232,7 @@ const BodyWrapper = styled(AccordionItemPanel)`
 const Title = styled.p`
   margin: 0;
   user-select: none;
-  width: 200px;
+  width: 160px;
   overflow-wrap: break-word;
 `;
 
