@@ -48,6 +48,8 @@ const DatasetCard: React.FC<Props> = ({
   onThreeDTilesSearch,
   onOverride,
 }) => {
+  const [currentTab, changeTab] = useState<Tabs>("default");
+
   const {
     activeComponentIDs,
     fieldComponentsList,
@@ -62,10 +64,6 @@ const DatasetCard: React.FC<Props> = ({
     onDatasetUpdate,
     onOverride,
   });
-
-  const [currentTab, changeTab] = useState<Tabs>("default");
-  const [components, updateComponents] = useState(dataset.components);
-
   const readyMVTPosition = useRef<
     Promise<
       | {
@@ -165,7 +163,7 @@ const DatasetCard: React.FC<Props> = ({
     ];
     if (
       currentTab === "default" &&
-      (components?.find(c => c.type === "search") ||
+      (dataset.components?.find(c => c.type === "search") ||
         templates?.find(t => t.components?.find(c => c.type === "search")))
     ) {
       fields.push({
@@ -179,7 +177,7 @@ const DatasetCard: React.FC<Props> = ({
       });
     }
     return fields;
-  }, [currentTab, components, templates, dataset, onDatasetRemove, onThreeDTilesSearch]);
+  }, [currentTab, dataset, templates, onDatasetRemove, onThreeDTilesSearch]);
 
   const handleTabChange: React.MouseEventHandler<HTMLParagraphElement> = useCallback(e => {
     e.stopPropagation();
@@ -232,19 +230,21 @@ const DatasetCard: React.FC<Props> = ({
     </Menu>
   );
 
-  const handleMoveUp = useCallback((idx: number) => {
-    updateComponents(c => {
-      const newComponents = moveItemUp(idx, c) ?? c;
-      return newComponents;
-    });
-  }, []);
+  const handleMoveUp = useCallback(
+    (idx: number) => {
+      const newComponents = moveItemUp(idx, dataset.components) ?? dataset.components;
+      onDatasetUpdate({ ...dataset, components: newComponents });
+    },
+    [dataset, onDatasetUpdate],
+  );
 
-  const handleMoveDown = useCallback((idx: number) => {
-    updateComponents(c => {
-      const newComponents = moveItemDown(idx, c) ?? c;
-      return newComponents;
-    });
-  }, []);
+  const handleMoveDown = useCallback(
+    (idx: number) => {
+      const newComponents = moveItemDown(idx, dataset.components) ?? dataset.components;
+      onDatasetUpdate({ ...dataset, components: newComponents });
+    },
+    [dataset, onDatasetUpdate],
+  );
 
   return (
     <StyledAccordionComponent allowZeroExpanded preExpanded={["datasetcard"]}>
@@ -295,7 +295,7 @@ const DatasetCard: React.FC<Props> = ({
                 <Text>オープンデータを入手</Text>
               </OpenDataButton>
             )}
-            {components?.map((c, idx) => {
+            {dataset.components?.map((c, idx) => {
               if (c.type === "template") {
                 const template = templates?.find(t => t.id === c.templateID);
                 return inEditor && currentTab === "edit" ? (
