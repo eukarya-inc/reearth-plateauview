@@ -64,7 +64,7 @@ const DatasetCard: React.FC<Props> = ({
     onDatasetUpdate,
     onOverride,
   });
-  const readyPosition = useRef<
+  const readyMVTPosition = useRef<
     Promise<
       | {
           lng?: number;
@@ -108,6 +108,9 @@ const DatasetCard: React.FC<Props> = ({
 
       const json = await fetch(`${mvtBaseURL}/metadata.json`).then(d => d.json());
       const center = json.center.split(",").map((s: string) => Number(s));
+      if (center < 2) {
+        return;
+      }
       return {
         lng: center[0],
         lat: center[1],
@@ -118,7 +121,7 @@ const DatasetCard: React.FC<Props> = ({
       };
     };
 
-    readyPosition.current = fetchMetadataJSONForMVT();
+    readyMVTPosition.current = fetchMetadataJSONForMVT();
   }, [dataset.dataID]);
 
   const baseFields: BaseFieldType[] = useMemo(() => {
@@ -130,11 +133,14 @@ const DatasetCard: React.FC<Props> = ({
         value: 1,
         onClick: async () => {
           const idealZoomField = dataset.components?.find(c => c.type === "idealZoom");
+          const mvtPosition = await readyMVTPosition.current;
           postMsg({
             action: "cameraFlyTo",
             payload: idealZoomField
               ? [(idealZoomField as IdealZoom).position, { duration: 2 }]
-              : [await readyPosition.current, { duration: 2 }] ?? dataset.dataID,
+              : mvtPosition
+              ? [mvtPosition, { duration: 2 }]
+              : dataset.dataID,
           });
         },
       },
