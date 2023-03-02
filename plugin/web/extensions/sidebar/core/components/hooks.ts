@@ -157,7 +157,28 @@ export default () => {
         return updatedProject;
       });
 
-      const overrides = processOverrides("update", datasetToAdd.components);
+      const activeIDs = (
+        !datasetToAdd.components?.find(c => c.type === "switchGroup") || !datasetToAdd.fieldGroups
+          ? datasetToAdd.components
+          : datasetToAdd.components.filter(
+              c =>
+                (c.group && c.group === datasetToAdd.fieldGroups?.[0].id) ||
+                c.type === "switchGroup",
+            )
+      )
+        ?.filter(c => !(!datasetToAdd.config?.data && c.type === "switchDataset"))
+        ?.map(c => c.id);
+
+      let overrides = undefined;
+      const activeFields = datasetToAdd.components?.filter(
+        c => !!activeIDs?.find(id => id === c.id),
+      );
+      const inactivefields = datasetToAdd.components?.filter(
+        c => !activeIDs?.find(id => id === c.id),
+      );
+
+      const cleanseOverrides = processOverrides("cleanse", inactivefields);
+      overrides = processOverrides("update", activeFields, cleanseOverrides);
 
       postMsg({
         action: "addDatasetToScene",
@@ -211,24 +232,6 @@ export default () => {
           if (cleanseOverride) {
             setCleanseOverride(cleanseOverride);
           }
-          // if (updatedDataset.visible) {
-          //   const prevOverrides = processOverrides(
-          //     "update",
-          //     updatedDatasets[datasetIndex].components,
-          //   );
-          //   const overrides = processOverrides(
-          //     "update",
-          //     updatedDataset.components,
-          //     cleanseOverride,
-          //   );
-
-          //   if (!isEqual(prevOverrides, overrides)) {
-          //     postMsg({
-          //       action: "updateDatasetInScene",
-          //       payload: { dataID: updatedDataset.dataID, overrides },
-          //     });
-          //   }
-          // }
           updatedDatasets[datasetIndex] = updatedDataset;
         }
         updateProject(project => {

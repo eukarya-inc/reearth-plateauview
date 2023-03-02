@@ -43,13 +43,9 @@ export default ({
     }
   }, [activeComponentIDs]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const handleCurrentGroupUpdate = useCallback(
-    (fieldGroupID?: string) => {
-      if (fieldGroupID === selectedGroup) return;
-      setGroup(fieldGroupID);
-    },
-    [selectedGroup],
-  );
+  const handleCurrentGroupUpdate = useCallback((fieldGroupID?: string) => {
+    setGroup(fieldGroupID);
+  }, []);
 
   const handleFieldAdd =
     (property: any) =>
