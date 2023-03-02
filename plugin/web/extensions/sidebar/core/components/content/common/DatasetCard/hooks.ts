@@ -1,4 +1,4 @@
-import { DataCatalogItem, Group, Template } from "@web/extensions/sidebar/core/types";
+import { DataCatalogItem, Group } from "@web/extensions/sidebar/core/types";
 import { generateID } from "@web/extensions/sidebar/utils";
 import { useCallback, useEffect, useState } from "react";
 
@@ -6,13 +6,11 @@ import generateFieldComponentsList, { cleanseOverrides } from "./Field/fieldHook
 
 export default ({
   dataset,
-  templates,
   inEditor,
   onDatasetUpdate,
   onOverride,
 }: {
   dataset: DataCatalogItem;
-  templates?: Template[];
   inEditor?: boolean;
   onDatasetUpdate: (dataset: DataCatalogItem, cleanseOverride?: any) => void;
   onOverride?: (dataID: string, activeIDs?: string[]) => void;
@@ -53,7 +51,7 @@ export default ({
       if (!inEditor) return;
       const newField = {
         id: generateID(),
-        type: key.includes("template") ? "template" : key,
+        type: key,
         ...property,
       };
 
@@ -127,7 +125,6 @@ export default ({
 
   const fieldComponentsList = generateFieldComponentsList({
     fieldGroups: dataset.fieldGroups,
-    templates,
     onFieldAdd: handleFieldAdd,
   });
 
