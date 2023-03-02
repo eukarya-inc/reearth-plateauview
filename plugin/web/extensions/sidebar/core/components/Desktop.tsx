@@ -38,6 +38,7 @@ const DesktopSidebar: React.FC<Props> = ({ className }) => {
     handleProjectSceneUpdate,
     handleModalOpen,
     handleThreeDTilesSearch,
+    handleOverride,
   } = useHooks();
 
   const [minimized, setMinimize] = useState(false);
@@ -89,6 +90,7 @@ const DesktopSidebar: React.FC<Props> = ({ className }) => {
                   onDatasetRemoveAll={handleProjectDatasetRemoveAll}
                   onModalOpen={handleModalOpen}
                   onThreeDTilesSearch={handleThreeDTilesSearch}
+                  onOverride={handleOverride}
                 />
               ),
               map: (

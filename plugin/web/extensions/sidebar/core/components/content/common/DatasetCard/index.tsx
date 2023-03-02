@@ -34,8 +34,8 @@ export type Props = {
   onDatasetSave: (dataID: string) => void;
   onDatasetRemove?: (dataID: string) => void;
   onDatasetUpdate: (dataset: DataCatalogItem, cleanseOverride?: any) => void;
-  onUpdateField?: (id: string) => void;
   onThreeDTilesSearch: (id: string) => void;
+  onOverride?: (dataID: string, activeIDs?: string[]) => void;
 };
 const DatasetCard: React.FC<Props> = ({
   dataset,
@@ -45,8 +45,8 @@ const DatasetCard: React.FC<Props> = ({
   onDatasetSave,
   onDatasetRemove,
   onDatasetUpdate,
-  // onUpdateField,
   onThreeDTilesSearch,
+  onOverride,
 }) => {
   const [currentTab, changeTab] = useState<Tabs>("default");
 
@@ -55,13 +55,14 @@ const DatasetCard: React.FC<Props> = ({
     fieldComponentsList,
     handleFieldUpdate,
     handleFieldRemove,
-    handleCurrentGroupChange,
+    handleCurrentGroupUpdate,
     handleGroupsUpdate,
   } = useHooks({
     dataset,
     templates,
     inEditor,
     onDatasetUpdate,
+    onOverride,
   });
 
   const baseFields: BaseFieldType[] = useMemo(() => {
@@ -231,7 +232,7 @@ const DatasetCard: React.FC<Props> = ({
                     onUpdate={handleFieldUpdate}
                     onRemove={handleFieldRemove}
                     onGroupsUpdate={handleGroupsUpdate(c.id)}
-                    onCurrentGroupChange={handleCurrentGroupChange}
+                    onCurrentGroupUpdate={handleCurrentGroupUpdate}
                   />
                 ) : (
                   template?.components?.map((tc, idx2) => (
@@ -244,7 +245,7 @@ const DatasetCard: React.FC<Props> = ({
                       configData={dataset.config?.data}
                       onUpdate={handleFieldUpdate}
                       onRemove={handleFieldRemove}
-                      onCurrentGroupChange={handleCurrentGroupChange}
+                      onCurrentGroupUpdate={handleCurrentGroupUpdate}
                     />
                   ))
                 );
@@ -261,7 +262,7 @@ const DatasetCard: React.FC<Props> = ({
                   onUpdate={handleFieldUpdate}
                   onRemove={handleFieldRemove}
                   onGroupsUpdate={handleGroupsUpdate(c.id)}
-                  onCurrentGroupChange={handleCurrentGroupChange}
+                  onCurrentGroupUpdate={handleCurrentGroupUpdate}
                 />
               );
             })}
