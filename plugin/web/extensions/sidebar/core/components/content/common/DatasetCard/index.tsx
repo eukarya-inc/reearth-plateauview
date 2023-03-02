@@ -1,5 +1,5 @@
 import { DataCatalogItem, Template } from "@web/extensions/sidebar/core/types";
-import { postMsg } from "@web/extensions/sidebar/utils";
+import { postMsg, moveItemDown, moveItemUp } from "@web/extensions/sidebar/utils";
 import { Dropdown, Icon, Menu, Spin } from "@web/sharedComponents";
 import { styled } from "@web/theme";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -48,8 +48,6 @@ const DatasetCard: React.FC<Props> = ({
   onThreeDTilesSearch,
   onOverride,
 }) => {
-  const [currentTab, changeTab] = useState<Tabs>("default");
-
   const {
     activeComponentIDs,
     fieldComponentsList,
@@ -65,6 +63,9 @@ const DatasetCard: React.FC<Props> = ({
     onOverride,
   });
 
+  const [currentTab, changeTab] = useState<Tabs>("default");
+  const [components, updateComponents] = useState(dataset.components);
+
   const baseFields: BaseFieldType[] = useMemo(() => {
     const fields = [
       {
@@ -73,7 +74,7 @@ const DatasetCard: React.FC<Props> = ({
         icon: "mapPin",
         value: 1,
         onClick: () => {
-          const idealZoomField = dataset.components?.find(c => c.type === "idealZoom");
+          const idealZoomField = components?.find(c => c.type === "idealZoom");
           postMsg({
             action: "cameraFlyTo",
             payload: idealZoomField
@@ -101,7 +102,7 @@ const DatasetCard: React.FC<Props> = ({
     ];
     if (
       currentTab === "default" &&
-      (dataset.components?.find(c => c.type === "search") ||
+      (components?.find(c => c.type === "search") ||
         templates?.find(t => t.components?.find(c => c.type === "search")))
     ) {
       fields.push({
@@ -115,7 +116,7 @@ const DatasetCard: React.FC<Props> = ({
       });
     }
     return fields;
-  }, [currentTab, dataset, templates, onDatasetRemove, onThreeDTilesSearch]);
+  }, [currentTab, components, templates, dataset, onDatasetRemove, onThreeDTilesSearch]);
 
   const handleTabChange: React.MouseEventHandler<HTMLParagraphElement> = useCallback(e => {
     e.stopPropagation();
@@ -168,15 +169,19 @@ const DatasetCard: React.FC<Props> = ({
     </Menu>
   );
 
-  const handleMoveUp = (index: number) => {
-    // implement me
-    console.log(index);
-  };
+  const handleMoveUp = useCallback((idx: number) => {
+    updateComponents(c => {
+      const newComponents = moveItemUp(idx, c) ?? c;
+      return newComponents;
+    });
+  }, []);
 
-  const handleMoveDown = (index: number) => {
-    // implement me
-    console.log(index);
-  };
+  const handleMoveDown = useCallback((idx: number) => {
+    updateComponents(c => {
+      const newComponents = moveItemDown(idx, c) ?? c;
+      return newComponents;
+    });
+  }, []);
 
   return (
     <StyledAccordionComponent allowZeroExpanded preExpanded={["datasetcard"]}>
@@ -227,7 +232,7 @@ const DatasetCard: React.FC<Props> = ({
                 <Text>オープンデータを入手</Text>
               </OpenDataButton>
             )}
-            {dataset.components?.map((c, idx) => {
+            {components?.map((c, idx) => {
               if (c.type === "template") {
                 const template = templates?.find(t => t.id === c.templateID);
                 return inEditor && currentTab === "edit" ? (
