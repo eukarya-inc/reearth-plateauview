@@ -141,7 +141,4 @@ const ContentWrapper = styled(Content)`
   background: #e7e7e7;
   box-sizing: border-box;
   overflow: auto;
-  ::-webkit-scrollbar {
-    width: 0;
-  }
 `;
