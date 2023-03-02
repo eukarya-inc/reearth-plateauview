@@ -2,7 +2,7 @@ import { DataCatalogItem, Group, Template } from "@web/extensions/sidebar/core/t
 import { generateID } from "@web/extensions/sidebar/utils";
 import { useCallback, useEffect, useState } from "react";
 
-import generateFieldComponentsList from "./Field/fieldHooks";
+import generateFieldComponentsList, { cleanseOverrides } from "./Field/fieldHooks";
 
 export default ({
   dataset,
@@ -112,7 +112,7 @@ export default ({
           ...dataset,
           components: newDatasetComponents,
         },
-        removedComponent.cleanseOverride,
+        cleanseOverrides[removedComponent.type] ?? undefined,
       );
     },
     [dataset, inEditor, onDatasetUpdate, handleCurrentGroupUpdate],

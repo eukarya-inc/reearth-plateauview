@@ -1,6 +1,6 @@
 import { Project, ReearthApi } from "@web/extensions/sidebar/types";
 import { generateID, mergeProperty, postMsg } from "@web/extensions/sidebar/utils";
-import { merge } from "lodash";
+import { merge, cloneDeep } from "lodash";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { getDataCatalog, RawDataCatalogItem } from "../../modals/datacatalog/api/api";
@@ -731,7 +731,7 @@ export const processOverrides = (
     }
     return;
   }
-  const overrides = startingOverride ?? {};
+  const overrides = cloneDeep(startingOverride ?? {});
   for (let i = 0; i < components.length; i++) {
     merge(overrides, action === "cleanse" ? components[i].cleanseOverride : components[i].override);
   }
