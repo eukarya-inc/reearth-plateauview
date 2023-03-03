@@ -246,7 +246,6 @@ export const cleanseOverrides: { [key: string]: any } = {
   },
   polylineColor: {
     polyline: {
-      clampToGround: true,
       strokeColor: "white",
     },
   },
@@ -258,7 +257,6 @@ export const cleanseOverrides: { [key: string]: any } = {
   polygonColor: {
     polygon: {
       fill: false,
-      heightReference: "clamp",
     },
   },
   polygonStroke: {
