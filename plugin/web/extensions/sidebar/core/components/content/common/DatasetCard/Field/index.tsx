@@ -73,6 +73,7 @@ const FieldComponent: React.FC<Props> = ({
 }) => {
   const Field = fields[field.type];
   const [groupPopupOpen, setGroupPopup] = useState(false);
+  const [isExpanded, toggleExpanded] = useState(true);
 
   const handleGroupSelectOpen = useCallback(
     (e: React.MouseEvent<HTMLDivElement, MouseEvent> | undefined) => {
@@ -135,13 +136,13 @@ const FieldComponent: React.FC<Props> = ({
       allowZeroExpanded
       preExpanded={[field.id]}
       hide={!editMode && !Field?.hasUI}>
-      <AccordionItem uuid={field.id}>
+      <AccordionItem uuid={field.id} dangerouslySetExpanded={isExpanded}>
         <AccordionItemState>
           {({ expanded }) => (
             <Header showBorder={expanded}>
               {editMode ? (
                 <HeaderContents>
-                  <LeftContents>
+                  <LeftContents onClick={() => toggleExpanded(v => !v)}>
                     {Field && (
                       <ArrowIcon icon="arrowDown" size={16} direction="right" expanded={expanded} />
                     )}
