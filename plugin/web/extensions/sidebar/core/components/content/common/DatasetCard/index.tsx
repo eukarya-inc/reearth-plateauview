@@ -60,6 +60,7 @@ const DatasetCard: React.FC<Props> = ({
   } = useHooks({
     dataset,
     inEditor,
+    templates,
     onDatasetUpdate,
     onOverride,
   });

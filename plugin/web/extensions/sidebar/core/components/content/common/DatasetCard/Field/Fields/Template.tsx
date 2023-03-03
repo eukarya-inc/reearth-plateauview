@@ -1,3 +1,4 @@
+import { mergeOverrides } from "@web/extensions/sidebar/core/components/hooks";
 import { Select } from "@web/sharedComponents";
 import { styled } from "@web/theme";
 import { useCallback, useMemo } from "react";
@@ -10,17 +11,18 @@ const Template: React.FC<BaseFieldProps<"template">> = ({
   templates,
   onUpdate,
 }) => {
-  console.log("TEMPLATES!", templates);
-
   const handleTemplateChange = useCallback(
     (id: string) => {
-      console.log("CHANGINGG TEMPLATE", id);
+      const prevTempComponents = templates?.find(t => t.id === value.templateID)?.components;
+      const cleanseOverride = mergeOverrides("cleanse", prevTempComponents);
+
       onUpdate({
         ...value,
         templateID: id,
+        override: cleanseOverride,
       });
     },
-    [value, onUpdate],
+    [templates, value, onUpdate],
   );
 
   const templateOptions = useMemo(
@@ -35,29 +37,23 @@ const Template: React.FC<BaseFieldProps<"template">> = ({
   );
 
   return editMode ? (
-    <Wrapper>
+    <div>
       <Title>テンプレート</Title>
       <Select
         options={templateOptions}
-        style={{ width: "100%" }}
+        style={{ width: "100%", alignItems: "center", height: "32px" }}
         value={value.templateID ?? templates?.[0].id}
         onChange={handleTemplateChange}
         getPopupContainer={trigger => trigger.parentElement ?? document.body}
       />
-    </Wrapper>
-  ) : (
-    <div>
-      <p>CurrentTemplate: {templates?.find(t => t.id === value.templateID)?.name}</p>
     </div>
-  );
+  ) : null;
 };
 
 export default Template;
 
-const Wrapper = styled.div`
-  display: flex;
-`;
-
 const Title = styled.p`
-  margin: 0;
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.85);
+  margin: 0 0 4px 0;
 `;
