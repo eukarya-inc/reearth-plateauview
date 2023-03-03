@@ -1,5 +1,4 @@
 import { DataCatalogItem, Template } from "@web/extensions/sidebar/core/types";
-// import { postMsg } from "@web/extensions/sidebar/utils";
 import { Dropdown, Icon, Menu, Spin } from "@web/sharedComponents";
 import { styled } from "@web/theme";
 import { useCallback, useMemo, useState } from "react";
@@ -186,7 +185,8 @@ const TemplateCard: React.FC<Props> = ({
                 index={idx}
                 field={c}
                 isActive={true}
-                editMode={currentTab === "edit" ? true : false}
+                editMode={currentTab === "edit"}
+                // templates={templates}
                 onUpdate={handleFieldUpdate}
                 onRemove={handleFieldRemove}
                 onMoveUp={handleMoveFieldUp}
