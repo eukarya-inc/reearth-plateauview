@@ -62,7 +62,7 @@ const renderTileset = (state: State, onUpdateRef: RefObject<(property: any) => v
     const overriddenLayer = await getOverriddenLayerByDataID(state.dataID);
 
     // We can get transparency from RGBA. Because the color is defined as RGBA.
-    const overriddenColor = overriddenLayer?.["3dtiles"].color;
+    const overriddenColor = overriddenLayer?.["3dtiles"]?.color;
     const transparency =
       getRGBAFromString(
         typeof overriddenColor === "string"

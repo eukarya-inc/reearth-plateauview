@@ -17,7 +17,7 @@ const useHooks = ({
 
   const handleUpdate = useCallback(
     (property: any) => {
-      onUpdate({ ...value, ...options, override: { "3dtiles": property } });
+      onUpdate({ ...value, ...options, updatedAt: new Date(), override: { "3dtiles": property } });
     },
     [onUpdate, value, options],
   );
