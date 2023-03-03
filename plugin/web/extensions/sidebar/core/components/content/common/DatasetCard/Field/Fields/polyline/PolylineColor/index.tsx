@@ -21,21 +21,21 @@ const PolylineColor: React.FC<BaseFieldProps<"polylineColor">> = ({
 
   const handleMoveUp = useCallback((idx: number) => {
     updateItems(c => {
-      const newitems = moveItemUp(idx, c) ?? c;
-      return newitems;
+      const newItems = moveItemUp(idx, c) ?? c;
+      return newItems;
     });
   }, []);
 
   const handleMoveDown = useCallback((idx: number) => {
     updateItems(c => {
-      const newitems = moveItemDown(idx, c) ?? c;
-      return newitems;
+      const newItems = moveItemDown(idx, c) ?? c;
+      return newItems;
     });
   }, []);
 
   const handleAdd = useCallback(() => {
     updateItems(c => {
-      const newPointColor: { condition: Cond<any>; color: string } = {
+      const newItem: { condition: Cond<any>; color: string } = {
         condition: {
           key: generateID(),
           operator: "",
@@ -44,22 +44,22 @@ const PolylineColor: React.FC<BaseFieldProps<"polylineColor">> = ({
         },
         color: "",
       };
-      return c ? [...c, newPointColor] : [newPointColor];
+      return c ? [...c, newItem] : [newItem];
     });
   }, []);
 
   const handleRemove = useCallback((idx: number) => {
     updateItems(c => {
-      const newitems = removeItem(idx, c) ?? c;
-      return newitems;
+      const newItems = removeItem(idx, c) ?? c;
+      return newItems;
     });
   }, []);
 
   const handleItemUpdate = (item: { condition: Cond<number>; color: string }, index: number) => {
     updateItems(c => {
-      const newitems = [...(c ?? [])];
-      newitems.splice(index, 1, item);
-      return newitems;
+      const newItems = [...(c ?? [])];
+      newItems.splice(index, 1, item);
+      return newItems;
     });
   };
 

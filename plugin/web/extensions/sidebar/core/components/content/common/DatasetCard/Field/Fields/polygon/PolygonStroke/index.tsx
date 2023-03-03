@@ -21,15 +21,15 @@ const PolygonStroke: React.FC<BaseFieldProps<"polygonStroke">> = ({
 
   const handleMoveUp = useCallback((idx: number) => {
     updateItems(c => {
-      const newitems = moveItemUp(idx, c) ?? c;
-      return newitems;
+      const newItems = moveItemUp(idx, c) ?? c;
+      return newItems;
     });
   }, []);
 
   const handleMoveDown = useCallback((idx: number) => {
     updateItems(c => {
-      const newitems = moveItemDown(idx, c) ?? c;
-      return newitems;
+      const newItems = moveItemDown(idx, c) ?? c;
+      return newItems;
     });
   }, []);
 
@@ -56,8 +56,8 @@ const PolygonStroke: React.FC<BaseFieldProps<"polygonStroke">> = ({
 
   const handleRemove = useCallback((idx: number) => {
     updateItems(c => {
-      const newitems = removeItem(idx, c) ?? c;
-      return newitems;
+      const newItems = removeItem(idx, c) ?? c;
+      return newItems;
     });
   }, []);
 
