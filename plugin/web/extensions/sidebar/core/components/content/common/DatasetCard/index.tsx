@@ -308,10 +308,10 @@ const DatasetCard: React.FC<Props> = ({
                     editMode={inEditor && currentTab === "edit"}
                     selectGroups={dataset.fieldGroups}
                     configData={dataset.config?.data}
-                    onMoveUp={handleMoveUp}
-                    onMoveDown={handleMoveDown}
                     onUpdate={handleFieldUpdate}
                     onRemove={handleFieldRemove}
+                    onMoveUp={handleMoveUp}
+                    onMoveDown={handleMoveDown}
                     onGroupsUpdate={handleGroupsUpdate(c.id)}
                     onCurrentGroupUpdate={handleCurrentGroupUpdate}
                   />
@@ -325,10 +325,10 @@ const DatasetCard: React.FC<Props> = ({
                       dataID={dataset.dataID}
                       selectGroups={dataset.fieldGroups}
                       configData={dataset.config?.data}
-                      onMoveUp={handleMoveUp}
-                      onMoveDown={handleMoveDown}
                       onUpdate={handleFieldUpdate}
                       onRemove={handleFieldRemove}
+                      onMoveUp={handleMoveUp}
+                      onMoveDown={handleMoveDown}
                       onCurrentGroupUpdate={handleCurrentGroupUpdate}
                     />
                   ))
@@ -344,10 +344,10 @@ const DatasetCard: React.FC<Props> = ({
                   editMode={inEditor && currentTab === "edit"}
                   selectGroups={dataset.fieldGroups}
                   configData={dataset.config?.data}
-                  onMoveUp={handleMoveUp}
-                  onMoveDown={handleMoveDown}
                   onUpdate={handleFieldUpdate}
                   onRemove={handleFieldRemove}
+                  onMoveUp={handleMoveUp}
+                  onMoveDown={handleMoveDown}
                   onGroupsUpdate={handleGroupsUpdate(c.id)}
                   onCurrentGroupUpdate={handleCurrentGroupUpdate}
                 />

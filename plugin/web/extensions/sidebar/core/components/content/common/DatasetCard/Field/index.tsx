@@ -33,10 +33,10 @@ export type Props = {
   editMode?: boolean;
   selectGroups?: Group[];
   configData?: ConfigData[];
-  onMoveUp?: (index: number) => void;
-  onMoveDown?: (index: number) => void;
   onUpdate?: (id: string) => (property: any) => void;
   onRemove?: (id: string) => void;
+  onMoveUp?: (index: number) => void;
+  onMoveDown?: (index: number) => void;
   onGroupsUpdate?: (groups: Group[], selectedGroup?: string) => void;
   onCurrentGroupUpdate?: (fieldGroupID: string) => void;
 };
@@ -65,10 +65,10 @@ const FieldComponent: React.FC<Props> = ({
   editMode,
   selectGroups,
   configData,
-  onMoveUp,
-  onMoveDown,
   onUpdate,
   onRemove,
+  onMoveUp,
+  onMoveDown,
   onGroupsUpdate,
   onCurrentGroupUpdate,
 }) => {
