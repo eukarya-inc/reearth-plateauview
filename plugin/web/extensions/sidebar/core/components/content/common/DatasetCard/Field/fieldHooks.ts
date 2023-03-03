@@ -1,4 +1,4 @@
-import { Group, Template } from "@web/extensions/sidebar/core/types";
+import { Group } from "@web/extensions/sidebar/core/types";
 import { generateID } from "@web/extensions/sidebar/utils";
 import { useMemo } from "react";
 
@@ -10,11 +10,9 @@ type FieldDropdownItem = {
 
 export default ({
   fieldGroups,
-  templates,
   onFieldAdd,
 }: {
   fieldGroups?: Group[];
-  templates?: Template[];
   onFieldAdd: (property: any) => ({ key }: { key: string }) => void;
 }) => {
   const generalFields: FieldDropdownItem = useMemo(() => {
@@ -76,6 +74,10 @@ export default ({
         name: fieldName["switchDataset"],
         onClick: onFieldAdd({}),
       },
+      template: {
+        name: fieldName["template"],
+        onClick: onFieldAdd({}),
+      },
     };
   }, [fieldGroups, onFieldAdd]);
 
@@ -83,14 +85,7 @@ export default ({
     return {
       pointColor: {
         name: fieldName["pointColor"],
-        onClick: onFieldAdd({
-          cleanseOverride: {
-            marker: {
-              style: null,
-              pointColor: null,
-            },
-          },
-        }),
+        onClick: onFieldAdd({}),
       },
       // pointColorGradient: {
       //   name: fieldName["pointColorGradient"],
@@ -98,63 +93,27 @@ export default ({
       // },
       pointSize: {
         name: fieldName["pointSize"],
-        onClick: onFieldAdd({
-          cleanseOverride: {
-            marker: {
-              style: null,
-              pointSize: null,
-            },
-          },
-        }),
+        onClick: onFieldAdd({}),
       },
       pointIcon: {
         name: fieldName["pointIcon"],
         onClick: onFieldAdd({
           size: 1,
-          cleanseOverride: {
-            marker: {
-              style: null,
-              image: null,
-              imageSize: null,
-            },
-          },
         }),
       },
       pointLabel: {
         name: fieldName["pointLabel"],
-        onClick: onFieldAdd({
-          cleanseOverride: {
-            marker: {
-              style: null,
-              label: null,
-              labelTypography: null,
-              heightReference: null,
-              labelText: null,
-              extrude: null,
-              labelBackground: null,
-              labelBackgroundColor: null,
-            },
-          },
-        }),
+        onClick: onFieldAdd({}),
       },
       pointModel: {
         name: fieldName["pointModel"],
         onClick: onFieldAdd({
           scale: 1,
-          cleanseOverride: { model: null },
         }),
       },
       pointStroke: {
         name: fieldName["pointStroke"],
-        onClick: onFieldAdd({
-          cleanseOverride: {
-            marker: {
-              style: null,
-              pointOutlineColor: null,
-              pointOutlineWidth: null,
-            },
-          },
-        }),
+        onClick: onFieldAdd({}),
       },
       pointCSV: {
         name: fieldName["pointCSV"],
@@ -237,30 +196,6 @@ export default ({
     };
   }, [onFieldAdd]);
 
-  // const ThreeDModelFields: FieldDropdownItem = {};
-
-  const TemplateFields: FieldDropdownItem | undefined = useMemo(
-    () =>
-      templates?.length
-        ? templates
-            .map(t => {
-              return {
-                [`template-${t.id}`]: {
-                  name: t.name,
-                  onClick: onFieldAdd({
-                    templateID: t.id,
-                    name: t.name,
-                  }),
-                },
-              };
-            })
-            .reduce((acc, field) => {
-              return { ...acc, ...field };
-            })
-        : undefined,
-    [templates, onFieldAdd],
-  );
-
   const fieldComponentsList = useMemo(() => {
     const groups: {
       [key: string]: {
@@ -281,11 +216,32 @@ export default ({
       // "3d-model": { name: "3Dモデル", fields: ThreeDModelFields },
       "3d-tile": { name: "3Dタイル", fields: ThreeDTileFields },
     };
-    if (TemplateFields) {
-      groups["templates"] = { name: "テンプレート", fields: TemplateFields };
-    }
     return groups;
-  }, [generalFields, pointFields, polygonFields, polylineFields, ThreeDTileFields, TemplateFields]);
+  }, [generalFields, pointFields, polygonFields, polylineFields, ThreeDTileFields]);
 
   return fieldComponentsList;
+};
+
+export const cleanseOverrides: { [key: string]: any } = {
+  pointSize: { marker: { pointSize: 10 } },
+  pointColor: { marker: { pointColor: "white" } },
+  pointIcon: { marker: { style: "point", image: undefined, imageSize: undefined } },
+  pointLabel: {
+    marker: {
+      label: undefined,
+      labelTypography: undefined,
+      heightReference: undefined,
+      labelText: undefined,
+      extrude: undefined,
+      labelBackground: undefined,
+      labelBackgroundColor: undefined,
+    },
+  },
+  pointModel: { model: undefined },
+  pointStroke: {
+    marker: {
+      pointOutlineColor: undefined,
+      pointOutlineWidth: undefined,
+    },
+  },
 };
