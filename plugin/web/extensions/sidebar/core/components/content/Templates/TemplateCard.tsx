@@ -43,7 +43,13 @@ const TemplateCard: React.FC<Props> = ({
 
   const [editTitle, setEditTitle] = useState(false);
 
-  const { fieldComponentsList, handleFieldUpdate, handleFieldRemove } = useHooks({
+  const {
+    fieldComponentsList,
+    handleFieldUpdate,
+    handleFieldRemove,
+    handleMoveFieldUp,
+    handleMoveFieldDown,
+  } = useHooks({
     template,
     onTemplateUpdate,
   });
@@ -183,6 +189,8 @@ const TemplateCard: React.FC<Props> = ({
                 editMode={currentTab === "edit" ? true : false}
                 onUpdate={handleFieldUpdate}
                 onRemove={handleFieldRemove}
+                onMoveUp={handleMoveFieldUp}
+                onMoveDown={handleMoveFieldDown}
               />
             ))}
           </Content>
