@@ -95,6 +95,7 @@ type FieldBase<T extends keyof typeof fieldName> = {
   group?: string;
   override?: any;
   cleanseOverride?: any;
+  updatedAt?: Date;
 };
 
 type CameraPosition = {

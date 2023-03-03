@@ -1,18 +1,7 @@
-import {
-  ContextValue,
-  useBuildingColorContext,
-} from "@web/extensions/sidebar/core/BuildingColorContext";
 import { getRGBAFromString, RGBA, rgbaToString } from "@web/extensions/sidebar/utils/color";
+import { getOverriddenLayerByDataID } from "@web/extensions/sidebar/utils/getOverriddenLayerByDataID";
 import debounce from "lodash/debounce";
-import {
-  Dispatch,
-  RefObject,
-  SetStateAction,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-} from "react";
+import { RefObject, useCallback, useEffect, useMemo, useRef } from "react";
 
 import { BaseFieldProps } from "../../types";
 
@@ -29,7 +18,6 @@ export const useBuildingTransparency = ({
     () => debounce(() => renderRef.current?.(), 100, { maxWait: 300 }),
     [],
   );
-  const [, setColor] = useBuildingColorContext();
 
   const onUpdateRef = useRef(onUpdate);
   useEffect(() => {
@@ -43,9 +31,8 @@ export const useBuildingTransparency = ({
         transparency: options.transparency,
       },
       onUpdateRef,
-      setColor,
     );
-  }, [options.transparency, dataID, setColor]);
+  }, [options.transparency, dataID]);
 
   useEffect(() => {
     renderRef.current = render;
@@ -58,43 +45,39 @@ export type State = {
   transparency: number;
 };
 
-const renderTileset = (
-  state: State,
-  onUpdateRef: RefObject<(property: any) => void>,
-  setColor: Dispatch<SetStateAction<ContextValue>>,
-) => {
+const renderTileset = (state: State, onUpdateRef: RefObject<(property: any) => void>) => {
   const updateTileset = async () => {
-    setColor(color => {
-      const transparency = (state.transparency ?? 100) / 100;
+    const overriddenLayer = await getOverriddenLayerByDataID(state.dataID);
 
-      // We can get transparency from RGBA. Because the color is defined as RGBA.
-      const overriddenColor = color.color;
-      const defaultRGBA = rgbaToString([255, 255, 255, transparency]);
-      const expression = (() => {
-        return {
-          expression: {
-            conditions: (overriddenColor.expression.conditions as [string, string][]).map(
-              ([k, v]: [string, string]) => {
-                const rgba = getRGBAFromString(v);
-                if (!rgba) {
-                  return [k, defaultRGBA];
-                }
-                const composedRGBA = [...rgba.slice(0, -1), transparency] as RGBA;
-                return [k, rgbaToString(composedRGBA)];
-              },
-            ),
-          },
-        };
-      })();
+    const transparency = (state.transparency ?? 100) / 100;
 
-      onUpdateRef.current?.({
-        color: expression,
-      });
-
+    // We can get transparency from RGBA. Because the color is defined as RGBA.
+    const overriddenColor = overriddenLayer?.["3dtiles"].color;
+    const defaultRGBA = rgbaToString([255, 255, 255, transparency]);
+    const expression = (() => {
+      if (!overriddenColor) {
+        return defaultRGBA;
+      }
+      if (typeof overriddenColor === "string") {
+        const rgba = getRGBAFromString(overriddenColor);
+        return rgba ? rgbaToString([...rgba.slice(0, -1), transparency] as RGBA) : defaultRGBA;
+      }
       return {
-        ...color,
-        transparency,
+        expression: {
+          conditions: overriddenColor.expression.conditions.map(([k, v]: [string, string]) => {
+            const rgba = getRGBAFromString(v);
+            if (!rgba) {
+              return [k, defaultRGBA];
+            }
+            const composedRGBA = [...rgba.slice(0, -1), transparency] as RGBA;
+            return [k, rgbaToString(composedRGBA)];
+          }),
+        },
       };
+    })();
+
+    onUpdateRef.current?.({
+      color: expression,
     });
   };
 

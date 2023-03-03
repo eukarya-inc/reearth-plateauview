@@ -775,6 +775,7 @@ export const mergeOverrides = (
     }
     return;
   }
+
   const overrides = cloneDeep(startingOverride ?? {});
   for (let i = 0; i < components.length; i++) {
     merge(

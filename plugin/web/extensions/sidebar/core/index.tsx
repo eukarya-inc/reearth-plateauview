@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 
 import { postMsg } from "../utils";
 
-import { BuildingColorProvider } from "./BuildingColorContext";
 import DesktopSidebar from "./components/Desktop";
 import MobileSidebar from "./components/Mobile";
 
@@ -30,17 +29,13 @@ const Sidebar: React.FC<Props> = ({ className }) => {
     };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  return (
-    <BuildingColorProvider>
-      {isMobile !== undefined ? (
-        isMobile ? (
-          <MobileSidebar className={className} />
-        ) : (
-          <DesktopSidebar className={className} />
-        )
-      ) : null}
-    </BuildingColorProvider>
-  );
+  return isMobile !== undefined ? (
+    isMobile ? (
+      <MobileSidebar className={className} />
+    ) : (
+      <DesktopSidebar className={className} />
+    )
+  ) : null;
 };
 
 export default Sidebar;
