@@ -38,9 +38,9 @@ const PointColor: React.FC<BaseFieldProps<"pointColor">> = ({
       const newPointColor: { condition: Cond<any>; color: string } = {
         condition: {
           key: generateID(),
-          operator: "",
-          operand: "",
-          value: "",
+          operator: "===",
+          operand: true,
+          value: true,
         },
         color: "",
       };
