@@ -1,4 +1,4 @@
-import { Group } from "@web/extensions/sidebar/core/types";
+import { Group, Template as TemplateType } from "@web/extensions/sidebar/core/types";
 
 export const generalFieldName = {
   idealZoom: "カメラ",
@@ -12,6 +12,7 @@ export const generalFieldName = {
   switchDataset: "スイッチデータセット",
   point: "ポイント",
   description: "説明",
+  template: "テンプレート",
 };
 
 export const pointFieldName = {
@@ -46,20 +47,14 @@ export const polylineFieldName = {
   polylineStrokeWeight: "ポリラインストロック",
 };
 
-export const templateFieldName = {
-  template: "テンプレート",
-};
-
 export const fieldName = {
   ...generalFieldName,
   ...pointFieldName,
   ...polygonFieldName,
   ...threeDFieldName,
   ...polylineFieldName,
-  ...templateFieldName,
 };
 
-// type Component = Camera | Legend | Realtime | Point | Polyline | Polygon | Model | Description;
 export type FieldComponent =
   | IdealZoom
   | Legend
@@ -72,6 +67,7 @@ export type FieldComponent =
   | Realtime
   | Timeline
   | SwitchDataset
+  | Template
   | PointColor
   | PointColorGradient
   | PointSize
@@ -91,8 +87,7 @@ export type FieldComponent =
   | BuildingFilter
   | BuildingTransparency
   | BuildingColor
-  | BuildingShadow
-  | Template;
+  | BuildingShadow;
 
 type FieldBase<T extends keyof typeof fieldName> = {
   id: string;
@@ -100,11 +95,6 @@ type FieldBase<T extends keyof typeof fieldName> = {
   group?: string;
   override?: any;
   cleanseOverride?: any;
-};
-
-type Template = FieldBase<"template"> & {
-  templateID: string;
-  name: string;
 };
 
 type CameraPosition = {
@@ -170,6 +160,7 @@ export type ButtonLink = FieldBase<"buttonLink"> & {
   title?: string;
   link?: string;
 };
+
 export type StoryItem = {
   id: string;
   title?: string;
@@ -180,17 +171,9 @@ export type Story = FieldBase<"story"> & {
   stories?: StoryItem[];
 };
 
-// MAYBE POINT TYPE IS JUST TO CONCEPTUALIZE THE JSONNNN
-// type Point = {
-//   type: "point";
-//   group?: string;
-//   visible?: Expression;
-//   pointColor?: Expression[];
-//   // pointSize?: Expression;
-//   pointSize?: number;
-//   image?: Expression;
-//   modelUrl?: string;
-// };
+type Template = FieldBase<"template"> & {
+  templateID?: string;
+};
 
 type PointColor = FieldBase<"pointColor"> & {
   pointColors?: {
@@ -348,6 +331,8 @@ export type Fields = {
   buildingTransparency: BuildingTransparency;
   buildingColor: BuildingColor;
   buildingShadow: BuildingShadow;
+  // template
+  template: Template;
 };
 
 export type BaseFieldProps<T extends keyof Fields> = {
@@ -355,10 +340,11 @@ export type BaseFieldProps<T extends keyof Fields> = {
   dataID?: string;
   editMode?: boolean;
   isActive?: boolean;
+  templates?: TemplateType[];
   fieldGroups?: Group[];
   configData?: ConfigData[];
   onUpdate: (property: Fields[T]) => void;
-  onCurrentGroupChange: (fieldGroupID: string) => void;
+  onCurrentGroupUpdate: (fieldGroupID: string) => void;
 };
 
 export type ConfigData = { name: string; type: string; url: string; layers?: string[] };
@@ -378,7 +364,7 @@ export type Expression<T extends string | number | boolean = string | number | b
 
 export type Cond<T> = {
   key: string;
-  operator: "===" | ">=" | "<=" | ">" | "<" | "!==" | "";
+  operator: "===" | ">=" | "<=" | ">" | "<" | "!==";
   operand: T;
   value: T;
 };

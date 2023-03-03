@@ -1,8 +1,8 @@
 import { DataCatalogItem, Template } from "@web/extensions/sidebar/core/types";
 import { postMsg } from "@web/extensions/sidebar/utils";
-import { Dropdown, Icon, Menu } from "@web/sharedComponents";
+import { Dropdown, Icon, Menu, Spin } from "@web/sharedComponents";
 import { styled } from "@web/theme";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   Accordion,
   AccordionItem,
@@ -23,28 +23,30 @@ type BaseFieldType = Partial<DataCatalogItem> & {
   title?: string;
   icon?: string;
   value?: string | number;
-  onClick?: () => void;
+  onClick?: () => Promise<void> | void;
 };
 
 export type Props = {
   dataset: DataCatalogItem;
   templates?: Template[];
   inEditor?: boolean;
+  savingDataset: boolean;
   onDatasetSave: (dataID: string) => void;
   onDatasetRemove?: (dataID: string) => void;
   onDatasetUpdate: (dataset: DataCatalogItem, cleanseOverride?: any) => void;
-  onUpdateField?: (id: string) => void;
   onThreeDTilesSearch: (id: string) => void;
+  onOverride?: (dataID: string, activeIDs?: string[]) => void;
 };
 const DatasetCard: React.FC<Props> = ({
   dataset,
   templates,
   inEditor,
+  savingDataset,
   onDatasetSave,
   onDatasetRemove,
   onDatasetUpdate,
-  // onUpdateField,
   onThreeDTilesSearch,
+  onOverride,
 }) => {
   const [currentTab, changeTab] = useState<Tabs>("default");
 
@@ -53,28 +55,91 @@ const DatasetCard: React.FC<Props> = ({
     fieldComponentsList,
     handleFieldUpdate,
     handleFieldRemove,
-    handleCurrentGroupChange,
+    handleCurrentGroupUpdate,
     handleGroupsUpdate,
   } = useHooks({
     dataset,
-    templates,
     inEditor,
+    templates,
     onDatasetUpdate,
+    onOverride,
   });
+  const readyMVTPosition = useRef<
+    Promise<
+      | {
+          lng?: number;
+          lat?: number;
+          height?: number;
+          heading?: number;
+          pitch?: number;
+          roll?: number;
+        }
+      | undefined
+    >
+  >();
+
+  // Fetch mvt position
+  useEffect(() => {
+    const fetchMetadataJSONForMVT = async () => {
+      const layer = await (() =>
+        new Promise<any>(resolve => {
+          const handleMessage = (e: any) => {
+            if (e.source !== parent) return;
+            if (e.data.action !== "findLayerByDataID") {
+              resolve(undefined);
+              return;
+            }
+            removeEventListener("message", handleMessage);
+            resolve(e.data.payload.layer);
+          };
+          addEventListener("message", handleMessage);
+          postMsg({
+            action: "findLayerByDataID",
+            payload: {
+              dataID: dataset.dataID,
+            },
+          });
+        }))();
+
+      if (layer?.data?.type !== "mvt") return;
+
+      const mvtBaseURL = layer?.data?.url?.match(/(.+)(\/{z}\/{x}\/{y}.mvt)/)?.[1];
+      if (!mvtBaseURL) return;
+
+      const json = await fetch(`${mvtBaseURL}/metadata.json`).then(d => d.json());
+      const center = json.center.split(",").map((s: string) => Number(s));
+      if (center < 2) {
+        return;
+      }
+      return {
+        lng: center[0],
+        lat: center[1],
+        height: 30000,
+        pitch: -(Math.PI / 2),
+        heading: 0,
+        roll: 0,
+      };
+    };
+
+    readyMVTPosition.current = fetchMetadataJSONForMVT();
+  }, [dataset.dataID]);
 
   const baseFields: BaseFieldType[] = useMemo(() => {
-    const fields = [
+    const fields: BaseFieldType[] = [
       {
         id: "zoom",
         title: "カメラ",
         icon: "mapPin",
         value: 1,
-        onClick: () => {
+        onClick: async () => {
           const idealZoomField = dataset.components?.find(c => c.type === "idealZoom");
+          const mvtPosition = await readyMVTPosition.current;
           postMsg({
             action: "cameraFlyTo",
             payload: idealZoomField
               ? [(idealZoomField as IdealZoom).position, { duration: 2 }]
+              : mvtPosition
+              ? [mvtPosition, { duration: 2 }]
               : dataset.dataID,
           });
         },
@@ -224,12 +289,13 @@ const DatasetCard: React.FC<Props> = ({
                     isActive={!!activeComponentIDs?.find(id => id === c.id)}
                     dataID={dataset.dataID}
                     editMode={inEditor && currentTab === "edit"}
+                    templates={templates}
                     selectGroups={dataset.fieldGroups}
                     configData={dataset.config?.data}
                     onUpdate={handleFieldUpdate}
                     onRemove={handleFieldRemove}
                     onGroupsUpdate={handleGroupsUpdate(c.id)}
-                    onCurrentGroupChange={handleCurrentGroupChange}
+                    onCurrentGroupUpdate={handleCurrentGroupUpdate}
                   />
                 ) : (
                   template?.components?.map((tc, idx2) => (
@@ -239,10 +305,11 @@ const DatasetCard: React.FC<Props> = ({
                       isActive={!!activeComponentIDs?.find(id => id === c.id)}
                       dataID={dataset.dataID}
                       selectGroups={dataset.fieldGroups}
+                      templates={templates}
                       configData={dataset.config?.data}
                       onUpdate={handleFieldUpdate}
                       onRemove={handleFieldRemove}
-                      onCurrentGroupChange={handleCurrentGroupChange}
+                      onCurrentGroupUpdate={handleCurrentGroupUpdate}
                     />
                   ))
                 );
@@ -254,12 +321,13 @@ const DatasetCard: React.FC<Props> = ({
                   isActive={!!activeComponentIDs?.find(id => id === c.id)}
                   dataID={dataset.dataID}
                   editMode={inEditor && currentTab === "edit"}
+                  templates={templates}
                   selectGroups={dataset.fieldGroups}
                   configData={dataset.config?.data}
                   onUpdate={handleFieldUpdate}
                   onRemove={handleFieldRemove}
                   onGroupsUpdate={handleGroupsUpdate(c.id)}
-                  onCurrentGroupChange={handleCurrentGroupChange}
+                  onCurrentGroupUpdate={handleCurrentGroupUpdate}
                 />
               );
             })}
@@ -267,10 +335,15 @@ const DatasetCard: React.FC<Props> = ({
           {inEditor && currentTab === "edit" && (
             <>
               <StyledAddButton text="フィルドを追加" items={menuGenerator(fieldComponentsList)} />
-              <SaveButton onClick={handleFieldSave}>
+              <SaveButton onClick={handleFieldSave} disabled={savingDataset}>
                 <Icon icon="save" size={14} />
                 <Text>保存</Text>
               </SaveButton>
+              {savingDataset && (
+                <Loading>
+                  <Spin />
+                </Loading>
+              )}
             </>
           )}
         </BodyWrapper>
@@ -391,7 +464,7 @@ const StyledAddButton = styled(AddButton)`
   margin-top: 12px;
 `;
 
-const SaveButton = styled.div`
+const SaveButton = styled.div<{ disabled: boolean }>`
   margin-top: 12px;
   display: flex;
   justify-content: center;
@@ -407,6 +480,12 @@ const SaveButton = styled.div`
   :hover {
     background: #f4f4f4;
   }
+  ${({ disabled }) =>
+    disabled &&
+    `
+      color: rgb(209, 209, 209);
+      pointer-events: none;
+    `}
 `;
 
 const Text = styled.p`
@@ -425,4 +504,15 @@ const OpenDataButton = styled.div`
   border: 1px solid #e6e6e6;
   border-radius: 4px;
   cursor: pointer;
+`;
+const Loading = styled.div`
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  min-height: 200px;
+  left: 0;
+  top: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 `;
