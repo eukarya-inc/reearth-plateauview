@@ -19,6 +19,7 @@ extensions:
             - id: plateauAccessToken
               type: string
               title: Backend Access Token
+              private: true
             - id: catalogURL
               type: string
               title: Data Catalog URL
