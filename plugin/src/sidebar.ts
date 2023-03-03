@@ -154,6 +154,7 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
           projectID: reearth.viewport.query.projectID,
           inEditor: reearth.scene.inEditor,
           catalogURL: reearth.widget.property.default?.catalogURL ?? "",
+          catalogProjectName: reearth.widget.property.default?.catalogProjectName ?? "",
           reearthURL: reearth.widget.property.default?.reearthURL ?? "",
           backendURL: reearth.widget.property.default?.plateauURL ?? "",
           backendProjectName: reearth.widget.property.default?.projectName ?? "",
@@ -336,6 +337,19 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
     reearth.popup.update({
       height: reearth.viewport.height - 68,
       width: reearth.viewport.width - 12,
+    });
+  } else if (action === "findLayerByDataID") {
+    const { dataID } = payload;
+    const layerID = addedDatasets.find(a => a[0] === dataID)?.[2];
+    const layer = reearth.layers.findById(layerID);
+    reearth.ui.postMessage({
+      action,
+      payload: {
+        layer: {
+          id: layer.id,
+          data: layer.data,
+        },
+      },
     });
   }
 
