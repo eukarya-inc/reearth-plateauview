@@ -33,7 +33,6 @@ export const polygonFieldName = {
 };
 
 export const threeDFieldName = {
-  search: "データを検索",
   clipping: "クリッピング",
   buildingFilter: "建物フィルター",
   buildingTransparency: "透明度",
@@ -76,7 +75,6 @@ export type FieldComponent =
   | PointModel
   | PointStroke
   | PointCSV
-  | Search
   | PolylineColor
   | PolylineColorGradient
   | PolylineStrokeWeight
@@ -227,8 +225,6 @@ type PointCSV = FieldBase<"pointCSV"> & {
   height?: string;
 };
 
-type Search = FieldBase<"search">;
-
 type PolygonColor = FieldBase<"polygonColor"> & {
   items?: {
     condition: Cond<number>;
@@ -325,7 +321,6 @@ export type Fields = {
   polygonStroke: PolygonStroke;
   // 3d-model
   // 3d-tile
-  search: Search;
   clipping: Clipping;
   buildingFilter: BuildingFilter;
   buildingTransparency: BuildingTransparency;
@@ -364,7 +359,7 @@ export type Expression<T extends string | number | boolean = string | number | b
 
 export type Cond<T> = {
   key: string;
-  operator: "===" | ">=" | "<=" | ">" | "<" | "!==" | "";
+  operator: "===" | ">=" | "<=" | ">" | "<" | "!==";
   operand: T;
   value: T;
 };
