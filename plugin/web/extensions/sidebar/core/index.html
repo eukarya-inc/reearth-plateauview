@@ -1,44 +1,67 @@
 <title></title>
 <style>
-    html, body{
-        background: transparent;
-        font-family: 'Roboto', sans-serif;
-    }
-    .root{
-        background: #fff;
-        border-radius: 0 0 8px 0;
-    }
-    html, body, .root {
-        width: 350px;
-        height: 100%;
-        transition: height 0.5s, width 0.5s;
-        border-radius: 0;
-        overflow: hidden;
-    }
-    
-    .extended{
-        height: 100%;
-    }
-    .minimized{
-        width: 227px;
-        height: 80px;
-        border-radius: 0 0 8px 0;
-    }
-    .mobile{
-        width: 100%;
-        height: 56px;
-        border-radius: 0 0 8px 0;
-    }
- *::-webkit-scrollbar { display: block; width: 6px; height: 6px; } *::-webkit-scrollbar-button {
-display: none; } *::-webkit-scrollbar-track { background-color: #00000000; }
-*::-webkit-scrollbar-track-piece { background-color: #00000000; } *::-webkit-scrollbar-thumb {
-background-color: #00000040; border-radius: 3px; }
+  html {
+    background: transparent;
+    margin: 0;
+    overflow: hidden;
+    width: auto;
+    height: auto;
+  }
+  body {
+    display: flex;
+    position: absolute;
+    width: 350px;
+    height: 100%;
+    background: transparent;
+    margin: 0;
+    font-family: "Roboto", sans-serif;
+  }
+  .root {
+    position: relative;
+    display: flex;
+    flex: 1; 
+    align-items: flex-end;
+    justify-content: flex-start;
+  }
 
+  .extended {
+    height: 100%;
+  }
+  .minimized {
+    width: 227px;
+    height: 80px;
+    border-radius: 0 0 8px 0;
+  }
+  .mobile {
+    width: 100%;
+    height: 56px;
+    border-radius: 0 0 8px 0;
+  }
+  *::-webkit-scrollbar {
+    display: block;
+    width: 6px;
+    height: 6px;
+  }
+  *::-webkit-scrollbar-button {
+    display: none;
+  }
+  *::-webkit-scrollbar-track {
+    background-color: #00000000;
+  }
+  *::-webkit-scrollbar-track-piece {
+    background-color: #00000000;
+  }
+  *::-webkit-scrollbar-thumb {
+    background-color: #00000040;
+    border-radius: 3px;
+  }
 </style>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link
+  href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap"
+  rel="stylesheet" />
 <body>
-    <div class="root" id="root"></div>
+  <div class="root" id="root"></div>
 </body>
 <script type="module" src="./main.tsx"></script>
