@@ -63,7 +63,6 @@ const PointColor: React.FC<BaseFieldProps<"pointColor">> = ({ value, editMode, o
 
     const timer = setTimeout(() => {
       const conditions: [string, string][] = [["true", 'color("white")']];
-      console.log("conditions from pointsField: ", conditions);
       pointColors?.forEach(item => {
         const res = "color" + `("${item.color}")`;
         const cond = stringifyCondition(item.condition);
