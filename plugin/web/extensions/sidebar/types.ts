@@ -60,7 +60,8 @@ type ActionType =
   | "reset3dtilesShadow"
   | "infoboxFieldsFetch"
   | "infoboxFieldsSaved"
-  | "findLayerByDataID";
+  | "findLayerByDataID"
+  | "getOverriddenLayerByDataID";
 // FIXME(@keiya01): support auto csv field complement
 // | "getLocationNamesFromCSVFeatureProperty"
 
@@ -101,6 +102,11 @@ export type ReearthApi = {
     brightness_shift?: number;
     hue_shift?: number;
     surturation_shift?: number;
+  };
+  timeline?: {
+    current?: string;
+    start?: string;
+    stop?: string;
   };
 };
 
