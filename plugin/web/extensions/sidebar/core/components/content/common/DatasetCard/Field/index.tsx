@@ -70,7 +70,6 @@ const FieldComponent: React.FC<Props> = ({
   onCurrentGroupUpdate,
   onSceneUpdate,
 }) => {
-  console.log("FIELD", field);
   const Field = fields[field.type];
   const [groupPopupOpen, setGroupPopup] = useState(false);
 

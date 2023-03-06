@@ -26,11 +26,11 @@ const Template: React.FC<BaseFieldProps<"template">> = ({
       onUpdate({
         ...value,
         templateID: id,
-        components: [],
+        components: templates?.find(t => t.id === id)?.components ?? [],
         override: cleanseOverride,
       });
     },
-    [value, currentTempComponents, onUpdate],
+    [value, currentTempComponents, templates, onUpdate],
   );
 
   const handleFieldUpdate = useCallback(
