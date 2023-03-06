@@ -104,6 +104,11 @@ export type ReearthApi = {
     hue_shift?: number;
     surturation_shift?: number;
   };
+  timeline?: {
+    current?: string;
+    start?: string;
+    stop?: string;
+  };
 };
 
 type SceneMode = "3d" | "2d";
