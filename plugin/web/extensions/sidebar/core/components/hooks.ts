@@ -144,7 +144,12 @@ export default () => {
         ?.filter(c => !!activeIDs.find(id => id === c.id))
         .map(c2 => {
           if (c2.type === "template") {
-            return [c2, ...(fieldTemplates.find(ft => ft.id === c2.templateID)?.components ?? [])];
+            return [
+              c2,
+              ...(c2.components?.length
+                ? c2.components
+                : fieldTemplates.find(ft => ft.id === c2.templateID)?.components ?? []),
+            ];
           }
           return c2;
         })
