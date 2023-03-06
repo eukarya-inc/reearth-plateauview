@@ -28,7 +28,13 @@ const PointIcon: React.FC<BaseFieldProps<"pointIcon">> = ({
   }, [imageSizeInMeters]);
 
   useEffect(() => {
-    if (!isActive || (imageURL === value.url && imageSize === value.size)) return;
+    if (
+      !isActive ||
+      (imageURL === value.url &&
+        imageSize === value.size &&
+        imageSizeInMeters === value.imageSizeInMeters)
+    )
+      return;
     const timer = setTimeout(() => {
       onUpdate({
         ...value,
