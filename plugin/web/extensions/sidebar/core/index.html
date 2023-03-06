@@ -1,29 +1,23 @@
 <title></title>
 <style>
-  html {
-    background: transparent;
-    margin: 0;
-    overflow: hidden;
-    width: auto;
-    height: auto;
-  }
+  html,
   body {
-    display: flex;
-    position: absolute;
-    width: 350px;
-    height: 100%;
     background: transparent;
-    margin: 0;
     font-family: "Roboto", sans-serif;
   }
   .root {
-    position: relative;
-    display: flex;
-    flex: 1; 
-    align-items: flex-end;
-    justify-content: flex-start;
+    background: #fff;
+    border-radius: 0 0 8px 0;
+    position: absolute; /* add this rule */
   }
-
+  html,
+  body,
+  .root {
+    width: 350px;
+    height: 100%;
+    transition: height 0.5s, width 0.5s;
+    border-radius: 0;
+  }
   .extended {
     height: 100%;
   }
@@ -36,14 +30,14 @@
     width: 100%;
     height: 56px;
     border-radius: 0 0 8px 0;
-  }
+  } /* Hide scrollbar by default */
   *::-webkit-scrollbar {
-    display: block;
-    width: 6px;
-    height: 6px;
-  }
-  *::-webkit-scrollbar-button {
     display: none;
+  } /* Show scrollbar on hover */
+  *:hover::-webkit-scrollbar {
+    display: inline-block;
+    width: 3px;
+    height: 3px;
   }
   *::-webkit-scrollbar-track {
     background-color: #00000000;

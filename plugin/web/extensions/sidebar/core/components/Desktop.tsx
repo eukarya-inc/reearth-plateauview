@@ -140,5 +140,4 @@ const ContentWrapper = styled(Content)`
   flex: 1;
   background: #e7e7e7;
   box-sizing: border-box;
-  overflow: auto;
 `;
