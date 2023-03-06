@@ -1,5 +1,5 @@
 import { DataCatalogItem, Template } from "@web/extensions/sidebar/core/types";
-import { postMsg, moveItemDown, moveItemUp } from "@web/extensions/sidebar/utils";
+import { postMsg } from "@web/extensions/sidebar/utils";
 import { Dropdown, Icon, Menu, Spin } from "@web/sharedComponents";
 import { styled } from "@web/theme";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -55,6 +55,8 @@ const DatasetCard: React.FC<Props> = ({
     fieldComponentsList,
     handleFieldUpdate,
     handleFieldRemove,
+    handleMoveUp,
+    handleMoveDown,
     handleCurrentGroupUpdate,
     handleGroupsUpdate,
   } = useHooks({
@@ -228,22 +230,6 @@ const DatasetCard: React.FC<Props> = ({
         }
       })}
     </Menu>
-  );
-
-  const handleMoveUp = useCallback(
-    (idx: number) => {
-      const newComponents = moveItemUp(idx, dataset.components) ?? dataset.components;
-      onDatasetUpdate({ ...dataset, components: newComponents });
-    },
-    [dataset, onDatasetUpdate],
-  );
-
-  const handleMoveDown = useCallback(
-    (idx: number) => {
-      const newComponents = moveItemDown(idx, dataset.components) ?? dataset.components;
-      onDatasetUpdate({ ...dataset, components: newComponents });
-    },
-    [dataset, onDatasetUpdate],
   );
 
   return (
