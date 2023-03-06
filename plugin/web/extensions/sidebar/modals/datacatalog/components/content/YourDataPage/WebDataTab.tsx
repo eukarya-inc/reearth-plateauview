@@ -6,7 +6,7 @@ import { useCallback, useState } from "react";
 import WebFileTypeSelect, { FileType } from "./WebFileTypeSelect";
 
 type Props = {
-  onOpenDetails?: (data?: UserDataItem) => void;
+  onOpenDetails?: (data?: UserDataItem, needLayerName?: boolean) => void;
   setSelectedWebItem?: (data?: UserDataItem) => void;
 };
 
@@ -62,7 +62,8 @@ const WebDataTab: React.FC<Props> = ({ onOpenDetails, setSelectedWebItem }) => {
         url: dataUrl,
         format: setDataFormat(fileType, filename),
       };
-      if (onOpenDetails) onOpenDetails(item);
+      const requireLayerName = true;
+      if (onOpenDetails) onOpenDetails(item, requireLayerName);
       if (setSelectedWebItem) setSelectedWebItem(item);
     }
   }, [dataUrl, fetchDataFromUrl, fileType, onOpenDetails, setDataFormat, setSelectedWebItem]);
