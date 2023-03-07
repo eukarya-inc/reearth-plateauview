@@ -65,7 +65,6 @@ export default () => {
   const [data, setData] = useState<Data[]>();
   const [fieldTemplates, setFieldTemplates] = useState<Template[]>([]);
   const [project, updateProject] = useState<Project>(defaultProject);
-  const [selectedDatasets, setSelectedDatasets] = useState<DataCatalogItem[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [cleanseOverride, setCleanseOverride] = useState<string>();
 
@@ -207,15 +206,12 @@ export default () => {
           }
         }
 
-        const dataToAdd = convertToData(datasetToAdd);
-
         const updatedProject: Project = {
           ...project,
-          datasets: [...project.datasets, dataToAdd],
+          datasets: [...project.datasets, datasetToAdd],
         };
 
         postMsg({ action: "updateProject", payload: updatedProject });
-        setSelectedDatasets(sds => [...sds, datasetToAdd]);
 
         return updatedProject;
       });
@@ -254,7 +250,6 @@ export default () => {
       postMsg({ action: "updateProject", payload: updatedProject });
       return updatedProject;
     });
-    setSelectedDatasets(sds => sds.filter(sd => sd.dataID !== dataID));
     postMsg({ action: "removeDatasetFromScene", payload: dataID });
   }, []);
 
@@ -267,14 +262,13 @@ export default () => {
       postMsg({ action: "updateProject", payload: updatedProject });
       return updatedProject;
     });
-    setSelectedDatasets([]);
     postMsg({ action: "removeAllDatasetsFromScene" });
   }, []);
 
   const handleDatasetUpdate = useCallback(
     (updatedDataset: DataCatalogItem, cleanseOverride?: any) => {
-      setSelectedDatasets(selectedDatasets => {
-        const updatedDatasets = [...selectedDatasets];
+      updateProject(project => {
+        const updatedDatasets = [...project.datasets];
         const datasetIndex = updatedDatasets.findIndex(d2 => d2.dataID === updatedDataset.dataID);
         if (datasetIndex >= 0) {
           if (updatedDatasets[datasetIndex].visible !== updatedDataset.visible) {
@@ -288,15 +282,12 @@ export default () => {
           }
           updatedDatasets[datasetIndex] = updatedDataset;
         }
-        updateProject(project => {
-          const updatedProject = {
-            ...project,
-            datasets: updatedDatasets.map(ud => convertToData(ud)),
-          };
-          postMsg({ action: "updateProject", payload: updatedProject });
-          return updatedProject;
-        });
-        return updatedDatasets;
+        const updatedProject = {
+          ...project,
+          datasets: updatedDatasets,
+        };
+        postMsg({ action: "updateProject", payload: updatedProject });
+        return updatedProject;
       });
     },
     [],
@@ -338,13 +329,13 @@ export default () => {
       (async () => {
         if (!inEditor) return;
         setLoading(true);
-        const selectedDataset = selectedDatasets.find(d => d.dataID === dataID);
+        const selectedDataset = project.datasets.find(d => d.dataID === dataID);
 
         await handleDataRequest(selectedDataset);
         setLoading(false);
       })();
     },
-    [inEditor, selectedDatasets, handleDataRequest],
+    [inEditor, project.datasets, handleDataRequest],
   );
 
   const handleDatasetPublish = useCallback(
@@ -357,21 +348,16 @@ export default () => {
 
         dataset.public = publish;
 
-        setSelectedDatasets(selectedDatasets => {
-          const updatedDatasets = [...selectedDatasets];
+        updateProject(project => {
+          const updatedDatasets = [...project.datasets];
           const datasetIndex = updatedDatasets.findIndex(d2 => d2.dataID === dataID);
           if (datasetIndex >= 0) {
             updatedDatasets[datasetIndex] = dataset;
           }
-
-          updateProject(project => {
-            return {
-              ...project,
-              datasets: updatedDatasets.map(ud => convertToData(ud)),
-            };
-          });
-
-          return updatedDatasets;
+          return {
+            ...project,
+            datasets: updatedDatasets,
+          };
         });
 
         await handleDataRequest(dataset);
@@ -382,7 +368,7 @@ export default () => {
 
   const handleOverride = useCallback(
     (dataID: string, activeIDs?: string[]) => {
-      const dataset = selectedDatasets.find(sd => sd.dataID === dataID);
+      const dataset = project.datasets.find(d => d.dataID === dataID);
       if (dataset) {
         const overrides = processOverrides(dataset, activeIDs);
 
@@ -392,7 +378,7 @@ export default () => {
         });
       }
     },
-    [selectedDatasets, processOverrides],
+    [project.datasets, processOverrides],
   );
 
   // ****************************************
@@ -464,16 +450,16 @@ export default () => {
   const handleStorySaveData = useCallback((story: StoryItem & { dataID?: string }) => {
     if (story.id && story.dataID) {
       // save database story
-      setSelectedDatasets(sd => {
+      updateProject(project => {
         const tarStory = (
-          sd
-            .find(s => s.dataID === story.dataID)
+          project.datasets
+            .find(d => d.dataID === story.dataID)
             ?.components?.find(c => c.type === "story") as FieldStory
         )?.stories?.find((st: StoryItem) => st.id === story.id);
         if (tarStory) {
           tarStory.scenes = story.scenes;
         }
-        return sd;
+        return project;
       });
     }
 
@@ -690,7 +676,6 @@ export default () => {
   return {
     catalog: processedCatalog,
     project,
-    selectedDatasets,
     inEditor,
     reearthURL,
     backendURL,
