@@ -90,11 +90,20 @@ export default () => {
     postMsg({ action: "init" }); // Needed to trigger sending initialization data to sidebar
   }, []);
 
+  const getNameFromPath = (name: string) => {
+    // getNameFromPath("xxx/yyy/zzz") -> zzz
+    // getNameFromPath("xxxyyyzzz") -> xxxyyyzzz
+    return name.split("/").slice(-1)[0];
+  };
+
   useEffect(() => {
     const catalogBaseUrl = catalogURL || backendURL;
     if (catalogBaseUrl) {
       getDataCatalog(catalogBaseUrl, catalogProjectName).then(res => {
-        setCatalog(res);
+        const catalog = res.map(item => {
+          return { ...item, name: getNameFromPath(item.name) };
+        });
+        setCatalog(catalog);
       });
     }
   }, [backendURL, catalogProjectName, catalogURL]);
