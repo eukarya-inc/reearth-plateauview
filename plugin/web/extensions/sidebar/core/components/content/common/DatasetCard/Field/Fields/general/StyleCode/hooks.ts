@@ -7,19 +7,19 @@ export default ({ value, onUpdate }: Pick<BaseFieldProps<"styleCode">, "value" |
   const [code, editCode] = useState(value.src);
 
   const onApply = useCallback(() => {
-    try {
-      const styleObject = JSON5.parse(code);
-      onUpdate({
-        ...value,
-        src: code,
-        override: styleObject,
-      });
-      // eslint-disable-next-line no-empty
-    } catch (error) {}
+    const styleObject = JSON5.parse(code);
+    onUpdate({
+      ...value,
+      src: code,
+      override: styleObject,
+    });
   }, [onUpdate, code, value]);
 
   useEffect(() => {
-    onApply();
+    onUpdate({
+      ...value,
+      src: code,
+    });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
