@@ -283,12 +283,6 @@ export default () => {
       }
 
       if ((width ?? document.body.clientWidth) !== sizes.mini.width) {
-        console.log(
-          "set contentWidth",
-          width,
-          document.body.clientWidth,
-          width ?? document.body.clientWidth,
-        );
         setContentWidth(width ?? document.body.clientWidth);
       }
     });
