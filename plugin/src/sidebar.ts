@@ -481,14 +481,12 @@ reearth.on("select", (selected: string | undefined) => {
   // Reset previous select color for 3dtiles
   const prevOverriddenLayer = reearth.layers.overridden.find((l: any) => l.id === prevSelected);
   const prevCondition = prevOverriddenLayer?.["3dtiles"]?.color?.expression?.conditions;
-  if (
-    currentSelectedFeatureId &&
-    prevOverriddenLayer &&
-    prevOverriddenLayer.data.type === "3dtiles"
-  ) {
-    shouldUpdateTilesetColor = !prevCondition?.find(
-      (c: [string, string]) => c[0] === `\${gml_id} === "${currentSelectedFeatureId}"`,
-    );
+  if (prevOverriddenLayer && prevOverriddenLayer.data.type === "3dtiles") {
+    shouldUpdateTilesetColor =
+      !!currentSelectedFeatureId &&
+      !prevCondition?.find(
+        (c: [string, string]) => c[0] === `\${gml_id} === "${currentSelectedFeatureId}"`,
+      );
     nextConditions = prevCondition?.filter(
       (c: [string, string]) => !c[0].startsWith('${gml_id} === "'),
     );
@@ -507,7 +505,7 @@ reearth.on("select", (selected: string | undefined) => {
       "3dtiles": {
         color: {
           expression: {
-            conditions: nextConditions?.length ? nextConditions : [["true", "color('white')"]],
+            conditions: nextConditions ? nextConditions : [["true", "color('white')"]],
           },
         },
       },
@@ -573,25 +571,6 @@ function createLayer(dataset: DataCatalogItem, overrides?: any) {
                 heightType: "auto",
                 showTitle: false,
                 size: "medium",
-              },
-            },
-          }
-        : format === "czml"
-        ? {
-            blocks: [
-              {
-                pluginId: "reearth",
-                extensionId: "htmlblock",
-                property: {
-                  default: {
-                    html: dataset.desc,
-                  },
-                },
-              },
-            ],
-            property: {
-              default: {
-                showTitle: true,
               },
             },
           }
