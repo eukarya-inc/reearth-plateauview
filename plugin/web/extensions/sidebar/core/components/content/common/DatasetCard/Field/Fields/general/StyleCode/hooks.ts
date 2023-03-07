@@ -14,13 +14,13 @@ export default ({ value, onUpdate }: Pick<BaseFieldProps<"styleCode">, "value" |
         src: code,
         override: styleObject,
       });
-    } catch (error) {
-      console.log(error);
-    }
+      // eslint-disable-next-line no-empty
+    } catch (error) {}
   }, [onUpdate, code, value]);
 
   useEffect(() => {
     onApply();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const onEdit = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
