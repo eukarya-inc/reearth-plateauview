@@ -39,8 +39,9 @@ const DatasetDetails: React.FC<Props> = ({
 
   const handleDatasetAdd = useCallback(() => {
     if (!dataset || addDisabled) return;
-    dataset.layers = layers;
-    onDatasetAdd(dataset);
+    const terminalDataset = dataset;
+    if (layers.length) terminalDataset.layers = layers;
+    onDatasetAdd(terminalDataset);
   }, [dataset, addDisabled, layers, onDatasetAdd]);
 
   const handleLayersAddOnDataset = useCallback(
@@ -163,8 +164,6 @@ const ButtonWrapper = styled.div`
 `;
 
 const LayerNamesWrapper = styled.div`
-  justify-content: space-between;
-  gap: 12px;
   marginbottom: 16px;
 `;
 

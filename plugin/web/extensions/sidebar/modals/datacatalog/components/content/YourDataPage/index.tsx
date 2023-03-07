@@ -16,7 +16,7 @@ const YourDataPage: React.FC<Props> = ({ onDatasetAdd }) => {
 
   const handleOpenDetails = useCallback((data?: UserDataItem, needLayerName?: boolean) => {
     setDataset(data);
-    setRequireLayerName(needLayerName || false);
+    setRequireLayerName(!!needLayerName);
   }, []);
 
   return (
