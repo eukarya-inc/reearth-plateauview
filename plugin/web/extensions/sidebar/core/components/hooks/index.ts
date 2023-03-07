@@ -1,20 +1,16 @@
 import useDatasetHooks from "@web/extensions/sidebar/core/components/hooks/datasetHooks";
 import useProjectHooks from "@web/extensions/sidebar/core/components/hooks/projectHooks";
 import useTemplateHooks from "@web/extensions/sidebar/core/components/hooks/templateHooks";
-import { Project } from "@web/extensions/sidebar/types";
 import { postMsg } from "@web/extensions/sidebar/utils";
-import { merge } from "lodash";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { getDataCatalog, RawDataCatalogItem } from "../../../modals/datacatalog/api/api";
-import { Data, DataCatalogItem, Template } from "../../types";
-import { Story as FieldStory, StoryItem } from "../content/common/DatasetCard/Field/Fields/types";
+import { Data, Template } from "../../types";
 import { Pages } from "../Header";
 
 import { handleDataCatalogProcessing, updateExtended } from "./utils";
 
 export default () => {
-  const [projectID, setProjectID] = useState<string>();
   const [inEditor, setInEditor] = useState(true);
 
   const [catalogURL, setCatalogURL] = useState<string>();
@@ -68,14 +64,19 @@ export default () => {
   const {
     project,
     updateProject,
+    setProjectID,
     setCleanseOverride,
     handleProjectSceneUpdate,
     handleProjectDatasetAdd,
     handleProjectDatasetRemove,
     handleProjectDatasetRemoveAll,
+    handleStorySaveData,
     handleOverride,
   } = useProjectHooks({
     fieldTemplates,
+    backendURL,
+    backendProjectName,
+    processedCatalog,
   });
 
   const { handleDatasetUpdate, handleDatasetSave, handleDatasetPublish } = useDatasetHooks({
@@ -120,46 +121,6 @@ export default () => {
 
   // ****************************************
 
-  // ****************************************
-  // Story
-  const handleStorySaveData = useCallback(
-    (story: StoryItem & { dataID?: string }) => {
-      if (story.id && story.dataID) {
-        // save database story
-        updateProject(project => {
-          const tarStory = (
-            project.datasets
-              .find(d => d.dataID === story.dataID)
-              ?.components?.find(c => c.type === "story") as FieldStory
-          )?.stories?.find((st: StoryItem) => st.id === story.id);
-          if (tarStory) {
-            tarStory.scenes = story.scenes;
-          }
-          return project;
-        });
-      }
-
-      // save user story
-      updateProject(project => {
-        const updatedProject: Project = {
-          ...project,
-          userStory: {
-            scenes: story.scenes,
-          },
-        };
-        postMsg({ action: "updateProject", payload: updatedProject });
-        return updatedProject;
-      });
-    },
-    [updateProject],
-  );
-
-  const handleInitUserStory = useCallback((story: StoryItem) => {
-    postMsg({ action: "storyPlay", payload: story });
-  }, []);
-
-  // ****************************************
-
   useEffect(() => {
     const eventListenerCallback = (e: MessageEvent<any>) => {
       if (e.source !== parent) return;
@@ -200,39 +161,6 @@ export default () => {
       removeEventListener("message", eventListenerCallback);
     };
   }, [handleDatasetPublish]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  const fetchedSharedProject = useRef(false);
-
-  useEffect(() => {
-    if (!backendURL || !backendProjectName || fetchedSharedProject.current) return;
-    if (projectID && processedCatalog.length) {
-      (async () => {
-        const res = await fetch(`${backendURL}/share/${backendProjectName}/${projectID}`);
-        if (res.status !== 200) return;
-        const data = await res.json();
-        if (data) {
-          (data.datasets as Data[]).forEach(d => {
-            const dataset = processedCatalog.find(item => item.dataID === d.dataID);
-            const mergedDataset: DataCatalogItem = merge(dataset, d, {});
-            if (mergedDataset) {
-              handleProjectDatasetAdd(mergedDataset);
-            }
-          });
-          if (data.userStory.length > 0) {
-            handleInitUserStory(data.userStory);
-          }
-        }
-        fetchedSharedProject.current = true;
-      })();
-    }
-  }, [
-    projectID,
-    backendURL,
-    backendProjectName,
-    processedCatalog,
-    handleProjectDatasetAdd,
-    handleInitUserStory,
-  ]);
 
   const [currentPage, setCurrentPage] = useState<Pages>("data");
 

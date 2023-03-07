@@ -1,10 +1,15 @@
 import { UserDataItem } from "@web/extensions/sidebar/modals/datacatalog/types";
 import { Project, ReearthApi } from "@web/extensions/sidebar/types";
 import { generateID, mergeProperty, postMsg } from "@web/extensions/sidebar/utils";
-import { useCallback, useState } from "react";
+import { merge } from "lodash";
+import { useCallback, useEffect, useRef, useState } from "react";
 
-import { DataCatalogItem, Template } from "../../types";
-import { FieldComponent } from "../content/common/DatasetCard/Field/Fields/types";
+import { Data, DataCatalogItem, Template } from "../../types";
+import {
+  FieldComponent,
+  StoryItem,
+  Story as FieldStory,
+} from "../content/common/DatasetCard/Field/Fields/types";
 
 import { mergeOverrides } from "./utils";
 
@@ -44,7 +49,18 @@ export const defaultProject: Project = {
   userStory: undefined,
 };
 
-export default ({ fieldTemplates }: { fieldTemplates?: Template[] }) => {
+export default ({
+  fieldTemplates,
+  backendURL,
+  backendProjectName,
+  processedCatalog,
+}: {
+  fieldTemplates?: Template[];
+  backendURL?: string;
+  backendProjectName?: string;
+  processedCatalog: DataCatalogItem[];
+}) => {
+  const [projectID, setProjectID] = useState<string>();
   const [project, updateProject] = useState<Project>(defaultProject);
   const [cleanseOverride, setCleanseOverride] = useState<string>();
 
@@ -210,14 +226,85 @@ export default ({ fieldTemplates }: { fieldTemplates?: Template[] }) => {
     [project.datasets, processOverrides],
   );
 
+  const handleStorySaveData = useCallback(
+    (story: StoryItem & { dataID?: string }) => {
+      if (story.id && story.dataID) {
+        // save database story
+        updateProject(project => {
+          const tarStory = (
+            project.datasets
+              .find(d => d.dataID === story.dataID)
+              ?.components?.find(c => c.type === "story") as FieldStory
+          )?.stories?.find((st: StoryItem) => st.id === story.id);
+          if (tarStory) {
+            tarStory.scenes = story.scenes;
+          }
+          return project;
+        });
+      }
+
+      // save user story
+      updateProject(project => {
+        const updatedProject: Project = {
+          ...project,
+          userStory: {
+            scenes: story.scenes,
+          },
+        };
+        postMsg({ action: "updateProject", payload: updatedProject });
+        return updatedProject;
+      });
+    },
+    [updateProject],
+  );
+
+  const handleInitUserStory = useCallback((story: StoryItem) => {
+    postMsg({ action: "storyPlay", payload: story });
+  }, []);
+
+  const fetchedSharedProject = useRef(false);
+
+  useEffect(() => {
+    if (!backendURL || !backendProjectName || fetchedSharedProject.current) return;
+    if (projectID && processedCatalog.length) {
+      (async () => {
+        const res = await fetch(`${backendURL}/share/${backendProjectName}/${projectID}`);
+        if (res.status !== 200) return;
+        const data = await res.json();
+        if (data) {
+          (data.datasets as Data[]).forEach(d => {
+            const dataset = processedCatalog.find(item => item.dataID === d.dataID);
+            const mergedDataset: DataCatalogItem = merge(dataset, d, {});
+            if (mergedDataset) {
+              handleProjectDatasetAdd(mergedDataset);
+            }
+          });
+          if (data.userStory.length > 0) {
+            handleInitUserStory(data.userStory);
+          }
+        }
+        fetchedSharedProject.current = true;
+      })();
+    }
+  }, [
+    projectID,
+    backendURL,
+    backendProjectName,
+    processedCatalog,
+    handleProjectDatasetAdd,
+    handleInitUserStory,
+  ]);
+
   return {
     project,
     updateProject,
+    setProjectID,
     setCleanseOverride,
     handleProjectSceneUpdate,
     handleProjectDatasetAdd,
     handleProjectDatasetRemove,
     handleProjectDatasetRemoveAll,
+    handleStorySaveData,
     handleOverride,
   };
 };
