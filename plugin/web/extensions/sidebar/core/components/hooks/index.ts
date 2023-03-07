@@ -1,19 +1,19 @@
+import useTemplateHooks from "@web/extensions/sidebar/core/components/hooks/templateHooks";
 import { Project, ReearthApi } from "@web/extensions/sidebar/types";
 import { generateID, mergeProperty, postMsg } from "@web/extensions/sidebar/utils";
 import { merge, cloneDeep } from "lodash";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
-import { getDataCatalog, RawDataCatalogItem } from "../../modals/datacatalog/api/api";
-import { UserDataItem } from "../../modals/datacatalog/types";
-import { Data, DataCatalogItem, Template } from "../types";
-
-import { cleanseOverrides } from "./content/common/DatasetCard/Field/fieldHooks";
+import { getDataCatalog, RawDataCatalogItem } from "../../../modals/datacatalog/api/api";
+import { UserDataItem } from "../../../modals/datacatalog/types";
+import { Data, DataCatalogItem, Template } from "../../types";
+import { cleanseOverrides } from "../content/common/DatasetCard/Field/fieldHooks";
 import {
   FieldComponent,
   Story as FieldStory,
   StoryItem,
-} from "./content/common/DatasetCard/Field/Fields/types";
-import { Pages } from "./Header";
+} from "../content/common/DatasetCard/Field/Fields/types";
+import { Pages } from "../Header";
 
 export const defaultProject: Project = {
   sceneOverrides: {
@@ -63,10 +63,18 @@ export default () => {
   const [backendAccessToken, setBackendAccessToken] = useState<string>();
 
   const [data, setData] = useState<Data[]>();
-  const [fieldTemplates, setFieldTemplates] = useState<Template[]>([]);
+
   const [project, updateProject] = useState<Project>(defaultProject);
   const [loading, setLoading] = useState<boolean>(false);
   const [cleanseOverride, setCleanseOverride] = useState<string>();
+
+  const {
+    fieldTemplates,
+    setFieldTemplates,
+    handleTemplateAdd,
+    handleTemplateSave,
+    handleTemplateRemove,
+  } = useTemplateHooks({ backendURL, backendProjectName, backendAccessToken, setLoading });
 
   const handleBackendFetch = useCallback(async () => {
     if (!backendURL) return;
@@ -79,7 +87,7 @@ export default () => {
       setInfoboxTemplates(resData.templates.filter((t: Template) => t.type === "infobox"));
     }
     setData(resData.data);
-  }, [backendURL, backendProjectName]);
+  }, [backendURL, backendProjectName, setFieldTemplates]);
 
   // ****************************************
   // Init
@@ -382,68 +390,6 @@ export default () => {
   );
 
   // ****************************************
-
-  // ****************************************
-  // Templates
-
-  const handleTemplateAdd = useCallback(async () => {
-    if (!backendURL || !backendProjectName || !backendAccessToken) return;
-    const res = await fetch(`${backendURL}/sidebar/${backendProjectName}/templates`, {
-      headers: {
-        authorization: `Bearer ${backendAccessToken}`,
-      },
-      method: "POST",
-      body: JSON.stringify({ type: "field", name: "新しいテンプレート" }),
-    });
-    if (res.status !== 200) return;
-    const newTemplate = await res.json();
-    setFieldTemplates(t => [...t, newTemplate]);
-    return newTemplate as Template;
-  }, [backendURL, backendProjectName, backendAccessToken]);
-
-  const handleTemplateSave = useCallback(
-    async (template: Template) => {
-      if (!backendURL || !backendProjectName || !backendAccessToken) return;
-      setLoading(true);
-      const res = await fetch(
-        `${backendURL}/sidebar/${backendProjectName}/templates/${template.id}`,
-        {
-          headers: {
-            authorization: `Bearer ${backendAccessToken}`,
-          },
-          method: "PATCH",
-          body: JSON.stringify(template),
-        },
-      );
-      if (res.status !== 200) return;
-      const updatedTemplate = await res.json();
-      setFieldTemplates(t => {
-        return t.map(t2 => {
-          if (t2.id === updatedTemplate.id) {
-            return updatedTemplate;
-          }
-          return t2;
-        });
-      });
-      setLoading(false);
-    },
-    [backendURL, backendProjectName, backendAccessToken],
-  );
-
-  const handleTemplateRemove = useCallback(
-    async (id: string) => {
-      if (!backendURL || !backendProjectName || !backendAccessToken) return;
-      const res = await fetch(`${backendURL}/sidebar/${backendProjectName}/templates/${id}`, {
-        headers: {
-          authorization: `Bearer ${backendAccessToken}`,
-        },
-        method: "DELETE",
-      });
-      if (res.status !== 200) return;
-      setFieldTemplates(t => t.filter(t2 => t2.id !== id));
-    },
-    [backendURL, backendProjectName, backendAccessToken],
-  );
 
   // ****************************************
   // Story
