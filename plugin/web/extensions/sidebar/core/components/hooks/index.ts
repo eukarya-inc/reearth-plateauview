@@ -1,19 +1,17 @@
+import useDatasetHooks from "@web/extensions/sidebar/core/components/hooks/datasetHooks";
 import useProjectHooks from "@web/extensions/sidebar/core/components/hooks/projectHooks";
 import useTemplateHooks from "@web/extensions/sidebar/core/components/hooks/templateHooks";
 import { Project } from "@web/extensions/sidebar/types";
-import { generateID, postMsg } from "@web/extensions/sidebar/utils";
-import { merge, cloneDeep } from "lodash";
+import { postMsg } from "@web/extensions/sidebar/utils";
+import { merge } from "lodash";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { getDataCatalog, RawDataCatalogItem } from "../../../modals/datacatalog/api/api";
 import { Data, DataCatalogItem, Template } from "../../types";
-import { cleanseOverrides } from "../content/common/DatasetCard/Field/fieldHooks";
-import {
-  FieldComponent,
-  Story as FieldStory,
-  StoryItem,
-} from "../content/common/DatasetCard/Field/Fields/types";
+import { Story as FieldStory, StoryItem } from "../content/common/DatasetCard/Field/Fields/types";
 import { Pages } from "../Header";
+
+import { handleDataCatalogProcessing, updateExtended } from "./utils";
 
 export default () => {
   const [projectID, setProjectID] = useState<string>();
@@ -39,11 +37,20 @@ export default () => {
 
   const {
     fieldTemplates,
+    handleInfoboxFieldsFetchRef,
+    handleInfoboxFieldsSaveRef,
     setFieldTemplates,
+    setInfoboxTemplates,
     handleTemplateAdd,
     handleTemplateSave,
     handleTemplateRemove,
-  } = useTemplateHooks({ backendURL, backendProjectName, backendAccessToken, setLoading });
+  } = useTemplateHooks({
+    backendURL,
+    backendProjectName,
+    backendAccessToken,
+    processedCatalog,
+    setLoading,
+  });
 
   const handleBackendFetch = useCallback(async () => {
     if (!backendURL) return;
@@ -56,28 +63,32 @@ export default () => {
       setInfoboxTemplates(resData.templates.filter((t: Template) => t.type === "infobox"));
     }
     setData(resData.data);
-  }, [backendURL, backendProjectName, setFieldTemplates]);
+  }, [backendURL, backendProjectName, setInfoboxTemplates, setFieldTemplates]);
 
   const {
     project,
     updateProject,
+    setCleanseOverride,
     handleProjectSceneUpdate,
     handleProjectDatasetAdd,
     handleProjectDatasetRemove,
     handleProjectDatasetRemoveAll,
-    handleDatasetUpdate,
-    handleDatasetSave,
-    handleDatasetPublish,
     handleOverride,
   } = useProjectHooks({
-    data,
     fieldTemplates,
+  });
+
+  const { handleDatasetUpdate, handleDatasetSave, handleDatasetPublish } = useDatasetHooks({
+    data,
+    project,
     backendURL,
     backendProjectName,
     backendAccessToken,
     inEditor,
     processedCatalog,
+    setCleanseOverride,
     setLoading,
+    updateProject,
     handleBackendFetch,
   });
 
@@ -143,93 +154,6 @@ export default () => {
   const handleInitUserStory = useCallback((story: StoryItem) => {
     postMsg({ action: "storyPlay", payload: story });
   }, []);
-
-  // ****************************************
-
-  // Infobox
-  const [infoboxTemplates, setInfoboxTemplates] = useState<Template[]>([]);
-
-  const handleInfoboxTemplateAdd = useCallback(
-    async (template: Omit<Template, "id">) => {
-      if (!backendURL || !backendProjectName || !backendAccessToken) return;
-      const res = await fetch(`${backendURL}/sidebar/${backendProjectName}/templates`, {
-        headers: {
-          authorization: `Bearer ${backendAccessToken}`,
-        },
-        method: "POST",
-        body: JSON.stringify(template),
-      });
-      if (res.status !== 200) return;
-      const newTemplate = await res.json();
-      setInfoboxTemplates(t => [...t, newTemplate]);
-      return newTemplate as Template;
-    },
-    [backendURL, backendProjectName, backendAccessToken],
-  );
-
-  const handleInfoboxTemplateSave = useCallback(
-    async (template: Template) => {
-      if (!backendURL || backendProjectName || !backendAccessToken) return;
-      const res = await fetch(
-        `${backendURL}/sidebar/${backendProjectName}/templates/${template.id}`,
-        {
-          headers: {
-            authorization: `Bearer ${backendAccessToken}`,
-          },
-          method: "PATCH",
-          body: JSON.stringify(template),
-        },
-      );
-      if (res.status !== 200) return;
-      const updatedTemplate = await res.json();
-      setInfoboxTemplates(t => {
-        return t.map(t2 => {
-          if (t2.id === updatedTemplate.id) {
-            return updatedTemplate;
-          }
-          return t2;
-        });
-      });
-      postMsg({
-        action: "infoboxFieldsSaved",
-      });
-    },
-    [backendURL, backendProjectName, backendAccessToken],
-  );
-
-  const handleInfoboxFieldsFetch = useCallback(
-    (dataID: string) => {
-      const name = catalogData?.find(d => d.id === dataID)?.type ?? "";
-      const fields = infoboxTemplates.find(ft => ft.type === "infobox" && ft.name === name) ?? {
-        id: "",
-        type: "infobox",
-        name,
-        fields: [],
-      };
-      postMsg({
-        action: "infoboxFieldsFetch",
-        payload: fields,
-      });
-    },
-    [catalogData, infoboxTemplates],
-  );
-  const handleInfoboxFieldsFetchRef = useRef<any>();
-  handleInfoboxFieldsFetchRef.current = handleInfoboxFieldsFetch;
-
-  const handleInfoboxFieldsSave = useCallback(
-    async (template: Template) => {
-      if (template.id) {
-        handleInfoboxTemplateSave(template);
-      } else {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const { id, ...templateData } = template;
-        handleInfoboxTemplateAdd(templateData);
-      }
-    },
-    [handleInfoboxTemplateAdd, handleInfoboxTemplateSave],
-  );
-  const handleInfoboxFieldsSaveRef = useRef<any>();
-  handleInfoboxFieldsSaveRef.current = handleInfoboxFieldsSave;
 
   // ****************************************
 
@@ -371,82 +295,3 @@ addEventListener("message", e => {
     }
   }
 });
-
-function updateExtended(e: { vertically: boolean }) {
-  const html = document.querySelector("html");
-  const body = document.querySelector("body");
-  const root = document.getElementById("root");
-
-  if (e?.vertically) {
-    html?.classList.add("extended");
-    body?.classList.add("extended");
-    root?.classList.add("extended");
-  } else {
-    html?.classList.remove("extended");
-    body?.classList.remove("extended");
-    root?.classList.remove("extended");
-  }
-}
-
-const newItem = (ri: RawDataCatalogItem): DataCatalogItem => {
-  return {
-    ...ri,
-    dataID: ri.id,
-    public: false,
-    visible: true,
-    fieldGroups: [{ id: generateID(), name: "グループ1" }],
-  };
-};
-
-const handleDataCatalogProcessing = (
-  catalog: (DataCatalogItem | RawDataCatalogItem)[],
-  savedData?: Data[],
-): DataCatalogItem[] =>
-  catalog.map(item => {
-    if (!savedData) return newItem(item);
-
-    const savedData2 = savedData.find(d => d.dataID === ("dataID" in item ? item.dataID : item.id));
-    if (savedData2) {
-      return {
-        ...item,
-        ...savedData2,
-      };
-    } else {
-      return newItem(item);
-    }
-  });
-
-export const mergeOverrides = (
-  action: "update" | "cleanse",
-  components?: FieldComponent[],
-  startingOverride?: any,
-) => {
-  if (!components || !components.length) {
-    if (startingOverride) {
-      return startingOverride;
-    }
-    return;
-  }
-
-  const overrides = cloneDeep(startingOverride ?? {});
-
-  const needOrderComponents = components
-    .filter(c => c.updatedAt)
-    .sort((a, b) => (a.updatedAt?.getTime?.() ?? 0) - (b.updatedAt?.getTime?.() ?? 0));
-  for (const component of needOrderComponents) {
-    merge(overrides, action === "cleanse" ? cleanseOverrides[component.type] : component.override);
-  }
-
-  for (let i = 0; i < components.length; i++) {
-    if (components[i].updatedAt) {
-      continue;
-    }
-
-    merge(
-      overrides,
-      action === "cleanse" ? cleanseOverrides[components[i].type] : components[i].override,
-    );
-  }
-
-  return overrides;
-};
