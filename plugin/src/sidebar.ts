@@ -591,7 +591,7 @@ function createLayer(dataset: DataCatalogItem, overrides?: any) {
             ],
             property: {
               default: {
-                showTitle: false,
+                showTitle: true,
               },
             },
           }
