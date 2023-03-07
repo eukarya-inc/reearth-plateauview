@@ -90,20 +90,11 @@ export default () => {
     postMsg({ action: "init" }); // Needed to trigger sending initialization data to sidebar
   }, []);
 
-  // getNameFromPath("xxx/yyy/zzz") -> zzz
-  // getNameFromPath("xxxyyyzzz") -> xxxyyyzzz
-  const getNameFromPath = (path: string) => {
-    return path.split("/").slice(-1)[0];
-  };
-
   useEffect(() => {
     const catalogBaseUrl = catalogURL || backendURL;
     if (catalogBaseUrl) {
       getDataCatalog(catalogBaseUrl, catalogProjectName).then(res => {
-        const catalog = res.map(item => {
-          return { ...item, name: getNameFromPath(item.name) };
-        });
-        setCatalog(catalog);
+        setCatalog(res);
       });
     }
   }, [backendURL, catalogProjectName, catalogURL]);
