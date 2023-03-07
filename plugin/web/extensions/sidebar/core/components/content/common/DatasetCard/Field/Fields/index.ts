@@ -5,6 +5,8 @@ import BuildingFilter from "./3dtiles/BuildingFilter";
 import BuildingShadow from "./3dtiles/BuildingShadow";
 import BuildingTransparency from "./3dtiles/BuildingTransparency";
 import Clipping from "./3dtiles/Clipping";
+import FloodColor from "./3dtiles/FloodColor";
+import FloodFilter from "./3dtiles/FloodFilter";
 import ButtonLink from "./general/ButtonLink";
 import CurrentTime from "./general/CurrentTime";
 import Description from "./general/Description";
@@ -15,6 +17,7 @@ import Story from "./general/Story";
 import StyleCode from "./general/StyleCode";
 import SwitchDataset from "./general/SwitchDataset";
 import SwitchGroup from "./general/SwitchGroup";
+import Template from "./general/Template";
 import Timeline from "./general/Timeline";
 import PointColor from "./point/PointColor";
 import PointColorGradient from "./point/PointColorGradient";
@@ -30,7 +33,6 @@ import PolygonStroke from "./polygon/PolygonStroke";
 import PolylineColor from "./polyline/PolylineColor";
 import PolylineColorGradient from "./polyline/PolylineColorGradient";
 import PolylineStrokeWeight from "./polyline/PolylineStrokeWeight";
-import Template from "./Template";
 import { FieldComponent } from "./types";
 
 export type Fields<FC extends FieldComponent> = {
@@ -73,6 +75,8 @@ const fields: Fields<FieldComponent> = {
   buildingTransparency: { Component: BuildingTransparency, hasUI: true },
   buildingColor: { Component: BuildingColor, hasUI: true },
   buildingShadow: { Component: BuildingShadow, hasUI: true },
+  floodColor: { Component: FloodColor, hasUI: false },
+  floodFilter: { Component: FloodFilter, hasUI: true },
   // 3d-model
   template: { Component: Template, hasUI: true },
 };
