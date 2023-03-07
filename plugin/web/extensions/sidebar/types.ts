@@ -38,7 +38,6 @@ type ActionType =
   | "extendPopup"
   | "minimize"
   | "buildingSearchOpen"
-  | "buildingSearchSelect"
   | "groupSelectOpen"
   | "saveGroups"
   | "cameraFlyTo"

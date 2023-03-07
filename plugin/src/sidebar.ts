@@ -293,6 +293,22 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
     reearth.modal.show(mapVideoHtml, { background: "transparent" });
   } else if (action === "clipModalOpen") {
     reearth.modal.show(clipVideoHtml, { background: "transparent" });
+  } else if (action === "buildingSearchOpen") {
+    reearth.popup.show(buildingSearchHtml, {
+      position: reearth.viewport.isMobile ? "bottom-start" : "right-start",
+      offset: {
+        mainAxis: 4,
+        crossAxis: reearth.viewport.isMobile ? reearth.viewport.width * 0.05 : 0,
+      },
+    });
+    reearth.popup.postMessage({
+      type: "buildingSearchInit",
+      payload: {
+        viewport: reearth.viewport,
+        data: payload,
+      },
+    });
+    openedBuildingSearchDataID = payload.dataID;
   } else if (action === "cameraFlyTo") {
     if (Array.isArray(payload)) {
       reearth.camera.flyTo(...payload);
@@ -334,34 +350,6 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
         overriddenLayer,
       },
     });
-  }
-
-  // ************************************************
-  // Building Search
-  else if (action === "buildingSearchOpen") {
-    reearth.popup.show(buildingSearchHtml, {
-      position: reearth.viewport.isMobile ? "bottom-start" : "right-start",
-      offset: {
-        mainAxis: 4,
-        crossAxis: reearth.viewport.isMobile ? reearth.viewport.width * 0.05 : 0,
-      },
-    });
-    reearth.popup.postMessage({
-      type: "buildingSearchInit",
-      payload: {
-        viewport: reearth.viewport,
-        data: payload,
-      },
-    });
-    openedBuildingSearchDataID = payload.dataID;
-  } else if (action === "buildingSearchSelect") {
-    const layerID = addedDatasets.find(l => l[0] === openedBuildingSearchDataID)?.[2];
-    const featureID = reearth.layers.layers
-      .find((l: any) => l.id === layerID)
-      ?.computed?.features.find((f: any) => f.properties?.gml_id === payload.gmlId)?.id;
-    if (featureID) {
-      reearth.layers.select(featureID);
-    }
   }
 
   // ************************************************

@@ -277,12 +277,6 @@ export default () => {
           { duration: 2 },
         ],
       });
-      postMsg({
-        action: "buildingSearchSelect",
-        payload: {
-          gmlId: selected[0].gml_id,
-        },
-      });
     }
   }, [selected]);
 
