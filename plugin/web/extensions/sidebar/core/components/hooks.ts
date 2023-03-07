@@ -90,10 +90,10 @@ export default () => {
     postMsg({ action: "init" }); // Needed to trigger sending initialization data to sidebar
   }, []);
 
-  const getNameFromPath = (name: string) => {
-    // getNameFromPath("xxx/yyy/zzz") -> zzz
-    // getNameFromPath("xxxyyyzzz") -> xxxyyyzzz
-    return name.split("/").slice(-1)[0];
+  // getNameFromPath("xxx/yyy/zzz") -> zzz
+  // getNameFromPath("xxxyyyzzz") -> xxxyyyzzz
+  const getNameFromPath = (path: string) => {
+    return path.split("/").slice(-1)[0];
   };
 
   useEffect(() => {
