@@ -45,7 +45,7 @@ const PointIcon: React.FC<BaseFieldProps<"pointIcon">> = ({
             style: "image",
             image: imageURL,
             imageSize,
-            imageSizeInMeters,
+            sizeInMetters: imageSizeInMeters,
           },
         },
       });
