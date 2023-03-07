@@ -208,7 +208,7 @@ type PointSize = FieldBase<"pointSize"> & {
 type PointIcon = FieldBase<"pointIcon"> & {
   url?: string;
   size: number;
-  imageSizeInMeters: boolean;
+  sizeInMeters: boolean;
 };
 
 type PointLabel = FieldBase<"pointLabel"> & {
