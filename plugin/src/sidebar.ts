@@ -583,12 +583,14 @@ function createLayer(dataset: DataCatalogItem, overrides?: any) {
             style: "point",
             pointSize: 10,
             pointColor: "white",
+            clampToGround: true,
           },
           polygon: {
             fill: false,
             stroke: true,
             strokeWidth: 5,
             heightReference: "clamp",
+            clampToGround: true,
           },
           polyline: {
             clampToGround: true,
