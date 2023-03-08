@@ -34,7 +34,7 @@ const Editor: React.FC<Props> = ({
       e.preventDefault();
       wrapperRef.current.scrollTo({
         top: 0,
-        left: wrapperRef.current.scrollLeft + e.deltaY,
+        left: wrapperRef.current.scrollLeft + (e.deltaY || e.deltaX),
         behavior: "smooth",
       });
     }
