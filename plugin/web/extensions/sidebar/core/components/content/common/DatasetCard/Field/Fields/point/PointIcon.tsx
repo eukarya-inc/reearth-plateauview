@@ -40,12 +40,13 @@ const PointIcon: React.FC<BaseFieldProps<"pointIcon">> = ({
         ...value,
         url: imageURL,
         size: imageSize,
+        sizeInMeters: imageSizeInMeters,
         override: {
           marker: {
             style: "image",
             image: imageURL,
             imageSize,
-            sizeInMetters: imageSizeInMeters,
+            sizeInMeters: imageSizeInMeters,
           },
         },
       });
