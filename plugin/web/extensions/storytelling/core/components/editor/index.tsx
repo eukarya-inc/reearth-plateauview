@@ -1,6 +1,6 @@
 import { Icon } from "@web/sharedComponents";
 import { styled } from "@web/theme";
-import { useRef, useCallback, type WheelEvent } from "react";
+import { useRef, useCallback, type WheelEvent, useEffect } from "react";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 
@@ -29,18 +29,28 @@ const Editor: React.FC<Props> = ({
 }) => {
   const wrapperRef = useRef<HTMLDivElement>(null);
 
-  const handleWheel = useCallback((e: WheelEvent) => {
+  const handleWheel = useCallback((e: any) => {
     if (wrapperRef.current) {
-      wrapperRef.current.scrollBy({
+      e.preventDefault();
+      wrapperRef.current.scrollTo({
         top: 0,
-        left: e.deltaY < 0 ? -100 : 100,
+        left: wrapperRef.current.scrollLeft + (e.deltaY || -e.detail),
         behavior: "smooth",
       });
     }
   }, []);
 
+  useEffect(() => {
+    const wrapperEl = wrapperRef.current;
+    wrapperEl?.addEventListener("wheel", handleWheel, false);
+
+    return () => {
+      wrapperEl?.removeEventListener("wheel", handleWheel, false);
+    };
+  });
+
   return (
-    <Wrapper onWheel={handleWheel} ref={wrapperRef}>
+    <Wrapper ref={wrapperRef}>
       <DndProvider backend={HTML5Backend}>
         <Content>
           {scenes?.map((scene, index) => (
