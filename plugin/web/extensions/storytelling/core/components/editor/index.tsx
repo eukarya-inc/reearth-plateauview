@@ -29,12 +29,12 @@ const Editor: React.FC<Props> = ({
 }) => {
   const wrapperRef = useRef<HTMLDivElement>(null);
 
-  const handleWheel = useCallback((e: any) => {
+  const handleWheel = useCallback((e: WheelEvent) => {
     if (wrapperRef.current) {
       e.preventDefault();
       wrapperRef.current.scrollTo({
         top: 0,
-        left: wrapperRef.current.scrollLeft + (e.deltaY || -e.detail),
+        left: wrapperRef.current.scrollLeft + e.deltaY,
         behavior: "smooth",
       });
     }
