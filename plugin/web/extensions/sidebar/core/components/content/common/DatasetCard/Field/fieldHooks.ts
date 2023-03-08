@@ -193,6 +193,14 @@ export default ({
           direction: "inside",
         }),
       },
+      floodColor: {
+        name: fieldName["floodColor"],
+        onClick: onFieldAdd({}),
+      },
+      floodFilter: {
+        name: fieldName["floodFilter"],
+        onClick: onFieldAdd({}),
+      },
     };
   }, [onFieldAdd]);
 
@@ -223,6 +231,7 @@ export default ({
 };
 
 export const cleanseOverrides: { [key: string]: any } = {
+  switchDataset: { data: { url: undefined } },
   pointSize: { marker: { pointSize: 10 } },
   pointColor: { marker: { pointColor: "white" } },
   pointIcon: { marker: { style: "point", image: undefined, imageSize: undefined } },
@@ -264,6 +273,42 @@ export const cleanseOverrides: { [key: string]: any } = {
       stroke: true,
       strokeColor: "white",
       strokeWidth: 5,
+    },
+  },
+  buildingColor: {
+    "3dtiles": {
+      color: "white",
+    },
+  },
+  buildingTransparency: {
+    "3dtiles": {
+      color: undefined,
+    },
+  },
+  buildingFilter: {
+    "3dtiles": {
+      show: true,
+    },
+  },
+  buildingShadow: {
+    "3dtiles": {
+      shadows: "enabled",
+    },
+  },
+  clipping: {
+    box: undefined,
+    "3dtiles": {
+      experimental_clipping: undefined,
+    },
+  },
+  floodColor: {
+    "3dtiles": {
+      color: "white",
+    },
+  },
+  floodFilter: {
+    "3dtiles": {
+      show: true,
     },
   },
 };

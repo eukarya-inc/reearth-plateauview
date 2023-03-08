@@ -1,4 +1,4 @@
-import { mergeOverrides } from "@web/extensions/sidebar/core/components/hooks";
+import { mergeOverrides } from "@web/extensions/sidebar/core/components/hooks/utils";
 import { Select } from "@web/sharedComponents";
 import { styled } from "@web/theme";
 import { useCallback, useMemo } from "react";
@@ -14,9 +14,14 @@ const Template: React.FC<BaseFieldProps<"template">> = ({
   configData,
   onUpdate,
 }) => {
+  const hasTemplates = useMemo(() => templates && templates.length > 0, [templates]);
+
   const currentTempComponents = useMemo(
-    () => templates?.find(t => t.id === value.templateID)?.components,
-    [value.templateID, templates],
+    () =>
+      hasTemplates
+        ? templates?.find(t => t.id === value.templateID)?.components ?? templates?.[0].components
+        : undefined,
+    [value.templateID, templates, hasTemplates],
   );
 
   const handleTemplateChange = useCallback(
@@ -54,13 +59,15 @@ const Template: React.FC<BaseFieldProps<"template">> = ({
 
   const templateOptions = useMemo(
     () =>
-      templates?.map(t => {
-        return {
-          value: t.id,
-          label: t.name,
-        };
-      }),
-    [templates],
+      hasTemplates
+        ? templates?.map(t => {
+            return {
+              value: t.id,
+              label: t.name,
+            };
+          })
+        : [{ value: "-", label: "-" }],
+    [templates, hasTemplates],
   );
 
   return (
@@ -68,13 +75,17 @@ const Template: React.FC<BaseFieldProps<"template">> = ({
       {editMode ? (
         <div>
           <Title>テンプレート</Title>
-          <Select
-            options={templateOptions}
-            style={{ width: "100%", alignItems: "center", height: "32px" }}
-            value={value.templateID ?? templates?.[0].id}
-            onChange={handleTemplateChange}
-            getPopupContainer={trigger => trigger.parentElement ?? document.body}
-          />
+          {hasTemplates ? (
+            <Select
+              options={templateOptions}
+              style={{ width: "100%", alignItems: "center", height: "32px" }}
+              value={value.templateID ?? templates?.[0].id}
+              onChange={handleTemplateChange}
+              getPopupContainer={trigger => trigger.parentElement ?? document.body}
+            />
+          ) : (
+            <Text>保存されているテンプレートがないです。</Text>
+          )}
         </div>
       ) : (
         (value.components?.length ? value.components : currentTempComponents)?.map((tc, idx) => (
@@ -100,4 +111,8 @@ const Title = styled.p`
   font-size: 12px;
   color: rgba(0, 0, 0, 0.85);
   margin: 0 0 4px 0;
+`;
+
+const Text = styled.p`
+  margin: 0;
 `;
