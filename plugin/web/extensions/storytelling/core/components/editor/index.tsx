@@ -71,7 +71,6 @@ const Wrapper = styled.div`
   overflow-y: hidden;
   padding: 12px 6px;
   scrollbar-width: thin;
-  scroll-behavior: smooth;
 `;
 
 const Content = styled.div`
