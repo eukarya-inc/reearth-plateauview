@@ -5,7 +5,6 @@ import { useCallback, useEffect, useState } from "react";
 import { BaseFieldProps } from "../types";
 
 const PolylineStrokeWeight: React.FC<BaseFieldProps<"polylineStrokeWeight">> = ({
-  dataID,
   value,
   editMode,
   onUpdate,
@@ -18,10 +17,11 @@ const PolylineStrokeWeight: React.FC<BaseFieldProps<"polylineStrokeWeight">> = (
   }, []);
 
   useEffect(() => {
-    if (!dataID || value.strokeWidth === strokeWidth) return;
+    if (value.strokeWidth === strokeWidth) return;
     const timer = setTimeout(() => {
       onUpdate({
         ...value,
+        strokeWidth,
         override: {
           polyline: {
             strokeWidth,
@@ -32,7 +32,7 @@ const PolylineStrokeWeight: React.FC<BaseFieldProps<"polylineStrokeWeight">> = (
     return () => {
       clearTimeout(timer);
     };
-  }, [dataID, onUpdate, strokeWidth, value]);
+  }, [onUpdate, strokeWidth, value]);
 
   return editMode ? (
     <Field
