@@ -1,6 +1,6 @@
 import { Icon } from "@web/sharedComponents";
 import { styled } from "@web/theme";
-import { useRef, useCallback, type WheelEvent, useEffect } from "react";
+import { useRef, useCallback, useEffect } from "react";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 
