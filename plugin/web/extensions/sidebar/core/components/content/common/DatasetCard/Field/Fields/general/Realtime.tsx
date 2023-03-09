@@ -50,10 +50,13 @@ const Realtime: React.FC<BaseFieldProps<"realtime">> = ({ value, editMode, onUpd
 
   const handleChangeUpdateTime = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
-      setIntervalValue(parseInt(e.currentTarget.value));
-      startTimer(intervalInSecond);
+      const inputValue = !isNaN(parseFloat(e.currentTarget.value))
+        ? parseFloat(e.currentTarget.value)
+        : 0;
+      setIntervalValue(inputValue);
+      startTimer(inputValue);
     },
-    [intervalInSecond, startTimer],
+    [startTimer],
   );
 
   const propagateRealTimeToLayer = useCallback(() => {
@@ -100,6 +103,7 @@ const Realtime: React.FC<BaseFieldProps<"realtime">> = ({ value, editMode, onUpd
         <FieldTitle>Update time</FieldTitle>
         <FieldValue>
           <TextInput
+            type={"number"}
             readOnly={!enableUpdate}
             value={intervalInSecond}
             onChange={handleChangeUpdateTime}
@@ -156,7 +160,7 @@ const FieldValue = styled.div`
   width: 100%;
 `;
 
-const TextInput = styled.input.attrs({ type: "text" })`
+const TextInput = styled.input`
   height: 100%;
   width: 100%;
   flex: 1;
