@@ -10,8 +10,6 @@ export const convertToData = (item: DataCatalogItem): Data => {
   return {
     dataID: item.dataID,
     public: item.public,
-    visible: item.visible ?? true,
-    template: item.template,
     components: item.components,
     fieldGroups: item.fieldGroups,
   };
@@ -94,6 +92,7 @@ export const handleDataCatalogProcessing = (
       return {
         ...item,
         ...savedData2,
+        visible: true,
       };
     } else {
       return newItem(item);
