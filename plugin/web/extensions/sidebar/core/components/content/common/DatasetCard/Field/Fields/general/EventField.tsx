@@ -4,7 +4,12 @@ import { useCallback, useEffect, useState } from "react";
 
 import { BaseFieldProps } from "../types";
 
-const Event: React.FC<BaseFieldProps<"event">> = ({ value, editMode, isActive, onUpdate }) => {
+const EventField: React.FC<BaseFieldProps<"eventField">> = ({
+  value,
+  editMode,
+  isActive,
+  onUpdate,
+}) => {
   const [type, setType] = useState(value.eventType);
 
   const handleSizeUpdate = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
@@ -34,4 +39,4 @@ const Event: React.FC<BaseFieldProps<"event">> = ({ value, editMode, isActive, o
   ) : null;
 };
 
-export default Event;
+export default EventField;

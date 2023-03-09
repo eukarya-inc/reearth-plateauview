@@ -82,8 +82,8 @@ export default ({
         name: fieldName["template"],
         onClick: onFieldAdd({}),
       },
-      event: {
-        name: fieldName["event"],
+      eventField: {
+        name: fieldName["eventField"],
         onClick: onFieldAdd({}),
       },
     };
