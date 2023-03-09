@@ -42,6 +42,10 @@ export const mergeOverrides = (
     if (components[i].updatedAt) {
       continue;
     }
+    if (components[i].type === "switchDataset" && action === "cleanse") {
+      merge(overrides, components[i].cleanseOverride);
+      continue;
+    }
 
     merge(
       overrides,
