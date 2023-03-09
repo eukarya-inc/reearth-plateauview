@@ -26,7 +26,7 @@ import {
 } from "./Fields/types";
 
 export type Props = {
-  index: number;
+  index?: number;
   field: FieldComponentType;
   dataID?: string;
   isActive: boolean;
@@ -103,7 +103,7 @@ const FieldComponent: React.FC<Props> = ({
   const handleUpClick = useCallback(
     (e: React.MouseEvent<HTMLDivElement, MouseEvent> | undefined) => {
       e?.stopPropagation();
-      onMoveUp?.(index);
+      index && onMoveUp?.(index);
     },
     [index, onMoveUp],
   );
@@ -111,7 +111,7 @@ const FieldComponent: React.FC<Props> = ({
   const handleDownClick = useCallback(
     (e: React.MouseEvent<HTMLDivElement, MouseEvent> | undefined) => {
       e?.stopPropagation();
-      onMoveDown?.(index);
+      index && onMoveDown?.(index);
     },
     [index, onMoveDown],
   );
