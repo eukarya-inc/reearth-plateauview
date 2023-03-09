@@ -14,7 +14,7 @@ const Realtime: React.FC<BaseFieldProps<"realtime">> = ({ value, editMode, onUpd
     const seconds = Math.floor(interval % 60);
     const minutes = Math.floor((interval / 60) % 60);
     const hours = Math.floor((interval / 60 / 60) % 24);
-    if (interval > 0) {
+    if (interval >= 0) {
       setTimer(
         (hours > 9 ? hours : "0" + hours) +
           ":" +
