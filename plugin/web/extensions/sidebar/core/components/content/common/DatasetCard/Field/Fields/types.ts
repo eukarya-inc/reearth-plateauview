@@ -15,6 +15,7 @@ export const generalFieldName = {
   point: "ポイント",
   description: "説明",
   template: "テンプレート",
+  event: "エベント",
 };
 
 export const pointFieldName = {
@@ -188,6 +189,13 @@ type Template = FieldBase<"template"> & {
   components?: FieldComponent[];
 };
 
+type Event = FieldBase<"event"> & {
+  type?: string;
+  triggerEvent?: any;
+  urlType?: any;
+  field?: any;
+};
+
 type PointColor = FieldBase<"pointColor"> & {
   pointColors?: {
     condition: Cond<number>;
@@ -322,6 +330,7 @@ export type Fields = {
   realtime: Realtime;
   timeline: Timeline;
   switchDataset: SwitchDataset;
+  event: Event;
   // point
   pointColor: PointColor;
   pointColorGradient: PointColorGradient;

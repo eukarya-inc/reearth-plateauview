@@ -82,6 +82,10 @@ export default ({
         name: fieldName["template"],
         onClick: onFieldAdd({}),
       },
+      event: {
+        name: fieldName["event"],
+        onClick: onFieldAdd({}),
+      },
     };
   }, [fieldGroups, onFieldAdd]);
 
