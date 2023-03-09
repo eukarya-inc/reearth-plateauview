@@ -15,10 +15,11 @@ const (
 )
 
 type Asset struct {
-	ID                      string `json:"id"`
-	ProjectID               string `json:"projectId"`
-	URL                     string `json:"url"`
-	ArchiveExtractionStatus string `json:"archiveExtractionStatus"`
+	ID                      string `json:"id,omitempty"`
+	ProjectID               string `json:"projectId,omitempty"`
+	URL                     string `json:"url,omitempty"`
+	ContentType             string `json:"contentType,omitempty"`
+	ArchiveExtractionStatus string `json:"archiveExtractionStatus,omitempty"`
 }
 
 func (a *Asset) Clone() *Asset {
@@ -30,6 +31,19 @@ func (a *Asset) Clone() *Asset {
 		ProjectID:               a.ProjectID,
 		URL:                     a.URL,
 		ArchiveExtractionStatus: a.ArchiveExtractionStatus,
+	}
+}
+
+func (a *Asset) ToPublic() *PublicAsset {
+	if a == nil {
+		return nil
+	}
+	return &PublicAsset{
+		Type:        "asset",
+		ID:          a.ID,
+		URL:         a.URL,
+		ContentType: a.ContentType,
+		// Files: ,
 	}
 }
 

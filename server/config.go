@@ -123,6 +123,7 @@ func (c *Config) SDK() sdk.Config {
 func (c *Config) SDKAPI() sdkapi.Config {
 	return sdkapi.Config{
 		CMSBaseURL: c.CMS_BaseURL,
+		CMSToken:   c.CMS_Token,
 		Project:    c.CMS_PlateauProject,
 		// Model:      c.CMS_SDKModel,
 		Token: c.SDK_Token,

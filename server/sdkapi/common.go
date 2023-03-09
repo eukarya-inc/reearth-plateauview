@@ -15,6 +15,7 @@ const modelKey = "plateau"
 
 type Config struct {
 	CMSBaseURL string
+	CMSToken   string
 	Project    string
 	Model      string
 	Token      string
@@ -58,6 +59,10 @@ func (i Items) DatasetResponse() (r *DatasetResponse) {
 	prefs := []*DatasetPref{}
 	prefm := map[string]*DatasetPref{}
 	for _, i := range i {
+		if !i.IsPublic() {
+			continue
+		}
+
 		ft := i.FeatureTypes()
 		if len(ft) == 0 {
 			continue
@@ -87,16 +92,21 @@ func (i Items) DatasetResponse() (r *DatasetResponse) {
 }
 
 type Item struct {
-	ID          string            `json:"id"`
-	Prefecture  string            `json:"prefecture"`
-	CityName    string            `json:"city_name"`
-	CityGML     *cms.PublicAsset  `json:"citygml"`
-	Description string            `json:"description_bldg"`
-	MaxLOD      *cms.PublicAsset  `json:"max_lod"`
-	Bldg        []cms.PublicAsset `json:"bldg"`
-	Tran        []cms.PublicAsset `json:"tran"`
-	Frn         []cms.PublicAsset `json:"frn"`
-	Veg         []cms.PublicAsset `json:"veg"`
+	ID             string            `json:"id"`
+	Prefecture     string            `json:"prefecture"`
+	CityName       string            `json:"city_name"`
+	CityGML        *cms.PublicAsset  `json:"citygml"`
+	Description    string            `json:"description_bldg"`
+	MaxLOD         *cms.PublicAsset  `json:"max_lod"`
+	Bldg           []cms.PublicAsset `json:"bldg"`
+	Tran           []cms.PublicAsset `json:"tran"`
+	Frn            []cms.PublicAsset `json:"frn"`
+	Veg            []cms.PublicAsset `json:"veg"`
+	SDKPublication string            `json:"sdk_publication"`
+}
+
+func (i Item) IsPublic() bool {
+	return i.SDKPublication == "公開する"
 }
 
 func (i Item) FeatureTypes() (t []string) {
@@ -163,4 +173,42 @@ func (mm MaxLODMap) Files(urls []*url.URL) (r FilesResponse) {
 		})
 	}
 	return
+}
+
+type IItem struct {
+	ID             string      `json:"id" cms:"id,text"`
+	Prefecture     string      `json:"prefecture" cms:"prefecture,text"`
+	CityName       string      `json:"city_name" cms:"city_name,text"`
+	CityGML        *cms.Asset  `json:"citygml" cms:"citygml,asset"`
+	Description    string      `json:"description_bldg" cms:"description_bldg,textarea"`
+	MaxLOD         *cms.Asset  `json:"max_lod" cms:"max_lod,asset"`
+	Bldg           []cms.Asset `json:"bldg" cms:"bldg,asset"`
+	Tran           []cms.Asset `json:"tran" cms:"tran,asset"`
+	Frn            []cms.Asset `json:"frn" cms:"frn,asset"`
+	Veg            []cms.Asset `json:"veg" cms:"veg,asset"`
+	SDKPublication string      `json:"sdk_publication" cms:"sdk_publication,select"`
+}
+
+func (i IItem) Item() Item {
+	return Item{
+		ID:             i.ID,
+		Prefecture:     i.Prefecture,
+		CityName:       i.CityName,
+		CityGML:        i.CityGML.ToPublic(),
+		Description:    i.Description,
+		MaxLOD:         i.MaxLOD.ToPublic(),
+		Bldg:           lo.Map(i.Bldg, func(a cms.Asset, _ int) cms.PublicAsset { return *a.ToPublic() }),
+		Tran:           lo.Map(i.Tran, func(a cms.Asset, _ int) cms.PublicAsset { return *a.ToPublic() }),
+		Frn:            lo.Map(i.Frn, func(a cms.Asset, _ int) cms.PublicAsset { return *a.ToPublic() }),
+		Veg:            lo.Map(i.Veg, func(a cms.Asset, _ int) cms.PublicAsset { return *a.ToPublic() }),
+		SDKPublication: i.SDKPublication,
+	}
+}
+
+func ItemsFromIntegration(items []cms.Item) Items {
+	return lo.Map(items, func(i cms.Item, _ int) Item {
+		r := IItem{}
+		i.Unmarshal(&r)
+		return r.Item()
+	})
 }
