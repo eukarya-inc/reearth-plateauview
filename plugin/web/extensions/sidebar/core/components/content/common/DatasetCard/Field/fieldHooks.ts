@@ -86,7 +86,7 @@ export default ({
         name: fieldName["eventField"],
         onClick: onFieldAdd({
           eventType: "select",
-          triggerEvent: "jump-to-url",
+          triggerEvent: "openUrl",
           urlType: "manual",
         }),
       },

@@ -11,11 +11,11 @@ import { BaseFieldProps } from "../types";
 
 const eventTypeOptions = [{ value: "select", label: "Select Feature" }];
 
-const triggerEventOptions = [{ value: "jump-to-url", label: "Jump To URL" }];
+const triggerEventOptions = [{ value: "openUrl", label: "Jump To URL" }];
 
 const urlTypeOptions = [
   { value: "manual", label: "Manual" },
-  { value: "from-data", label: "From Data" },
+  { value: "fromData", label: "From Data" },
 ];
 
 const EventField: React.FC<BaseFieldProps<"eventField">> = ({
@@ -27,11 +27,10 @@ const EventField: React.FC<BaseFieldProps<"eventField">> = ({
   const [eventValue, setEventValue] = useState(value);
 
   const showURL = useMemo(() => eventValue.urlType === "manual", [eventValue.urlType]);
-  const showField = useMemo(() => eventValue.urlType === "from-data", [eventValue.urlType]);
+  const showField = useMemo(() => eventValue.urlType === "fromData", [eventValue.urlType]);
 
   const handleEventTypeChange = useCallback(
     (value: string) => {
-      console.log(value);
       setEventValue({ ...eventValue, eventType: value });
     },
     [eventValue],
@@ -39,7 +38,6 @@ const EventField: React.FC<BaseFieldProps<"eventField">> = ({
 
   const handleTriggerEventChange = useCallback(
     (value: string) => {
-      console.log(value);
       setEventValue({ ...eventValue, triggerEvent: value });
     },
     [eventValue],
@@ -47,15 +45,13 @@ const EventField: React.FC<BaseFieldProps<"eventField">> = ({
 
   const handleURLTypeChange = useCallback(
     (value: typeof eventValue.urlType) => {
-      console.log(value);
-      setEventValue({ ...eventValue, urlType: value });
+      setEventValue({ ...eventValue, urlType: value, url: "", field: "" });
     },
     [eventValue],
   );
 
   const handleURLChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
-      console.log(e.target.value);
       setEventValue({ ...eventValue, url: e.target.value });
     },
     [eventValue],
@@ -63,7 +59,6 @@ const EventField: React.FC<BaseFieldProps<"eventField">> = ({
 
   const handleFieldChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
-      console.log(e.target.value);
       setEventValue({ ...eventValue, field: e.target.value });
     },
     [eventValue],
@@ -75,13 +70,11 @@ const EventField: React.FC<BaseFieldProps<"eventField">> = ({
       onUpdate({
         ...eventValue,
         override: {
-          marker: {
-            imageSize: 2,
-          },
           events: {
-            select: {
-              openUrl: {
-                urlKey: eventValue.url,
+            [eventValue.eventType]: {
+              [eventValue.triggerEvent]: {
+                url: eventValue.urlType === "manual" ? eventValue.url : null,
+                urlKey: eventValue.urlType === "fromData" ? eventValue.field : null,
               },
             },
           },
@@ -101,7 +94,7 @@ const EventField: React.FC<BaseFieldProps<"eventField">> = ({
         noBorder
         value={
           <Select
-            defaultValue={"select-feature"}
+            defaultValue={"select"}
             options={eventTypeOptions}
             style={{ width: "100%" }}
             value={eventValue.eventType}
@@ -116,7 +109,7 @@ const EventField: React.FC<BaseFieldProps<"eventField">> = ({
         noBorder
         value={
           <Select
-            defaultValue={"jump-to-url"}
+            defaultValue={"openUrl"}
             options={triggerEventOptions}
             style={{ width: "100%" }}
             value={eventValue.triggerEvent}
@@ -143,6 +136,7 @@ const EventField: React.FC<BaseFieldProps<"eventField">> = ({
       {showURL && (
         <TextField
           title="URL"
+          placeholder="https://www.example.com"
           titleWidth={88}
           defaultValue={eventValue.url}
           onChange={handleURLChange}

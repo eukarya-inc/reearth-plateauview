@@ -191,11 +191,11 @@ type Template = FieldBase<"template"> & {
 };
 
 type EventField = FieldBase<"eventField"> & {
-  eventType?: string;
-  triggerEvent?: string;
-  urlType?: "manual" | "from-data";
+  eventType: string;
+  triggerEvent: string;
+  urlType: "manual" | "fromData";
   url?: string;
-  field?: any;
+  field?: string;
 };
 
 type PointColor = FieldBase<"pointColor"> & {
