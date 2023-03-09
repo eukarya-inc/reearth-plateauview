@@ -1,8 +1,9 @@
+import { postMsg } from "@web/extensions/sidebar/utils";
 import { Icon, Dropdown, Menu, Radio } from "@web/sharedComponents";
 import { styled } from "@web/theme";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
-import { BaseFieldProps, ConfigData } from "../../types";
+import { BaseFieldProps } from "../../types";
 
 type UIStyles = "dropdown" | "radio";
 
@@ -12,14 +13,45 @@ const uiStyles: { [key: string]: string } = {
 };
 
 const SwitchField: React.FC<BaseFieldProps<"switchField">> = ({
+  dataID,
   value,
   editMode,
-  configData,
   onUpdate,
 }) => {
-  const [targetField, setTargetField] = useState(value.field);
   const [selectedStyle, selectStyle] = useState(value.uiStyle ?? "dropdown");
-  const [selectedDataset, selectDataset] = useState(value.selected ?? configData?.[0]);
+  const [targetProperty, setTargetProperty] = useState(value.field); // ie 種類
+  const [selectedProperty, selectProperty] = useState(value.selected); // ie 病院
+  const [properties, setProperties] = useState<{ [key: string]: any }>();
+
+  useEffect(() => {
+    console.log("properties", properties);
+  }, [properties]);
+
+  useEffect(() => {
+    (async () => {
+      if (!dataID) return;
+      const layer = await new Promise<any>(resolve => {
+        const handleMessage = (e: any) => {
+          if (e.source !== parent) return;
+          if (e.data.action !== "findLayerByDataID") {
+            resolve(undefined);
+            return;
+          }
+          removeEventListener("message", handleMessage);
+          resolve(e.data.payload.layer);
+        };
+        addEventListener("message", handleMessage);
+        postMsg({
+          action: "findLayerByDataID",
+          payload: {
+            dataID,
+          },
+        });
+      });
+      console.log("Layer:", layer);
+      setProperties(layer?.features?.[0]?.properties);
+    })();
+  }, [dataID]);
 
   const styleOptions = (
     <Menu
@@ -36,14 +68,19 @@ const SwitchField: React.FC<BaseFieldProps<"switchField">> = ({
     />
   );
 
-  const datasetOptions = (
+  const propertyKeys = useMemo(
+    () => (properties ? Object.keys(properties) : undefined),
+    [properties],
+  );
+
+  const propertyOptions = (
     <Menu
-      items={configData?.map(d => {
+      items={propertyKeys?.map((key: string) => {
         return {
-          key: d.name,
+          key,
           label: (
-            <p style={{ margin: 0 }} onClick={() => handleDatasetSelect(d)}>
-              {d.name}
+            <p style={{ margin: 0 }} onClick={() => handlePropertySelect(key)}>
+              {properties?.[key]}
             </p>
           ),
         };
@@ -51,9 +88,9 @@ const SwitchField: React.FC<BaseFieldProps<"switchField">> = ({
     />
   );
 
-  const handleFieldChange = useCallback(
+  const handleTargetChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
-      setTargetField(e.currentTarget.value);
+      setTargetProperty(e.currentTarget.value);
       onUpdate({ ...value, field: e.currentTarget.value });
     },
     [value, onUpdate],
@@ -67,31 +104,32 @@ const SwitchField: React.FC<BaseFieldProps<"switchField">> = ({
     [value, onUpdate],
   );
 
-  const handleDatasetSelect = useCallback(
-    (dataset: ConfigData) => {
-      if (!targetField) return;
-      selectDataset(dataset);
+  const handlePropertySelect = useCallback(
+    (propertyKey: string) => {
+      const propertyValue = properties?.[propertyKey];
+      if (!propertyValue) return;
+      selectProperty(propertyKey);
       onUpdate({
         ...value,
-        selected: dataset,
+        selected: propertyKey,
         override: {
           ["3dtiles"]: {
             show: {
-              expression: [`${targetField} == ${dataset.name}`, "true"],
+              expression: [`${targetProperty} == ${propertyValue}`, "true"],
             },
           },
         },
       });
     },
-    [targetField, value, onUpdate],
+    [targetProperty, value, properties, onUpdate],
   );
 
   return editMode ? (
     <Wrapper>
       <Field>
-        <FieldTitle>フィルド</FieldTitle>
+        <FieldTitle>プロパティ</FieldTitle>
         <FieldValue>
-          <TextInput defaultValue={targetField} onChange={handleFieldChange} />
+          <TextInput defaultValue={targetProperty} onChange={handleTargetChange} />
         </FieldValue>
       </Field>
       <Field>
@@ -113,37 +151,37 @@ const SwitchField: React.FC<BaseFieldProps<"switchField">> = ({
   ) : (
     <Wrapper>
       <Field>
-        {selectedDataset ? (
-          value.uiStyle === "radio" && configData ? (
+        {selectedProperty ? (
+          value.uiStyle === "radio" && properties ? (
             <Radio.Group
               onChange={e =>
-                handleDatasetSelect(
-                  configData.find(cd => cd.name === e.target.value) ?? selectedDataset,
+                handlePropertySelect(
+                  Object.keys(properties).find(key => key === e.target.value) ?? selectedProperty,
                 )
               }
-              value={selectedDataset.name}>
-              {configData?.map(cd => (
-                <StyledRadio key={cd.name} value={cd.name}>
-                  <Label>{cd.name}</Label>
+              value={properties[selectedProperty]}>
+              {Object.keys(properties).map(key => (
+                <StyledRadio key={key} value={key}>
+                  <Label>{properties[key]}</Label>
                 </StyledRadio>
               ))}
             </Radio.Group>
           ) : (
             <FieldValue>
               <Dropdown
-                overlay={datasetOptions}
+                overlay={propertyOptions}
                 placement="bottom"
                 trigger={["click"]}
                 getPopupContainer={trigger => trigger.parentElement ?? document.body}>
                 <StyledDropdownButton>
-                  <p style={{ margin: 0 }}>{selectedDataset.name}</p>
+                  <p style={{ margin: 0 }}>{properties?.[selectedProperty]}</p>
                   <Icon icon="arrowDownSimple" size={12} />
                 </StyledDropdownButton>
               </Dropdown>
             </FieldValue>
           )
         ) : (
-          <Text>対応されているデータがない</Text>
+          <Text>狙ってるデータがない</Text>
         )}
       </Field>
     </Wrapper>
@@ -189,7 +227,7 @@ const FieldValue = styled.div`
   border: 1px solid #d9d9d9;
   border-radius: 2px;
   flex: 1;
-  height: 100%;
+  height: 32px;
   width: 100%;
 `;
 

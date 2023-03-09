@@ -72,6 +72,7 @@ export type FieldComponent =
   | Timeline
   | CurrentTime
   | SwitchDataset
+  | SwitchField
   | Template
   | PointColor
   | PointColorGradient
@@ -171,7 +172,7 @@ export type SwitchDataset = FieldBase<"switchDataset"> & {
 
 export type SwitchField = FieldBase<"switchField"> & {
   field?: string;
-  selected?: ConfigData;
+  selected?: string;
   uiStyle?: "dropdown" | "radio";
 };
 
