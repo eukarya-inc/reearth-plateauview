@@ -203,7 +203,9 @@ export default ({
       },
       floodColor: {
         name: fieldName["floodColor"],
-        onClick: onFieldAdd({}),
+        onClick: onFieldAdd({
+          colorType: "water",
+        }),
       },
       floodFilter: {
         name: fieldName["floodFilter"],
@@ -247,7 +249,7 @@ export const cleanseOverrides: { [key: string]: any } = {
       style: "point",
       image: undefined,
       imageSize: undefined,
-      sizeInMeters: undefined,
+      imageSizeInMeters: undefined,
     },
   },
   pointLabel: {
