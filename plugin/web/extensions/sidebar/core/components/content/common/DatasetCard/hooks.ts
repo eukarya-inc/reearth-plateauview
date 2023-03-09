@@ -144,17 +144,16 @@ export default ({
 
   const handleMoveUp = useCallback(
     (idx: number) => {
-      const newComponents = moveItemUp(idx, dataset.components) ?? dataset.components;
-
-      onDatasetUpdate({ ...dataset, components: newComponents });
+      const newComponents = moveItemUp(idx, dataset.components);
+      if (newComponents) onDatasetUpdate({ ...dataset, components: newComponents });
     },
     [dataset, onDatasetUpdate],
   );
 
   const handleMoveDown = useCallback(
     (idx: number) => {
-      const newComponents = moveItemDown(idx, dataset.components) ?? dataset.components;
-      onDatasetUpdate({ ...dataset, components: newComponents });
+      const newComponents = moveItemDown(idx, dataset.components);
+      if (dataset.components) onDatasetUpdate({ ...dataset, components: newComponents });
     },
     [dataset, onDatasetUpdate],
   );

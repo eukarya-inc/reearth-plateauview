@@ -47,16 +47,16 @@ export default ({
 
   const handleMoveFieldUp = useCallback(
     (idx: number) => {
-      const newComponents = moveItemUp(idx, template.components) ?? template.components;
-      onTemplateUpdate?.({ ...template, components: newComponents });
+      const newComponents = moveItemUp(idx, template.components);
+      if (newComponents) onTemplateUpdate?.({ ...template, components: newComponents });
     },
     [onTemplateUpdate, template],
   );
 
   const handleMoveFieldDown = useCallback(
     (idx: number) => {
-      const newComponents = moveItemDown(idx, template.components) ?? template.components;
-      onTemplateUpdate?.({ ...template, components: newComponents });
+      const newComponents = moveItemDown(idx, template.components);
+      if (newComponents) onTemplateUpdate?.({ ...template, components: newComponents });
     },
     [template, onTemplateUpdate],
   );
