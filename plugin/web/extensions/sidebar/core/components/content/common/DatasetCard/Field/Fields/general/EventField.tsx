@@ -84,7 +84,7 @@ const EventField: React.FC<BaseFieldProps<"eventField">> = ({
     return () => {
       clearTimeout(timer);
     };
-  }, [isActive, value, onUpdate, eventValue.eventType, eventValue]);
+  }, [isActive, value, onUpdate, eventValue]);
 
   return editMode ? (
     <Wrapper>
