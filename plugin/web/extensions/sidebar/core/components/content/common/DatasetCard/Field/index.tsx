@@ -103,7 +103,7 @@ const FieldComponent: React.FC<Props> = ({
   const handleUpClick = useCallback(
     (e: React.MouseEvent<HTMLDivElement, MouseEvent> | undefined) => {
       e?.stopPropagation();
-      index && onMoveUp?.(index);
+      if (index !== undefined) onMoveUp?.(index);
     },
     [index, onMoveUp],
   );
@@ -111,7 +111,7 @@ const FieldComponent: React.FC<Props> = ({
   const handleDownClick = useCallback(
     (e: React.MouseEvent<HTMLDivElement, MouseEvent> | undefined) => {
       e?.stopPropagation();
-      index && onMoveDown?.(index);
+      if (index !== undefined) onMoveDown?.(index);
     },
     [index, onMoveDown],
   );

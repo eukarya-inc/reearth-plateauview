@@ -153,7 +153,7 @@ export default ({
   const handleMoveDown = useCallback(
     (idx: number) => {
       const newComponents = moveItemDown(idx, dataset.components);
-      if (dataset.components) onDatasetUpdate({ ...dataset, components: newComponents });
+      if (newComponents) onDatasetUpdate({ ...dataset, components: newComponents });
     },
     [dataset, onDatasetUpdate],
   );
