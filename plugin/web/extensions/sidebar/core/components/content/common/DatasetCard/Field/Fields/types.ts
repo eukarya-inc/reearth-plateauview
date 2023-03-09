@@ -16,6 +16,7 @@ export const generalFieldName = {
   point: "ポイント",
   description: "説明",
   template: "テンプレート",
+  eventField: "エベント",
 };
 
 export const pointFieldName = {
@@ -73,6 +74,7 @@ export type FieldComponent =
   | CurrentTime
   | SwitchDataset
   | SwitchField
+  | EventField
   | Template
   | PointColor
   | PointColorGradient
@@ -194,6 +196,14 @@ export type Story = FieldBase<"story"> & {
 type Template = FieldBase<"template"> & {
   templateID?: string;
   components?: FieldComponent[];
+};
+
+type EventField = FieldBase<"eventField"> & {
+  eventType: string;
+  triggerEvent: string;
+  urlType: "manual" | "fromData";
+  url?: string;
+  field?: string;
 };
 
 type PointColor = FieldBase<"pointColor"> & {
@@ -332,6 +342,7 @@ export type Fields = {
   timeline: Timeline;
   switchDataset: SwitchDataset;
   switchField: SwitchField;
+  eventField: EventField;
   // point
   pointColor: PointColor;
   pointColorGradient: PointColorGradient;
