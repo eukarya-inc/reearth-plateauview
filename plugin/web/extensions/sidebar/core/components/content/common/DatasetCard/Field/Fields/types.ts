@@ -192,8 +192,9 @@ type Template = FieldBase<"template"> & {
 
 type EventField = FieldBase<"eventField"> & {
   eventType?: string;
-  triggerEvent?: any;
-  urlType?: any;
+  triggerEvent?: string;
+  urlType?: "manual" | "from-data";
+  url?: string;
   field?: any;
 };
 

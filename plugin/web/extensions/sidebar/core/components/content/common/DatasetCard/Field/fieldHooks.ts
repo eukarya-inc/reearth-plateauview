@@ -84,7 +84,11 @@ export default ({
       },
       eventField: {
         name: fieldName["eventField"],
-        onClick: onFieldAdd({}),
+        onClick: onFieldAdd({
+          eventType: "select",
+          triggerEvent: "jump-to-url",
+          urlType: "manual",
+        }),
       },
     };
   }, [fieldGroups, onFieldAdd]);
