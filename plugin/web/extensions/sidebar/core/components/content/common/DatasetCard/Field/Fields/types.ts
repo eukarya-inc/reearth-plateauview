@@ -72,6 +72,7 @@ export type FieldComponent =
   | Timeline
   | CurrentTime
   | SwitchDataset
+  | Event
   | Template
   | PointColor
   | PointColorGradient
@@ -190,7 +191,7 @@ type Template = FieldBase<"template"> & {
 };
 
 type Event = FieldBase<"event"> & {
-  type?: string;
+  eventType?: string;
   triggerEvent?: any;
   urlType?: any;
   field?: any;

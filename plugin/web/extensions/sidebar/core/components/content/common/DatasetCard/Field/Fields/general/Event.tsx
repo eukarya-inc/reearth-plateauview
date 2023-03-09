@@ -5,21 +5,18 @@ import { useCallback, useEffect, useState } from "react";
 import { BaseFieldProps } from "../types";
 
 const Event: React.FC<BaseFieldProps<"event">> = ({ value, editMode, isActive, onUpdate }) => {
-  const [type, _setType] = useState(value.type);
+  const [type, setType] = useState(value.eventType);
 
-  const handleSizeUpdate = useCallback(
-    (/*e: React.ChangeEvent<HTMLInputElement>*/) => {
-      // setType(e.currentTarget.value);
-    },
-    [],
-  );
+  const handleSizeUpdate = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setType(e.currentTarget.value);
+  }, []);
 
   useEffect(() => {
     if (!isActive || type === value.type) return;
     const timer = setTimeout(() => {
       onUpdate({
         ...value,
-        type: type,
+        eventType: type,
         override: { marker: { style: "point", type: type } },
       });
     }, 500);
