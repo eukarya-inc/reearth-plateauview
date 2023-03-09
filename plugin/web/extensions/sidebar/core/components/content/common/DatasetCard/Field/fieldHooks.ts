@@ -49,6 +49,10 @@ export default ({
         name: fieldName["timeline"],
         onClick: onFieldAdd({ timeBasedDisplay: true, timeFieldName: "" }),
       },
+      currentTime: {
+        name: fieldName["currentTime"],
+        onClick: onFieldAdd({ date: "", time: "" }),
+      },
       styleCode: {
         name: fieldName["styleCode"],
         onClick: onFieldAdd({ src: " " }),
@@ -77,6 +81,14 @@ export default ({
       template: {
         name: fieldName["template"],
         onClick: onFieldAdd({}),
+      },
+      eventField: {
+        name: fieldName["eventField"],
+        onClick: onFieldAdd({
+          eventType: "select",
+          triggerEvent: "openUrl",
+          urlType: "manual",
+        }),
       },
     };
   }, [fieldGroups, onFieldAdd]);
@@ -189,8 +201,14 @@ export default ({
           direction: "inside",
         }),
       },
-      search: {
-        name: fieldName["search"],
+      floodColor: {
+        name: fieldName["floodColor"],
+        onClick: onFieldAdd({
+          colorType: "water",
+        }),
+      },
+      floodFilter: {
+        name: fieldName["floodFilter"],
         onClick: onFieldAdd({}),
       },
     };
@@ -211,7 +229,7 @@ export default ({
         name: "ポイント",
         fields: pointFields,
       },
-      polygone: { name: "ポリゴン", fields: polygonFields },
+      polygon: { name: "ポリゴン", fields: polygonFields },
       polyline: { name: "ポリライン", fields: polylineFields },
       // "3d-model": { name: "3Dモデル", fields: ThreeDModelFields },
       "3d-tile": { name: "3Dタイル", fields: ThreeDTileFields },
@@ -223,9 +241,18 @@ export default ({
 };
 
 export const cleanseOverrides: { [key: string]: any } = {
+  switchDataset: { data: { url: undefined } },
+  eventField: { events: undefined },
   pointSize: { marker: { pointSize: 10 } },
   pointColor: { marker: { pointColor: "white" } },
-  pointIcon: { marker: { style: "point", image: undefined, imageSize: undefined } },
+  pointIcon: {
+    marker: {
+      style: "point",
+      image: undefined,
+      imageSize: undefined,
+      imageSizeInMeters: undefined,
+    },
+  },
   pointLabel: {
     marker: {
       label: undefined,
@@ -242,6 +269,64 @@ export const cleanseOverrides: { [key: string]: any } = {
     marker: {
       pointOutlineColor: undefined,
       pointOutlineWidth: undefined,
+    },
+  },
+  polylineColor: {
+    polyline: {
+      strokeColor: "white",
+    },
+  },
+  polylineStroke: {
+    polyline: {
+      strokeWidth: 5,
+    },
+  },
+  polygonColor: {
+    polygon: {
+      fill: false,
+    },
+  },
+  polygonStroke: {
+    polygon: {
+      stroke: true,
+      strokeColor: "white",
+      strokeWidth: 5,
+    },
+  },
+  buildingColor: {
+    "3dtiles": {
+      color: "white",
+    },
+  },
+  buildingTransparency: {
+    "3dtiles": {
+      color: undefined,
+    },
+  },
+  buildingFilter: {
+    "3dtiles": {
+      show: true,
+    },
+  },
+  buildingShadow: {
+    "3dtiles": {
+      shadows: "enabled",
+    },
+  },
+  clipping: {
+    box: undefined,
+    "3dtiles": {
+      experimental_clipping: undefined,
+    },
+  },
+  floodColor: {
+    "3dtiles": {
+      color: "white",
+    },
+  },
+  floodFilter: {
+    "3dtiles": {
+      show: true,
     },
   },
 };

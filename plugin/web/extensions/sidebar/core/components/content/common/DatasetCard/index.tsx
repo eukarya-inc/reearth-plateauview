@@ -1,5 +1,7 @@
 import { DataCatalogItem, Template } from "@web/extensions/sidebar/core/types";
+import { ReearthApi } from "@web/extensions/sidebar/types";
 import { postMsg } from "@web/extensions/sidebar/utils";
+import { getNameFromPath } from "@web/extensions/sidebar/utils/file";
 import { Dropdown, Icon, Menu, Spin } from "@web/sharedComponents";
 import { styled } from "@web/theme";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -36,6 +38,7 @@ export type Props = {
   onDatasetUpdate: (dataset: DataCatalogItem, cleanseOverride?: any) => void;
   onThreeDTilesSearch: (id: string) => void;
   onOverride?: (dataID: string, activeIDs?: string[]) => void;
+  onSceneUpdate: (updatedProperties: Partial<ReearthApi>) => void;
 };
 const DatasetCard: React.FC<Props> = ({
   dataset,
@@ -47,6 +50,7 @@ const DatasetCard: React.FC<Props> = ({
   onDatasetUpdate,
   onThreeDTilesSearch,
   onOverride,
+  onSceneUpdate,
 }) => {
   const [currentTab, changeTab] = useState<Tabs>("default");
 
@@ -126,8 +130,8 @@ const DatasetCard: React.FC<Props> = ({
     readyMVTPosition.current = fetchMetadataJSONForMVT();
   }, [dataset.dataID]);
 
-  const baseFields: BaseFieldType[] = useMemo(() => {
-    const fields: BaseFieldType[] = [
+  const baseFields: BaseFieldType[] = useMemo(
+    () => [
       {
         id: "zoom",
         title: "カメラ",
@@ -162,24 +166,22 @@ const DatasetCard: React.FC<Props> = ({
         icon: "trash",
         onClick: () => onDatasetRemove?.(dataset.dataID),
       },
-    ];
-    if (
-      currentTab === "default" &&
-      (dataset.components?.find(c => c.type === "search") ||
-        templates?.find(t => t.components?.find(c => c.type === "search")))
-    ) {
-      fields.push({
-        id: "search",
-        title: "データを検索",
-        icon: "search",
-        value: 1,
-        onClick: () => {
-          onThreeDTilesSearch(dataset.dataID);
-        },
-      });
-    }
-    return fields;
-  }, [currentTab, dataset, templates, onDatasetRemove, onThreeDTilesSearch]);
+      ...(currentTab === "default" && dataset.type === "建築物モデル"
+        ? [
+            {
+              id: "search",
+              title: "データを検索",
+              icon: "search",
+              value: 1,
+              onClick: () => {
+                onThreeDTilesSearch(dataset.dataID);
+              },
+            },
+          ]
+        : []),
+    ],
+    [currentTab, dataset, onDatasetRemove, onThreeDTilesSearch],
+  );
 
   const handleTabChange: React.MouseEventHandler<HTMLParagraphElement> = useCallback(e => {
     e.stopPropagation();
@@ -232,6 +234,8 @@ const DatasetCard: React.FC<Props> = ({
     </Menu>
   );
 
+  const title = useMemo(() => getNameFromPath(dataset.name), [dataset.name]);
+
   return (
     <StyledAccordionComponent allowZeroExpanded preExpanded={["datasetcard"]}>
       <AccordionItem uuid="datasetcard">
@@ -249,7 +253,7 @@ const DatasetCard: React.FC<Props> = ({
                         onDatasetUpdate({ ...dataset, visible: !dataset.visible });
                       }}
                     />
-                    <Title>{dataset.name}</Title>
+                    <Title>{title}</Title>
                   </LeftMain>
                   <ArrowIcon icon="arrowDown" size={16} expanded={expanded} />
                 </HeaderContents>
@@ -281,67 +285,27 @@ const DatasetCard: React.FC<Props> = ({
                 <Text>オープンデータを入手</Text>
               </OpenDataButton>
             )}
-            {dataset.components?.map((c, idx) => {
-              if (c.type === "template") {
-                const template = templates?.find(t => t.id === c.templateID);
-                return inEditor && currentTab === "edit" ? (
-                  <Field
-                    key={idx}
-                    index={idx}
-                    field={c}
-                    isActive={!!activeComponentIDs?.find(id => id === c.id)}
-                    dataID={dataset.dataID}
-                    editMode={inEditor && currentTab === "edit"}
-                    templates={templates}
-                    selectGroups={dataset.fieldGroups}
-                    configData={dataset.config?.data}
-                    onUpdate={handleFieldUpdate}
-                    onRemove={handleFieldRemove}
-                    onMoveUp={handleMoveUp}
-                    onMoveDown={handleMoveDown}
-                    onGroupsUpdate={handleGroupsUpdate(c.id)}
-                    onCurrentGroupUpdate={handleCurrentGroupUpdate}
-                  />
-                ) : (
-                  template?.components?.map((tc, idx2) => (
-                    <Field
-                      key={idx2}
-                      index={idx2}
-                      field={tc}
-                      isActive={!!activeComponentIDs?.find(id => id === c.id)}
-                      dataID={dataset.dataID}
-                      selectGroups={dataset.fieldGroups}
-                      templates={templates}
-                      configData={dataset.config?.data}
-                      onUpdate={handleFieldUpdate}
-                      onRemove={handleFieldRemove}
-                      onMoveUp={handleMoveUp}
-                      onMoveDown={handleMoveDown}
-                      onCurrentGroupUpdate={handleCurrentGroupUpdate}
-                    />
-                  ))
-                );
-              }
-              return (
-                <Field
-                  key={idx}
-                  index={idx}
-                  field={c}
-                  isActive={!!activeComponentIDs?.find(id => id === c.id)}
-                  dataID={dataset.dataID}
-                  editMode={inEditor && currentTab === "edit"}
-                  templates={templates}
-                  selectGroups={dataset.fieldGroups}
-                  configData={dataset.config?.data}
-                  onUpdate={handleFieldUpdate}
-                  onRemove={handleFieldRemove}
-                  onMoveUp={handleMoveUp}
-                  onMoveDown={handleMoveDown}
-                  onGroupsUpdate={handleGroupsUpdate(c.id)}
-                  onCurrentGroupUpdate={handleCurrentGroupUpdate}
-                />
-              );
-            })}
+            {dataset.components?.map((c, idx) => (
+              <Field
+                key={idx}
+                index={idx}
+                field={c}
+                isActive={!!activeComponentIDs?.find(id => id === c.id)}
+                isEditing={currentTab === "edit"}
+                dataID={dataset.dataID}
+                editMode={inEditor && currentTab === "edit"}
+                templates={templates}
+                selectGroups={dataset.fieldGroups}
+                configData={dataset.config?.data}
+                onUpdate={handleFieldUpdate}
+                onRemove={handleFieldRemove}
+                onMoveUp={handleMoveUp}
+                onMoveDown={handleMoveDown}
+                onGroupsUpdate={handleGroupsUpdate(c.id)}
+                onCurrentGroupUpdate={handleCurrentGroupUpdate}
+                onSceneUpdate={onSceneUpdate}
+              />
+            ))}
           </Content>
           {inEditor && currentTab === "edit" && (
             <>

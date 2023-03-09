@@ -17,7 +17,6 @@ const MobileDropdown: React.FC = () => {
   const {
     catalog,
     project,
-    selectedDatasets,
     loading,
     reearthURL,
     backendURL,
@@ -85,21 +84,19 @@ const MobileDropdown: React.FC = () => {
           ),
           selection: (
             <Selection
-              selectedDatasets={selectedDatasets}
+              selectedDatasets={project.datasets}
               savingDataset={loading}
               onDatasetSave={handleDatasetSave}
               onDatasetUpdate={handleDatasetUpdate}
               onDatasetRemove={handleProjectDatasetRemove}
               onDatasetRemoveAll={handleProjectDatasetRemoveAll}
               onThreeDTilesSearch={handleThreeDTilesSearch}
+              onSceneUpdate={handleProjectSceneUpdate}
             />
           ),
           menu: (
             <Menu
-              project={{
-                sceneOverrides: project.sceneOverrides,
-                datasets: selectedDatasets,
-              }}
+              project={project}
               reearthURL={reearthURL}
               backendURL={backendURL}
               backendProjectName={backendProjectName}

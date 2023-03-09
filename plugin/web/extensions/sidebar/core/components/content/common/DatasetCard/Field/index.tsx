@@ -1,4 +1,5 @@
 import { Group, Template } from "@web/extensions/sidebar/core/types";
+import { ReearthApi } from "@web/extensions/sidebar/types";
 import { postMsg } from "@web/extensions/sidebar/utils";
 import { Icon } from "@web/sharedComponents";
 import { styled } from "@web/theme";
@@ -29,6 +30,7 @@ export type Props = {
   field: FieldComponentType;
   dataID?: string;
   isActive: boolean;
+  isEditing?: boolean;
   editMode?: boolean;
   templates?: Template[];
   selectGroups?: Group[];
@@ -39,6 +41,7 @@ export type Props = {
   onMoveDown?: (index: number) => void;
   onGroupsUpdate?: (groups: Group[], selectedGroup?: string) => void;
   onCurrentGroupUpdate?: (fieldGroupID: string) => void;
+  onSceneUpdate?: (updatedProperties: Partial<ReearthApi>) => void;
 };
 
 const getFieldGroup = (field: string) => {
@@ -60,6 +63,7 @@ const FieldComponent: React.FC<Props> = ({
   field,
   dataID,
   isActive,
+  isEditing,
   editMode,
   templates,
   selectGroups,
@@ -70,6 +74,7 @@ const FieldComponent: React.FC<Props> = ({
   onMoveDown,
   onGroupsUpdate,
   onCurrentGroupUpdate,
+  onSceneUpdate,
 }) => {
   const Field = fields[field.type];
   const [groupPopupOpen, setGroupPopup] = useState(false);
@@ -129,9 +134,27 @@ const FieldComponent: React.FC<Props> = ({
     };
   }, [groupPopupOpen, onGroupsUpdate]);
 
-  const title = useMemo(() => `${fieldName[field.type]}(${getFieldGroup(field.type)})`, [field]);
+  const title = useMemo(() => fieldName[field.type], [field]);
+  const editModeTitle = useMemo(
+    () => `${title}(${getFieldGroup(field.type)})`,
+    [field.type, title],
+  );
 
-  return !editMode && !isActive ? null : (
+  return !editMode && !isActive ? null : field.type === "template" &&
+    Field?.Component &&
+    !isEditing ? (
+    <Field.Component
+      value={{ ...field }}
+      editMode={editMode}
+      isActive={isActive}
+      templates={templates}
+      fieldGroups={selectGroups}
+      configData={configData}
+      dataID={dataID}
+      onUpdate={onUpdate?.(field.id)}
+      onCurrentGroupUpdate={onCurrentGroupUpdate}
+    />
+  ) : (
     <StyledAccordionComponent
       allowZeroExpanded
       preExpanded={[field.id]}
@@ -146,7 +169,7 @@ const FieldComponent: React.FC<Props> = ({
                     {Field && (
                       <ArrowIcon icon="arrowDown" size={16} direction="right" expanded={expanded} />
                     )}
-                    <Title>{title}</Title>
+                    <Title>{editModeTitle}</Title>
                   </LeftContents>
                   <RightContents>
                     <StyledIcon icon="arrowUpThin" size={16} onClick={handleUpClick} />
@@ -181,6 +204,7 @@ const FieldComponent: React.FC<Props> = ({
               dataID={dataID}
               onUpdate={onUpdate?.(field.id)}
               onCurrentGroupUpdate={onCurrentGroupUpdate}
+              onSceneUpdate={onSceneUpdate}
             />
           </BodyWrapper>
         )}

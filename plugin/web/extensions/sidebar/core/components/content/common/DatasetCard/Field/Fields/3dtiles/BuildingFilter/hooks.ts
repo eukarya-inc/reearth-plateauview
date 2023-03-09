@@ -1,5 +1,4 @@
 import { postMsg } from "@web/extensions/sidebar/utils";
-import isEqual from "lodash/isEqual";
 import { useCallback, useEffect, useState } from "react";
 
 import { BaseFieldProps } from "../../types";
@@ -15,6 +14,19 @@ const useHooks = ({
   const [options, setOptions] = useState<OptionsState>({});
 
   const handleUpdate = useCallback(
+    (property: any) => {
+      onUpdate({
+        ...value,
+        height: options.height?.value,
+        abovegroundFloor: options.abovegroundFloor?.value,
+        basementFloor: options.basementFloor?.value,
+        override: { ["3dtiles"]: property },
+      });
+    },
+    [onUpdate, value, options],
+  );
+
+  const handleUpdateOptions = useCallback(
     <P extends keyof OptionsState>(prop: P, v?: Exclude<OptionsState[P], undefined>["value"]) => {
       setOptions(o => {
         return {
@@ -25,42 +37,18 @@ const useHooks = ({
           },
         };
       });
-      onUpdate({ id: value.id, type: value.type, group: value.group, [prop]: v });
     },
-    [onUpdate, value],
+    [],
   );
 
   const handleUpdateRange = useCallback(
     (prop: keyof OptionsState) => (value: number | number[]) => {
       if (value && Array.isArray(value)) {
-        handleUpdate(prop, value as [from: number, to: number]);
+        handleUpdateOptions(prop, value as [from: number, to: number]);
       }
     },
-    [handleUpdate],
+    [handleUpdateOptions],
   );
-
-  useEffect(() => {
-    const entries = Object.entries(options);
-    if (
-      !entries.every(
-        ([k, v]) =>
-          !value[k as keyof OptionsState] || isEqual(value[k as keyof OptionsState], v.value),
-      )
-    ) {
-      setOptions(o => {
-        entries.forEach(([k_, v]) => {
-          const k = k_ as keyof OptionsState;
-          if (o[k]) {
-            o[k] = {
-              ...v,
-              value: value[k],
-            } as OptionsState[typeof k];
-          }
-        });
-        return { ...o };
-      });
-    }
-  }, [options, value]);
 
   useEffect(() => {
     const handleFilteringFields = (data: any) => {
@@ -109,7 +97,7 @@ const useHooks = ({
     });
   }, [dataID]);
 
-  useBuildingFilter({ options, dataID });
+  useBuildingFilter({ options, dataID, onUpdate: handleUpdate });
 
   return {
     options,

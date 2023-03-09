@@ -1,4 +1,5 @@
 import { Group, Template as TemplateType } from "@web/extensions/sidebar/core/types";
+import { ReearthApi } from "@web/extensions/sidebar/types";
 
 export const generalFieldName = {
   idealZoom: "カメラ",
@@ -6,6 +7,7 @@ export const generalFieldName = {
   realtime: "リアルタイム",
   story: "ストーリー",
   timeline: "タイムラインデータ",
+  currentTime: "現在時刻",
   switchGroup: "スイッチグループ",
   buttonLink: "リンクボタン",
   styleCode: "スタイルコード",
@@ -13,6 +15,7 @@ export const generalFieldName = {
   point: "ポイント",
   description: "説明",
   template: "テンプレート",
+  eventField: "エベント",
 };
 
 export const pointFieldName = {
@@ -33,12 +36,13 @@ export const polygonFieldName = {
 };
 
 export const threeDFieldName = {
-  search: "データを検索",
   clipping: "クリッピング",
   buildingFilter: "建物フィルター",
   buildingTransparency: "透明度",
   buildingColor: "色分け",
   buildingShadow: "影",
+  floodColor: "色分け（浸水想定区域）",
+  floodFilter: "浸水想定区域フィルター",
 };
 
 export const polylineFieldName = {
@@ -66,7 +70,9 @@ export type FieldComponent =
   | Story
   | Realtime
   | Timeline
+  | CurrentTime
   | SwitchDataset
+  | EventField
   | Template
   | PointColor
   | PointColorGradient
@@ -76,7 +82,6 @@ export type FieldComponent =
   | PointModel
   | PointStroke
   | PointCSV
-  | Search
   | PolylineColor
   | PolylineColorGradient
   | PolylineStrokeWeight
@@ -87,7 +92,9 @@ export type FieldComponent =
   | BuildingFilter
   | BuildingTransparency
   | BuildingColor
-  | BuildingShadow;
+  | BuildingShadow
+  | FloodColor
+  | FloodFilter;
 
 type FieldBase<T extends keyof typeof fieldName> = {
   id: string;
@@ -95,6 +102,7 @@ type FieldBase<T extends keyof typeof fieldName> = {
   group?: string;
   override?: any;
   cleanseOverride?: any;
+  updatedAt?: Date;
 };
 
 type CameraPosition = {
@@ -121,6 +129,11 @@ export type LegendItem = {
 export type Legend = FieldBase<"legend"> & {
   style: LegendStyleType;
   items?: LegendItem[];
+};
+
+type CurrentTime = FieldBase<"currentTime"> & {
+  date: string;
+  time: string;
 };
 
 type Realtime = FieldBase<"realtime"> & {
@@ -154,6 +167,7 @@ export type SwitchGroup = FieldBase<"switchGroup"> & {
 
 export type SwitchDataset = FieldBase<"switchDataset"> & {
   uiStyle?: "dropdown" | "radio";
+  selected?: ConfigData;
 };
 
 export type ButtonLink = FieldBase<"buttonLink"> & {
@@ -173,6 +187,15 @@ export type Story = FieldBase<"story"> & {
 
 type Template = FieldBase<"template"> & {
   templateID?: string;
+  components?: FieldComponent[];
+};
+
+type EventField = FieldBase<"eventField"> & {
+  eventType: string;
+  triggerEvent: string;
+  urlType: "manual" | "fromData";
+  url?: string;
+  field?: string;
 };
 
 type PointColor = FieldBase<"pointColor"> & {
@@ -196,6 +219,7 @@ type PointSize = FieldBase<"pointSize"> & {
 type PointIcon = FieldBase<"pointIcon"> & {
   url?: string;
   size: number;
+  sizeInMeters: boolean;
 };
 
 type PointLabel = FieldBase<"pointLabel"> & {
@@ -226,8 +250,6 @@ type PointCSV = FieldBase<"pointCSV"> & {
   lat?: string;
   height?: string;
 };
-
-type Search = FieldBase<"search">;
 
 type PolygonColor = FieldBase<"polygonColor"> & {
   items?: {
@@ -276,6 +298,10 @@ type BuildingColor = FieldBase<"buildingColor"> & {
   colorType: string;
 };
 
+type FloodColor = FieldBase<"floodColor"> & { colorType: "water" | "rank" };
+
+type FloodFilter = FieldBase<"floodFilter"> & { rank?: [from: number, to: number] };
+
 type PolylineColor = FieldBase<"polylineColor"> & {
   items?: {
     condition: Cond<number>;
@@ -303,9 +329,11 @@ export type Fields = {
   switchGroup: SwitchGroup;
   buttonLink: ButtonLink;
   story: Story;
+  currentTime: CurrentTime;
   realtime: Realtime;
   timeline: Timeline;
   switchDataset: SwitchDataset;
+  eventField: EventField;
   // point
   pointColor: PointColor;
   pointColorGradient: PointColorGradient;
@@ -325,12 +353,13 @@ export type Fields = {
   polygonStroke: PolygonStroke;
   // 3d-model
   // 3d-tile
-  search: Search;
   clipping: Clipping;
   buildingFilter: BuildingFilter;
   buildingTransparency: BuildingTransparency;
   buildingColor: BuildingColor;
   buildingShadow: BuildingShadow;
+  floodColor: FloodColor;
+  floodFilter: FloodFilter;
   // template
   template: Template;
 };
@@ -345,6 +374,7 @@ export type BaseFieldProps<T extends keyof Fields> = {
   configData?: ConfigData[];
   onUpdate: (property: Fields[T]) => void;
   onCurrentGroupUpdate: (fieldGroupID: string) => void;
+  onSceneUpdate: (updatedProperties: Partial<ReearthApi>) => void;
 };
 
 export type ConfigData = { name: string; type: string; url: string; layers?: string[] };
@@ -364,7 +394,7 @@ export type Expression<T extends string | number | boolean = string | number | b
 
 export type Cond<T> = {
   key: string;
-  operator: "===" | ">=" | "<=" | ">" | "<" | "!==" | "";
+  operator: "===" | ">=" | "<=" | ">" | "<" | "!==";
   operand: T;
   value: T;
 };

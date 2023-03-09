@@ -7,13 +7,6 @@ import { Template } from "../../../types";
 
 import TemplateCard from "./TemplateCard";
 
-/*
-[
-    { name: "建物モデル", fields: [{ title: "Filter" }] },
-    { name: "ランドマーク", fields: [{ title: "Display" }, { title: "search" }] },
-  ] 
-  */
-
 export type Props = {
   templates: Template[];
   savingTemplate: boolean;
@@ -45,7 +38,6 @@ const Templates: React.FC<Props> = ({
   }, []);
 
   const handleTemplateUpdate = useCallback((updatedTemplate: Template) => {
-    console.log("updatedTemplate", updatedTemplate);
     changeSelectedTemplate(updatedTemplate);
   }, []);
 

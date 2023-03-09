@@ -12,7 +12,6 @@ import groupSelectPopupHtml from "../dist/web/sidebar/popups/groupSelect/index.h
 import helpPopupHtml from "../dist/web/sidebar/popups/help/index.html?raw";
 import mobileDropdownHtml from "../dist/web/sidebar/popups/mobileDropdown/index.html?raw";
 
-import { getRGBAFromString, RGBA, rgbaToString } from "./utils/color";
 import { proxyGTFS } from "./utils/proxy";
 
 const defaultProject: Project = {
@@ -73,16 +72,6 @@ const mobileLocation = { zone: "outer", section: "center", area: "top" };
 let dataCatalog: DataCatalogItem[] = [];
 
 let addedDatasets: [dataID: string, status: "showing" | "hidden", layerID?: string][] = [];
-
-// For storing 3dtiles color
-const colorStoreFor3dtiles: {
-  [dataID: string]:
-    | {
-        color?: string | { expression: { conditions: [expression: string, color: string][] } };
-        transparency?: number;
-      }
-    | undefined;
-} = {};
 
 const sidebarInstance: PluginExtensionInstance = reearth.plugins.instances.find(
   (i: PluginExtensionInstance) => i.id === reearth.widget.id,
@@ -151,7 +140,7 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
     reearth.clientStorage.getAsync("isMobile").then((isMobile: boolean) => {
       reearth.clientStorage.getAsync("draftProject").then((draftProject: Project) => {
         const outBoundPayload = {
-          projectID: reearth.viewport.query.projectID,
+          projectID: reearth.viewport.query.share || reearth.viewport.query.projectID,
           inEditor: reearth.scene.inEditor,
           catalogURL: reearth.widget.property.default?.catalogURL ?? "",
           catalogProjectName: reearth.widget.property.default?.catalogProjectName ?? "",
@@ -351,6 +340,16 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
         },
       },
     });
+  } else if (action === "getOverriddenLayerByDataID") {
+    const { dataID } = payload;
+    const layerID = addedDatasets.find(l => l[0] === dataID)?.[2];
+    const overriddenLayer = reearth.layers.overridden.find((l: any) => l.id === layerID);
+    reearth.ui.postMessage({
+      action,
+      payload: {
+        overriddenLayer,
+      },
+    });
   }
 
   // ************************************************
@@ -409,122 +408,6 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
       },
     });
   }
-
-  const override3dtiles = (
-    dataID: string,
-    property: Record<string, any>,
-    clippingBox?: Record<string, any>,
-  ) => {
-    const tilesetLayerID = addedDatasets.find(a => a[0] === dataID)?.[2];
-    reearth.layers.override(tilesetLayerID, {
-      "3dtiles": property,
-      ...(clippingBox ? { box: clippingBox } : {}),
-    });
-  };
-
-  // For clipping box
-  if (action === "updateClippingBox") {
-    const { dataID, box, clipping } = payload;
-    override3dtiles(dataID, { experimental_clipping: { ...clipping, useBuiltinBox: true } }, box);
-  } else if (action === "removeClippingBox") {
-    const { dataID } = payload;
-
-    override3dtiles(dataID, {
-      experimental_clipping: undefined,
-    });
-  }
-  // For 3dtiles show
-  if (action === "update3dtilesShow") {
-    const { dataID, show } = payload;
-    override3dtiles(dataID, { show });
-  } else if (action === "reset3dtilesShow") {
-    const { dataID } = payload;
-
-    override3dtiles(dataID, {
-      show: true,
-    });
-  }
-
-  // For 3dtiles shadow
-  if (action === "update3dtilesShadow") {
-    const { dataID, shadows } = payload;
-    override3dtiles(dataID, { shadows });
-  } else if (action === "reset3dtilesShadow") {
-    const { dataID } = payload;
-    override3dtiles(dataID, { shadows: "enabled" });
-  }
-
-  // For 3dtiles transparency
-  if (action === "update3dtilesTransparency") {
-    const { dataID, transparency } = payload;
-    const storedObj = colorStoreFor3dtiles[dataID];
-    const color = storedObj?.color;
-    colorStoreFor3dtiles[dataID] = {
-      ...(storedObj || {}),
-      transparency,
-    };
-
-    const defaultRGBA = rgbaToString([255, 255, 255, transparency]);
-    const expression = (() => {
-      if (!color) {
-        return defaultRGBA;
-      }
-      if (typeof color === "string") {
-        const rgba = getRGBAFromString(color);
-        return rgba ? rgbaToString([...rgba.slice(0, -1), transparency] as RGBA) : defaultRGBA;
-      }
-      return {
-        expression: {
-          conditions: color.expression.conditions.map(([k, v]: [string, string]) => {
-            const rgba = getRGBAFromString(v);
-            if (!rgba) {
-              return [k, defaultRGBA];
-            }
-            const composedRGBA = [...rgba.slice(0, -1), transparency] as RGBA;
-            return [k, rgbaToString(composedRGBA)];
-          }),
-        },
-      };
-    })();
-    override3dtiles(dataID, { color: expression });
-  } else if (action === "reset3dtilesTransparency") {
-    const { dataID } = payload;
-    const storedObj = colorStoreFor3dtiles[dataID];
-    delete colorStoreFor3dtiles[dataID]?.transparency;
-    override3dtiles(dataID, { color: storedObj?.color || "rgba(255, 255, 255, 1)" });
-  }
-  // For 3dtiles color
-  if (action === "update3dtilesColor") {
-    const { dataID, color } = payload;
-    const storedObj = colorStoreFor3dtiles[dataID];
-    const transparency = storedObj?.transparency;
-    colorStoreFor3dtiles[dataID] = {
-      ...(storedObj || {}),
-      color,
-    };
-
-    const expression = {
-      ...color,
-      expression: {
-        ...color.expression,
-        conditions: color.expression.conditions.map(([k, v]: [string, string]) => {
-          const rgba = getRGBAFromString(v);
-          if (!rgba) {
-            return [k, v];
-          }
-          const composedRGBA = [...rgba.slice(0, -1), transparency || rgba[3]] as RGBA;
-          return [k, rgbaToString(composedRGBA)];
-        }),
-      },
-    };
-    override3dtiles(dataID, { color: expression, colorBlendMode: "replace" });
-  } else if (action === "reset3dtilesColor") {
-    const { dataID } = payload;
-    const storedObj = colorStoreFor3dtiles[dataID];
-    delete colorStoreFor3dtiles[dataID]?.color;
-    override3dtiles(dataID, { color: `rgba(255, 255, 255, ${storedObj?.transparency || 1})` });
-  }
-  // ************************************************
 });
 
 reearth.on("update", () => {
@@ -581,53 +464,72 @@ reearth.on("pluginmessage", (pluginMessage: PluginMessage) => {
   }
 });
 
-let currentClickedFeatureId: string;
+let currentSelectedFeatureId: string;
 
 reearth.on("select", (selected: string | undefined) => {
+  const prevSelected = currentSelected ?? selected;
   // this is used for infobox
   currentSelected = selected;
 
-  const feature = reearth.layers.selectedFeature;
-  currentClickedFeatureId = feature
-    ? feature?.properties?.gml_id // For 3dtiles
-    : undefined;
+  const featureId = reearth.layers.selectedFeature?.properties?.gml_id; // For 3dtiles
+  const prevSelectedFeatureId = currentSelectedFeatureId ?? featureId;
+  currentSelectedFeatureId = featureId;
 
   let nextConditions: any[] | undefined;
-  let shouldUpdateTilesetColor = true;
+  let shouldUpdateTilesetColor = false;
 
   // Reset previous select color for 3dtiles
-  const prevOverriddenLayer = reearth.layers.overridden.find((l: any) => l.id === selected);
-  const prevCondition = prevOverriddenLayer?.["3dtiles"].color?.expression?.conditions;
-  if (
-    currentClickedFeatureId &&
-    prevOverriddenLayer &&
-    prevOverriddenLayer.data.type === "3dtiles"
-  ) {
-    shouldUpdateTilesetColor = !prevCondition?.find(
-      (c: [string, string]) => c[0] === `\${gml_id} === "${currentClickedFeatureId}"`,
+  const prevOverriddenLayer = reearth.layers.overridden.find((l: any) => l.id === prevSelected);
+  const prevCondition = prevOverriddenLayer?.["3dtiles"]?.color?.expression?.conditions;
+  if (prevOverriddenLayer && prevOverriddenLayer.data.type === "3dtiles") {
+    shouldUpdateTilesetColor =
+      !!currentSelectedFeatureId &&
+      !prevCondition?.find(
+        (c: [string, string]) => c[0] === `\${gml_id} === "${currentSelectedFeatureId}"`,
+      );
+    nextConditions = prevCondition?.filter(
+      (c: [string, string]) => !c[0].startsWith('${gml_id} === "'),
     );
-    nextConditions =
-      prevCondition?.filter((c: [string, string]) => !c[0].startsWith('${gml_id} === "')) ?? [];
+  }
+
+  if (
+    !currentSelected &&
+    !currentSelectedFeatureId &&
+    prevOverriddenLayer.data.type === "3dtiles" &&
+    prevSelectedFeatureId &&
+    prevCondition?.find(
+      (c: [string, string]) => c[0] === `\${gml_id} === "${prevSelectedFeatureId}"`,
+    )
+  ) {
+    reearth.layers.override(prevSelected, {
+      "3dtiles": {
+        color: {
+          expression: {
+            conditions: nextConditions ? nextConditions : [["true", "color('white')"]],
+          },
+        },
+      },
+    });
+    return;
   }
 
   // Handle select color for 3dtiles
-  const overriddenLayer = reearth.layers.overridden.find((l: any) => l.id === selected);
+  const overriddenLayer = reearth.layers.overridden.find((l: any) => l.id === currentSelected);
   if (
-    !feature ||
-    overriddenLayer?.data?.type !== "3dtiles" ||
-    !currentClickedFeatureId ||
-    !shouldUpdateTilesetColor
+    overriddenLayer?.data?.type === "3dtiles" &&
+    currentSelectedFeatureId &&
+    shouldUpdateTilesetColor
   ) {
-    return;
-  } else {
-    reearth.layers.override(selected, {
+    reearth.layers.override(currentSelected, {
       "3dtiles": {
         color: {
           expression: {
             conditions: [
-              [`\${gml_id} === "${currentClickedFeatureId}"`, "color('red')"],
+              [`\${gml_id} === "${currentSelectedFeatureId}"`, "color('red')"],
               ...(nextConditions ??
-                (overriddenLayer?.["3dtiles"]?.color?.expression?.conditions || [])),
+                overriddenLayer?.["3dtiles"]?.color?.expression?.conditions ?? [
+                  ["true", "color('white')"],
+                ]),
             ],
           },
         },
@@ -649,30 +551,45 @@ function createLayer(dataset: DataCatalogItem, overrides?: any) {
       type: format,
       url: dataset.config?.data?.[0].url ?? dataset.url,
       layers: dataset.config?.data?.[0].layers ?? dataset.layers,
+      ...(format === "wms" ? { parameters: { transparent: "true", format: "image/png" } } : {}),
+      ...(["luse", "lsld", "urf"].includes(dataset.type_en)
+        ? { jsonProperties: ["attributes"] }
+        : {}),
       ...(overrides?.data || {}),
     },
     visible: true,
-    infobox:
-      format === "3dtiles"
-        ? {
-            blocks: [
-              {
-                pluginId: reearth.plugins.instances.find(
-                  (i: PluginExtensionInstance) => i.name === "plateau-plugin",
-                ).pluginId,
-                extensionId: "infobox",
-              },
-            ],
-            property: {
-              default: {
-                bgcolor: "#d9d9d9ff",
-                heightType: "auto",
-                showTitle: false,
-                size: "medium",
-              },
+    infobox: [
+      "bldg",
+      "tran",
+      "frn",
+      "veg",
+      "luse",
+      "lsld",
+      "urf",
+      "fld",
+      "htd",
+      "tnm",
+      "ifld",
+    ].includes(dataset.type_en)
+      ? {
+          blocks: [
+            {
+              pluginId: reearth.plugins.instances.find(
+                (i: PluginExtensionInstance) => i.name === "plateau-plugin",
+              ).pluginId,
+              extensionId: "infobox",
             },
-          }
-        : null,
+          ],
+          property: {
+            default: {
+              bgcolor: "#d9d9d9ff",
+              heightType: "auto",
+              showTitle: false,
+              size: "medium",
+            },
+          },
+        }
+      : null,
     ...(overrides !== undefined
       ? omit(overrides, "data")
       : format === "geojson"
@@ -681,9 +598,18 @@ function createLayer(dataset: DataCatalogItem, overrides?: any) {
             style: "point",
             pointSize: 10,
             pointColor: "white",
+            heightReference: "clamp",
           },
-          polygon: {},
-          polyline: {},
+          polygon: {
+            fill: false,
+            stroke: true,
+            strokeWidth: 5,
+            heightReference: "clamp",
+            clampToGround: true,
+          },
+          polyline: {
+            clampToGround: true,
+          },
         }
       : format === "gtfs"
       ? proxyGTFS(overrides)
@@ -692,7 +618,12 @@ function createLayer(dataset: DataCatalogItem, overrides?: any) {
           polygon: {},
         }
       : format === "czml"
-      ? { resource: {} }
+      ? {
+          resource: {},
+          marker: { heightReference: "clamp" },
+          polyline: { clampToGround: true },
+          polygon: { clampToGround: true },
+        }
       : { ...(overrides ?? {}) }),
   };
 }

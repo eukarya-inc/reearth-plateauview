@@ -2,7 +2,7 @@ import { DataCatalogItem, Group, Template } from "@web/extensions/sidebar/core/t
 import { generateID, moveItemDown, moveItemUp } from "@web/extensions/sidebar/utils";
 import { useCallback, useEffect, useState } from "react";
 
-import { mergeOverrides } from "../../../hooks";
+import { mergeOverrides } from "../../../hooks/utils";
 
 import generateFieldComponentsList, { cleanseOverrides } from "./Field/fieldHooks";
 
@@ -27,7 +27,7 @@ export default ({
       ? (!dataset.components?.find(c => c.type === "switchGroup") || !dataset.fieldGroups
           ? dataset.components
           : dataset.components.filter(
-              c => (c.group && c.group === selectedGroup) || c.type === "switchGroup",
+              c => (c.group && c.group === selectedGroup) || c.type === "switchGroup" || !c.group,
             )
         )
           ?.filter(c => !(!dataset.config?.data && c.type === "switchDataset"))
@@ -72,7 +72,7 @@ export default ({
 
       if (!newDatasetComponents || componentIndex === undefined) return;
 
-      newDatasetComponents[componentIndex] = property;
+      newDatasetComponents[componentIndex] = { ...property };
 
       onDatasetUpdate?.({
         ...dataset,
