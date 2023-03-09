@@ -105,30 +105,43 @@ export default ({
 
   const handleDatasetPublish = useCallback(
     (dataID: string, publish: boolean) => {
-      (async () => {
-        if (!inEditor || !processedCatalog) return;
-        const dataset = processedCatalog.find(item => item.dataID === dataID);
+      if (!inEditor || !processedCatalog) return;
+      const dataset = processedCatalog.find(item => item.dataID === dataID);
 
-        if (!dataset) return;
+      if (!dataset) return;
 
-        dataset.public = publish;
+      dataset.public = publish;
 
-        updateProject?.(project => {
-          const updatedDatasets = [...project.datasets];
-          const datasetIndex = updatedDatasets.findIndex(d2 => d2.dataID === dataID);
-          if (datasetIndex >= 0) {
-            updatedDatasets[datasetIndex] = dataset;
-          }
-          return {
-            ...project,
-            datasets: updatedDatasets,
-          };
-        });
+      updateProject?.(project => {
+        const updatedDatasets = [...project.datasets];
+        const datasetIndex = updatedDatasets.findIndex(d2 => d2.dataID === dataID);
+        if (datasetIndex >= 0) {
+          updatedDatasets[datasetIndex] = dataset;
+        }
+        return {
+          ...project,
+          datasets: updatedDatasets,
+        };
+      });
 
-        await handleDataRequest(dataset);
-      })();
+      handleDataRequest(dataset);
+
+      if (dataset.dataID) {
+        fetch(`${backendURL}/publish_to_geospatialjp`, {
+          headers: {
+            authorization: `Bearer ${backendAccessToken}`,
+          },
+          method: "POST",
+          body: JSON.stringify(`{"id": ${dataset.dataID}}`),
+        })
+          .then(r => {
+            if (!r.ok)
+              throw `failed to publish the data on gspatial.jp: status code is ${r.statusText}`;
+          })
+          .catch(console.error);
+      }
     },
-    [processedCatalog, inEditor, updateProject, handleDataRequest],
+    [processedCatalog, inEditor, backendAccessToken, backendURL, updateProject, handleDataRequest],
   );
 
   return {
