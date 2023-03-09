@@ -1,8 +1,6 @@
-// import TEST_FIELDS from "@web/extensions/infobox/TEST_FIELDS";
 import type { Field } from "@web/extensions/infobox/types";
 import { Button } from "@web/sharedComponents";
 import { styled } from "@web/theme";
-import { useCallback } from "react";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 
@@ -25,10 +23,6 @@ const FieldsEditor: React.FC<Props> = ({
   onFieldMove,
   saveTemplate,
 }) => {
-  const onSave = useCallback(() => {
-    saveTemplate();
-  }, [saveTemplate]);
-
   return (
     <Wrapper>
       <FieldsHeader>
@@ -37,7 +31,7 @@ const FieldsEditor: React.FC<Props> = ({
           <JsonPath>Key</JsonPath>
           <Title>
             Display Title
-            <StyledButton size="small" onClick={onSave} loading={isSaving}>
+            <StyledButton size="small" onClick={saveTemplate} loading={isSaving}>
               保存
             </StyledButton>
           </Title>
