@@ -12,6 +12,7 @@ export default ({
   backendURL,
   backendProjectName,
   backendAccessToken,
+  publishToGeospatial,
   inEditor,
   processedCatalog,
   setCleanseOverride,
@@ -24,6 +25,7 @@ export default ({
   backendURL?: string;
   backendProjectName?: string;
   backendAccessToken?: string;
+  publishToGeospatial?: boolean;
   inEditor?: boolean;
   processedCatalog: DataCatalogItem[];
   setCleanseOverride?: React.Dispatch<React.SetStateAction<string | undefined>>;
@@ -126,7 +128,7 @@ export default ({
 
       handleDataRequest(dataset);
 
-      if (dataset.itemId && backendURL && backendAccessToken) {
+      if (publishToGeospatial && dataset.itemId && backendURL && backendAccessToken) {
         fetch(`${backendURL}/publish_to_geospatialjp`, {
           headers: {
             authorization: `Bearer ${backendAccessToken}`,
@@ -141,7 +143,15 @@ export default ({
           .catch(console.error);
       }
     },
-    [processedCatalog, inEditor, backendAccessToken, backendURL, updateProject, handleDataRequest],
+    [
+      processedCatalog,
+      inEditor,
+      backendAccessToken,
+      backendURL,
+      publishToGeospatial,
+      updateProject,
+      handleDataRequest,
+    ],
   );
 
   return {
