@@ -95,7 +95,7 @@ const NoDataFooter = styled.div`
   align-items: center;
   gap: 4px;
   margin: 0;
-  color: #00bebe;
+  color: var(--theme-color);
   cursor: pointer;
 `;
 

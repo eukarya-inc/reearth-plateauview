@@ -273,7 +273,7 @@ const DatasetCard: React.FC<Props> = ({
           <Content>
             {baseFields.map((field, idx) => (
               <BaseField key={idx} onClick={field.onClick}>
-                {field.icon && <Icon icon={field.icon} size={20} color="#00BEBE" />}
+                {field.icon && <Icon icon={field.icon} size={20} color="var(--theme-color)" />}
                 {field.title && <FieldName>{field.title}</FieldName>}
               </BaseField>
             ))}

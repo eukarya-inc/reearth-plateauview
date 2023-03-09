@@ -146,7 +146,7 @@ const CloseButton = styled(Icon)`
   height: 48px;
   width: 48px;
   border: none;
-  background: #00bebe;
+  background: var(--theme-color);
   color: white;
   cursor: pointer;
 `;
@@ -159,7 +159,7 @@ const ButtonWrapper = styled.div<{ selected?: boolean }>`
   padding: 10px;
   width: 100%;
   height: 41px;
-  background: ${({ selected }) => (selected ? "#d1d1d1" : "#00bebe")};
+  background: ${({ selected }) => (selected ? "#d1d1d1" : "var(--theme-color)")};
   border-radius: 4px;
   border: none;
   gap: 8px;

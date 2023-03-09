@@ -79,7 +79,7 @@ const Paragraph = styled.p`
 
 const InlineIcon = styled(Icon)`
   display: inline-block;
-  color: #00bebe;
+  color: var(--theme-color);
 `;
 const TopWrapper = styled.div`
   display: flex;

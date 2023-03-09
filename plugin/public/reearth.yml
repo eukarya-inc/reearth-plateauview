@@ -29,6 +29,17 @@ extensions:
             - id: reearthURL
               type: string
               title: Re:Earth Project Public URL
+        - id: customize
+          title: Customize
+          fields:
+            - id: logo
+              type: url
+              title: Project Logo
+              ui: image
+            - id: color
+              type: string
+              title: Theme Color
+              ui: color
     widgetLayout:
       defaultLocation:
         zone: outer

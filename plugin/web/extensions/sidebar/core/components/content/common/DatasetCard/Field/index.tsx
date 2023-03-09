@@ -151,7 +151,7 @@ const FieldComponent: React.FC<Props> = ({
                   <RightContents>
                     <StyledIcon
                       icon="group"
-                      color={field.group ? "#00BEBE" : "inherit"}
+                      color={field.group ? "var(--theme-color)" : "inherit"}
                       size={16}
                       onClick={handleGroupSelectOpen}
                     />

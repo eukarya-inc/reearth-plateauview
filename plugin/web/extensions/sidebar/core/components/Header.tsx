@@ -118,7 +118,7 @@ const MinimizeButton = styled.div<{ minimized?: boolean }>`
   border: none;
   height: 32px;
   width: 32px;
-  background: #00bebe;
+  background: var(--theme-color);
   cursor: pointer;
   transition: background 0.3s;
   color: white;
@@ -137,13 +137,13 @@ const IconWrapper = styled.div<{ current?: boolean }>`
   padding: 6px;
   border-bottom-style: solid;
   border-bottom-width: 1px;
-  border-bottom-color: ${({ current }) => (current ? "#00bebe" : "transparent")};
-  color: ${({ current }) => (current ? "#00bebe" : "#C7C5C5")};
+  border-bottom-color: ${({ current }) => (current ? "var(--theme-color)" : "transparent")};
+  color: ${({ current }) => (current ? "var(--theme-color)" : "#C7C5C5")};
   transition: border-bottom-color 0.5s, color 0.5s;
 
   :hover {
-    border-bottom-color: #00bebe;
-    color: #00bebe;
+    border-bottom-color: var(--theme-color);
+    color: var(--theme-color);
   }
 `;
 

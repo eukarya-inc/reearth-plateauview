@@ -38,7 +38,7 @@ export default ({
         name: fieldName["legend"],
         onClick: onFieldAdd({
           style: "square",
-          items: [{ title: "新しいアイテム", color: "#00bebe" }],
+          items: [{ title: "新しいアイテム", color: "var(--theme-color)" }],
         }),
       },
       realtime: {

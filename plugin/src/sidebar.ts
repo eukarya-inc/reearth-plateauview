@@ -148,6 +148,8 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
           backendURL: reearth.widget.property.default?.plateauURL ?? "",
           backendProjectName: reearth.widget.property.default?.projectName ?? "",
           backendAccessToken: reearth.widget.property.default?.plateauAccessToken ?? "",
+          logoImage: reearth.widget.property.customize.logo ?? "",
+          primaryColor: reearth.widget.property.customize.color ?? "",
           draftProject,
         };
         if (isMobile) {

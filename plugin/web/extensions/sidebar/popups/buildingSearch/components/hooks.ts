@@ -395,7 +395,7 @@ export default () => {
   );
 
   useEffect(() => {
-    document.documentElement.style.setProperty("--theme-color", "#00BEBE");
+    document.documentElement.style.setProperty("--theme-color", "var(--theme-color)");
     onInit((window as any).buildingSearchInit);
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
