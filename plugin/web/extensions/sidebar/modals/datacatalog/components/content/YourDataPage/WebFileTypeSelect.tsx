@@ -8,12 +8,34 @@ export type FileType =
   | "csv"
   | "czml"
   | "gpx"
-  // | "json"
   | "georss"
   | "shapefile";
 
 type Props = {
   onFileTypeSelect: (value: string) => void;
+};
+
+const SUPPORTED_TYPES: Record<string, string> = {
+  zip: "shapefile",
+  wms: "wms",
+  gpx: "gpx",
+  czml: "czml",
+  xml: "georss",
+  mvt: "mvt",
+  kml: "kml",
+  geojson: "geojson",
+  gtfs: "gtfs",
+  csv: "csv",
+  "tileset.json": "3dtiles",
+};
+
+export const getSupportedType = (url: string): string | undefined => {
+  for (const key in SUPPORTED_TYPES) {
+    if (url.includes(key)) {
+      return SUPPORTED_TYPES[key];
+    }
+  }
+  return undefined;
 };
 
 const FileTypeSelect: React.FC<Props> = ({ onFileTypeSelect }) => {
@@ -50,10 +72,6 @@ const FileTypeSelect: React.FC<Props> = ({ onFileTypeSelect }) => {
       value: "3dtiles",
       label: "3D Tiles",
     },
-    // {
-    //   value: "json",
-    //   label: "JSON",
-    // },
     {
       value: "georss",
       label: "GeoRSS",
