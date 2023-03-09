@@ -15,6 +15,7 @@ export const generalFieldName = {
   point: "ポイント",
   description: "説明",
   template: "テンプレート",
+  eventField: "エベント",
 };
 
 export const pointFieldName = {
@@ -71,6 +72,7 @@ export type FieldComponent =
   | Timeline
   | CurrentTime
   | SwitchDataset
+  | EventField
   | Template
   | PointColor
   | PointColorGradient
@@ -188,6 +190,14 @@ type Template = FieldBase<"template"> & {
   components?: FieldComponent[];
 };
 
+type EventField = FieldBase<"eventField"> & {
+  eventType: string;
+  triggerEvent: string;
+  urlType: "manual" | "fromData";
+  url?: string;
+  field?: string;
+};
+
 type PointColor = FieldBase<"pointColor"> & {
   pointColors?: {
     condition: Cond<number>;
@@ -288,7 +298,7 @@ type BuildingColor = FieldBase<"buildingColor"> & {
   colorType: string;
 };
 
-type FloodColor = FieldBase<"floodColor">;
+type FloodColor = FieldBase<"floodColor"> & { colorType: "water" | "rank" };
 
 type FloodFilter = FieldBase<"floodFilter"> & { rank?: [from: number, to: number] };
 
@@ -323,6 +333,7 @@ export type Fields = {
   realtime: Realtime;
   timeline: Timeline;
   switchDataset: SwitchDataset;
+  eventField: EventField;
   // point
   pointColor: PointColor;
   pointColorGradient: PointColorGradient;

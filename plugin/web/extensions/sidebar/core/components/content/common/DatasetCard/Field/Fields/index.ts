@@ -10,6 +10,7 @@ import FloodFilter from "./3dtiles/FloodFilter";
 import ButtonLink from "./general/ButtonLink";
 import CurrentTime from "./general/CurrentTime";
 import Description from "./general/Description";
+import EventField from "./general/EventField";
 import IdealZoom from "./general/IdealZoom";
 import Legend from "./general/Legend";
 import Realtime from "./general/Realtime";
@@ -52,6 +53,7 @@ const fields: Fields<FieldComponent> = {
   timeline: { Component: Timeline, hasUI: true },
   currentTime: { Component: CurrentTime, hasUI: false },
   switchDataset: { Component: SwitchDataset, hasUI: true },
+  eventField: { Component: EventField, hasUI: false },
   // point
   pointColor: { Component: PointColor, hasUI: false },
   pointColorGradient: { Component: PointColorGradient, hasUI: false },
@@ -75,7 +77,7 @@ const fields: Fields<FieldComponent> = {
   buildingTransparency: { Component: BuildingTransparency, hasUI: true },
   buildingColor: { Component: BuildingColor, hasUI: true },
   buildingShadow: { Component: BuildingShadow, hasUI: true },
-  floodColor: { Component: FloodColor, hasUI: false },
+  floodColor: { Component: FloodColor, hasUI: true },
   floodFilter: { Component: FloodFilter, hasUI: true },
   // 3d-model
   template: { Component: Template, hasUI: true },

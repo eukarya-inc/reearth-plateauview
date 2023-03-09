@@ -82,6 +82,14 @@ export default ({
         name: fieldName["template"],
         onClick: onFieldAdd({}),
       },
+      eventField: {
+        name: fieldName["eventField"],
+        onClick: onFieldAdd({
+          eventType: "select",
+          triggerEvent: "openUrl",
+          urlType: "manual",
+        }),
+      },
     };
   }, [fieldGroups, onFieldAdd]);
 
@@ -195,7 +203,9 @@ export default ({
       },
       floodColor: {
         name: fieldName["floodColor"],
-        onClick: onFieldAdd({}),
+        onClick: onFieldAdd({
+          colorType: "water",
+        }),
       },
       floodFilter: {
         name: fieldName["floodFilter"],
@@ -232,6 +242,7 @@ export default ({
 
 export const cleanseOverrides: { [key: string]: any } = {
   switchDataset: { data: { url: undefined } },
+  eventField: { events: undefined },
   pointSize: { marker: { pointSize: 10 } },
   pointColor: { marker: { pointColor: "white" } },
   pointIcon: {
@@ -239,7 +250,7 @@ export const cleanseOverrides: { [key: string]: any } = {
       style: "point",
       image: undefined,
       imageSize: undefined,
-      sizeInMeters: undefined,
+      imageSizeInMeters: undefined,
     },
   },
   pointLabel: {
