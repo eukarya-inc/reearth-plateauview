@@ -126,7 +126,10 @@ export default () => {
       if (e.source !== parent) return;
       if (e.data.action === "msgFromModal") {
         if (e.data.payload.dataset) {
-          handleProjectDatasetAdd(e.data.payload.dataset);
+          handleProjectDatasetAdd({
+            ...e.data.payload.dataset,
+            visible: e.data.payload.dataset?.visible ?? true,
+          });
         }
       } else if (e.data.action === "init" && e.data.payload) {
         setProjectID(e.data.payload.projectID);
