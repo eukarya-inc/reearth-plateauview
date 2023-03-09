@@ -88,7 +88,15 @@ reearth.clientStorage.getAsync("draftProject").then((draftProject: Project) => {
     (sidebarInstance.runTimes === 2 && reearth.viewport.isMobile && draftProject === defaultProject)
   ) {
     reearth.visualizer.overrideProperty(defaultProject.sceneOverrides);
-    reearth.clientStorage.setAsync("draftProject", defaultProject);
+    reearth.visualizer.overrideProperty({
+      ...defaultProject.sceneOverrides,
+      default: {
+        ...defaultProject.sceneOverrides.default,
+        camera:
+          reearth.scene.property?.default?.camera ??
+          defaultProject?.sceneOverrides?.default?.camera,
+      },
+    });
 
     if (reearth.viewport.isMobile) {
       reearth.clientStorage.setAsync("isMobile", true);
