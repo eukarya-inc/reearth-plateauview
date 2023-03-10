@@ -592,7 +592,7 @@ function createLayer(dataset: DataCatalogItem, overrides?: any) {
         }
       : null,
     ...(overrides !== undefined
-      ? omit(overrides, "data")
+      ? omit({ ...defaultOverrides, ...overrides }, "data")
       : format === "geojson"
       ? {
           marker: {
@@ -628,3 +628,9 @@ function createLayer(dataset: DataCatalogItem, overrides?: any) {
       : { ...(overrides ?? {}) }),
   };
 }
+const defaultOverrides = {
+  resource: {},
+  marker: { heightReference: "clamp" },
+  polyline: { clampToGround: true },
+  polygon: { clampToGround: true },
+};
