@@ -42,7 +42,7 @@ const AccordionComponent: React.FC<Props> = ({
   const [isExpanded, toggleExpanded] = useState(true);
 
   return (
-    <StyledAccordionComponent allowZeroExpanded preExpanded={[id]} hide={!editMode && !!hasUI}>
+    <StyledAccordionComponent allowZeroExpanded preExpanded={[id]} hide={!editMode && !hasUI}>
       <AccordionItem uuid={id} dangerouslySetExpanded={isExpanded}>
         <AccordionItemState>
           {({ expanded }) => (
