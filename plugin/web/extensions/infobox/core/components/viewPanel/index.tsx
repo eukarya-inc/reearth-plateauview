@@ -6,13 +6,14 @@ import PropertyBrowser from "../common/PropertyBrowser";
 type Props = {
   properties?: Properties;
   fields: Field[];
+  dataType?: string;
 };
 
-const ViewPanel: React.FC<Props> = ({ properties, fields }) => {
+const ViewPanel: React.FC<Props> = ({ properties, fields, dataType }) => {
   return (
     <>
       <Header>
-        <Title>建物情報</Title>
+        <Title>{dataType || "属性情報"}</Title>
       </Header>
       <PropertyBrowser properties={properties} fields={fields} />
     </>

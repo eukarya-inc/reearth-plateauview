@@ -1,10 +1,22 @@
 import update from "immutability-helper";
-import { useCallback, useEffect, useState, useRef } from "react";
+import { useCallback, useEffect, useState, useRef, useMemo } from "react";
 
 import { postMsg, commonProperties } from "../core/utils";
 import { InfoboxTemplate, Properties, Field } from "../types";
 
+import getAttributes from "./attributes";
+
 export type EditorTab = "view" | "edit";
+
+type MessageData =
+  | { action: "getInEditor"; payload: boolean }
+  | {
+      action: "fillData";
+      payload: { template: InfoboxTemplate; properties: Properties };
+    }
+  | { action: "setLoading" }
+  | { action: "setEmpty" }
+  | { action: "saveFinish" };
 
 export default () => {
   const [template, setTemplate] = useState<InfoboxTemplate | undefined>();
@@ -15,6 +27,17 @@ export default () => {
   const [dataState, setDataState] = useState<"loading" | "empty" | "ready">("loading");
   const [isSaving, setIsSaving] = useState<boolean>(false);
   const [inEditor, setInEditor] = useState(false);
+
+  const actualProperties = useMemo(
+    () =>
+      properties
+        ? {
+            ...(properties.attributes ? { attributes: getAttributes(properties.attributes) } : {}),
+            ...properties,
+          }
+        : undefined,
+    [properties],
+  );
 
   const handleEditorTab = useCallback((tab: EditorTab) => {
     setEditorTab(tab);
@@ -99,7 +122,7 @@ export default () => {
     });
   }, [fields, template]);
 
-  const onMessage = useCallback((e: MessageEvent<any>) => {
+  const onMessage = useCallback((e: MessageEvent<MessageData>) => {
     if (e.source !== parent) return;
     switch (e.data.action) {
       case "getInEditor":
@@ -165,7 +188,7 @@ export default () => {
   return {
     inEditor,
     dataState,
-    properties,
+    properties: actualProperties,
     fields,
     template,
     wrapperRef,
