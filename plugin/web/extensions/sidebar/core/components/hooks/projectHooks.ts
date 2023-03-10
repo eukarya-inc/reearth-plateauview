@@ -4,7 +4,7 @@ import { generateID, mergeProperty, postMsg } from "@web/extensions/sidebar/util
 import { merge } from "lodash";
 import { useCallback, useEffect, useRef, useState } from "react";
 
-import { Data, DataCatalogItem, Template } from "../../types";
+import { BuildingSearch, Data, DataCatalogItem, Template } from "../../types";
 import {
   FieldComponent,
   StoryItem,
@@ -54,11 +54,13 @@ export default ({
   backendURL,
   backendProjectName,
   processedCatalog,
+  buildingSearch,
 }: {
   fieldTemplates?: Template[];
   backendURL?: string;
   backendProjectName?: string;
   processedCatalog: DataCatalogItem[];
+  buildingSearch?: BuildingSearch;
 }) => {
   const [projectID, setProjectID] = useState<string>();
   const [project, updateProject] = useState<Project>(defaultProject);
@@ -103,6 +105,15 @@ export default ({
           return [...acc, ...(Array.isArray(field) ? field : [field])];
         }, []);
 
+      const buildingSearchField = buildingSearch?.find(b => b.dataID === dataset.dataID);
+      if (buildingSearchField) {
+        if (buildingSearchField.active) {
+          activeFields?.push(buildingSearchField.field as FieldComponent);
+        } else {
+          inactivefields?.push(buildingSearchField.cleanseField as FieldComponent);
+        }
+      }
+
       const cleanseOverrides = mergeOverrides("cleanse", inactivefields, cleanseOverride);
       overrides = mergeOverrides("update", activeFields, cleanseOverrides);
 
@@ -110,7 +121,7 @@ export default ({
 
       return overrides;
     },
-    [fieldTemplates, cleanseOverride],
+    [fieldTemplates, cleanseOverride, buildingSearch],
   );
 
   const handleProjectSceneUpdate = useCallback(

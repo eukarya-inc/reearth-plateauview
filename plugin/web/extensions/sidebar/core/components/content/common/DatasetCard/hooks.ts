@@ -1,4 +1,9 @@
-import { DataCatalogItem, Group, Template } from "@web/extensions/sidebar/core/types";
+import {
+  BuildingSearch,
+  DataCatalogItem,
+  Group,
+  Template,
+} from "@web/extensions/sidebar/core/types";
 import { generateID } from "@web/extensions/sidebar/utils";
 import { useCallback, useEffect, useState } from "react";
 
@@ -10,12 +15,14 @@ export default ({
   dataset,
   inEditor,
   templates,
+  buildingSearch,
   onDatasetUpdate,
   onOverride,
 }: {
   dataset: DataCatalogItem;
   inEditor?: boolean;
   templates?: Template[];
+  buildingSearch?: BuildingSearch;
   onDatasetUpdate: (dataset: DataCatalogItem, cleanseOverride?: any) => void;
   onOverride?: (dataID: string, activeIDs?: string[]) => void;
 }) => {
@@ -40,10 +47,11 @@ export default ({
   }, [selectedGroup, dataset.components]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
-    if (activeComponentIDs) {
-      onOverride?.(dataset.dataID, activeComponentIDs);
+    const buildingSearchActive = buildingSearch?.find(b => b.dataID === dataset.dataID)?.active;
+    if (activeComponentIDs || buildingSearchActive) {
+      onOverride?.(dataset.dataID, [...(activeComponentIDs ? activeComponentIDs : [])]);
     }
-  }, [activeComponentIDs]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [activeComponentIDs, buildingSearch]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleCurrentGroupUpdate = useCallback((fieldGroupID?: string) => {
     setGroup(fieldGroupID);
