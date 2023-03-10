@@ -12,7 +12,7 @@ import {
 
 type Props = {
   id: string;
-  isGroup?: boolean;
+  hasGroup?: boolean;
   editMode?: boolean;
   hasUI?: boolean;
   showArrowIcon?: boolean;
@@ -27,7 +27,7 @@ type Props = {
 
 const AccordionComponent: React.FC<Props> = ({
   id,
-  isGroup,
+  hasGroup,
   editMode,
   hasUI,
   showArrowIcon,
@@ -60,7 +60,7 @@ const AccordionComponent: React.FC<Props> = ({
                     <StyledIcon icon="arrowDownThin" size={16} onClick={onDownClick} />
                     <StyledIcon
                       icon="group"
-                      color={isGroup ? "#00BEBE" : "inherit"}
+                      color={hasGroup ? "#00BEBE" : "inherit"}
                       size={16}
                       onClick={onGroupSelectOpen}
                     />
