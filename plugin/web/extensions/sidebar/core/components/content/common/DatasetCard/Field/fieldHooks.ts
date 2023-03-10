@@ -78,9 +78,21 @@ export default ({
         name: fieldName["switchDataset"],
         onClick: onFieldAdd({}),
       },
+      switchField: {
+        name: fieldName["switchField"],
+        onClick: onFieldAdd({}),
+      },
       template: {
         name: fieldName["template"],
         onClick: onFieldAdd({}),
+      },
+      eventField: {
+        name: fieldName["eventField"],
+        onClick: onFieldAdd({
+          eventType: "select",
+          triggerEvent: "openUrl",
+          urlType: "manual",
+        }),
       },
     };
   }, [fieldGroups, onFieldAdd]);
@@ -195,7 +207,9 @@ export default ({
       },
       floodColor: {
         name: fieldName["floodColor"],
-        onClick: onFieldAdd({}),
+        onClick: onFieldAdd({
+          colorType: "water",
+        }),
       },
       floodFilter: {
         name: fieldName["floodFilter"],
@@ -204,34 +218,24 @@ export default ({
     };
   }, [onFieldAdd]);
 
-  const fieldComponentsList = useMemo(() => {
-    const groups: {
-      [key: string]: {
-        name: string;
-        fields: FieldDropdownItem;
+  const fieldComponentsList: { [key: string]: { name: string; fields: FieldDropdownItem } } =
+    useMemo(() => {
+      return {
+        general: { name: "一般", fields: generalFields },
+        point: { name: "ポイント", fields: pointFields },
+        polyline: { name: "ポリライン", fields: polylineFields },
+        polygon: { name: "ポリゴン", fields: polygonFields },
+        // "3d-model": { name: "3Dモデル", fields: ThreeDModelFields },
+        "3d-tile": { name: "3Dタイル", fields: ThreeDTileFields },
       };
-    } = {
-      general: {
-        name: "一般",
-        fields: generalFields,
-      },
-      point: {
-        name: "ポイント",
-        fields: pointFields,
-      },
-      polygon: { name: "ポリゴン", fields: polygonFields },
-      polyline: { name: "ポリライン", fields: polylineFields },
-      // "3d-model": { name: "3Dモデル", fields: ThreeDModelFields },
-      "3d-tile": { name: "3Dタイル", fields: ThreeDTileFields },
-    };
-    return groups;
-  }, [generalFields, pointFields, polygonFields, polylineFields, ThreeDTileFields]);
+    }, [generalFields, pointFields, polygonFields, polylineFields, ThreeDTileFields]);
 
   return fieldComponentsList;
 };
 
 export const cleanseOverrides: { [key: string]: any } = {
   switchDataset: { data: { url: undefined } },
+  eventField: { events: undefined },
   pointSize: { marker: { pointSize: 10 } },
   pointColor: { marker: { pointColor: "white" } },
   pointIcon: {
@@ -239,7 +243,7 @@ export const cleanseOverrides: { [key: string]: any } = {
       style: "point",
       image: undefined,
       imageSize: undefined,
-      sizeInMeters: undefined,
+      imageSizeInMeters: undefined,
     },
   },
   pointLabel: {
