@@ -279,7 +279,7 @@ export default ({
               handleProjectDatasetAdd(mergedDataset);
             }
           });
-          if (data?.userStory?.length > 0) {
+          if (data.userStory && data.userStory.length > 0) {
             handleInitUserStory(data.userStory);
           }
           handleProjectSceneUpdate(data.sceneOverrides);
