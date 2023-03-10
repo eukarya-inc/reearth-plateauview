@@ -8,7 +8,6 @@ export type FileType =
   | "csv"
   | "czml"
   | "gpx"
-  // | "json"
   | "georss"
   | "shapefile";
 
@@ -16,15 +15,38 @@ type Props = {
   onFileTypeSelect: (value: string) => void;
 };
 
+const SUPPORTED_TYPES: Record<string, string> = {
+  zip: "shapefile",
+  wms: "wms",
+  gpx: "gpx",
+  czml: "czml",
+  xml: "georss",
+  mvt: "mvt",
+  kml: "kml",
+  geojson: "geojson",
+  gtfs: "gtfs",
+  csv: "csv",
+  "tileset.json": "3dtiles",
+};
+
+export const getSupportedType = (url: string): string | undefined => {
+  for (const key in SUPPORTED_TYPES) {
+    if (url.includes(key)) {
+      return SUPPORTED_TYPES[key];
+    }
+  }
+  return undefined;
+};
+
 const FileTypeSelect: React.FC<Props> = ({ onFileTypeSelect }) => {
   const options = [
     {
       value: "auto",
-      label: "Auto-detect (Recommended)",
+      label: "自動検出",
     },
     {
       value: "wms",
-      label: "Web Map Service(WMS)",
+      label: "Web Map Service (WMS)",
     },
     {
       value: "geojson",
@@ -32,7 +54,7 @@ const FileTypeSelect: React.FC<Props> = ({ onFileTypeSelect }) => {
     },
     {
       value: "kml",
-      label: "KML or KMZ",
+      label: "KML・KMZ",
     },
     {
       value: "csv",
@@ -50,10 +72,6 @@ const FileTypeSelect: React.FC<Props> = ({ onFileTypeSelect }) => {
       value: "3dtiles",
       label: "3D Tiles",
     },
-    // {
-    //   value: "json",
-    //   label: "JSON",
-    // },
     {
       value: "georss",
       label: "GeoRSS",
@@ -61,6 +79,10 @@ const FileTypeSelect: React.FC<Props> = ({ onFileTypeSelect }) => {
     {
       value: "shapefile",
       label: "ShapeFile (zip)",
+    },
+    {
+      value: "mvt",
+      label: "Mapbox Vector Tile (MVT)",
     },
   ];
 
