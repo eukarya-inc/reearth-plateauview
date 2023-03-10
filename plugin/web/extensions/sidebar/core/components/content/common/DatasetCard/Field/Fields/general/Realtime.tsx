@@ -50,9 +50,8 @@ const Realtime: React.FC<BaseFieldProps<"realtime">> = ({ value, editMode, onUpd
 
   const handleChangeUpdateTime = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
-      const inputValue = !isNaN(parseFloat(e.currentTarget.value))
-        ? parseFloat(e.currentTarget.value)
-        : 0;
+      const inputValue = parseFloat(e.currentTarget.value);
+      if (isNaN(inputValue)) setTimer("00:00:00");
       setIntervalValue(inputValue);
       startTimer(inputValue);
     },
