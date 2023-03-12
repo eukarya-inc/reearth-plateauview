@@ -287,7 +287,7 @@ const DatasetCard: React.FC<Props> = ({
             )}
             {dataset.components?.map((c, idx) => (
               <Field
-                key={idx}
+                key={c.id}
                 index={idx}
                 field={c}
                 isActive={!!activeComponentIDs?.find(id => id === c.id)}
