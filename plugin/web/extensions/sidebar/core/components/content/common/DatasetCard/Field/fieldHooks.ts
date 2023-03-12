@@ -94,6 +94,12 @@ export default ({
           urlType: "manual",
         }),
       },
+      infoboxStyle: {
+        name: fieldName["infoboxStyle"],
+        onClick: onFieldAdd({
+          displayStyle: "properties",
+        }),
+      },
     };
   }, [fieldGroups, onFieldAdd]);
 
