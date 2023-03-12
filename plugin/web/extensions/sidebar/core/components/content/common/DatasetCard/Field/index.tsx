@@ -147,7 +147,7 @@ const FieldComponent: React.FC<Props> = ({
   ) : (
     <AccordionComponent
       id={field.id}
-      isGroup={!!field.group}
+      hasGroup={!!field.group}
       editMode={editMode}
       hasUI={Field?.hasUI}
       showArrowIcon={!!Field}
