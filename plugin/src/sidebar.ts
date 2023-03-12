@@ -1,7 +1,6 @@
 import { DataCatalogItem } from "@web/extensions/sidebar/core/types";
 import { PostMessageProps, Project, PluginMessage } from "@web/extensions/sidebar/types";
-import _ from "lodash";
-import omit from "lodash/omit";
+import { merge, omit } from "lodash";
 
 import html from "../dist/web/sidebar/core/index.html?raw";
 import clipVideoHtml from "../dist/web/sidebar/modals/clipVideo/index.html?raw";
@@ -594,7 +593,7 @@ function createLayer(dataset: DataCatalogItem, overrides?: any) {
         }
       : null,
     ...(overrides !== undefined
-      ? _.merge({}, defaultOverrides, omit(overrides, "data"))
+      ? merge({}, defaultOverrides, omit(overrides, "data"))
       : format === "geojson"
       ? {
           marker: {
