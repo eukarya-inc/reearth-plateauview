@@ -174,7 +174,6 @@ test("getRawDataCatalogTree by types", () => {
 });
 
 test("getRawDataCatalogTree filter", () => {
-  // here;
   expect(getRawDataCatalogTree(dataCatalog, "type", "世田谷")).toEqual([
     {
       name: "建築物モデル",
