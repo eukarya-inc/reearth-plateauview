@@ -4,7 +4,7 @@ import {
   Group,
   Template,
 } from "@web/extensions/sidebar/core/types";
-import { generateID } from "@web/extensions/sidebar/utils";
+import { generateID, moveItemDown, moveItemUp } from "@web/extensions/sidebar/utils";
 import { useCallback, useEffect, useState } from "react";
 
 import { mergeOverrides } from "../../../hooks/utils";
@@ -150,11 +150,29 @@ export default ({
     onFieldAdd: handleFieldAdd,
   });
 
+  const handleMoveUp = useCallback(
+    (idx: number) => {
+      const newComponents = moveItemUp(idx, dataset.components);
+      if (newComponents) onDatasetUpdate({ ...dataset, components: newComponents });
+    },
+    [dataset, onDatasetUpdate],
+  );
+
+  const handleMoveDown = useCallback(
+    (idx: number) => {
+      const newComponents = moveItemDown(idx, dataset.components);
+      if (newComponents) onDatasetUpdate({ ...dataset, components: newComponents });
+    },
+    [dataset, onDatasetUpdate],
+  );
+
   return {
     activeComponentIDs,
     fieldComponentsList,
     handleFieldUpdate,
     handleFieldRemove,
+    handleMoveUp,
+    handleMoveDown,
     handleCurrentGroupUpdate,
     handleGroupsUpdate,
   };
