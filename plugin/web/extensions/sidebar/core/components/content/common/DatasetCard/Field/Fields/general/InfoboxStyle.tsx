@@ -6,18 +6,30 @@ import { useCallback, useState } from "react";
 import { BaseFieldProps } from "../types";
 
 const displayStyleOptions = [
-  { value: "properties", label: "Properties" },
-  { value: "description", label: "Description" },
+  { value: "table", label: "Properties" },
+  { value: "html", label: "Description" },
 ];
 
-const InfoboxStyle: React.FC<BaseFieldProps<"infoboxStyle">> = ({ value, editMode }) => {
-  const [displayStyleValue, setDisplayStyleValue] = useState(value);
+const InfoboxStyle: React.FC<BaseFieldProps<"infoboxStyle">> = ({ value, editMode, onUpdate }) => {
+  const [displayStyleValue, setDisplayStyleValue] = useState<"table" | "html">(value.displayStyle);
 
   const handleEventTypeChange = useCallback(
-    (value: string) => {
-      setDisplayStyleValue({ ...displayStyleValue, eventType: value });
+    (selectedProperty: "table" | "html") => {
+      setDisplayStyleValue(selectedProperty);
+      onUpdate({
+        ...value,
+        displayStyle: selectedProperty,
+        override: {
+          infobox: {
+            content: {
+              type: selectedProperty,
+              value: "override",
+            },
+          },
+        },
+      });
     },
-    [displayStyleValue],
+    [onUpdate, value],
   );
 
   return editMode ? (
@@ -28,10 +40,10 @@ const InfoboxStyle: React.FC<BaseFieldProps<"infoboxStyle">> = ({ value, editMod
         noBorder
         value={
           <Select
-            defaultValue={"select"}
+            defaultValue={"table"}
             options={displayStyleOptions}
             style={{ width: "100%" }}
-            value={displayStyleValue.eventType}
+            value={displayStyleValue}
             onChange={handleEventTypeChange}
             getPopupContainer={trigger => trigger.parentElement ?? document.body}
           />

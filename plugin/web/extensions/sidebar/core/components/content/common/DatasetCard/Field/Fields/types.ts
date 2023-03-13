@@ -209,7 +209,7 @@ type EventField = FieldBase<"eventField"> & {
 };
 
 type InfoboxStyle = FieldBase<"infoboxStyle"> & {
-  displayStyle: "properties" | "description";
+  displayStyle: "table" | "html";
 };
 
 type PointColor = FieldBase<"pointColor"> & {
@@ -349,7 +349,7 @@ export type Fields = {
   switchDataset: SwitchDataset;
   switchField: SwitchField;
   eventField: EventField;
-  infoboxStyle: EventField;
+  infoboxStyle: InfoboxStyle;
   // point
   pointColor: PointColor;
   pointColorGradient: PointColorGradient;

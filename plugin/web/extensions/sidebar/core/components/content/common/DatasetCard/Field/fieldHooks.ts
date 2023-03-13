@@ -239,6 +239,7 @@ export default ({
   return fieldComponentsList;
 };
 
+// TODO: cleanse override for infobox
 export const cleanseOverrides: { [key: string]: any } = {
   eventField: { events: undefined },
   pointSize: { marker: { pointSize: 10 } },
