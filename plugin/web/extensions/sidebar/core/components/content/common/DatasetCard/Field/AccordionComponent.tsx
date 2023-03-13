@@ -1,6 +1,5 @@
 import { Icon } from "@web/sharedComponents";
 import { styled } from "@web/theme";
-import { useState } from "react";
 import {
   Accordion,
   AccordionItem,
@@ -41,17 +40,15 @@ const AccordionComponent: React.FC<Props> = ({
   onDownClick,
   children,
 }) => {
-  const [isExpanded, toggleExpanded] = useState(true);
-
   return (
     <StyledAccordionComponent allowZeroExpanded preExpanded={[id]} hide={!editMode && !hasUI}>
-      <AccordionItem uuid={id} dangerouslySetExpanded={isExpanded}>
+      <AccordionItem uuid={id}>
         <AccordionItemState>
           {({ expanded }) => (
             <Header showBorder={expanded}>
               {editMode ? (
                 <HeaderContents>
-                  <LeftContents onClick={() => toggleExpanded(v => !v)}>
+                  <LeftContents>
                     {showArrowIcon && (
                       <ArrowIcon icon="arrowDown" size={16} direction="right" expanded={expanded} />
                     )}
