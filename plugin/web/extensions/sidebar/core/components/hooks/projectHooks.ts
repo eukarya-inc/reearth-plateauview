@@ -133,12 +133,16 @@ export default ({
         return updatedProject;
       });
 
+      let selectedGroup: string | undefined = undefined;
+
       const switchGroupComponents = flattenComponents(datasetToAdd.components)?.filter(
         c => c.type === "switchGroup",
-      ) as SwitchGroup[];
+      ) as SwitchGroup[] | undefined;
 
-      const selectedGroup =
-        switchGroupComponents?.[switchGroupComponents.length - 1].groups[0].fieldGroupID;
+      if (switchGroupComponents && switchGroupComponents.length > 0) {
+        selectedGroup =
+          switchGroupComponents[switchGroupComponents.length - 1].groups[0].fieldGroupID;
+      }
 
       const activeIDs = getActiveFieldIDs(
         datasetToAdd.components,
