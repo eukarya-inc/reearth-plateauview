@@ -20,47 +20,45 @@ const WelcomeScreen: React.FC = () => {
   return (
     <Wrapper>
       {!showVideo ? (
-        <>
-          <CloseButton size={40} icon="close" onClick={handleClose} />
-          <InnerWrapper isMobile={isMobile}>
-            <TextWrapper isMobile={isMobile}>
-              <Title weight={700} size={isMobile ? 24 : 48}>
-                ようこそ
-              </Title>
-              <Text weight={500} size={isMobile ? 16 : 20}>
-                {isMobile ? "データがお好きですか？" : "マップを使ってみる"}
-              </Text>
-            </TextWrapper>
-            <ContentWrapper isMobile={isMobile}>
+        <InnerWrapper isMobile={isMobile}>
+          <InnerCloseButton size={40} icon="close" onClick={handleClose} isMobile={isMobile} />
+          <TextWrapper isMobile={isMobile}>
+            <Title weight={700} size={isMobile ? 24 : 48}>
+              ようこそ
+            </Title>
+            <Text weight={500} size={isMobile ? 16 : 20}>
+              {isMobile ? "データがお好きですか？" : "マップを使ってみる"}
+            </Text>
+          </TextWrapper>
+          <ContentWrapper isMobile={isMobile}>
+            {!isMobile && (
+              <ImgWrapper>
+                <img src={welcomeScreenVideo} onClick={handleShowVideo} />
+              </ImgWrapper>
+            )}
+            <BtnsWrapper isMobile={isMobile}>
               {!isMobile && (
-                <ImgWrapper>
-                  <img src={welcomeScreenVideo} onClick={handleShowVideo} />
-                </ImgWrapper>
-              )}
-              <BtnsWrapper isMobile={isMobile}>
-                {!isMobile && (
-                  <ButtonWrapper onClick={handleOpenHelp}>
-                    <Text weight={500} size={14}>
-                      ヘルプをみる
-                    </Text>
-                  </ButtonWrapper>
-                )}
-                <ButtonWrapper onClick={handleOpenCatalog}>
-                  <Icon size={20} icon="plusCircle" color="#fafafa" />
+                <ButtonWrapper onClick={handleOpenHelp}>
                   <Text weight={500} size={14}>
-                    カタログから検索する
+                    ヘルプをみる
                   </Text>
                 </ButtonWrapper>
-              </BtnsWrapper>
-            </ContentWrapper>
-            <CheckWrapper>
-              <Checkbox checked={dontShowAgain} onClick={handleDontShowAgain} />
-              <Text weight={700} size={14}>
-                閉じて今後は表示しない
-              </Text>
-            </CheckWrapper>
-          </InnerWrapper>
-        </>
+              )}
+              <ButtonWrapper onClick={handleOpenCatalog}>
+                <Icon size={20} icon="plusCircle" color="#fafafa" />
+                <Text weight={500} size={14}>
+                  カタログから検索する
+                </Text>
+              </ButtonWrapper>
+            </BtnsWrapper>
+          </ContentWrapper>
+          <CheckWrapper>
+            <Checkbox checked={dontShowAgain} onClick={handleDontShowAgain} />
+            <Text weight={700} size={14}>
+              閉じて今後は表示しない
+            </Text>
+          </CheckWrapper>
+        </InnerWrapper>
       ) : (
         <>
           <CloseButton size={40} icon="close" onClick={handleCloseVideo} />
@@ -82,13 +80,14 @@ const Wrapper = styled.div`
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  position: relative;
+
   background: rgba(0, 0, 0, 0.7);
 `;
 
 const InnerWrapper = styled.div<{ isMobile?: boolean }>`
   display: flex;
   flex-direction: column;
+  position: relative;
   width: ${({ isMobile }) => (isMobile ? "318px" : "742px")};
 `;
 
@@ -133,6 +132,20 @@ const BtnsWrapper = styled.div<{ isMobile?: boolean }>`
 const ImgWrapper = styled.div`
   width: 305px;
   height: 159px;
+  cursor: pointer;
+`;
+
+const InnerCloseButton = styled(Icon)<{ isMobile?: boolean }>`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: ${({ isMobile }) => (isMobile ? "48px" : "40px")};
+  height: ${({ isMobile }) => (isMobile ? "48px" : "40px")};
+  border: none;
+  color: white;
   cursor: pointer;
 `;
 
