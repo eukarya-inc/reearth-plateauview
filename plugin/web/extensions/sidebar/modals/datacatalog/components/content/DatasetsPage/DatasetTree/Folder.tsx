@@ -1,3 +1,4 @@
+import { postMsg } from "@web/extensions/sidebar/utils";
 import { Icon } from "@web/sharedComponents";
 import { styled } from "@web/theme";
 import { useState, useEffect, useCallback } from "react";
@@ -39,6 +40,11 @@ const Folder: React.FC<Props> = ({
           newExpandedKeys.push(key);
           open(true);
         }
+        setExpandedKeys(newExpandedKeys);
+        postMsg({
+          action: "storageSave",
+          payload: { key: "expandedKeys", value: newExpandedKeys },
+        });
         return newExpandedKeys;
       });
     },

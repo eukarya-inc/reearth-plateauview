@@ -1,4 +1,5 @@
 import { DataCatalogItem } from "@web/extensions/sidebar/core/types";
+import { postMsg } from "@web/extensions/sidebar/utils";
 import { getNameFromPath } from "@web/extensions/sidebar/utils/file";
 import { Button, Icon } from "@web/sharedComponents";
 import { styled } from "@web/theme";
@@ -46,7 +47,14 @@ const File: React.FC<Props> = ({
     if (selectedDataset) {
       onOpenDetails?.(selectedDataset);
       onSelect?.(selectedDataset.dataID);
-      if (selected && item.path) setExpandedKeys([...item.path]);
+      if (selected && item.path) {
+        const expandedKeys = [...item.path];
+        setExpandedKeys(expandedKeys);
+        postMsg({
+          action: "storageSave",
+          payload: { key: "expandedKeys", value: expandedKeys },
+        });
+      }
       setTimeout(() => {
         (window as any).selectedDataset = undefined;
       }, 500);

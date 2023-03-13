@@ -250,6 +250,11 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
     if (payload) {
       reearth.modal.postMessage({ action, payload });
     }
+    reearth.clientStorage.getAsync("expandedKeys").then((expandedKeys: any) => {
+      if (expandedKeys) {
+        reearth.modal.postMessage({ action, payload: { expandedKeys } });
+      }
+    });
   } else if (action === "triggerCatalogOpen") {
     reearth.ui.postMessage({ action });
   } else if (action === "triggerHelpOpen") {
