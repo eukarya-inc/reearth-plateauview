@@ -15,6 +15,7 @@ type Props = {
   hasGroup?: boolean;
   editMode?: boolean;
   hasUI?: boolean;
+  showGroupIcon?: boolean;
   showArrowIcon?: boolean;
   title: string;
   editModeTitle: string;
@@ -30,6 +31,7 @@ const AccordionComponent: React.FC<Props> = ({
   hasGroup,
   editMode,
   hasUI,
+  showGroupIcon,
   showArrowIcon,
   title,
   editModeTitle,
@@ -58,12 +60,14 @@ const AccordionComponent: React.FC<Props> = ({
                   <RightContents>
                     <StyledIcon icon="arrowUpThin" size={16} onClick={onUpClick} />
                     <StyledIcon icon="arrowDownThin" size={16} onClick={onDownClick} />
-                    <StyledIcon
-                      icon="group"
-                      color={hasGroup ? "#00BEBE" : "inherit"}
-                      size={16}
-                      onClick={onGroupSelectOpen}
-                    />
+                    {showGroupIcon && (
+                      <StyledIcon
+                        icon="group"
+                        color={hasGroup ? "#00BEBE" : "inherit"}
+                        size={16}
+                        onClick={onGroupSelectOpen}
+                      />
+                    )}
                     <StyledIcon icon="trash" size={16} onClick={onRemove} />
                   </RightContents>
                 </HeaderContents>
