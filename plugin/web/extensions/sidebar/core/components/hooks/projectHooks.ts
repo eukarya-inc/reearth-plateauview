@@ -1,16 +1,16 @@
 import { UserDataItem } from "@web/extensions/sidebar/modals/datacatalog/types";
 import { Project, ReearthApi } from "@web/extensions/sidebar/types";
 import { generateID, mergeProperty, postMsg } from "@web/extensions/sidebar/utils";
-import { flattenComponents, getActiveFieldIDs } from "@web/extensions/sidebar/utils/dataset";
+import {
+  flattenComponents,
+  getActiveFieldIDs,
+  getDefaultGroup,
+} from "@web/extensions/sidebar/utils/dataset";
 import { merge } from "lodash";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { Data, DataCatalogItem, Template } from "../../types";
-import {
-  StoryItem,
-  Story as FieldStory,
-  SwitchGroup,
-} from "../content/common/DatasetCard/Field/Fields/types";
+import { StoryItem, Story as FieldStory } from "../content/common/DatasetCard/Field/Fields/types";
 
 import { mergeOverrides } from "./utils";
 
@@ -133,16 +133,7 @@ export default ({
         return updatedProject;
       });
 
-      let selectedGroup: string | undefined = undefined;
-
-      const switchGroupComponents = flattenComponents(datasetToAdd.components)?.filter(
-        c => c.type === "switchGroup",
-      ) as SwitchGroup[] | undefined;
-
-      if (switchGroupComponents && switchGroupComponents.length > 0) {
-        selectedGroup =
-          switchGroupComponents[switchGroupComponents.length - 1].groups[0].fieldGroupID;
-      }
+      const selectedGroup = getDefaultGroup(datasetToAdd.components);
 
       const activeIDs = getActiveFieldIDs(
         datasetToAdd.components,

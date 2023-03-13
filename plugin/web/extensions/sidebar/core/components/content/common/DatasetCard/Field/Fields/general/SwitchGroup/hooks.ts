@@ -1,6 +1,6 @@
 import { array_move, generateID } from "@web/extensions/sidebar/utils";
 import { fieldGroups } from "@web/extensions/sidebar/utils/fieldGroups";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 
 import { GroupItem, SwitchGroup } from "../../types";
 
@@ -17,10 +17,6 @@ export default ({
   const [title, setTitle] = useState(value.title);
   const [selectedGroup, selectGroup] = useState(value.groups[0]);
 
-  useEffect(() => {
-    onCurrentGroupUpdate?.(selectedGroup.fieldGroupID);
-  }, [selectedGroup.fieldGroupID, onCurrentGroupUpdate]);
-
   const handleTitleChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       setTitle(e.target.value);
@@ -34,8 +30,9 @@ export default ({
       const selected = groupItems?.find(gi => gi.id === id);
       if (!selected) return;
       selectGroup(selected);
+      onCurrentGroupUpdate?.(selected.fieldGroupID);
     },
-    [groupItems],
+    [groupItems, onCurrentGroupUpdate],
   );
 
   const handleItemAdd = useCallback(() => {

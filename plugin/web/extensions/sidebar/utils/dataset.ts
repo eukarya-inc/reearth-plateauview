@@ -1,6 +1,7 @@
 import {
   ConfigData,
   FieldComponent,
+  SwitchGroup,
 } from "../core/components/content/common/DatasetCard/Field/Fields/types";
 
 export const getActiveFieldIDs = (
@@ -28,3 +29,15 @@ export const flattenComponents = (components?: FieldComponent[]) =>
       return [...a, c];
     }
   }, []);
+
+export const getDefaultGroup = (components?: FieldComponent[]) => {
+  if (!components) return;
+
+  const switchGroupComponents = flattenComponents(components)?.filter(
+    c => c.type === "switchGroup",
+  ) as SwitchGroup[] | undefined;
+
+  if (switchGroupComponents && switchGroupComponents.length > 0) {
+    return switchGroupComponents[switchGroupComponents.length - 1].groups[0].fieldGroupID;
+  }
+};

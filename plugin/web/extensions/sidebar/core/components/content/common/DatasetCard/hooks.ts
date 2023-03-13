@@ -1,6 +1,6 @@
 import { DataCatalogItem, Template } from "@web/extensions/sidebar/core/types";
 import { generateID, moveItemDown, moveItemUp } from "@web/extensions/sidebar/utils";
-import { getActiveFieldIDs } from "@web/extensions/sidebar/utils/dataset";
+import { getActiveFieldIDs, getDefaultGroup } from "@web/extensions/sidebar/utils/dataset";
 import { useCallback, useEffect, useState } from "react";
 
 import { mergeOverrides } from "../../../hooks/utils";
@@ -28,6 +28,10 @@ export default ({
 
     if (newActiveIDs !== activeComponentIDs) {
       setActiveIDs(newActiveIDs);
+
+      if (!selectedGroup) {
+        setGroup(getDefaultGroup(dataset.components?.filter(c => newActiveIDs?.includes(c.id))));
+      }
     }
   }, [selectedGroup, dataset.components]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -37,9 +41,13 @@ export default ({
     }
   }, [activeComponentIDs]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const handleCurrentGroupUpdate = useCallback((fieldGroupID?: string) => {
-    setGroup(fieldGroupID);
-  }, []);
+  const handleCurrentGroupUpdate = useCallback(
+    (fieldGroupID?: string) => {
+      if (fieldGroupID === selectedGroup) return;
+      setGroup(fieldGroupID);
+    },
+    [selectedGroup],
+  );
 
   const handleFieldAdd =
     (property: any) =>
