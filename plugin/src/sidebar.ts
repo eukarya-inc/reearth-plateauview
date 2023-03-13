@@ -607,7 +607,6 @@ function createLayer(dataset: DataCatalogItem, overrides?: any) {
             stroke: true,
             strokeWidth: 5,
             heightReference: "clamp",
-            clampToGround: true,
           },
           polyline: {
             clampToGround: true,
