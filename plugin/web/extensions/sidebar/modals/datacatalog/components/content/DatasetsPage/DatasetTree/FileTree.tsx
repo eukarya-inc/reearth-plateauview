@@ -39,7 +39,7 @@ const FileTree: React.FC<Props> = ({
     setTimeout(() => {
       (window as any).expandedKeys = undefined;
     }, 500);
-  }, [handleSelect, onOpenDetails]);
+  }, []);
 
   return (
     <TreeWrapper isMobile={isMobile}>
