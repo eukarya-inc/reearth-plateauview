@@ -69,7 +69,7 @@ const FileTree: React.FC<Props> = ({
     return () => {
       removeEventListener("message", eventListenerCallback);
     };
-  }, [handleSelect, onOpenDetails, selectedItem]);
+  }, [handleSelect, onOpenDetails]);
 
   return (
     <TreeWrapper isMobile={isMobile}>
