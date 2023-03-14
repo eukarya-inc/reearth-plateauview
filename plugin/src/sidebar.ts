@@ -1,6 +1,6 @@
 import { DataCatalogItem } from "@web/extensions/sidebar/core/types";
 import { PostMessageProps, Project, PluginMessage } from "@web/extensions/sidebar/types";
-import { merge, omit } from "lodash";
+import omit from "lodash/omit";
 
 import html from "../dist/web/sidebar/core/index.html?raw";
 import clipVideoHtml from "../dist/web/sidebar/modals/clipVideo/index.html?raw";
@@ -34,8 +34,8 @@ const defaultProject: Project = {
       terrain: true,
       terrainType: "cesiumion",
       terrainCesiumIonAccessToken:
-        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI3NGI5ZDM0Mi1jZDIzLTRmMzEtOTkwYi0zZTk4Yzk3ODZlNzQiLCJpZCI6NDA2NDYsImlhdCI6MTYwODk4MzAwOH0.3rco62ErML11TMSEflsMqeUTCDbIH6o4n4l5sssuedE",
-      terrainCesiumIonAsset: "286503",
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI5N2UyMjcwOS00MDY1LTQxYjEtYjZjMy00YTU0ZTg5MmViYWQiLCJpZCI6ODAzMDYsImlhdCI6MTY0Mjc0ODI2MX0.dkwAL1CcljUV7NA7fDbhXXnmyZQU_c-G5zRx8PtEcxE",
+      terrainCesiumIonAsset: "770371",
     },
     tiles: [
       {
@@ -489,7 +489,7 @@ reearth.on("select", (selected: string | undefined) => {
   // this is used for infobox
   currentSelected = selected;
 
-  const featureId = reearth.layers.selectedFeature?.properties?.gml_id; // For 3dtiles
+  const featureId = reearth.layers.selectedFeature?.id; // For 3dtiles
   const prevSelectedFeatureId = currentSelectedFeatureId ?? featureId;
   currentSelectedFeatureId = featureId;
 
@@ -503,10 +503,10 @@ reearth.on("select", (selected: string | undefined) => {
     shouldUpdateTilesetColor =
       !!currentSelectedFeatureId &&
       !prevCondition?.find(
-        (c: [string, string]) => c[0] === `\${gml_id} === "${currentSelectedFeatureId}"`,
+        (c: [string, string]) => c[0] === `\${id} === "${currentSelectedFeatureId}"`,
       );
     nextConditions = prevCondition?.filter(
-      (c: [string, string]) => !c[0].startsWith('${gml_id} === "'),
+      (c: [string, string]) => !c[0].startsWith('${id} === "'),
     );
   }
 
@@ -515,9 +515,7 @@ reearth.on("select", (selected: string | undefined) => {
     !currentSelectedFeatureId &&
     prevOverriddenLayer.data.type === "3dtiles" &&
     prevSelectedFeatureId &&
-    prevCondition?.find(
-      (c: [string, string]) => c[0] === `\${gml_id} === "${prevSelectedFeatureId}"`,
-    )
+    prevCondition?.find((c: [string, string]) => c[0] === `\${id} === "${prevSelectedFeatureId}"`)
   ) {
     reearth.layers.override(prevSelected, {
       "3dtiles": {
@@ -543,7 +541,7 @@ reearth.on("select", (selected: string | undefined) => {
         color: {
           expression: {
             conditions: [
-              [`\${gml_id} === "${currentSelectedFeatureId}"`, "color('red')"],
+              [`\${id} === "${currentSelectedFeatureId}"`, "color('red')"],
               ...(nextConditions ??
                 overriddenLayer?.["3dtiles"]?.color?.expression?.conditions ?? [
                   ["true", "color('white')"],
@@ -618,7 +616,7 @@ function createLayer(dataset: DataCatalogItem, overrides?: any) {
         }
       : null,
     ...(overrides !== undefined
-      ? merge({}, defaultOverrides, omit(overrides, "data"))
+      ? omit(overrides, "data")
       : format === "geojson"
       ? {
           marker: {
@@ -632,7 +630,6 @@ function createLayer(dataset: DataCatalogItem, overrides?: any) {
             stroke: true,
             strokeWidth: 5,
             heightReference: "clamp",
-            clampToGround: true,
           },
           polyline: {
             clampToGround: true,
@@ -654,9 +651,3 @@ function createLayer(dataset: DataCatalogItem, overrides?: any) {
       : { ...(overrides ?? {}) }),
   };
 }
-const defaultOverrides = {
-  resource: {},
-  marker: { heightReference: "clamp" },
-  polyline: { clampToGround: true },
-  polygon: { clampToGround: true },
-};

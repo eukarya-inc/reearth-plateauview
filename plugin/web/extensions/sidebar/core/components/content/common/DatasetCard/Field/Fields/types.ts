@@ -1,4 +1,4 @@
-import { Group, Template as TemplateType } from "@web/extensions/sidebar/core/types";
+import { Template as TemplateType } from "@web/extensions/sidebar/core/types";
 import { ReearthApi } from "@web/extensions/sidebar/types";
 
 export const generalFieldName = {
@@ -17,6 +17,7 @@ export const generalFieldName = {
   description: "説明",
   template: "テンプレート",
   eventField: "イベント",
+  infoboxStyle: "インフォボックス スタイル",
 };
 
 export const pointFieldName = {
@@ -75,6 +76,7 @@ export type FieldComponent =
   | SwitchDataset
   | SwitchField
   | EventField
+  | InfoboxStyle
   | Template
   | PointColor
   | PointColorGradient
@@ -204,6 +206,10 @@ type EventField = FieldBase<"eventField"> & {
   urlType: "manual" | "fromData";
   url?: string;
   field?: string;
+};
+
+type InfoboxStyle = FieldBase<"infoboxStyle"> & {
+  displayStyle: "attributes" | "description" | null;
 };
 
 type PointColor = FieldBase<"pointColor"> & {
@@ -343,6 +349,7 @@ export type Fields = {
   switchDataset: SwitchDataset;
   switchField: SwitchField;
   eventField: EventField;
+  infoboxStyle: InfoboxStyle;
   // point
   pointColor: PointColor;
   pointColorGradient: PointColorGradient;
@@ -378,12 +385,12 @@ export type BaseFieldProps<T extends keyof Fields> = {
   dataID?: string;
   editMode?: boolean;
   isActive?: boolean;
+  activeIDs?: string[];
   templates?: TemplateType[];
-  fieldGroups?: Group[];
   configData?: ConfigData[];
   onUpdate: (property: Fields[T]) => void;
-  onCurrentGroupUpdate: (fieldGroupID: string) => void;
   onSceneUpdate: (updatedProperties: Partial<ReearthApi>) => void;
+  onCurrentGroupUpdate?: (fieldGroupID: string) => void;
 };
 
 export type ConfigData = { name: string; type: string; url: string; layers?: string[] };
