@@ -36,6 +36,9 @@ const FileTree: React.FC<Props> = ({
       const newExpandedKeys = [...expandedKeys];
       setExpandedKeys(newExpandedKeys);
     }
+    setTimeout(() => {
+      (window as any).expandedKeys = undefined;
+    }, 500);
   }, [handleSelect, onOpenDetails]);
 
   return (
