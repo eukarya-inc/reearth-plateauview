@@ -171,7 +171,7 @@ export type SwitchGroup = FieldBase<"switchGroup"> & {
   title: string;
   groups: GroupItem[];
   userSettings: {
-    selected?: string;
+    selected?: GroupItem;
   };
 };
 
