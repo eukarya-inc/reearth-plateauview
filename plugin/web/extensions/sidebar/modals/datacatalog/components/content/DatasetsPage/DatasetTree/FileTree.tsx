@@ -1,4 +1,5 @@
 import { DataCatalogItem, DataCatalogGroup } from "@web/extensions/sidebar/core/types";
+import { postMsg } from "@web/extensions/sidebar/utils";
 import { styled } from "@web/theme";
 import { useCallback, useEffect, useState } from "react";
 
@@ -31,14 +32,20 @@ const FileTree: React.FC<Props> = ({
   }, []);
 
   useEffect(() => {
-    const { expandedKeys } = window as any;
-    if (expandedKeys) {
-      const newExpandedKeys = [...expandedKeys];
-      setExpandedKeys(newExpandedKeys);
-    }
-    setTimeout(() => {
-      (window as any).expandedKeys = undefined;
-    }, 500);
+    postMsg({ action: "catalogModalOpen" }); // Needed to trigger sending selected dataset ids from Sidebar
+  }, []);
+
+  useEffect(() => {
+    const eventListenerCallback = (e: MessageEvent<any>) => {
+      if (e.source !== parent) return;
+      if (e.data.action === "catalogModalOpen") {
+        if (e.data.payload.expandedKeys) setExpandedKeys(e.data.payload.expandedKeys);
+      }
+    };
+    addEventListener("message", eventListenerCallback);
+    return () => {
+      removeEventListener("message", eventListenerCallback);
+    };
   }, []);
 
   return (
