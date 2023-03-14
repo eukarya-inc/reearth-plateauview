@@ -17,7 +17,7 @@ export const generalFieldName = {
   description: "説明",
   template: "テンプレート",
   eventField: "イベント",
-  infoboxStyle: "Infobox Style",
+  infoboxStyle: "インフォボックス スタイル",
 };
 
 export const pointFieldName = {
