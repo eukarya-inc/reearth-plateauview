@@ -237,10 +237,12 @@ export default ({
 
 export const cleanseOverrides: { [key: string]: any } = {
   eventField: { events: undefined },
-  infobox: {
-    property: {
-      default: {
-        defaultContent: undefined,
+  infoboxStyle: {
+    infobox: {
+      property: {
+        default: {
+          defaultContent: null,
+        },
       },
     },
   },
