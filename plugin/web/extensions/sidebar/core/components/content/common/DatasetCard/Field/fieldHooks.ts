@@ -90,6 +90,12 @@ export default ({
           urlType: "manual",
         }),
       },
+      infoboxStyle: {
+        name: fieldName["infoboxStyle"],
+        onClick: onFieldAdd({
+          displayStyle: null,
+        }),
+      },
     };
   }, [onFieldAdd]);
 
@@ -233,6 +239,7 @@ export const cleanseOverrides: { [key: string]: any } = {
   eventField: { events: undefined },
   realtime: { data: { updateInterval: undefined } },
   timeline: { data: { time: undefined } },
+  infoboxStyle: { infoboxStyle: undefined },
   pointSize: { marker: { pointSize: 10 } },
   pointColor: { marker: { pointColor: "white" } },
   pointIcon: {
