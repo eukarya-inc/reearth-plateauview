@@ -10,7 +10,11 @@ import { merge } from "lodash";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { BuildingSearch, Data, DataCatalogItem, Template } from "../../types";
-import { StoryItem, Story as FieldStory } from "../content/common/DatasetCard/Field/Fields/types";
+import {
+  StoryItem,
+  Story as FieldStory,
+  FieldComponent,
+} from "../content/common/DatasetCard/Field/Fields/types";
 
 import { mergeOverrides } from "./utils";
 
@@ -76,6 +80,15 @@ export default ({
       const inactiveFields = flattenedComponents?.filter(c => !activeIDs.find(id => id === c.id));
       const activeFields = flattenedComponents?.filter(c => !!activeIDs.find(id => id === c.id));
 
+      const buildingSearchField = buildingSearch?.find(b => b.dataID === dataset.dataID);
+      if (buildingSearchField) {
+        if (buildingSearchField.active) {
+          activeFields?.push(buildingSearchField.field as FieldComponent);
+        } else {
+          inactiveFields?.push(buildingSearchField.cleanseField as FieldComponent);
+        }
+      }
+
       const cleanseOverrides = mergeOverrides("cleanse", inactiveFields, cleanseOverride);
       overrides = mergeOverrides("update", activeFields, cleanseOverrides);
 
@@ -83,7 +96,7 @@ export default ({
 
       return overrides;
     },
-    [cleanseOverride],
+    [cleanseOverride, buildingSearch],
   );
 
   const handleProjectSceneUpdate = useCallback(
