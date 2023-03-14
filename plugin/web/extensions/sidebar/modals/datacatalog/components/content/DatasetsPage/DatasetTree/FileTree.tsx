@@ -32,7 +32,7 @@ const FileTree: React.FC<Props> = ({
   }, []);
 
   useEffect(() => {
-    postMsg({ action: "catalogModalOpen" }); // Needed to trigger sending selected dataset ids from Sidebar
+    postMsg({ action: "catalogModalOpen" }); // Needed to trigger sending client storage data from Sidebar
   }, []);
 
   useEffect(() => {

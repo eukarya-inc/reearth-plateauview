@@ -40,7 +40,6 @@ const Folder: React.FC<Props> = ({
           newExpandedKeys.push(key);
           open(true);
         }
-        setExpandedKeys(newExpandedKeys);
         postMsg({
           action: "storageSave",
           payload: { key: "expandedKeys", value: newExpandedKeys },
