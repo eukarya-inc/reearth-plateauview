@@ -16,7 +16,7 @@ export type FilteringField = {
 
 export type OptionsState = {
   [K in keyof Omit<
-    BaseFieldProps<"buildingFilter">["value"],
+    BaseFieldProps<"buildingFilter">["value"]["userSettings"],
     "id" | "group" | "type" | "override" | "cleanseOverride" | "updatedAt"
   >]?: FilteringField;
 };
