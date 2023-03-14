@@ -16,7 +16,7 @@ const FloodColor: React.FC<BaseFieldProps<"floodColor">> = ({
 }) => {
   const [colorType, setColorType] = useState<
     BaseFieldProps<"floodColor">["value"]["userSettings"]["colorType"]
-  >(value.userSettings.colorType);
+  >(value.userSettings?.colorType);
 
   const handleUpdateColorType: Exclude<ComponentProps<typeof Radio>["onChange"], undefined> =
     useCallback(e => {
