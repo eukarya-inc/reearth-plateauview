@@ -1,5 +1,4 @@
 import { DataCatalogItem, DataCatalogGroup } from "@web/extensions/sidebar/core/types";
-import { postMsg } from "@web/extensions/sidebar/utils";
 import { styled } from "@web/theme";
 import { useCallback, useEffect, useState } from "react";
 
@@ -36,10 +35,6 @@ const FileTree: React.FC<Props> = ({
     if (expandedKeys) {
       const newExpandedKeys = [...expandedKeys];
       setExpandedKeys(newExpandedKeys);
-      postMsg({
-        action: "storageSave",
-        payload: { key: "expandedKeys", value: newExpandedKeys },
-      });
     }
   }, [handleSelect, onOpenDetails]);
 

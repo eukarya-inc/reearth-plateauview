@@ -49,6 +49,8 @@ const File: React.FC<Props> = ({
       onSelect?.(selectedDataset.dataID);
       if (selected && item.path) {
         const expandedKeys = [...item.path];
+        const index = expandedKeys.findIndex(key => key === item.name);
+        if (index >= 0) expandedKeys.splice(index, 1);
         setExpandedKeys(expandedKeys);
         postMsg({
           action: "storageSave",
@@ -59,7 +61,7 @@ const File: React.FC<Props> = ({
         (window as any).selectedDataset = undefined;
       }, 500);
     }
-  }, [item.path, onOpenDetails, onSelect, selected, setExpandedKeys]);
+  }, [item, onOpenDetails, onSelect, selected, setExpandedKeys]);
 
   const name = useMemo(() => getNameFromPath(item.name), [item.name]);
 
