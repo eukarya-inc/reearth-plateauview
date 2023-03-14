@@ -90,6 +90,12 @@ export default ({
           urlType: "manual",
         }),
       },
+      infoboxStyle: {
+        name: fieldName["infoboxStyle"],
+        onClick: onFieldAdd({
+          displayStyle: null,
+        }),
+      },
     };
   }, [onFieldAdd]);
 
@@ -231,6 +237,15 @@ export default ({
 
 export const cleanseOverrides: { [key: string]: any } = {
   eventField: { events: undefined },
+  infoboxStyle: {
+    infobox: {
+      property: {
+        default: {
+          defaultContent: null,
+        },
+      },
+    },
+  },
   pointSize: { marker: { pointSize: 10 } },
   pointColor: { marker: { pointColor: "white" } },
   pointIcon: {
@@ -315,6 +330,12 @@ export const cleanseOverrides: { [key: string]: any } = {
   floodFilter: {
     "3dtiles": {
       show: true,
+    },
+  },
+  search: {
+    "3dtiles": {
+      show: true,
+      color: "white",
     },
   },
 };
