@@ -232,6 +232,7 @@ export default ({
 export const cleanseOverrides: { [key: string]: any } = {
   eventField: { events: undefined },
   realtime: { data: { updateInterval: undefined } },
+  timeline: { data: { time: undefined } },
   pointSize: { marker: { pointSize: 10 } },
   pointColor: { marker: { pointColor: "white" } },
   pointIcon: {
