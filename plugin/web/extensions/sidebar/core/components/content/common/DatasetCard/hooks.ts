@@ -40,7 +40,7 @@ export default ({
   useEffect(() => {
     const buildingSearchActive = buildingSearch?.find(b => b.dataID === dataset.dataID)?.active;
     if (activeComponentIDs || buildingSearchActive) {
-      onOverride?.(dataset.dataID, [...(activeComponentIDs ? activeComponentIDs : [])]);
+      onOverride?.(dataset.dataID, [...(activeComponentIDs ?? [])]);
     }
   }, [activeComponentIDs, buildingSearch]); // eslint-disable-line react-hooks/exhaustive-deps
 
