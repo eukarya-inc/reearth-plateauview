@@ -6,24 +6,27 @@ import { useCallback, useState } from "react";
 import { BaseFieldProps } from "../types";
 
 const displayStyleOptions = [
-  { value: "table", label: "Properties" },
-  { value: "html", label: "Description" },
+  { value: "attributes", label: "Properties" },
+  { value: "description", label: "Description" },
 ];
 
 const InfoboxStyle: React.FC<BaseFieldProps<"infoboxStyle">> = ({ value, editMode, onUpdate }) => {
-  const [displayStyleValue, setDisplayStyleValue] = useState<"table" | "html">(value.displayStyle);
+  const [displayStyleValue, setDisplayStyleValue] = useState<"attributes" | "description">(
+    value.displayStyle,
+  );
 
   const handleEventTypeChange = useCallback(
-    (selectedProperty: "table" | "html") => {
+    (selectedProperty: "attributes" | "description") => {
       setDisplayStyleValue(selectedProperty);
       onUpdate({
         ...value,
         displayStyle: selectedProperty,
         override: {
           infobox: {
-            content: {
-              type: selectedProperty,
-              value: "override",
+            property: {
+              default: {
+                defaultContent: selectedProperty,
+              },
             },
           },
         },
@@ -40,7 +43,7 @@ const InfoboxStyle: React.FC<BaseFieldProps<"infoboxStyle">> = ({ value, editMod
         noBorder
         value={
           <Select
-            defaultValue={"table"}
+            defaultValue={"attributes"}
             options={displayStyleOptions}
             style={{ width: "100%" }}
             value={displayStyleValue}

@@ -209,7 +209,7 @@ type EventField = FieldBase<"eventField"> & {
 };
 
 type InfoboxStyle = FieldBase<"infoboxStyle"> & {
-  displayStyle: "table" | "html";
+  displayStyle: "attributes" | "description";
 };
 
 type PointColor = FieldBase<"pointColor"> & {
