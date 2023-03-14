@@ -97,7 +97,7 @@ export default ({
       infoboxStyle: {
         name: fieldName["infoboxStyle"],
         onClick: onFieldAdd({
-          displayStyle: "properties",
+          displayStyle: null,
         }),
       },
     };

@@ -6,6 +6,7 @@ import { useCallback, useState } from "react";
 import { BaseFieldProps } from "../types";
 
 const displayStyleOptions = [
+  { value: null, label: "Default" },
   { value: "attributes", label: "Properties" },
   { value: "description", label: "Description" },
 ];
@@ -43,7 +44,7 @@ const InfoboxStyle: React.FC<BaseFieldProps<"infoboxStyle">> = ({ value, editMod
         noBorder
         value={
           <Select
-            defaultValue={"attributes"}
+            defaultValue={null}
             options={displayStyleOptions}
             style={{ width: "100%" }}
             value={displayStyleValue}
