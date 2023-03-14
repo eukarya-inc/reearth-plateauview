@@ -237,7 +237,13 @@ export default ({
 
 export const cleanseOverrides: { [key: string]: any } = {
   eventField: { events: undefined },
-  infoboxStyle: { infoboxStyle: undefined },
+  infobox: {
+    property: {
+      default: {
+        defaultContent: undefined,
+      },
+    },
+  },
   pointSize: { marker: { pointSize: 10 } },
   pointColor: { marker: { pointColor: "white" } },
   pointIcon: {
