@@ -251,9 +251,10 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
       reearth.modal.postMessage({ action, payload });
     }
     reearth.clientStorage.getAsync("expandedKeys").then((expandedKeys: any) => {
-      if (expandedKeys) {
-        reearth.modal.postMessage({ action, payload: { expandedKeys } });
-      }
+      if (expandedKeys) reearth.modal.postMessage({ action, payload: { expandedKeys } });
+    });
+    reearth.clientStorage.getAsync("dataset").then((dataset: any) => {
+      if (dataset) reearth.modal.postMessage({ action, payload: { dataset } });
     });
   } else if (action === "triggerCatalogOpen") {
     reearth.ui.postMessage({ action });
