@@ -26,16 +26,26 @@ export default ({
   const [activeComponentIDs, setActiveIDs] = useState<string[] | undefined>();
 
   useEffect(() => {
-    const newActiveIDs = getActiveFieldIDs(dataset.components, selectedGroup, dataset.config?.data);
+    const newActiveIDs = getActiveFieldIDs(
+      dataset.components,
+      selectedGroup,
+      dataset.config?.data,
+      templates,
+    );
 
     if (newActiveIDs !== activeComponentIDs) {
       setActiveIDs(newActiveIDs);
 
       if (!selectedGroup) {
-        setGroup(getDefaultGroup(dataset.components?.filter(c => newActiveIDs?.includes(c.id))));
+        setGroup(
+          getDefaultGroup(
+            dataset.components?.filter(c => newActiveIDs?.includes(c.id)),
+            templates,
+          ),
+        );
       }
     }
-  }, [selectedGroup, dataset.components]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [selectedGroup, dataset.components, templates]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     const buildingSearchActive = buildingSearch?.find(b => b.dataID === dataset.dataID)?.active;
