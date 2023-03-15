@@ -4,6 +4,7 @@ import { postMsg } from "@web/extensions/sidebar/utils";
 import { getNameFromPath } from "@web/extensions/sidebar/utils/file";
 import { Dropdown, Icon, Menu, Spin } from "@web/sharedComponents";
 import { styled } from "@web/theme";
+import type { Identifier, XYCoord } from "dnd-core";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   Accordion,
@@ -13,6 +14,7 @@ import {
   AccordionItemPanel,
   AccordionItemState,
 } from "react-accessible-accordion";
+import { useDrag, useDrop } from "react-dnd";
 
 import AddButton from "./AddButton";
 import Field from "./Field";
@@ -29,11 +31,14 @@ type BaseFieldType = Partial<DataCatalogItem> & {
 };
 
 export type Props = {
+  index: number;
+  id: string;
   dataset: DataCatalogItem;
   templates?: Template[];
   buildingSearch?: BuildingSearch;
   inEditor?: boolean;
   savingDataset: boolean;
+  moveCard: (dragIndex: number, hoverIndex: number) => void;
   onDatasetSave: (dataID: string) => void;
   onDatasetRemove?: (dataID: string) => void;
   onDatasetUpdate: (dataset: DataCatalogItem, cleanseOverride?: any) => void;
@@ -42,11 +47,14 @@ export type Props = {
   onSceneUpdate: (updatedProperties: Partial<ReearthApi>) => void;
 };
 const DatasetCard: React.FC<Props> = ({
+  index,
+  id,
   dataset,
   templates,
   buildingSearch,
   inEditor,
   savingDataset,
+  moveCard,
   onDatasetSave,
   onDatasetRemove,
   onDatasetUpdate,
@@ -226,94 +234,150 @@ const DatasetCard: React.FC<Props> = ({
 
   const title = useMemo(() => getNameFromPath(dataset.name), [dataset.name]);
 
+  interface DragItem {
+    index: number;
+    id: string;
+    type: string;
+  }
+
+  const ref = useRef<HTMLDivElement>(null);
+  const [{ handlerId }, drop] = useDrop<DragItem, void, { handlerId: Identifier | null }>({
+    accept: "card",
+    collect(monitor) {
+      return {
+        handlerId: monitor.getHandlerId(),
+      };
+    },
+    hover(item: DragItem, monitor) {
+      if (!ref.current) {
+        return;
+      }
+      const dragIndex = item.index;
+      const hoverIndex = index;
+      if (dragIndex === hoverIndex) {
+        return;
+      }
+      const hoverBoundingRect = ref.current?.getBoundingClientRect();
+      const hoverMiddleY = (hoverBoundingRect.bottom - hoverBoundingRect.top) / 2;
+      const clientOffset = monitor.getClientOffset();
+      const hoverClientY = (clientOffset as XYCoord).y - hoverBoundingRect.top;
+      if (dragIndex < hoverIndex && hoverClientY < hoverMiddleY) {
+        return;
+      }
+      if (dragIndex > hoverIndex && hoverClientY > hoverMiddleY) {
+        return;
+      }
+      moveCard(dragIndex, hoverIndex);
+      item.index = hoverIndex;
+    },
+  });
+
+  const [{ isDragging }, drag] = useDrag({
+    type: "card",
+    item: () => {
+      return { id, index };
+    },
+    collect: (monitor: any) => ({
+      isDragging: monitor.isDragging(),
+    }),
+  });
+
+  const opacity = isDragging ? 0 : 1;
+  drag(drop(ref));
+
   return (
-    <StyledAccordionComponent allowZeroExpanded preExpanded={["datasetcard"]}>
-      <AccordionItem uuid="datasetcard">
-        <AccordionItemState>
-          {({ expanded }) => (
-            <Header expanded={expanded}>
-              <StyledAccordionItemButton>
-                <HeaderContents>
-                  <LeftMain>
-                    <Icon
-                      icon={!dataset.visible ? "hidden" : "visible"}
-                      size={20}
-                      onClick={e => {
-                        e?.stopPropagation();
-                        onDatasetUpdate({ ...dataset, visible: !dataset.visible });
-                      }}
-                    />
-                    <Title>{title}</Title>
-                  </LeftMain>
-                  <ArrowIcon icon="arrowDown" size={16} expanded={expanded} />
-                </HeaderContents>
-                {inEditor && expanded && (
-                  <TabWrapper>
-                    <Tab id="default" selected={currentTab === "default"} onClick={handleTabChange}>
-                      公開
-                    </Tab>
-                    <Tab id="edit" selected={currentTab === "edit"} onClick={handleTabChange}>
-                      設定
-                    </Tab>
-                  </TabWrapper>
-                )}
-              </StyledAccordionItemButton>
-            </Header>
-          )}
-        </AccordionItemState>
-        <BodyWrapper>
-          <Content>
-            {baseFields.map((field, idx) => (
-              <BaseField key={idx} onClick={field.onClick}>
-                {field.icon && <Icon icon={field.icon} size={20} color="#00BEBE" />}
-                {field.title && <FieldName>{field.title}</FieldName>}
-              </BaseField>
-            ))}
-            {dataset.openDataUrl && (
-              <OpenDataButton
-                onClick={() => window.open(dataset.openDataUrl, "_blank", "noopener")}>
-                <Text>オープンデータを入手</Text>
-              </OpenDataButton>
+    <div ref={ref} style={{ opacity, cursor: "move" }} data-handler-id={handlerId}>
+      <StyledAccordionComponent allowZeroExpanded preExpanded={["datasetcard"]}>
+        <AccordionItem uuid="datasetcard">
+          <AccordionItemState>
+            {({ expanded }) => (
+              <Header expanded={expanded}>
+                <StyledAccordionItemButton>
+                  <HeaderContents>
+                    <LeftMain>
+                      <Icon
+                        icon={!dataset.visible ? "hidden" : "visible"}
+                        size={20}
+                        onClick={e => {
+                          e?.stopPropagation();
+                          onDatasetUpdate({ ...dataset, visible: !dataset.visible });
+                        }}
+                      />
+                      <Title>{title}</Title>
+                    </LeftMain>
+                    <ArrowIcon icon="arrowDown" size={16} expanded={expanded} />
+                  </HeaderContents>
+                  {inEditor && expanded && (
+                    <TabWrapper>
+                      <Tab
+                        id="default"
+                        selected={currentTab === "default"}
+                        onClick={handleTabChange}>
+                        公開
+                      </Tab>
+                      <Tab id="edit" selected={currentTab === "edit"} onClick={handleTabChange}>
+                        設定
+                      </Tab>
+                    </TabWrapper>
+                  )}
+                </StyledAccordionItemButton>
+              </Header>
             )}
-            {dataset.components?.map((c, idx) => (
-              <Field
-                key={c.id}
-                index={idx}
-                field={c}
-                activeIDs={activeComponentIDs}
-                isActive={!!activeComponentIDs?.find(id => id === c.id)}
-                isEditing={currentTab === "edit"}
-                dataID={dataset.dataID}
-                editMode={inEditor && currentTab === "edit"}
-                templates={templates}
-                configData={dataset.config?.data}
-                onUpdate={handleFieldUpdate}
-                onRemove={handleFieldRemove}
-                onMoveUp={handleMoveUp}
-                onMoveDown={handleMoveDown}
-                onGroupsUpdate={handleGroupsUpdate}
-                onCurrentGroupUpdate={handleCurrentGroupUpdate}
-                onSceneUpdate={onSceneUpdate}
-              />
-            ))}
-          </Content>
-          {inEditor && currentTab === "edit" && (
-            <>
-              <StyledAddButton text="フィルドを追加" items={menuGenerator(fieldComponentsList)} />
-              <SaveButton onClick={handleFieldSave} disabled={savingDataset}>
-                <Icon icon="save" size={14} />
-                <Text>保存</Text>
-              </SaveButton>
-              {savingDataset && (
-                <Loading>
-                  <Spin />
-                </Loading>
+          </AccordionItemState>
+          <BodyWrapper>
+            <Content>
+              {baseFields.map((field, idx) => (
+                <BaseField key={idx} onClick={field.onClick}>
+                  {field.icon && <Icon icon={field.icon} size={20} color="#00BEBE" />}
+                  {field.title && <FieldName>{field.title}</FieldName>}
+                </BaseField>
+              ))}
+              {dataset.openDataUrl && (
+                <OpenDataButton
+                  onClick={() => window.open(dataset.openDataUrl, "_blank", "noopener")}>
+                  <Text>オープンデータを入手</Text>
+                </OpenDataButton>
               )}
-            </>
-          )}
-        </BodyWrapper>
-      </AccordionItem>
-    </StyledAccordionComponent>
+              {dataset.components?.map((c, idx) => (
+                <Field
+                  key={c.id}
+                  index={idx}
+                  field={c}
+                  activeIDs={activeComponentIDs}
+                  isActive={!!activeComponentIDs?.find(id => id === c.id)}
+                  isEditing={currentTab === "edit"}
+                  dataID={dataset.dataID}
+                  editMode={inEditor && currentTab === "edit"}
+                  templates={templates}
+                  configData={dataset.config?.data}
+                  onUpdate={handleFieldUpdate}
+                  onRemove={handleFieldRemove}
+                  onMoveUp={handleMoveUp}
+                  onMoveDown={handleMoveDown}
+                  onGroupsUpdate={handleGroupsUpdate}
+                  onCurrentGroupUpdate={handleCurrentGroupUpdate}
+                  onSceneUpdate={onSceneUpdate}
+                />
+              ))}
+            </Content>
+            {inEditor && currentTab === "edit" && (
+              <>
+                <StyledAddButton text="フィルドを追加" items={menuGenerator(fieldComponentsList)} />
+                <SaveButton onClick={handleFieldSave} disabled={savingDataset}>
+                  <Icon icon="save" size={14} />
+                  <Text>保存</Text>
+                </SaveButton>
+                {savingDataset && (
+                  <Loading>
+                    <Spin />
+                  </Loading>
+                )}
+              </>
+            )}
+          </BodyWrapper>
+        </AccordionItem>
+      </StyledAccordionComponent>
+    </div>
   );
 };
 
