@@ -286,7 +286,7 @@ const DatasetCard: React.FC<Props> = ({
   drag(drop(ref));
 
   return (
-    <div ref={ref} style={{ opacity, cursor: "move" }} data-handler-id={handlerId}>
+    <div ref={ref} style={{ opacity }} data-handler-id={handlerId}>
       <StyledAccordionComponent allowZeroExpanded preExpanded={["datasetcard"]}>
         <AccordionItem uuid="datasetcard">
           <AccordionItemState>
@@ -295,7 +295,7 @@ const DatasetCard: React.FC<Props> = ({
                 <StyledAccordionItemButton>
                   <HeaderContents>
                     <LeftMain>
-                      <Icon icon="holder" size={20} />
+                      <Icon icon="holder" cursor="move" size={20} />
                       <Icon
                         icon={!dataset.visible ? "hidden" : "visible"}
                         size={20}
