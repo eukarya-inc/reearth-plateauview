@@ -5,7 +5,8 @@ import { useCallback, useEffect, useState } from "react";
 
 import { mergeOverrides } from "../../../hooks/utils";
 
-import generateFieldComponentsList, { cleanseOverrides } from "./Field/fieldHooks";
+import { cleanseOverrides } from "./Field/fieldConstants";
+import generateFieldComponentsList from "./Field/fieldHooks";
 
 export default ({
   dataset,
