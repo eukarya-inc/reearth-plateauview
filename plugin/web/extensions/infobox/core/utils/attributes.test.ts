@@ -1,6 +1,6 @@
-import { expect, test } from "vitest";
+import { expect, test, vi } from "vitest";
 
-import { getAttributes } from "./attributes";
+import { attributesMap, getAttributes, getFields } from "./attributes";
 import type { Json } from "./json";
 
 test("getAttributes", () => {
@@ -24,11 +24,7 @@ test("getAttributes", () => {
     "aaa.ddd.1.a",
   ]);
 
-  const keys = new Map<string, string>();
-  keys.set("ddd", "DDD");
-  keys.set("aaa", "AAA");
-
-  const actual = getAttributes(src, keys);
+  const actual = getAttributes(src);
   expect(flatKeys(actual)).toEqual([
     "",
     "AAA（aaa）",
@@ -43,6 +39,26 @@ test("getAttributes", () => {
   ]);
 });
 
+test("getFields", () => {
+  expect(
+    getFields(
+      { a: { b: "aaa" } },
+      {
+        A: ["a", "b"],
+        B: { keys: ["a", "b"], map: (v: string) => v + "!" },
+        C: ["b"],
+      },
+    ),
+  ).toEqual({
+    A: "aaa",
+    B: "aaa!",
+  });
+});
+
+test("attributesMap", () => {
+  expect(attributesMap.get("ddd")).toBe("DDD");
+});
+
 function flatKeys(obj: Json, parentKey?: string): string[] {
   if (typeof obj !== "object" || !obj) return [parentKey || ""];
   return [
@@ -52,3 +68,7 @@ function flatKeys(obj: Json, parentKey?: string): string[] {
     ),
   ];
 }
+
+vi.mock("./attributes.csv?raw", () => ({
+  default: "ddd,DDD\naaa,AAA\n",
+}));

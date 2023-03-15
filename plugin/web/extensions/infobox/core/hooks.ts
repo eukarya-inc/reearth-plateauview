@@ -1,7 +1,7 @@
 import update from "immutability-helper";
-import { useCallback, useEffect, useState, useRef } from "react";
+import { useCallback, useEffect, useState, useRef, useMemo } from "react";
 
-import { postMsg, commonPropertiesMap } from "../core/utils";
+import { postMsg, commonPropertiesMap, getAttributes } from "../core/utils";
 import { InfoboxTemplate, Properties, Field } from "../types";
 
 export type EditorTab = "view" | "edit";
@@ -165,10 +165,21 @@ export default () => {
     postMsg("init");
   }, []);
 
+  const actualProperties = useMemo(
+    () =>
+      properties
+        ? {
+            ...(properties.attributes ? { attributes: getAttributes(properties.attributes) } : {}),
+            ...properties,
+          }
+        : undefined,
+    [properties],
+  );
+
   return {
     inEditor,
     dataState,
-    properties,
+    properties: actualProperties,
     fields,
     template,
     wrapperRef,
