@@ -39,9 +39,7 @@ const FileTree: React.FC<Props> = ({
     const eventListenerCallback = (e: MessageEvent<any>) => {
       if (e.source !== parent) return;
       if (e.data.action === "catalogModalOpen") {
-        if (e.data.payload.expandedKeys) {
-          setExpandedKeys(e.data.payload.expandedKeys);
-        }
+        if (e.data.payload.expandedKeys) setExpandedKeys(e.data.payload.expandedKeys);
         if (e.data.payload.dataset) {
           const item = e.data.payload.dataset;
           onOpenDetails?.(item);

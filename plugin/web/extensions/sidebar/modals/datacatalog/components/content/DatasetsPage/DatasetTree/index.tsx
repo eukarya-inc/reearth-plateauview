@@ -4,6 +4,7 @@ import { styled } from "@web/theme";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { DataCatalogItem, getDataCatalogTree, GroupBy } from "../../../../api/api";
+import { TreeTab } from "../../../hooks";
 import Tags, { Tag as TagType } from "../Tags";
 
 import FileTree from "./FileTree";
@@ -15,13 +16,14 @@ export type Props = {
   selectedDataset?: DataCatalogItem;
   isMobile?: boolean;
   catalog?: DataCatalogItem[];
+  currentTreeTab: TreeTab;
   selectedTags?: Tag[];
   filter: GroupBy;
   addDisabled: (dataID: string) => boolean;
-  onFilter: (filter: GroupBy) => void;
   onTagSelect?: (tag: Tag) => void;
   onDatasetAdd: (dataset: DataCatalogItem) => void;
   onOpenDetails?: (data?: DataCatalogItem) => void;
+  onTreeTabChange: (tab: TreeTab) => void;
 };
 
 // function typeFilter(catalog: Catalog): DataCatalog {
@@ -56,11 +58,12 @@ const DatasetTree: React.FC<Props> = ({
   addedDatasetDataIDs,
   isMobile,
   catalog,
+  currentTreeTab,
   selectedTags,
   filter,
   addDisabled,
-  onFilter,
   onTagSelect,
+  onTreeTabChange,
   onDatasetAdd,
   onOpenDetails,
 }) => {
@@ -115,11 +118,10 @@ const DatasetTree: React.FC<Props> = ({
       {showTags && <Tags tags={selectedTags} onTagSelect={onTagSelect} />}
       {searchTerm.length > 0 && <p style={{ margin: "0", alignSelf: "center" }}>検索結果</p>}
       <StyledTabs
-        defaultActiveKey="prefecture"
-        activeKey={filter}
+        activeKey={currentTreeTab}
         tabBarStyle={showTabs ? { display: "none" } : { userSelect: "none" }}
-        onChange={active => onFilter(active as GroupBy)}>
-        <Tabs.TabPane key="prefecture" tab="都道府県">
+        onChange={active => onTreeTabChange(active as TreeTab)}>
+        <Tabs.TabPane key="city" tab="都道府県">
           {dataCatalogTree && (
             <FileTree
               addedDatasetDataIDs={addedDatasetDataIDs}

@@ -1,60 +1,43 @@
 import { DataCatalogItem } from "@web/extensions/sidebar/core/types";
 import PageLayout from "@web/extensions/sidebar/modals/datacatalog/components/content/PageLayout";
-import { postMsg } from "@web/extensions/sidebar/utils";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 
 import { GroupBy } from "../../../api/api";
 import { UserDataItem } from "../../../types";
+import { TreeTab } from "../../hooks";
 
 import DatasetTree from "./DatasetTree";
 import DatasetDetails, { Tag } from "./Details";
 
 export type Props = {
   catalog?: DataCatalogItem[];
+  currentTreeTab: TreeTab;
   addedDatasetDataIDs?: string[];
   inEditor?: boolean;
+  filter: GroupBy;
+  onFilter: (filter: GroupBy) => void;
   onDatasetAdd: (dataset: DataCatalogItem | UserDataItem) => void;
   onDatasetPublish: (dataID: string, publish: boolean) => void;
+  onTreeTabChange: (tab: TreeTab) => void;
 };
 
 const DatasetsPage: React.FC<Props> = ({
   catalog,
+  currentTreeTab,
   addedDatasetDataIDs,
   inEditor,
+  filter,
+  onFilter,
   onDatasetAdd,
   onDatasetPublish,
+  onTreeTabChange,
 }) => {
   const [selectedDatasetID, setDatasetID] = useState<string>();
   const [selectedTags, selectTags] = useState<Tag[]>([]);
-  const [filter, setFilter] = useState<GroupBy>("city");
 
   const handleOpenDetails = useCallback((data?: DataCatalogItem) => {
     setDatasetID(data?.dataID);
   }, []);
-
-  const handleFilter = useCallback((filter: GroupBy) => {
-    setFilter(filter);
-    postMsg({ action: "storageSave", payload: { key: "filter", value: filter } });
-  }, []);
-
-  useEffect(() => {
-    postMsg({ action: "catalogModalOpen" }); // Needed to trigger sending client storage data from Sidebar
-  }, []);
-
-  useEffect(() => {
-    const eventListenerCallback = (e: MessageEvent<any>) => {
-      if (e.source !== parent) return;
-      if (e.data.action === "catalogModalOpen") {
-        if (e.data.payload.filter) {
-          setFilter(e.data.payload.filter);
-        }
-      }
-    };
-    addEventListener("message", eventListenerCallback);
-    return () => {
-      removeEventListener("message", eventListenerCallback);
-    };
-  }, [handleFilter]);
 
   const handleTagSelect = useCallback(
     (tag: Tag) =>
@@ -62,10 +45,10 @@ const DatasetsPage: React.FC<Props> = ({
         const selected = tags.find(selectedTag => selectedTag.name === tag.name)
           ? [...tags.filter(t => t.name !== tag.name)]
           : [...tags, tag];
-        selected.length > 0 ? handleFilter("tag") : handleFilter("city");
+        selected.length > 0 ? onFilter("tag") : onFilter("city");
         return selected;
       }),
-    [handleFilter],
+    [onFilter],
   );
 
   const addDisabled = useCallback(
@@ -85,11 +68,12 @@ const DatasetsPage: React.FC<Props> = ({
           addedDatasetDataIDs={addedDatasetDataIDs}
           selectedDataset={selectedDataset}
           catalog={catalog}
+          currentTreeTab={currentTreeTab}
           selectedTags={selectedTags}
           filter={filter}
           addDisabled={addDisabled}
-          onFilter={handleFilter}
           onTagSelect={handleTagSelect}
+          onTreeTabChange={onTreeTabChange}
           onOpenDetails={handleOpenDetails}
           onDatasetAdd={onDatasetAdd}
         />
