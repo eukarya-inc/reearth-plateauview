@@ -1,7 +1,8 @@
 import update from "immutability-helper";
+import { omit } from "lodash";
 import { useCallback, useEffect, useState, useRef, useMemo } from "react";
 
-import { postMsg, commonPropertiesMap, getAttributes } from "../core/utils";
+import { postMsg, commonPropertiesMap, getAttributes, getRootFields } from "../core/utils";
 import { InfoboxTemplate, Properties, Field } from "../types";
 
 export type EditorTab = "view" | "edit";
@@ -165,16 +166,16 @@ export default () => {
     postMsg("init");
   }, []);
 
-  const actualProperties = useMemo(
-    () =>
-      properties
-        ? {
-            ...(properties.attributes ? { attributes: getAttributes(properties.attributes) } : {}),
-            ...properties,
-          }
-        : undefined,
-    [properties],
-  );
+  const actualProperties = useMemo(() => {
+    const rootFields = properties ? getRootFields(properties) : {};
+    return properties
+      ? {
+          ...(properties.attributes ? { attributes: getAttributes(properties.attributes) } : {}),
+          ...rootFields,
+          ...omit(properties, Object.keys(rootFields)),
+        }
+      : undefined;
+  }, [properties]);
 
   return {
     inEditor,
