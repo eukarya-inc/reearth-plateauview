@@ -295,6 +295,7 @@ const DatasetCard: React.FC<Props> = ({
                 <StyledAccordionItemButton>
                   <HeaderContents>
                     <LeftMain>
+                      <Icon icon="holder" size={20} />
                       <Icon
                         icon={!dataset.visible ? "hidden" : "visible"}
                         size={20}
@@ -432,7 +433,7 @@ const LeftMain = styled.div`
 const Title = styled.p`
   margin: 0;
   font-size: 16px;
-  width: 250px;
+  width: 230px;
   user-select: none;
   overflow-wrap: break-word;
 `;
