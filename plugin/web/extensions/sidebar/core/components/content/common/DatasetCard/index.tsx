@@ -1,4 +1,4 @@
-import { DataCatalogItem, Template } from "@web/extensions/sidebar/core/types";
+import { BuildingSearch, DataCatalogItem, Template } from "@web/extensions/sidebar/core/types";
 import { ReearthApi } from "@web/extensions/sidebar/types";
 import { postMsg } from "@web/extensions/sidebar/utils";
 import { getNameFromPath } from "@web/extensions/sidebar/utils/file";
@@ -31,24 +31,26 @@ type BaseFieldType = Partial<DataCatalogItem> & {
 export type Props = {
   dataset: DataCatalogItem;
   templates?: Template[];
+  buildingSearch?: BuildingSearch;
   inEditor?: boolean;
   savingDataset: boolean;
   onDatasetSave: (dataID: string) => void;
   onDatasetRemove?: (dataID: string) => void;
   onDatasetUpdate: (dataset: DataCatalogItem, cleanseOverride?: any) => void;
-  onThreeDTilesSearch: (id: string) => void;
+  onBuildingSearch: (id: string) => void;
   onOverride?: (dataID: string, activeIDs?: string[]) => void;
   onSceneUpdate: (updatedProperties: Partial<ReearthApi>) => void;
 };
 const DatasetCard: React.FC<Props> = ({
   dataset,
   templates,
+  buildingSearch,
   inEditor,
   savingDataset,
   onDatasetSave,
   onDatasetRemove,
   onDatasetUpdate,
-  onThreeDTilesSearch,
+  onBuildingSearch,
   onOverride,
   onSceneUpdate,
 }) => {
@@ -67,6 +69,7 @@ const DatasetCard: React.FC<Props> = ({
     dataset,
     inEditor,
     templates,
+    buildingSearch,
     onDatasetUpdate,
     onOverride,
   });
@@ -174,13 +177,13 @@ const DatasetCard: React.FC<Props> = ({
               icon: "search",
               value: 1,
               onClick: () => {
-                onThreeDTilesSearch(dataset.dataID);
+                onBuildingSearch(dataset.dataID);
               },
             },
           ]
         : []),
     ],
-    [currentTab, dataset, onDatasetRemove, onThreeDTilesSearch],
+    [currentTab, dataset, onDatasetRemove, onBuildingSearch],
   );
 
   const handleTabChange: React.MouseEventHandler<HTMLParagraphElement> = useCallback(e => {
@@ -192,19 +195,6 @@ const DatasetCard: React.FC<Props> = ({
     if (!inEditor) return;
     onDatasetSave(dataset.dataID);
   }, [dataset.dataID, inEditor, onDatasetSave]);
-
-  useEffect(() => {
-    const eventListenerCallback = (e: any) => {
-      if (e.source !== parent) return;
-      if (e.data.action === "fieldGroups") {
-        postMsg({ action: "msgToPopup", payload: { groups: dataset.fieldGroups } });
-      }
-    };
-    (globalThis as any).addEventListener("message", eventListenerCallback);
-    return () => {
-      (globalThis as any).removeEventListener("message", eventListenerCallback);
-    };
-  });
 
   const menuGenerator = (menuItems: { [key: string]: any }) => (
     <Menu>
@@ -290,18 +280,18 @@ const DatasetCard: React.FC<Props> = ({
                 key={c.id}
                 index={idx}
                 field={c}
+                activeIDs={activeComponentIDs}
                 isActive={!!activeComponentIDs?.find(id => id === c.id)}
                 isEditing={currentTab === "edit"}
                 dataID={dataset.dataID}
                 editMode={inEditor && currentTab === "edit"}
                 templates={templates}
-                selectGroups={dataset.fieldGroups}
                 configData={dataset.config?.data}
                 onUpdate={handleFieldUpdate}
                 onRemove={handleFieldRemove}
                 onMoveUp={handleMoveUp}
                 onMoveDown={handleMoveDown}
-                onGroupsUpdate={handleGroupsUpdate(c.id)}
+                onGroupsUpdate={handleGroupsUpdate}
                 onCurrentGroupUpdate={handleCurrentGroupUpdate}
                 onSceneUpdate={onSceneUpdate}
               />

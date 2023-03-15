@@ -1,6 +1,6 @@
 import { DataCatalogItem } from "@web/extensions/sidebar/core/types";
 import { PostMessageProps, Project, PluginMessage } from "@web/extensions/sidebar/types";
-import { merge, omit } from "lodash";
+import omit from "lodash/omit";
 
 import html from "../dist/web/sidebar/core/index.html?raw";
 import clipVideoHtml from "../dist/web/sidebar/modals/clipVideo/index.html?raw";
@@ -294,22 +294,6 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
     reearth.modal.show(mapVideoHtml, { background: "transparent" });
   } else if (action === "clipModalOpen") {
     reearth.modal.show(clipVideoHtml, { background: "transparent" });
-  } else if (action === "buildingSearchOpen") {
-    reearth.popup.show(buildingSearchHtml, {
-      position: reearth.viewport.isMobile ? "bottom-start" : "right-start",
-      offset: {
-        mainAxis: 4,
-        crossAxis: reearth.viewport.isMobile ? reearth.viewport.width * 0.05 : 0,
-      },
-    });
-    reearth.popup.postMessage({
-      type: "buildingSearchInit",
-      payload: {
-        viewport: reearth.viewport,
-        data: payload,
-      },
-    });
-    openedBuildingSearchDataID = payload.dataID;
   } else if (action === "cameraFlyTo") {
     if (Array.isArray(payload)) {
       reearth.camera.flyTo(...payload);
@@ -351,6 +335,39 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
         overriddenLayer,
       },
     });
+  }
+
+  // ************************************************
+  // Building Search
+  else if (action === "buildingSearchOverride") {
+    reearth.ui.postMessage({
+      action,
+      payload,
+    });
+  } else if (action === "buildingSearchOpen") {
+    reearth.popup.show(buildingSearchHtml, {
+      position: reearth.viewport.isMobile ? "bottom-start" : "right-start",
+      offset: {
+        mainAxis: 4,
+        crossAxis: reearth.viewport.isMobile ? reearth.viewport.width * 0.05 : 0,
+      },
+    });
+    reearth.popup.postMessage({
+      type: "buildingSearchInit",
+      payload: {
+        viewport: reearth.viewport,
+        data: payload,
+      },
+    });
+    if (openedBuildingSearchDataID) {
+      reearth.ui.postMessage({
+        action: "buildingSearchClose",
+        paylaod: {
+          dataID: openedBuildingSearchDataID,
+        },
+      });
+    }
+    openedBuildingSearchDataID = payload.dataID;
   }
 
   // ************************************************
@@ -472,7 +489,7 @@ reearth.on("select", (selected: string | undefined) => {
   // this is used for infobox
   currentSelected = selected;
 
-  const featureId = reearth.layers.selectedFeature?.properties?.gml_id; // For 3dtiles
+  const featureId = reearth.layers.selectedFeature?.id; // For 3dtiles
   const prevSelectedFeatureId = currentSelectedFeatureId ?? featureId;
   currentSelectedFeatureId = featureId;
 
@@ -486,10 +503,10 @@ reearth.on("select", (selected: string | undefined) => {
     shouldUpdateTilesetColor =
       !!currentSelectedFeatureId &&
       !prevCondition?.find(
-        (c: [string, string]) => c[0] === `\${gml_id} === "${currentSelectedFeatureId}"`,
+        (c: [string, string]) => c[0] === `\${id} === "${currentSelectedFeatureId}"`,
       );
     nextConditions = prevCondition?.filter(
-      (c: [string, string]) => !c[0].startsWith('${gml_id} === "'),
+      (c: [string, string]) => !c[0].startsWith('${id} === "'),
     );
   }
 
@@ -498,9 +515,7 @@ reearth.on("select", (selected: string | undefined) => {
     !currentSelectedFeatureId &&
     prevOverriddenLayer.data.type === "3dtiles" &&
     prevSelectedFeatureId &&
-    prevCondition?.find(
-      (c: [string, string]) => c[0] === `\${gml_id} === "${prevSelectedFeatureId}"`,
-    )
+    prevCondition?.find((c: [string, string]) => c[0] === `\${id} === "${prevSelectedFeatureId}"`)
   ) {
     reearth.layers.override(prevSelected, {
       "3dtiles": {
@@ -526,7 +541,7 @@ reearth.on("select", (selected: string | undefined) => {
         color: {
           expression: {
             conditions: [
-              [`\${gml_id} === "${currentSelectedFeatureId}"`, "color('red')"],
+              [`\${id} === "${currentSelectedFeatureId}"`, "color('red')"],
               ...(nextConditions ??
                 overriddenLayer?.["3dtiles"]?.color?.expression?.conditions ?? [
                   ["true", "color('white')"],
@@ -540,7 +555,15 @@ reearth.on("select", (selected: string | undefined) => {
 });
 
 reearth.on("popupclose", () => {
-  openedBuildingSearchDataID = null;
+  if (openedBuildingSearchDataID) {
+    reearth.ui.postMessage({
+      action: "buildingSearchClose",
+      paylaod: {
+        dataID: openedBuildingSearchDataID,
+      },
+    });
+    openedBuildingSearchDataID = null;
+  }
 });
 
 function createLayer(dataset: DataCatalogItem, overrides?: any) {
@@ -593,7 +616,7 @@ function createLayer(dataset: DataCatalogItem, overrides?: any) {
         }
       : null,
     ...(overrides !== undefined
-      ? merge({}, defaultOverrides, omit(overrides, "data"))
+      ? omit(overrides, "data")
       : format === "geojson"
       ? {
           marker: {
@@ -607,7 +630,6 @@ function createLayer(dataset: DataCatalogItem, overrides?: any) {
             stroke: true,
             strokeWidth: 5,
             heightReference: "clamp",
-            clampToGround: true,
           },
           polyline: {
             clampToGround: true,
@@ -629,9 +651,3 @@ function createLayer(dataset: DataCatalogItem, overrides?: any) {
       : { ...(overrides ?? {}) }),
   };
 }
-const defaultOverrides = {
-  resource: {},
-  marker: { heightReference: "clamp" },
-  polyline: { clampToGround: true },
-  polygon: { clampToGround: true },
-};

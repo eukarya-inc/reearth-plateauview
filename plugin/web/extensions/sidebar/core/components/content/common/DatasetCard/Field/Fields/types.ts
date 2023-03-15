@@ -1,4 +1,4 @@
-import { Group, Template as TemplateType } from "@web/extensions/sidebar/core/types";
+import { Template as TemplateType } from "@web/extensions/sidebar/core/types";
 import { ReearthApi } from "@web/extensions/sidebar/types";
 
 export const generalFieldName = {
@@ -17,6 +17,7 @@ export const generalFieldName = {
   description: "説明",
   template: "テンプレート",
   eventField: "イベント",
+  infoboxStyle: "インフォボックス スタイル",
 };
 
 export const pointFieldName = {
@@ -75,6 +76,7 @@ export type FieldComponent =
   | SwitchDataset
   | SwitchField
   | EventField
+  | InfoboxStyle
   | Template
   | PointColor
   | PointColorGradient
@@ -140,11 +142,16 @@ type CurrentTime = FieldBase<"currentTime"> & {
 
 type Realtime = FieldBase<"realtime"> & {
   updateInterval: number; // 1000 * 60 -> 1m
+  userSettings: {
+    enabled?: boolean;
+  };
 };
 
 export type Timeline = FieldBase<"timeline"> & {
-  timeBasedDisplay: boolean;
   timeFieldName: string;
+  userSettings: {
+    timeBasedDisplay: boolean;
+  };
 };
 
 export type Description = FieldBase<"description"> & {
@@ -165,17 +172,24 @@ export type GroupItem = {
 export type SwitchGroup = FieldBase<"switchGroup"> & {
   title: string;
   groups: GroupItem[];
+  userSettings: {
+    selected?: GroupItem;
+  };
 };
 
 export type SwitchDataset = FieldBase<"switchDataset"> & {
   uiStyle?: "dropdown" | "radio";
-  selected?: ConfigData;
+  userSettings: {
+    selected?: ConfigData;
+  };
 };
 
 export type SwitchField = FieldBase<"switchField"> & {
   field?: string;
-  selected?: string;
   uiStyle?: "dropdown" | "radio";
+  userSettings: {
+    selected?: string;
+  };
 };
 
 export type ButtonLink = FieldBase<"buttonLink"> & {
@@ -204,6 +218,10 @@ type EventField = FieldBase<"eventField"> & {
   urlType: "manual" | "fromData";
   url?: string;
   field?: string;
+};
+
+type InfoboxStyle = FieldBase<"infoboxStyle"> & {
+  displayStyle: "attributes" | "description" | null;
 };
 
 type PointColor = FieldBase<"pointColor"> & {
@@ -259,6 +277,24 @@ type PointCSV = FieldBase<"pointCSV"> & {
   height?: string;
 };
 
+type PolylineColor = FieldBase<"polylineColor"> & {
+  items?: {
+    condition: Cond<number>;
+    color: string;
+  }[];
+};
+
+type PolylineColorGradient = FieldBase<"polylineColorGradient"> & {
+  field?: string;
+  startColor?: string;
+  endColor?: string;
+  step?: number;
+};
+
+type PolylineStrokeWeight = FieldBase<"polylineStrokeWeight"> & {
+  strokeWidth: number;
+};
+
 type PolygonColor = FieldBase<"polygonColor"> & {
   items?: {
     condition: Cond<number>;
@@ -282,50 +318,50 @@ type PolygonStroke = FieldBase<"polygonStroke"> & {
 };
 
 type Clipping = FieldBase<"clipping"> & {
-  enabled: boolean;
-  show: boolean;
-  aboveGroundOnly: boolean;
-  direction: "inside" | "outside";
+  userSettings: {
+    enabled: boolean;
+    show: boolean;
+    aboveGroundOnly: boolean;
+    direction: "inside" | "outside";
+  };
 };
 
 type BuildingFilter = FieldBase<"buildingFilter"> & {
-  height?: [from: number, to: number];
-  abovegroundFloor?: [from: number, to: number];
-  basementFloor?: [from: number, to: number];
+  userSettings: {
+    height?: [from: number, to: number];
+    abovegroundFloor?: [from: number, to: number];
+    basementFloor?: [from: number, to: number];
+  };
 };
 
 type BuildingShadow = FieldBase<"buildingShadow"> & {
-  shadow: "disabled" | "enabled" | "cast_only" | "receive_only";
+  userSettings: {
+    shadow: "disabled" | "enabled" | "cast_only" | "receive_only";
+  };
 };
 
 type BuildingTransparency = FieldBase<"buildingTransparency"> & {
-  transparency: number;
+  userSettings: {
+    transparency: number;
+  };
 };
 
 type BuildingColor = FieldBase<"buildingColor"> & {
-  colorType: string;
+  userSettings: {
+    colorType: string;
+  };
 };
 
-type FloodColor = FieldBase<"floodColor"> & { colorType: "water" | "rank" };
-
-type FloodFilter = FieldBase<"floodFilter"> & { rank?: [from: number, to: number] };
-
-type PolylineColor = FieldBase<"polylineColor"> & {
-  items?: {
-    condition: Cond<number>;
-    color: string;
-  }[];
+type FloodColor = FieldBase<"floodColor"> & {
+  userSettings: {
+    colorType: "water" | "rank";
+  };
 };
 
-type PolylineColorGradient = FieldBase<"polylineColorGradient"> & {
-  field?: string;
-  startColor?: string;
-  endColor?: string;
-  step?: number;
-};
-
-type PolylineStrokeWeight = FieldBase<"polylineStrokeWeight"> & {
-  strokeWidth: number;
+type FloodFilter = FieldBase<"floodFilter"> & {
+  userSettings: {
+    rank?: [from: number, to: number];
+  };
 };
 
 export type Fields = {
@@ -343,6 +379,7 @@ export type Fields = {
   switchDataset: SwitchDataset;
   switchField: SwitchField;
   eventField: EventField;
+  infoboxStyle: InfoboxStyle;
   // point
   pointColor: PointColor;
   pointColorGradient: PointColorGradient;
@@ -378,12 +415,12 @@ export type BaseFieldProps<T extends keyof Fields> = {
   dataID?: string;
   editMode?: boolean;
   isActive?: boolean;
+  activeIDs?: string[];
   templates?: TemplateType[];
-  fieldGroups?: Group[];
   configData?: ConfigData[];
   onUpdate: (property: Fields[T]) => void;
-  onCurrentGroupUpdate: (fieldGroupID: string) => void;
   onSceneUpdate: (updatedProperties: Partial<ReearthApi>) => void;
+  onCurrentGroupUpdate?: (fieldGroupID: string) => void;
 };
 
 export type ConfigData = { name: string; type: string; url: string; layers?: string[] };
