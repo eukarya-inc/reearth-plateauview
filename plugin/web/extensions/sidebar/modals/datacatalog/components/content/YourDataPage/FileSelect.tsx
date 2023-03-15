@@ -46,5 +46,9 @@ const Wrapper = styled.div`
 `;
 
 const StyledTabs = styled(Tabs)`
-  margin-bottom: 12px;
+  margin-bottom: 12px; 
+  .ant-tabs-nav .ant-tabs-nav-more {
+  display: none;
+}
+}
 `;
