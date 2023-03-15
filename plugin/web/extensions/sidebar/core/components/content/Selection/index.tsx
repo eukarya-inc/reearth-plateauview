@@ -66,27 +66,25 @@ const Selection: React.FC<Props> = ({
           </StyledButton>
         )}
         <DndProvider backend={HTML5Backend}>
-          <div>
-            {selectedDatasets?.map((d, i) => (
-              <DatasetCard
-                key={d.id}
-                index={i}
-                id={d.id}
-                dataset={d}
-                templates={templates}
-                buildingSearch={buildingSearch}
-                savingDataset={savingDataset}
-                inEditor={inEditor}
-                moveCard={moveCard}
-                onDatasetSave={onDatasetSave}
-                onDatasetUpdate={onDatasetUpdate}
-                onDatasetRemove={onDatasetRemove}
-                onBuildingSearch={onBuildingSearch}
-                onOverride={onOverride}
-                onSceneUpdate={onSceneUpdate}
-              />
-            ))}
-          </div>
+          {selectedDatasets?.map((d, i) => (
+            <DatasetCard
+              key={d.id}
+              index={i}
+              id={d.id}
+              dataset={d}
+              templates={templates}
+              buildingSearch={buildingSearch}
+              savingDataset={savingDataset}
+              inEditor={inEditor}
+              moveCard={moveCard}
+              onDatasetSave={onDatasetSave}
+              onDatasetUpdate={onDatasetUpdate}
+              onDatasetRemove={onDatasetRemove}
+              onBuildingSearch={onBuildingSearch}
+              onOverride={onOverride}
+              onSceneUpdate={onSceneUpdate}
+            />
+          ))}
         </DndProvider>
       </InnerWrapper>
       <Footer datasetQuantity={selectedDatasets?.length} onRemoveAll={onDatasetRemoveAll} />

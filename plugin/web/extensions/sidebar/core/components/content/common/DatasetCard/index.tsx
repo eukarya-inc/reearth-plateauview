@@ -23,6 +23,12 @@ import useHooks from "./hooks";
 
 type Tabs = "default" | "edit";
 
+type DragItem = {
+  index: number;
+  id: string;
+  type: string;
+};
+
 type BaseFieldType = Partial<DataCatalogItem> & {
   title?: string;
   icon?: string;
@@ -63,6 +69,8 @@ const DatasetCard: React.FC<Props> = ({
   onSceneUpdate,
 }) => {
   const [currentTab, changeTab] = useState<Tabs>("default");
+
+  const ref = useRef<HTMLDivElement>(null);
 
   const {
     activeComponentIDs,
@@ -234,13 +242,6 @@ const DatasetCard: React.FC<Props> = ({
 
   const title = useMemo(() => getNameFromPath(dataset.name), [dataset.name]);
 
-  interface DragItem {
-    index: number;
-    id: string;
-    type: string;
-  }
-
-  const ref = useRef<HTMLDivElement>(null);
   const [{ handlerId }, drop] = useDrop<DragItem, void, { handlerId: Identifier | null }>({
     accept: "card",
     collect(monitor) {
@@ -282,7 +283,8 @@ const DatasetCard: React.FC<Props> = ({
     }),
   });
 
-  const opacity = isDragging ? 0 : 1;
+  const opacity = useMemo(() => (isDragging ? 0 : 1), [isDragging]);
+
   drag(drop(ref));
 
   return (
