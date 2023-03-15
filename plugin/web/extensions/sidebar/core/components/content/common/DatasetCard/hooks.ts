@@ -37,12 +37,7 @@ export default ({
       setActiveIDs(newActiveIDs);
 
       if (!selectedGroup) {
-        setGroup(
-          getDefaultGroup(
-            dataset.components?.filter(c => newActiveIDs?.includes(c.id)),
-            templates,
-          ),
-        );
+        setGroup(getDefaultGroup(dataset.components?.filter(c => newActiveIDs?.includes(c.id))));
       }
     }
   }, [selectedGroup, dataset.components, templates]); // eslint-disable-line react-hooks/exhaustive-deps

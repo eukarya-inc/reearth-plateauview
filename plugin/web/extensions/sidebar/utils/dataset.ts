@@ -22,20 +22,24 @@ export const getActiveFieldIDs = (
     ?.filter(c => !(!config && c.type === "switchDataset"))
     ?.map(c => c.id);
 
-export const flattenComponents = (components?: FieldComponent[], templates?: Template[]) =>
+export const flattenComponents = (components?: FieldComponent[], baseTemplates?: Template[]) =>
   components?.reduce((a: FieldComponent[], c?: FieldComponent) => {
     if (!c) return a;
     if (c.type === "template") {
-      return [...a, c, ...(templates?.find(t => t.id === c.templateID)?.components ?? [])];
+      return [
+        ...a,
+        c,
+        ...((baseTemplates?.find(t => t.id === c.templateID) ?? c)?.components ?? []),
+      ];
     } else {
       return [...a, c];
     }
   }, []);
 
-export const getDefaultGroup = (components?: FieldComponent[], templates?: Template[]) => {
+export const getDefaultGroup = (components?: FieldComponent[]) => {
   if (!components) return;
 
-  const switchGroupComponents = flattenComponents(components, templates)?.filter(
+  const switchGroupComponents = flattenComponents(components)?.filter(
     c => c.type === "switchGroup",
   ) as SwitchGroup[] | undefined;
 
