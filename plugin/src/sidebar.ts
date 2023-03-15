@@ -250,6 +250,9 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
     if (payload) {
       reearth.modal.postMessage({ action, payload });
     }
+    reearth.clientStorage.getAsync("filter").then((filter: any) => {
+      if (filter) reearth.modal.postMessage({ action, payload: { filter } });
+    });
     reearth.clientStorage.getAsync("expandedKeys").then((expandedKeys: any) => {
       if (expandedKeys) reearth.modal.postMessage({ action, payload: { expandedKeys } });
     });

@@ -1,6 +1,7 @@
 import { DataCatalogItem } from "@web/extensions/sidebar/core/types";
 import PageLayout from "@web/extensions/sidebar/modals/datacatalog/components/content/PageLayout";
-import { useCallback, useMemo, useState } from "react";
+import { postMsg } from "@web/extensions/sidebar/utils";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { GroupBy } from "../../../api/api";
 import { UserDataItem } from "../../../types";
@@ -33,7 +34,27 @@ const DatasetsPage: React.FC<Props> = ({
 
   const handleFilter = useCallback((filter: GroupBy) => {
     setFilter(filter);
+    postMsg({ action: "storageSave", payload: { key: "filter", value: filter } });
   }, []);
+
+  useEffect(() => {
+    postMsg({ action: "catalogModalOpen" }); // Needed to trigger sending client storage data from Sidebar
+  }, []);
+
+  useEffect(() => {
+    const eventListenerCallback = (e: MessageEvent<any>) => {
+      if (e.source !== parent) return;
+      if (e.data.action === "catalogModalOpen") {
+        if (e.data.payload.filter) {
+          setFilter(e.data.payload.filter);
+        }
+      }
+    };
+    addEventListener("message", eventListenerCallback);
+    return () => {
+      removeEventListener("message", eventListenerCallback);
+    };
+  }, [handleFilter]);
 
   const handleTagSelect = useCallback(
     (tag: Tag) =>
