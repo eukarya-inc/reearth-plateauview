@@ -14,7 +14,7 @@ type Props = {
   addDisabled: (dataID: string) => boolean;
   onDatasetAdd: (dataset: DataCatalogItem) => void;
   onOpenDetails?: (item?: DataCatalogItem) => void;
-  onSelect?: (dataID: string) => void;
+  onSelect?: (item: DataCatalogItem) => void;
   setExpandedKeys: React.Dispatch<React.SetStateAction<string[]>>;
 };
 

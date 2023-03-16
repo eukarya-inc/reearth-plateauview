@@ -8,11 +8,15 @@ import useHooks from "./hooks";
 const DataCatalog: React.FC = () => {
   const {
     currentTab,
+    currentTreeTab,
     catalog,
     addedDatasetDataIDs,
     inEditor,
+    filter,
+    handleFilter,
     handleClose,
     handleTabChange,
+    handleTreeTabChange,
     handleDatasetAdd,
     handleDatasetPublish,
   } = useHooks();
@@ -40,10 +44,14 @@ const DataCatalog: React.FC = () => {
       ) : (
         <DatasetsPage
           catalog={catalog}
+          currentTreeTab={currentTreeTab}
           addedDatasetDataIDs={addedDatasetDataIDs}
           inEditor={inEditor}
+          filter={filter}
+          onFilter={handleFilter}
           onDatasetAdd={handleDatasetAdd}
           onDatasetPublish={handleDatasetPublish}
+          onTreeTabChange={handleTreeTabChange}
         />
       )}
     </Wrapper>

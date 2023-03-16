@@ -250,6 +250,12 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
     if (payload) {
       reearth.modal.postMessage({ action, payload });
     }
+    reearth.clientStorage.getAsync("expandedKeys").then((expandedKeys: any) => {
+      if (expandedKeys) reearth.modal.postMessage({ action, payload: { expandedKeys } });
+    });
+    reearth.clientStorage.getAsync("dataset").then((dataset: any) => {
+      if (dataset) reearth.modal.postMessage({ action, payload: { dataset } });
+    });
   } else if (action === "triggerCatalogOpen") {
     reearth.ui.postMessage({ action });
   } else if (action === "triggerHelpOpen") {
@@ -258,13 +264,16 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
     reearth.modal.close();
     welcomePageIsOpen = false;
   } else if (action === "initDataCatalog") {
-    reearth.modal.postMessage({
-      action,
-      payload: {
-        dataCatalog,
-        addedDatasets: addedDatasets.map(d => d[0]),
-        inEditor: reearth.scene.inEditor,
-      },
+    reearth.clientStorage.getAsync("currentTreeTab").then((currentTreeTab: any) => {
+      reearth.modal.postMessage({
+        action,
+        payload: {
+          dataCatalog,
+          addedDatasets: addedDatasets.map(d => d[0]),
+          inEditor: reearth.scene.inEditor,
+          currentTreeTab: currentTreeTab ?? "city",
+        },
+      });
     });
   } else if (action === "helpPopupOpen") {
     reearth.popup.show(helpPopupHtml, { position: "right-start", offset: 4 });

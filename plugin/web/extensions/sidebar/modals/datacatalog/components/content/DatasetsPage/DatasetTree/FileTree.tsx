@@ -1,6 +1,7 @@
 import { DataCatalogItem, DataCatalogGroup } from "@web/extensions/sidebar/core/types";
+import { postMsg } from "@web/extensions/sidebar/utils";
 import { styled } from "@web/theme";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import TreeBuilder from "./TreeBuilder";
 
@@ -23,12 +24,50 @@ const FileTree: React.FC<Props> = ({
   onDatasetAdd,
   onOpenDetails,
 }) => {
-  const [selectedID, select] = useState<string>();
+  const [selectedItem, selectItem] = useState<DataCatalogItem>();
   const [expandedKeys, setExpandedKeys] = useState<string[]>([]);
 
-  const handleSelect = useCallback((dataID?: string) => {
-    select(dataID);
+  const handleSelect = useCallback((item?: DataCatalogItem) => {
+    selectItem(item);
   }, []);
+
+  useEffect(() => {
+    postMsg({ action: "catalogModalOpen" }); // Needed to trigger sending client storage data from Sidebar
+  }, []);
+
+  useEffect(() => {
+    const eventListenerCallback = (e: MessageEvent<any>) => {
+      if (e.source !== parent) return;
+      if (e.data.action === "catalogModalOpen") {
+        if (e.data.payload.expandedKeys) setExpandedKeys(e.data.payload.expandedKeys);
+        if (e.data.payload.dataset) {
+          const item = e.data.payload.dataset;
+          onOpenDetails?.(item);
+          handleSelect(item);
+          if (item.path) {
+            const expandedKeys = [...item.path];
+            const index = expandedKeys.findIndex(key => key === item.name);
+            if (index >= 0) expandedKeys.splice(index, 1);
+            setExpandedKeys(expandedKeys);
+            postMsg({
+              action: "storageSave",
+              payload: { key: "expandedKeys", value: expandedKeys },
+            });
+          }
+          setTimeout(() => {
+            postMsg({
+              action: "storageDelete",
+              payload: { key: "dataset" },
+            });
+          }, 500);
+        }
+      }
+    };
+    addEventListener("message", eventListenerCallback);
+    return () => {
+      removeEventListener("message", eventListenerCallback);
+    };
+  }, [handleSelect, onOpenDetails]);
 
   return (
     <TreeWrapper isMobile={isMobile}>
@@ -38,7 +77,7 @@ const FileTree: React.FC<Props> = ({
           addedDatasetDataIDs={addedDatasetDataIDs}
           isMobile={isMobile}
           expandAll={expandAll}
-          selectedID={selectedID}
+          selectedID={selectedItem?.id}
           nestLevel={0}
           expandedKeys={expandedKeys}
           addDisabled={addDisabled}

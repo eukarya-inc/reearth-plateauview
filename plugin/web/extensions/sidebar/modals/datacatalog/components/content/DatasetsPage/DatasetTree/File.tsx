@@ -2,7 +2,7 @@ import { DataCatalogItem } from "@web/extensions/sidebar/core/types";
 import { getNameFromPath } from "@web/extensions/sidebar/utils/file";
 import { Button, Icon } from "@web/sharedComponents";
 import { styled } from "@web/theme";
-import { useCallback, useEffect, useMemo } from "react";
+import { useCallback, useMemo } from "react";
 
 export type Props = {
   item: DataCatalogItem;
@@ -12,7 +12,7 @@ export type Props = {
   addDisabled: (dataID: string) => boolean;
   onDatasetAdd: (dataset: DataCatalogItem) => void;
   onOpenDetails?: (item?: DataCatalogItem) => void;
-  onSelect?: (dataID: string) => void;
+  onSelect?: (item: DataCatalogItem) => void;
   setExpandedKeys: React.Dispatch<React.SetStateAction<string[]>>;
 };
 
@@ -25,7 +25,6 @@ const File: React.FC<Props> = ({
   onDatasetAdd,
   onOpenDetails,
   onSelect,
-  setExpandedKeys,
 }) => {
   const handleClick = useCallback(() => {
     onDatasetAdd(item);
@@ -33,25 +32,13 @@ const File: React.FC<Props> = ({
 
   const handleOpenDetails = useCallback(() => {
     onOpenDetails?.(item);
-    onSelect?.(item.dataID);
+    onSelect?.(item);
   }, [item, onOpenDetails, onSelect]);
 
   const selected = useMemo(
     () => (item.type !== "group" ? selectedID === item.id : false),
     [selectedID, item],
   );
-
-  useEffect(() => {
-    const { selectedDataset } = window as any;
-    if (selectedDataset) {
-      onOpenDetails?.(selectedDataset);
-      onSelect?.(selectedDataset.dataID);
-      if (selected && item.path) setExpandedKeys([...item.path]);
-      setTimeout(() => {
-        (window as any).selectedDataset = undefined;
-      }, 500);
-    }
-  }, [item.path, onOpenDetails, onSelect, selected, setExpandedKeys]);
 
   const name = useMemo(() => getNameFromPath(item.name), [item.name]);
 
