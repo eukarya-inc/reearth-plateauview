@@ -45,6 +45,7 @@ export type RawDataCatalogItem = {
   bldg_low_texture_url?: string;
   bldg_no_texture_url?: string;
   search_index?: string;
+  order?: number;
 };
 
 export type GroupBy = "city" | "type" | "tag"; // Tag not implemented yet
@@ -134,25 +135,34 @@ function sortBy(
   sort: GroupBy,
 ): number {
   return sort === "type"
-    ? sortByType(a, b) || sortByCity(a, b)
-    : sortByCity(a, b) || sortByType(a, b);
+    ? sortByType(a, b) || sortByCity(a, b) || sortByOrder(a.order, b.order)
+    : sortByCity(a, b) || sortByType(a, b) || sortByOrder(a.order, b.order);
 }
 
 function sortByCity(
   a: RawDataCatalogItem & { code: number },
   b: RawDataCatalogItem & { code: number },
 ): number {
-  return (
-    (b.pref === zenkyu ? 1 : 0) - (a.pref === zenkyu ? 1 : 0) ||
-    (b.pref === tokyo ? 1 : 0) - (a.pref === tokyo ? 1 : 0) ||
-    (!a.city ? 1 : 0) - (!b.city ? 1 : 0) ||
-    (!a.ward ? 1 : 0) - (!b.ward ? 1 : 0) ||
-    a.code - b.code ||
-    types.indexOf(a.type_en) - types.indexOf(b.type_en)
+  return Math.max(
+    -1,
+    Math.min(
+      1,
+      (b.pref === zenkyu ? 1 : 0) - (a.pref === zenkyu ? 1 : 0) ||
+        (b.pref === tokyo ? 1 : 0) - (a.pref === tokyo ? 1 : 0) ||
+        (!a.city ? 1 : 0) - (!b.city ? 1 : 0) ||
+        (!a.ward ? 1 : 0) - (!b.ward ? 1 : 0) ||
+        a.code - b.code ||
+        types.indexOf(a.type_en) - types.indexOf(b.type_en),
+    ),
   );
 }
+
 function sortByType(a: RawDataCatalogItem, b: RawDataCatalogItem): number {
   return types.indexOf(a.type_en) - types.indexOf(b.type_en);
+}
+
+function sortByOrder(a: number | undefined, b: number | undefined): number {
+  return Math.min(0, a ?? 0) - Math.min(0, b ?? 0);
 }
 
 function filter(q: string | undefined, items: RawDataCatalogItem[]): RawDataCatalogItem[] {
