@@ -143,26 +143,22 @@ function sortByCity(
   a: RawDataCatalogItem & { code: number },
   b: RawDataCatalogItem & { code: number },
 ): number {
-  return Math.max(
-    -1,
-    Math.min(
-      1,
-      (b.pref === zenkyu ? 1 : 0) - (a.pref === zenkyu ? 1 : 0) ||
-        (b.pref === tokyo ? 1 : 0) - (a.pref === tokyo ? 1 : 0) ||
-        (!a.city ? 1 : 0) - (!b.city ? 1 : 0) ||
-        (!a.ward ? 1 : 0) - (!b.ward ? 1 : 0) ||
-        a.code - b.code ||
-        types.indexOf(a.type_en) - types.indexOf(b.type_en),
-    ),
+  return clamp(
+    (b.pref === zenkyu ? 1 : 0) - (a.pref === zenkyu ? 1 : 0) ||
+      (b.pref === tokyo ? 1 : 0) - (a.pref === tokyo ? 1 : 0) ||
+      (!a.city ? 1 : 0) - (!b.city ? 1 : 0) ||
+      (!a.ward ? 1 : 0) - (!b.ward ? 1 : 0) ||
+      a.code - b.code ||
+      types.indexOf(a.type_en) - types.indexOf(b.type_en),
   );
 }
 
 function sortByType(a: RawDataCatalogItem, b: RawDataCatalogItem): number {
-  return types.indexOf(a.type_en) - types.indexOf(b.type_en);
+  return clamp(types.indexOf(a.type_en) - types.indexOf(b.type_en));
 }
 
 function sortByOrder(a: number | undefined, b: number | undefined): number {
-  return Math.min(0, a ?? 0) - Math.min(0, b ?? 0);
+  return clamp(Math.min(0, a ?? 0) - Math.min(0, b ?? 0));
 }
 
 function filter(q: string | undefined, items: RawDataCatalogItem[]): RawDataCatalogItem[] {
@@ -170,6 +166,10 @@ function filter(q: string | undefined, items: RawDataCatalogItem[]): RawDataCata
   return items.filter(
     i => i.name.includes(q) || i.pref.includes(q) || i.city?.includes(q) || i.ward?.includes(q),
   );
+}
+
+function clamp(n: number): number {
+  return Math.max(-1, Math.min(1, n));
 }
 
 const zenkyu = "全球データ";
