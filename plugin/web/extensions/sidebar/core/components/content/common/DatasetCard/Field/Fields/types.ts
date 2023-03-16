@@ -181,6 +181,7 @@ export type SwitchDataset = FieldBase<"switchDataset"> & {
   uiStyle?: "dropdown" | "radio";
   userSettings: {
     selected?: ConfigData;
+    override?: any;
   };
 };
 
@@ -331,36 +332,42 @@ type BuildingFilter = FieldBase<"buildingFilter"> & {
     height?: [from: number, to: number];
     abovegroundFloor?: [from: number, to: number];
     basementFloor?: [from: number, to: number];
+    override?: any;
   };
 };
 
 type BuildingShadow = FieldBase<"buildingShadow"> & {
   userSettings: {
     shadow: "disabled" | "enabled" | "cast_only" | "receive_only";
+    override?: any;
   };
 };
 
 type BuildingTransparency = FieldBase<"buildingTransparency"> & {
   userSettings: {
     transparency: number;
+    override?: any;
   };
 };
 
 type BuildingColor = FieldBase<"buildingColor"> & {
   userSettings: {
     colorType: string;
+    override?: any;
   };
 };
 
 type FloodColor = FieldBase<"floodColor"> & {
   userSettings: {
     colorType: "water" | "rank";
+    override?: any;
   };
 };
 
 type FloodFilter = FieldBase<"floodFilter"> & {
   userSettings: {
     rank?: [from: number, to: number];
+    override?: any;
   };
 };
 

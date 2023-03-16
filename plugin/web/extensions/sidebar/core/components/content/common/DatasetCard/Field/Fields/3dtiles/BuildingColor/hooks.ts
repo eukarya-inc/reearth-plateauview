@@ -27,9 +27,8 @@ const useHooks = ({
     (property: any) => {
       onUpdate({
         ...value,
-        ...options,
+        userSettings: { ...options, override: { "3dtiles": property } },
         updatedAt: new Date(),
-        override: { "3dtiles": property },
       });
     },
     [onUpdate, options, value],

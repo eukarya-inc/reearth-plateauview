@@ -29,9 +29,9 @@ const FloodColor: React.FC<BaseFieldProps<"floodColor">> = ({
         ...value,
         userSettings: {
           colorType,
+          override: { "3dtiles": property },
         },
         updatedAt: new Date(),
-        override: { "3dtiles": property },
       });
     },
     [onUpdate, value, colorType],

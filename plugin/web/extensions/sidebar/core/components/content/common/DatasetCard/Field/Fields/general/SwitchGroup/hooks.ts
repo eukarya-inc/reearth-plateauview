@@ -15,7 +15,7 @@ export default ({
 }) => {
   const [groupItems, updateGroupItems] = useState<GroupItem[]>(value.groups);
   const [title, setTitle] = useState(value.title);
-  const [selectedGroup, selectGroup] = useState(value.userSettings?.selected ?? value.groups[0]);
+  const [selectedGroup, selectGroup] = useState(value.userSettings.selected ?? value.groups[0]);
 
   const handleTitleChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
