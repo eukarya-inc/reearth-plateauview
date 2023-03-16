@@ -8,8 +8,6 @@ import { useCallback, useEffect, useState } from "react";
 
 import PopupItem from "../sharedComponents/PopupItem";
 
-type TreeTab = "city" | "type";
-
 type Props = {
   addedDatasetDataIDs?: string[];
   isMobile?: boolean;
@@ -20,7 +18,6 @@ type Props = {
 const Catalog: React.FC<Props> = ({ addedDatasetDataIDs, isMobile, catalogData, onDatasetAdd }) => {
   const [selectedDataset, setDataset] = useState<DataCatalogItem>();
   const [filter, setFilter] = useState<GroupBy>("city");
-  const [currentTreeTab, changeTreeTab] = useState<TreeTab>("city");
   const [page, setPage] = useState<"catalog" | "details">("catalog");
 
   const handleOpenDetails = useCallback((data?: DataCatalogItem) => {
@@ -31,14 +28,6 @@ const Catalog: React.FC<Props> = ({ addedDatasetDataIDs, isMobile, catalogData, 
   const handleFilter = useCallback((filter: GroupBy) => {
     setFilter(filter);
   }, []);
-
-  const handleTreeTabChange = useCallback(
-    (tab: TreeTab) => {
-      changeTreeTab(tab);
-      handleFilter(tab);
-    },
-    [handleFilter],
-  );
 
   const addDisabled = useCallback(
     (dataID: string) => {
@@ -63,10 +52,10 @@ const Catalog: React.FC<Props> = ({ addedDatasetDataIDs, isMobile, catalogData, 
             selectedDataset={selectedDataset}
             isMobile={isMobile}
             catalog={catalogData}
-            currentTreeTab={currentTreeTab}
+            currentTreeTab="city"
             filter={filter}
             addDisabled={addDisabled}
-            onTreeTabChange={handleTreeTabChange}
+            onTreeTabChange={handleFilter}
             onOpenDetails={handleOpenDetails}
             onDatasetAdd={onDatasetAdd}
           />
