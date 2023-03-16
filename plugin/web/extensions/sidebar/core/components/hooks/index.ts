@@ -72,6 +72,7 @@ export default () => {
     handleProjectDatasetAdd,
     handleProjectDatasetRemove,
     handleProjectDatasetRemoveAll,
+    handleProjectDatasetsUpdate,
     handleStorySaveData,
     handleOverride,
   } = useProjectHooks({
@@ -265,6 +266,7 @@ export default () => {
     handleProjectDatasetAdd,
     handleProjectDatasetRemove,
     handleProjectDatasetRemoveAll,
+    handleProjectDatasetsUpdate,
     handleProjectSceneUpdate,
     handleModalOpen,
     handleBuildingSearch,
