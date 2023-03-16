@@ -42,6 +42,7 @@ const PointColorGradient: React.FC<BaseFieldProps<"pointColorGradient">> = ({
 
   const handleStartColorUpdate = useCallback(
     (color: string) => {
+      // colors should be hex for now
       if (color && /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/.test(color)) {
         setColorGradient({ ...colorGradient, startColor: color });
       }
@@ -51,6 +52,7 @@ const PointColorGradient: React.FC<BaseFieldProps<"pointColorGradient">> = ({
 
   const handleEndColorUpdate = useCallback(
     (color: string) => {
+      // colors should be hex for now
       if (color && /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/.test(color)) {
         setColorGradient({ ...colorGradient, endColor: color });
       }
@@ -86,11 +88,10 @@ const PointColorGradient: React.FC<BaseFieldProps<"pointColorGradient">> = ({
       endColor: string,
     ) => {
       const values = generateValues(min, max, step);
-      const colorCount = values.length;
-      const colors = generateColorGradient(startColor, endColor, colorCount);
+      const count = values.length;
+      const colors = generateColorGradient(startColor, endColor, count);
       const conditions: [string, string][] = [];
       const fieldName = "${" + field + "}";
-
       values.forEach((value, index) => {
         const cond: [string, string] = [`${fieldName} >= ${value}`, `'${colors[index]}'`];
         conditions.unshift(cond);
@@ -102,6 +103,8 @@ const PointColorGradient: React.FC<BaseFieldProps<"pointColorGradient">> = ({
   );
 
   useEffect(() => {
+    if (!isActive || isEqual(colorGradient, value)) return;
+
     const { field, min, max, step, startColor, endColor } = colorGradient;
     if (
       field &&
@@ -111,17 +114,7 @@ const PointColorGradient: React.FC<BaseFieldProps<"pointColorGradient">> = ({
       startColor &&
       endColor
     ) {
-      generateConditions(field, min, max, step, startColor, endColor);
-    }
-  });
-
-  useEffect(() => {
-    if (!isActive || isEqual(colorGradient, value)) return;
-
-    const { field, min, max, step, startColor, endColor } = colorGradient;
-    if (field && min && max && step && startColor && endColor) {
       const conditions = generateConditions(field, min, max, step, startColor, endColor);
-      console.log(conditions);
       const timer = setTimeout(() => {
         onUpdate({
           ...colorGradient,
