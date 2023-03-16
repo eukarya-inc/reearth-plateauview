@@ -52,10 +52,9 @@ const Catalog: React.FC<Props> = ({ addedDatasetDataIDs, isMobile, catalogData, 
             selectedDataset={selectedDataset}
             isMobile={isMobile}
             catalog={catalogData}
-            currentTreeTab="city"
             filter={filter}
             addDisabled={addDisabled}
-            onTreeTabChange={handleFilter}
+            onFilter={handleFilter}
             onOpenDetails={handleOpenDetails}
             onDatasetAdd={onDatasetAdd}
           />
