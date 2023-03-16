@@ -140,9 +140,11 @@ export default ({
       }
 
       updateProject(project => {
+        const datasets = [...project.datasets];
+        datasets.unshift(datasetToAdd);
         const updatedProject: Project = {
           ...project,
-          datasets: [...project.datasets, datasetToAdd],
+          datasets,
         };
 
         postMsg({ action: "updateProject", payload: updatedProject });
