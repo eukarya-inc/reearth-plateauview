@@ -1,5 +1,5 @@
 import { RawDataCatalogItem } from "@web/extensions/sidebar/modals/datacatalog/api/api";
-import { cloneDeep, merge } from "lodash";
+import { cloneDeep, isEqual, merge } from "lodash";
 
 import { Data, DataCatalogItem, Template } from "../../types";
 import {
@@ -67,7 +67,7 @@ export const mergeOverrides = (
     );
   }
 
-  return overrides;
+  return isEqual(overrides, {}) ? undefined : overrides;
 };
 
 export const updateExtended = (e: { vertically: boolean }) => {
