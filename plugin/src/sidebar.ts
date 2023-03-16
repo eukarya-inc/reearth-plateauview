@@ -250,6 +250,9 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
     if (payload) {
       reearth.modal.postMessage({ action, payload });
     }
+    reearth.clientStorage.getAsync("filter").then((filter: any) => {
+      if (filter) reearth.modal.postMessage({ action, payload: { filter } });
+    });
     reearth.clientStorage.getAsync("expandedKeys").then((expandedKeys: any) => {
       if (expandedKeys) reearth.modal.postMessage({ action, payload: { expandedKeys } });
     });
@@ -264,16 +267,13 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
     reearth.modal.close();
     welcomePageIsOpen = false;
   } else if (action === "initDataCatalog") {
-    reearth.clientStorage.getAsync("currentTreeTab").then((currentTreeTab: any) => {
-      reearth.modal.postMessage({
-        action,
-        payload: {
-          dataCatalog,
-          addedDatasets: addedDatasets.map(d => d[0]),
-          inEditor: reearth.scene.inEditor,
-          currentTreeTab: currentTreeTab ?? "city",
-        },
-      });
+    reearth.modal.postMessage({
+      action,
+      payload: {
+        dataCatalog,
+        addedDatasets: addedDatasets.map(d => d[0]),
+        inEditor: reearth.scene.inEditor,
+      },
     });
   } else if (action === "helpPopupOpen") {
     reearth.popup.show(helpPopupHtml, { position: "right-start", offset: 4 });
