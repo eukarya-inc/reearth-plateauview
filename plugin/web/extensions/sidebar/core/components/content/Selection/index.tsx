@@ -21,7 +21,7 @@ export type Props = {
   onDatasetUpdate: (dataset: DataCatalogItem, cleanseOverride?: any) => void;
   onDatasetRemove: (dataID: string) => void;
   onDatasetRemoveAll: () => void;
-  onProjectDatasetsUpdate: (datasets: DataCatalogItem[]) => void;
+  onProjectDatasetsUpdate?: (datasets: DataCatalogItem[]) => void;
   onModalOpen?: () => void;
   onBuildingSearch: (id: string) => void;
   onOverride?: (dataID: string, activeIDs?: string[]) => void;
@@ -47,7 +47,7 @@ const Selection: React.FC<Props> = ({
 }) => {
   const moveCard = useCallback(
     (dragIndex: number, hoverIndex: number) => {
-      if (selectedDatasets) {
+      if (selectedDatasets && onProjectDatasetsUpdate) {
         const updatedDatasets = [...selectedDatasets];
         swap(updatedDatasets, dragIndex, hoverIndex);
         onProjectDatasetsUpdate(updatedDatasets);
