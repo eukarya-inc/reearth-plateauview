@@ -124,7 +124,15 @@ function path(i: RawDataCatalogItem, groupBy: GroupBy): string[] {
         i.pref,
         ...(i.city ? [i.city] : []),
         ...(i.ward ? [i.ward] : []),
-        ...(i.type2 || (i.type === "ユースケース" && i.pref !== zenkyu) ? [i.type] : []),
+        ...(i.type2 ||
+        ((i.type_en === "usecase" ||
+          i.type_en === "fld" ||
+          i.type_en === "htd" ||
+          i.type_en === "tnm" ||
+          i.type_en === "ifld") &&
+          i.pref !== zenkyu)
+          ? [i.type]
+          : []),
         ...i.name.split("/"),
       ];
 }
