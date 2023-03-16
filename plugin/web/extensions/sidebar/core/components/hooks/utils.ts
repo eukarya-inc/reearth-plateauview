@@ -2,10 +2,7 @@ import { RawDataCatalogItem } from "@web/extensions/sidebar/modals/datacatalog/a
 import { cloneDeep, isEqual, merge } from "lodash";
 
 import { Data, DataCatalogItem, Template } from "../../types";
-import {
-  cleanseOverrides,
-  defaultUserSettings,
-} from "../content/common/DatasetCard/Field/fieldConstants";
+import { cleanseOverrides } from "../content/common/DatasetCard/Field/fieldConstants";
 import { FieldComponent } from "../content/common/DatasetCard/Field/Fields/types";
 
 export const convertToData = (item: DataCatalogItem, templates?: Template[]): Data => {
@@ -16,8 +13,6 @@ export const convertToData = (item: DataCatalogItem, templates?: Template[]): Da
       const newComp = Object.assign({}, c);
       if (newComp.type === "template" && newComp.components) {
         newComp.components = templates?.find(t => t.id === newComp.templateID)?.components ?? [];
-      } else if (newComp.userSettings) {
-        newComp.userSettings = defaultUserSettings[newComp.type];
       }
       return newComp;
     }),
@@ -39,8 +34,12 @@ export const mergeOverrides = (
   const overrides = cloneDeep(startingOverride ?? {});
 
   const needOrderComponents = components
-    .filter(c => c.updatedAt)
-    .sort((a, b) => (a.updatedAt?.getTime?.() ?? 0) - (b.updatedAt?.getTime?.() ?? 0));
+    .filter(c => (c as any).userSettings?.updatedAt)
+    .sort(
+      (a, b) =>
+        ((a as any).userSettings?.updatedAt?.getTime?.() ?? 0) -
+        ((b as any).userSettings?.updatedAt?.getTime?.() ?? 0),
+    );
   for (const component of needOrderComponents) {
     merge(
       overrides,
@@ -51,7 +50,7 @@ export const mergeOverrides = (
   }
 
   for (let i = 0; i < components.length; i++) {
-    if (components[i].updatedAt) {
+    if ((components[i] as any).userSettings?.updatedAt) {
       continue;
     }
     if (components[i].type === "switchDataset" && action === "cleanse") {

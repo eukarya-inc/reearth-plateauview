@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 
 import { BaseFieldProps } from "../../types";
 
@@ -12,18 +12,14 @@ const useHooks = ({
   onUpdate,
 }: Pick<BaseFieldProps<"buildingTransparency">, "value" | "dataID" | "onUpdate">) => {
   const [options, setOptions] = useState<OptionsState>({
-    transparency: value.userSettings.transparency,
+    transparency: value.userSettings.transparency ?? 100,
   });
-  useEffect(() => {
-    console.log("value", value);
-  }, [value]);
 
   const handleUpdate = useCallback(
     (property: any) => {
       onUpdate({
         ...value,
-        userSettings: { ...options, override: { "3dtiles": property } },
-        updatedAt: new Date(),
+        userSettings: { ...options, updatedAt: new Date(), override: { "3dtiles": property } },
       });
     },
     [onUpdate, value, options],

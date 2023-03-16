@@ -106,7 +106,6 @@ type FieldBase<T extends keyof typeof fieldName> = {
   group?: string;
   override?: any;
   cleanseOverride?: any;
-  updatedAt?: Date;
 };
 
 type CameraPosition = {
@@ -350,6 +349,7 @@ type BuildingShadow = FieldBase<"buildingShadow"> & {
 type BuildingTransparency = FieldBase<"buildingTransparency"> & {
   userSettings: {
     transparency: number;
+    updatedAt?: Date;
     override?: any;
   };
 };
@@ -357,6 +357,7 @@ type BuildingTransparency = FieldBase<"buildingTransparency"> & {
 type BuildingColor = FieldBase<"buildingColor"> & {
   userSettings: {
     colorType: string;
+    updatedAt?: Date;
     override?: any;
   };
 };
@@ -364,6 +365,7 @@ type BuildingColor = FieldBase<"buildingColor"> & {
 type FloodColor = FieldBase<"floodColor"> & {
   userSettings: {
     colorType: "water" | "rank";
+    updatedAt?: Date;
     override?: any;
   };
 };

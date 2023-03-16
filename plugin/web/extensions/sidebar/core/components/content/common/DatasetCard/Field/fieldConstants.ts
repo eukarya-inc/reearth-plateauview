@@ -1,18 +1,3 @@
-export const getDefaultUserSettings = (type: any) => {
-  return {
-    userSettings: defaultUserSettings[type] ?? {},
-  };
-};
-
-export const defaultUserSettings: { [key: string]: any } = {
-  realtime: { enabled: true },
-  timeline: { timeBasedDisplay: true },
-  buildingColor: { colorType: "none" },
-  buildingShadow: { shadow: "disabled" },
-  buildingTransparency: { transparency: 100 },
-  floodColor: { colorType: "water" },
-};
-
 export const cleanseOverrides: { [key: string]: any } = {
   eventField: { events: undefined },
   realtime: { data: { updateInterval: undefined } },

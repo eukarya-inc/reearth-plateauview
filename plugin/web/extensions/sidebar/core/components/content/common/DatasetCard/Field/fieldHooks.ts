@@ -2,7 +2,6 @@ import { generateID } from "@web/extensions/sidebar/utils";
 import { fieldGroups } from "@web/extensions/sidebar/utils/fieldGroups";
 import { useMemo } from "react";
 
-import { getDefaultUserSettings } from "./fieldConstants";
 import { fieldName } from "./Fields/types";
 
 type FieldDropdownItem = {
@@ -42,11 +41,11 @@ export default ({
       },
       realtime: {
         name: fieldName["realtime"],
-        onClick: onFieldAdd({ updateInterval: 30, ...getDefaultUserSettings("realtime") }),
+        onClick: onFieldAdd({ updateInterval: 30, userSettings: {} }),
       },
       timeline: {
         name: fieldName["timeline"],
-        onClick: onFieldAdd({ timeFieldName: "", ...getDefaultUserSettings("timeline") }),
+        onClick: onFieldAdd({ timeFieldName: "", userSettings: {} }),
       },
       currentTime: {
         name: fieldName["currentTime"],
@@ -186,7 +185,7 @@ export default ({
     return {
       buildingColor: {
         name: fieldName["buildingColor"],
-        onClick: onFieldAdd(getDefaultUserSettings("buildingColor")),
+        onClick: onFieldAdd({ userSettings: {} }),
       },
       buildingFilter: {
         name: fieldName["buildingFilter"],
@@ -194,11 +193,11 @@ export default ({
       },
       buildingShadow: {
         name: fieldName["buildingShadow"],
-        onClick: onFieldAdd(getDefaultUserSettings("buildingColor")),
+        onClick: onFieldAdd({ userSettings: {} }),
       },
       buildingTransparency: {
         name: fieldName["buildingTransparency"],
-        onClick: onFieldAdd(getDefaultUserSettings("buildingTransparency")),
+        onClick: onFieldAdd({ userSettings: {} }),
       },
       clipping: {
         name: fieldName["clipping"],
@@ -213,7 +212,7 @@ export default ({
       },
       floodColor: {
         name: fieldName["floodColor"],
-        onClick: onFieldAdd(getDefaultUserSettings("floatColor")),
+        onClick: onFieldAdd({ userSettings: {} }),
       },
       floodFilter: {
         name: fieldName["floodFilter"],
