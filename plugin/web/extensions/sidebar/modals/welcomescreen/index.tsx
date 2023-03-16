@@ -21,7 +21,7 @@ const WelcomeScreen: React.FC = () => {
     <Wrapper>
       {!showVideo ? (
         <InnerWrapper isMobile={isMobile}>
-          <InnerCloseButton size={40} icon="close" onClick={handleClose} isMobile={isMobile} />
+          <CloseButton size={40} icon="close" onClick={handleClose} isMobile={isMobile} />
           <TextWrapper isMobile={isMobile}>
             <Title weight={700} size={isMobile ? 24 : 48}>
               ようこそ
@@ -60,12 +60,12 @@ const WelcomeScreen: React.FC = () => {
           </CheckWrapper>
         </InnerWrapper>
       ) : (
-        <>
-          <CloseButton size={40} icon="close" onClick={handleCloseVideo} />
+        <CloseBtnWrapper isMobile={isMobile}>
+          <CloseButton size={40} icon="close" onClick={handleCloseVideo} isMobile={isMobile} />
           <VideoWrapper>
             <Video width=" 1142" height="543" src="https://www.youtube.com/embed/pY2dM-eG5mA" />
           </VideoWrapper>
-        </>
+        </CloseBtnWrapper>
       )}
     </Wrapper>
   );
@@ -135,7 +135,7 @@ const ImgWrapper = styled.div`
   cursor: pointer;
 `;
 
-const InnerCloseButton = styled(Icon)<{ isMobile?: boolean }>`
+const CloseButton = styled(Icon)<{ isMobile?: boolean }>`
   display: flex;
   justify-content: center;
   align-items: center;
@@ -145,21 +145,6 @@ const InnerCloseButton = styled(Icon)<{ isMobile?: boolean }>`
   width: ${({ isMobile }) => (isMobile ? "48px" : "40px")};
   height: ${({ isMobile }) => (isMobile ? "48px" : "40px")};
   border: none;
-  color: white;
-  cursor: pointer;
-`;
-
-const CloseButton = styled(Icon)`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  position: absolute;
-  right: 0;
-  top: 0;
-  height: 48px;
-  width: 48px;
-  border: none;
-  background: #00bebe;
   color: white;
   cursor: pointer;
 `;
@@ -195,4 +180,12 @@ const CheckWrapper = styled.div`
 const VideoWrapper = styled.div`
   width: 1142px;
   height: 543px;
+`;
+const CloseBtnWrapper = styled.div<{ isMobile?: boolean }>`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  position: relative;
+  width: ${({ isMobile }) => (isMobile ? "348px" : "1182px")};
+  height: ${({ isMobile }) => (isMobile ? "390px" : "635px")};
 `;
