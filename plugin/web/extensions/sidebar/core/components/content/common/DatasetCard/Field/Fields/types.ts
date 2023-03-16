@@ -233,6 +233,8 @@ type PointColor = FieldBase<"pointColor"> & {
 
 type PointColorGradient = FieldBase<"pointColorGradient"> & {
   field?: string;
+  min?: number;
+  max?: number;
   startColor?: string;
   endColor?: string;
   step?: number;
