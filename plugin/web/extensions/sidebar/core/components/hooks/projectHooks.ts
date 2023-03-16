@@ -131,7 +131,9 @@ export default ({
               id: generateID(),
               type: "template",
               templateID: defaultTemplate.id,
-              components: defaultTemplate.components,
+              userSettings: {
+                components: defaultTemplate.components,
+              },
             },
           ];
         }

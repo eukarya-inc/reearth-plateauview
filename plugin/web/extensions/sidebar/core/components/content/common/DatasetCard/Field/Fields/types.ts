@@ -210,7 +210,10 @@ export type Story = FieldBase<"story"> & {
 
 type Template = FieldBase<"template"> & {
   templateID?: string;
-  components?: FieldComponent[];
+  userSettings: {
+    components?: FieldComponent[];
+    override?: any;
+  };
 };
 
 type EventField = FieldBase<"eventField"> & {
