@@ -60,7 +60,11 @@ const SwitchDataset: React.FC<BaseFieldProps<"switchDataset">> = ({
   }, []);
 
   useEffect(() => {
-    if (!isActive || selectedDataset === value.userSettings.selected) return;
+    if (
+      !isActive ||
+      (selectedDataset === value.userSettings.selected && selectedStyle === value.uiStyle)
+    )
+      return;
     onUpdate({
       ...value,
       uiStyle: selectedStyle,
