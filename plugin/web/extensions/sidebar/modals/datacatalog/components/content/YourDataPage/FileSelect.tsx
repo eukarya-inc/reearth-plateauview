@@ -46,9 +46,14 @@ const Wrapper = styled.div`
 `;
 
 const StyledTabs = styled(Tabs)`
-  margin-bottom: 12px; 
-  .ant-tabs-nav .ant-tabs-nav-more {
-  display: none;
-}
-}
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 12px;
+  .ant-tabs-nav {
+    width: fit-content;
+  }
+  .ant-tabs-nav .ant-tabs-tab {
+    margin-left: 16px;
+  }
 `;
