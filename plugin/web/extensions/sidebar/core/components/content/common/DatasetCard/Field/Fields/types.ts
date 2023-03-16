@@ -324,6 +324,7 @@ type Clipping = FieldBase<"clipping"> & {
     show: boolean;
     aboveGroundOnly: boolean;
     direction: "inside" | "outside";
+    override?: any;
   };
 };
 
