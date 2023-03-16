@@ -1,20 +1,23 @@
 import { RawDataCatalogItem } from "@web/extensions/sidebar/modals/datacatalog/api/api";
 import { cloneDeep, merge } from "lodash";
 
-import { Data, DataCatalogItem } from "../../types";
-import { cleanseOverrides } from "../content/common/DatasetCard/Field/fieldHooks";
+import { Data, DataCatalogItem, Template } from "../../types";
+import {
+  cleanseOverrides,
+  defaultUserSettings,
+} from "../content/common/DatasetCard/Field/fieldConstants";
 import { FieldComponent } from "../content/common/DatasetCard/Field/Fields/types";
 
-export const convertToData = (item: DataCatalogItem): Data => {
+export const convertToData = (item: DataCatalogItem, templates?: Template[]): Data => {
   return {
     dataID: item.dataID,
     public: item.public,
     components: item.components?.map((c: any) => {
       const newComp = Object.assign({}, c);
       if (newComp.type === "template" && newComp.components) {
-        delete newComp.components;
+        newComp.components = templates?.find(t => t.id === newComp.templateID)?.components ?? [];
       } else if (newComp.userSettings) {
-        delete newComp.userSettings;
+        newComp.userSettings = defaultUserSettings[newComp.type];
       }
       return newComp;
     }),
@@ -39,7 +42,12 @@ export const mergeOverrides = (
     .filter(c => c.updatedAt)
     .sort((a, b) => (a.updatedAt?.getTime?.() ?? 0) - (b.updatedAt?.getTime?.() ?? 0));
   for (const component of needOrderComponents) {
-    merge(overrides, action === "cleanse" ? cleanseOverrides[component.type] : component.override);
+    merge(
+      overrides,
+      action === "cleanse"
+        ? cleanseOverrides[component.type]
+        : (component as any).userSettings?.override ?? component.override,
+    );
   }
 
   for (let i = 0; i < components.length; i++) {
@@ -53,7 +61,9 @@ export const mergeOverrides = (
 
     merge(
       overrides,
-      action === "cleanse" ? cleanseOverrides[components[i].type] : components[i].override,
+      action === "cleanse"
+        ? cleanseOverrides[components[i].type]
+        : (components[i] as any).userSettings?.override ?? components[i].override,
     );
   }
 
