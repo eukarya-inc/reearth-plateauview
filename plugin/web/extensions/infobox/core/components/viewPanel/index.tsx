@@ -9,6 +9,7 @@ type Props = {
   fields: Field[];
   commonProperties: string[];
   attributesKey?: string;
+  attributesName?: string;
 };
 
 const ViewPanel: React.FC<Props> = ({
@@ -17,6 +18,7 @@ const ViewPanel: React.FC<Props> = ({
   fields,
   commonProperties,
   attributesKey,
+  attributesName,
 }) => {
   return (
     <>
@@ -28,6 +30,7 @@ const ViewPanel: React.FC<Props> = ({
         fields={fields}
         commonProperties={commonProperties}
         attributesKey={attributesKey}
+        attributesName={attributesName}
       />
     </>
   );

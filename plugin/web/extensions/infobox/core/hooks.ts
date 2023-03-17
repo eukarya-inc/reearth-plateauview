@@ -174,6 +174,7 @@ export default () => {
             ? { [attributesKey]: getAttributes(properties.attributes, "label") }
             : {}),
           ...rootFields,
+          // use omit to keep field order
           ...omit(properties, [...Object.keys(rootFields), "attributes"]),
         }
       : undefined;
@@ -189,6 +190,7 @@ export default () => {
     isSaving,
     editorTab,
     commonProperties,
+    attributesName,
     attributesKey,
     handleEditorTab,
     onFieldCheckChange,
@@ -198,4 +200,5 @@ export default () => {
   };
 };
 
-const attributesKey = "全ての属性";
+const attributesName = "全ての属性";
+const attributesKey = "attributes";
