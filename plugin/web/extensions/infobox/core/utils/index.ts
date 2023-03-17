@@ -40,23 +40,23 @@ export const commonPropertiesMap: { [key: string]: string[] } = {
   // 都市計画決定情報
   urf: ["gml_id", "feature_type", "feature_type_jp", "function_code", "function"],
   // 洪水浸水想定区域
-  fld: ["name", "rank", "rank_code", "rank_org", "rank_org_code"],
+  fld: ["gml_id", "name", "rank", "rank_code", "rank_org", "rank_org_code"],
   // 高潮浸水想定区域
-  htd: ["name", "rank", "rank_code", "rank_org", "rank_org_code"],
+  htd: ["gml_id", "name", "rank", "rank_code", "rank_org", "rank_org_code"],
   // 津波浸水想定区域
-  tnm: ["name", "rank", "rank_code", "rank_org", "rank_org_code"],
+  tnm: ["gml_id", "name", "rank", "rank_code", "rank_org", "rank_org_code"],
   // 内水浸水想定区域
-  ifld: ["name", "rank", "rank_code", "rank_org", "rank_org_code"],
+  ifld: ["gml_id", "name", "rank", "rank_code", "rank_org", "rank_org_code"],
   // 道路
-  tran: [],
+  tran: ["gml_id"],
   // 都市設備
-  frn: [],
+  frn: ["gml_id"],
   // 植生
-  veg: [],
+  veg: ["gml_id"],
   // 土地利用
-  luse: [],
+  luse: ["gml_id"],
   // 土砂災害警戒区域
-  lsld: [],
+  lsld: ["gml_id"],
 };
 
 export const cesium3DTilesAppearanceKeys: string[] = [
