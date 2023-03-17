@@ -3,7 +3,13 @@ import {
   ButtonWrapper,
   Wrapper,
 } from "@web/extensions/sidebar/core/components/content/common/DatasetCard/Field/commonComponents";
-import { generateID, moveItemDown, moveItemUp, removeItem } from "@web/extensions/sidebar/utils";
+import {
+  generateID,
+  moveItemDown,
+  moveItemUp,
+  removeItem,
+  postMsg,
+} from "@web/extensions/sidebar/utils";
 import { Icon, Dropdown, Menu, Radio } from "@web/sharedComponents";
 import { styled } from "@web/theme";
 import { useState, useCallback, useEffect, useRef } from "react";
@@ -88,13 +94,20 @@ const SwitchVisibility: React.FC<BaseFieldProps<"switchVisibility">> = ({
   //
   const [selectedVisibility, setSelectedVisibility] = useState(value.userSettings?.selected ?? 0);
 
+  const handleSelectVisibility = (index: number) => {
+    setSelectedVisibility(index);
+    postMsg({
+      action: "unselect",
+    });
+  };
+
   const visibilityOptions = (
     <Menu
       items={conditions?.map((c, index) => {
         return {
           key: index,
           label: (
-            <p style={{ margin: 0 }} onClick={() => setSelectedVisibility(index)}>
+            <p style={{ margin: 0 }} onClick={() => handleSelectVisibility(index)}>
               {c.title}
             </p>
           ),
@@ -201,7 +214,7 @@ const SwitchVisibility: React.FC<BaseFieldProps<"switchVisibility">> = ({
         {conditions.length > 0 ? (
           selectedStyle === "radio" ? (
             <Radio.Group
-              onChange={e => setSelectedVisibility(e.target.value)}
+              onChange={e => handleSelectVisibility(e.target.value)}
               value={selectedVisibility}>
               {conditions?.map((c, index) => (
                 <StyledRadio key={index} value={index}>
@@ -218,7 +231,7 @@ const SwitchVisibility: React.FC<BaseFieldProps<"switchVisibility">> = ({
                 getPopupContainer={trigger => trigger.parentElement ?? document.body}>
                 <StyledDropdownButton>
                   <p style={{ margin: 0 }}>{conditions[selectedVisibility].title}</p>
-                  <Icon icon="arrowDownSimple" size={12} />
+                  <StyledIcon icon="arrowDownSimple" size={12} />
                 </StyledDropdownButton>
               </Dropdown>
             </FieldValue>
