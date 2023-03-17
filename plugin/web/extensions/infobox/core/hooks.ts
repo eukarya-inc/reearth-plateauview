@@ -172,7 +172,7 @@ export default () => {
       ? {
           ...(properties.attributes ? { attributes: getAttributes(properties.attributes) } : {}),
           ...rootFields,
-          ...omit(properties, Object.keys(rootFields)),
+          ...omit(properties, [...Object.keys(rootFields), "attributes"]),
         }
       : undefined;
   }, [properties]);
