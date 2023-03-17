@@ -135,6 +135,14 @@ const SwitchVisibility: React.FC<BaseFieldProps<"switchVisibility">> = ({
         showConditions.unshift([stringifyCondition(selectedCondition), "true"]);
       }
 
+      const appearanceOverride = {
+        show: {
+          expression: {
+            conditions: showConditions,
+          },
+        },
+      };
+
       onUpdateRef.current({
         ...valueRef.current,
         uiStyle: selectedStyle,
@@ -143,34 +151,10 @@ const SwitchVisibility: React.FC<BaseFieldProps<"switchVisibility">> = ({
           selected: selectedVisibility,
         },
         override: {
-          marker: {
-            show: {
-              expression: {
-                conditions: showConditions,
-              },
-            },
-          },
-          polyline: {
-            show: {
-              expression: {
-                conditions: showConditions,
-              },
-            },
-          },
-          polygon: {
-            show: {
-              expression: {
-                conditions: showConditions,
-              },
-            },
-          },
-          "3dtiles": {
-            show: {
-              expression: {
-                conditions: showConditions,
-              },
-            },
-          },
+          marker: appearanceOverride,
+          polyline: appearanceOverride,
+          polygon: appearanceOverride,
+          "3dtiles": appearanceOverride,
         },
       });
     }, 500);
