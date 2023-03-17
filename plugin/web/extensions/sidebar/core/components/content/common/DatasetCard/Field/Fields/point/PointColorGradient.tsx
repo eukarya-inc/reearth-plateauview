@@ -4,10 +4,31 @@ import {
 } from "@web/extensions/sidebar/core/components/content/common/DatasetCard/Field/common";
 import { Wrapper } from "@web/extensions/sidebar/core/components/content/common/DatasetCard/Field/commonComponents";
 import { generateColorGradient } from "@web/extensions/sidebar/utils/color";
-import { isEqual } from "lodash";
-import { useCallback, useEffect, useState } from "react";
+import { isEqual, omit } from "lodash";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { BaseFieldProps } from "../types";
+
+const generateConditions = (
+  field?: string,
+  min?: number,
+  max?: number,
+  step?: number,
+  startColor?: string,
+  endColor?: string,
+) => {
+  if (!field || !min || !max || !step || !startColor || !endColor || min >= max || step >= max) {
+    return [];
+  }
+
+  const values = [];
+  for (let i = min; i <= max; i += step) values.push(i);
+  const colors = generateColorGradient(startColor, endColor, values.length);
+  const fieldName = "${" + String(field) + "}";
+  return values
+    .map((value, index) => [`${fieldName} >= ${String(value)}`, `'${String(colors[index])}'`])
+    .reverse();
+};
 
 const PointColorGradient: React.FC<BaseFieldProps<"pointColorGradient">> = ({
   value,
@@ -70,71 +91,32 @@ const PointColorGradient: React.FC<BaseFieldProps<"pointColorGradient">> = ({
     [colorGradient],
   );
 
-  const generateValues = (min: number, max: number, step: number) => {
-    const result = [];
-    for (let i = min; i <= max; i += step) {
-      result.push(i);
-    }
-    return result;
-  };
-
-  const generateConditions = useCallback(
-    (
-      field: string,
-      min: number,
-      max: number,
-      step: number,
-      startColor: string,
-      endColor: string,
-    ) => {
-      const values = generateValues(min, max, step);
-      const count = values.length;
-      const colors = generateColorGradient(startColor, endColor, count);
-      const conditions: [string, string][] = [];
-      const fieldName = "${" + field + "}";
-      values.forEach((value, index) => {
-        const cond: [string, string] = [`${fieldName} >= ${value}`, `'${colors[index]}'`];
-        conditions.unshift(cond);
-      });
-
-      return conditions;
-    },
-    [],
-  );
+  const conditions = useMemo(() => {
+    const { field, min, max, step, startColor, endColor } = colorGradient;
+    return generateConditions(field, min, max, step, startColor, endColor);
+  }, [colorGradient]);
 
   useEffect(() => {
-    if (!isActive || isEqual(colorGradient, value)) return;
-
-    const { field, min, max, step, startColor, endColor } = colorGradient;
-    if (
-      field &&
-      min !== undefined &&
-      max !== undefined &&
-      step !== undefined &&
-      startColor &&
-      endColor
-    ) {
-      const conditions = generateConditions(field, min, max, step, startColor, endColor);
-      const timer = setTimeout(() => {
-        onUpdate({
-          ...colorGradient,
-          override: {
-            marker: {
-              style: "point",
-              pointColor: {
-                expression: {
-                  conditions,
-                },
+    if (!isActive || isEqual(omit(colorGradient, "override"), omit(value, "override"))) return;
+    const timer = setTimeout(() => {
+      onUpdate({
+        ...colorGradient,
+        override: {
+          marker: {
+            style: "point",
+            pointColor: {
+              expression: {
+                conditions,
               },
             },
           },
-        });
-      }, 500);
-      return () => {
-        clearTimeout(timer);
-      };
-    }
-  }, [isActive, value, onUpdate, colorGradient, generateConditions]);
+        },
+      });
+    }, 500);
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [isActive, value, onUpdate, colorGradient, conditions]);
 
   return editMode ? (
     <Wrapper>
