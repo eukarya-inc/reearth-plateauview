@@ -55,6 +55,7 @@ export function getRootFields(properties: Properties): any {
     名称: get(properties, ["attributes", "gml:name"]),
     分類: get(properties, ["attributes", "bldg:class"]),
     用途: get(properties, ["attributes", "bldg:usage", 0]),
+    住所: get(properties, ["attributes", "bldg:address"]),
     建築年: get(properties, ["attributes", "bldg:yearOfConstruction"]),
     計測高さ: get(properties, ["attributes", "bldg:measuredHeight"]),
     地上階数: get(properties, ["attributes", "bldg:storeysAboveGround"]),
