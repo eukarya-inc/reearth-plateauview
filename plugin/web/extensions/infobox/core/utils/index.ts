@@ -25,7 +25,7 @@ export const commonPropertiesMap: { [key: string]: string[] } = {
     "地下階数",
     "敷地面積",
     "構造種別",
-    "構造種別（独自）",
+    "構造種別（自治体独自）",
     "耐火構造種別",
     "都市計画区域",
     "区域区分",
