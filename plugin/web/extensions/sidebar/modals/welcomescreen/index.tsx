@@ -1,6 +1,6 @@
-import welcomeScreenVideo from "@web/extensions/sidebar/core/assets/welcomeScreenVideo.png";
+import welcomeScreenVideo from "@web/extensions/sidebar/core/assets/welcomeScreenVideo.jpg";
 import useHooks from "@web/extensions/sidebar/modals/welcomescreen/hooks";
-import { Checkbox, Icon } from "@web/sharedComponents";
+import { Checkbox, Icon, Button } from "@web/sharedComponents";
 import Video from "@web/sharedComponents/Video";
 import { styled } from "@web/theme";
 
@@ -10,7 +10,6 @@ const WelcomeScreen: React.FC = () => {
     showVideo,
     dontShowAgain,
     handleDontShowAgain,
-    handleShowVideo,
     handleCloseVideo,
     handleClose,
     handleOpenHelp,
@@ -32,8 +31,12 @@ const WelcomeScreen: React.FC = () => {
           </TextWrapper>
           <ContentWrapper isMobile={isMobile}>
             {!isMobile && (
-              <ImgWrapper>
-                <img src={welcomeScreenVideo} onClick={handleShowVideo} />
+              <ImgWrapper
+                type="text"
+                href="https://www.mlit.go.jp/plateau/learning/?topic=plateau-view"
+                target="_blank"
+                imgUrl={welcomeScreenVideo}>
+                <Icon icon="playCircle" size={48} color="#fff" />
               </ImgWrapper>
             )}
             <BtnsWrapper isMobile={isMobile}>
@@ -129,10 +132,20 @@ const BtnsWrapper = styled.div<{ isMobile?: boolean }>`
   width: ${({ isMobile }) => (isMobile ? "100%" : "318px")};
 `;
 
-const ImgWrapper = styled.div`
+const ImgWrapper = styled.a<{ imgUrl: string }>`
+  display: flex;
+  justify-content: center;
+  align-items: center;
   width: 305px;
   height: 159px;
   cursor: pointer;
+  background: ${props =>
+    `linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url(${props.imgUrl})`};
+
+  background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)) url(welcomeScreenVideo);
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center center;
 `;
 
 const CloseButton = styled(Icon)<{ isMobile?: boolean }>`
