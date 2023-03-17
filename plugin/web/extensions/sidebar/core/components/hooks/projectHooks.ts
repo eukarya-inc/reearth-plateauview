@@ -69,7 +69,7 @@ export default ({
 }) => {
   const [projectID, setProjectID] = useState<string>();
   const [project, updateProject] = useState<Project>(defaultProject);
-  const [cleanseOverride, setCleanseOverride] = useState<string>();
+  const [cleanseOverride, setCleanseOverride] = useState<any>();
 
   const processOverrides = useCallback(
     (dataset: DataCatalogItem, activeIDs?: string[]) => {
@@ -131,16 +131,20 @@ export default ({
               id: generateID(),
               type: "template",
               templateID: defaultTemplate.id,
-              components: defaultTemplate.components,
+              userSettings: {
+                components: defaultTemplate.components,
+              },
             },
           ];
         }
       }
 
       updateProject(project => {
+        const datasets = [...project.datasets];
+        datasets.unshift(datasetToAdd);
         const updatedProject: Project = {
           ...project,
-          datasets: [...project.datasets, datasetToAdd],
+          datasets,
         };
 
         postMsg({ action: "updateProject", payload: updatedProject });
