@@ -63,8 +63,7 @@ const PointColorGradient: React.FC<BaseFieldProps<"pointColorGradient">> = ({
 
   const handleStartColorUpdate = useCallback(
     (color: string) => {
-      // colors should be hex for now
-      if (color && /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/.test(color)) {
+      if (color) {
         setColorGradient({ ...colorGradient, startColor: color });
       }
     },
@@ -73,8 +72,7 @@ const PointColorGradient: React.FC<BaseFieldProps<"pointColorGradient">> = ({
 
   const handleEndColorUpdate = useCallback(
     (color: string) => {
-      // colors should be hex for now
-      if (color && /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/.test(color)) {
+      if (color) {
         setColorGradient({ ...colorGradient, endColor: color });
       }
     },
