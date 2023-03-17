@@ -98,7 +98,7 @@ uro:BuildingHighTideRiskAttribute,高潮浸水リスク
 uro:BuildingInlandFloodingRiskAttribute,内水浸水リスク
 uro:BuildingLandSlideRiskAttribute,土砂災害リスク
 uro:areaType,区域区分
-uro:BuildingDataQualityAttribute ,データ品質
+uro:BuildingDataQualityAttribute,データ品質
 uro:srcScale,地図情報レベル
 uro:geometrySrcDesc,幾何属性作成方法
 uro:thematicSrcDesc,主題属性作成方法
@@ -133,7 +133,7 @@ uro:cityFurnitureDetailAttribute,都市設備詳細属性
 uro:cityFurnitureDataQualityAttribute,データ品質
 uro:facilityType,施設詳細区分
 uro:desctiption,施設内容
-uro:CityFurnitureDataQualityAttribute ,データ品質
+uro:CityFurnitureDataQualityAttribute,データ品質
 luse:LandUse,土地利用
 luse:class,土地利用区分
 luse:function,機能
@@ -182,7 +182,7 @@ uro:averageTravelSpeedInCongestion,混雑時平均旅行速度
 uro:averageInboundTravelSpeedInCongestion,混雑時平均旅行速度（上り）
 uro:averageOutboundTravelSpeedInCongestion,混雑時平均旅行速度（下り）
 uro:observationPointName,観測地点名
-uro:RoadDataQualityAttribute ,データ品質
+uro:RoadDataQualityAttribute,データ品質
 tran:TrafficArea,交通領域
 tran:surfaceMaterial,舗装種類
 uro:trafficAreaStructureAttribute,道路構造属性
@@ -200,7 +200,7 @@ veg:lod1Geometry,lod1幾何
 veg:lod2Geometry,lod2幾何
 veg:lod3Geometry,lod3幾何
 uro:vegetationDataQualityAttribute,データ品質
-uro:VegetationDataQualityAttribute ,データ品質
+uro:VegetationDataQualityAttribute,データ品質
 veg:PlantCover,植被
 veg:averageHeight,平均高
 veg:lod1MultiSurface,lod1面
