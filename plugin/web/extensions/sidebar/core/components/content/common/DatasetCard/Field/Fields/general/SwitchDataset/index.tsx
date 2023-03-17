@@ -19,7 +19,9 @@ const SwitchDataset: React.FC<BaseFieldProps<"switchDataset">> = ({
   onUpdate,
 }) => {
   const [selectedStyle, selectStyle] = useState(value.uiStyle ?? "dropdown");
-  const [selectedDataset, selectDataset] = useState(value.userSettings.selected ?? configData?.[0]);
+  const [selectedDataset, selectDataset] = useState(
+    value.userSettings?.selected ?? configData?.[0],
+  );
 
   const styleOptions = (
     <Menu
@@ -70,8 +72,8 @@ const SwitchDataset: React.FC<BaseFieldProps<"switchDataset">> = ({
       uiStyle: selectedStyle,
       userSettings: {
         selected: selectedDataset,
+        override: { data: { url: selectedDataset?.url } },
       },
-      override: { data: { url: selectedDataset?.url } },
       cleanseOverride: { data: { url: configData?.[0].url } },
     });
   }, [isActive, selectedDataset, selectedStyle, configData, value, onUpdate]);
