@@ -117,7 +117,7 @@
     "react-dom": "18.2.0",
     "react-json-view": "1.21.3",
     "remarkable": "2.0.1",
-    "tinycolor2": "^1.6.0"
+    "tinycolor2": "1.6.0"
   },
   "msw": {
     "workerDirectory": "web/mock"
