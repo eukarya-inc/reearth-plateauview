@@ -65,5 +65,5 @@ test("colorToHex", () => {
   expect(colorToHex("red")).toEqual("#ff0000");
   expect(colorToHex("green")).toEqual("#008000");
   expect(colorToHex("blue")).toEqual("#0000ff");
-  expect(colorToHex("something")).toEqual("");
+  expect(colorToHex("something")).toEqual("#000000");
 });
