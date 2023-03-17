@@ -3,6 +3,7 @@ import { styled } from "@web/theme";
 import { useState, useEffect, useCallback } from "react";
 
 export type Props = {
+  id: string;
   name: string;
   isMobile?: boolean;
   expandAll?: boolean;
@@ -13,6 +14,7 @@ export type Props = {
 };
 
 const Folder: React.FC<Props> = ({
+  id,
   name,
   isMobile,
   expandAll,
@@ -24,8 +26,8 @@ const Folder: React.FC<Props> = ({
   const [isOpen, open] = useState(false);
 
   useEffect(() => {
-    if (expandAll || expandedKeys.includes(name)) open(true);
-  }, [expandAll, expandedKeys, name]);
+    if (expandAll || expandedKeys.includes(id)) open(true);
+  }, [expandAll, expandedKeys, id]);
 
   const handleExpand = useCallback(
     (key: string) => {
@@ -46,8 +48,8 @@ const Folder: React.FC<Props> = ({
   );
 
   return (
-    <Wrapper key={name} isOpen={isOpen}>
-      <FolderItem nestLevel={nestLevel} onClick={() => handleExpand(name)}>
+    <Wrapper key={id} isOpen={isOpen}>
+      <FolderItem nestLevel={nestLevel} onClick={() => handleExpand(id)}>
         <NameWrapper isMobile={isMobile}>
           <Icon icon={isOpen ? "folderOpen" : "folder"} size={20} />
           <Name>{name}</Name>

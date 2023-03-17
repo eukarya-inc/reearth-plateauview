@@ -38,7 +38,8 @@ const TreeBuilder: React.FC<Props> = ({
         catalogItem.map(item =>
           "children" in item ? (
             <Folder
-              key={item.name}
+              key={item.id}
+              id={item.id}
               name={item.name}
               nestLevel={nestLevel + 1}
               expandedKeys={expandedKeys}
@@ -75,7 +76,8 @@ const TreeBuilder: React.FC<Props> = ({
         )
       ) : "children" in catalogItem ? (
         <Folder
-          key={catalogItem.name}
+          key={catalogItem.id}
+          id={catalogItem.id}
           name={catalogItem.name}
           nestLevel={nestLevel + 1}
           expandedKeys={expandedKeys}
