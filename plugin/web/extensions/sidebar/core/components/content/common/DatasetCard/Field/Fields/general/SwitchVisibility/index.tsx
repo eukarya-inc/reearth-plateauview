@@ -244,7 +244,7 @@ const SwitchVisibility: React.FC<BaseFieldProps<"switchVisibility">> = ({
             </FieldValue>
           )
         ) : (
-          <>No Visibility Options</>
+          <>項目なし</>
         )}
       </Field>
     </Wrapper>

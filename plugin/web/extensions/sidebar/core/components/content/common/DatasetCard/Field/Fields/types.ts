@@ -12,7 +12,7 @@ export const generalFieldName = {
   buttonLink: "リンク",
   styleCode: "スタイルコード",
   switchDataset: "データセットの切り替え",
-  switchVisibility: "Switch Visibility",
+  switchVisibility: "表示の切り替え",
   point: "ポイント",
   description: "説明",
   template: "テンプレート",
