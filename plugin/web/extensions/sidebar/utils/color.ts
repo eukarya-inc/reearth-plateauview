@@ -9,18 +9,15 @@ export const getRGBAFromString = (rgbaStr: string | undefined): RGBA | undefined
 
 export const rgbaToString = (rgba: RGBA) => `rgba(${rgba.join(",")})`;
 
-export const RGB_COLOR_REGEX = /^rgb\((\d{1,3}),\s*(\d{1,3}),\s*(\d{1,3})\)$/;
-export const HEX_COLOR_REGEX = /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/;
-
 export const generateColorGradient = (
   colorStart: string,
   colorEnd: string,
   colorCount: number,
 ): string[] => {
-  const start = tinycolor(colorStart).toRgb();
-  const startRGB = [start.r, start.g, start.b];
-  const end = tinycolor(colorEnd).toRgb();
-  const endRGB = [end.r, end.g, end.b];
+  const { r: r1, g: g1, b: b1 } = tinycolor(colorStart).toRgb();
+  const startRGB = [r1, g1, b1];
+  const { r: r2, g: g2, b: b2 } = tinycolor(colorEnd).toRgb();
+  const endRGB = [r2, g2, b2];
 
   const stepR = (endRGB[0] - startRGB[0]) / (colorCount - 1);
   const stepG = (endRGB[1] - startRGB[1]) / (colorCount - 1);
