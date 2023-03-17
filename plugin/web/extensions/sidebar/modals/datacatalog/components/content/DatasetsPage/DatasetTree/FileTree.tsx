@@ -51,15 +51,11 @@ const FileTree: React.FC<Props> = ({
             const index = expandedKeys.findIndex(key => key === item.name);
             if (index >= 0) expandedKeys.splice(index, 1);
             setExpandedKeys(expandedKeys);
-            postMsg({
-              action: "storageSave",
-              payload: { key: "expandedKeys", value: expandedKeys },
-            });
           }
           setTimeout(() => {
             postMsg({
-              action: "storageDelete",
-              payload: { key: "dataset" },
+              action: "saveDataset",
+              payload: { dataset: {} },
             });
           }, 500);
         }

@@ -41,8 +41,8 @@ const Folder: React.FC<Props> = ({
           open(true);
         }
         postMsg({
-          action: "storageSave",
-          payload: { key: "expandedKeys", value: newExpandedKeys },
+          action: "saveExpandedKeys",
+          payload: { expandedKeys: newExpandedKeys },
         });
         return newExpandedKeys;
       });
