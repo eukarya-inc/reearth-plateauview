@@ -164,13 +164,6 @@ const SwitchVisibility: React.FC<BaseFieldProps<"switchVisibility">> = ({
               },
             },
           },
-          resource: {
-            show: {
-              expression: {
-                conditions: showConditions,
-              },
-            },
-          },
         },
       });
     }, 500);

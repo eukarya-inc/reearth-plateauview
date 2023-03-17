@@ -113,8 +113,5 @@ export const cleanseOverrides: { [key: string]: any } = {
     polygon: {
       show: true,
     },
-    resource: {
-      show: true,
-    },
   },
 };
