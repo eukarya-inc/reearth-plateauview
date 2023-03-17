@@ -15,7 +15,6 @@ const SwitchDataset: React.FC<BaseFieldProps<"switchDataset">> = ({
   value,
   editMode,
   configData,
-  isActive,
   onUpdate,
 }) => {
   const [selectedStyle, selectStyle] = useState(value.uiStyle ?? "dropdown");
@@ -62,11 +61,7 @@ const SwitchDataset: React.FC<BaseFieldProps<"switchDataset">> = ({
   }, []);
 
   useEffect(() => {
-    if (
-      !isActive ||
-      (selectedDataset === value.userSettings?.selected && selectedStyle === value.uiStyle)
-    )
-      return;
+    if (selectedDataset === value.userSettings?.selected && selectedStyle === value.uiStyle) return;
     onUpdate({
       ...value,
       uiStyle: selectedStyle,
@@ -76,7 +71,7 @@ const SwitchDataset: React.FC<BaseFieldProps<"switchDataset">> = ({
       },
       cleanseOverride: { data: { url: configData?.[0].url } },
     });
-  }, [isActive, selectedDataset, selectedStyle, configData, value, onUpdate]);
+  }, [selectedDataset, selectedStyle, configData, value, onUpdate]);
 
   return editMode ? (
     <Wrapper>
