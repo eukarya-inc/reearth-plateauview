@@ -456,7 +456,7 @@ urf:roadsideDistrictFacilitiesAllocation,沿道地区施設の配置及び規模
 urf:RuralDistrictImprovementPlan,集落地区整備計画
 urf:ruralDistrictFacilitiesAllocation,集落地区施設の配置及び規模
 urf:DistrictImprovementPlanForHistoricSceneryMaintenanceAndImprovementDistrict,歴史的風致維持向上地区整備計画
- urf:PromotionDistrict,促進区（urf:functionの値により決定）
+urf:PromotionDistrict,促進区（urf:functionの値により決定）
 urf:District,地区（urf:functionの値により決定）
 urf:useRestrictions,建築物の用途の制限
 urf:minimumBuildingCoverageRate,建ぺい率の最低限度
