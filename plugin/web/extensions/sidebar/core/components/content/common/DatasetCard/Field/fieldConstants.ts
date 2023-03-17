@@ -113,5 +113,8 @@ export const cleanseOverrides: { [key: string]: any } = {
     polygon: {
       show: true,
     },
+    "3dtiles": {
+      show: true,
+    },
   },
 };

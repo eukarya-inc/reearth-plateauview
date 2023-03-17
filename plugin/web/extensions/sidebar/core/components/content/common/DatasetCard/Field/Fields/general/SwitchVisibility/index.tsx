@@ -164,6 +164,13 @@ const SwitchVisibility: React.FC<BaseFieldProps<"switchVisibility">> = ({
               },
             },
           },
+          "3dtiles": {
+            show: {
+              expression: {
+                conditions: showConditions,
+              },
+            },
+          },
         },
       });
     }, 500);
