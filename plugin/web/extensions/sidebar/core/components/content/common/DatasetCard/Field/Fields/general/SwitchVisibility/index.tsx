@@ -15,11 +15,12 @@ import { styled } from "@web/theme";
 import { useState, useCallback, useEffect, useRef } from "react";
 
 import { stringifyCondition } from "../../../utils";
-import { BaseFieldProps, Cond, SwitchVisibility } from "../../types";
+import { BaseFieldProps, SwitchVisibility } from "../../types";
 
 import ConditionItem from "./ConditionItem";
 
 type UIStyles = "dropdown" | "radio";
+export type ConditionItemType = SwitchVisibility["conditions"][0];
 
 const uiStyles: { [key: string]: string } = {
   dropdown: "ドロップダウン",
@@ -66,9 +67,11 @@ const SwitchVisibility: React.FC<BaseFieldProps<"switchVisibility">> = ({
 
   const handleAdd = useCallback(() => {
     setConditions(c => {
-      const nc: { condition: Cond<any>; title: string } = {
+      const id = generateID();
+      const nc: ConditionItemType = {
+        id,
         condition: {
-          key: generateID(),
+          key: id,
           operator: "===",
           operand: true,
           value: true,
@@ -83,7 +86,7 @@ const SwitchVisibility: React.FC<BaseFieldProps<"switchVisibility">> = ({
     setConditions(c => removeItem(idx, c) ?? c);
   }, []);
 
-  const handleItemUpdate = (item: { condition: Cond<any>; title: string }, index: number) => {
+  const handleItemUpdate = (item: ConditionItemType, index: number) => {
     setConditions(c => {
       const nc = [...(c ?? [])];
       nc.splice(index, 1, item);
@@ -92,10 +95,12 @@ const SwitchVisibility: React.FC<BaseFieldProps<"switchVisibility">> = ({
   };
 
   //
-  const [selectedVisibility, setSelectedVisibility] = useState(value.userSettings?.selected ?? 0);
+  const [selectedVisibility, setSelectedVisibility] = useState<string | undefined>(
+    value.userSettings?.selected ?? value.conditions?.[0]?.id,
+  );
 
-  const handleSelectVisibility = (index: number) => {
-    setSelectedVisibility(index);
+  const handleSelectVisibility = (id: string) => {
+    setSelectedVisibility(id);
     postMsg({
       action: "unselect",
     });
@@ -107,7 +112,7 @@ const SwitchVisibility: React.FC<BaseFieldProps<"switchVisibility">> = ({
         return {
           key: index,
           label: (
-            <p style={{ margin: 0 }} onClick={() => handleSelectVisibility(index)}>
+            <p style={{ margin: 0 }} onClick={() => handleSelectVisibility(c.id)}>
               {c.title}
             </p>
           ),
@@ -125,11 +130,9 @@ const SwitchVisibility: React.FC<BaseFieldProps<"switchVisibility">> = ({
     const timer = setTimeout(() => {
       const showConditions: [string, string][] = [["true", "false"]];
 
-      if (conditions[selectedVisibility]) {
-        showConditions.unshift([
-          stringifyCondition(conditions[selectedVisibility].condition),
-          "true",
-        ]);
+      const selectedCondition = conditions.find(c => c.id === selectedVisibility)?.condition;
+      if (selectedCondition) {
+        showConditions.unshift([stringifyCondition(selectedCondition), "true"]);
       }
 
       onUpdateRef.current({
@@ -176,6 +179,15 @@ const SwitchVisibility: React.FC<BaseFieldProps<"switchVisibility">> = ({
     };
   }, [conditions, selectedStyle, selectedVisibility]);
 
+  useEffect(() => {
+    if (
+      conditions.length > 0 &&
+      (!selectedVisibility || !conditions.find(c => c.id === selectedVisibility))
+    ) {
+      setSelectedVisibility(conditions[0].id);
+    }
+  }, [conditions, selectedVisibility]);
+
   return editMode ? (
     <Wrapper>
       <Field>
@@ -216,8 +228,8 @@ const SwitchVisibility: React.FC<BaseFieldProps<"switchVisibility">> = ({
             <Radio.Group
               onChange={e => handleSelectVisibility(e.target.value)}
               value={selectedVisibility}>
-              {conditions?.map((c, index) => (
-                <StyledRadio key={index} value={index}>
+              {conditions?.map(c => (
+                <StyledRadio key={c.id} value={c.id}>
                   <Label>{c.title}</Label>
                 </StyledRadio>
               ))}
@@ -230,14 +242,16 @@ const SwitchVisibility: React.FC<BaseFieldProps<"switchVisibility">> = ({
                 trigger={["click"]}
                 getPopupContainer={trigger => trigger.parentElement ?? document.body}>
                 <StyledDropdownButton>
-                  <p style={{ margin: 0 }}>{conditions[selectedVisibility].title}</p>
+                  <p style={{ margin: 0 }}>
+                    {conditions.find(c => c.id === selectedVisibility)?.title}
+                  </p>
                   <StyledIcon icon="arrowDownSimple" size={12} />
                 </StyledDropdownButton>
               </Dropdown>
             </FieldValue>
           )
         ) : (
-          <>No Conditions</>
+          <>No Visibility Options</>
         )}
       </Field>
     </Wrapper>

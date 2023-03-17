@@ -8,13 +8,15 @@ import { useCallback, ChangeEvent } from "react";
 
 import { Cond } from "../../types";
 
+import { ConditionItemType } from ".";
+
 const ConditionItem: React.FC<{
   index: number;
-  item: { condition: Cond<any>; title: string };
+  item: ConditionItemType;
   handleMoveDown: (index: number) => void;
   handleMoveUp: (index: number) => void;
   handleRemove: (index: number) => void;
-  onItemUpdate: (item: { condition: Cond<any>; title: string }, index: number) => void;
+  onItemUpdate: (item: ConditionItemType, index: number) => void;
 }> = ({ index, item, handleMoveDown, handleMoveUp, handleRemove, onItemUpdate }) => {
   const handleTitleChange = useCallback(
     (e: ChangeEvent<HTMLInputElement>) => {

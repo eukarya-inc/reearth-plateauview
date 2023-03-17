@@ -187,11 +187,12 @@ export type SwitchDataset = FieldBase<"switchDataset"> & {
 export type SwitchVisibility = FieldBase<"switchVisibility"> & {
   uiStyle: "dropdown" | "radio";
   conditions: {
+    id: string;
     condition: Cond<any>;
     title: string;
   }[];
   userSettings: {
-    selected?: number;
+    selected?: string;
   };
 };
 
