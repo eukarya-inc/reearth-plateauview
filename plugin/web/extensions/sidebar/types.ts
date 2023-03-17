@@ -64,7 +64,8 @@ type ActionType =
   | "infoboxFieldsFetch"
   | "infoboxFieldsSaved"
   | "findLayerByDataID"
-  | "getOverriddenLayerByDataID";
+  | "getOverriddenLayerByDataID"
+  | "unselect";
 // FIXME(@keiya01): support auto csv field complement
 // | "getLocationNamesFromCSVFeatureProperty"
 

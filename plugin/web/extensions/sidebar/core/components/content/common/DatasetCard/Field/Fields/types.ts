@@ -12,7 +12,7 @@ export const generalFieldName = {
   buttonLink: "リンク",
   styleCode: "スタイルコード",
   switchDataset: "データセットの切り替え",
-  switchField: "フィールドの切り替え",
+  switchVisibility: "表示の切り替え",
   point: "ポイント",
   description: "説明",
   template: "テンプレート",
@@ -74,7 +74,7 @@ export type FieldComponent =
   | Timeline
   | CurrentTime
   | SwitchDataset
-  | SwitchField
+  | SwitchVisibility
   | EventField
   | InfoboxStyle
   | Template
@@ -106,7 +106,6 @@ type FieldBase<T extends keyof typeof fieldName> = {
   group?: string;
   override?: any;
   cleanseOverride?: any;
-  updatedAt?: Date;
 };
 
 type CameraPosition = {
@@ -181,12 +180,17 @@ export type SwitchDataset = FieldBase<"switchDataset"> & {
   uiStyle?: "dropdown" | "radio";
   userSettings: {
     selected?: ConfigData;
+    override?: any;
   };
 };
 
-export type SwitchField = FieldBase<"switchField"> & {
-  field?: string;
-  uiStyle?: "dropdown" | "radio";
+export type SwitchVisibility = FieldBase<"switchVisibility"> & {
+  uiStyle: "dropdown" | "radio";
+  conditions: {
+    id: string;
+    condition: Cond<any>;
+    title: string;
+  }[];
   userSettings: {
     selected?: string;
   };
@@ -209,7 +213,10 @@ export type Story = FieldBase<"story"> & {
 
 type Template = FieldBase<"template"> & {
   templateID?: string;
-  components?: FieldComponent[];
+  userSettings: {
+    components?: FieldComponent[];
+    override?: any;
+  };
 };
 
 type EventField = FieldBase<"eventField"> & {
@@ -233,6 +240,8 @@ type PointColor = FieldBase<"pointColor"> & {
 
 type PointColorGradient = FieldBase<"pointColorGradient"> & {
   field?: string;
+  min?: number;
+  max?: number;
   startColor?: string;
   endColor?: string;
   step?: number;
@@ -323,6 +332,7 @@ type Clipping = FieldBase<"clipping"> & {
     show: boolean;
     aboveGroundOnly: boolean;
     direction: "inside" | "outside";
+    override?: any;
   };
 };
 
@@ -331,36 +341,45 @@ type BuildingFilter = FieldBase<"buildingFilter"> & {
     height?: [from: number, to: number];
     abovegroundFloor?: [from: number, to: number];
     basementFloor?: [from: number, to: number];
+    override?: any;
   };
 };
 
 type BuildingShadow = FieldBase<"buildingShadow"> & {
   userSettings: {
     shadow: "disabled" | "enabled" | "cast_only" | "receive_only";
+    override?: any;
   };
 };
 
 type BuildingTransparency = FieldBase<"buildingTransparency"> & {
   userSettings: {
     transparency: number;
+    updatedAt?: Date;
+    override?: any;
   };
 };
 
 type BuildingColor = FieldBase<"buildingColor"> & {
   userSettings: {
     colorType: string;
+    updatedAt?: Date;
+    override?: any;
   };
 };
 
 type FloodColor = FieldBase<"floodColor"> & {
   userSettings: {
     colorType: "water" | "rank";
+    updatedAt?: Date;
+    override?: any;
   };
 };
 
 type FloodFilter = FieldBase<"floodFilter"> & {
   userSettings: {
     rank?: [from: number, to: number];
+    override?: any;
   };
 };
 
@@ -377,7 +396,7 @@ export type Fields = {
   realtime: Realtime;
   timeline: Timeline;
   switchDataset: SwitchDataset;
-  switchField: SwitchField;
+  switchVisibility: SwitchVisibility;
   eventField: EventField;
   infoboxStyle: InfoboxStyle;
   // point
