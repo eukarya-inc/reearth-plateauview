@@ -12,18 +12,20 @@ const useHooks = ({
   onUpdate,
 }: Pick<BaseFieldProps<"clipping">, "value" | "dataID" | "onUpdate">) => {
   const [options, setOptions] = useState<OptionsState["userSettings"]>({
-    enabled: value.userSettings.enabled,
-    show: value.userSettings.show,
-    aboveGroundOnly: value.userSettings.aboveGroundOnly,
-    direction: value.userSettings.direction,
+    enabled: !!value.userSettings?.enabled,
+    show: !!value.userSettings?.show,
+    aboveGroundOnly: !!value.userSettings?.aboveGroundOnly,
+    direction: value.userSettings?.direction ?? "inside",
   });
 
   const handleUpdate = useCallback(
     (tilesetProperty: any, boxProperty: any) => {
       onUpdate({
         ...value,
-        ...options,
-        override: { ["3dtiles"]: tilesetProperty, box: boxProperty },
+        userSettings: {
+          ...options,
+          override: { ["3dtiles"]: tilesetProperty, box: boxProperty },
+        },
       });
     },
     [onUpdate, value, options],

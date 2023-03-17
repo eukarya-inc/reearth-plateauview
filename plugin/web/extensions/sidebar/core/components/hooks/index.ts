@@ -72,6 +72,7 @@ export default () => {
     handleProjectDatasetAdd,
     handleProjectDatasetRemove,
     handleProjectDatasetRemoveAll,
+    handleProjectDatasetsUpdate,
     handleStorySaveData,
     handleOverride,
   } = useProjectHooks({
@@ -84,6 +85,7 @@ export default () => {
 
   const { handleDatasetUpdate, handleDatasetSave, handleDatasetPublish } = useDatasetHooks({
     data,
+    templates: fieldTemplates,
     project,
     backendURL,
     backendProjectName,
@@ -264,6 +266,7 @@ export default () => {
     handleProjectDatasetAdd,
     handleProjectDatasetRemove,
     handleProjectDatasetRemoveAll,
+    handleProjectDatasetsUpdate,
     handleProjectSceneUpdate,
     handleModalOpen,
     handleBuildingSearch,
