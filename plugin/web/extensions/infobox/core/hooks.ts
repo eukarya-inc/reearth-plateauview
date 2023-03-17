@@ -166,11 +166,13 @@ export default () => {
     postMsg("init");
   }, []);
 
-  const actualProperties = useMemo(() => {
+  const actualProperties = useMemo((): [any, string | undefined] => {
     const rootFields = properties ? getRootFields(properties) : {};
     return properties
       ? {
-          ...(properties.attributes ? { attributes: getAttributes(properties.attributes) } : {}),
+          ...(properties.attributes
+            ? { [attributesKey]: getAttributes(properties.attributes, "label") }
+            : {}),
           ...rootFields,
           ...omit(properties, [...Object.keys(rootFields), "attributes"]),
         }
@@ -187,6 +189,7 @@ export default () => {
     isSaving,
     editorTab,
     commonProperties,
+    attributesKey,
     handleEditorTab,
     onFieldCheckChange,
     onFieldTitleChange,
@@ -194,3 +197,5 @@ export default () => {
     saveTemplate,
   };
 };
+
+const attributesKey = "全ての属性";

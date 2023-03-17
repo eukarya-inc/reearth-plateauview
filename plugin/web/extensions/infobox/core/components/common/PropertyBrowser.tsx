@@ -14,9 +14,15 @@ type Props = {
   properties?: Properties;
   fields: Field[];
   commonProperties: string[];
+  attributesKey?: string;
 };
 
-const PropertyBrowser: React.FC<Props> = ({ properties, fields, commonProperties }) => {
+const PropertyBrowser: React.FC<Props> = ({
+  properties,
+  fields,
+  commonProperties,
+  attributesKey = "attributes",
+}) => {
   const [displayList, setDisplayList] = useState<DisplayItem[]>([]);
 
   useEffect(() => {
@@ -47,7 +53,7 @@ const PropertyBrowser: React.FC<Props> = ({ properties, fields, commonProperties
       .filter(
         k =>
           !commonProperties.includes(k) &&
-          k !== "attributes" &&
+          k !== attributesKey &&
           !cesium3DTilesAppearanceKeys.includes(k),
       )
       .reduce((obj, key) => {
@@ -66,7 +72,7 @@ const PropertyBrowser: React.FC<Props> = ({ properties, fields, commonProperties
     });
 
     setDisplayList(items);
-  }, [fields, properties, commonProperties]);
+  }, [fields, properties, commonProperties, attributesKey]);
 
   return (
     <Wrapper>
@@ -78,12 +84,13 @@ const PropertyBrowser: React.FC<Props> = ({ properties, fields, commonProperties
       ))}
       <AttributesWrapper>
         <ReactJson
-          src={properties?.attributes}
+          src={properties?.[attributesKey]}
           displayDataTypes={false}
           enableClipboard={false}
           displayObjectSize={false}
+          quotesOnKeys={false}
           indentWidth={2}
-          name="attributes"
+          name={attributesKey}
         />
       </AttributesWrapper>
     </Wrapper>

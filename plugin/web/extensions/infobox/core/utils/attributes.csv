@@ -1,3 +1,4 @@
+gml:id,ID
 bldg:Building,建築物
 gml:description,説明
 gml:name,名称
@@ -484,5 +485,5 @@ urf:disasterType,災害種別
 urf:areaType,区域区分
 urf:zoneName,区域名
 urf:status,特別警戒未指定フラグ
-bldg:measuredHeight_uom,計測高さの単位
-uro:depth_uom,浸水深の単位
+_uom,単位
+_code,コード

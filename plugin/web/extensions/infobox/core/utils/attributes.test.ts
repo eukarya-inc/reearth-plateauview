@@ -8,7 +8,7 @@ test("getAttributes", () => {
     bbb: {},
     aaa: {
       bbb: "ccc",
-      ddd: [{ c: "b" }, { b: "a", a: "" }],
+      ddd: [{ c: "b" }, { ddd_code: "a", a_code: "" }],
     },
   };
   expect(flatKeys(src)).toEqual([
@@ -20,12 +20,40 @@ test("getAttributes", () => {
     "aaa.ddd.0",
     "aaa.ddd.0.c",
     "aaa.ddd.1",
-    "aaa.ddd.1.b",
-    "aaa.ddd.1.a",
+    "aaa.ddd.1.ddd_code",
+    "aaa.ddd.1.a_code",
   ]);
 
   const actual = getAttributes(src);
   expect(flatKeys(actual)).toEqual([
+    "",
+    "aaa",
+    "aaa.bbb",
+    "aaa.ddd",
+    "aaa.ddd.0",
+    "aaa.ddd.0.c",
+    "aaa.ddd.1",
+    "aaa.ddd.1.a_code",
+    "aaa.ddd.1.ddd_code",
+    "bbb",
+  ]);
+
+  const actual1 = getAttributes(src, "label");
+  expect(flatKeys(actual1)).toEqual([
+    "",
+    "AAA",
+    "AAA.bbb",
+    "AAA.DDD",
+    "AAA.DDD.0",
+    "AAA.DDD.0.c",
+    "AAA.DDD.1",
+    "AAA.DDD.1.a_code",
+    "AAA.DDD.1.DDDコード",
+    "bbb",
+  ]);
+
+  const actual2 = getAttributes(src, "both");
+  expect(flatKeys(actual2)).toEqual([
     "",
     "AAA（aaa）",
     "AAA（aaa）.bbb",
@@ -33,8 +61,8 @@ test("getAttributes", () => {
     "AAA（aaa）.DDD（ddd）.0",
     "AAA（aaa）.DDD（ddd）.0.c",
     "AAA（aaa）.DDD（ddd）.1",
-    "AAA（aaa）.DDD（ddd）.1.a",
-    "AAA（aaa）.DDD（ddd）.1.b",
+    "AAA（aaa）.DDD（ddd）.1.a_code",
+    "AAA（aaa）.DDD（ddd）.1.DDDコード（ddd_code）",
     "bbb",
   ]);
 });
@@ -165,5 +193,5 @@ function flatKeys(obj: Json, parentKey?: string): string[] {
 }
 
 vi.mock("./attributes.csv?raw", () => ({
-  default: "ddd,DDD\naaa,AAA\n",
+  default: "ddd,DDD\naaa,AAA\n_code,コード\n",
 }));

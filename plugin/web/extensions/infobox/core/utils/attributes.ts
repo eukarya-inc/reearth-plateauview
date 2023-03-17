@@ -15,31 +15,38 @@ attributesData
     attributesMap.set(l[0], l[1]);
   });
 
-export function getAttributes(attributes: Json): Json {
+export function getAttributes(attributes: Json, mode?: "both" | "label" | "key"): Json {
   if (!attributes || typeof attributes !== "object") return attributes;
   return walk(attributes, attributesMap);
-}
 
-function walk(obj: JsonObject | JsonArray, keyMap?: Map<string, string>): JsonObject | JsonArray {
-  if (!obj || typeof obj !== "object") return obj;
+  function walk(obj: JsonObject | JsonArray, keyMap?: Map<string, string>): JsonObject | JsonArray {
+    if (!obj || typeof obj !== "object") return obj;
 
-  if (Array.isArray(obj)) {
-    return obj.map(o => (typeof o === "object" && o ? walk(o) : o));
+    if (Array.isArray(obj)) {
+      return obj.map(o => (typeof o === "object" && o ? walk(o, keyMap) : o));
+    }
+
+    return Object.fromEntries(
+      Object.entries(obj)
+        .sort((a, b) => a[0].localeCompare(b[0]))
+        .map(([k, v]) => {
+          const label = keyMap?.get(k.replace(/_.+?$/, ""));
+          const nk =
+            (mode === "both" || mode === "label") && label ? label + (suffix(k, keyMap) ?? "") : "";
+          const ak = nk ? (mode === "both" ? `${nk}（${k}）` : nk) : k;
+
+          if (typeof v === "object" && v) {
+            return [ak || k, walk(v, keyMap)];
+          }
+          return [ak || k, v];
+        }),
+    );
   }
 
-  return Object.fromEntries(
-    Object.entries(obj)
-      .sort((a, b) => a[0].localeCompare(b[0]))
-      .map(([k, v]) => {
-        const nk = keyMap?.get(k);
-        const ak = nk ? `${nk}（${k}）` : k;
-
-        if (typeof v === "object" && v) {
-          return [ak || k, walk(v, keyMap)];
-        }
-        return [ak || k, v];
-      }),
-  );
+  function suffix(key: string, keyMap?: Map<string, string>): string {
+    const suf = key.match(/(_.+?)$/)?.[1];
+    return suf ? keyMap?.get(suf) ?? "" : "";
+  }
 }
 
 export function getRootFields(properties: Properties): any {

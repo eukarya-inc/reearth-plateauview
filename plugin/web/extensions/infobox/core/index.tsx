@@ -16,6 +16,7 @@ const Infobox: React.FC = () => {
     isSaving,
     editorTab,
     commonProperties,
+    attributesKey,
     handleEditorTab,
     onFieldCheckChange,
     onFieldTitleChange,
@@ -48,6 +49,7 @@ const Infobox: React.FC = () => {
                 fields={fields}
                 properties={properties}
                 commonProperties={commonProperties}
+                attributesKey={attributesKey}
               />
             ))}
         </ContentPanel>
