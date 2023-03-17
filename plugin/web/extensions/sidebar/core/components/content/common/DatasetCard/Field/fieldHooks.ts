@@ -81,8 +81,8 @@ export default ({
         name: fieldName["switchDataset"],
         onClick: onFieldAdd({ userSettings: {} }),
       },
-      switchField: {
-        name: fieldName["switchField"],
+      switchVisibility: {
+        name: fieldName["switchVisibility"],
         onClick: onFieldAdd({ userSettings: {} }),
       },
       template: {
@@ -339,6 +339,20 @@ export const cleanseOverrides: { [key: string]: any } = {
     "3dtiles": {
       show: true,
       color: "white",
+    },
+  },
+  switchVisibility: {
+    marker: {
+      show: true,
+    },
+    polyline: {
+      show: true,
+    },
+    polygon: {
+      show: true,
+    },
+    resource: {
+      show: true,
     },
   },
 };

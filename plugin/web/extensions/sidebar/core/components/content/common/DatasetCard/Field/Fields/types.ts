@@ -12,7 +12,7 @@ export const generalFieldName = {
   buttonLink: "リンク",
   styleCode: "スタイルコード",
   switchDataset: "データセットの切り替え",
-  switchField: "フィールドの切り替え",
+  switchVisibility: "Switch Visibility",
   point: "ポイント",
   description: "説明",
   template: "テンプレート",
@@ -74,7 +74,7 @@ export type FieldComponent =
   | Timeline
   | CurrentTime
   | SwitchDataset
-  | SwitchField
+  | SwitchVisibility
   | EventField
   | InfoboxStyle
   | Template
@@ -184,11 +184,14 @@ export type SwitchDataset = FieldBase<"switchDataset"> & {
   };
 };
 
-export type SwitchField = FieldBase<"switchField"> & {
-  field?: string;
-  uiStyle?: "dropdown" | "radio";
+export type SwitchVisibility = FieldBase<"switchVisibility"> & {
+  uiStyle: "dropdown" | "radio";
+  conditions: {
+    condition: Cond<any>;
+    title: string;
+  }[];
   userSettings: {
-    selected?: string;
+    selected?: number;
   };
 };
 
@@ -377,7 +380,7 @@ export type Fields = {
   realtime: Realtime;
   timeline: Timeline;
   switchDataset: SwitchDataset;
-  switchField: SwitchField;
+  switchVisibility: SwitchVisibility;
   eventField: EventField;
   infoboxStyle: InfoboxStyle;
   // point
