@@ -103,4 +103,18 @@ export const cleanseOverrides: { [key: string]: any } = {
       color: "white",
     },
   },
+  switchVisibility: {
+    marker: {
+      show: true,
+    },
+    polyline: {
+      show: true,
+    },
+    polygon: {
+      show: true,
+    },
+    resource: {
+      show: true,
+    },
+  },
 };
