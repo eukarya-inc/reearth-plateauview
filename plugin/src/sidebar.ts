@@ -626,36 +626,13 @@ function createLayer(dataset: DataCatalogItem, overrides?: any) {
       : null,
     ...(overrides !== undefined
       ? merge(defaultOverrides, omit(overrides, "data"))
-      : format === "geojson"
-      ? {
-          marker: {
-            style: "point",
-            pointSize: 10,
-            pointColor: "white",
-            heightReference: "clamp",
-          },
-          polygon: {
-            fill: false,
-            stroke: true,
-            strokeWidth: 5,
-            heightReference: "clamp",
-          },
-          polyline: {
-            clampToGround: true,
-          },
-        }
+      : format === ("geojson" || "czml")
+      ? defaultOverrides
       : format === "gtfs"
       ? proxyGTFS(overrides)
       : format === "mvt"
       ? {
           polygon: {},
-        }
-      : format === "czml"
-      ? {
-          resource: {},
-          marker: { heightReference: "clamp" },
-          polyline: { clampToGround: true },
-          polygon: { heightReference: "clamp" },
         }
       : format === "wms"
       ? {
