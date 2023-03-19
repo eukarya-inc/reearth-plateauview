@@ -1,6 +1,6 @@
 import { DataCatalogItem } from "@web/extensions/sidebar/core/types";
 import { PostMessageProps, Project, PluginMessage } from "@web/extensions/sidebar/types";
-import omit from "lodash/omit";
+import { isObject, mergeWith, omit, cloneDeep } from "lodash";
 
 import html from "../dist/web/sidebar/core/index.html?raw";
 import clipVideoHtml from "../dist/web/sidebar/modals/clipVideo/index.html?raw";
@@ -47,6 +47,7 @@ const defaultProject: Project = {
     atmosphere: { shadows: true },
   },
   datasets: [],
+  userStory: undefined,
 };
 
 type PluginExtensionInstance = {
@@ -82,45 +83,43 @@ const sidebarInstance: PluginExtensionInstance = reearth.plugins.instances.find(
 
 reearth.ui.show(html, { extended: true });
 
-reearth.clientStorage.getAsync("draftProject").then((draftProject: Project) => {
-  if (
-    sidebarInstance.runTimes === 1 ||
-    (sidebarInstance.runTimes === 2 && reearth.viewport.isMobile && draftProject === defaultProject)
-  ) {
-    reearth.visualizer.overrideProperty(defaultProject.sceneOverrides);
-    reearth.clientStorage.setAsync("draftProject", defaultProject);
+if (
+  sidebarInstance.runTimes === 1 ||
+  (sidebarInstance.runTimes === 2 && reearth.viewport.isMobile)
+) {
+  reearth.visualizer.overrideProperty(defaultProject.sceneOverrides);
+  reearth.clientStorage.setAsync("draftProject", defaultProject);
 
-    if (reearth.viewport.isMobile) {
-      reearth.clientStorage.setAsync("isMobile", true);
-      reearth.widget.moveTo(mobileLocation);
-    } else {
-      reearth.clientStorage.setAsync("isMobile", false);
-    }
-    reearth.clientStorage.getAsync("doNotShowWelcome").then((value: any) => {
-      if (!value && !reearth.scene.inEditor) {
-        reearth.modal.show(welcomeScreenHtml, {
-          width: reearth.viewport.width,
-          height: reearth.viewport.height,
-        });
-        welcomePageIsOpen = true;
-      }
-    });
+  if (reearth.viewport.isMobile) {
+    reearth.clientStorage.setAsync("isMobile", true);
+    reearth.widget.moveTo(mobileLocation);
   } else {
-    reearth.clientStorage.getAsync("isMobile").then((value: any) => {
-      if (reearth.viewport.isMobile) {
-        if (!value) {
-          reearth.widget.moveTo(mobileLocation);
-          reearth.clientStorage.setAsync("isMobile", true);
-        }
-      } else {
-        if (value) {
-          reearth.widget.moveTo(defaultLocation);
-          reearth.clientStorage.setAsync("isMobile", false);
-        }
-      }
-    });
+    reearth.clientStorage.setAsync("isMobile", false);
   }
-});
+  reearth.clientStorage.getAsync("doNotShowWelcome").then((value: any) => {
+    if (!value && !reearth.scene.inEditor) {
+      reearth.modal.show(welcomeScreenHtml, {
+        width: reearth.viewport.width,
+        height: reearth.viewport.height,
+      });
+      welcomePageIsOpen = true;
+    }
+  });
+} else {
+  reearth.clientStorage.getAsync("isMobile").then((value: any) => {
+    if (reearth.viewport.isMobile) {
+      if (!value) {
+        reearth.widget.moveTo(mobileLocation);
+        reearth.clientStorage.setAsync("isMobile", true);
+      }
+    } else {
+      if (value) {
+        reearth.widget.moveTo(defaultLocation);
+        reearth.clientStorage.setAsync("isMobile", false);
+      }
+    }
+  });
+}
 // ************************************************
 
 reearth.on("message", ({ action, payload }: PostMessageProps) => {
@@ -335,6 +334,8 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
         overriddenLayer,
       },
     });
+  } else if (action === "unselect") {
+    reearth.layers.select();
   }
 
   // ************************************************
@@ -568,6 +569,16 @@ reearth.on("popupclose", () => {
 
 function createLayer(dataset: DataCatalogItem, overrides?: any) {
   const format = dataset.format?.toLowerCase();
+  const merge = (obj1: any, obj2: any): any => {
+    const merged = cloneDeep(obj1);
+    mergeWith(merged, obj2, (mergedValue, obj2Value) => {
+      if (isObject(mergedValue)) {
+        return merge(mergedValue, obj2Value);
+      }
+      return obj2Value !== undefined ? obj2Value : mergedValue;
+    });
+    return merged;
+  };
   return {
     type: "simple",
     title: dataset.name,
@@ -616,38 +627,34 @@ function createLayer(dataset: DataCatalogItem, overrides?: any) {
         }
       : null,
     ...(overrides !== undefined
-      ? omit(overrides, "data")
-      : format === "geojson"
-      ? {
-          marker: {
-            style: "point",
-            pointSize: 10,
-            pointColor: "white",
-            heightReference: "clamp",
-          },
-          polygon: {
-            fill: false,
-            stroke: true,
-            strokeWidth: 5,
-            heightReference: "clamp",
-          },
-          polyline: {
-            clampToGround: true,
-          },
-        }
+      ? merge(defaultOverrides, omit(overrides, "data"))
+      : format === ("geojson" || "czml")
+      ? defaultOverrides
       : format === "gtfs"
       ? proxyGTFS(overrides)
       : format === "mvt"
       ? {
           polygon: {},
         }
-      : format === "czml"
+      : format === "wms"
       ? {
-          resource: {},
-          marker: { heightReference: "clamp" },
-          polyline: { clampToGround: true },
-          polygon: { clampToGround: true },
+          raster: {
+            alpha: 0.8,
+          },
         }
       : { ...(overrides ?? {}) }),
   };
 }
+
+const defaultOverrides = {
+  resource: {},
+  marker: {
+    heightReference: "clamp",
+  },
+  polygon: {
+    heightReference: "clamp",
+  },
+  polyline: {
+    clampToGround: true,
+  },
+};
