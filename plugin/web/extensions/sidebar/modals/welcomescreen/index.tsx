@@ -1,4 +1,4 @@
-import welcomeScreenVideo from "@web/extensions/sidebar/core/assets/welcomeScreenVideo.jpg";
+import welcomeScreenVideo from "@web/extensions/sidebar/core/assets/welcomeScreenVideo.png";
 import useHooks from "@web/extensions/sidebar/modals/welcomescreen/hooks";
 import { Checkbox, Icon } from "@web/sharedComponents";
 import Video from "@web/sharedComponents/Video";
