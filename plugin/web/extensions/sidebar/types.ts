@@ -23,7 +23,7 @@ type ActionType =
   | "updateDataset"
   | "catalogModalOpen"
   | "triggerCatalogOpen"
-  | "saveExpandedKeys"
+  | "saveExpandedFolders"
   | "saveDataset"
   | "triggerHelpOpen"
   | "mapModalOpen"

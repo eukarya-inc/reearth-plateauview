@@ -74,7 +74,7 @@ let dataCatalog: DataCatalogItem[] = [];
 
 let addedDatasets: [dataID: string, status: "showing" | "hidden", layerID?: string][] = [];
 
-let expandedKeys: string[] = [];
+let expandedFolders: string[] = [];
 let dataset = {};
 const sidebarInstance: PluginExtensionInstance = reearth.plugins.instances.find(
   (i: PluginExtensionInstance) => i.id === reearth.widget.id,
@@ -251,12 +251,12 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
     if (payload) {
       reearth.modal.postMessage({ action, payload });
     }
-    reearth.modal.postMessage({ action, payload: { expandedKeys } });
+    reearth.modal.postMessage({ action, payload: { expandedFolders } });
     reearth.modal.postMessage({ action, payload: { dataset } });
   } else if (action === "triggerCatalogOpen") {
     reearth.ui.postMessage({ action });
-  } else if (action === "saveExpandedKeys") {
-    expandedKeys = [...payload.expandedKeys];
+  } else if (action === "saveExpandedFolders") {
+    expandedFolders = [...payload.expandedFolders];
   } else if (action === "saveDataset") {
     dataset = { ...payload.dataset };
   } else if (action === "triggerHelpOpen") {

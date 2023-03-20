@@ -13,7 +13,6 @@ export type Props = {
   onDatasetAdd: (dataset: DataCatalogItem) => void;
   onOpenDetails?: (item?: DataCatalogItem) => void;
   onSelect?: (item: DataCatalogItem) => void;
-  setExpandedKeys: React.Dispatch<React.SetStateAction<string[]>>;
 };
 
 const File: React.FC<Props> = ({

@@ -25,7 +25,7 @@ const FileTree: React.FC<Props> = ({
   onOpenDetails,
 }) => {
   const [selectedItem, selectItem] = useState<DataCatalogItem>();
-  const [expandedKeys, setExpandedKeys] = useState<string[]>([]);
+  const [expandedFolders, setExpandedFolders] = useState<{ id?: string; name?: string }[]>([]);
 
   const handleSelect = useCallback((item?: DataCatalogItem) => {
     selectItem(item);
@@ -39,16 +39,18 @@ const FileTree: React.FC<Props> = ({
     const eventListenerCallback = (e: MessageEvent<any>) => {
       if (e.source !== parent) return;
       if (e.data.action === "catalogModalOpen") {
-        if (e.data.payload.expandedKeys) setExpandedKeys(e.data.payload.expandedKeys);
+        if (e.data.payload.expandedFolders) setExpandedFolders(e.data.payload.expandedFolders);
         if (e.data.payload.dataset) {
           const item = e.data.payload.dataset;
           onOpenDetails?.(item);
           handleSelect(item);
           if (item.path) {
-            const expandedKeys = [...item.path];
-            const index = expandedKeys.findIndex(key => key === item.name);
-            if (index >= 0) expandedKeys.splice(index, 1);
-            setExpandedKeys(expandedKeys);
+            const expandedFolders = item.path.map((item: string) => ({ name: item }));
+            const index = expandedFolders.findIndex((folder: { id?: string; name?: string }) =>
+              folder.id ? folder.id === item.id : folder.name === item.name,
+            );
+            if (index >= 0) expandedFolders.splice(index, 1);
+            setExpandedFolders(expandedFolders);
           }
           setTimeout(() => {
             postMsg({
@@ -63,7 +65,7 @@ const FileTree: React.FC<Props> = ({
     return () => {
       removeEventListener("message", eventListenerCallback);
     };
-  }, [handleSelect, onOpenDetails]);
+  }, [expandedFolders, handleSelect, onOpenDetails]);
 
   return (
     <TreeWrapper isMobile={isMobile}>
@@ -75,12 +77,12 @@ const FileTree: React.FC<Props> = ({
           expandAll={expandAll}
           selectedID={selectedItem?.id}
           nestLevel={0}
-          expandedKeys={expandedKeys}
+          expandedFolders={expandedFolders}
           addDisabled={addDisabled}
           onDatasetAdd={onDatasetAdd}
           onOpenDetails={onOpenDetails}
           onSelect={handleSelect}
-          setExpandedKeys={setExpandedKeys}
+          setExpandedFolders={setExpandedFolders}
         />
       </Tree>
     </TreeWrapper>
