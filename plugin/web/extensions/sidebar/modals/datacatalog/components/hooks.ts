@@ -41,10 +41,15 @@ export default () => {
       if (e.source !== parent) return;
       if (e.data.action === "initDataCatalog") {
         setAddedDatasetDataIDs(e.data.payload.addedDatasets);
-        setCatalog(e.data.payload.dataCatalog);
+        setCatalog(e.data.payload.catalog);
         setEditorState(e.data.payload.inEditor);
-      } else if (e.data.action === "updateCatalog") {
-        setCatalog(e.data.payload);
+      } else if (e.data.action === "updateDataCatalog") {
+        if (e.data.payload.updatedCatalog) {
+          setCatalog(e.data.payload.updatedCatalog);
+        }
+        if (e.data.payload.updatedDatasetDataIDs) {
+          setAddedDatasetDataIDs(e.data.payload.updatedDatasetDataIDs);
+        }
       }
     };
     addEventListener("message", eventListenerCallback);
