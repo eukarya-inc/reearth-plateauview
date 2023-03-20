@@ -10,6 +10,17 @@ export default () => {
   const [addedDatasetDataIDs, setAddedDatasetDataIDs] = useState<string[]>();
   const [catalog, setCatalog] = useState<DataCatalogItem[]>([]);
   const [inEditor, setEditorState] = useState(false);
+  const [selectedDatasetID, setDatasetID] = useState<string>();
+  const [selectedItem, selectItem] = useState<DataCatalogItem>();
+  const [expandedFolders, setExpandedFolders] = useState<{ id?: string; name?: string }[]>([]);
+
+  const handleSelect = useCallback((item?: DataCatalogItem) => {
+    selectItem(item);
+  }, []);
+
+  const handleOpenDetails = useCallback((data?: DataCatalogItem) => {
+    setDatasetID(data?.dataID);
+  }, []);
 
   const handleClose = useCallback(() => {
     postMsg({ action: "modalClose" });
@@ -43,6 +54,23 @@ export default () => {
         setAddedDatasetDataIDs(e.data.payload.addedDatasets);
         setCatalog(e.data.payload.dataCatalog);
         setEditorState(e.data.payload.inEditor);
+        setExpandedFolders(e.data.payload.expandedFolders);
+        if (e.data.payload.dataset) {
+          const item = e.data.payload.dataset;
+          handleOpenDetails(item);
+          handleSelect(item);
+          if (item.path) {
+            setExpandedFolders(
+              item.path
+                .map((item: string) => ({ name: item }))
+                .filter((folder: { name?: string }) => folder.name !== item.name),
+            );
+          }
+          postMsg({
+            action: "saveDataset",
+            payload: { dataset: undefined },
+          });
+        }
       } else if (e.data.action === "updateCatalog") {
         setCatalog(e.data.payload);
       }
@@ -51,13 +79,19 @@ export default () => {
     return () => {
       removeEventListener("message", eventListenerCallback);
     };
-  }, []);
+  }, [handleOpenDetails, handleSelect]);
 
   return {
     currentTab,
     catalog,
     addedDatasetDataIDs,
     inEditor,
+    selectedDatasetID,
+    selectedItem,
+    expandedFolders,
+    setExpandedFolders,
+    handleSelect,
+    handleOpenDetails,
     handleClose,
     handleTabChange: changeTabs,
     handleDatasetAdd,

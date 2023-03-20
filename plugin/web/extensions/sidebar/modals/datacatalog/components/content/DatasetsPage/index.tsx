@@ -12,6 +12,12 @@ export type Props = {
   catalog?: DataCatalogItem[];
   addedDatasetDataIDs?: string[];
   inEditor?: boolean;
+  selectedDatasetID?: string;
+  selectedItem?: DataCatalogItem;
+  expandedFolders: { id?: string; name?: string }[];
+  setExpandedFolders: React.Dispatch<React.SetStateAction<{ id?: string; name?: string }[]>>;
+  onSelect: (item?: DataCatalogItem) => void;
+  onOpenDetails: (data?: DataCatalogItem) => void;
   onDatasetAdd: (dataset: DataCatalogItem | UserDataItem) => void;
   onDatasetPublish: (dataID: string, publish: boolean) => void;
 };
@@ -20,16 +26,17 @@ const DatasetsPage: React.FC<Props> = ({
   catalog,
   addedDatasetDataIDs,
   inEditor,
+  selectedDatasetID,
+  selectedItem,
+  expandedFolders,
+  setExpandedFolders,
+  onSelect,
+  onOpenDetails,
   onDatasetAdd,
   onDatasetPublish,
 }) => {
-  const [selectedDatasetID, setDatasetID] = useState<string>();
   const [selectedTags, selectTags] = useState<Tag[]>([]);
   const [filter, setFilter] = useState<GroupBy>("city");
-
-  const handleOpenDetails = useCallback((data?: DataCatalogItem) => {
-    setDatasetID(data?.dataID);
-  }, []);
 
   const handleFilter = useCallback((filter: GroupBy) => {
     setFilter(filter);
@@ -66,10 +73,14 @@ const DatasetsPage: React.FC<Props> = ({
           catalog={catalog}
           selectedTags={selectedTags}
           filter={filter}
+          selectedItem={selectedItem}
+          expandedFolders={expandedFolders}
+          setExpandedFolders={setExpandedFolders}
+          onSelect={onSelect}
           addDisabled={addDisabled}
           onFilter={handleFilter}
           onTagSelect={handleTagSelect}
-          onOpenDetails={handleOpenDetails}
+          onOpenDetails={onOpenDetails}
           onDatasetAdd={onDatasetAdd}
         />
       }

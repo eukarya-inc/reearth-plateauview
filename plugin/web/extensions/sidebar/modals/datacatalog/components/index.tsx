@@ -11,6 +11,12 @@ const DataCatalog: React.FC = () => {
     catalog,
     addedDatasetDataIDs,
     inEditor,
+    selectedDatasetID,
+    selectedItem,
+    expandedFolders,
+    setExpandedFolders,
+    handleSelect,
+    handleOpenDetails,
     handleClose,
     handleTabChange,
     handleDatasetAdd,
@@ -42,6 +48,12 @@ const DataCatalog: React.FC = () => {
           catalog={catalog}
           addedDatasetDataIDs={addedDatasetDataIDs}
           inEditor={inEditor}
+          selectedDatasetID={selectedDatasetID}
+          selectedItem={selectedItem}
+          expandedFolders={expandedFolders}
+          setExpandedFolders={setExpandedFolders}
+          onSelect={handleSelect}
+          onOpenDetails={handleOpenDetails}
           onDatasetAdd={handleDatasetAdd}
           onDatasetPublish={handleDatasetPublish}
         />

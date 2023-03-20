@@ -251,8 +251,6 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
     if (payload) {
       reearth.modal.postMessage({ action, payload });
     }
-    reearth.modal.postMessage({ action, payload: { expandedFolders } });
-    reearth.modal.postMessage({ action, payload: { dataset } });
   } else if (action === "triggerCatalogOpen") {
     reearth.ui.postMessage({ action });
   } else if (action === "saveExpandedFolders") {
@@ -271,6 +269,8 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
         dataCatalog,
         addedDatasets: addedDatasets.map(d => d[0]),
         inEditor: reearth.scene.inEditor,
+        expandedFolders,
+        dataset,
       },
     });
   } else if (action === "helpPopupOpen") {
