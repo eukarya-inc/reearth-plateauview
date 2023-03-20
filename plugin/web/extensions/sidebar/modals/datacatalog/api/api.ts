@@ -12,6 +12,7 @@ export type { DataCatalogItem, DataCatalogGroup, DataCatalogTreeItem };
 export type RawDataCatalogTreeItem = RawDataCatalogGroup | RawDataCatalogItem;
 
 export type RawDataCatalogGroup = {
+  id: string;
   name: string;
   children: RawDataCatalogTreeItem[];
 };
@@ -119,6 +120,7 @@ export function getRawDataCatalogTree(
     makeTree(sortInternal(items, groupBy, q)),
     (item): RawDataCatalogGroup | RawDataCatalogItem =>
       item.item ?? {
+        id: item.id,
         name: item.name,
         children: [],
       },
@@ -206,6 +208,7 @@ const tokyo = "東京都";
 const types = [
   "bldg",
   "tran",
+  "brid",
   "veg",
   "frn",
   "luse",
