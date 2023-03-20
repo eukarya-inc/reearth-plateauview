@@ -18,9 +18,9 @@ export type Props = {
   selectedTags?: Tag[];
   filter: GroupBy;
   selectedItem?: DataCatalogItem;
-  expandedFolders: { id?: string; name?: string }[];
-  setExpandedFolders: React.Dispatch<React.SetStateAction<{ id?: string; name?: string }[]>>;
-  onSelect: (item?: DataCatalogItem) => void;
+  expandedFolders?: { id?: string; name?: string }[];
+  setExpandedFolders?: React.Dispatch<React.SetStateAction<{ id?: string; name?: string }[]>>;
+  onSelect?: (item?: DataCatalogItem) => void;
   addDisabled: (dataID: string) => boolean;
   onFilter: (filter: GroupBy) => void;
   onTagSelect?: (tag: Tag) => void;

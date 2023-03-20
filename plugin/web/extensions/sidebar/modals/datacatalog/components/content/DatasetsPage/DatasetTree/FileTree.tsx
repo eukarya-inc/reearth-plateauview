@@ -9,9 +9,9 @@ export type Props = {
   isMobile?: boolean;
   expandAll?: boolean;
   selectedItem?: DataCatalogItem;
-  expandedFolders: { id?: string; name?: string }[];
-  setExpandedFolders: React.Dispatch<React.SetStateAction<{ id?: string; name?: string }[]>>;
-  onSelect: (item?: DataCatalogItem) => void;
+  expandedFolders?: { id?: string; name?: string }[];
+  setExpandedFolders?: React.Dispatch<React.SetStateAction<{ id?: string; name?: string }[]>>;
+  onSelect?: (item?: DataCatalogItem) => void;
   addDisabled: (dataID: string) => boolean;
   onDatasetAdd: (dataset: DataCatalogItem, keepModalOpen?: boolean) => void;
   onOpenDetails?: (data?: DataCatalogItem) => void;

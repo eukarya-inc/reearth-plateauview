@@ -14,10 +14,10 @@ export type Props = {
   inEditor?: boolean;
   selectedDatasetID?: string;
   selectedItem?: DataCatalogItem;
-  expandedFolders: { id?: string; name?: string }[];
-  setExpandedFolders: React.Dispatch<React.SetStateAction<{ id?: string; name?: string }[]>>;
-  onSelect: (item?: DataCatalogItem) => void;
-  onOpenDetails: (data?: DataCatalogItem) => void;
+  expandedFolders?: { id?: string; name?: string }[];
+  setExpandedFolders?: React.Dispatch<React.SetStateAction<{ id?: string; name?: string }[]>>;
+  onSelect?: (item?: DataCatalogItem) => void;
+  onOpenDetails?: (data?: DataCatalogItem) => void;
   onDatasetAdd: (dataset: DataCatalogItem | UserDataItem, keepModalOpen?: boolean) => void;
   onDatasetPublish: (dataID: string, publish: boolean) => void;
 };
