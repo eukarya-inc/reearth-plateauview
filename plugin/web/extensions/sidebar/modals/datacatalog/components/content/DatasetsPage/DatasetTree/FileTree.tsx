@@ -52,12 +52,10 @@ const FileTree: React.FC<Props> = ({
             if (index >= 0) expandedFolders.splice(index, 1);
             setExpandedFolders(expandedFolders);
           }
-          setTimeout(() => {
-            postMsg({
-              action: "saveDataset",
-              payload: { dataset: undefined },
-            });
-          }, 500);
+          postMsg({
+            action: "saveDataset",
+            payload: { dataset: undefined },
+          });
         }
       }
     };
