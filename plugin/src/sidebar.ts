@@ -74,8 +74,8 @@ let dataCatalog: DataCatalogItem[] = [];
 
 let addedDatasets: [dataID: string, status: "showing" | "hidden", layerID?: string][] = [];
 
-let expandedFolders: string[] = [];
-let dataset = {};
+let expandedFolders: { id?: string; name?: string }[] = [];
+let dataset: DataCatalogItem | undefined = undefined;
 const sidebarInstance: PluginExtensionInstance = reearth.plugins.instances.find(
   (i: PluginExtensionInstance) => i.id === reearth.widget.id,
 );

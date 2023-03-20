@@ -55,7 +55,7 @@ const FileTree: React.FC<Props> = ({
           setTimeout(() => {
             postMsg({
               action: "saveDataset",
-              payload: { dataset: {} },
+              payload: { dataset: undefined },
             });
           }, 500);
         }
