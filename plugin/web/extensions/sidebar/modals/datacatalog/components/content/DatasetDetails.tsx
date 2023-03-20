@@ -45,7 +45,7 @@ const DatasetDetails: React.FC<Props> = ({
       const terminalDataset = dataset;
       if (layers.length) terminalDataset.layers = layers;
 
-      const keyPressed = checkKeyPress(e, "shift");
+      const keyPressed = checkKeyPress(e, ["shift", "meta", "ctrl"]);
       onDatasetAdd(terminalDataset, keyPressed);
     },
     [dataset, addDisabled, layers, onDatasetAdd],

@@ -30,7 +30,7 @@ const File: React.FC<Props> = ({
 }) => {
   const handleClick = useCallback(
     (e: React.MouseEvent<HTMLButtonElement>) => {
-      const keyPressed = checkKeyPress(e, "shift");
+      const keyPressed = checkKeyPress(e, ["shift", "meta", "ctrl"]);
       onDatasetAdd(item, keyPressed);
     },
     [item, onDatasetAdd],
