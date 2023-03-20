@@ -139,10 +139,8 @@ const ImgWrapper = styled.a<{ imgUrl: string }>`
   width: 305px;
   height: 159px;
   cursor: pointer;
-  background: ${props =>
-    `linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url(${props.imgUrl})`};
-
-  background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)) url(welcomeScreenVideo);
+  background-color: rgba(0, 0, 0, 0.5);
+  background-image: ${props => `url(${props.imgUrl})`};
   background-size: cover;
   background-repeat: no-repeat;
   background-position: center center;
