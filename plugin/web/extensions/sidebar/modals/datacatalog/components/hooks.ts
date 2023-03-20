@@ -16,14 +16,14 @@ export default () => {
   }, []);
 
   const handleDatasetAdd = useCallback(
-    (dataset: DataCatalogItem | UserDataItem) => {
+    (dataset: DataCatalogItem | UserDataItem, keepModalOpen?: boolean) => {
       postMsg({
         action: "msgFromModal",
         payload: {
           dataset,
         },
       });
-      handleClose();
+      if (!keepModalOpen) handleClose();
     },
     [handleClose],
   );
