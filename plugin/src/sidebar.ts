@@ -70,7 +70,7 @@ let currentSelected: string | undefined = undefined;
 const defaultLocation = { zone: "outer", section: "left", area: "middle" };
 const mobileLocation = { zone: "outer", section: "center", area: "top" };
 
-let dataCatalog: DataCatalogItem[] = [];
+let catalog: DataCatalogItem[] = [];
 
 let addedDatasets: [dataID: string, status: "showing" | "hidden", layerID?: string][] = [];
 
@@ -177,9 +177,9 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
     });
   } else if (action === "storageDelete") {
     reearth.clientStorage.deleteAsync(payload.key);
-  } else if (action === "updateCatalog") {
-    dataCatalog = payload;
-    reearth.modal.postMessage({ action, payload });
+  } else if (action === "updateDataCatalog") {
+    catalog = payload;
+    reearth.modal.postMessage({ action, payload: { updatedCatalog: payload } });
   } else if (action === "updateProject") {
     reearth.visualizer.overrideProperty(payload.sceneOverrides);
     reearth.clientStorage.setAsync("draftProject", payload);
@@ -197,6 +197,10 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
         reearth.layers.hide(addedDatasets[idx][2]);
         addedDatasets[idx][1] = "hidden";
       }
+      reearth.modal.postMessage({
+        action: "updateDataCatalog",
+        payload: { updatedDatasetDataIDs: addedDatasets.map(d => d[0]) },
+      });
     }
   } else if (action === "updateDatasetInScene") {
     const layerId = addedDatasets.find(ad => ad[0] === payload.dataID)?.[2];
@@ -266,7 +270,7 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
     reearth.modal.postMessage({
       action,
       payload: {
-        dataCatalog,
+        catalog,
         addedDatasets: addedDatasets.map(d => d[0]),
         inEditor: reearth.scene.inEditor,
         expandedFolders,

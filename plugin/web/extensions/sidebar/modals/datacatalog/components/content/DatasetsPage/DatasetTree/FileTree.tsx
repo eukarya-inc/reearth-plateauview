@@ -13,7 +13,7 @@ export type Props = {
   setExpandedFolders: React.Dispatch<React.SetStateAction<{ id?: string; name?: string }[]>>;
   onSelect: (item?: DataCatalogItem) => void;
   addDisabled: (dataID: string) => boolean;
-  onDatasetAdd: (dataset: DataCatalogItem) => void;
+  onDatasetAdd: (dataset: DataCatalogItem, keepModalOpen?: boolean) => void;
   onOpenDetails?: (data?: DataCatalogItem) => void;
 };
 
