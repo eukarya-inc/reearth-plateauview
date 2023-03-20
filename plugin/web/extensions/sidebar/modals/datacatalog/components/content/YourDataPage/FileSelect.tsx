@@ -34,7 +34,7 @@ const FileSelectPane: React.FC<Props> = ({ onOpenDetails }) => {
           <LocalDataTab onOpenDetails={onOpenDetails} setSelectedLocalItem={setSelectedLocalItem} />
         </Tabs.TabPane>
         <Tabs.TabPane
-          tab={<span style={{ marginLeft: "5px" }}> Webからデータを追加 </span>}
+          tab={<span style={{ marginLeft: "2px" }}> Webからデータを追加 </span>}
           key="web">
           <WebDataTab onOpenDetails={onOpenDetails} setSelectedWebItem={setSelectedWebItem} />
         </Tabs.TabPane>
@@ -46,7 +46,7 @@ const FileSelectPane: React.FC<Props> = ({ onOpenDetails }) => {
 export default FileSelectPane;
 
 const Wrapper = styled.div`
-  padding: 24 2 24 12px;
+  padding: 24px 12px;
 `;
 
 const StyledTabs = styled(Tabs)`
