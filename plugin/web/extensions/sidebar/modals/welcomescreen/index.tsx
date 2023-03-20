@@ -140,7 +140,8 @@ const ImgWrapper = styled.a<{ imgUrl: string }>`
   height: 159px;
   cursor: pointer;
   background-color: rgba(0, 0, 0, 0.5);
-  background-image: ${props => `url(${props.imgUrl})`};
+  background-image: ${props =>
+    `linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url(${props.imgUrl})`};
   background-size: cover;
   background-repeat: no-repeat;
   background-position: center center;
