@@ -54,7 +54,7 @@ func New(base, token string) (*CMS, error) {
 
 func (c *CMS) assetParam(asset bool) map[string][]string {
 	if !asset {
-		return nil
+		return make(map[string][]string)
 	}
 	return map[string][]string{
 		"asset": {"true"},
@@ -78,9 +78,6 @@ func (c *CMS) GetItem(ctx context.Context, itemID string, asset bool) (*Item, er
 
 func (c *CMS) GetItemsPartially(ctx context.Context, modelID string, page, perPage int, asset bool) (*Items, error) {
 	q := c.assetParam(asset)
-	if q == nil {
-		q = make(map[string][]string)
-	}
 	if page >= 1 {
 		q["page"] = []string{strconv.Itoa(page)}
 	}
@@ -132,9 +129,6 @@ func (c *CMS) GetItems(ctx context.Context, modelID string, asset bool) (*Items,
 
 func (c *CMS) GetItemsPartiallyByKey(ctx context.Context, projectIDOrAlias, modelIDOrAlias string, page, perPage int, asset bool) (*Items, error) {
 	q := c.assetParam(asset)
-	if q == nil {
-		q = make(map[string][]string)
-	}
 	if page >= 1 {
 		q["page"] = []string{strconv.Itoa(page)}
 	}
