@@ -3,6 +3,7 @@ package ckan
 import (
 	"context"
 	"errors"
+	"sort"
 	"strings"
 
 	"github.com/reearth/reearthx/rerror"
@@ -44,6 +45,9 @@ func (c *Mock) ShowPackage(ctx context.Context, id string) (Package, error) {
 	p.Resources = c.resources.FindAll(func(_ string, r Resource) bool {
 		return r.PackageID == p.ID
 	})
+	sort.Slice(p.Resources, func(i, j int) bool {
+		return p.Resources[i].Name < p.Resources[j].Name
+	})
 	return p, nil
 }
 
@@ -54,7 +58,13 @@ func (c *Mock) SearchPackageByName(ctx context.Context, name string) (List[Packa
 		p.Resources = c.resources.FindAll(func(_ string, r Resource) bool {
 			return r.PackageID == p.ID
 		})
+		sort.Slice(p.Resources, func(i, j int) bool {
+			return p.Resources[i].Name < p.Resources[j].Name
+		})
 		return p
+	})
+	sort.Slice(results, func(i, j int) bool {
+		return results[i].Name < results[j].Name
 	})
 	return List[Package]{
 		Count:   len(results),

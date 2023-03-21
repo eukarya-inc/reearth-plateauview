@@ -63,7 +63,7 @@ type Catalog struct {
 	CustomFields map[string]any `json:"customFields,omitempty"`
 }
 
-func (c Catalog) Validate() error {
+func (c *Catalog) Validate() error {
 	var errs []string
 	var missingkeys []string
 
@@ -97,7 +97,7 @@ func NewCatalogFile(file *excelize.File) *CatalogFile {
 	}
 }
 
-func (c *CatalogFile) Parse() (res Catalog, err error) {
+func (c *CatalogFile) Parse() (res *Catalog, err error) {
 	sheet, err := c.getSheet()
 	if err != nil {
 		return res, err
@@ -105,6 +105,7 @@ func (c *CatalogFile) Parse() (res Catalog, err error) {
 
 	errs := []error{}
 
+	res = &Catalog{}
 	res.Title, errs = c.getCellValue(sheet, "タイトル", "D2", errs)
 	res.URL, errs = c.getCellValue(sheet, "URL", "D3", errs)
 	res.Notes, errs = c.getCellValue(sheet, "説明", "D4", errs)
@@ -128,8 +129,7 @@ func (c *CatalogFile) Parse() (res Catalog, err error) {
 	res.ThumbnailFileName, res.Thumbnail, errs = c.getPicture(sheet, "サムネイル画像", "D22", errs)
 	res.Fee, errs = c.getCellValue(sheet, "価格情報", "D23", errs)
 	res.LicenseAgreement, errs = c.getCellValue(sheet, "使用許諾", "D24", errs)
-
-	// メタデータ is not implemented yet
+	// メタデータ is not implemented
 
 	if len(errs) > 0 {
 		return res, fmt.Errorf("目録の読み込みに失敗しました。%w", errorsJoin(errs))

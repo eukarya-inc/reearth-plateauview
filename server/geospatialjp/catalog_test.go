@@ -23,7 +23,7 @@ func TestCatalogFile(t *testing.T) {
 
 	cc, err := c.Parse()
 	assert.NoError(t, err)
-	assert.Equal(t, Catalog{
+	assert.Equal(t, &Catalog{
 		Title:             "TITLE",
 		URL:               "URL",
 		Notes:             "DESC\nDesc",
