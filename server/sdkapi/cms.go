@@ -91,9 +91,7 @@ func (c *CMS) FilesWithIntegrationAPI(ctx context.Context, model, id string) (an
 		return nil, rerror.ErrInternalBy(err)
 	}
 
-	iitem := IItem{}
-	item.Unmarshal(&iitem)
-
+	iitem := ItemFromIntegration(item)
 	if iitem.CityGML == nil || iitem.MaxLOD == nil {
 		return nil, rerror.ErrNotFound
 	}

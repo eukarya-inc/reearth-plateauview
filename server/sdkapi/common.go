@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/eukarya-inc/reearth-plateauview/server/cms"
+	"github.com/mitchellh/mapstructure"
 	"github.com/samber/lo"
 	"golang.org/x/exp/slices"
 )
@@ -176,17 +177,17 @@ func (mm MaxLODMap) Files(urls []*url.URL) (r FilesResponse) {
 }
 
 type IItem struct {
-	ID             string      `json:"id" cms:"id,text"`
-	Prefecture     string      `json:"prefecture" cms:"prefecture,text"`
-	CityName       string      `json:"city_name" cms:"city_name,text"`
-	CityGML        *cms.Asset  `json:"citygml" cms:"citygml,asset"`
-	Description    string      `json:"description_bldg" cms:"description_bldg,textarea"`
-	MaxLOD         *cms.Asset  `json:"max_lod" cms:"max_lod,asset"`
-	Bldg           []cms.Asset `json:"bldg" cms:"bldg,asset"`
-	Tran           []cms.Asset `json:"tran" cms:"tran,asset"`
-	Frn            []cms.Asset `json:"frn" cms:"frn,asset"`
-	Veg            []cms.Asset `json:"veg" cms:"veg,asset"`
-	SDKPublication string      `json:"sdk_publication" cms:"sdk_publication,select"`
+	ID             string           `json:"id" cms:"id,text"`
+	Prefecture     string           `json:"prefecture" cms:"prefecture,text"`
+	CityName       string           `json:"city_name" cms:"city_name,text"`
+	CityGML        map[string]any   `json:"citygml" cms:"citygml,asset"`
+	Description    string           `json:"description_bldg" cms:"description_bldg,textarea"`
+	MaxLOD         map[string]any   `json:"max_lod" cms:"max_lod,asset"`
+	Bldg           []map[string]any `json:"bldg" cms:"bldg,asset"`
+	Tran           []map[string]any `json:"tran" cms:"tran,asset"`
+	Frn            []map[string]any `json:"frn" cms:"frn,asset"`
+	Veg            []map[string]any `json:"veg" cms:"veg,asset"`
+	SDKPublication string           `json:"sdk_publication" cms:"sdk_publication,select"`
 }
 
 func (i IItem) Item() Item {
@@ -194,21 +195,56 @@ func (i IItem) Item() Item {
 		ID:             i.ID,
 		Prefecture:     i.Prefecture,
 		CityName:       i.CityName,
-		CityGML:        i.CityGML.ToPublic(),
+		CityGML:        integrationAssetToAsset(i.CityGML).ToPublic(),
 		Description:    i.Description,
-		MaxLOD:         i.MaxLOD.ToPublic(),
-		Bldg:           lo.Map(i.Bldg, func(a cms.Asset, _ int) cms.PublicAsset { return *a.ToPublic() }),
-		Tran:           lo.Map(i.Tran, func(a cms.Asset, _ int) cms.PublicAsset { return *a.ToPublic() }),
-		Frn:            lo.Map(i.Frn, func(a cms.Asset, _ int) cms.PublicAsset { return *a.ToPublic() }),
-		Veg:            lo.Map(i.Veg, func(a cms.Asset, _ int) cms.PublicAsset { return *a.ToPublic() }),
+		MaxLOD:         integrationAssetToAsset(i.MaxLOD).ToPublic(),
+		Bldg:           assetsToPublic(integrationAssetToAssets(i.Bldg)),
+		Tran:           assetsToPublic(integrationAssetToAssets(i.Tran)),
+		Frn:            assetsToPublic(integrationAssetToAssets(i.Frn)),
+		Veg:            assetsToPublic(integrationAssetToAssets(i.Veg)),
 		SDKPublication: i.SDKPublication,
 	}
 }
 
 func ItemsFromIntegration(items []cms.Item) Items {
 	return lo.Map(items, func(i cms.Item, _ int) Item {
-		r := IItem{}
-		i.Unmarshal(&r)
-		return r.Item()
+		return ItemFromIntegration(&i)
 	})
+}
+
+func ItemFromIntegration(ci *cms.Item) Item {
+	i := IItem{}
+	ci.Unmarshal(&i)
+	return i.Item()
+}
+
+func assetsToPublic(a []cms.Asset) []cms.PublicAsset {
+	return lo.FilterMap(a, func(a cms.Asset, _ int) (cms.PublicAsset, bool) {
+		p := a.ToPublic()
+		if p == nil {
+			return cms.PublicAsset{}, false
+		}
+		return *p, true
+	})
+}
+
+func integrationAssetToAssets(a []map[string]any) []cms.Asset {
+	return lo.FilterMap(a, func(a map[string]any, _ int) (cms.Asset, bool) {
+		pa := integrationAssetToAsset(a)
+		if pa == nil {
+			return cms.Asset{}, false
+		}
+		return *pa, true
+	})
+}
+
+func integrationAssetToAsset(a map[string]any) *cms.Asset {
+	if a == nil {
+		return nil
+	}
+	pa := &cms.Asset{}
+	if err := mapstructure.Decode(a, pa); err != nil {
+		return nil
+	}
+	return pa
 }

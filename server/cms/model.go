@@ -154,6 +154,8 @@ func (d Item) Unmarshal(i any) {
 					}
 					vf.Set(s)
 				}
+			} else if itf.Value != nil && reflect.TypeOf(itf.Value).AssignableTo(vf.Type()) {
+				vf.Set(reflect.ValueOf(itf.Value))
 			}
 		}
 	}

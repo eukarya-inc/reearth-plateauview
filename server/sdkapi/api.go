@@ -22,12 +22,12 @@ func Handler(conf Config, g *echo.Group) error {
 		return err
 	}
 
-	cl, err := cms.NewPublicAPIClient[Item](nil, conf.CMSBaseURL, conf.Project)
-	if err != nil {
-		return err
-	}
+	// cl, err := cms.NewPublicAPIClient[Item](nil, conf.CMSBaseURL, conf.Project)
+	// if err != nil {
+	// 	return err
+	// }
 
-	cms := NewCMS(icl, cl, conf.Project, false)
+	cms := NewCMS(icl, nil, conf.Project, false)
 
 	g.GET("/datasets", func(c echo.Context) error {
 		data, err := cms.Datasets(c.Request().Context(), conf.Model)
