@@ -285,7 +285,7 @@ func (s *Services) parseCatalog(ctx context.Context, catalogURL string) (c *Cata
 
 func (s *Services) findAndUpdateOrCreatePackage(ctx context.Context, c *Catalog, cityCode, cityName string, dataYear int) (*ckan.Package, error) {
 	// find
-	pkg, pkgName, err := s.findPackage(ctx, cityCode, cityName, dataYear) // TODO: year should be read from item
+	pkg, pkgName, err := s.findPackage(ctx, cityCode, cityName, dataYear)
 	if err != nil {
 		return nil, fmt.Errorf("G空間情報センターからデータセットを検索できませんでした: %w", err)
 	}
