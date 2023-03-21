@@ -28,12 +28,16 @@ func Handler(conf Config, g *echo.Group) error {
 	// }
 
 	cms := NewCMS(icl, nil, conf.Project, false)
-	handler(conf, g, cms)
-	return nil
+	return handler(conf, g, cms)
 }
 
-func handler(conf Config, g *echo.Group, cms *CMS) {
+func handler(conf Config, g *echo.Group, cms *CMS) error {
 	conf.Default()
+
+	c, err := cacheMiddleware(conf)
+	if err != nil {
+		return err
+	}
 
 	g.GET("/datasets", func(c echo.Context) error {
 		data, err := cms.Datasets(c.Request().Context(), conf.Model)
@@ -41,7 +45,7 @@ func handler(conf Config, g *echo.Group, cms *CMS) {
 			return err
 		}
 		return c.JSON(http.StatusOK, data)
-	}, auth(conf.Token))
+	}, auth(conf.Token), c)
 
 	g.GET("/datasets/:id/files", func(c echo.Context) error {
 		data, err := cms.Files(c.Request().Context(), conf.Model, c.Param("id"))
@@ -50,6 +54,8 @@ func handler(conf Config, g *echo.Group, cms *CMS) {
 		}
 		return c.JSON(http.StatusOK, data)
 	}, auth(conf.Token))
+
+	return nil
 }
 
 func auth(expected string) echo.MiddlewareFunc {

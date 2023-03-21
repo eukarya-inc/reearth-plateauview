@@ -27,7 +27,7 @@ func TestHandler(t *testing.T) {
 
 	e := echo.New()
 	cms := NewCMS(&mockCMS{}, nil, "prj", false)
-	handler(Config{}, e.Group(""), cms)
+	assert.NoError(t, handler(Config{DisableCache: true}, e.Group(""), cms))
 
 	// GET /dataset
 	r := httptest.NewRequest("GET", "/datasets", nil)

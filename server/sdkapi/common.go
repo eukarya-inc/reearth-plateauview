@@ -15,11 +15,14 @@ import (
 const modelKey = "plateau"
 
 type Config struct {
-	CMSBaseURL string
-	CMSToken   string
-	Project    string
-	Model      string
-	Token      string
+	CMSBaseURL   string
+	CMSToken     string
+	Project      string
+	Model        string
+	Token        string
+	DisableCache bool
+	CacheTTL     int
+	CacheSize    string
 }
 
 func (c *Config) Default() {
