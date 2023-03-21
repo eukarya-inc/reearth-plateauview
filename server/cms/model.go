@@ -20,6 +20,29 @@ type Asset struct {
 	URL                     string `json:"url,omitempty"`
 	ContentType             string `json:"contentType,omitempty"`
 	ArchiveExtractionStatus string `json:"archiveExtractionStatus,omitempty"`
+	File                    *File  `json:"file,omitempty"`
+}
+
+type File struct {
+	Name        string `json:"name"`
+	Size        int    `json:"size"`
+	ContentType string `json:"contentType"`
+	Path        string `json:"path"`
+	Children    []File `json:"children"`
+}
+
+func (f File) Paths() []string {
+	return filePaths(f)
+}
+
+func filePaths(f File) (p []string) {
+	if len(f.Children) == 0 {
+		p = append(p, f.Path)
+	}
+	p = append(p, lo.FlatMap(f.Children, func(f File, _ int) []string {
+		return filePaths(f)
+	})...)
+	return p
 }
 
 func (a *Asset) Clone() *Asset {

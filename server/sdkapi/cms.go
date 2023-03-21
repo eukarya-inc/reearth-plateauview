@@ -2,11 +2,13 @@ package sdkapi
 
 import (
 	"context"
+	"fmt"
 	"net/url"
 	"path"
 
 	"github.com/eukarya-inc/reearth-plateauview/server/cms"
 	"github.com/reearth/reearthx/rerror"
+	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
 )
 
@@ -92,23 +94,38 @@ func (c *CMS) FilesWithIntegrationAPI(ctx context.Context, model, id string) (an
 	}
 
 	iitem := ItemFromIntegration(item)
-	if iitem.CityGML == nil || iitem.MaxLOD == nil {
+	if iitem.CityGML == nil || iitem.MaxLOD == nil || !iitem.IsPublic() {
 		return nil, rerror.ErrNotFound
 	}
 
-	asset, err := c.PublicAPIClient.GetAsset(ctx, iitem.CityGML.ID)
+	asset, err := c.IntegrationAPIClient.Asset(ctx, iitem.CityGML.ID)
 	if err != nil {
 		return nil, rerror.ErrInternalBy(err)
 	}
+	if asset.File == nil {
+		return nil, rerror.ErrNotFound
+	}
+
+	assetURL, err := url.Parse(asset.URL)
+	if asset.File == nil {
+		return nil, rerror.ErrInternalBy(fmt.Errorf("failed to parse asset url %s: %w", asset.URL, err))
+	}
+
+	assetBase := util.CloneRef(assetURL)
+	assetBase.Path = path.Dir(assetBase.Path)
 
 	maxlod, err := getMaxLOD(ctx, iitem.MaxLOD.URL)
 	if err != nil {
 		return nil, rerror.ErrInternalBy(err)
 	}
 
-	files := lo.FilterMap(asset.Files, func(u string, _ int) (*url.URL, bool) {
-		res, err := url.Parse(u)
-		return res, err == nil && path.Ext(res.Path) == ".gml"
+	files := lo.FilterMap(asset.File.Paths(), func(u string, _ int) (*url.URL, bool) {
+		if path.Ext(u) != ".gml" {
+			return nil, false
+		}
+		fu := util.CloneRef(assetBase)
+		fu.Path = path.Join(fu.Path, u)
+		return fu, true
 	})
 
 	return maxlod.Map().Files(files), nil

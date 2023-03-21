@@ -28,6 +28,12 @@ func Handler(conf Config, g *echo.Group) error {
 	// }
 
 	cms := NewCMS(icl, nil, conf.Project, false)
+	handler(conf, g, cms)
+	return nil
+}
+
+func handler(conf Config, g *echo.Group, cms *CMS) {
+	conf.Default()
 
 	g.GET("/datasets", func(c echo.Context) error {
 		data, err := cms.Datasets(c.Request().Context(), conf.Model)
@@ -44,8 +50,6 @@ func Handler(conf Config, g *echo.Group) error {
 		}
 		return c.JSON(http.StatusOK, data)
 	}, auth(conf.Token))
-
-	return nil
 }
 
 func auth(expected string) echo.MiddlewareFunc {

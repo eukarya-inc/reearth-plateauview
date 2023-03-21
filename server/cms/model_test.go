@@ -163,3 +163,14 @@ func TestItems_HasNext(t *testing.T) {
 	assert.True(t, Items{Page: 1, PerPage: 10, TotalCount: 11}.HasNext())
 	assert.False(t, Items{Page: 2, PerPage: 10, TotalCount: 11}.HasNext())
 }
+
+func TestFile_Paths(t *testing.T) {
+	assert.Equal(t, []string{"a", "b", "c"}, File{
+		Path: "_",
+		Children: []File{
+			{Path: "a"},
+			{Path: "_", Children: []File{{Path: "b"}}},
+			{Path: "c"},
+		},
+	}.Paths())
+}
