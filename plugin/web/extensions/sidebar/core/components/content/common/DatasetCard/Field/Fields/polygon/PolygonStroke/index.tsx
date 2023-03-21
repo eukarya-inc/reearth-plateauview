@@ -8,7 +8,7 @@ import { styled, commonStyles } from "@web/theme";
 import { useCallback, useEffect, useState, useRef } from "react";
 
 import { stringifyCondition } from "../../../utils";
-import { BaseFieldProps, Cond } from "../../types";
+import { BaseFieldProps, Cond, PolygonStroke as PolygonStrokeType } from "../../types";
 
 import PolygonStrokeItem from "./PolygonStrokeItem";
 
@@ -72,7 +72,7 @@ const PolygonStroke: React.FC<BaseFieldProps<"polygonStroke">> = ({
     });
   };
 
-  const generateOverride = useCallback((items: typeof value.items) => {
+  const generateOverride = useCallback((items: PolygonStrokeType["items"]) => {
     const strokeConditions: [string, string][] = [["true", "true"]];
     const strokeColorConditions: [string, string][] = [["true", 'color("white")']];
     const strokeWidthConditions: [string, string][] = [["true", "1"]];
@@ -103,7 +103,6 @@ const PolygonStroke: React.FC<BaseFieldProps<"polygonStroke">> = ({
         },
       },
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const [override, updateOverride] = useState<{ polygon: any }>(generateOverride(value.items));

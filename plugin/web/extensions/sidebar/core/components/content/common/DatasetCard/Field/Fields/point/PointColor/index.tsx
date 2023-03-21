@@ -8,7 +8,7 @@ import { styled, commonStyles } from "@web/theme";
 import { useCallback, useEffect, useState, useRef } from "react";
 
 import { stringifyCondition } from "../../../utils";
-import { BaseFieldProps, Cond } from "../../types";
+import { BaseFieldProps, Cond, PointColor as PointColorType } from "../../types";
 
 import PointColorItem from "./PointColorItem";
 
@@ -59,7 +59,7 @@ const PointColor: React.FC<BaseFieldProps<"pointColor">> = ({ value, editMode, o
     });
   };
 
-  const generateOverride = useCallback((pointColors: typeof value.pointColors) => {
+  const generateOverride = useCallback((pointColors: PointColorType["pointColors"]) => {
     const conditions: [string, string][] = [["true", 'color("white")']];
     pointColors?.forEach(item => {
       const res = "color" + `("${item.color}")`;
@@ -76,7 +76,6 @@ const PointColor: React.FC<BaseFieldProps<"pointColor">> = ({ value, editMode, o
         },
       },
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const [override, updateOverride] = useState<{ marker: any }>(generateOverride(value.pointColors));

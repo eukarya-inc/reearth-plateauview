@@ -8,7 +8,7 @@ import { styled, commonStyles } from "@web/theme";
 import { useCallback, useEffect, useState, useRef } from "react";
 
 import { stringifyCondition } from "../../../utils";
-import { BaseFieldProps, Cond } from "../../types";
+import { BaseFieldProps, Cond, PolylineColor as PolylineColorType } from "../../types";
 
 import PolylineColorItem from "./PolylineColorItem";
 
@@ -63,7 +63,7 @@ const PolylineColor: React.FC<BaseFieldProps<"polylineColor">> = ({
     });
   };
 
-  const generateOverride = useCallback((items: typeof value.items) => {
+  const generateOverride = useCallback((items: PolylineColorType["items"]) => {
     const strokeColorConditions: [string, string][] = [["true", 'color("white")']];
     items?.forEach(item => {
       const resStrokeColor = "color" + `("${item.color}")`;
@@ -79,7 +79,6 @@ const PolylineColor: React.FC<BaseFieldProps<"polylineColor">> = ({
         },
       },
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const [override, updateOverride] = useState<{ polyline: any }>(generateOverride(value.items));

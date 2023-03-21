@@ -8,7 +8,7 @@ import { styled, commonStyles } from "@web/theme";
 import { useCallback, useEffect, useState, useRef } from "react";
 
 import { stringifyCondition } from "../../../utils";
-import { BaseFieldProps, Cond } from "../../types";
+import { BaseFieldProps, Cond, PolygonColor as PolygonColorType } from "../../types";
 
 import PolygonColorItem from "./PolygonColorItem";
 
@@ -59,7 +59,7 @@ const PolygonColor: React.FC<BaseFieldProps<"polygonColor">> = ({ value, editMod
     });
   };
 
-  const generateOverride = useCallback((items: typeof value.items) => {
+  const generateOverride = useCallback((items: PolygonColorType["items"]) => {
     const fillColorConditions: [string, string][] = [["true", 'color("white")']];
     const fillConditions: [string, string][] = [["true", "true"]];
     items?.forEach(item => {
@@ -76,7 +76,6 @@ const PolygonColor: React.FC<BaseFieldProps<"polygonColor">> = ({ value, editMod
         fillColor: { expression: { conditions: fillColorConditions } },
       },
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const [override, updateOverride] = useState<{ polygon: any }>(generateOverride(value.items));

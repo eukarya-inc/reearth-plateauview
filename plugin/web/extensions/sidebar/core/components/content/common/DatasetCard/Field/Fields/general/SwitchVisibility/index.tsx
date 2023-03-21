@@ -15,12 +15,12 @@ import { styled, commonStyles } from "@web/theme";
 import { useState, useCallback, useEffect, useRef } from "react";
 
 import { stringifyCondition } from "../../../utils";
-import { BaseFieldProps, SwitchVisibility } from "../../types";
+import { BaseFieldProps, SwitchVisibility as SwitchVisibilityType } from "../../types";
 
 import ConditionItem from "./ConditionItem";
 
 type UIStyles = "dropdown" | "radio";
-export type ConditionItemType = SwitchVisibility["conditions"][0];
+export type ConditionItemType = SwitchVisibilityType["conditions"][0];
 
 const uiStyles: { [key: string]: string } = {
   dropdown: "ドロップダウン",
@@ -53,7 +53,7 @@ const SwitchVisibility: React.FC<BaseFieldProps<"switchVisibility">> = ({
     />
   );
 
-  const [conditions, setConditions] = useState<SwitchVisibility["conditions"]>(
+  const [conditions, setConditions] = useState<SwitchVisibilityType["conditions"]>(
     value.conditions ?? [],
   );
 
@@ -94,7 +94,6 @@ const SwitchVisibility: React.FC<BaseFieldProps<"switchVisibility">> = ({
     });
   };
 
-  //
   const [selectedVisibility, setSelectedVisibility] = useState<string | undefined>(
     value.userSettings?.selected ?? value.conditions?.[0]?.id,
   );
@@ -122,7 +121,7 @@ const SwitchVisibility: React.FC<BaseFieldProps<"switchVisibility">> = ({
   );
 
   const generateOverride = useCallback(
-    (conditions: typeof value.conditions, selectedVisibility?: string) => {
+    (conditions: SwitchVisibilityType["conditions"], selectedVisibility?: string) => {
       const showConditions: [string, string][] = [["true", "false"]];
 
       const selectedCondition = conditions.find(c => c.id === selectedVisibility)?.condition;
@@ -144,7 +143,6 @@ const SwitchVisibility: React.FC<BaseFieldProps<"switchVisibility">> = ({
         "3dtiles": appearanceOverride,
       };
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     [],
   );
 

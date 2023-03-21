@@ -8,7 +8,7 @@ import { styled, commonStyles } from "@web/theme";
 import { useCallback, useEffect, useState, useRef } from "react";
 
 import { stringifyCondition } from "../../../utils";
-import { BaseFieldProps, Cond } from "../../types";
+import { BaseFieldProps, Cond, PointStroke as PointStrokeType } from "../../types";
 
 import PointStrokeItem from "./PointStrokeItem";
 
@@ -72,7 +72,7 @@ const PointStroke: React.FC<BaseFieldProps<"pointStroke">> = ({ value, editMode,
     });
   };
 
-  const generateOverride = useCallback((items: typeof value.items) => {
+  const generateOverride = useCallback((items: PointStrokeType["items"]) => {
     const pointOutlineColorConditions: [string, string][] = [["true", 'color("white")']];
     const pointOutlineWidthConditions: [string, string][] = [["true", "1"]];
     items?.forEach(item => {
@@ -97,7 +97,6 @@ const PointStroke: React.FC<BaseFieldProps<"pointStroke">> = ({ value, editMode,
         },
       },
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const [override, updateOverride] = useState<{ marker: any }>(generateOverride(value.items));
