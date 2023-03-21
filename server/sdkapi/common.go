@@ -63,10 +63,6 @@ func (i Items) DatasetResponse() (r *DatasetResponse) {
 	prefs := []*DatasetPref{}
 	prefm := map[string]*DatasetPref{}
 	for _, i := range i {
-		if !i.IsPublic() {
-			continue
-		}
-
 		ft := i.FeatureTypes()
 		if len(ft) == 0 {
 			continue
@@ -210,8 +206,9 @@ func (i IItem) Item() Item {
 }
 
 func ItemsFromIntegration(items []cms.Item) Items {
-	return lo.Map(items, func(i cms.Item, _ int) Item {
-		return ItemFromIntegration(&i)
+	return lo.FilterMap(items, func(i cms.Item, _ int) (Item, bool) {
+		item := ItemFromIntegration(&i)
+		return item, item.IsPublic()
 	})
 }
 
