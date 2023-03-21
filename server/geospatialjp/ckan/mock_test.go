@@ -73,5 +73,10 @@ func TestMock(t *testing.T) {
 		}},
 	}, pkgs)
 
-	assert.Equal(t, r, lo.Must(m.UploadResource(ctx, r, "", nil)))
+	assert.Equal(t, Resource{
+		ID:        r.ID,
+		PackageID: r.PackageID,
+		Name:      r.Name + " PATCHED",
+		URL:       r.URL,
+	}, lo.Must(m.UploadResource(ctx, r, "", nil)))
 }

@@ -85,6 +85,15 @@ func (s *Services) CheckCatalog(ctx context.Context, projectID string, i Item) e
 		log.Infof("geospatialjp: catalog: %+v", c2)
 	}
 
+	if c == nil {
+		if _, err := s.CMS.UpdateItem(ctx, i.ID, Item{
+			CatalogStatus: StatusError,
+		}.Fields()); err != nil {
+			log.Errorf("failed to update item %s: %w", i.ID, err)
+		}
+		return fmt.Errorf("G空間情報センター用メタデータシートが見つかりません。")
+	}
+
 	// validate catalog
 	if err := c.Validate(); err != nil {
 		if _, err := s.CMS.UpdateItem(ctx, i.ID, Item{
@@ -227,16 +236,15 @@ func (s *Services) parseCatalogAndDeleteSheet(ctx context.Context, catalogURL st
 	}
 
 	// validate catalog
-	if err := c.Validate(); err != nil {
-		err2 = err
-		return
+	if c != nil {
+		if err := c.Validate(); err != nil {
+			err2 = err
+			return
+		}
 	}
 
 	// delete sheet
-	if err := cf.DeleteSheet(); err != nil {
-		err2 = fmt.Errorf("failed to delete sheet from catalog: %w", err)
-		return
-	}
+	cf.DeleteSheet()
 
 	catalogData, err := cf.File().WriteToBuffer()
 	if err != nil {
@@ -282,10 +290,13 @@ func (s *Services) findAndUpdateOrCreatePackage(ctx context.Context, c *Catalog,
 		return nil, fmt.Errorf("G空間情報センターからデータセットを検索できませんでした: %w", err)
 	}
 
-	newpkg := lo.ToPtr(packageFromCatalog(c, s.CkanOrg, pkgName, s.CkanPrivate))
-
 	// create
 	if pkg == nil {
+		if c == nil {
+			return nil, errors.New("目録ファイルにG空間情報センター用メタデータシートがありません。")
+		}
+
+		newpkg := lo.ToPtr(packageFromCatalog(c, s.CkanOrg, pkgName, s.CkanPrivate))
 		log.Infof("geospartialjp: package %s not found so new package will be created", pkgName)
 
 		pkg2, err := s.Ckan.CreatePackage(ctx, *newpkg)
@@ -296,13 +307,17 @@ func (s *Services) findAndUpdateOrCreatePackage(ctx context.Context, c *Catalog,
 	}
 
 	// update
-	newpkg.ID = pkg.ID
-	pkg2, err := s.Ckan.PatchPackage(ctx, *newpkg)
-	if err != nil {
-		return nil, fmt.Errorf("G空間情報センターのデータセット %s を更新できませんでした: %w", pkgName, err)
+	if c != nil {
+		newpkg := lo.ToPtr(packageFromCatalog(c, s.CkanOrg, pkgName, s.CkanPrivate))
+		newpkg.ID = pkg.ID
+		pkg2, err := s.Ckan.PatchPackage(ctx, *newpkg)
+		if err != nil {
+			return nil, fmt.Errorf("G空間情報センターのデータセット %s を更新できませんでした: %w", pkgName, err)
+		}
+		return &pkg2, nil
 	}
 
-	return &pkg2, nil
+	return pkg, nil
 }
 
 func (s *Services) findPackage(ctx context.Context, cityCode, cityName string, year int) (_ *ckan.Package, n string, err error) {

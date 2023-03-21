@@ -88,6 +88,7 @@ func (c *Mock) PatchPackage(ctx context.Context, pkg Package) (Package, error) {
 		return Package{}, errors.New("invalid org")
 	}
 	// TODO: patch
+	pkg.Name = pkg.Name + " PATCHED"
 	c.packages.Store(pkg.ID, pkg)
 	return pkg, nil
 }
@@ -125,6 +126,7 @@ func (c *Mock) PatchResource(ctx context.Context, resource Resource) (Resource, 
 	}
 
 	// TODO: patch
+	resource.Name = resource.Name + " PATCHED"
 	c.resources.Store(resource.ID, resource)
 	return resource, nil
 }
