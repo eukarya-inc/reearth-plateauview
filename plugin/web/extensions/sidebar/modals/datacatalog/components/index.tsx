@@ -53,9 +53,9 @@ const DataCatalog: React.FC = () => {
           selectedDatasetID={selectedDatasetID}
           selectedItem={selectedItem}
           expandedFolders={expandedFolders}
-            searchTerm={searchTerm}
+          searchTerm={searchTerm}
           setExpandedFolders={setExpandedFolders}
-            onSearch={handleSearch}
+          onSearch={handleSearch}
           onSelect={handleSelect}
           onOpenDetails={handleOpenDetails}
           onDatasetAdd={handleDatasetAdd}
