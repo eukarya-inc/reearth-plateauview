@@ -13,7 +13,6 @@ const DataCatalog: React.FC = () => {
     inEditor,
     searchTerm,
     handleSearch,
-
     handleClose,
     handleTabChange,
     handleDatasetAdd,
