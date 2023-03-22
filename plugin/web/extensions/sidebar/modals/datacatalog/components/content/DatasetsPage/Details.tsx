@@ -2,10 +2,10 @@ import { DataCatalogItem } from "@web/extensions/sidebar/core/types";
 import DetailsComponent from "@web/extensions/sidebar/modals/datacatalog/components/content/DatasetDetails";
 import { Icon } from "@web/sharedComponents";
 import { styled } from "@web/theme";
+import DOMPurify from "dompurify";
+import { useMemo } from "react";
 
 import { UserDataItem } from "../../../types";
-
-// import { useCallback, useMemo } from "react";
 
 import { Tag as TagType } from "./Tags";
 // import Tags, {Tag as TagType} from "./Tags";
@@ -36,12 +36,27 @@ const DatasetDetails: React.FC<Props> = ({
   //   [dataset],
   // );
 
-  const ContentComponent: React.FC = () => (
-    <>
-      {/* {!isMobile && <Tags tags={datasetTags} onTagSelect={onTagSelect} />} */}
-      {dataset && dataset?.type !== "group" && <Content>{dataset.desc}</Content>}
-    </>
-  );
+  const ContentComponent: React.FC = () => {
+    const descWithLink = useMemo(() => {
+      if (!dataset?.desc) return "";
+      const descHtml = dataset.desc.replace(
+        /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&//=]*)/g,
+        url => {
+          return `<a href="${url}" target="_blank">${url}</a>`;
+        },
+      );
+      return DOMPurify.sanitize(descHtml);
+    }, []);
+
+    return (
+      <>
+        {/* {!isMobile && <Tags tags={datasetTags} onTagSelect={onTagSelect} />} */}
+        {dataset && dataset?.type !== "group" && (
+          <Content dangerouslySetInnerHTML={{ __html: descWithLink }} />
+        )}
+      </>
+    );
+  };
 
   return dataset ? (
     <DetailsComponent
@@ -108,4 +123,8 @@ const StyledP = styled.p`
 const Content = styled.div`
   margin-top: 16px;
   white-space: pre-wrap;
+
+  a {
+    color: #00bebe;
+  }
 `;
