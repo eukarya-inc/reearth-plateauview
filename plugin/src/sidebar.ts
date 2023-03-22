@@ -632,7 +632,9 @@ function createLayer(dataset: DataCatalogItem, overrides?: any) {
       : null,
     ...(overrides !== undefined
       ? merge(defaultOverrides, omit(overrides, "data"))
-      : format === ("geojson" || "czml")
+      : format === "geojson"
+      ? geojsonDefaultOverrides
+      : format === "czml"
       ? defaultOverrides
       : format === "gtfs"
       ? proxyGTFS(overrides)
@@ -656,6 +658,24 @@ const defaultOverrides = {
     heightReference: "clamp",
   },
   polygon: {
+    heightReference: "clamp",
+  },
+  polyline: {
+    clampToGround: true,
+  },
+};
+const geojsonDefaultOverrides = {
+  resource: {},
+  marker: {
+    style: "point",
+    pointSize: 10,
+    pointColor: "red",
+    heightReference: "clamp",
+  },
+  polygon: {
+    fill: false,
+    stroke: true,
+    strokeWidth: 5,
     heightReference: "clamp",
   },
   polyline: {
