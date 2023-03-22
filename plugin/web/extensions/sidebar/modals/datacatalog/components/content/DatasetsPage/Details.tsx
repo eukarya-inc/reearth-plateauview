@@ -44,7 +44,7 @@ const DatasetDetails: React.FC<Props> = ({
               /(https?:\/\/[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b[-a-zA-Z0-9(@:%_+.~#?&//=]*)/,
             )
             .map((e, i) =>
-              e?.startsWith("http") ? (
+              (i + 1) % 2 === 0 ? (
                 <a key={i} onClick={() => window.open(e, "_blank")}>
                   {e}
                   <LinkIcon icon="externalLink" size={16} />
