@@ -1,7 +1,7 @@
 import { Input, Tabs } from "@web/sharedComponents";
 import { styled } from "@web/theme";
 // import { useCallback, useEffect, useState } from "react";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { DataCatalogItem, getDataCatalogTree, GroupBy } from "../../../../api/api";
 import Tags, { Tag as TagType } from "../Tags";
@@ -17,6 +17,8 @@ export type Props = {
   catalog?: DataCatalogItem[];
   selectedTags?: Tag[];
   filter: GroupBy;
+  searchTerm?: string;
+  onSearch?: (e: React.ChangeEvent<HTMLInputElement>) => void;
   addDisabled: (dataID: string) => boolean;
   onFilter: (filter: GroupBy) => void;
   onTagSelect?: (tag: Tag) => void;
@@ -58,22 +60,19 @@ const DatasetTree: React.FC<Props> = ({
   catalog,
   selectedTags,
   filter,
+  searchTerm,
+  onSearch,
   addDisabled,
   onFilter,
   onTagSelect,
   onDatasetAdd,
   onOpenDetails,
 }) => {
-  const [searchTerm, setSearchTerm] = useState("");
   const [loading, _toggleLoading] = useState(false); // needs implementation
   const [expandAll, toggleExpandAll] = useState(false);
 
-  const handleChange = useCallback(({ target: { value } }: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchTerm(value);
-  }, []);
-
   useEffect(() => {
-    if (searchTerm.length > 0) {
+    if (searchTerm && searchTerm.length > 0) {
       toggleExpandAll(true);
     } else {
       toggleExpandAll(false);
@@ -83,37 +82,38 @@ const DatasetTree: React.FC<Props> = ({
   const dataCatalogTree = useMemo(
     () =>
       catalog &&
-      getDataCatalogTree(catalog, filter, searchTerm.length > 0 ? searchTerm : undefined),
+      getDataCatalogTree(
+        catalog,
+        filter,
+        searchTerm && searchTerm.length > 0 ? searchTerm : undefined,
+      ),
     [catalog, filter, searchTerm],
   );
 
   const showInput = useMemo(
-    () => !selectedTags?.length || searchTerm.length > 0,
-    [searchTerm.length, selectedTags?.length],
+    () => !selectedTags?.length || (searchTerm && searchTerm.length > 0),
+    [searchTerm, selectedTags?.length],
   );
 
   const showTags = useMemo(
-    () => selectedTags && selectedTags.length > 0 && searchTerm.length === 0,
-    [searchTerm.length, selectedTags],
+    () => selectedTags && selectedTags.length > 0 && searchTerm && searchTerm.length === 0,
+    [searchTerm, selectedTags],
   );
 
   const showTabs = useMemo(
-    () => searchTerm.length > 0 || selectedTags?.length,
-    [searchTerm.length, selectedTags],
+    () => (searchTerm && searchTerm.length > 0) || selectedTags?.length,
+    [searchTerm, selectedTags],
   );
 
   return (
     <Wrapper isMobile={isMobile}>
       {showInput && (
-        <StyledInput
-          placeholder="検索"
-          value={searchTerm}
-          onChange={handleChange}
-          loading={loading}
-        />
+        <StyledInput placeholder="検索" value={searchTerm} onChange={onSearch} loading={loading} />
       )}
       {showTags && <Tags tags={selectedTags} onTagSelect={onTagSelect} />}
-      {searchTerm.length > 0 && <p style={{ margin: "0", alignSelf: "center" }}>検索結果</p>}
+      {searchTerm && searchTerm.length > 0 && (
+        <p style={{ margin: "0", alignSelf: "center" }}>検索結果</p>
+      )}
       <StyledTabs
         defaultActiveKey="prefecture"
         tabBarStyle={showTabs ? { display: "none" } : { userSelect: "none" }}
