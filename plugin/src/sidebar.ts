@@ -150,6 +150,7 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
           backendAccessToken: reearth.widget.property.default?.plateauAccessToken ?? "",
           enableGeoPub: reearth.widget.property.default?.enableGeoPub ?? false,
           draftProject,
+          searchTerm,
         };
         if (isMobile) {
           reearth.popup.postMessage({ action, payload: outBoundPayload });

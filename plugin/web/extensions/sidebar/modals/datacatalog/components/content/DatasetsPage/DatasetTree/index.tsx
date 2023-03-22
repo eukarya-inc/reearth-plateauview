@@ -18,7 +18,7 @@ export type Props = {
   selectedTags?: Tag[];
   filter: GroupBy;
   searchTerm: string;
-  onSearch?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onSearch: (e: React.ChangeEvent<HTMLInputElement>) => void;
   addDisabled: (dataID: string) => boolean;
   onFilter: (filter: GroupBy) => void;
   onTagSelect?: (tag: Tag) => void;

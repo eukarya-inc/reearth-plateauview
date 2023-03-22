@@ -13,7 +13,7 @@ export type Props = {
   addedDatasetDataIDs?: string[];
   inEditor?: boolean;
   searchTerm: string;
-  onSearch?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onSearch: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onDatasetAdd: (dataset: DataCatalogItem | UserDataItem, keepModalOpen?: boolean) => void;
   onDatasetPublish: (dataID: string, publish: boolean) => void;
 };
