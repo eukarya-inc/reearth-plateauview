@@ -23,6 +23,7 @@ type ActionType =
   | "updateDataset"
   | "catalogModalOpen"
   | "triggerCatalogOpen"
+  | "saveSearchTerm"
   | "saveExpandedFolders"
   | "saveDataset"
   | "triggerHelpOpen"

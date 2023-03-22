@@ -15,7 +15,9 @@ export type Props = {
   selectedDatasetID?: string;
   selectedItem?: DataCatalogItem;
   expandedFolders?: { id?: string; name?: string }[];
+  searchTerm?: string;
   setExpandedFolders?: React.Dispatch<React.SetStateAction<{ id?: string; name?: string }[]>>;
+  onSearch?: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onSelect?: (item?: DataCatalogItem) => void;
   onOpenDetails?: (data?: DataCatalogItem) => void;
   onDatasetAdd: (dataset: DataCatalogItem | UserDataItem, keepModalOpen?: boolean) => void;
@@ -29,7 +31,9 @@ const DatasetsPage: React.FC<Props> = ({
   selectedDatasetID,
   selectedItem,
   expandedFolders,
+  searchTerm,
   setExpandedFolders,
+  onSearch,
   onSelect,
   onOpenDetails,
   onDatasetAdd,
@@ -75,7 +79,9 @@ const DatasetsPage: React.FC<Props> = ({
           filter={filter}
           selectedItem={selectedItem}
           expandedFolders={expandedFolders}
+          searchTerm={searchTerm}
           setExpandedFolders={setExpandedFolders}
+          onSearch={onSearch}
           onSelect={onSelect}
           addDisabled={addDisabled}
           onFilter={handleFilter}

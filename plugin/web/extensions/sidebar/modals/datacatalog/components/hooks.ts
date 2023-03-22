@@ -13,6 +13,15 @@ export default () => {
   const [selectedDatasetID, setDatasetID] = useState<string>();
   const [selectedItem, selectItem] = useState<DataCatalogItem>();
   const [expandedFolders, setExpandedFolders] = useState<{ id?: string; name?: string }[]>([]);
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const handleSearch = useCallback(
+    ({ target: { value } }: React.ChangeEvent<HTMLInputElement>) => {
+      setSearchTerm(value);
+      postMsg({ action: "saveSearchTerm", payload: { searchTerm } });
+    },
+    [searchTerm],
+  );
 
   const handleSelect = useCallback((item?: DataCatalogItem) => {
     selectItem(item);
@@ -54,6 +63,7 @@ export default () => {
         setAddedDatasetDataIDs(e.data.payload.addedDatasets);
         setCatalog(e.data.payload.catalog);
         setEditorState(e.data.payload.inEditor);
+        if (e.data.payload.searchTerm) setSearchTerm(e.data.payload.searchTerm);
         if (e.data.payload.expandedFolders) setExpandedFolders(e.data.payload.expandedFolders);
         if (e.data.payload.dataset) {
           const item = e.data.payload.dataset;
@@ -94,7 +104,9 @@ export default () => {
     selectedDatasetID,
     selectedItem,
     expandedFolders,
+    searchTerm,
     setExpandedFolders,
+    handleSearch,
     handleSelect,
     handleOpenDetails,
     handleClose,
