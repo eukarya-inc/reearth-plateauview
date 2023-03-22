@@ -639,6 +639,8 @@ function createLayer(dataset: DataCatalogItem, overrides?: any) {
       ...(overrides !== undefined
         ? merge(defaultOverrides, omit(overrides, "data"))
         : format === ("geojson" || "czml")
+        ? geojsonDefaultOverrides
+        : format === "czml"
         ? defaultOverrides
         : format === "gtfs"
         ? proxyGTFS(overrides)
@@ -660,35 +662,10 @@ function createLayer(dataset: DataCatalogItem, overrides?: any) {
           default: {
             unselectOnClose: true,
           },
-<<<<<<< HEAD
-        }
-      : null,
-    ...(overrides !== undefined
-      ? merge(defaultOverrides, omit(overrides, "data"))
-      : format === "geojson"
-      ? geojsonDefaultOverrides
-      : format === "czml"
-      ? defaultOverrides
-      : format === "gtfs"
-      ? proxyGTFS(overrides)
-      : format === "mvt"
-      ? {
-          polygon: {},
-        }
-      : format === "wms"
-      ? {
-          raster: {
-            alpha: 0.8,
-          },
-        }
-      : { ...(overrides ?? {}) }),
-  };
-=======
         },
       },
     },
   );
->>>>>>> d6e9abf685c0a65b9335a71bd594227089ec9025
 }
 
 const defaultOverrides = {
