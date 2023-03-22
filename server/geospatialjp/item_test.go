@@ -17,6 +17,7 @@ var item = Item{
 	All:                 "all_assetid",
 	ConversionStatus:    "実行中",
 	CatalogStatus:       "完了",
+	SDKPublication:      "公開する",
 }
 
 var cmsitem = cms.Item{
@@ -30,6 +31,7 @@ var cmsitem = cms.Item{
 		{Key: "all", Type: "asset", Value: "all_assetid"},
 		{Key: "conversion_status", Type: "select", Value: "実行中"},
 		{Key: "catalog_status", Type: "select", Value: "完了"},
+		{Key: "sdk_publication", Type: "select", Value: "公開する"},
 	},
 }
 
@@ -38,4 +40,11 @@ func TestItem(t *testing.T) {
 	assert.Equal(t, Item{}, ItemFrom(cms.Item{}))
 	assert.Equal(t, cmsitem.Fields, item.Fields())
 	assert.Equal(t, []cms.Field(nil), Item{}.Fields())
+}
+
+func TestItem_SpecVersion(t *testing.T) {
+	assert.Equal(t, 2.3, Item{Specification: "第2.3版"}.SpecVersion())
+	assert.Equal(t, 2.0, Item{Specification: "第2版"}.SpecVersion())
+	assert.Equal(t, 1.0, Item{Specification: "第1版"}.SpecVersion())
+	assert.Equal(t, 0.0, Item{Specification: ""}.SpecVersion())
 }
