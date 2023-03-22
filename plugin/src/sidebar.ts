@@ -688,7 +688,7 @@ const geojsonDefaultOverrides = {
   marker: {
     style: "point",
     pointSize: 10,
-    pointColor: "red",
+    pointColor: "white",
     heightReference: "clamp",
   },
   polygon: {
@@ -698,6 +698,7 @@ const geojsonDefaultOverrides = {
     heightReference: "clamp",
   },
   polyline: {
+    show: true,
     clampToGround: true,
   },
 };
