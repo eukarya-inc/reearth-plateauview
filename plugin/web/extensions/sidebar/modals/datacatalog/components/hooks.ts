@@ -15,13 +15,10 @@ export default () => {
   const [expandedFolders, setExpandedFolders] = useState<{ id?: string; name?: string }[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
 
-  const handleSearch = useCallback(
-    ({ target: { value } }: React.ChangeEvent<HTMLInputElement>) => {
-      setSearchTerm(value);
-      postMsg({ action: "saveSearchTerm", payload: { searchTerm } });
-    },
-    [searchTerm],
-  );
+  const handleSearch = useCallback(({ target: { value } }: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(value);
+    postMsg({ action: "saveSearchTerm", payload: { searchTerm: value } });
+  }, []);
 
   const handleSelect = useCallback((item?: DataCatalogItem) => {
     selectItem(item);

@@ -19,9 +19,9 @@ export type Props = {
   filter: GroupBy;
   selectedItem?: DataCatalogItem;
   expandedFolders?: { id?: string; name?: string }[];
-  searchTerm?: string;
+  searchTerm: string;
   setExpandedFolders?: React.Dispatch<React.SetStateAction<{ id?: string; name?: string }[]>>;
-  onSearch?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onSearch: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onSelect?: (item?: DataCatalogItem) => void;
   addDisabled: (dataID: string) => boolean;
   onFilter: (filter: GroupBy) => void;
@@ -80,7 +80,7 @@ const DatasetTree: React.FC<Props> = ({
   const [expandAll, toggleExpandAll] = useState(false);
 
   useEffect(() => {
-    if (searchTerm && searchTerm.length > 0) {
+    if (searchTerm.length > 0) {
       toggleExpandAll(true);
     } else {
       toggleExpandAll(false);
@@ -90,27 +90,23 @@ const DatasetTree: React.FC<Props> = ({
   const dataCatalogTree = useMemo(
     () =>
       catalog &&
-      getDataCatalogTree(
-        catalog,
-        filter,
-        searchTerm && searchTerm.length > 0 ? searchTerm : undefined,
-      ),
+      getDataCatalogTree(catalog, filter, searchTerm.length > 0 ? searchTerm : undefined),
     [catalog, filter, searchTerm],
   );
 
   const showInput = useMemo(
-    () => !selectedTags?.length || (searchTerm && searchTerm.length > 0),
-    [searchTerm, selectedTags?.length],
+    () => !selectedTags?.length || searchTerm.length > 0,
+    [searchTerm.length, selectedTags?.length],
   );
 
   const showTags = useMemo(
-    () => selectedTags && selectedTags.length > 0 && searchTerm && searchTerm.length === 0,
-    [searchTerm, selectedTags],
+    () => selectedTags && selectedTags.length > 0 && searchTerm.length === 0,
+    [searchTerm.length, selectedTags],
   );
 
   const showTabs = useMemo(
-    () => (searchTerm && searchTerm.length > 0) || selectedTags?.length,
-    [searchTerm, selectedTags],
+    () => searchTerm.length > 0 || selectedTags?.length,
+    [searchTerm.length, selectedTags],
   );
 
   return (
@@ -119,9 +115,7 @@ const DatasetTree: React.FC<Props> = ({
         <StyledInput placeholder="検索" value={searchTerm} onChange={onSearch} loading={loading} />
       )}
       {showTags && <Tags tags={selectedTags} onTagSelect={onTagSelect} />}
-      {searchTerm && searchTerm.length > 0 && (
-        <p style={{ margin: "0", alignSelf: "center" }}>検索結果</p>
-      )}
+      {searchTerm.length > 0 && <p style={{ margin: "0", alignSelf: "center" }}>検索結果</p>}
       <StyledTabs
         defaultActiveKey="prefecture"
         tabBarStyle={showTabs ? { display: "none" } : { userSelect: "none" }}

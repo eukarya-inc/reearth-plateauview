@@ -15,9 +15,9 @@ export type Props = {
   selectedDatasetID?: string;
   selectedItem?: DataCatalogItem;
   expandedFolders?: { id?: string; name?: string }[];
-  searchTerm?: string;
+  searchTerm: string;
   setExpandedFolders?: React.Dispatch<React.SetStateAction<{ id?: string; name?: string }[]>>;
-  onSearch?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onSearch: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onSelect?: (item?: DataCatalogItem) => void;
   onOpenDetails?: (data?: DataCatalogItem) => void;
   onDatasetAdd: (dataset: DataCatalogItem | UserDataItem, keepModalOpen?: boolean) => void;
