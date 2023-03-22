@@ -54,7 +54,7 @@ export default () => {
         setAddedDatasetDataIDs(e.data.payload.addedDatasets);
         setCatalog(e.data.payload.catalog);
         setEditorState(e.data.payload.inEditor);
-        setExpandedFolders(e.data.payload.expandedFolders);
+        if (e.data.payload.expandedFolders) setExpandedFolders(e.data.payload.expandedFolders);
         if (e.data.payload.dataset) {
           const item = e.data.payload.dataset;
           handleOpenDetails(item);
