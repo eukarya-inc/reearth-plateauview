@@ -43,9 +43,9 @@ export type Props = {
   templates?: Template[];
   buildingSearch?: BuildingSearch;
   inEditor?: boolean;
-  savingDataset: boolean;
+  savingDataset?: boolean;
   moveCard: (dragIndex: number, hoverIndex: number) => void;
-  onDatasetSave: (dataID: string) => void;
+  onDatasetSave?: (dataID: string) => void;
   onDatasetRemove?: (dataID: string) => void;
   onDatasetUpdate: (dataset: DataCatalogItem, cleanseOverride?: any) => void;
   onBuildingSearch: (id: string) => void;
@@ -208,7 +208,7 @@ const DatasetCard: React.FC<Props> = ({
 
   const handleFieldSave = useCallback(() => {
     if (!inEditor) return;
-    onDatasetSave(dataset.dataID);
+    onDatasetSave?.(dataset.dataID);
   }, [dataset.dataID, inEditor, onDatasetSave]);
 
   const menuGenerator = (menuItems: { [key: string]: any }) => (
@@ -368,7 +368,7 @@ const DatasetCard: React.FC<Props> = ({
             {inEditor && currentTab === "edit" && (
               <>
                 <StyledAddButton text="フィルドを追加" items={menuGenerator(fieldComponentsList)} />
-                <SaveButton onClick={handleFieldSave} disabled={savingDataset}>
+                <SaveButton onClick={handleFieldSave} disabled={!!savingDataset}>
                   <Icon icon="save" size={14} />
                   <Text>保存</Text>
                 </SaveButton>

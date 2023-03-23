@@ -1,14 +1,13 @@
 import { postMsg, generateID } from "@web/extensions/sidebar/utils";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
-import { getDataCatalog, RawDataCatalogItem } from "../../../modals/datacatalog/api/api";
-import { BuildingSearch, Data, Template } from "../../types";
-import { Pages } from "../Header";
+import { getDataCatalog, RawDataCatalogItem } from "../../../../modals/datacatalog/api/api";
+import { BuildingSearch, Data, Template } from "../../../types";
+import { Pages } from "../../Header";
+import { handleDataCatalogProcessing, updateExtended } from "../../utils";
 
 import useDatasetHooks from "./datasetHooks";
 import useProjectHooks from "./projectHooks";
-import useTemplateHooks from "./templateHooks";
-import { handleDataCatalogProcessing, updateExtended } from "./utils";
 
 export default () => {
   const [inEditor, setInEditor] = useState(true);
@@ -21,6 +20,9 @@ export default () => {
   const [backendAccessToken, setBackendAccessToken] = useState<string>();
   const [publishToGeospatial, setPublishToGeospatial] = useState(false);
   const [buildingSearch, setBuildingSearch] = useState<BuildingSearch>([]);
+
+  const [fieldTemplates, setFieldTemplates] = useState<Template[]>([]);
+  const [infoboxTemplates, setInfoboxTemplates] = useState<Template[]>([]);
 
   const [data, setData] = useState<Data[]>();
 
@@ -38,23 +40,6 @@ export default () => {
     const c = handleDataCatalogProcessing(catalogData, data);
     return inEditor ? c : c.filter(c => !!c.public);
   }, [catalogData, inEditor, data]);
-
-  const {
-    fieldTemplates,
-    handleInfoboxFieldsFetch,
-    handleInfoboxFieldsSave,
-    setFieldTemplates,
-    setInfoboxTemplates,
-    handleTemplateAdd,
-    handleTemplateSave,
-    handleTemplateRemove,
-  } = useTemplateHooks({
-    backendURL,
-    backendProjectName,
-    backendAccessToken,
-    processedCatalog,
-    setLoading,
-  });
 
   const handleBackendFetch = useCallback(async () => {
     if (!backendURL) return;
@@ -89,7 +74,7 @@ export default () => {
     buildingSearch,
   });
 
-  const { handleDatasetUpdate, handleDatasetSave, handleDatasetPublish } = useDatasetHooks({
+  const { handleDatasetUpdate, handleDatasetPublish } = useDatasetHooks({
     data,
     templates: fieldTemplates,
     project,
@@ -133,13 +118,47 @@ export default () => {
 
   // ****************************************
 
+  const handleInfoboxFieldsFetch = useCallback(
+    (dataID: string) => {
+      let fields;
+      const catalogItem = processedCatalog?.find(d => d.dataID === dataID);
+      if (catalogItem) {
+        const name = catalogItem?.type;
+        const dataType = catalogItem?.type_en;
+        fields = infoboxTemplates.find(ft => ft.type === "infobox" && ft.dataType === dataType) ?? {
+          id: "",
+          type: "infobox",
+          name,
+          dataType,
+          fields: [],
+        };
+      }
+
+      postMsg({
+        action: "infoboxFieldsFetch",
+        payload: fields,
+      });
+    },
+    [processedCatalog, infoboxTemplates],
+  );
+
   useEffect(() => {
     const eventListenerCallback = (e: MessageEvent<any>) => {
       if (e.source !== parent) return;
-      if (e.data.action === "msgFromModal") {
-        if (e.data.payload.dataset) {
-          handleProjectDatasetAdd(e.data.payload.dataset);
-        }
+      if (e.data.action === "mobileDatasetAdd") {
+        handleProjectDatasetAdd(e.data.payload);
+      } else if (e.data.action === "mobileDatasetUpdate") {
+        handleDatasetUpdate(e.data.payload);
+      } else if (e.data.action === "mobileDatasetRemove") {
+        handleProjectDatasetRemove(e.data.payload);
+      } else if (e.data.action === "mobileDatasetRemoveAll") {
+        handleProjectDatasetRemoveAll();
+      } else if (e.data.action === "mobileProjectDatasetsUpdate") {
+        handleProjectDatasetsUpdate(e.data.payload);
+      } else if (e.data.action === "mobileProjectSceneUpdate") {
+        handleProjectSceneUpdate(e.data.payload);
+      } else if (e.data.action === "mobileBuildingSearch") {
+        handleBuildingSearch(e.data.payload);
       } else if (e.data.action === "init" && e.data.payload) {
         setProjectID(e.data.payload.projectID);
         setInEditor(e.data.payload.inEditor);
@@ -166,8 +185,6 @@ export default () => {
         handleStorySaveData(e.data.payload);
       } else if (e.data.action === "infoboxFieldsFetch") {
         handleInfoboxFieldsFetch(e.data.payload);
-      } else if (e.data.action === "infoboxFieldsSave") {
-        handleInfoboxFieldsSave(e.data.payload);
       } else if (e.data.action === "buildingSearchOverride") {
         handleBuildingSearchOverride(e.data.payload);
       } else if (e.data.action === "buildingSearchClose") {
@@ -267,10 +284,6 @@ export default () => {
     searchTerm,
     handleSearch,
     handlePageChange,
-    handleTemplateAdd,
-    handleTemplateSave,
-    handleTemplateRemove,
-    handleDatasetSave,
     handleDatasetUpdate,
     handleProjectDatasetAdd,
     handleProjectDatasetRemove,

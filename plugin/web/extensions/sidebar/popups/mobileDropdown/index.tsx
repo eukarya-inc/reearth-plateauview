@@ -1,39 +1,30 @@
-import useHooks from "@web/extensions/sidebar/core/components/sharedHooks";
 import { postMsg } from "@web/extensions/sidebar/utils";
 import { styled } from "@web/theme";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { Tab } from "../../core/components/mobile";
+import { defaultProject } from "../../core/components/mobile/hooks/projectHooks";
+import { BuildingSearch, Template } from "../../core/types";
 import { DataCatalogItem } from "../../modals/datacatalog/api/api";
 import { UserDataItem } from "../../modals/datacatalog/types";
+import { Project, ReearthApi } from "../../types";
 
 import Catalog from "./Catalog";
-import Menu from "./Menu";
+// import Menu from "./Menu";
 import Selection from "./Selection";
 
 const MobileDropdown: React.FC = () => {
   const [currentTab, setCurrentTab] = useState<Tab>();
+  const [templates, setTemplates] = useState<Template[]>();
+  const [catalog, setCatalog] = useState<DataCatalogItem[]>([]);
+  const [project, setProject] = useState<Project>(defaultProject);
+  const [searchTerm, setSearchTerm] = useState<string>("");
+  const [expandedFolders, setExpandedFolders] = useState<{ id?: string; name?: string }[]>([]);
+  const [buildingSearch, setBuildingSearch] = useState<BuildingSearch>([]);
 
-  const {
-    catalog,
-    project,
-    loading,
-    templates,
-    buildingSearch,
-    reearthURL,
-    backendURL,
-    backendProjectName,
-    searchTerm,
-    handleSearch,
-    handleDatasetSave,
-    handleDatasetUpdate,
-    handleProjectDatasetAdd,
-    handleProjectDatasetRemove,
-    handleProjectDatasetRemoveAll,
-    handleProjectDatasetsUpdate,
-    handleProjectSceneUpdate,
-    handleBuildingSearch,
-  } = useHooks();
+  useEffect(() => {
+    postMsg({ action: "initPopup" });
+  }, []);
 
   const changeTab = useCallback(
     (tab: Tab) => {
@@ -43,24 +34,59 @@ const MobileDropdown: React.FC = () => {
     [setCurrentTab],
   );
 
+  const handleDatasetUpdate = useCallback((dataset: DataCatalogItem) => {
+    postMsg({ action: "mobileDatasetUpdate", payload: dataset });
+  }, []);
+
+  const handleProjectDatasetRemove = useCallback((id: string) => {
+    postMsg({ action: "mobileDatasetRemove", payload: id });
+  }, []);
+
+  const handleProjectDatasetRemoveAll = useCallback(() => {
+    postMsg({ action: "mobileDatasetRemoveAll" });
+  }, []);
+
+  const handleProjectDatasetsUpdate = useCallback((datasets: DataCatalogItem[]) => {
+    postMsg({ action: "mobileProjectDatasetsUpdate", payload: datasets });
+  }, []);
+
+  const handleBuildingSearch = useCallback((id: string) => {
+    postMsg({ action: "mobileBuildingSearch", payload: id });
+  }, []);
+
+  const handleProjectSceneUpdate = useCallback((updatedProperties: Partial<ReearthApi>) => {
+    postMsg({ action: "mobileProjectSceneUpdate", payload: updatedProperties });
+  }, []);
+
+  const handleSearch = useCallback(({ target: { value } }: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(value);
+    postMsg({ action: "saveSearchTerm", payload: { searchTerm: value } });
+  }, []);
+
   const handleDatasetAdd = useCallback(
     (dataset: DataCatalogItem | UserDataItem) => {
-      handleProjectDatasetAdd(dataset);
+      postMsg({ action: "mobileDatasetAdd", payload: dataset });
+      console.log("dataset", dataset);
+
       changeTab("selection");
     },
-    [changeTab, handleProjectDatasetAdd],
+    [changeTab],
   );
-
-  useEffect(() => {
-    postMsg({ action: "initPopup" });
-  }, []);
 
   useEffect(() => {
     const eventListenerCallback = (e: any) => {
       if (e.source !== parent) return null;
       if (e.data.action) {
         if (e.data.action === "msgToPopup" && e.data.payload) {
-          setCurrentTab(e.data.payload);
+          console.log("PAYLOAD", e.data.payload);
+          // setActiveDataIDs(e.data.payload.project);
+          if (e.data.payload.selected) setCurrentTab(e.data.payload.selected);
+          if (e.data.payload.templates) setTemplates(e.data.payload.templates);
+          if (e.data.payload.project) setProject(e.data.payload.project);
+          if (e.data.payload.buildingSearch) setBuildingSearch(e.data.payload.buildingSearch);
+          if (e.data.payload.catalog) setCatalog(e.data.payload.catalog);
+          if (e.data.payload.searchTerm) setSearchTerm(e.data.payload.searchTerm);
+          if (e.data.payload.expandedFolders) setExpandedFolders(e.data.payload.expandedFolders);
         }
       }
     };
@@ -71,8 +97,8 @@ const MobileDropdown: React.FC = () => {
   });
 
   const addedDatasetDataIDs = useMemo(
-    () => project.datasets.map(dataset => dataset.dataID),
-    [project.datasets],
+    () => project?.datasets?.map(dataset => dataset.dataID),
+    [project?.datasets],
   );
 
   return (
@@ -85,6 +111,8 @@ const MobileDropdown: React.FC = () => {
               isMobile
               catalogData={catalog}
               searchTerm={searchTerm}
+              expandedFolders={expandedFolders}
+              setExpandedFolders={setExpandedFolders}
               onSearch={handleSearch}
               onDatasetAdd={handleDatasetAdd}
             />
@@ -92,10 +120,8 @@ const MobileDropdown: React.FC = () => {
           selection: (
             <Selection
               selectedDatasets={project.datasets}
-              savingDataset={loading}
               templates={templates}
               buildingSearch={buildingSearch}
-              onDatasetSave={handleDatasetSave}
               onDatasetUpdate={handleDatasetUpdate}
               onDatasetRemove={handleProjectDatasetRemove}
               onDatasetRemoveAll={handleProjectDatasetRemoveAll}
@@ -105,13 +131,14 @@ const MobileDropdown: React.FC = () => {
             />
           ),
           menu: (
-            <Menu
-              project={project}
-              reearthURL={reearthURL}
-              backendURL={backendURL}
-              backendProjectName={backendProjectName}
-              onProjectSceneUpdate={handleProjectSceneUpdate}
-            />
+            // <Menu
+            //   project={project}
+            //   reearthURL={reearthURL}
+            //   backendURL={backendURL}
+            //   backendProjectName={backendProjectName}
+            //   onProjectSceneUpdate={handleProjectSceneUpdate}
+            // />
+            <div>menu</div>
           ),
         }[currentTab]}
     </Wrapper>

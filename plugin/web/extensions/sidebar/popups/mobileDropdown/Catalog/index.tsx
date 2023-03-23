@@ -13,6 +13,18 @@ type Props = {
   isMobile?: boolean;
   catalogData?: DataCatalogItem[];
   searchTerm: string;
+  expandedFolders?: {
+    id?: string | undefined;
+    name?: string | undefined;
+  }[];
+  setExpandedFolders?: React.Dispatch<
+    React.SetStateAction<
+      {
+        id?: string | undefined;
+        name?: string | undefined;
+      }[]
+    >
+  >;
   onSearch: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onDatasetAdd: (dataset: DataCatalogItem | UserDataItem, keepModalOpen?: boolean) => void;
 };
@@ -22,6 +34,8 @@ const Catalog: React.FC<Props> = ({
   isMobile,
   catalogData,
   searchTerm,
+  expandedFolders,
+  setExpandedFolders,
   onSearch,
   onDatasetAdd,
 }) => {
@@ -62,8 +76,10 @@ const Catalog: React.FC<Props> = ({
             isMobile={isMobile}
             catalog={catalogData}
             filter={filter}
-            addDisabled={addDisabled}
             searchTerm={searchTerm}
+            expandedFolders={expandedFolders}
+            setExpandedFolders={setExpandedFolders}
+            addDisabled={addDisabled}
             onSearch={onSearch}
             onFilter={handleFilter}
             onOpenDetails={handleOpenDetails}

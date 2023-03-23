@@ -1,14 +1,14 @@
-import useDatasetHooks from "@web/extensions/sidebar/core/components/sharedHooks/datasetHooks";
-import useProjectHooks from "@web/extensions/sidebar/core/components/sharedHooks/projectHooks";
-import useTemplateHooks from "@web/extensions/sidebar/core/components/sharedHooks/templateHooks";
 import { postMsg, generateID } from "@web/extensions/sidebar/utils";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { getDataCatalog, RawDataCatalogItem } from "../../../../modals/datacatalog/api/api";
 import { BuildingSearch, Data, Template } from "../../../types";
 import { Pages } from "../../Header";
+import { handleDataCatalogProcessing, updateExtended } from "../../utils";
 
-import { handleDataCatalogProcessing, updateExtended } from "./utils";
+import useDatasetHooks from "./datasetHooks";
+import useProjectHooks from "./projectHooks";
+import useTemplateHooks from "./templateHooks";
 
 export default () => {
   const [inEditor, setInEditor] = useState(true);

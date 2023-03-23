@@ -1,9 +1,8 @@
+import { mergeOverrides } from "@web/extensions/sidebar/core/components/utils";
 import { BuildingSearch, DataCatalogItem, Template } from "@web/extensions/sidebar/core/types";
 import { generateID, moveItemDown, moveItemUp } from "@web/extensions/sidebar/utils";
 import { getActiveFieldIDs, getDefaultGroup } from "@web/extensions/sidebar/utils/dataset";
 import { useCallback, useEffect, useState } from "react";
-
-import { mergeOverrides } from "../../../sharedHooks/utils";
 
 import { cleanseOverrides } from "./Field/fieldConstants";
 import generateFieldComponentsList from "./Field/fieldHooks";

@@ -1,8 +1,9 @@
-// import useHooks from "@web/extensions/sidebar/core/components/hooks";
 import { postMsg } from "@web/extensions/sidebar/utils";
 import { Icon } from "@web/sharedComponents";
 import { styled } from "@web/theme";
 import { useCallback, useEffect, useState } from "react";
+
+import useHooks from "./hooks";
 
 export type Tab = "catalog" | "selection" | "menu";
 
@@ -13,7 +14,50 @@ export type Props = {
 const MobileSidebar: React.FC<Props> = ({ className }) => {
   const [selected, setSelected] = useState<Tab | undefined>();
 
-  // useHooks();
+  const {
+    project,
+    catalog,
+    // inEditor,
+    // reearthURL,
+    // backendURL,
+    // backendProjectName,
+    templates,
+    // currentPage,
+    // loading,
+    buildingSearch,
+    // handlePageChange,
+    // handleDatasetSave,
+    // handleProjectDatasetRemove,
+    // handleDatasetUpdate,
+    // handleProjectDatasetAdd,
+    // handleProjectDatasetRemoveAll,
+    // handleProjectDatasetsUpdate,
+    // handleProjectSceneUpdate,
+    // handleModalOpen,
+    // handleBuildingSearch,
+    // handleOverride,
+  } = useHooks();
+
+  // const {
+  //   catalog,
+  //   project,
+  //   loading,
+  //   templates,
+  //   buildingSearch,
+  //   reearthURL,
+  //   backendURL,
+  //   backendProjectName,
+  //   searchTerm,
+  //   handleSearch,
+  //   handleDatasetSave,
+  //   handleDatasetUpdate,
+  //   handleProjectDatasetAdd,
+  //   handleProjectDatasetRemove,
+  //   handleProjectDatasetRemoveAll,
+  //   handleProjectDatasetsUpdate,
+  //   handleProjectSceneUpdate,
+  //   handleBuildingSearch,
+  // } = useHooks();
 
   const handleTabSelect = useCallback(
     (tab: Tab) => {
@@ -35,7 +79,16 @@ const MobileSidebar: React.FC<Props> = ({ className }) => {
     const eventListenerCallback = (e: any) => {
       if (e.source !== parent) return;
       if (e.data.action === "initPopup") {
-        postMsg({ action: "msgToPopup", payload: selected });
+        postMsg({
+          action: "msgToPopup",
+          payload: {
+            selected,
+            project,
+            templates,
+            catalog,
+            buildingSearch,
+          },
+        });
       } else if (e.data.action === "triggerCatalogOpen") {
         postMsg({ action: "modalClose" });
         handleTabSelect("catalog");

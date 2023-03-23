@@ -2,14 +2,12 @@ import { Project } from "@web/extensions/sidebar/types";
 import { postMsg } from "@web/extensions/sidebar/utils";
 import { useCallback } from "react";
 
-import { Data, DataCatalogItem, Template } from "../../types";
-
-import { convertToData } from "./utils";
+import { Data, DataCatalogItem, Template } from "../../../types";
+import { convertToData } from "../../utils";
 
 export default ({
   data,
   templates,
-  project,
   backendURL,
   backendProjectName,
   backendAccessToken,
@@ -17,7 +15,6 @@ export default ({
   inEditor,
   processedCatalog,
   setCleanseOverride,
-  setLoading,
   updateProject,
   handleBackendFetch,
 }: {
@@ -88,23 +85,11 @@ export default ({
           datasets: updatedDatasets,
         };
         postMsg({ action: "updateProject", payload: updatedProject });
+        postMsg({ action: "msgToPopup", payload: updatedProject });
         return updatedProject;
       });
     },
     [updateProject, setCleanseOverride],
-  );
-  const handleDatasetSave = useCallback(
-    (dataID: string) => {
-      (async () => {
-        if (!inEditor) return;
-        setLoading?.(true);
-        const selectedDataset = project?.datasets.find(d => d.dataID === dataID);
-
-        await handleDataRequest(selectedDataset);
-        setLoading?.(false);
-      })();
-    },
-    [inEditor, project?.datasets, setLoading, handleDataRequest],
   );
 
   const handleDatasetPublish = useCallback(
@@ -158,7 +143,6 @@ export default ({
 
   return {
     handleDatasetUpdate,
-    handleDatasetSave,
     handleDatasetPublish,
   };
 };

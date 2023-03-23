@@ -15,8 +15,7 @@ import {
   Story as FieldStory,
   FieldComponent,
 } from "../../content/common/DatasetCard/Field/Fields/types";
-
-import { mergeOverrides } from "./utils";
+import { mergeOverrides } from "../../utils";
 
 export const defaultProject: Project = {
   sceneOverrides: {
@@ -43,8 +42,14 @@ export const defaultProject: Project = {
     },
     tiles: [
       {
-        id: "tokyo",
+        id: "tokyo_1",
         tile_url: "https://cyberjapandata.gsi.go.jp/xyz/seamlessphoto/{z}/{x}/{y}.jpg",
+        tile_type: "url",
+      },
+      {
+        id: "tokyo_2",
+        tile_url:
+          "https://gic-plateau.s3.ap-northeast-1.amazonaws.com/2020/ortho/tiles/{z}/{x}/{y}.png",
         tile_type: "url",
       },
     ],

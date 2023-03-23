@@ -16,8 +16,8 @@ export type Props = {
   selectedDatasets?: DataCatalogItem[];
   templates?: Template[];
   buildingSearch?: BuildingSearch;
-  savingDataset: boolean;
-  onDatasetSave: (dataID: string) => void;
+  savingDataset?: boolean;
+  onDatasetSave?: (dataID: string) => void;
   onDatasetUpdate: (dataset: DataCatalogItem, cleanseOverride?: any) => void;
   onDatasetRemove: (dataID: string) => void;
   onDatasetRemoveAll: () => void;

@@ -145,27 +145,21 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
 
   // Sidebar
   if (action === "init") {
-    reearth.clientStorage.getAsync("isMobile").then((isMobile: boolean) => {
-      reearth.clientStorage.getAsync("draftProject").then((draftProject: Project) => {
-        const outBoundPayload = {
-          projectID: reearth.viewport.query.share || reearth.viewport.query.projectID,
-          inEditor: reearth.scene.inEditor,
-          catalogURL: reearth.widget.property.default?.catalogURL ?? "",
-          catalogProjectName: reearth.widget.property.default?.catalogProjectName ?? "",
-          reearthURL: reearth.widget.property.default?.reearthURL ?? "",
-          backendURL: reearth.widget.property.default?.plateauURL ?? "",
-          backendProjectName: reearth.widget.property.default?.projectName ?? "",
-          backendAccessToken: reearth.widget.property.default?.plateauAccessToken ?? "",
-          enableGeoPub: reearth.widget.property.default?.enableGeoPub ?? false,
-          draftProject,
-          searchTerm,
-        };
-        if (isMobile) {
-          reearth.popup.postMessage({ action, payload: outBoundPayload });
-        } else {
-          reearth.ui.postMessage({ action, payload: outBoundPayload });
-        }
-      });
+    reearth.clientStorage.getAsync("draftProject").then((draftProject: Project) => {
+      const outBoundPayload = {
+        projectID: reearth.viewport.query.share || reearth.viewport.query.projectID,
+        inEditor: reearth.scene.inEditor,
+        catalogURL: reearth.widget.property.default?.catalogURL ?? "",
+        catalogProjectName: reearth.widget.property.default?.catalogProjectName ?? "",
+        reearthURL: reearth.widget.property.default?.reearthURL ?? "",
+        backendURL: reearth.widget.property.default?.plateauURL ?? "",
+        backendProjectName: reearth.widget.property.default?.projectName ?? "",
+        backendAccessToken: reearth.widget.property.default?.plateauAccessToken ?? "",
+        enableGeoPub: reearth.widget.property.default?.enableGeoPub ?? false,
+        draftProject,
+        searchTerm,
+      };
+      reearth.ui.postMessage({ action, payload: outBoundPayload });
     });
   } else if (action === "storageSave") {
     reearth.clientStorage.setAsync(payload.key, payload.value);
@@ -359,6 +353,20 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
     });
   } else if (action === "unselect") {
     reearth.layers.select();
+  }
+
+  // ************************************************
+  // Mobile actions
+  else if (
+    action === "mobileDatasetAdd" ||
+    action === "mobileDatasetUpdate" ||
+    action === "mobileDatasetRemove" ||
+    action === "mobileDatasetRemoveAll" ||
+    action === "mobileProjectDatasetsUpdate" ||
+    action === "mobileProjectSceneUpdate" ||
+    action === "mobileBuildingSearch"
+  ) {
+    reearth.ui.postMessage({ action, payload });
   }
 
   // ************************************************

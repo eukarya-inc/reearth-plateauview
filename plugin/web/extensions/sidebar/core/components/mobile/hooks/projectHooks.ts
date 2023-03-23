@@ -9,14 +9,13 @@ import {
 import { merge } from "lodash";
 import { useCallback, useEffect, useRef, useState } from "react";
 
-import { BuildingSearch, Data, DataCatalogItem, Template } from "../../types";
+import { BuildingSearch, Data, DataCatalogItem, Template } from "../../../types";
 import {
   StoryItem,
   Story as FieldStory,
   FieldComponent,
-} from "../content/common/DatasetCard/Field/Fields/types";
-
-import { mergeOverrides } from "./utils";
+} from "../../content/common/DatasetCard/Field/Fields/types";
+import { mergeOverrides } from "../../utils";
 
 export const defaultProject: Project = {
   sceneOverrides: {
@@ -269,7 +268,7 @@ export default ({
 
   useEffect(() => {
     if (!backendURL || !backendProjectName || fetchedSharedProject.current) return;
-    if (projectID && processedCatalog.length) {
+    if (projectID && processedCatalog?.length) {
       (async () => {
         const res = await fetch(`${backendURL}/share/${backendProjectName}/${projectID}`);
         if (res.status !== 200) return;

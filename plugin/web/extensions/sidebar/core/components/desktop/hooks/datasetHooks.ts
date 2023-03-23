@@ -3,8 +3,7 @@ import { postMsg } from "@web/extensions/sidebar/utils";
 import { useCallback } from "react";
 
 import { Data, DataCatalogItem, Template } from "../../../types";
-
-import { convertToData } from "./utils";
+import { convertToData } from "../../utils";
 
 export default ({
   data,
