@@ -653,7 +653,7 @@ function createLayer(dataset: DataCatalogItem, overrides?: any) {
             alpha: 0.8,
           },
         }
-      : { ...(omit(overrides, "infobox") ?? {}) }),
+      : { ...(omit(overrides, ["data", "infobox"]) ?? {}) }),
   };
 }
 
