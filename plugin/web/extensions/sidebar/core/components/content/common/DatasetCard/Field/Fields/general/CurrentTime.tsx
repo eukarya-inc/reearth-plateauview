@@ -17,8 +17,8 @@ const formatDateTime = (d: string, t: string) => {
     ?.join("-");
   const Time = t
     ?.split(/:/)
-    .map(s => s.padStart(2, "0"))
-    .join(":");
+    ?.map(s => s.padStart(2, "0"))
+    ?.join(":");
   const dateStr = [date, Time].filter(s => !!s).join("T");
 
   try {
