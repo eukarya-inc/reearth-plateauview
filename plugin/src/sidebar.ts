@@ -646,7 +646,9 @@ function createLayer(dataset: DataCatalogItem, overrides?: any) {
         : null,
       ...(overrides !== undefined
         ? merge(defaultOverrides, omit(overrides, "data"))
-        : format === ("geojson" || "czml")
+        : format === "geojson"
+        ? { ...defaultOverrides, marker: { heightReference: "clamp" } }
+        : format === "czml"
         ? defaultOverrides
         : format === "gtfs"
         ? proxyGTFS(overrides)
@@ -676,9 +678,6 @@ function createLayer(dataset: DataCatalogItem, overrides?: any) {
 
 const defaultOverrides = {
   resource: {},
-  marker: {
-    heightReference: "clamp",
-  },
   polygon: {
     heightReference: "clamp",
   },
