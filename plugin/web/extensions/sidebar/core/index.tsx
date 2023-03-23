@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 
 import { postMsg } from "../utils";
 
-import DesktopSidebar from "./components/Desktop";
+import DesktopSidebar from "./components/desktop";
 import MobileSidebar from "./components/Mobile";
 
 export type Props = {

@@ -1,4 +1,4 @@
-import useHooks from "@web/extensions/sidebar/core/components/hooks";
+import useHooks from "@web/extensions/sidebar/core/components/sharedHooks";
 import { postMsg } from "@web/extensions/sidebar/utils";
 import { styled } from "@web/theme";
 import { useCallback, useEffect, useMemo, useState } from "react";

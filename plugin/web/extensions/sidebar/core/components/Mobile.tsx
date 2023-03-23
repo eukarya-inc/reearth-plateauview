@@ -1,3 +1,4 @@
+// import useHooks from "@web/extensions/sidebar/core/components/hooks";
 import { postMsg } from "@web/extensions/sidebar/utils";
 import { Icon } from "@web/sharedComponents";
 import { styled } from "@web/theme";
@@ -11,6 +12,8 @@ export type Props = {
 
 const MobileSidebar: React.FC<Props> = ({ className }) => {
   const [selected, setSelected] = useState<Tab | undefined>();
+
+  // useHooks();
 
   const handleTabSelect = useCallback(
     (tab: Tab) => {

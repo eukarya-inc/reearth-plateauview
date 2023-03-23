@@ -1,4 +1,4 @@
-import { mergeOverrides } from "@web/extensions/sidebar/core/components/hooks/utils";
+import { mergeOverrides } from "@web/extensions/sidebar/core/components/sharedHooks/utils";
 import { Template } from "@web/extensions/sidebar/core/types";
 import { Select } from "@web/sharedComponents";
 import { styled } from "@web/theme";

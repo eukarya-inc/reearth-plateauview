@@ -3,7 +3,7 @@ import { generateID, moveItemDown, moveItemUp } from "@web/extensions/sidebar/ut
 import { getActiveFieldIDs, getDefaultGroup } from "@web/extensions/sidebar/utils/dataset";
 import { useCallback, useEffect, useState } from "react";
 
-import { mergeOverrides } from "../../../hooks/utils";
+import { mergeOverrides } from "../../../sharedHooks/utils";
 
 import { cleanseOverrides } from "./Field/fieldConstants";
 import generateFieldComponentsList from "./Field/fieldHooks";
