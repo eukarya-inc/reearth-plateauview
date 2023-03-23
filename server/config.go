@@ -56,6 +56,13 @@ type Config struct {
 	Geospatialjp_CatalocCheck_Disable bool
 	DataConv_Disable                  bool
 	Indexer_Delegate                  bool
+	DataCatalog_DisableCache          bool
+	DataCatalog_CacheTTL              int
+	DataCatalog_CacheSize             string
+	SDKAPI_DisableCache               bool
+	SDKAPI_CacheTTL                   int
+	SDKAPI_CacheSize                  string
+	GCParcent                         int
 }
 
 func NewConfig() (*Config, error) {
@@ -119,9 +126,13 @@ func (c *Config) SDK() sdk.Config {
 func (c *Config) SDKAPI() sdkapi.Config {
 	return sdkapi.Config{
 		CMSBaseURL: c.CMS_BaseURL,
+		CMSToken:   c.CMS_Token,
 		Project:    c.CMS_PlateauProject,
 		// Model:      c.CMS_SDKModel,
-		Token: c.SDK_Token,
+		Token:        c.SDK_Token,
+		DisableCache: c.SDKAPI_DisableCache,
+		CacheTTL:     c.SDKAPI_CacheTTL,
+		CacheSize:    c.SDKAPI_CacheSize,
 	}
 }
 
@@ -171,8 +182,11 @@ func (c *Config) Sidebar() sidebar.Config {
 
 func (c *Config) DataCatalog() datacatalog.Config {
 	return datacatalog.Config{
-		CMSBase:    c.CMS_BaseURL,
-		CMSProject: c.CMS_PlateauProject,
+		CMSBase:      c.CMS_BaseURL,
+		CMSProject:   c.CMS_PlateauProject,
+		DisableCache: c.DataCatalog_DisableCache,
+		CacheTTL:     c.DataCatalog_CacheTTL,
+		CacheSize:    c.DataCatalog_CacheSize,
 	}
 }
 

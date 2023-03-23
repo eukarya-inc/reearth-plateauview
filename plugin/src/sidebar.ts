@@ -74,6 +74,9 @@ let catalog: DataCatalogItem[] = [];
 
 let addedDatasets: [dataID: string, status: "showing" | "hidden", layerID?: string][] = [];
 
+let searchTerm = "";
+let expandedFolders: { id?: string; name?: string }[] = [];
+let dataset: DataCatalogItem | undefined = undefined;
 const sidebarInstance: PluginExtensionInstance = reearth.plugins.instances.find(
   (i: PluginExtensionInstance) => i.id === reearth.widget.id,
 );
@@ -149,6 +152,7 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
           backendAccessToken: reearth.widget.property.default?.plateauAccessToken ?? "",
           enableGeoPub: reearth.widget.property.default?.enableGeoPub ?? false,
           draftProject,
+          searchTerm,
         };
         if (isMobile) {
           reearth.popup.postMessage({ action, payload: outBoundPayload });
@@ -255,6 +259,12 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
     }
   } else if (action === "triggerCatalogOpen") {
     reearth.ui.postMessage({ action });
+  } else if (action === "saveSearchTerm") {
+    searchTerm = payload.searchTerm;
+  } else if (action === "saveExpandedFolders") {
+    expandedFolders = [...payload.expandedFolders];
+  } else if (action === "saveDataset") {
+    dataset = { ...payload.dataset };
   } else if (action === "triggerHelpOpen") {
     reearth.ui.postMessage({ action });
   } else if (action === "modalClose") {
@@ -267,6 +277,9 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
         catalog,
         addedDatasets: addedDatasets.map(d => d[0]),
         inEditor: reearth.scene.inEditor,
+        searchTerm,
+        expandedFolders,
+        dataset,
       },
     });
   } else if (action === "helpPopupOpen") {
@@ -583,71 +596,82 @@ function createLayer(dataset: DataCatalogItem, overrides?: any) {
     });
     return merged;
   };
-  return {
-    type: "simple",
-    title: dataset.name,
-    data: {
-      type: format,
-      url: dataset.config?.data?.[0].url ?? dataset.url,
-      layers: dataset.config?.data?.[0].layers ?? dataset.layers,
-      ...(format === "wms" ? { parameters: { transparent: "true", format: "image/png" } } : {}),
-      ...(["luse", "lsld", "urf"].includes(dataset.type_en) ||
-      (dataset.type_en === "tran" && format === "mvt")
-        ? { jsonProperties: ["attributes"] }
-        : {}),
-      ...(overrides?.data || {}),
+  return merge(
+    {
+      type: "simple",
+      title: dataset.name,
+      data: {
+        type: format,
+        url: dataset.config?.data?.[0].url ?? dataset.url,
+        layers: dataset.config?.data?.[0].layers ?? dataset.layers,
+        ...(format === "wms" ? { parameters: { transparent: "true", format: "image/png" } } : {}),
+        ...(["luse", "lsld", "urf"].includes(dataset.type_en) ||
+        (dataset.type_en === "tran" && format === "mvt")
+          ? { jsonProperties: ["attributes"] }
+          : {}),
+        ...(overrides?.data || {}),
+      },
+      visible: true,
+      infobox: [
+        "bldg",
+        "tran",
+        "frn",
+        "veg",
+        "luse",
+        "lsld",
+        "urf",
+        "fld",
+        "htd",
+        "tnm",
+        "ifld",
+      ].includes(dataset.type_en)
+        ? {
+            blocks: [
+              {
+                pluginId: reearth.plugins.instances.find(
+                  (i: PluginExtensionInstance) => i.name === "plateau-plugin",
+                ).pluginId,
+                extensionId: "infobox",
+              },
+            ],
+            property: {
+              default: {
+                bgcolor: "#d9d9d9ff",
+                heightType: "auto",
+                showTitle: false,
+                size: "medium",
+              },
+            },
+          }
+        : null,
+      ...(overrides !== undefined
+        ? merge(defaultOverrides, omit(overrides, "data"))
+        : format === ("geojson" || "czml")
+        ? defaultOverrides
+        : format === "gtfs"
+        ? proxyGTFS(overrides)
+        : format === "mvt"
+        ? {
+            polygon: {},
+          }
+        : format === "wms"
+        ? {
+            raster: {
+              alpha: 0.8,
+            },
+          }
+        : { ...(overrides ?? {}) }),
     },
-    visible: true,
-    infobox: [
-      "bldg",
-      "tran",
-      "frn",
-      "veg",
-      "luse",
-      "lsld",
-      "urf",
-      "fld",
-      "htd",
-      "tnm",
-      "ifld",
-    ].includes(dataset.type_en)
-      ? {
-          blocks: [
-            {
-              pluginId: reearth.plugins.instances.find(
-                (i: PluginExtensionInstance) => i.name === "plateau-plugin",
-              ).pluginId,
-              extensionId: "infobox",
-            },
-          ],
-          property: {
-            default: {
-              bgcolor: "#d9d9d9ff",
-              heightType: "auto",
-              showTitle: false,
-              size: "medium",
-            },
+    {
+      infobox: {
+        property: {
+          default: {
+            unselectOnClose: true,
           },
-        }
-      : null,
-    ...(overrides !== undefined
-      ? merge(defaultOverrides, omit(overrides, "data"))
-      : format === ("geojson" || "czml")
-      ? defaultOverrides
-      : format === "gtfs"
-      ? proxyGTFS(overrides)
-      : format === "mvt"
-      ? {
-          polygon: {},
-        }
-      : format === "wms"
-      ? {
-          raster: {
-            alpha: 0.8,
-          },
-        }
-      : { ...(overrides ?? {}) }),
-  };
+        },
+      },
+    },
+  );
 }
 
 const defaultOverrides = {

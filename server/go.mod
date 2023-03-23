@@ -3,6 +3,8 @@ module github.com/eukarya-inc/reearth-plateauview/server
 go 1.19
 
 require (
+	github.com/SporkHubr/echo-http-cache v0.0.0-20200706100054-1d7ae9f38029
+	github.com/c2h5oh/datasize v0.0.0-20220606134207-859f65c6625b
 	github.com/dustin/go-humanize v1.0.1
 	github.com/eukarya-inc/jpareacode v1.0.0
 	github.com/go-playground/validator/v10 v10.11.1
@@ -10,6 +12,7 @@ require (
 	github.com/joho/godotenv v1.4.0
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/labstack/echo/v4 v4.10.0
+	github.com/mitchellh/mapstructure v1.5.0
 	github.com/paulmach/go.geojson v1.4.0
 	github.com/reearth/go3dtiles v0.0.0-20221207041852-493e7e51cca9
 	github.com/reearth/reearthx v0.0.0-20230203210115-d04054013125
@@ -18,6 +21,7 @@ require (
 	github.com/spkg/bom v1.0.0
 	github.com/stretchr/testify v1.8.1
 	github.com/tdewolff/canvas v0.0.0-20221230020303-9eb6d3934367
+	github.com/thanhpk/randstr v1.0.4
 	github.com/vincent-petithory/dataurl v1.0.0
 	golang.org/x/net v0.4.0
 	gonum.org/v1/gonum v0.12.0

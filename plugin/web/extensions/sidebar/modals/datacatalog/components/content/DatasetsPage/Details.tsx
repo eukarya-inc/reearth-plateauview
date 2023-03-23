@@ -5,8 +5,6 @@ import { styled } from "@web/theme";
 
 import { UserDataItem } from "../../../types";
 
-// import { useCallback, useMemo } from "react";
-
 import { Tag as TagType } from "./Tags";
 // import Tags, {Tag as TagType} from "./Tags";
 
@@ -39,15 +37,32 @@ const DatasetDetails: React.FC<Props> = ({
   const ContentComponent: React.FC = () => (
     <>
       {/* {!isMobile && <Tags tags={datasetTags} onTagSelect={onTagSelect} />} */}
-      {dataset && dataset?.type !== "group" && <Content>{dataset.desc}</Content>}
+      {dataset && dataset?.type !== "group" && (
+        <Content>
+          {dataset?.desc
+            ?.split(
+              /(https?:\/\/[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b[-a-zA-Z0-9(@:%_+.~#?&//=]*)/,
+            )
+            .map((e, i) =>
+              (i + 1) % 2 === 0 ? (
+                <a key={i} onClick={() => window.open(e, "_blank")}>
+                  {e}
+                  <LinkIcon icon="externalLink" size={16} />
+                </a>
+              ) : (
+                <span key={i}>{e}</span>
+              ),
+            )}
+        </Content>
+      )}
     </>
   );
-
   return dataset ? (
     <DetailsComponent
       dataset={dataset}
       addDisabled={addDisabled(dataset.dataID)}
       inEditor={inEditor}
+      isPublishable={!!dataset.itemId}
       contentSection={ContentComponent}
       onDatasetAdd={onDatasetAdd}
       onDatasetPublish={onDatasetPublish}
@@ -107,4 +122,15 @@ const StyledP = styled.p`
 const Content = styled.div`
   margin-top: 16px;
   white-space: pre-wrap;
+  a {
+    color: #00bebe;
+    svg {
+      transform: translateY(2px);
+    }
+  }
+`;
+
+const LinkIcon = styled(Icon)`
+  display: inline;
+  padding-left: 4px;
 `;
