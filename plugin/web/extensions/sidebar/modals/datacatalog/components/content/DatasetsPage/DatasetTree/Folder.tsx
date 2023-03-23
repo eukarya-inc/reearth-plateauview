@@ -18,7 +18,6 @@ const Folder: React.FC<Props> = ({
   id,
   name,
   isMobile,
-  expandAll,
   nestLevel,
   expandedFolders,
   setExpandedFolders,
@@ -26,16 +25,20 @@ const Folder: React.FC<Props> = ({
 }) => {
   const [isOpen, open] = useState(false);
 
+  const findCb = useCallback(
+    (item: { id?: string; name?: string }) => (item.id ? item.id === id : item.name === name),
+    [id, name],
+  );
+
   useEffect(() => {
-    if (expandAll || expandedFolders?.find(item => (item.id ? item.id === id : item.name === name)))
-      open(true);
-  }, [expandAll, expandedFolders, id, name]);
+    if (expandedFolders?.find(findCb)) open(true);
+  }, [expandedFolders, findCb, id, name]);
 
   const handleExpand = useCallback(
     (folder: { id?: string; name?: string }) => {
       setExpandedFolders?.((prevState: { id?: string; name?: string }[]) => {
         const newExpandedFolders = [...prevState];
-        if (prevState.find(folder => (folder.id ? folder.id === id : folder.name === name))) {
+        if (prevState.find(findCb)) {
           const index = prevState.findIndex(folder =>
             folder.id ? folder.id === id : folder.name === name,
           );
@@ -52,7 +55,7 @@ const Folder: React.FC<Props> = ({
         return newExpandedFolders;
       });
     },
-    [id, name, setExpandedFolders],
+    [findCb, id, name, setExpandedFolders],
   );
 
   return (
