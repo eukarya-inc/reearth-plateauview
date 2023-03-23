@@ -1,7 +1,7 @@
 import { postMsg } from "@web/extensions/sidebar/utils";
 import { Icon } from "@web/sharedComponents";
 import { styled } from "@web/theme";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect } from "react";
 
 import useHooks from "./hooks";
 
@@ -12,19 +12,19 @@ export type Props = {
 };
 
 const MobileSidebar: React.FC<Props> = ({ className }) => {
-  const [selected, setSelected] = useState<Tab | undefined>();
-
   const {
+    selected,
     project,
     catalog,
     // inEditor,
     // reearthURL,
     // backendURL,
     // backendProjectName,
+    // expandedFolders,
     templates,
-    // currentPage,
-    // loading,
+    searchTerm,
     buildingSearch,
+    setSelected,
     // handlePageChange,
     // handleDatasetSave,
     // handleProjectDatasetRemove,
@@ -37,27 +37,6 @@ const MobileSidebar: React.FC<Props> = ({ className }) => {
     // handleBuildingSearch,
     // handleOverride,
   } = useHooks();
-
-  // const {
-  //   catalog,
-  //   project,
-  //   loading,
-  //   templates,
-  //   buildingSearch,
-  //   reearthURL,
-  //   backendURL,
-  //   backendProjectName,
-  //   searchTerm,
-  //   handleSearch,
-  //   handleDatasetSave,
-  //   handleDatasetUpdate,
-  //   handleProjectDatasetAdd,
-  //   handleProjectDatasetRemove,
-  //   handleProjectDatasetRemoveAll,
-  //   handleProjectDatasetsUpdate,
-  //   handleProjectSceneUpdate,
-  //   handleBuildingSearch,
-  // } = useHooks();
 
   const handleTabSelect = useCallback(
     (tab: Tab) => {
@@ -72,7 +51,7 @@ const MobileSidebar: React.FC<Props> = ({ className }) => {
         postMsg({ action: "mobileDropdownOpen" });
       }
     },
-    [selected],
+    [selected, setSelected],
   );
 
   useEffect(() => {
@@ -83,10 +62,12 @@ const MobileSidebar: React.FC<Props> = ({ className }) => {
           action: "msgToPopup",
           payload: {
             selected,
-            project,
             templates,
-            catalog,
+            project,
             buildingSearch,
+            catalog,
+            searchTerm,
+            // expandedFolders,
           },
         });
       } else if (e.data.action === "triggerCatalogOpen") {

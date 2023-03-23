@@ -1,32 +1,33 @@
 import { postMsg, generateID } from "@web/extensions/sidebar/utils";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
-import { getDataCatalog, RawDataCatalogItem } from "../../../../modals/datacatalog/api/api";
+import { Tab } from "..";
+import {
+  DataCatalogItem,
+  getDataCatalog,
+  RawDataCatalogItem,
+} from "../../../../modals/datacatalog/api/api";
 import { BuildingSearch, Data, Template } from "../../../types";
-import { Pages } from "../../Header";
 import { handleDataCatalogProcessing, updateExtended } from "../../utils";
 
-import useDatasetHooks from "./datasetHooks";
 import useProjectHooks from "./projectHooks";
 
 export default () => {
   const [inEditor, setInEditor] = useState(true);
+  const [selected, setSelected] = useState<Tab | undefined>();
 
   const [catalogURL, setCatalogURL] = useState<string>();
   const [catalogProjectName, setCatalogProjectName] = useState<string>();
   const [reearthURL, setReearthURL] = useState<string>();
   const [backendURL, setBackendURL] = useState<string>();
   const [backendProjectName, setBackendProjectName] = useState<string>();
-  const [backendAccessToken, setBackendAccessToken] = useState<string>();
-  const [publishToGeospatial, setPublishToGeospatial] = useState(false);
   const [buildingSearch, setBuildingSearch] = useState<BuildingSearch>([]);
+  // const [expandedFolders, setExpandedFolders] = useState<{ id?: string; name?: string }[]>([]);
 
   const [fieldTemplates, setFieldTemplates] = useState<Template[]>([]);
   const [infoboxTemplates, setInfoboxTemplates] = useState<Template[]>([]);
 
   const [data, setData] = useState<Data[]>();
-
-  const [loading, setLoading] = useState<boolean>(false);
 
   const [catalogData, setCatalog] = useState<RawDataCatalogItem[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -74,21 +75,34 @@ export default () => {
     buildingSearch,
   });
 
-  const { handleDatasetUpdate, handleDatasetPublish } = useDatasetHooks({
-    data,
-    templates: fieldTemplates,
-    project,
-    backendURL,
-    backendProjectName,
-    backendAccessToken,
-    publishToGeospatial,
-    inEditor,
-    processedCatalog,
-    setCleanseOverride,
-    setLoading,
-    updateProject,
-    handleBackendFetch,
-  });
+  const handleDatasetUpdate = useCallback(
+    (updatedDataset: DataCatalogItem, cleanseOverride?: any) => {
+      updateProject?.(project => {
+        const updatedDatasets = [...project.datasets];
+        const datasetIndex = updatedDatasets.findIndex(d2 => d2.dataID === updatedDataset.dataID);
+        if (datasetIndex >= 0) {
+          if (updatedDatasets[datasetIndex].visible !== updatedDataset.visible) {
+            postMsg({
+              action: "updateDatasetVisibility",
+              payload: { dataID: updatedDataset.dataID, hide: !updatedDataset.visible },
+            });
+          }
+          if (cleanseOverride) {
+            setCleanseOverride?.(cleanseOverride);
+          }
+          updatedDatasets[datasetIndex] = updatedDataset;
+        }
+        const updatedProject = {
+          ...project,
+          datasets: updatedDatasets,
+        };
+        postMsg({ action: "updateProject", payload: updatedProject });
+        postMsg({ action: "msgToPopup", payload: { project: updatedProject } });
+        return updatedProject;
+      });
+    },
+    [updateProject, setCleanseOverride],
+  );
 
   // ****************************************
   // Init
@@ -167,20 +181,14 @@ export default () => {
         setReearthURL(`${e.data.payload.reearthURL}`);
         setBackendURL(e.data.payload.backendURL);
         setBackendProjectName(e.data.payload.backendProjectName);
-        setBackendAccessToken(e.data.payload.backendAccessToken);
-        setPublishToGeospatial(e.data.payload.enableGeoPub);
         if (e.data.payload.searchTerm) setSearchTerm(e.data.payload.searchTerm);
         if (e.data.payload.draftProject) {
           updateProject(e.data.payload.draftProject);
         }
-      } else if (e.data.action === "updateDataset") {
-        handleDatasetPublish(e.data.payload.dataID, e.data.payload.publish);
       } else if (e.data.action === "triggerCatalogOpen") {
         handleModalOpen();
-      } else if (e.data.action === "triggerHelpOpen") {
-        handlePageChange("help");
       } else if (e.data.action === "storyShare") {
-        setCurrentPage("share");
+        setSelected("menu");
       } else if (e.data.action === "storySaveData") {
         handleStorySaveData(e.data.payload);
       } else if (e.data.action === "infoboxFieldsFetch") {
@@ -195,13 +203,7 @@ export default () => {
     return () => {
       removeEventListener("message", eventListenerCallback);
     };
-  }, [handleDatasetPublish, handleInfoboxFieldsFetch]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  const [currentPage, setCurrentPage] = useState<Pages>("data");
-
-  const handlePageChange = useCallback((p: Pages) => {
-    setCurrentPage(p);
-  }, []);
+  }, [handleInfoboxFieldsFetch]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ****************************************
   // Building Search
@@ -271,6 +273,7 @@ export default () => {
   }, []);
 
   return {
+    selected,
     catalog: processedCatalog,
     project,
     inEditor,
@@ -278,12 +281,10 @@ export default () => {
     backendURL,
     backendProjectName,
     templates: fieldTemplates,
-    currentPage,
-    loading,
     buildingSearch,
     searchTerm,
+    setSelected,
     handleSearch,
-    handlePageChange,
     handleDatasetUpdate,
     handleProjectDatasetAdd,
     handleProjectDatasetRemove,

@@ -112,6 +112,7 @@ export default ({
           datasets,
         };
         postMsg({ action: "updateProject", payload: updatedProject });
+        postMsg({ action: "msgToPopup", payload: { project: updatedProject } });
         return updatedProject;
       });
     },
@@ -153,6 +154,7 @@ export default ({
         };
 
         postMsg({ action: "updateProject", payload: updatedProject });
+        postMsg({ action: "msgToPopup", payload: { project: updatedProject } });
 
         return updatedProject;
       });
@@ -185,6 +187,7 @@ export default ({
         datasets: datasets.filter(d => d.dataID !== dataID),
       };
       postMsg({ action: "updateProject", payload: updatedProject });
+      postMsg({ action: "msgToPopup", payload: { project: updatedProject } });
       return updatedProject;
     });
     postMsg({ action: "removeDatasetFromScene", payload: dataID });
@@ -197,6 +200,7 @@ export default ({
         datasets: [],
       };
       postMsg({ action: "updateProject", payload: updatedProject });
+      postMsg({ action: "msgToPopup", payload: { project: updatedProject } });
       return updatedProject;
     });
     postMsg({ action: "removeAllDatasetsFromScene" });
@@ -209,6 +213,7 @@ export default ({
         datasets,
       };
       postMsg({ action: "updateProject", payload: updatedProject });
+      postMsg({ action: "msgToPopup", payload: { project: updatedProject } });
       return updatedProject;
     });
   }, []);
