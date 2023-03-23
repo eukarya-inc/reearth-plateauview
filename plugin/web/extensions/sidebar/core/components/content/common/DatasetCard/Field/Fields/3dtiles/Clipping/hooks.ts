@@ -52,6 +52,7 @@ const useHooks = ({
           [prop]: value,
           show: value,
           aboveGroundOnly: value,
+          direction: "inside",
         });
       } else {
         setOptions({
