@@ -1,5 +1,4 @@
-import debounce from "lodash/debounce";
-import { RefObject, useCallback, useEffect, useMemo, useRef } from "react";
+import { RefObject, useCallback, useEffect, useRef } from "react";
 
 import { BaseFieldProps } from "../../types";
 
@@ -13,12 +12,6 @@ export const useBuildingFilter = ({
   options: OptionsState;
   onUpdate: (property: any) => void;
 }) => {
-  const renderRef = useRef<() => void>();
-  const debouncedRender = useMemo(
-    () => debounce(() => renderRef.current?.(), 100, { maxWait: 300 }),
-    [],
-  );
-
   const onUpdateRef = useRef(onUpdate);
   useEffect(() => {
     onUpdateRef.current = onUpdate;
@@ -35,9 +28,8 @@ export const useBuildingFilter = ({
   }, [options, dataID]);
 
   useEffect(() => {
-    renderRef.current = render;
-    debouncedRender();
-  }, [render, debouncedRender]);
+    render();
+  }, [render]);
 };
 
 export type State = {

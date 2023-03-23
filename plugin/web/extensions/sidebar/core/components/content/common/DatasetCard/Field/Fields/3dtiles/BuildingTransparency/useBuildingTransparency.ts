@@ -1,7 +1,6 @@
 import { getRGBAFromString, RGBA, rgbaToString } from "@web/extensions/sidebar/utils/color";
 import { getOverriddenLayerByDataID } from "@web/extensions/sidebar/utils/getOverriddenLayerByDataID";
-import debounce from "lodash/debounce";
-import { MutableRefObject, RefObject, useCallback, useEffect, useMemo, useRef } from "react";
+import { MutableRefObject, RefObject, useCallback, useEffect, useRef } from "react";
 
 import { BaseFieldProps } from "../../types";
 
@@ -15,11 +14,6 @@ export const useBuildingTransparency = ({
   onUpdate: (property: any) => void;
   onChangeTransparency: (transparency: number) => void;
 }) => {
-  const renderRef = useRef<() => void>();
-  const debouncedRender = useMemo(
-    () => debounce(() => renderRef.current?.(), 100, { maxWait: 300 }),
-    [],
-  );
   const isInitializedRef = useRef(false);
 
   const onUpdateRef = useRef(onUpdate);
@@ -40,9 +34,8 @@ export const useBuildingTransparency = ({
   }, [options.transparency, dataID, onChangeTransparency]);
 
   useEffect(() => {
-    renderRef.current = render;
-    debouncedRender();
-  }, [render, debouncedRender]);
+    render();
+  }, [render]);
 };
 
 export type State = {
