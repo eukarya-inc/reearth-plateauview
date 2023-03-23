@@ -3,7 +3,7 @@ import {
   TextInput,
   Wrapper,
 } from "@web/extensions/sidebar/core/components/content/common/DatasetCard/Field/commonComponents";
-import { Divider } from "antd";
+import Divider from "@web/sharedComponents/Divider";
 import { isEqual, pick } from "lodash";
 import debounce from "lodash/debounce";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
