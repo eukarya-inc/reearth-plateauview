@@ -596,83 +596,82 @@ function createLayer(dataset: DataCatalogItem, overrides?: any) {
     });
     return merged;
   };
-  return merge(
-    {
-      type: "simple",
-      title: dataset.name,
-      data: {
-        type: format,
-        url: dataset.config?.data?.[0].url ?? dataset.url,
-        layers: dataset.config?.data?.[0].layers ?? dataset.layers,
-        ...(format === "wms" ? { parameters: { transparent: "true", format: "image/png" } } : {}),
-        ...(["luse", "lsld", "urf"].includes(dataset.type_en) ||
-        (dataset.type_en === "tran" && format === "mvt")
-          ? { jsonProperties: ["attributes"] }
-          : {}),
-        ...(overrides?.data || {}),
-      },
-      visible: true,
-      infobox: [
-        "bldg",
-        "tran",
-        "frn",
-        "veg",
-        "luse",
-        "lsld",
-        "urf",
-        "fld",
-        "htd",
-        "tnm",
-        "ifld",
-      ].includes(dataset.type_en)
-        ? {
-            blocks: [
-              {
-                pluginId: reearth.plugins.instances.find(
-                  (i: PluginExtensionInstance) => i.name === "plateau-plugin",
-                ).pluginId,
-                extensionId: "infobox",
-              },
-            ],
-            property: {
-              default: {
-                bgcolor: "#d9d9d9ff",
-                heightType: "auto",
-                showTitle: false,
-                size: "medium",
-              },
-            },
-          }
-        : null,
-      ...(overrides !== undefined
-        ? merge(defaultOverrides, omit(overrides, "data"))
-        : format === ("geojson" || "czml")
-        ? defaultOverrides
-        : format === "gtfs"
-        ? proxyGTFS(overrides)
-        : format === "mvt"
-        ? {
-            polygon: {},
-          }
-        : format === "wms"
-        ? {
-            raster: {
-              alpha: 0.8,
-            },
-          }
-        : { ...(overrides ?? {}) }),
+  const layer = {
+    type: "simple",
+    title: dataset.name,
+    data: {
+      type: format,
+      url: dataset.config?.data?.[0].url ?? dataset.url,
+      layers: dataset.config?.data?.[0].layers ?? dataset.layers,
+      ...(format === "wms" ? { parameters: { transparent: "true", format: "image/png" } } : {}),
+      ...(["luse", "lsld", "urf"].includes(dataset.type_en) ||
+      (dataset.type_en === "tran" && format === "mvt")
+        ? { jsonProperties: ["attributes"] }
+        : {}),
+      ...(overrides?.data || {}),
     },
-    {
-      infobox: {
-        property: {
-          default: {
-            unselectOnClose: true,
+    visible: true,
+    infobox: [
+      "bldg",
+      "tran",
+      "frn",
+      "veg",
+      "luse",
+      "lsld",
+      "urf",
+      "fld",
+      "htd",
+      "tnm",
+      "ifld",
+    ].includes(dataset.type_en)
+      ? {
+          blocks: [
+            {
+              pluginId: reearth.plugins.instances.find(
+                (i: PluginExtensionInstance) => i.name === "plateau-plugin",
+              ).pluginId,
+              extensionId: "infobox",
+            },
+          ],
+          property: {
+            default: {
+              bgcolor: "#d9d9d9ff",
+              heightType: "auto",
+              showTitle: false,
+              size: "medium",
+            },
           },
-        },
-      },
-    },
-  );
+        }
+      : null,
+    ...(overrides !== undefined
+      ? merge(defaultOverrides, omit(overrides, "data"))
+      : format === ("geojson" || "czml")
+      ? defaultOverrides
+      : format === "gtfs"
+      ? proxyGTFS(overrides)
+      : format === "mvt"
+      ? {
+          polygon: {},
+        }
+      : format === "wms"
+      ? {
+          raster: {
+            alpha: 0.8,
+          },
+        }
+      : { ...(overrides ?? {}) }),
+  };
+  layer.infobox = merge(layer.infobox ?? {}, infoboxGlobal);
+  return layer;
 }
+
+const infoboxGlobal = {
+  property: {
+    default: {
+      unselectOnClose: true,
+    },
+  },
+};
 
 const defaultOverrides = {
   resource: {},
