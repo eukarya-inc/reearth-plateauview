@@ -1,6 +1,6 @@
 import { DataCatalogItem } from "@web/extensions/sidebar/core/types";
 import { PostMessageProps, Project, PluginMessage } from "@web/extensions/sidebar/types";
-import { isObject, mergeWith, omit, cloneDeep } from "lodash";
+import { isObject, mergeWith, omit, cloneDeep, merge as lodashMerge } from "lodash";
 
 import html from "../dist/web/sidebar/core/index.html?raw";
 import clipVideoHtml from "../dist/web/sidebar/modals/clipVideo/index.html?raw";
@@ -596,7 +596,7 @@ function createLayer(dataset: DataCatalogItem, overrides?: any) {
     });
     return merged;
   };
-  const layer = {
+  return {
     type: "simple",
     title: dataset.name,
     data: {
@@ -611,40 +611,34 @@ function createLayer(dataset: DataCatalogItem, overrides?: any) {
       ...(overrides?.data || {}),
     },
     visible: true,
-    infobox: [
-      "bldg",
-      "tran",
-      "frn",
-      "veg",
-      "luse",
-      "lsld",
-      "urf",
-      "fld",
-      "htd",
-      "tnm",
-      "ifld",
-    ].includes(dataset.type_en)
-      ? {
-          blocks: [
-            {
-              pluginId: reearth.plugins.instances.find(
-                (i: PluginExtensionInstance) => i.name === "plateau-plugin",
-              ).pluginId,
-              extensionId: "infobox",
+    infobox: lodashMerge(
+      ["bldg", "tran", "frn", "veg", "luse", "lsld", "urf", "fld", "htd", "tnm", "ifld"].includes(
+        dataset.type_en,
+      )
+        ? {
+            blocks: [
+              {
+                pluginId: reearth.plugins.instances.find(
+                  (i: PluginExtensionInstance) => i.name === "plateau-plugin",
+                ).pluginId,
+                extensionId: "infobox",
+              },
+            ],
+            property: {
+              default: {
+                bgcolor: "#d9d9d9ff",
+                heightType: "auto",
+                showTitle: false,
+                size: "medium",
+              },
             },
-          ],
-          property: {
-            default: {
-              bgcolor: "#d9d9d9ff",
-              heightType: "auto",
-              showTitle: false,
-              size: "medium",
-            },
-          },
-        }
-      : null,
+          }
+        : {},
+      overrides?.infobox ?? {},
+      infoboxGlobal,
+    ),
     ...(overrides !== undefined
-      ? merge(defaultOverrides, omit(overrides, "data"))
+      ? merge(defaultOverrides, omit(overrides, ["data", "infobox"]))
       : format === ("geojson" || "czml")
       ? defaultOverrides
       : format === "gtfs"
@@ -659,10 +653,8 @@ function createLayer(dataset: DataCatalogItem, overrides?: any) {
             alpha: 0.8,
           },
         }
-      : { ...(overrides ?? {}) }),
+      : { ...(omit(overrides, "infobox") ?? {}) }),
   };
-  layer.infobox = merge(layer.infobox ?? {}, infoboxGlobal);
-  return layer;
 }
 
 const infoboxGlobal = {
