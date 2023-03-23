@@ -3,7 +3,7 @@ import { postMsg } from "@web/extensions/sidebar/utils";
 import { styled } from "@web/theme";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
-import { Tab } from "../../core/components/Mobile";
+import { Tab } from "../../core/components/mobile";
 import { DataCatalogItem } from "../../modals/datacatalog/api/api";
 import { UserDataItem } from "../../modals/datacatalog/types";
 
