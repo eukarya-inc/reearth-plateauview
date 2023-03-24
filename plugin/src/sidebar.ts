@@ -28,7 +28,7 @@ const defaultProject: Project = {
         height: 2219.7187259974316,
       },
       sceneMode: "3d",
-      depthTestAgainstTerrain: false,
+      depthTestAgainstTerrain: true,
     },
     terrain: {
       terrain: true,
@@ -355,6 +355,13 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
       action,
       payload: {
         overriddenLayer,
+      },
+    });
+  } else if (action === "updateMVTRaster") {
+    const { layerId, maxzoom } = payload;
+    reearth.layers.override(layerId, {
+      raster: {
+        maximumLevel: maxzoom,
       },
     });
   } else if (action === "unselect") {
