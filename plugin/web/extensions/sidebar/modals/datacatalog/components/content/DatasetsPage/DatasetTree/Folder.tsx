@@ -7,7 +7,6 @@ export type Props = {
   id: string;
   name: string;
   isMobile?: boolean;
-  expandAll?: boolean;
   nestLevel: number;
   expandedFolders?: { id?: string; name?: string }[];
   setExpandedFolders?: React.Dispatch<React.SetStateAction<{ id?: string; name?: string }[]>>;
