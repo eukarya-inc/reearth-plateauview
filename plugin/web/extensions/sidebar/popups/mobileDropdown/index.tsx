@@ -10,7 +10,7 @@ import { UserDataItem } from "../../modals/datacatalog/types";
 import { Project, ReearthApi } from "../../types";
 
 import Catalog from "./Catalog";
-// import Menu from "./Menu";
+import Menu from "./Menu";
 import Selection from "./Selection";
 
 const MobileDropdown: React.FC = () => {
@@ -21,6 +21,10 @@ const MobileDropdown: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [expandedFolders, setExpandedFolders] = useState<{ id?: string; name?: string }[]>([]);
   const [buildingSearch, setBuildingSearch] = useState<BuildingSearch>([]);
+
+  const [reearthURL, setReearthURL] = useState<string>();
+  const [backendURL, setBackendURL] = useState<string>();
+  const [backendProjectName, setBackendProjectName] = useState<string>();
 
   useEffect(() => {
     postMsg({ action: "initPopup" });
@@ -87,6 +91,10 @@ const MobileDropdown: React.FC = () => {
           if (e.data.payload.catalog) setCatalog(e.data.payload.catalog);
           if (e.data.payload.searchTerm) setSearchTerm(e.data.payload.searchTerm);
           if (e.data.payload.expandedFolders) setExpandedFolders(e.data.payload.expandedFolders);
+          if (e.data.payload.reearthURL) setReearthURL(e.data.payload.reearthURL);
+          if (e.data.payload.backendURL) setBackendURL(e.data.payload.backendURL);
+          if (e.data.payload.backendProjectName)
+            setBackendProjectName(e.data.payload.backendProjectName);
         }
       }
     };
@@ -131,14 +139,13 @@ const MobileDropdown: React.FC = () => {
             />
           ),
           menu: (
-            // <Menu
-            //   project={project}
-            //   reearthURL={reearthURL}
-            //   backendURL={backendURL}
-            //   backendProjectName={backendProjectName}
-            //   onProjectSceneUpdate={handleProjectSceneUpdate}
-            // />
-            <div>menu</div>
+            <Menu
+              project={project}
+              reearthURL={reearthURL}
+              backendURL={backendURL}
+              backendProjectName={backendProjectName}
+              onProjectSceneUpdate={handleProjectSceneUpdate}
+            />
           ),
         }[currentTab]}
     </Wrapper>

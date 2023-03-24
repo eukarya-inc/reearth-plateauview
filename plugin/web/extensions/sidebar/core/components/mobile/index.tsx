@@ -45,7 +45,7 @@ const MobileSidebar: React.FC<Props> = ({ className }) => {
         postMsg({ action: "popupClose" });
       } else if (selected) {
         setSelected(tab);
-        postMsg({ action: "msgToPopup", payload: tab });
+        postMsg({ action: "msgToPopup", payload: { selected: tab } });
       } else {
         setSelected(tab);
         postMsg({ action: "mobileDropdownOpen" });
