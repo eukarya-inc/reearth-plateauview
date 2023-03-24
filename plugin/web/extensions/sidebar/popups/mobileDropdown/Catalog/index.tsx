@@ -77,7 +77,6 @@ const Catalog: React.FC<Props> = ({
             addDisabled={addDisabled}
             searchTerm={searchTerm}
             onSearch={onSearch}
-            onFilter={handleFilter}
             onTreeTabChange={handleTreeTabChange}
             onOpenDetails={handleOpenDetails}
             onDatasetAdd={onDatasetAdd}
