@@ -20,8 +20,8 @@ export default () => {
     debounce((value: string) => {
       postMsg({ action: "saveSearchTerm", payload: { searchTerm: value } });
       setExpandedFolders([]);
-      postMsg({ action: "saveExpandedFolders", payload: { saveExpandedFolders: [] } });
-    }, 500),
+      postMsg({ action: "saveExpandedFolders", payload: { expandedFolders: [] } });
+    }, 300),
   );
 
   const handleSearch = useCallback(
@@ -72,7 +72,6 @@ export default () => {
         setAddedDatasetDataIDs(e.data.payload.addedDatasets);
         setCatalog(e.data.payload.catalog);
         setEditorState(e.data.payload.inEditor);
-      } else if (e.data.action === "getCatalogData") {
         if (e.data.payload.searchTerm) setSearchTerm(e.data.payload.searchTerm);
         if (e.data.payload.expandedFolders) setExpandedFolders(e.data.payload.expandedFolders);
         if (e.data.payload.dataset) {
