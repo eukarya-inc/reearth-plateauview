@@ -49,15 +49,6 @@ const DatasetsPage: React.FC<Props> = ({
   onTreeTabChange,
 }) => {
   const [selectedTags, selectTags] = useState<Tag[]>([]);
-  const [filter, setFilter] = useState<GroupBy>("city");
-
-  const handleFilter = useCallback((filter: GroupBy) => {
-    setFilter(filter);
-  }, []);
-
-  const handleOpenDetails = useCallback((data?: DataCatalogItem) => {
-    setDatasetID(data?.dataID);
-  }, []);
 
   const handleTagSelect = useCallback(
     (tag: Tag) =>
@@ -99,7 +90,7 @@ const DatasetsPage: React.FC<Props> = ({
           onSelect={onSelect}
           addDisabled={addDisabled}
           onTagSelect={handleTagSelect}
-          onOpenDetails={handleOpenDetails}
+          onOpenDetails={onOpenDetails}
           onTreeTabChange={onTreeTabChange}
           onDatasetAdd={onDatasetAdd}
         />

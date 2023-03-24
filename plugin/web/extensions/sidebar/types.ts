@@ -26,6 +26,7 @@ type ActionType =
   | "saveSearchTerm"
   | "saveExpandedFolders"
   | "saveDataset"
+  | "saveTreeTab"
   | "triggerHelpOpen"
   | "mapModalOpen"
   | "clipModalOpen"

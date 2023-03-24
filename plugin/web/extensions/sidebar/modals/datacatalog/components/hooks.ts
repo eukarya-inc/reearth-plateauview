@@ -62,7 +62,7 @@ export default () => {
     (treeTab: TreeTab) => {
       handleFilter(treeTab);
       changeTreeTab(treeTab);
-      postMsg({ action: "storageSave", payload: { key: "currentTreeTab", value: treeTab } });
+      postMsg({ action: "saveTreeTab", payload: { currentTreeTab: treeTab } });
     },
     [handleFilter],
   );
