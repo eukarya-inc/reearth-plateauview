@@ -46,6 +46,7 @@ const Selection: React.FC<Props> = ({
         savingDataset={savingDataset}
         buildingSearch={buildingSearch}
         templates={templates}
+        isMobile
         onDatasetUpdate={onDatasetUpdate}
         onDatasetRemove={onDatasetRemove}
         onDatasetRemoveAll={onDatasetRemoveAll}

@@ -28,7 +28,7 @@ const defaultProject: Project = {
         height: 2219.7187259974316,
       },
       sceneMode: "3d",
-      depthTestAgainstTerrain: false,
+      depthTestAgainstTerrain: true,
     },
     terrain: {
       terrain: true,
@@ -452,7 +452,7 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
     const { dataID } = payload;
     const tilesetLayerID = addedDatasets.find(a => a[0] === dataID)?.[2];
     const tilesetLayer = reearth.layers.findById(tilesetLayerID);
-    reearth.ui.postMessage({
+    const postMsgResp = {
       action,
       payload: {
         layer: {
@@ -461,7 +461,9 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
           ["3dtiles"]: tilesetLayer?.["3dtiles"],
         },
       },
-    });
+    };
+    reearth.ui.postMessage(postMsgResp);
+    reearth.popup.postMessage(postMsgResp);
   }
 });
 

@@ -44,6 +44,7 @@ export type Props = {
   buildingSearch?: BuildingSearch;
   inEditor?: boolean;
   savingDataset?: boolean;
+  isMobile?: boolean;
   moveCard: (dragIndex: number, hoverIndex: number) => void;
   onDatasetSave?: (dataID: string) => void;
   onDatasetRemove?: (dataID: string) => void;
@@ -60,6 +61,7 @@ const DatasetCard: React.FC<Props> = ({
   buildingSearch,
   inEditor,
   savingDataset,
+  isMobile,
   moveCard,
   onDatasetSave,
   onDatasetRemove,
@@ -168,6 +170,7 @@ const DatasetCard: React.FC<Props> = ({
               ? [mvtPosition, { duration: 2 }]
               : dataset.dataID,
           });
+          if (isMobile) postMsg({ action: "popupClose" });
         },
       },
       {
