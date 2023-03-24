@@ -1,5 +1,6 @@
 import { UserDataItem } from "@web/extensions/sidebar/modals/datacatalog/types";
-import { getExtension } from "@web/extensions/sidebar/utils/file";
+import { generateID, postMsg } from "@web/extensions/sidebar/utils";
+import { getExtension, getFileName } from "@web/extensions/sidebar/utils/file";
 import { Input, Form, Button } from "@web/sharedComponents";
 import { useCallback, useState } from "react";
 
@@ -34,22 +35,46 @@ const WebDataTab: React.FC<Props> = ({ onOpenDetails, setSelectedWebItem }) => {
     return false;
   }, []);
 
+  const getUploadFileCount = (name: string) =>
+    new Promise<any>(resolve => {
+      const handleMessage = (event: MessageEvent<any>) => {
+        if (event.source !== parent) return;
+        if (event.data.action === "getUploadFileCount" && event.data.payload) {
+          removeEventListener("message", handleMessage);
+          resolve(event.data.count);
+        }
+      };
+      addEventListener("message", handleMessage);
+      postMsg({
+        action: "getUploadFileCount",
+        payload: { name: name },
+      });
+    });
+
   const handleClick = useCallback(async () => {
     // Catalog Item
     const filename = dataUrl.substring(dataUrl.lastIndexOf("/") + 1);
-    const id = "id" + Math.random().toString(16).slice(2);
+    const id = generateID();
+    const count = await getUploadFileCount(filename);
+    console.log("dataReceived" + count);
+    const finalFileName =
+      count && count != 0
+        ? getFileName(filename) + "_" + count + "." + getExtension(filename)
+        : filename;
+
     const item: UserDataItem = {
       type: "item",
       id: id,
       dataID: id,
       description:
         "著作権や制約に関する情報などの詳細については、このデータの提供者にお問い合わせください。",
-      name: filename,
+      name: finalFileName,
       url: dataUrl,
       visible: true,
       format: setDataFormat(fileType, filename),
     };
     const requireLayerName = needsLayerName(dataUrl);
+
     if (onOpenDetails) onOpenDetails(item, requireLayerName);
     if (setSelectedWebItem) setSelectedWebItem(item);
   }, [dataUrl, fileType, needsLayerName, onOpenDetails, setDataFormat, setSelectedWebItem]);

@@ -78,7 +78,12 @@ const mobileLocation = { zone: "outer", section: "center", area: "top" };
 
 let catalog: DataCatalogItem[] = [];
 
-let addedDatasets: [dataID: string, status: "showing" | "hidden", layerID?: string][] = [];
+let addedDatasets: [
+  dataID: string,
+  status: "showing" | "hidden",
+  layerID?: string,
+  name?: string,
+][] = [];
 
 let searchTerm = "";
 let expandedFolders: { id?: string; name?: string }[] = [];
@@ -191,6 +196,13 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
   } else if (action === "updateProject") {
     reearth.visualizer.overrideProperty(payload.sceneOverrides);
     reearth.clientStorage.setAsync("draftProject", payload);
+  } else if (action === "getUploadFileCount") {
+    console.log("receive data from Modal");
+    console.log("send data from modal" + getFileCountByName(payload.name));
+    reearth.modal.postMessage({
+      action: "getUploadFileCount",
+      payload: { count: getFileCountByName(payload.name) },
+    });
   } else if (action === "addDatasetToScene") {
     if (addedDatasets.find(d => d[0] === payload.dataset.dataID)) {
       const idx = addedDatasets.findIndex(ad => ad[0] === payload.dataset.dataID);
@@ -200,7 +212,12 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
       const data = createLayer(payload.dataset, payload.overrides);
       console.log("DATA to add", data);
       const layerID = reearth.layers.add(data);
-      const idx = addedDatasets.push([payload.dataset.dataID, "showing", layerID]);
+      const idx = addedDatasets.push([
+        payload.dataset.dataID,
+        "showing",
+        layerID,
+        payload.dataset.name,
+      ]);
       if (!payload.dataset.visible) {
         reearth.layers.hide(addedDatasets[idx][2]);
         addedDatasets[idx][1] = "hidden";
@@ -691,4 +708,14 @@ const defaultOverrides = {
   polyline: {
     clampToGround: true,
   },
+};
+
+const getFileCountByName = (name: string) => {
+  const [baseName, extension] = name.split(".");
+  const filteredFiles = addedDatasets.filter(d => {
+    if (!d[3]) return;
+    const [fileName, fileExtension] = d[3].split(/[_.]/);
+    return fileName === baseName && fileExtension === extension;
+  });
+  return filteredFiles.length;
 };

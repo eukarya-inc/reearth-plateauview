@@ -67,7 +67,8 @@ type ActionType =
   | "findLayerByDataID"
   | "getOverriddenLayerByDataID"
   | "updateMVTRaster"
-  | "unselect";
+  | "unselect"
+  | "getUploadFileCount";
 // FIXME(@keiya01): support auto csv field complement
 // | "getLocationNamesFromCSVFeatureProperty"
 

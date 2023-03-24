@@ -1,5 +1,6 @@
 import { UserDataItem } from "@web/extensions/sidebar/modals/datacatalog/types";
-import { getExtension } from "@web/extensions/sidebar/utils/file";
+import { generateID, postMsg } from "@web/extensions/sidebar/utils";
+import { getExtension, getFileName } from "@web/extensions/sidebar/utils/file";
 import { Form } from "@web/sharedComponents";
 import { InboxOutlined } from "@web/sharedComponents/Icon/icons";
 import Upload, { UploadProps, UploadFile } from "@web/sharedComponents/Upload";
@@ -45,16 +46,32 @@ const LocalDataTab: React.FC<Props> = ({ onOpenDetails, setSelectedLocalItem }) 
     return type;
   }, []);
 
+  const getUploadFileCount = (name: string) =>
+    new Promise<any>(resolve => {
+      const handleMessage = (event: MessageEvent<any>) => {
+        if (event.source !== parent) return;
+        if (event.data.action === "getUploadFileCount" && event.data.payload) {
+          removeEventListener("message", handleMessage);
+          resolve(event.data.payload.count);
+        }
+      };
+      addEventListener("message", handleMessage);
+      postMsg({
+        action: "getUploadFileCount",
+        payload: { name: name },
+      });
+    });
+
   const beforeUpload = useCallback(
     (file: RcFile, files: RcFile[]) => {
       const reader = new FileReader();
       reader.addEventListener(
         "load",
-        () => {
+        async () => {
           // convert image file to base64 string
           // Catalog Item
           const filename = file.name;
-          const id = "id" + Math.random().toString(16).slice(2);
+          const id = generateID();
           const url = (() => {
             const content = reader.result?.toString();
             if (!content) {
@@ -62,17 +79,26 @@ const LocalDataTab: React.FC<Props> = ({ onOpenDetails, setSelectedLocalItem }) 
             }
             return "data:text/plain;charset=UTF-8," + encodeURIComponent(content);
           })();
+
+          const count = await getUploadFileCount(filename);
+          console.log("dataReceived" + count);
+
+          const finalFileName = filename;
+          if (count && count > 0)
+            getFileName(filename) + "_" + count + "." + getExtension(filename);
+
           const item: UserDataItem = {
             type: "item",
             id: id,
             dataID: id,
             description:
               "このファイルは今お使いのWebブラウザでのみ閲覧可能です。共有URLを用いて共有するには、公開Webサーバー上のデータを読み込む必要があります。",
-            name: filename,
+            name: finalFileName,
             visible: true,
             url: url,
             format: setDataFormat(fileType, filename),
           };
+
           if (onOpenDetails) onOpenDetails(item);
           if (setSelectedLocalItem) setSelectedLocalItem(item);
         },
