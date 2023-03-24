@@ -21,6 +21,12 @@ func TestExtractCityName(t *testing.T) {
 	assert.Equal(t, "mobara-shi", cityName)
 	assert.Equal(t, 2022, year)
 
+	code, cityName, year, err = extractCityName("30422_taiji-cho_2021_citygml_2_op.zip")
+	assert.NoError(t, err)
+	assert.Equal(t, "30422", code)
+	assert.Equal(t, "taiji-cho", cityName)
+	assert.Equal(t, 2021, year)
+
 	code, cityName, year, err = extractCityName("aaa")
 	assert.EqualError(t, err, "invalid file name")
 	assert.Empty(t, code)
@@ -37,6 +43,8 @@ func TestSuffixFromSpec(t *testing.T) {
 func TestDatasetName(t *testing.T) {
 	assert.Equal(t, "plateau-11111-aaaa-2022", datasetName("11111", "aaaa", 2022))
 	assert.Equal(t, "plateau-tokyo23ku", datasetName("11111", "tokyo23ku", 2020))
+	assert.Equal(t, "plateau-tokyo23ku", datasetName("11111", "tokyo23-ku", 2020))
+	assert.Equal(t, "plateau-tokyo23ku", datasetName("11111", "tokyo-23ku", 2020))
 	assert.Equal(t, "plateau-tokyo23ku-2021", datasetName("11111", "tokyo23ku", 2021))
 	assert.Equal(t, "plateau-tokyo23ku-2022", datasetName("11111", "tokyo23ku", 2022))
 }
