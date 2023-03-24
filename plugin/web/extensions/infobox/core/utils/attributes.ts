@@ -67,7 +67,7 @@ export function getRootFields(properties: Properties): any {
       0,
       "uro:buildingStructureType",
     ]),
-    "構造種別（自治体独自）": get(properties, [
+    "構造種別（独自）": get(properties, [
       "attributes",
       "uro:BuildingDetailAttribute",
       0,
@@ -134,6 +134,7 @@ function floodFields(properties: Properties): any {
         const prefix = `${a["uro:description"]}（${a["uro:adminType"]}管理区間）_${a["uro:scale"]}`;
         return [
           [`${prefix}_浸水ランク`, a["uro:rank_code"]],
+          [`${prefix}_浸水ランク（独自分類）`, a["uro:rankOrg"]],
           [`${prefix}_浸水深`, a["uro:depth"]],
           [`${prefix}_継続時間`, a["uro:duration"]],
         ];
@@ -158,4 +159,5 @@ type BuildingRiverFloodingRiskAttribute = {
   "uro:duration"?: string; // 継続時間
   "uro:adminType"?: string; //
   "uro:scale"?: string; // 浸水規模
+  "uro:rankOrg"?: string; // 浸水ランク（独自）
 };
