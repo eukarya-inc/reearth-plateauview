@@ -134,19 +134,23 @@ const DatasetCard: React.FC<Props> = ({
 
       const json = await fetch(`${mvtBaseURL}/metadata.json`).then(d => d.json());
       const center = json?.center.split(",").map((s: string) => Number(s));
-      if (center < 2) return;
+      if (center < 2) {
+        return;
+      }
 
       const minzoom = json?.minzoom;
       const maxzoom = json?.maxzoom;
 
-      postMsg({
-        action: "updateMVTRaster",
-        payload: {
-          layerId: layer?.id,
-          minzoom,
-          maxzoom,
-        },
-      });
+      if (layer?.id && minzoom && maxzoom) {
+        postMsg({
+          action: "updateMVTRaster",
+          payload: {
+            layerId: layer?.id,
+            minzoom,
+            maxzoom,
+          },
+        });
+      }
 
       return {
         lng: center[0],

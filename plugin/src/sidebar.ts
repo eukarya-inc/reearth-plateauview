@@ -660,7 +660,7 @@ function createLayer(dataset: DataCatalogItem, overrides?: any) {
       : format === "mvt"
       ? {
           polygon: {},
-              raster: {},
+          raster: {},
         }
       : format === "wms"
       ? {
