@@ -358,11 +358,10 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
       },
     });
   } else if (action === "updateMVTRaster") {
-    const { layerId, minzoom, maxzoom } = payload;
+    const { layerId, maxzoom } = payload;
     reearth.layers.override(layerId, {
       raster: {
         maximumLevel: maxzoom,
-        minimumLevel: minzoom,
       },
     });
   } else if (action === "unselect") {
@@ -660,7 +659,6 @@ function createLayer(dataset: DataCatalogItem, overrides?: any) {
       : format === "mvt"
       ? {
           polygon: {},
-          raster: {},
         }
       : format === "wms"
       ? {
