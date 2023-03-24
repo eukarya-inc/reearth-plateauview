@@ -31,23 +31,15 @@ const Folder: React.FC<Props> = ({
   );
 
   useEffect(() => {
-    if (expandedFolders?.find(findCb)) open(true);
+    open(() => !!expandedFolders?.find(findCb));
   }, [expandedFolders, findCb, id, name]);
 
   const handleExpand = useCallback(
     (folder: { id?: string; name?: string }) => {
       setExpandedFolders?.((prevState: { id?: string; name?: string }[]) => {
         const newExpandedFolders = [...prevState];
-        if (prevState.find(findCb)) {
-          const index = prevState.findIndex(folder =>
-            folder.id ? folder.id === id : folder.name === name,
-          );
-          newExpandedFolders.splice(index, 1);
-          open(false);
-        } else {
-          newExpandedFolders.push(folder);
-          open(true);
-        }
+        const index = prevState.findIndex(findCb);
+        index >= 0 ? newExpandedFolders.splice(index, 1) : newExpandedFolders.push(folder);
         postMsg({
           action: "saveExpandedFolders",
           payload: { expandedFolders: newExpandedFolders },
@@ -55,7 +47,7 @@ const Folder: React.FC<Props> = ({
         return newExpandedFolders;
       });
     },
-    [findCb, id, name, setExpandedFolders],
+    [findCb, setExpandedFolders],
   );
 
   return (

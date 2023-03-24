@@ -276,6 +276,15 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
   } else if (action === "modalClose") {
     reearth.modal.close();
     welcomePageIsOpen = false;
+  } else if (action === "getCatalogData") {
+    reearth.modal.postMessage({
+      action,
+      payload: {
+        searchTerm,
+        expandedFolders,
+        dataset,
+      },
+    });
   } else if (action === "initDataCatalog") {
     reearth.modal.postMessage({
       action,
@@ -283,10 +292,10 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
         catalog,
         addedDatasets: addedDatasets.map(d => d[0]),
         inEditor: reearth.scene.inEditor,
-        searchTerm,
-        expandedFolders,
-        dataset,
       },
+    });
+    reearth.modal.postMessage({
+      action: "getCatalogData",
     });
   } else if (action === "helpPopupOpen") {
     reearth.popup.show(helpPopupHtml, { position: "right-start", offset: 4 });
