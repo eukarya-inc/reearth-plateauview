@@ -39,7 +39,7 @@ const Selection: React.FC<Props> = ({
   return (
     <Wrapper>
       <PopupItem>
-        <Title>Data Style Settings</Title>
+        <Title>データスタイル設定</Title>
       </PopupItem>
       <SelectionComponent
         selectedDatasets={selectedDatasets}
