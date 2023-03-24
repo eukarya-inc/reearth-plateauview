@@ -133,8 +133,7 @@ function floodFields(properties: Properties): any {
         if (!a || !a["uro:description"] || !a["uro:adminType"] || !a["uro:scale"]) return [];
         const prefix = `${a["uro:description"]}（${a["uro:adminType"]}管理区間）_${a["uro:scale"]}`;
         return [
-          [`${prefix}_浸水ランク`, a["uro:rank_code"]],
-          [`${prefix}_浸水ランク（独自分類）`, a["uro:rankOrg"]],
+          [`${prefix}_浸水ランク`, a["uro:rank_code"] || a["uro:rankOrg"]],
           [`${prefix}_浸水深`, a["uro:depth"]],
           [`${prefix}_継続時間`, a["uro:duration"]],
         ];
