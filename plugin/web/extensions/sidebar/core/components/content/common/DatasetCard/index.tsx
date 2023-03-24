@@ -134,9 +134,7 @@ const DatasetCard: React.FC<Props> = ({
 
       const json = await fetch(`${mvtBaseURL}/metadata.json`).then(d => d.json());
       const center = json?.center?.split(",")?.map((s: string) => Number(s));
-      if (center?.length < 2) {
-        return;
-      }
+      if (center?.length < 2) return;
 
       // TODO: Add minzoom later once it is improved
       const maxzoom = json?.maxzoom;
