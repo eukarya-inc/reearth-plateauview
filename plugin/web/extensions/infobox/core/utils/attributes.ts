@@ -159,5 +159,5 @@ type BuildingRiverFloodingRiskAttribute = {
   "uro:duration"?: string; // 継続時間
   "uro:adminType"?: string; //
   "uro:scale"?: string; // 浸水規模
-  "uro:rankOrg"?: string; // 浸水ランク（独自）
+  "uro:rankOrg"?: string; // 浸水ランク（独自分類）
 };
