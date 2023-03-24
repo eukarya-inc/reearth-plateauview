@@ -4,14 +4,13 @@ import { useCallback, useMemo, useState } from "react";
 
 import { GroupBy } from "../../../api/api";
 import { UserDataItem } from "../../../types";
-import { TreeTab } from "../../hooks";
 
 import DatasetTree from "./DatasetTree";
 import DatasetDetails, { Tag } from "./Details";
 
 export type Props = {
   catalog?: DataCatalogItem[];
-  currentTreeTab: TreeTab;
+  currentTreeTab: "city" | "type";
   addedDatasetDataIDs?: string[];
   inEditor?: boolean;
   selectedDatasetID?: string;
@@ -26,7 +25,7 @@ export type Props = {
   onDatasetAdd: (dataset: DataCatalogItem | UserDataItem, keepModalOpen?: boolean) => void;
   onFilter: (filter: GroupBy) => void;
   onDatasetPublish: (dataID: string, publish: boolean) => void;
-  onTreeTabChange: (tab: TreeTab) => void;
+  onTreeTabChange: (tab: "city" | "type") => void;
 };
 
 const DatasetsPage: React.FC<Props> = ({

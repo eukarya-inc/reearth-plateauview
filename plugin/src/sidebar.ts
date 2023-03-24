@@ -83,7 +83,7 @@ let addedDatasets: [dataID: string, status: "showing" | "hidden", layerID?: stri
 let searchTerm = "";
 let expandedFolders: { id?: string; name?: string }[] = [];
 let dataset: DataCatalogItem | undefined = undefined;
-let currentTreeTab = "city";
+let currentTreeTab: "city" | "type" = "city";
 
 const sidebarInstance: PluginExtensionInstance = reearth.plugins.instances.find(
   (i: PluginExtensionInstance) => i.id === reearth.widget.id,

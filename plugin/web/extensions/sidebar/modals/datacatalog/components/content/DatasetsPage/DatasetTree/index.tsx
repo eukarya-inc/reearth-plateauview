@@ -4,7 +4,6 @@ import { styled } from "@web/theme";
 import { useEffect, useMemo, useState } from "react";
 
 import { DataCatalogItem, getDataCatalogTree, GroupBy } from "../../../../api/api";
-import { TreeTab } from "../../../hooks";
 import Tags, { Tag as TagType } from "../Tags";
 
 import FileTree from "./FileTree";
@@ -16,7 +15,7 @@ export type Props = {
   selectedDataset?: DataCatalogItem;
   isMobile?: boolean;
   catalog?: DataCatalogItem[];
-  currentTreeTab: TreeTab;
+  currentTreeTab: "city" | "type";
   selectedTags?: Tag[];
   filter: GroupBy;
   selectedItem?: DataCatalogItem;
@@ -29,7 +28,7 @@ export type Props = {
   onTagSelect?: (tag: Tag) => void;
   onDatasetAdd: (dataset: DataCatalogItem, keepModalOpen?: boolean) => void;
   onOpenDetails?: (data?: DataCatalogItem) => void;
-  onTreeTabChange: (tab: TreeTab) => void;
+  onTreeTabChange: (tab: "city" | "type") => void;
 };
 
 // function typeFilter(catalog: Catalog): DataCatalog {
@@ -122,7 +121,7 @@ const DatasetTree: React.FC<Props> = ({
       <StyledTabs
         activeKey={currentTreeTab}
         tabBarStyle={showTabs ? { display: "none" } : { userSelect: "none" }}
-        onChange={active => onTreeTabChange(active as TreeTab)}>
+        onChange={active => onTreeTabChange(active as "city" | "type")}>
         <Tabs.TabPane key="city" tab="都道府県">
           {dataCatalogTree && (
             <FileTree
