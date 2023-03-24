@@ -171,7 +171,7 @@ export default () => {
       } else if (e.data.action === "buildingSearchOverride") {
         handleBuildingSearchOverride(e.data.payload);
       } else if (e.data.action === "buildingSearchClose") {
-        handleBuildingSearchClose(e.data.paylaod);
+        handleBuildingSearchClose(e.data.payload);
       }
     };
     addEventListener("message", eventListenerCallback);

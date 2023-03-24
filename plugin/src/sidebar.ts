@@ -399,7 +399,7 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
     if (openedBuildingSearchDataID) {
       reearth.ui.postMessage({
         action: "buildingSearchClose",
-        paylaod: {
+        payload: {
           dataID: openedBuildingSearchDataID,
         },
       });
@@ -597,7 +597,7 @@ reearth.on("popupclose", () => {
   if (openedBuildingSearchDataID) {
     reearth.ui.postMessage({
       action: "buildingSearchClose",
-      paylaod: {
+      payload: {
         dataID: openedBuildingSearchDataID,
       },
     });
