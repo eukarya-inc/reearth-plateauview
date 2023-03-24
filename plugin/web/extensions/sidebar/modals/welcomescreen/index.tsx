@@ -10,7 +10,6 @@ const WelcomeScreen: React.FC = () => {
     showVideo,
     dontShowAgain,
     handleDontShowAgain,
-    handleShowVideo,
     handleCloseVideo,
     handleClose,
     handleOpenHelp,
@@ -20,54 +19,56 @@ const WelcomeScreen: React.FC = () => {
   return (
     <Wrapper>
       {!showVideo ? (
-        <>
-          <CloseButton size={40} icon="close" onClick={handleClose} />
-          <InnerWrapper isMobile={isMobile}>
-            <TextWrapper isMobile={isMobile}>
-              <Title weight={700} size={isMobile ? 24 : 48}>
-                ようこそ
-              </Title>
-              <Text weight={500} size={isMobile ? 16 : 20}>
-                {isMobile ? "データがお好きですか？" : "マップを使ってみる"}
-              </Text>
-            </TextWrapper>
-            <ContentWrapper isMobile={isMobile}>
+        <InnerWrapper isMobile={isMobile}>
+          <WelcomeCloseButton size={40} icon="close" onClick={handleClose} isMobile={isMobile} />
+          <TextWrapper isMobile={isMobile}>
+            <Title weight={700} size={isMobile ? 24 : 48}>
+              ようこそ
+            </Title>
+            <Text weight={500} size={isMobile ? 16 : 20}>
+              {isMobile ? "データがお好きですか？" : "マップを使ってみる"}
+            </Text>
+          </TextWrapper>
+          <ContentWrapper isMobile={isMobile}>
+            {!isMobile && (
+              <ImgWrapper
+                type="text"
+                href="https://www.mlit.go.jp/plateau/learning/?topic=plateau-view"
+                target="_blank"
+                imgUrl={welcomeScreenVideo}>
+                <Icon icon="playCircle" size={48} color="#fff" />
+              </ImgWrapper>
+            )}
+            <BtnsWrapper isMobile={isMobile}>
               {!isMobile && (
-                <ImgWrapper>
-                  <img src={welcomeScreenVideo} onClick={handleShowVideo} />
-                </ImgWrapper>
-              )}
-              <BtnsWrapper isMobile={isMobile}>
-                {!isMobile && (
-                  <ButtonWrapper onClick={handleOpenHelp}>
-                    <Text weight={500} size={14}>
-                      ヘルプをみる
-                    </Text>
-                  </ButtonWrapper>
-                )}
-                <ButtonWrapper onClick={handleOpenCatalog}>
-                  <Icon size={20} icon="plusCircle" color="#fafafa" />
+                <ButtonWrapper onClick={handleOpenHelp}>
                   <Text weight={500} size={14}>
-                    カタログから検索する
+                    ヘルプをみる
                   </Text>
                 </ButtonWrapper>
-              </BtnsWrapper>
-            </ContentWrapper>
-            <CheckWrapper>
-              <Checkbox checked={dontShowAgain} onClick={handleDontShowAgain} />
-              <Text weight={700} size={14}>
-                閉じて今後は表示しない
-              </Text>
-            </CheckWrapper>
-          </InnerWrapper>
-        </>
+              )}
+              <ButtonWrapper onClick={handleOpenCatalog}>
+                <Icon size={20} icon="plusCircle" color="#fafafa" />
+                <Text weight={500} size={14}>
+                  カタログから検索する
+                </Text>
+              </ButtonWrapper>
+            </BtnsWrapper>
+          </ContentWrapper>
+          <CheckWrapper>
+            <Checkbox checked={dontShowAgain} onClick={handleDontShowAgain} />
+            <Text weight={700} size={14}>
+              閉じて今後は表示しない
+            </Text>
+          </CheckWrapper>
+        </InnerWrapper>
       ) : (
-        <>
-          <CloseButton size={40} icon="close" onClick={handleCloseVideo} />
+        <CloseBtnWrapper isMobile={isMobile}>
+          <VideoCloseButton size={40} icon="close" onClick={handleCloseVideo} isMobile={isMobile} />
           <VideoWrapper>
             <Video width=" 1142" height="543" src="https://www.youtube.com/embed/pY2dM-eG5mA" />
           </VideoWrapper>
-        </>
+        </CloseBtnWrapper>
       )}
     </Wrapper>
   );
@@ -82,13 +83,14 @@ const Wrapper = styled.div`
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  position: relative;
+
   background: rgba(0, 0, 0, 0.7);
 `;
 
 const InnerWrapper = styled.div<{ isMobile?: boolean }>`
   display: flex;
   flex-direction: column;
+  position: relative;
   width: ${({ isMobile }) => (isMobile ? "318px" : "742px")};
 `;
 
@@ -108,7 +110,7 @@ const TextWrapper = styled.div<{ isMobile?: boolean }>`
   flex-direction: column;
   align-items: ${({ isMobile }) => (isMobile ? "center" : "flex-start")};
   justify-content: flex-end;
-  margin-bottom: 24px;
+  margin-bottom: ${({ isMobile }) => (isMobile ? "60px" : "24px")};
 `;
 
 const ContentWrapper = styled.div<{ isMobile?: boolean }>`
@@ -130,25 +132,37 @@ const BtnsWrapper = styled.div<{ isMobile?: boolean }>`
   width: ${({ isMobile }) => (isMobile ? "100%" : "318px")};
 `;
 
-const ImgWrapper = styled.div`
-  width: 305px;
-  height: 159px;
-  cursor: pointer;
-`;
-
-const CloseButton = styled(Icon)`
+const ImgWrapper = styled.a<{ imgUrl: string }>`
   display: flex;
   justify-content: center;
   align-items: center;
-  position: absolute;
-  right: 0;
-  top: 0;
-  height: 48px;
-  width: 48px;
+  width: 305px;
+  height: 159px;
+  cursor: pointer;
+  background-color: rgba(0, 0, 0, 0.5);
+  background-image: ${props =>
+    `linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url(${props.imgUrl})`};
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center center;
+`;
+
+const CloseButton = styled(Icon)<{ isMobile?: boolean }>`
+  width: ${({ isMobile }) => (isMobile ? "48px" : "40px")};
+  height: ${({ isMobile }) => (isMobile ? "48px" : "40px")};
   border: none;
-  background: #00bebe;
   color: white;
   cursor: pointer;
+`;
+
+const WelcomeCloseButton = styled(CloseButton)`
+  position: absolute;
+  right: ${({ isMobile }) => (isMobile ? "-48px" : "-40px")};
+  top: ${({ isMobile }) => (isMobile ? "-48px" : "-40px")};
+`;
+
+const VideoCloseButton = styled(CloseButton)`
+  align-self: end;
 `;
 
 const ButtonWrapper = styled.div<{ selected?: boolean }>`
@@ -182,4 +196,12 @@ const CheckWrapper = styled.div`
 const VideoWrapper = styled.div`
   width: 1142px;
   height: 543px;
+`;
+const CloseBtnWrapper = styled.div<{ isMobile?: boolean }>`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  position: relative;
+  width: ${({ isMobile }) => (isMobile ? "348px" : "1182px")};
+  height: ${({ isMobile }) => (isMobile ? "390px" : "635px")};
 `;

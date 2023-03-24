@@ -1,5 +1,6 @@
 import { DataCatalogItem } from "@web/extensions/sidebar/core/types";
 import { UserDataItem } from "@web/extensions/sidebar/modals/datacatalog/types";
+import { checkKeyPress } from "@web/extensions/sidebar/utils";
 import { getNameFromPath } from "@web/extensions/sidebar/utils/file";
 import { Icon, Input } from "@web/sharedComponents";
 import Popconfirm, { PopconfirmProps } from "@web/sharedComponents/Popconfirm";
@@ -9,11 +10,12 @@ import { ComponentType, useCallback, useMemo, ChangeEvent, useState } from "reac
 export type Props = {
   dataset: DataCatalogItem | UserDataItem;
   isShareable?: boolean;
+  isPublishable?: boolean;
   addDisabled: boolean;
   inEditor?: boolean;
   requireLayerName?: boolean;
   contentSection?: ComponentType;
-  onDatasetAdd: (dataset: DataCatalogItem | UserDataItem) => void;
+  onDatasetAdd: (dataset: DataCatalogItem | UserDataItem, keepModalOpen?: boolean) => void;
   onDatasetPublish?: (dataID: string, publish: boolean) => void;
 };
 
@@ -22,6 +24,7 @@ const showShareButton = false; // This code can be removed when decision about s
 const DatasetDetails: React.FC<Props> = ({
   dataset,
   isShareable,
+  isPublishable,
   addDisabled,
   inEditor,
   requireLayerName,
@@ -38,12 +41,17 @@ const DatasetDetails: React.FC<Props> = ({
     onDatasetPublish?.(datasetToUpdate.dataID, !datasetToUpdate.public);
   }, [dataset, onDatasetPublish]);
 
-  const handleDatasetAdd = useCallback(() => {
-    if (!dataset || addDisabled) return;
-    const terminalDataset = dataset;
-    if (layers.length) terminalDataset.layers = layers;
-    onDatasetAdd(terminalDataset);
-  }, [dataset, addDisabled, layers, onDatasetAdd]);
+  const handleDatasetAdd = useCallback(
+    (e: React.MouseEvent<HTMLButtonElement>) => {
+      if (!dataset || addDisabled) return;
+      const terminalDataset = dataset;
+      if (layers.length) terminalDataset.layers = layers;
+
+      const keyPressed = checkKeyPress(e, ["shift", "meta", "ctrl"]);
+      onDatasetAdd(terminalDataset, keyPressed);
+    },
+    [dataset, addDisabled, layers, onDatasetAdd],
+  );
 
   const handleLayersAddOnDataset = useCallback(
     (event: ChangeEvent<HTMLInputElement>) => {
@@ -59,7 +67,11 @@ const DatasetDetails: React.FC<Props> = ({
     title: (
       <>
         <PopConfirmText>本当に公開してもよろしいですか？</PopConfirmText>
-        <PopConfirmText>PLATEAUデータの場合はG空間情報センターにも公開されます。</PopConfirmText>
+        {isPublishable && (
+          <PopConfirmText>
+            この都市のCityGMLなどのPLATEAUデータがG空間情報センターにも公開されます。
+          </PopConfirmText>
+        )}
       </>
     ),
     placement: "topRight",
@@ -167,7 +179,7 @@ const ButtonWrapper = styled.div`
 `;
 
 const LayerNamesWrapper = styled.div`
-  marginbottom: 16px;
+  margin-bottom: 16px;
 `;
 
 const BaseButton = styled.button<{ disabled?: boolean }>`

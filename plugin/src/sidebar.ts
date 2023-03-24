@@ -1,6 +1,6 @@
 import { DataCatalogItem } from "@web/extensions/sidebar/core/types";
 import { PostMessageProps, Project, PluginMessage } from "@web/extensions/sidebar/types";
-import omit from "lodash/omit";
+import { isObject, mergeWith, omit, cloneDeep, merge as lodashMerge } from "lodash";
 
 import html from "../dist/web/sidebar/core/index.html?raw";
 import clipVideoHtml from "../dist/web/sidebar/modals/clipVideo/index.html?raw";
@@ -28,7 +28,7 @@ const defaultProject: Project = {
         height: 2219.7187259974316,
       },
       sceneMode: "3d",
-      depthTestAgainstTerrain: false,
+      depthTestAgainstTerrain: true,
     },
     terrain: {
       terrain: true,
@@ -39,14 +39,21 @@ const defaultProject: Project = {
     },
     tiles: [
       {
-        id: "tokyo",
+        id: "tokyo_1",
         tile_url: "https://cyberjapandata.gsi.go.jp/xyz/seamlessphoto/{z}/{x}/{y}.jpg",
+        tile_type: "url",
+      },
+      {
+        id: "tokyo_2",
+        tile_url:
+          "https://gic-plateau.s3.ap-northeast-1.amazonaws.com/2020/ortho/tiles/{z}/{x}/{y}.png",
         tile_type: "url",
       },
     ],
     atmosphere: { shadows: true },
   },
   datasets: [],
+  userStory: undefined,
 };
 
 type PluginExtensionInstance = {
@@ -69,10 +76,13 @@ let currentSelected: string | undefined = undefined;
 const defaultLocation = { zone: "outer", section: "left", area: "middle" };
 const mobileLocation = { zone: "outer", section: "center", area: "top" };
 
-let dataCatalog: DataCatalogItem[] = [];
+let catalog: DataCatalogItem[] = [];
 
 let addedDatasets: [dataID: string, status: "showing" | "hidden", layerID?: string][] = [];
 
+let searchTerm = "";
+let expandedFolders: { id?: string; name?: string }[] = [];
+let dataset: DataCatalogItem | undefined = undefined;
 const sidebarInstance: PluginExtensionInstance = reearth.plugins.instances.find(
   (i: PluginExtensionInstance) => i.id === reearth.widget.id,
 );
@@ -82,45 +92,43 @@ const sidebarInstance: PluginExtensionInstance = reearth.plugins.instances.find(
 
 reearth.ui.show(html, { extended: true });
 
-reearth.clientStorage.getAsync("draftProject").then((draftProject: Project) => {
-  if (
-    sidebarInstance.runTimes === 1 ||
-    (sidebarInstance.runTimes === 2 && reearth.viewport.isMobile && draftProject === defaultProject)
-  ) {
-    reearth.visualizer.overrideProperty(defaultProject.sceneOverrides);
-    reearth.clientStorage.setAsync("draftProject", defaultProject);
+if (
+  sidebarInstance.runTimes === 1 ||
+  (sidebarInstance.runTimes === 2 && reearth.viewport.isMobile)
+) {
+  reearth.visualizer.overrideProperty(defaultProject.sceneOverrides);
+  reearth.clientStorage.setAsync("draftProject", defaultProject);
 
-    if (reearth.viewport.isMobile) {
-      reearth.clientStorage.setAsync("isMobile", true);
-      reearth.widget.moveTo(mobileLocation);
-    } else {
-      reearth.clientStorage.setAsync("isMobile", false);
-    }
-    reearth.clientStorage.getAsync("doNotShowWelcome").then((value: any) => {
-      if (!value && !reearth.scene.inEditor) {
-        reearth.modal.show(welcomeScreenHtml, {
-          width: reearth.viewport.width,
-          height: reearth.viewport.height,
-        });
-        welcomePageIsOpen = true;
-      }
-    });
+  if (reearth.viewport.isMobile) {
+    reearth.clientStorage.setAsync("isMobile", true);
+    reearth.widget.moveTo(mobileLocation);
   } else {
-    reearth.clientStorage.getAsync("isMobile").then((value: any) => {
-      if (reearth.viewport.isMobile) {
-        if (!value) {
-          reearth.widget.moveTo(mobileLocation);
-          reearth.clientStorage.setAsync("isMobile", true);
-        }
-      } else {
-        if (value) {
-          reearth.widget.moveTo(defaultLocation);
-          reearth.clientStorage.setAsync("isMobile", false);
-        }
-      }
-    });
+    reearth.clientStorage.setAsync("isMobile", false);
   }
-});
+  reearth.clientStorage.getAsync("doNotShowWelcome").then((value: any) => {
+    if (!value && !reearth.scene.inEditor) {
+      reearth.modal.show(welcomeScreenHtml, {
+        width: reearth.viewport.width,
+        height: reearth.viewport.height,
+      });
+      welcomePageIsOpen = true;
+    }
+  });
+} else {
+  reearth.clientStorage.getAsync("isMobile").then((value: any) => {
+    if (reearth.viewport.isMobile) {
+      if (!value) {
+        reearth.widget.moveTo(mobileLocation);
+        reearth.clientStorage.setAsync("isMobile", true);
+      }
+    } else {
+      if (value) {
+        reearth.widget.moveTo(defaultLocation);
+        reearth.clientStorage.setAsync("isMobile", false);
+      }
+    }
+  });
+}
 // ************************************************
 
 reearth.on("message", ({ action, payload }: PostMessageProps) => {
@@ -150,6 +158,7 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
           backendAccessToken: reearth.widget.property.default?.plateauAccessToken ?? "",
           enableGeoPub: reearth.widget.property.default?.enableGeoPub ?? false,
           draftProject,
+          searchTerm,
         };
         if (isMobile) {
           reearth.popup.postMessage({ action, payload: outBoundPayload });
@@ -176,9 +185,9 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
     });
   } else if (action === "storageDelete") {
     reearth.clientStorage.deleteAsync(payload.key);
-  } else if (action === "updateCatalog") {
-    dataCatalog = payload;
-    reearth.modal.postMessage({ action, payload });
+  } else if (action === "updateDataCatalog") {
+    catalog = payload;
+    reearth.modal.postMessage({ action, payload: { updatedCatalog: payload } });
   } else if (action === "updateProject") {
     reearth.visualizer.overrideProperty(payload.sceneOverrides);
     reearth.clientStorage.setAsync("draftProject", payload);
@@ -196,6 +205,10 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
         reearth.layers.hide(addedDatasets[idx][2]);
         addedDatasets[idx][1] = "hidden";
       }
+      reearth.modal.postMessage({
+        action: "updateDataCatalog",
+        payload: { updatedDatasetDataIDs: addedDatasets.map(d => d[0]) },
+      });
     }
   } else if (action === "updateDatasetInScene") {
     const layerId = addedDatasets.find(ad => ad[0] === payload.dataID)?.[2];
@@ -258,22 +271,29 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
     });
   } else if (action === "triggerCatalogOpen") {
     reearth.ui.postMessage({ action });
+  } else if (action === "saveSearchTerm") {
+    searchTerm = payload.searchTerm;
+  } else if (action === "saveExpandedFolders") {
+    expandedFolders = [...payload.expandedFolders];
+  } else if (action === "saveDataset") {
+    dataset = { ...payload.dataset };
   } else if (action === "triggerHelpOpen") {
     reearth.ui.postMessage({ action });
   } else if (action === "modalClose") {
     reearth.modal.close();
     welcomePageIsOpen = false;
   } else if (action === "initDataCatalog") {
-    reearth.clientStorage.getAsync("currentTreeTab").then((currentTreeTab: any) => {
-      reearth.modal.postMessage({
-        action,
-        payload: {
-          dataCatalog,
-          addedDatasets: addedDatasets.map(d => d[0]),
-          inEditor: reearth.scene.inEditor,
-          currentTreeTab: currentTreeTab ?? "city",
-        },
-      });
+    reearth.modal.postMessage({
+      action,
+      payload: {
+        catalog,
+        addedDatasets: addedDatasets.map(d => d[0]),
+        inEditor: reearth.scene.inEditor,
+        searchTerm,
+        expandedFolders,
+        dataset,
+        currentTreeTab: currentTreeTab ?? "city",
+      },
     });
   } else if (action === "helpPopupOpen") {
     reearth.popup.show(helpPopupHtml, { position: "right-start", offset: 4 });
@@ -344,6 +364,15 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
         overriddenLayer,
       },
     });
+  } else if (action === "updateMVTRaster") {
+    const { layerId, maxzoom } = payload;
+    reearth.layers.override(layerId, {
+      raster: {
+        maximumLevel: maxzoom,
+      },
+    });
+  } else if (action === "unselect") {
+    reearth.layers.select();
   }
 
   // ************************************************
@@ -577,6 +606,16 @@ reearth.on("popupclose", () => {
 
 function createLayer(dataset: DataCatalogItem, overrides?: any) {
   const format = dataset.format?.toLowerCase();
+  const merge = (obj1: any, obj2: any): any => {
+    const merged = cloneDeep(obj1);
+    mergeWith(merged, obj2, (mergedValue, obj2Value) => {
+      if (isObject(mergedValue)) {
+        return merge(mergedValue, obj2Value);
+      }
+      return obj2Value !== undefined ? obj2Value : mergedValue;
+    });
+    return merged;
+  };
   return {
     type: "simple",
     title: dataset.name,
@@ -592,71 +631,71 @@ function createLayer(dataset: DataCatalogItem, overrides?: any) {
       ...(overrides?.data || {}),
     },
     visible: true,
-    infobox: [
-      "bldg",
-      "tran",
-      "frn",
-      "veg",
-      "luse",
-      "lsld",
-      "urf",
-      "fld",
-      "htd",
-      "tnm",
-      "ifld",
-    ].includes(dataset.type_en)
-      ? {
-          blocks: [
-            {
-              pluginId: reearth.plugins.instances.find(
-                (i: PluginExtensionInstance) => i.name === "plateau-plugin",
-              ).pluginId,
-              extensionId: "infobox",
+    infobox: lodashMerge(
+      ["bldg", "tran", "frn", "veg", "luse", "lsld", "urf", "fld", "htd", "tnm", "ifld"].includes(
+        dataset.type_en,
+      )
+        ? {
+            blocks: [
+              {
+                pluginId: reearth.plugins.instances.find(
+                  (i: PluginExtensionInstance) => i.name === "plateau-plugin",
+                ).pluginId,
+                extensionId: "infobox",
+              },
+            ],
+            property: {
+              default: {
+                bgcolor: "#d9d9d9ff",
+                heightType: "auto",
+                showTitle: false,
+                size: "medium",
+              },
             },
-          ],
-          property: {
-            default: {
-              bgcolor: "#d9d9d9ff",
-              heightType: "auto",
-              showTitle: false,
-              size: "medium",
-            },
-          },
-        }
-      : null,
+          }
+        : {},
+      overrides?.infobox ?? {},
+      infoboxGlobal,
+    ),
     ...(overrides !== undefined
-      ? omit(overrides, "data")
-      : format === "geojson"
-      ? {
-          marker: {
-            style: "point",
-            pointSize: 10,
-            pointColor: "white",
-            heightReference: "clamp",
-          },
-          polygon: {
-            fill: false,
-            stroke: true,
-            strokeWidth: 5,
-            heightReference: "clamp",
-          },
-          polyline: {
-            clampToGround: true,
-          },
-        }
+      ? merge(defaultOverrides, omit(overrides, ["data", "infobox"]))
+      : format === "geojson" || format === "czml"
+      ? defaultOverrides
       : format === "gtfs"
       ? proxyGTFS(overrides)
       : format === "mvt"
       ? {
           polygon: {},
         }
-      : format === "czml"
+      : format === "wms"
       ? {
-          resource: {},
-          marker: { heightReference: "clamp" },
-          polyline: { clampToGround: true },
-          polygon: { clampToGround: true },
+          raster: {
+            alpha: 0.8,
+          },
         }
-      : { ...(overrides ?? {}) }),
+      : { ...(omit(overrides, ["data", "infobox"]) ?? {}) }),
   };
 }
+
+const infoboxGlobal = {
+  property: {
+    default: {
+      unselectOnClose: true,
+    },
+  },
+};
+
+const defaultOverrides = {
+  resource: {
+    clampToGround: true,
+  },
+  marker: {
+    heightReference: "clamp",
+  },
+  polygon: {
+    heightReference: "clamp",
+  },
+  polyline: {
+    clampToGround: true,
+  },
+};

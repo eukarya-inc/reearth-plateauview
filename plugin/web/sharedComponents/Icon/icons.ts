@@ -73,8 +73,12 @@ import { ReactComponent as MouseMiddleButton } from "./Icons/mouseMiddleButton.s
 import { ReactComponent as MouseLeftButton } from "./Icons/mouseLeftButton.svg";
 import { ReactComponent as MouseRightButton } from "./Icons/mouseRightButton.svg";
 import { ReactComponent as GearWheel } from "./Icons/gearWheel.svg";
+import { ReactComponent as ExternalLink } from "./Icons/externalLink.svg";
 
 // Ant Design Icons
+import { HolderOutlined } from "@ant-design/icons";
+import { PlayCircleFilled } from "@ant-design/icons";
+
 export { InboxOutlined } from "@ant-design/icons";
 
 export default {
@@ -150,4 +154,7 @@ export default {
   mouseLeftButton: MouseLeftButton,
   mouseRightButton: MouseRightButton,
   gearWheel: GearWheel,
+  holder: HolderOutlined,
+  playCircle: PlayCircleFilled,
+  externalLink: ExternalLink,
 };

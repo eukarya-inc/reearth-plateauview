@@ -14,7 +14,24 @@ export default () => {
   const [addedDatasetDataIDs, setAddedDatasetDataIDs] = useState<string[]>();
   const [catalog, setCatalog] = useState<DataCatalogItem[]>([]);
   const [inEditor, setEditorState] = useState(false);
+  const [selectedDatasetID, setDatasetID] = useState<string>();
+  const [selectedItem, selectItem] = useState<DataCatalogItem>();
+  const [expandedFolders, setExpandedFolders] = useState<{ id?: string; name?: string }[]>([]);
+  const [searchTerm, setSearchTerm] = useState("");
   const [filter, setFilter] = useState<GroupBy>("city");
+
+  const handleSearch = useCallback(({ target: { value } }: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(value);
+    postMsg({ action: "saveSearchTerm", payload: { searchTerm: value } });
+  }, []);
+
+  const handleSelect = useCallback((item?: DataCatalogItem) => {
+    selectItem(item);
+  }, []);
+
+  const handleOpenDetails = useCallback((data?: DataCatalogItem) => {
+    setDatasetID(data?.dataID);
+  }, []);
 
   const handleClose = useCallback(() => {
     postMsg({ action: "modalClose" });
@@ -25,14 +42,14 @@ export default () => {
   }, []);
 
   const handleDatasetAdd = useCallback(
-    (dataset: DataCatalogItem | UserDataItem) => {
+    (dataset: DataCatalogItem | UserDataItem, keepModalOpen?: boolean) => {
       postMsg({
         action: "msgFromModal",
         payload: {
           dataset,
         },
       });
-      handleClose();
+      if (!keepModalOpen) handleClose();
     },
     [handleClose],
   );
@@ -59,18 +76,41 @@ export default () => {
       if (e.source !== parent) return;
       if (e.data.action === "initDataCatalog") {
         setAddedDatasetDataIDs(e.data.payload.addedDatasets);
-        setCatalog(e.data.payload.dataCatalog);
+        setCatalog(e.data.payload.catalog);
         setEditorState(e.data.payload.inEditor);
-        handleTreeTabChange(e.data.payload.currentTreeTab);
-      } else if (e.data.action === "updateCatalog") {
-        setCatalog(e.data.payload);
+        if (e.data.payload.currentTreeTab) handleTreeTabChange(e.data.payload.currentTreeTab);
+        if (e.data.payload.searchTerm) setSearchTerm(e.data.payload.searchTerm);
+        if (e.data.payload.expandedFolders) setExpandedFolders(e.data.payload.expandedFolders);
+        if (e.data.payload.dataset) {
+          const item = e.data.payload.dataset;
+          handleOpenDetails(item);
+          handleSelect(item);
+          if (item.path) {
+            setExpandedFolders(
+              item.path
+                .map((item: string) => ({ name: item }))
+                .filter((folder: { name?: string }) => folder.name !== item.name),
+            );
+          }
+          postMsg({
+            action: "saveDataset",
+            payload: { dataset: undefined },
+          });
+        }
+      } else if (e.data.action === "updateDataCatalog") {
+        if (e.data.payload.updatedCatalog) {
+          setCatalog(e.data.payload.updatedCatalog);
+        }
+        if (e.data.payload.updatedDatasetDataIDs) {
+          setAddedDatasetDataIDs(e.data.payload.updatedDatasetDataIDs);
+        }
       }
     };
     addEventListener("message", eventListenerCallback);
     return () => {
       removeEventListener("message", eventListenerCallback);
     };
-  }, [handleTreeTabChange]);
+  }, [handleOpenDetails, handleSelect, handleTreeTabChange]);
 
   return {
     currentTab,
@@ -78,7 +118,15 @@ export default () => {
     catalog,
     addedDatasetDataIDs,
     inEditor,
+    selectedDatasetID,
+    selectedItem,
+    expandedFolders,
+    searchTerm,
     filter,
+    setExpandedFolders,
+    handleSearch,
+    handleSelect,
+    handleOpenDetails,
     handleFilter,
     handleClose,
     handleTabChange: changeTabs,

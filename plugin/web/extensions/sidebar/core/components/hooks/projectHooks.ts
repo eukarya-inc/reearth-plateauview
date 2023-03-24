@@ -32,7 +32,7 @@ export const defaultProject: Project = {
         height: 2219.7187259974316,
       },
       sceneMode: "3d",
-      depthTestAgainstTerrain: false,
+      depthTestAgainstTerrain: true,
     },
     terrain: {
       terrain: true,
@@ -43,8 +43,14 @@ export const defaultProject: Project = {
     },
     tiles: [
       {
-        id: "tokyo",
+        id: "tokyo_1",
         tile_url: "https://cyberjapandata.gsi.go.jp/xyz/seamlessphoto/{z}/{x}/{y}.jpg",
+        tile_type: "url",
+      },
+      {
+        id: "tokyo_2",
+        tile_url:
+          "https://gic-plateau.s3.ap-northeast-1.amazonaws.com/2020/ortho/tiles/{z}/{x}/{y}.png",
         tile_type: "url",
       },
     ],
@@ -69,7 +75,7 @@ export default ({
 }) => {
   const [projectID, setProjectID] = useState<string>();
   const [project, updateProject] = useState<Project>(defaultProject);
-  const [cleanseOverride, setCleanseOverride] = useState<string>();
+  const [cleanseOverride, setCleanseOverride] = useState<any>();
 
   const processOverrides = useCallback(
     (dataset: DataCatalogItem, activeIDs?: string[]) => {
@@ -131,16 +137,20 @@ export default ({
               id: generateID(),
               type: "template",
               templateID: defaultTemplate.id,
-              components: defaultTemplate.components,
+              userSettings: {
+                components: defaultTemplate.components,
+              },
             },
           ];
         }
       }
 
       updateProject(project => {
+        const datasets = [...project.datasets];
+        datasets.unshift(datasetToAdd);
         const updatedProject: Project = {
           ...project,
-          datasets: [...project.datasets, datasetToAdd],
+          datasets,
         };
 
         postMsg({ action: "updateProject", payload: updatedProject });
@@ -191,6 +201,17 @@ export default ({
       return updatedProject;
     });
     postMsg({ action: "removeAllDatasetsFromScene" });
+  }, []);
+
+  const handleProjectDatasetsUpdate = useCallback((datasets: DataCatalogItem[]) => {
+    updateProject(({ sceneOverrides }) => {
+      const updatedProject = {
+        sceneOverrides,
+        datasets,
+      };
+      postMsg({ action: "updateProject", payload: updatedProject });
+      return updatedProject;
+    });
   }, []);
 
   const handleOverride = useCallback(
@@ -288,6 +309,7 @@ export default ({
     handleProjectDatasetAdd,
     handleProjectDatasetRemove,
     handleProjectDatasetRemoveAll,
+    handleProjectDatasetsUpdate,
     handleStorySaveData,
     handleOverride,
   };

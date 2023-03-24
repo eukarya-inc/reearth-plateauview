@@ -14,10 +14,19 @@ type Props = {
   addedDatasetDataIDs?: string[];
   isMobile?: boolean;
   catalogData?: DataCatalogItem[];
-  onDatasetAdd: (dataset: DataCatalogItem | UserDataItem) => void;
+  searchTerm: string;
+  onSearch: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onDatasetAdd: (dataset: DataCatalogItem | UserDataItem, keepModalOpen?: boolean) => void;
 };
 
-const Catalog: React.FC<Props> = ({ addedDatasetDataIDs, isMobile, catalogData, onDatasetAdd }) => {
+const Catalog: React.FC<Props> = ({
+  addedDatasetDataIDs,
+  isMobile,
+  catalogData,
+  searchTerm,
+  onSearch,
+  onDatasetAdd,
+}) => {
   const [selectedDataset, setDataset] = useState<DataCatalogItem>();
   const [filter, setFilter] = useState<GroupBy>("city");
   const [currentTreeTab, changeTreeTab] = useState<TreeTab>("city");
@@ -66,6 +75,9 @@ const Catalog: React.FC<Props> = ({ addedDatasetDataIDs, isMobile, catalogData, 
             currentTreeTab={currentTreeTab}
             filter={filter}
             addDisabled={addDisabled}
+            searchTerm={searchTerm}
+            onSearch={onSearch}
+            onFilter={handleFilter}
             onTreeTabChange={handleTreeTabChange}
             onOpenDetails={handleOpenDetails}
             onDatasetAdd={onDatasetAdd}

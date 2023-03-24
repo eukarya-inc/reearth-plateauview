@@ -47,6 +47,7 @@ type PlateauItem struct {
 	DescriptionHtd  []string           `json:"description_htd"`
 	DescriptionLfld []string           `json:"description_lfld"`
 	DescriptionTnm  []string           `json:"description_tnm"`
+	DescriptionBrid string             `json:"description_brid"`
 	Bldg            []*cms.PublicAsset `json:"bldg"`
 	Tran            []*cms.PublicAsset `json:"tran"`
 	Frn             []*cms.PublicAsset `json:"frn"`
@@ -58,6 +59,7 @@ type PlateauItem struct {
 	Htd             []*cms.PublicAsset `json:"htd"`
 	Ifld            []*cms.PublicAsset `json:"ifld"`
 	Tnm             []*cms.PublicAsset `json:"tnm"`
+	Brid            []*cms.PublicAsset `json:"brid"`
 	Dictionary      *cms.PublicAsset   `json:"dictionary"`
 	Dic             string             `json:"dic"`
 	SearchIndex     []*cms.PublicAsset `json:"search_index"`
@@ -70,7 +72,7 @@ func (i PlateauItem) FrnItem(c PlateauIntermediateItem) *DataCatalogItem {
 	}
 
 	a := i.Frn[0]
-	return c.DataCatalogItem("都市設備モデル", AssetNameFrom(a.URL), a.URL, i.DescriptionFrn, nil)
+	return c.DataCatalogItem("都市設備モデル", AssetNameFrom(a.URL), a.URL, i.DescriptionFrn, nil, false)
 }
 
 func (i PlateauItem) VegItem(c PlateauIntermediateItem) *DataCatalogItem {
@@ -79,7 +81,7 @@ func (i PlateauItem) VegItem(c PlateauIntermediateItem) *DataCatalogItem {
 	}
 
 	a := i.Veg[0]
-	return c.DataCatalogItem("植生モデル", AssetNameFrom(a.URL), a.URL, i.DescriptionVeg, nil)
+	return c.DataCatalogItem("植生モデル", AssetNameFrom(a.URL), a.URL, i.DescriptionVeg, nil, false)
 }
 
 func (i PlateauItem) LuseItem(c PlateauIntermediateItem) *DataCatalogItem {
@@ -88,7 +90,7 @@ func (i PlateauItem) LuseItem(c PlateauIntermediateItem) *DataCatalogItem {
 	}
 
 	a := i.Luse[0]
-	return c.DataCatalogItem("土地利用モデル", AssetNameFrom(a.URL), a.URL, i.DescriptionLuse, []string{"luse"})
+	return c.DataCatalogItem("土地利用モデル", AssetNameFrom(a.URL), a.URL, i.DescriptionLuse, []string{"luse"}, false)
 }
 
 func (i PlateauItem) LsldItem(c PlateauIntermediateItem) *DataCatalogItem {
@@ -97,7 +99,7 @@ func (i PlateauItem) LsldItem(c PlateauIntermediateItem) *DataCatalogItem {
 	}
 
 	a := i.Lsld[0]
-	return c.DataCatalogItem("土砂災害警戒区域モデル", AssetNameFrom(a.URL), a.URL, i.DescriptionLsld, []string{"lsld"})
+	return c.DataCatalogItem("土砂災害警戒区域モデル", AssetNameFrom(a.URL), a.URL, i.DescriptionLsld, []string{"lsld"}, false)
 }
 
 func (i PlateauItem) UrfItems(c PlateauIntermediateItem) []*DataCatalogItem {
@@ -107,7 +109,7 @@ func (i PlateauItem) UrfItems(c PlateauIntermediateItem) []*DataCatalogItem {
 
 	return lo.Map(i.Urf, func(a *cms.PublicAsset, _ int) *DataCatalogItem {
 		an := AssetNameFrom(a.URL)
-		return c.DataCatalogItem("都市計画決定情報モデル", an, a.URL, descFromAsset(a, i.DescriptionUrf), []string{an.UrfFeatureType})
+		return c.DataCatalogItem("都市計画決定情報モデル", an, a.URL, descFromAsset(a, i.DescriptionUrf), []string{an.UrfFeatureType}, false)
 	})
 }
 
@@ -118,7 +120,7 @@ func (i PlateauItem) FldItems(c PlateauIntermediateItem) []*DataCatalogItem {
 
 	return lo.Map(i.Fld, func(a *cms.PublicAsset, _ int) *DataCatalogItem {
 		an := AssetNameFrom(a.URL)
-		dci := c.DataCatalogItem("洪水浸水想定区域モデル", an, a.URL, descFromAsset(a, i.DescriptionFld), nil)
+		dci := c.DataCatalogItem("洪水浸水想定区域モデル", an, a.URL, descFromAsset(a, i.DescriptionFld), nil, false)
 		dci.Name = fldName("洪水浸水想定区域モデル", i.CityName, an.FldName, c.Dic.Fld(an.FldName))
 		return dci
 	})
@@ -131,7 +133,7 @@ func (i PlateauItem) HtdItems(c PlateauIntermediateItem) []*DataCatalogItem {
 
 	return lo.Map(i.Htd, func(a *cms.PublicAsset, _ int) *DataCatalogItem {
 		an := AssetNameFrom(a.URL)
-		dci := c.DataCatalogItem("高潮浸水想定区域モデル", an, a.URL, descFromAsset(a, i.DescriptionHtd), nil)
+		dci := c.DataCatalogItem("高潮浸水想定区域モデル", an, a.URL, descFromAsset(a, i.DescriptionHtd), nil, false)
 		dci.Name = fldName("高潮浸水想定区域モデル", i.CityName, an.FldName, c.Dic.Htd(an.FldName))
 		return dci
 	})
@@ -144,7 +146,7 @@ func (i PlateauItem) IfldItems(c PlateauIntermediateItem) []*DataCatalogItem {
 
 	return lo.Map(i.Htd, func(a *cms.PublicAsset, _ int) *DataCatalogItem {
 		an := AssetNameFrom(a.URL)
-		dci := c.DataCatalogItem("内水浸水想定区域モデル", an, a.URL, descFromAsset(a, i.DescriptionHtd), nil)
+		dci := c.DataCatalogItem("内水浸水想定区域モデル", an, a.URL, descFromAsset(a, i.DescriptionHtd), nil, false)
 		dci.Name = fldName("内水浸水想定区域モデル", i.CityName, an.FldName, c.Dic.Ifld(an.FldName))
 		return dci
 	})
@@ -157,10 +159,19 @@ func (i PlateauItem) TnmItems(c PlateauIntermediateItem) []*DataCatalogItem {
 
 	return lo.Map(i.Tnm, func(a *cms.PublicAsset, _ int) *DataCatalogItem {
 		an := AssetNameFrom(a.URL)
-		dci := c.DataCatalogItem("津波浸水想定区域モデル", an, a.URL, descFromAsset(a, i.DescriptionTnm), nil)
+		dci := c.DataCatalogItem("津波浸水想定区域モデル", an, a.URL, descFromAsset(a, i.DescriptionTnm), nil, false)
 		dci.Name = fldName("津波浸水想定区域モデル", i.CityName, an.FldName, c.Dic.Tnm(an.FldName))
 		return dci
 	})
+}
+
+func (i PlateauItem) BridItem(c PlateauIntermediateItem) *DataCatalogItem {
+	if len(i.Brid) == 0 {
+		return nil
+	}
+
+	a := i.Brid[0]
+	return c.DataCatalogItem("橋梁モデル", AssetNameFrom(a.URL), a.URL, i.DescriptionBrid, nil, false)
 }
 
 func (i PlateauItem) DataCatalogItems() []DataCatalogItem {
@@ -170,7 +181,7 @@ func (i PlateauItem) DataCatalogItems() []DataCatalogItem {
 	}
 
 	return util.DerefSlice(lo.Filter(
-		append(append(append(append(append(append(
+		append(append(append(append(append(append(append(
 			i.BldgItems(c),
 			i.TranItem(c),
 			i.FrnItem(c),
@@ -181,7 +192,8 @@ func (i PlateauItem) DataCatalogItems() []DataCatalogItem {
 			i.FldItems(c)...),
 			i.TnmItems(c)...),
 			i.HtdItems(c)...),
-			i.IfldItems(c)...,
+			i.IfldItems(c)...),
+			i.BridItem(c),
 		),
 		func(i *DataCatalogItem, _ int) bool {
 			return i != nil
@@ -219,7 +231,7 @@ type PlateauIntermediateItem struct {
 	OpenDataURL string
 }
 
-func (i *PlateauIntermediateItem) DataCatalogItem(t string, an AssetName, assetURL, desc string, layers []string) *DataCatalogItem {
+func (i *PlateauIntermediateItem) DataCatalogItem(t string, an AssetName, assetURL, desc string, layers []string, firstWard bool) *DataCatalogItem {
 	if i == nil {
 		return nil
 	}
@@ -260,9 +272,14 @@ func (i *PlateauIntermediateItem) DataCatalogItem(t string, an AssetName, assetU
 	y, _ := strconv.Atoi(an.Year)
 	pref, prefCode := normalizePref(i.Prefecture)
 
+	var itemID string
+	if an.Feature == "bldg" && (an.WardCode == "" || firstWard) {
+		itemID = i.ID
+	}
+
 	return &DataCatalogItem{
 		ID:          id,
-		ItemID:      i.ID,
+		ItemID:      itemID,
 		Type:        t,
 		TypeEn:      an.Feature,
 		Type2:       t2,

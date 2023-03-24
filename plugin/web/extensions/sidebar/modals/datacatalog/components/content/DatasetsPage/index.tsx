@@ -14,9 +14,17 @@ export type Props = {
   currentTreeTab: TreeTab;
   addedDatasetDataIDs?: string[];
   inEditor?: boolean;
+  selectedDatasetID?: string;
+  selectedItem?: DataCatalogItem;
+  expandedFolders?: { id?: string; name?: string }[];
+  searchTerm: string;
+  setExpandedFolders?: React.Dispatch<React.SetStateAction<{ id?: string; name?: string }[]>>;
   filter: GroupBy;
+  onSearch: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onSelect?: (item?: DataCatalogItem) => void;
+  onOpenDetails?: (data?: DataCatalogItem) => void;
+  onDatasetAdd: (dataset: DataCatalogItem | UserDataItem, keepModalOpen?: boolean) => void;
   onFilter: (filter: GroupBy) => void;
-  onDatasetAdd: (dataset: DataCatalogItem | UserDataItem) => void;
   onDatasetPublish: (dataID: string, publish: boolean) => void;
   onTreeTabChange: (tab: TreeTab) => void;
 };
@@ -26,14 +34,26 @@ const DatasetsPage: React.FC<Props> = ({
   currentTreeTab,
   addedDatasetDataIDs,
   inEditor,
+  selectedDatasetID,
+  selectedItem,
+  expandedFolders,
+  searchTerm,
   filter,
+  setExpandedFolders,
+  onSearch,
+  onSelect,
+  onOpenDetails,
   onFilter,
   onDatasetAdd,
   onDatasetPublish,
   onTreeTabChange,
 }) => {
-  const [selectedDatasetID, setDatasetID] = useState<string>();
   const [selectedTags, selectTags] = useState<Tag[]>([]);
+  const [filter, setFilter] = useState<GroupBy>("city");
+
+  const handleFilter = useCallback((filter: GroupBy) => {
+    setFilter(filter);
+  }, []);
 
   const handleOpenDetails = useCallback((data?: DataCatalogItem) => {
     setDatasetID(data?.dataID);
@@ -71,10 +91,16 @@ const DatasetsPage: React.FC<Props> = ({
           currentTreeTab={currentTreeTab}
           selectedTags={selectedTags}
           filter={filter}
+          selectedItem={selectedItem}
+          expandedFolders={expandedFolders}
+          searchTerm={searchTerm}
+          setExpandedFolders={setExpandedFolders}
+          onSearch={onSearch}
+          onSelect={onSelect}
           addDisabled={addDisabled}
           onTagSelect={handleTagSelect}
-          onTreeTabChange={onTreeTabChange}
           onOpenDetails={handleOpenDetails}
+          onTreeTabChange={onTreeTabChange}
           onDatasetAdd={onDatasetAdd}
         />
       }

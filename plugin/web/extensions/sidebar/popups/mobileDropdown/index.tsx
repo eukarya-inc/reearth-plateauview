@@ -18,15 +18,19 @@ const MobileDropdown: React.FC = () => {
     catalog,
     project,
     loading,
+    templates,
     buildingSearch,
     reearthURL,
     backendURL,
     backendProjectName,
+    searchTerm,
+    handleSearch,
     handleDatasetSave,
     handleDatasetUpdate,
     handleProjectDatasetAdd,
     handleProjectDatasetRemove,
     handleProjectDatasetRemoveAll,
+    handleProjectDatasetsUpdate,
     handleProjectSceneUpdate,
     handleBuildingSearch,
   } = useHooks();
@@ -80,6 +84,8 @@ const MobileDropdown: React.FC = () => {
               addedDatasetDataIDs={addedDatasetDataIDs}
               isMobile
               catalogData={catalog}
+              searchTerm={searchTerm}
+              onSearch={handleSearch}
               onDatasetAdd={handleDatasetAdd}
             />
           ),
@@ -87,11 +93,13 @@ const MobileDropdown: React.FC = () => {
             <Selection
               selectedDatasets={project.datasets}
               savingDataset={loading}
+              templates={templates}
               buildingSearch={buildingSearch}
               onDatasetSave={handleDatasetSave}
               onDatasetUpdate={handleDatasetUpdate}
               onDatasetRemove={handleProjectDatasetRemove}
               onDatasetRemoveAll={handleProjectDatasetRemoveAll}
+              onProjectDatasetsUpdate={handleProjectDatasetsUpdate}
               onBuildingSearch={handleBuildingSearch}
               onSceneUpdate={handleProjectSceneUpdate}
             />

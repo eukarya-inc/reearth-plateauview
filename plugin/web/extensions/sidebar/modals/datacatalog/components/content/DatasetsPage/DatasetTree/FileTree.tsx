@@ -10,8 +10,12 @@ export type Props = {
   catalog: (DataCatalogItem | DataCatalogGroup)[];
   isMobile?: boolean;
   expandAll?: boolean;
+  selectedItem?: DataCatalogItem;
+  expandedFolders?: { id?: string; name?: string }[];
+  setExpandedFolders?: React.Dispatch<React.SetStateAction<{ id?: string; name?: string }[]>>;
+  onSelect?: (item?: DataCatalogItem) => void;
   addDisabled: (dataID: string) => boolean;
-  onDatasetAdd: (dataset: DataCatalogItem) => void;
+  onDatasetAdd: (dataset: DataCatalogItem, keepModalOpen?: boolean) => void;
   onOpenDetails?: (data?: DataCatalogItem) => void;
 };
 
@@ -20,6 +24,10 @@ const FileTree: React.FC<Props> = ({
   catalog,
   isMobile,
   expandAll,
+  selectedItem,
+  expandedFolders,
+  setExpandedFolders,
+  onSelect,
   addDisabled,
   onDatasetAdd,
   onOpenDetails,
@@ -79,12 +87,12 @@ const FileTree: React.FC<Props> = ({
           expandAll={expandAll}
           selectedID={selectedItem?.id}
           nestLevel={0}
-          expandedKeys={expandedKeys}
+          expandedFolders={expandedFolders}
           addDisabled={addDisabled}
           onDatasetAdd={onDatasetAdd}
           onOpenDetails={onOpenDetails}
-          onSelect={handleSelect}
-          setExpandedKeys={setExpandedKeys}
+          onSelect={onSelect}
+          setExpandedFolders={setExpandedFolders}
         />
       </Tree>
     </TreeWrapper>

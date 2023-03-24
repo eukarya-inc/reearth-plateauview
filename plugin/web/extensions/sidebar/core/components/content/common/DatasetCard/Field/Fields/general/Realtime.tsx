@@ -7,7 +7,7 @@ import { BaseFieldProps } from "../types";
 const Realtime: React.FC<BaseFieldProps<"realtime">> = ({ value, editMode, onUpdate }) => {
   const [intervalInSecond, setIntervalValue] = useState<number>(value.updateInterval ?? 30);
   const [timer, setTimer] = useState<string>("00:00:00");
-  const [enableUpdate, changeUpdateState] = useState<boolean>(value.userSettings.enabled ?? true);
+  const [enableUpdate, changeUpdateState] = useState<boolean>(value.userSettings?.enabled ?? true);
   const Ref = useRef<any>(null);
 
   const getTimeRemaining = useCallback((interval: number) => {
@@ -60,7 +60,11 @@ const Realtime: React.FC<BaseFieldProps<"realtime">> = ({ value, editMode, onUpd
 
   const isInitializedRef = useRef(false);
   const propagateRealTimeToLayer = useCallback(() => {
-    if (value.updateInterval === intervalInSecond && isInitializedRef.current) {
+    if (
+      value.updateInterval === intervalInSecond &&
+      value.userSettings?.enabled === enableUpdate &&
+      isInitializedRef.current
+    ) {
       return;
     }
 
@@ -123,12 +127,12 @@ const Realtime: React.FC<BaseFieldProps<"realtime">> = ({ value, editMode, onUpd
     <Wrapper>
       <Field gap={10}>
         <Icon icon="clock" size={24} />
-        <Text>Next data update in {timer}</Text>
+        <Text>次のデータ更新まであと {timer}</Text>
       </Field>
       <Field gap={10}>
         <SwitchWrapper>
           <Switch checked={enableUpdate} size="small" onChange={handleChangeupdateState} />
-          <Text>Enable Realtime Update</Text>
+          <Text>リアルタイム更新を有効にする</Text>
         </SwitchWrapper>
       </Field>
     </Wrapper>

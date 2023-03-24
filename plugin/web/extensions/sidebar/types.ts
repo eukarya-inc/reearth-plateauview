@@ -10,7 +10,7 @@ type ActionType =
   | "storageFetch"
   | "storageKeys"
   | "storageDelete"
-  | "updateCatalog"
+  | "updateDataCatalog"
   | "updateProject"
   | "screenshot"
   | "screenshotPreview"
@@ -23,6 +23,9 @@ type ActionType =
   | "updateDataset"
   | "catalogModalOpen"
   | "triggerCatalogOpen"
+  | "saveSearchTerm"
+  | "saveExpandedFolders"
+  | "saveDataset"
   | "triggerHelpOpen"
   | "mapModalOpen"
   | "clipModalOpen"
@@ -62,7 +65,9 @@ type ActionType =
   | "infoboxFieldsFetch"
   | "infoboxFieldsSaved"
   | "findLayerByDataID"
-  | "getOverriddenLayerByDataID";
+  | "getOverriddenLayerByDataID"
+  | "updateMVTRaster"
+  | "unselect";
 // FIXME(@keiya01): support auto csv field complement
 // | "getLocationNamesFromCSVFeatureProperty"
 

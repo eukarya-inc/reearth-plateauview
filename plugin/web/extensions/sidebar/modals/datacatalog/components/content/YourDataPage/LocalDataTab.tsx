@@ -55,14 +55,21 @@ const LocalDataTab: React.FC<Props> = ({ onOpenDetails, setSelectedLocalItem }) 
           // Catalog Item
           const filename = file.name;
           const id = "id" + Math.random().toString(16).slice(2);
-          const url = reader.result?.toString();
+          const url = (() => {
+            const content = reader.result?.toString();
+            if (!content) {
+              return;
+            }
+            return "data:text/plain;charset=UTF-8," + encodeURIComponent(content);
+          })();
           const item: UserDataItem = {
             type: "item",
             id: id,
             dataID: id,
             description:
-              "This file only exists in your browser. To share it, you must load it onto a public web server.",
+              "このファイルは今お使いのWebブラウザでのみ閲覧可能です。共有URLを用いて共有するには、公開Webサーバー上のデータを読み込む必要があります。",
             name: filename,
+            visible: true,
             url: url,
             format: setDataFormat(fileType, filename),
           };
@@ -73,7 +80,7 @@ const LocalDataTab: React.FC<Props> = ({ onOpenDetails, setSelectedLocalItem }) 
       );
 
       if (file) {
-        reader.readAsDataURL(file);
+        reader.readAsText(file, "UTF-8");
       }
 
       setFileList([...files]);

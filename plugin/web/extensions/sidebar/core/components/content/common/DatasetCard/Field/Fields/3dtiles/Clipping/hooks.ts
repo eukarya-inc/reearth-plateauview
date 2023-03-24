@@ -12,18 +12,20 @@ const useHooks = ({
   onUpdate,
 }: Pick<BaseFieldProps<"clipping">, "value" | "dataID" | "onUpdate">) => {
   const [options, setOptions] = useState<OptionsState["userSettings"]>({
-    enabled: value.userSettings.enabled,
-    show: value.userSettings.show,
-    aboveGroundOnly: value.userSettings.aboveGroundOnly,
-    direction: value.userSettings.direction,
+    enabled: !!value.userSettings?.enabled,
+    show: !!value.userSettings?.show || !!value.userSettings?.enabled,
+    aboveGroundOnly: !!value.userSettings?.aboveGroundOnly || !!value.userSettings?.enabled,
+    direction: value.userSettings?.direction ?? "inside",
   });
 
   const handleUpdate = useCallback(
     (tilesetProperty: any, boxProperty: any) => {
       onUpdate({
         ...value,
-        ...options,
-        override: { ["3dtiles"]: tilesetProperty, box: boxProperty },
+        userSettings: {
+          ...options,
+          override: { ["3dtiles"]: tilesetProperty, box: boxProperty },
+        },
       });
     },
     [onUpdate, value, options],
@@ -43,10 +45,23 @@ const useHooks = ({
   );
 
   const handleUpdateBool = useCallback(
-    (prop: keyof OptionsState["userSettings"]) => () => {
-      handleUpdateOptions(prop);
+    (prop: keyof OptionsState["userSettings"]) => (value: boolean) => {
+      if (prop === "enabled") {
+        setOptions({
+          ...options,
+          [prop]: value,
+          show: value,
+          aboveGroundOnly: value,
+          direction: "inside",
+        });
+      } else {
+        setOptions({
+          ...options,
+          [prop]: value,
+        });
+      }
     },
-    [handleUpdateOptions],
+    [options],
   );
 
   const handleUpdateSelect = useCallback(
