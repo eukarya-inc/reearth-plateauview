@@ -17,9 +17,9 @@ const MobileSidebar: React.FC<Props> = ({ className }) => {
     project,
     catalog,
     // inEditor,
-    // reearthURL,
-    // backendURL,
-    // backendProjectName,
+    reearthURL,
+    backendURL,
+    backendProjectName,
     // expandedFolders,
     templates,
     searchTerm,
@@ -68,6 +68,9 @@ const MobileSidebar: React.FC<Props> = ({ className }) => {
             catalog,
             searchTerm,
             // expandedFolders,
+            reearthURL,
+            backendURL,
+            backendProjectName,
           },
         });
       } else if (e.data.action === "triggerCatalogOpen") {

@@ -244,6 +244,10 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
       action,
       payload: reearth.scene.captureScreen(undefined, 0.01),
     });
+    reearth.popup.postMessage({
+      action,
+      payload: reearth.scene.captureScreen(undefined, 0.01),
+    });
   } else if (action === "msgFromModal") {
     reearth.ui.postMessage({ action, payload });
   } else if (action === "minimize") {
@@ -321,6 +325,7 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
     reearth.camera.lookAt(...payload);
   } else if (action === "getCurrentCamera") {
     reearth.ui.postMessage({ action, payload: reearth.camera.position });
+    reearth.popup.postMessage({ action, payload: reearth.camera.position });
   } else if (action === "checkIfMobile") {
     reearth.ui.postMessage({ action, payload: reearth.viewport.isMobile });
   } else if (action === "extendPopup") {
