@@ -73,7 +73,8 @@ type ActionType =
   | "mobileProjectDatasetsUpdate"
   | "mobileBuildingSearch"
   | "mobileProjectSceneUpdate"
-  | "mobileDatasetUpdate";
+  | "mobileDatasetUpdate"
+  | "updateMVTRaster";
 // FIXME(@keiya01): support auto csv field complement
 // | "getLocationNamesFromCSVFeatureProperty"
 
