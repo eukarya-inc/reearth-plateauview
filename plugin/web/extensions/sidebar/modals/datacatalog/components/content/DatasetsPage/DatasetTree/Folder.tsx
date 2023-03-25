@@ -85,7 +85,6 @@ const FolderItem = styled.div<{ nestLevel: number; selected?: boolean }>`
   justify-content: space-between;
   box-sizing: border-box;
   gap: 8px;
-  height: 29px;
 
   ${({ selected }) =>
     selected &&
