@@ -1,6 +1,7 @@
 package datacatalog
 
 import (
+	"fmt"
 	"path"
 	"regexp"
 	"strings"
@@ -29,6 +30,16 @@ type AssetName struct {
 	FldCategory    string
 	FldName        string
 	UrfFeatureType string
+}
+
+func (an AssetName) FldNameAndCategory() string {
+	if an.FldName == "" && an.FldCategory == "" {
+		return ""
+	}
+	if an.FldCategory == "" {
+		return an.FldName
+	}
+	return fmt.Sprintf("%s_%s", an.FldCategory, an.FldName)
 }
 
 func AssetNameFrom(name string) (a AssetName) {
@@ -68,7 +79,7 @@ func AssetNameFrom(name string) (a AssetName) {
 
 	if a.Feature == "urf" {
 		a.UrfFeatureType = a.Ex
-	} else if a.Feature == "fld" || a.Feature == "htd" || a.Feature == "ifld" || a.Feature == "tnm" {
+	} else if a.Feature == "fld" {
 		fldCategory, fldName, found := strings.Cut(a.Ex, "_")
 		if found {
 			a.FldCategory = fldCategory
@@ -76,6 +87,8 @@ func AssetNameFrom(name string) (a AssetName) {
 		} else {
 			a.FldName = a.Ex
 		}
+	} else if a.Feature == "htd" || a.Feature == "ifld" || a.Feature == "tnm" {
+		a.FldName = a.Ex
 	}
 
 	return
