@@ -30,8 +30,12 @@ const Folder: React.FC<Props> = ({
   );
 
   useEffect(() => {
-    open(() => !!expandedFolders?.find(findCb));
-  }, [expandedFolders, findCb, id, name]);
+    if (!!expandedFolders?.find(findCb) && !isOpen) {
+      open(true);
+    } else if (!expandedFolders?.find(findCb) && isOpen) {
+      open(false);
+    }
+  }, [expandedFolders, findCb, id, isOpen, name]);
 
   const handleExpand = useCallback(
     (folder: { id?: string; name?: string }) => {
