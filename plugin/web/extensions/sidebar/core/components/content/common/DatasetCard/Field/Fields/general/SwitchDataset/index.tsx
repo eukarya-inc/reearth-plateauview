@@ -26,6 +26,7 @@ const SwitchDataset: React.FC<BaseFieldProps<"switchDataset">> = ({
   const styleOptions = (
     <Menu
       selectable
+      selectedKeys={[selectedStyle]}
       items={Object.keys(uiStyles).map(key => {
         return {
           key: key,
