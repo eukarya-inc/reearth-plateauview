@@ -81,6 +81,7 @@ const PolylineColor: React.FC<BaseFieldProps<"polylineColor">> = ({
     };
   }, []);
 
+  const initialized = useRef(false);
   const [override, updateOverride] = useState<{ polyline: any }>(generateOverride(value.items));
   const valueRef = useRef(value);
   const itemsRef = useRef(items);
@@ -94,6 +95,11 @@ const PolylineColor: React.FC<BaseFieldProps<"polylineColor">> = ({
   }, [generateOverride, items]);
 
   useEffect(() => {
+    if (!initialized.current) {
+      initialized.current = true;
+      return;
+    }
+
     onUpdateRef.current({
       ...valueRef.current,
       items: itemsRef.current,
