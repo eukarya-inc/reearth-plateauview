@@ -32,7 +32,7 @@ export type Props = {
   onMoveDown?: (index: number) => void;
   onGroupsUpdate?: (fieldID: string) => (selectedGroupID?: string | undefined) => void;
   onCurrentGroupUpdate?: (fieldGroupID: string) => void;
-  onSceneUpdate?: (updatedProperties: Partial<ReearthApi>) => void;
+  onSceneUpdate: (updatedProperties: Partial<ReearthApi>) => void;
 };
 
 const getFieldGroup = (field: string) => {
@@ -143,6 +143,7 @@ const FieldComponent: React.FC<Props> = ({
       dataID={dataID}
       onUpdate={onUpdate?.(field.id)}
       onCurrentGroupUpdate={onCurrentGroupUpdate}
+      onSceneUpdate={onSceneUpdate}
     />
   ) : (
     <AccordionComponent
