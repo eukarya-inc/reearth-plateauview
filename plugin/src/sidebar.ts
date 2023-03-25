@@ -51,6 +51,9 @@ const defaultProject: Project = {
       },
     ],
     atmosphere: { shadows: true },
+    light: {
+      type: "directionalLight",
+    },
   },
   datasets: [],
   userStory: undefined,

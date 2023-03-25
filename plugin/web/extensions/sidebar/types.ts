@@ -114,6 +114,14 @@ export type ReearthApi = {
     start?: string;
     stop?: string;
   };
+  light?: {
+    type?: "sunLight" | "directionalLight";
+    direction_x?: number;
+    direction_y?: number;
+    direction_z?: number;
+    color?: string;
+    intensity?: number;
+  };
 };
 
 type SceneMode = "3d" | "2d";
