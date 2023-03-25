@@ -83,7 +83,6 @@ const Wrapper = styled.div`
   flex-direction: column;
   justify-content: center;
   align-items: center;
-
   background: rgba(0, 0, 0, 0.7);
 `;
 
@@ -92,6 +91,7 @@ const InnerWrapper = styled.div<{ isMobile?: boolean }>`
   flex-direction: column;
   position: relative;
   width: ${({ isMobile }) => (isMobile ? "318px" : "742px")};
+  max-width: 100%;
 `;
 
 const Text = styled.p<{ weight: number; size: number }>`
@@ -159,6 +159,7 @@ const WelcomeCloseButton = styled(CloseButton)`
   position: absolute;
   right: ${({ isMobile }) => (isMobile ? "-48px" : "-40px")};
   top: ${({ isMobile }) => (isMobile ? "-48px" : "-40px")};
+  flex-grow: 1;
 `;
 
 const VideoCloseButton = styled(CloseButton)`
