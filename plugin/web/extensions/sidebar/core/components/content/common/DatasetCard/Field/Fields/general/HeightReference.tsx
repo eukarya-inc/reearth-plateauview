@@ -21,23 +21,26 @@ const HeightReference: React.FC<BaseFieldProps<"heightReference">> = ({
   );
 
   const handleEventTypeChange = useCallback(
-    (selectedProperty: "clamp" | "relative" | "none") => {
-      setHeightReferenceType(selectedProperty);
+    (selectedProperty: string) => {
+      const newHeightReferenceType = selectedProperty as "clamp" | "relative" | "none";
+
+      setHeightReferenceType(newHeightReferenceType);
+
       onUpdate({
         ...value,
-        heightReferenceType: selectedProperty,
+        heightReferenceType: newHeightReferenceType,
         override: {
           resource: {
-            clampToGround: selectedProperty === "clamp" ? true : false,
+            clampToGround: newHeightReferenceType === "clamp",
           },
           marker: {
-            heightReference: selectedProperty,
+            heightReference: newHeightReferenceType,
           },
           polygon: {
-            heightReference: selectedProperty,
+            heightReference: newHeightReferenceType,
           },
           polyline: {
-            clampToGround: selectedProperty === "clamp" ? true : false,
+            clampToGround: newHeightReferenceType === "clamp",
           },
         },
       });
