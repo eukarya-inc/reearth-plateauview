@@ -6,9 +6,9 @@ import { useCallback, useState } from "react";
 import { BaseFieldProps } from "../types";
 
 const heightReferenceOptions = [
-  { value: "clamp", label: "Clamp to ground" },
-  { value: "relative", label: "Relative to ground" },
-  { value: "none", label: "None" },
+  { value: "clamp", label: "地表に固定" },
+  { value: "relative", label: "地表からの高度" },
+  { value: "none", label: "なし" },
 ];
 
 const HeightReference: React.FC<BaseFieldProps<"heightReference">> = ({
@@ -51,7 +51,7 @@ const HeightReference: React.FC<BaseFieldProps<"heightReference">> = ({
   return editMode ? (
     <Wrapper>
       <Field
-        title="Display Style"
+        title="UIスタイル"
         titleWidth={88}
         noBorder
         value={
