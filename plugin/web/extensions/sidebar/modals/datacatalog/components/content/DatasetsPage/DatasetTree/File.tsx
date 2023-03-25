@@ -96,6 +96,7 @@ const NameWrapper = styled.div<{ isMobile?: boolean }>`
 `;
 
 const Name = styled.p`
+  width: 150px;
   margin: 0;
   user-select: none;
 `;
