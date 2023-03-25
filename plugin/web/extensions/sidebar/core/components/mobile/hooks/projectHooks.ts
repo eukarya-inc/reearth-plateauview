@@ -31,7 +31,7 @@ export const defaultProject: Project = {
         height: 2219.7187259974316,
       },
       sceneMode: "3d",
-      depthTestAgainstTerrain: true,
+      depthTestAgainstTerrain: false,
     },
     terrain: {
       terrain: true,
@@ -219,18 +219,17 @@ export default ({
   }, []);
 
   const handleOverride = useCallback(
-    (dataID: string, activeIDs?: string[]) => {
-      const dataset = project.datasets.find(d => d.dataID === dataID);
+    (dataset: DataCatalogItem, activeIDs?: string[]) => {
       if (dataset) {
         const overrides = processOverrides(dataset, activeIDs);
 
         postMsg({
           action: "updateDatasetInScene",
-          payload: { dataID, overrides },
+          payload: { dataID: dataset.dataID, overrides },
         });
       }
     },
-    [project.datasets, processOverrides],
+    [processOverrides],
   );
 
   const handleStorySaveData = useCallback(
@@ -309,12 +308,12 @@ export default ({
     updateProject,
     setProjectID,
     setCleanseOverride,
+    handleOverride,
     handleProjectSceneUpdate,
     handleProjectDatasetAdd,
     handleProjectDatasetRemove,
     handleProjectDatasetRemoveAll,
     handleProjectDatasetsUpdate,
     handleStorySaveData,
-    handleOverride,
   };
 };

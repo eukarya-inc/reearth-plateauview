@@ -1,4 +1,5 @@
 import { postMsg, generateID } from "@web/extensions/sidebar/utils";
+import { getActiveFieldIDs, getDefaultGroup } from "@web/extensions/sidebar/utils/dataset";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { Tab } from "..";
@@ -22,7 +23,6 @@ export default () => {
   const [backendURL, setBackendURL] = useState<string>();
   const [backendProjectName, setBackendProjectName] = useState<string>();
   const [buildingSearch, setBuildingSearch] = useState<BuildingSearch>([]);
-  // const [expandedFolders, setExpandedFolders] = useState<{ id?: string; name?: string }[]>([]);
 
   const [fieldTemplates, setFieldTemplates] = useState<Template[]>([]);
   const [infoboxTemplates, setInfoboxTemplates] = useState<Template[]>([]);
@@ -31,11 +31,6 @@ export default () => {
 
   const [catalogData, setCatalog] = useState<RawDataCatalogItem[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
-
-  const handleSearch = useCallback(({ target: { value } }: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchTerm(value);
-    postMsg({ action: "saveSearchTerm", payload: { searchTerm: value } });
-  }, []);
 
   const processedCatalog = useMemo(() => {
     const c = handleDataCatalogProcessing(catalogData, data);
@@ -60,13 +55,13 @@ export default () => {
     updateProject,
     setProjectID,
     setCleanseOverride,
+    handleOverride,
     handleProjectSceneUpdate,
     handleProjectDatasetAdd,
     handleProjectDatasetRemove,
     handleProjectDatasetRemoveAll,
     handleProjectDatasetsUpdate,
     handleStorySaveData,
-    handleOverride,
   } = useProjectHooks({
     fieldTemplates,
     backendURL,
@@ -77,8 +72,10 @@ export default () => {
 
   const handleDatasetUpdate = useCallback(
     (updatedDataset: DataCatalogItem, cleanseOverride?: any) => {
+      let updatedDatasets: DataCatalogItem[];
+
       updateProject?.(project => {
-        const updatedDatasets = [...project.datasets];
+        updatedDatasets = [...project.datasets];
         const datasetIndex = updatedDatasets.findIndex(d2 => d2.dataID === updatedDataset.dataID);
         if (datasetIndex >= 0) {
           if (updatedDatasets[datasetIndex].visible !== updatedDataset.visible) {
@@ -100,8 +97,18 @@ export default () => {
         postMsg({ action: "msgToPopup", payload: { project: updatedProject } });
         return updatedProject;
       });
+
+      const selectedGroup = getDefaultGroup(updatedDataset.components);
+
+      const activeIDs = getActiveFieldIDs(
+        updatedDataset.components,
+        selectedGroup,
+        updatedDataset.config?.data,
+      );
+
+      handleOverride?.(updatedDataset, activeIDs);
     },
-    [updateProject, setCleanseOverride],
+    [handleOverride, updateProject, setCleanseOverride],
   );
 
   // ****************************************
@@ -274,26 +281,15 @@ export default () => {
 
   return {
     selected,
-    catalog: processedCatalog,
     project,
-    inEditor,
+    catalog: processedCatalog,
+    templates: fieldTemplates,
     reearthURL,
     backendURL,
     backendProjectName,
-    templates: fieldTemplates,
-    buildingSearch,
     searchTerm,
+    buildingSearch,
     setSelected,
-    handleSearch,
-    handleDatasetUpdate,
-    handleProjectDatasetAdd,
-    handleProjectDatasetRemove,
-    handleProjectDatasetRemoveAll,
-    handleProjectDatasetsUpdate,
-    handleProjectSceneUpdate,
-    handleModalOpen,
-    handleBuildingSearch,
-    handleOverride,
   };
 };
 

@@ -70,7 +70,6 @@ const MobileDropdown: React.FC = () => {
   const handleDatasetAdd = useCallback(
     (dataset: DataCatalogItem | UserDataItem) => {
       postMsg({ action: "mobileDatasetAdd", payload: dataset });
-      console.log("dataset", dataset);
 
       changeTab("selection");
     },
@@ -82,8 +81,6 @@ const MobileDropdown: React.FC = () => {
       if (e.source !== parent) return null;
       if (e.data.action) {
         if (e.data.action === "msgToPopup" && e.data.payload) {
-          console.log("PAYLOAD", e.data.payload);
-          // setActiveDataIDs(e.data.payload.project);
           if (e.data.payload.selected) setCurrentTab(e.data.payload.selected);
           if (e.data.payload.templates) setTemplates(e.data.payload.templates);
           if (e.data.payload.project) setProject(e.data.payload.project);

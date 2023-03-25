@@ -351,12 +351,21 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
     const { dataID } = payload;
     const layerID = addedDatasets.find(l => l[0] === dataID)?.[2];
     const overriddenLayer = reearth.layers.overridden.find((l: any) => l.id === layerID);
-    reearth.ui.postMessage({
-      action,
-      payload: {
-        overriddenLayer,
-      },
-    });
+    if (reearth.viewport.isMobile) {
+      reearth.popup.postMessage({
+        action,
+        payload: {
+          overriddenLayer,
+        },
+      });
+    } else {
+      reearth.ui.postMessage({
+        action,
+        payload: {
+          overriddenLayer,
+        },
+      });
+    }
   } else if (action === "updateMVTRaster") {
     const { layerId, maxzoom } = payload;
     reearth.layers.override(layerId, {

@@ -219,7 +219,7 @@ const DatasetCard: React.FC<Props> = ({
           ]
         : []),
     ],
-    [currentTab, dataset, onDatasetRemove, onBuildingSearch],
+    [currentTab, dataset, isMobile, onDatasetRemove, onBuildingSearch],
   );
 
   const handleTabChange: React.MouseEventHandler<HTMLParagraphElement> = useCallback(e => {
