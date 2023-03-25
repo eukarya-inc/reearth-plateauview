@@ -150,6 +150,7 @@ export default ({
   );
 
   const fieldComponentsList = generateFieldComponentsList({
+    dataset,
     onFieldAdd: handleFieldAdd,
   });
 
