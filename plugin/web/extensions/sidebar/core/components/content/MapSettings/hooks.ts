@@ -60,7 +60,7 @@ export default ({ overrides, onOverridesUpdate }: Props) => {
     } = {},
     terrain: { terrain: currentTerrain } = {},
     tiles: currentTiles,
-    light: { type: currentLightType } = {},
+    light: { lightType: currentLightType } = {},
   } = overrides;
 
   const currentView: ViewSelection = useMemo(
@@ -138,12 +138,18 @@ export default ({ overrides, onOverridesUpdate }: Props) => {
       currentLightType === "sunLight"
         ? {
             light: {
-              type: "directionalLight",
+              lightType: "directionalLight",
+              lightColor: "#e5f5ffff",
+              lightIntensity: 10,
+              lightDirectionX: 0.8,
+              lightDirectionY: -0.7,
+              lightDirectionZ: -0.1,
             },
           }
         : {
             light: {
-              type: "sunLight",
+              lightType: "sunLight",
+              lightIntensity: 2,
             },
           },
     );

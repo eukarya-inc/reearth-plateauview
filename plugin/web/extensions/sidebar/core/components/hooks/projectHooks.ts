@@ -56,7 +56,12 @@ export const defaultProject: Project = {
     ],
     atmosphere: { shadows: true },
     light: {
-      type: "directionalLight",
+      lightType: "directionalLight",
+      lightColor: "#e5f5ffff",
+      lightIntensity: 10,
+      lightDirectionX: 0.8,
+      lightDirectionY: -0.7,
+      lightDirectionZ: -0.1,
     },
   },
   datasets: [],
