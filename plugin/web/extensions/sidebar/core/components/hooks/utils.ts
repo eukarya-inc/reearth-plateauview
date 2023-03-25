@@ -59,17 +59,17 @@ export const mergeOverrides = (
       continue;
     }
     if (components[i].type === "switchDataset") {
-      const switchDatasetOverride =
-        (components[i] as any).userSettings?.override ?? action === "cleanse"
-          ? components[i].cleanseOverride
-          : {
-              data: {
-                url: components[i].cleanseOverride.data.url,
-                time: {
-                  updateClockOnLoad: true,
-                },
-              },
-            };
+      let switchDatasetOverride = {
+        data: {
+          url: components[i].cleanseOverride.data.url,
+          time: {
+            updateClockOnLoad: true,
+          },
+        },
+      };
+      const override = (components[i] as any)?.userSettings?.override;
+      if (override) switchDatasetOverride = override;
+      if (action === "cleanse") switchDatasetOverride = components[i].cleanseOverride;
       merge(overrides, switchDatasetOverride);
       continue;
     }
