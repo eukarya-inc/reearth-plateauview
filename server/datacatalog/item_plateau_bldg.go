@@ -2,6 +2,7 @@ package datacatalog
 
 import (
 	"fmt"
+	"strconv"
 
 	"github.com/eukarya-inc/reearth-plateauview/server/cms"
 	"github.com/samber/lo"
@@ -13,18 +14,30 @@ func (i PlateauItem) BldgItems(c PlateauIntermediateItem) []*DataCatalogItem {
 		return nil
 	}
 
+	firstCode := lo.Min(lo.Filter(lo.MapToSlice(assets, func(k string, v []*cms.PublicAsset) int {
+		if len(v) == 0 {
+			return 0
+		}
+		an := AssetNameFrom(v[0].URL)
+		wc, _ := strconv.Atoi(an.WardCode)
+		return wc
+	}), func(i int, _ int) bool { return i > 0 }))
+
 	return lo.Filter(lo.MapToSlice(assets, func(k string, v []*cms.PublicAsset) *DataCatalogItem {
 		s := BldgSetFrom(v)
 		if s == nil || s.MaxLOD.Texture == nil {
 			return nil
 		}
 
+		an := AssetNameFrom(s.MaxLOD.Texture.URL)
+		wc, _ := strconv.Atoi(an.WardCode)
 		dci := c.DataCatalogItem(
 			"建築物モデル",
-			AssetNameFrom(s.MaxLOD.Texture.URL),
+			an,
 			s.MaxLOD.Texture.URL,
 			i.DescriptionBldg,
 			nil,
+			firstCode > 0 && firstCode == wc,
 		)
 
 		if s.MaxLOD.LowTexture != nil {
