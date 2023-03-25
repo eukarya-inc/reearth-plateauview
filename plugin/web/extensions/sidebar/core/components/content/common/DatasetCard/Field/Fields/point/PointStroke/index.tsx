@@ -99,6 +99,7 @@ const PointStroke: React.FC<BaseFieldProps<"pointStroke">> = ({ value, editMode,
     };
   }, []);
 
+  const initialized = useRef(false);
   const [override, updateOverride] = useState<{ marker: any }>(generateOverride(value.items));
   const valueRef = useRef(value);
   const itemsRef = useRef(items);
@@ -112,6 +113,11 @@ const PointStroke: React.FC<BaseFieldProps<"pointStroke">> = ({ value, editMode,
   }, [generateOverride, items]);
 
   useEffect(() => {
+    if (!initialized.current) {
+      initialized.current = true;
+      return;
+    }
+
     onUpdateRef.current({
       ...valueRef.current,
       items: itemsRef.current,

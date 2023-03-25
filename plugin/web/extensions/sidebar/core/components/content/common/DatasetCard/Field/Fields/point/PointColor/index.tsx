@@ -78,6 +78,7 @@ const PointColor: React.FC<BaseFieldProps<"pointColor">> = ({ value, editMode, o
     };
   }, []);
 
+  const initialized = useRef(false);
   const [override, updateOverride] = useState<{ marker: any }>(generateOverride(value.pointColors));
   const valueRef = useRef(value);
   const itemsRef = useRef(pointColors);
@@ -91,6 +92,11 @@ const PointColor: React.FC<BaseFieldProps<"pointColor">> = ({ value, editMode, o
   }, [generateOverride, pointColors]);
 
   useEffect(() => {
+    if (!initialized.current) {
+      initialized.current = true;
+      return;
+    }
+
     onUpdateRef.current({
       ...valueRef.current,
       pointColors: itemsRef.current,
