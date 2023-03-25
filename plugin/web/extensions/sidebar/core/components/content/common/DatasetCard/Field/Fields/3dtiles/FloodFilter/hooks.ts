@@ -3,7 +3,11 @@ import { useCallback, useEffect, useState } from "react";
 
 import { BaseFieldProps } from "../../types";
 
-import { FEATURE_PROPERTY_NAME, FilteringField } from "./constants";
+import {
+  FEATURE_PROPERTY_NAME_RANK_CODE,
+  FEATURE_PROPERTY_NAME_RANK_ORG_CODE,
+  FilteringField,
+} from "./constants";
 import { useFloodFilter } from "./useFloodFilter";
 
 const useHooks = ({
@@ -21,41 +25,34 @@ const useHooks = ({
         ...value,
         userSettings: {
           ...value.userSettings,
+          rank: options.value,
           override: { ["3dtiles"]: property },
         },
       });
     },
-    [onUpdate, value],
+    [onUpdate, value, options.value],
   );
 
-  const handleUpdateRange = useCallback(
-    (v: number | number[]) => {
-      if (v && Array.isArray(v)) {
-        const range = v as [from: number, to: number];
-        setOptions(o => {
-          return {
-            ...o,
-            value: range,
-          };
-        });
-        onUpdate({
-          ...value,
-          userSettings: {
-            ...value.userSettings,
-            rank: range,
-          },
-        });
-      }
-    },
-    [value, onUpdate],
-  );
+  const handleUpdateRange = useCallback((v: number | number[]) => {
+    if (v && Array.isArray(v)) {
+      const range = v as [from: number, to: number];
+      setOptions(o => {
+        return {
+          ...o,
+          value: range,
+        };
+      });
+    }
+  }, []);
 
   useEffect(() => {
     const handleFilteringFields = (data: any) => {
       let tempOptions: typeof options = {};
       Object.entries(data?.properties || {}).forEach(([propertyKey, propertyValue]) => {
         if (
-          propertyKey === FEATURE_PROPERTY_NAME &&
+          [FEATURE_PROPERTY_NAME_RANK_CODE, FEATURE_PROPERTY_NAME_RANK_ORG_CODE].includes(
+            propertyKey,
+          ) &&
           propertyValue &&
           typeof propertyValue === "object" &&
           Object.keys(propertyValue).length
