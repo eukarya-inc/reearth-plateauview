@@ -28,7 +28,7 @@ const defaultProject: Project = {
         height: 2219.7187259974316,
       },
       sceneMode: "3d",
-      depthTestAgainstTerrain: true,
+      depthTestAgainstTerrain: false,
     },
     terrain: {
       terrain: true,
@@ -341,6 +341,7 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
     reearth.ui.postMessage({
       action,
       payload: {
+        dataID,
         layer: {
           id: layer.id,
           data: layer.data,
