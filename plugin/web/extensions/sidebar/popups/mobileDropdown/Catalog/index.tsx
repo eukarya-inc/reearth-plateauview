@@ -11,8 +11,21 @@ import PopupItem from "../sharedComponents/PopupItem";
 type Props = {
   addedDatasetDataIDs?: string[];
   isMobile?: boolean;
-  catalogData?: DataCatalogItem[];
   searchTerm: string;
+  expandedFolders?: {
+    id?: string | undefined;
+    name?: string | undefined;
+  }[];
+  catalog?: DataCatalogItem[];
+  selectedDataID?: React.MutableRefObject<string | undefined>;
+  setExpandedFolders?: React.Dispatch<
+    React.SetStateAction<
+      {
+        id?: string | undefined;
+        name?: string | undefined;
+      }[]
+    >
+  >;
   onSearch: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onDatasetAdd: (dataset: DataCatalogItem | UserDataItem, keepModalOpen?: boolean) => void;
 };
@@ -20,8 +33,11 @@ type Props = {
 const Catalog: React.FC<Props> = ({
   addedDatasetDataIDs,
   isMobile,
-  catalogData,
   searchTerm,
+  expandedFolders,
+  catalog,
+  selectedDataID,
+  setExpandedFolders,
   onSearch,
   onDatasetAdd,
 }) => {
@@ -49,6 +65,18 @@ const Catalog: React.FC<Props> = ({
     postMsg({ action: "extendPopup" });
   }, []);
 
+  useEffect(() => {
+    if (selectedDataID?.current) {
+      const selectedDataset = catalog?.find(c => c.dataID === selectedDataID.current);
+      handleOpenDetails(selectedDataset);
+      selectedDataID.current = undefined;
+    }
+  }, [selectedDataID, catalog, handleOpenDetails]);
+
+  useEffect(() => {
+    console.log("SD", selectedDataset);
+  }, [selectedDataset]);
+
   return (
     <Wrapper>
       {page === "catalog" && (
@@ -58,12 +86,14 @@ const Catalog: React.FC<Props> = ({
           </PopupItem>
           <DatasetTree
             addedDatasetDataIDs={addedDatasetDataIDs}
-            selectedDataset={selectedDataset}
+            selectedItem={selectedDataset}
             isMobile={isMobile}
-            catalog={catalogData}
+            catalog={catalog}
             filter={filter}
-            addDisabled={addDisabled}
             searchTerm={searchTerm}
+            expandedFolders={expandedFolders}
+            setExpandedFolders={setExpandedFolders}
+            addDisabled={addDisabled}
             onSearch={onSearch}
             onFilter={handleFilter}
             onOpenDetails={handleOpenDetails}
