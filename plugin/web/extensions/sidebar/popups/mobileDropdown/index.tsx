@@ -21,6 +21,8 @@ const MobileDropdown: React.FC = () => {
   const [expandedFolders, setExpandedFolders] = useState<{ id?: string; name?: string }[]>([]);
   const [buildingSearch, setBuildingSearch] = useState<BuildingSearch>([]);
 
+  const [catalog, setCatalog] = useState<DataCatalogItem[]>();
+
   const [reearthURL, setReearthURL] = useState<string>();
   const [backendURL, setBackendURL] = useState<string>();
   const [backendProjectName, setBackendProjectName] = useState<string>();
@@ -28,6 +30,12 @@ const MobileDropdown: React.FC = () => {
   useEffect(() => {
     postMsg({ action: "initPopup" });
   }, []);
+
+  useEffect(() => {
+    if (currentTab === "catalog" && !catalog) {
+      postMsg({ action: "initMobileCatalog" });
+    }
+  }, [currentTab, catalog]);
 
   const changeTab = useCallback(
     (tab: Tab) => {
@@ -90,6 +98,8 @@ const MobileDropdown: React.FC = () => {
           if (e.data.payload.backendURL) setBackendURL(e.data.payload.backendURL);
           if (e.data.payload.backendProjectName)
             setBackendProjectName(e.data.payload.backendProjectName);
+        } else if (e.data.action === "initMobileCatalog") {
+          if (e.data.payload) setCatalog(e.data.payload);
         }
       }
     };
@@ -114,6 +124,7 @@ const MobileDropdown: React.FC = () => {
               isMobile
               searchTerm={searchTerm}
               expandedFolders={expandedFolders}
+              catalog={catalog}
               setExpandedFolders={setExpandedFolders}
               onSearch={handleSearch}
               onDatasetAdd={handleDatasetAdd}

@@ -16,6 +16,7 @@ type Props = {
     id?: string | undefined;
     name?: string | undefined;
   }[];
+  catalog?: DataCatalogItem[];
   setExpandedFolders?: React.Dispatch<
     React.SetStateAction<
       {
@@ -33,12 +34,11 @@ const Catalog: React.FC<Props> = ({
   isMobile,
   searchTerm,
   expandedFolders,
+  catalog,
   setExpandedFolders,
   onSearch,
   onDatasetAdd,
 }) => {
-  const [catalog, setCatalog] = useState<DataCatalogItem[]>();
-
   const [selectedDataset, setDataset] = useState<DataCatalogItem>();
   const [filter, setFilter] = useState<GroupBy>("city");
   const [page, setPage] = useState<"catalog" | "details">("catalog");
@@ -62,25 +62,6 @@ const Catalog: React.FC<Props> = ({
   useEffect(() => {
     postMsg({ action: "extendPopup" });
   }, []);
-
-  useEffect(() => {
-    postMsg({ action: "initMobileCatalog" });
-  }, []);
-
-  useEffect(() => {
-    const eventListenerCallback = (e: any) => {
-      if (e.source !== parent) return null;
-      if (e.data.action) {
-        if (e.data.action === "initMobileCatalog") {
-          if (e.data.payload) setCatalog(e.data.payload);
-        }
-      }
-    };
-    (globalThis as any).addEventListener("message", eventListenerCallback);
-    return () => {
-      (globalThis as any).removeEventListener("message", eventListenerCallback);
-    };
-  });
 
   return (
     <Wrapper>
