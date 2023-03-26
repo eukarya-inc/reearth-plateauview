@@ -40,6 +40,7 @@ const DesktopSidebar: React.FC<Props> = ({ className }) => {
     handleModalOpen,
     handleBuildingSearch,
     handleOverride,
+    handleConfigDatasetSelect,
   } = useHooks();
 
   const [minimized, setMinimize] = useState(false);
@@ -95,6 +96,7 @@ const DesktopSidebar: React.FC<Props> = ({ className }) => {
                   onBuildingSearch={handleBuildingSearch}
                   onOverride={handleOverride}
                   onSceneUpdate={handleProjectSceneUpdate}
+                  onConfigDatasetSelect={handleConfigDatasetSelect}
                 />
               ),
               map: (

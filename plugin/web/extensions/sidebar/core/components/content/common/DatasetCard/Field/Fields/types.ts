@@ -222,6 +222,7 @@ type Template = FieldBase<"template"> & {
   userSettings: {
     components?: FieldComponent[];
     override?: any;
+    selected?: any;
   };
 };
 

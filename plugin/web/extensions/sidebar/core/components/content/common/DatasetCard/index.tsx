@@ -51,6 +51,7 @@ export type Props = {
   onBuildingSearch: (id: string) => void;
   onOverride?: (dataID: string, activeIDs?: string[]) => void;
   onSceneUpdate: (updatedProperties: Partial<ReearthApi>) => void;
+  onConfigDatasetSelect: (id: string, selectedDataset: any) => void;
 };
 const DatasetCard: React.FC<Props> = ({
   index,
@@ -67,6 +68,7 @@ const DatasetCard: React.FC<Props> = ({
   onBuildingSearch,
   onOverride,
   onSceneUpdate,
+  onConfigDatasetSelect,
 }) => {
   const [currentTab, changeTab] = useState<Tabs>("default");
 
@@ -89,6 +91,7 @@ const DatasetCard: React.FC<Props> = ({
     buildingSearch,
     onDatasetUpdate,
     onOverride,
+    onConfigDatasetSelect,
   });
   const readyMVTPosition = useRef<
     Promise<

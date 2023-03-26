@@ -15,6 +15,7 @@ export default ({
   buildingSearch,
   onDatasetUpdate,
   onOverride,
+  onConfigDatasetSelect,
 }: {
   dataset: DataCatalogItem;
   inEditor?: boolean;
@@ -22,6 +23,7 @@ export default ({
   buildingSearch?: BuildingSearch;
   onDatasetUpdate: (dataset: DataCatalogItem, cleanseOverride?: any) => void;
   onOverride?: (dataID: string, activeIDs?: string[]) => void;
+  onConfigDatasetSelect: (id: string, dataset: any) => void;
 }) => {
   const [selectedGroup, setGroup] = useState<string>();
   const [activeComponentIDs, setActiveIDs] = useState<string[] | undefined>();
@@ -92,8 +94,9 @@ export default ({
         ...dataset,
         components: newDatasetComponents,
       });
+      onConfigDatasetSelect?.(dataset.id, property?.userSettings?.selected);
     },
-    [dataset, onDatasetUpdate],
+    [dataset, onConfigDatasetSelect, onDatasetUpdate],
   );
 
   const handleFieldRemove = useCallback(
@@ -108,6 +111,8 @@ export default ({
 
       if (removedComponent.type === "switchGroup") {
         handleCurrentGroupUpdate(undefined);
+      } else if (removedComponent.type === "switchDataset") {
+        onConfigDatasetSelect?.(dataset.id, undefined);
       }
 
       let cleanseOverride: any = undefined;
@@ -128,7 +133,14 @@ export default ({
         cleanseOverride,
       );
     },
-    [dataset, inEditor, templates, onDatasetUpdate, handleCurrentGroupUpdate],
+    [
+      inEditor,
+      dataset,
+      onDatasetUpdate,
+      handleCurrentGroupUpdate,
+      onConfigDatasetSelect,
+      templates,
+    ],
   );
 
   const handleGroupsUpdate = useCallback(
@@ -170,6 +182,14 @@ export default ({
     },
     [dataset, onDatasetUpdate],
   );
+
+  useEffect(() => {
+    const id = dataset.id;
+    return () => {
+      // specifying null explicitly removes it from the map
+      onConfigDatasetSelect(id, null);
+    };
+  }, [dataset.id, onConfigDatasetSelect]);
 
   return {
     activeComponentIDs,

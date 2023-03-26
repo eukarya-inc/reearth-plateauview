@@ -19,6 +19,7 @@ type Props = {
   onProjectDatasetsUpdate: (datasets: DataCatalogItem[]) => void;
   onBuildingSearch: (id: string) => void;
   onSceneUpdate: (updatedProperties: Partial<ReearthApi>) => void;
+  onConfigDatasetSelect: (id: string, dataset: any) => void;
 };
 
 const Selection: React.FC<Props> = ({
@@ -33,6 +34,7 @@ const Selection: React.FC<Props> = ({
   onProjectDatasetsUpdate,
   onBuildingSearch,
   onSceneUpdate,
+  onConfigDatasetSelect,
 }) => {
   useEffect(() => {
     postMsg({ action: "extendPopup" });
@@ -55,6 +57,7 @@ const Selection: React.FC<Props> = ({
         onProjectDatasetsUpdate={onProjectDatasetsUpdate}
         onBuildingSearch={onBuildingSearch}
         onSceneUpdate={onSceneUpdate}
+        onConfigDatasetSelect={onConfigDatasetSelect}
       />
     </Wrapper>
   );

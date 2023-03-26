@@ -26,6 +26,7 @@ export type Props = {
   onBuildingSearch: (id: string) => void;
   onOverride?: (dataID: string, activeIDs?: string[]) => void;
   onSceneUpdate: (updatedProperties: Partial<ReearthApi>) => void;
+  onConfigDatasetSelect: (id: string, dataset: any) => void;
 };
 
 const Selection: React.FC<Props> = ({
@@ -44,6 +45,7 @@ const Selection: React.FC<Props> = ({
   onBuildingSearch,
   onOverride,
   onSceneUpdate,
+  onConfigDatasetSelect,
 }) => {
   const moveCard = useCallback(
     (dragIndex: number, hoverIndex: number) => {
@@ -83,6 +85,7 @@ const Selection: React.FC<Props> = ({
               onBuildingSearch={onBuildingSearch}
               onOverride={onOverride}
               onSceneUpdate={onSceneUpdate}
+              onConfigDatasetSelect={onConfigDatasetSelect}
             />
           ))}
         </DndProvider>

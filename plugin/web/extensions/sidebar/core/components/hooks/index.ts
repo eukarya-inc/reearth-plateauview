@@ -48,6 +48,7 @@ export default () => {
     handleTemplateAdd,
     handleTemplateSave,
     handleTemplateRemove,
+    handleConfigDatasetSelect,
   } = useTemplateHooks({
     backendURL,
     backendProjectName,
@@ -280,6 +281,7 @@ export default () => {
     handleModalOpen,
     handleBuildingSearch,
     handleOverride,
+    handleConfigDatasetSelect,
   };
 };
 

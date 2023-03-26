@@ -17,6 +17,7 @@ export default ({
   setLoading?: React.Dispatch<React.SetStateAction<boolean>>;
 }) => {
   const [fieldTemplates, setFieldTemplates] = useState<Template[]>([]);
+  const [currentConfigDatasetMap] = useState<Map<string, any>>(() => new Map());
 
   const handleTemplateAdd = useCallback(async () => {
     if (!backendURL || !backendProjectName || !backendAccessToken) return;
@@ -132,11 +133,11 @@ export default ({
 
   const handleInfoboxFieldsFetch = useCallback(
     (dataID: string) => {
-      let fields;
+      let fields: (Template & { fldInfo?: { title?: string; datasetName?: string } }) | undefined;
       const catalogItem = processedCatalog?.find(d => d.dataID === dataID);
       if (catalogItem) {
-        const name = catalogItem?.type;
-        const dataType = catalogItem?.type_en;
+        const name = catalogItem.type;
+        const dataType = catalogItem.type_en;
         fields = infoboxTemplates.find(ft => ft.type === "infobox" && ft.dataType === dataType) ?? {
           id: "",
           type: "infobox",
@@ -144,6 +145,8 @@ export default ({
           dataType,
           fields: [],
         };
+        const ccd = currentConfigDatasetMap.get(catalogItem.id);
+        fields.fldInfo = { title: catalogItem.name, datasetName: ccd?.name };
       }
 
       postMsg({
@@ -151,7 +154,7 @@ export default ({
         payload: fields,
       });
     },
-    [processedCatalog, infoboxTemplates],
+    [processedCatalog, infoboxTemplates, currentConfigDatasetMap],
   );
 
   const handleInfoboxFieldsSave = useCallback(
@@ -167,6 +170,18 @@ export default ({
     [handleInfoboxTemplateAdd, handleInfoboxTemplateSave],
   );
 
+  const handleConfigDatasetSelect = useCallback(
+    (id: string, d: any) => {
+      if (d) {
+        currentConfigDatasetMap.set(id, d);
+        // Since undefined is often called, the value will be erased from the map immediately if undefined is not ignored.
+      } else if (d === null) {
+        currentConfigDatasetMap.delete(id);
+      }
+    },
+    [currentConfigDatasetMap],
+  );
+
   return {
     fieldTemplates,
     infoboxTemplates,
@@ -177,5 +192,6 @@ export default ({
     handleTemplateRemove,
     handleInfoboxFieldsFetch,
     handleInfoboxFieldsSave,
+    handleConfigDatasetSelect,
   };
 };

@@ -92,6 +92,7 @@ const Template: React.FC<BaseFieldProps<"template">> = ({
         userSettings: {
           components: newComponents,
           override: fieldComponents?.[componentIndex].cleanseOverride,
+          selected: property?.userSettings?.selected,
         },
       });
     },
