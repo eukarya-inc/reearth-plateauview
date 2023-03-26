@@ -52,11 +52,11 @@ export function getAttributes(attributes: Json, mode?: "both" | "label" | "key")
 export function getRootFields(
   properties: Properties,
   dataType?: string,
-  fld?: { title: string; scale?: string },
+  fld?: { title?: string; datasetName?: string },
 ): any {
   return filterObjects({
     gml_id: get(properties, ["attributes", "gml:id"]),
-    ...name(properties, dataType, fld?.title, fld?.scale),
+    ...name(properties, dataType, fld?.title, fld?.datasetName),
     分類: get(properties, ["attributes", "bldg:class"]),
     用途: get(properties, ["attributes", "bldg:usage", 0]),
     住所: get(properties, ["attributes", "bldg:address"]),
@@ -134,14 +134,14 @@ export function name(
   properties: Properties,
   dataType?: string,
   title?: string,
-  scale?: string,
+  datasetName?: string,
 ): { name: string } | { 名称: string } | undefined {
   const gmlName = get(properties, ["attributes", "gml:name"]) as string | undefined;
 
   if (dataType && ["fld", "htd", "tnm", "ifld"].includes(dataType)) {
     if (title && gmlName && !isNaN(Number(gmlName))) {
       // 浸水想定区域データで、gml:nameが数字になってしまっているデータのためのワークアラウンド
-      const name = fldName(title, dataType, scale);
+      const name = fldName(title, dataType, datasetName);
       if (name) return { name };
     }
 
@@ -155,12 +155,9 @@ export function name(
 
 export function fldName(title: string, dataType: string, scale?: string): string {
   if (typeof title !== "string") return "";
-  return `${title
-    .replace(/^.+?浸水想定区域(モデル)? /, "")
-    .replaceAll(/（.+?）/g, "")
-    .replace(/津波浸水想定図$/, "")}${dataTypeJa[dataType] ?? ""}浸水想定${
-    dataType !== "tnm" ? "区域" : ""
-  }図${scale ? `【${scale}】` : ``}`;
+  return `${title.replace(/^.+?浸水想定区域(モデル)? /, "").replaceAll(/（.+?）/g, "")}${
+    dataType !== "tnm" ? `${dataTypeJa[dataType] ?? ""}浸水想定区域図` : ""
+  }${scale ? `【${scale}】` : ``}`;
 }
 
 function floodFields(properties: Properties): any {

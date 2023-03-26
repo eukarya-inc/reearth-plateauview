@@ -235,6 +235,8 @@ test("fldName", () => {
   expect(fldName("津波浸水想定区域モデル 宮城県津波浸水想定図（仙台市）", "tnm")).toBe(
     "宮城県津波浸水想定図",
   );
+
+  expect(fldName("津波浸水想定区域モデル 津波浸水想定（福山市）", "tnm")).toBe("津波浸水想定");
 });
 
 function flatKeys(obj: Json, parentKey?: string): string[] {
