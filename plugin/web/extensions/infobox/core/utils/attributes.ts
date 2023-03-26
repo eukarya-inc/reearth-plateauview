@@ -132,7 +132,7 @@ export function name(
   const gmlName = get(properties, ["attributes", "gml:name"]) as string | undefined;
 
   if (dataType && ["fld", "htd", "tnm", "ifld"].includes(dataType)) {
-    if (title && !isNaN(Number(gmlName))) {
+    if (title && gmlName && !isNaN(Number(gmlName))) {
       // 浸水想定区域データで、gml:nameが数字になってしまっているデータのためのワークアラウンド
       const name = fldName(title, dataType, scale);
       if (name) return { name };
@@ -148,9 +148,12 @@ export function name(
 
 export function fldName(title: string, dataType: string, scale?: string): string {
   if (typeof title !== "string") return "";
-  return `${title.replace(/^.+?区域(モデル)? /, "").replaceAll(/（.+?）/g, "")}${
-    dataTypeJa[dataType] ?? ""
-  }浸水想定区域図${scale ? `【${scale}】` : ``}`;
+  return `${title
+    .replace(/^.+?浸水想定区域(モデル)? /, "")
+    .replaceAll(/（.+?）/g, "")
+    .replace(/津波浸水想定図$/, "")}${dataTypeJa[dataType] ?? ""}浸水想定${
+    dataType !== "tnm" ? "区域" : ""
+  }図${scale ? `【${scale}】` : ``}`;
 }
 
 function floodFields(properties: Properties): any {

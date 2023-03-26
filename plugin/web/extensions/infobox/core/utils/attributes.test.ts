@@ -204,6 +204,13 @@ test("name", () => {
       "高潮浸水想定区域モデル 有明海沿岸（小城市）",
     ),
   ).toEqual({ name: "有明海沿岸高潮浸水想定区域図" });
+  expect(
+    name(
+      { attributes: { "gml:name": "" } },
+      "tnm",
+      "津波浸水想定区域モデル 宮城県津波浸水想定図（仙台市）",
+    ),
+  ).toBe(undefined);
 });
 
 test("fldName", () => {
@@ -217,6 +224,10 @@ test("fldName", () => {
 
   expect(fldName("高潮浸水想定区域モデル 有明海沿岸（小城市）", "htd")).toBe(
     "有明海沿岸高潮浸水想定区域図",
+  );
+
+  expect(fldName("津波浸水想定区域モデル 宮城県津波浸水想定図（仙台市）", "tnm")).toBe(
+    "宮城県津波浸水想定図",
   );
 });
 
