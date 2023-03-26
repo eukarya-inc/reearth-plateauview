@@ -14,6 +14,7 @@ const Template: React.FC<BaseFieldProps<"template">> = ({
   editMode,
   activeIDs,
   templates,
+  selectedGroup,
   configData,
   onUpdate,
   onCurrentGroupUpdate,
@@ -139,6 +140,7 @@ const Template: React.FC<BaseFieldProps<"template">> = ({
               activeIDs={activeIDs}
               isActive={!!activeIDs?.find(id => id === tc.id)}
               templates={templates}
+              selectedGroup={selectedGroup}
               configData={configData}
               onUpdate={handleFieldUpdate}
               onCurrentGroupUpdate={onCurrentGroupUpdate}
