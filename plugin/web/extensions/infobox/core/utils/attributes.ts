@@ -107,11 +107,18 @@ export function getRootFields(
     "建物利用現況（中分類）": get(properties, ["attributes", "uro:orgUsage"]),
     "建物利用現況（小分類）": get(properties, ["attributes", "uro:orgUsage2"]),
     "建物利用現況（詳細分類）": get(properties, ["attributes", "uro:detailedUsage"]),
+    建物ID: get(properties, ["attributes", "uro:BuildingIDAttribute", 0, "uro:buildingID"]),
     図上面積: get(properties, [
       "attributes",
       "uro:BuildingDetailAttribute",
       0,
       "uro:buildingRoofEdgeArea",
+    ]),
+    LOD1立ち上げに使用する高さ: get(properties, [
+      "attributes",
+      "uro:BuildingDataQualityAttribute",
+      0,
+      "uro:lod1HeightType",
     ]),
     ...floodFields(properties),
     土砂災害警戒区域: get(properties, [
