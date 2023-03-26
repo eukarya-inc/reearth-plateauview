@@ -66,7 +66,9 @@ export const mergeOverrides = (
           ? components[i].cleanseOverride
           : {
               data: {
-                url: components[i].cleanseOverride.data.url,
+                ...(components[i].cleanseOverride.data.url
+                  ? { url: components[i].cleanseOverride.data.url }
+                  : {}),
                 time: {
                   updateClockOnLoad: true,
                 },
