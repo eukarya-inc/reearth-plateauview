@@ -11,7 +11,6 @@ import PopupItem from "../sharedComponents/PopupItem";
 type Props = {
   addedDatasetDataIDs?: string[];
   isMobile?: boolean;
-  catalogData?: DataCatalogItem[];
   searchTerm: string;
   expandedFolders?: {
     id?: string | undefined;
@@ -32,13 +31,14 @@ type Props = {
 const Catalog: React.FC<Props> = ({
   addedDatasetDataIDs,
   isMobile,
-  catalogData,
   searchTerm,
   expandedFolders,
   setExpandedFolders,
   onSearch,
   onDatasetAdd,
 }) => {
+  const [catalog, setCatalog] = useState<DataCatalogItem[]>();
+
   const [selectedDataset, setDataset] = useState<DataCatalogItem>();
   const [filter, setFilter] = useState<GroupBy>("city");
   const [page, setPage] = useState<"catalog" | "details">("catalog");
@@ -63,6 +63,25 @@ const Catalog: React.FC<Props> = ({
     postMsg({ action: "extendPopup" });
   }, []);
 
+  useEffect(() => {
+    postMsg({ action: "initMobileCatalog" });
+  }, []);
+
+  useEffect(() => {
+    const eventListenerCallback = (e: any) => {
+      if (e.source !== parent) return null;
+      if (e.data.action) {
+        if (e.data.action === "initMobileCatalog") {
+          if (e.data.payload) setCatalog(e.data.payload);
+        }
+      }
+    };
+    (globalThis as any).addEventListener("message", eventListenerCallback);
+    return () => {
+      (globalThis as any).removeEventListener("message", eventListenerCallback);
+    };
+  });
+
   return (
     <Wrapper>
       {page === "catalog" && (
@@ -74,7 +93,7 @@ const Catalog: React.FC<Props> = ({
             addedDatasetDataIDs={addedDatasetDataIDs}
             selectedDataset={selectedDataset}
             isMobile={isMobile}
-            catalog={catalogData}
+            catalog={catalog}
             filter={filter}
             searchTerm={searchTerm}
             expandedFolders={expandedFolders}

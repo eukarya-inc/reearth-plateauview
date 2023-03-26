@@ -16,7 +16,6 @@ import Selection from "./Selection";
 const MobileDropdown: React.FC = () => {
   const [currentTab, setCurrentTab] = useState<Tab>();
   const [templates, setTemplates] = useState<Template[]>();
-  const [catalog, setCatalog] = useState<DataCatalogItem[]>([]);
   const [project, setProject] = useState<Project>(defaultProject);
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [expandedFolders, setExpandedFolders] = useState<{ id?: string; name?: string }[]>([]);
@@ -85,7 +84,6 @@ const MobileDropdown: React.FC = () => {
           if (e.data.payload.templates) setTemplates(e.data.payload.templates);
           if (e.data.payload.project) setProject(e.data.payload.project);
           if (e.data.payload.buildingSearch) setBuildingSearch(e.data.payload.buildingSearch);
-          if (e.data.payload.catalog) setCatalog(e.data.payload.catalog);
           if (e.data.payload.searchTerm) setSearchTerm(e.data.payload.searchTerm);
           if (e.data.payload.expandedFolders) setExpandedFolders(e.data.payload.expandedFolders);
           if (e.data.payload.reearthURL) setReearthURL(e.data.payload.reearthURL);
@@ -114,7 +112,6 @@ const MobileDropdown: React.FC = () => {
             <Catalog
               addedDatasetDataIDs={addedDatasetDataIDs}
               isMobile
-              catalogData={catalog}
               searchTerm={searchTerm}
               expandedFolders={expandedFolders}
               setExpandedFolders={setExpandedFolders}

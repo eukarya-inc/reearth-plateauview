@@ -397,6 +397,12 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
     action === "mobileBuildingSearch"
   ) {
     reearth.ui.postMessage({ action, payload });
+  } else if (action === "initMobileCatalog") {
+    if (payload) {
+      reearth.popup.postMessage({ action, payload });
+    } else {
+      reearth.ui.postMessage({ action, payload });
+    }
   }
 
   // ************************************************
