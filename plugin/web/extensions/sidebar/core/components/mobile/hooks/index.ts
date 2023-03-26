@@ -1,5 +1,5 @@
 import { postMsg, generateID } from "@web/extensions/sidebar/utils";
-import { getActiveFieldIDs, getDefaultGroup } from "@web/extensions/sidebar/utils/dataset";
+import { getActiveFieldIDs } from "@web/extensions/sidebar/utils/dataset";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { Tab } from "..";
@@ -98,11 +98,9 @@ export default () => {
         return updatedProject;
       });
 
-      const selectedGroup = getDefaultGroup(updatedDataset.components);
-
       const activeIDs = getActiveFieldIDs(
         updatedDataset.components,
-        selectedGroup,
+        updatedDataset.selectedGroup,
         updatedDataset.config?.data,
       );
 
