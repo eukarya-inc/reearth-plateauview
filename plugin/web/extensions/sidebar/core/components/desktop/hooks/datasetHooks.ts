@@ -3,9 +3,8 @@ import { mergeProperty, postMsg } from "@web/extensions/sidebar/utils";
 import { formatDateTime } from "@web/extensions/sidebar/utils/date";
 import { useCallback } from "react";
 
-import { Data, DataCatalogItem, Template } from "../../types";
-
-import { convertToData } from "./utils";
+import { Data, DataCatalogItem, Template } from "../../../types";
+import { convertToData } from "../../utils";
 
 export default ({
   data,
