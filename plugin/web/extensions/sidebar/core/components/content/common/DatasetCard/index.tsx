@@ -376,6 +376,7 @@ const DatasetCard: React.FC<Props> = ({
                   editMode={inEditor && currentTab === "edit"}
                   templates={templates}
                   configData={dataset.config?.data}
+                  selectedGroup={dataset.selectedGroup}
                   onUpdate={handleFieldUpdate}
                   onRemove={handleFieldRemove}
                   onMoveUp={handleMoveUp}

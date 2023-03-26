@@ -175,9 +175,6 @@ export type GroupItem = {
 export type SwitchGroup = FieldBase<"switchGroup"> & {
   title: string;
   groups: GroupItem[];
-  userSettings: {
-    selected?: GroupItem;
-  };
 };
 
 export type SwitchDataset = FieldBase<"switchDataset"> & {
@@ -440,6 +437,7 @@ export type BaseFieldProps<T extends keyof Fields> = {
   isActive?: boolean;
   activeIDs?: string[];
   templates?: TemplateType[];
+  selectedGroup?: string;
   configData?: ConfigData[];
   onUpdate: (property: Fields[T]) => void;
   onSceneUpdate: (updatedProperties: Partial<ReearthApi>) => void;

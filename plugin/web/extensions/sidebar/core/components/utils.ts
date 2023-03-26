@@ -124,6 +124,8 @@ export const handleDataCatalogProcessing = (
         ...item,
         ...savedData2,
         visible: true,
+        selectedGroup: (savedData2.components?.find(c => c.type === "switchGroup") as any)
+          ?.groups?.[0]?.fieldGroupID,
       };
     } else {
       return newItem(item);
