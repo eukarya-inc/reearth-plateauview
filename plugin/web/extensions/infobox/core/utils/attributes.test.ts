@@ -1,6 +1,6 @@
 import { expect, test, vi } from "vitest";
 
-import { attributesMap, getAttributes, getRootFields } from "./attributes";
+import { attributesMap, getAttributes, getRootFields, name, fldName } from "./attributes";
 import type { Json } from "./json";
 
 test("getAttributes", () => {
@@ -190,6 +190,34 @@ test("getRootFields", () => {
 
 test("attributesMap", () => {
   expect(attributesMap.get("ddd")).toBe("DDD");
+});
+
+test("name", () => {
+  expect(name({ attributes: { "gml:name": "aaaaaa" } }, "htd", "bbbbbb")).toEqual({
+    name: "aaaaaa",
+  });
+  expect(name({ attributes: { "gml:name": "01" } }, "bldg", "bbbbbb")).toEqual({ 名称: "01" });
+  expect(
+    name(
+      { attributes: { "gml:name": "01" } },
+      "htd",
+      "高潮浸水想定区域モデル 有明海沿岸（小城市）",
+    ),
+  ).toEqual({ name: "有明海沿岸高潮浸水想定区域図" });
+});
+
+test("fldName", () => {
+  expect(
+    fldName(
+      "洪水浸水想定区域モデル 芦田川水系芦田川（国管理区間）（福山市）",
+      "fld",
+      "想定最大規模",
+    ),
+  ).toBe("芦田川水系芦田川洪水浸水想定区域図【想定最大規模】");
+
+  expect(fldName("高潮浸水想定区域モデル 有明海沿岸（小城市）", "htd")).toBe(
+    "有明海沿岸高潮浸水想定区域図",
+  );
 });
 
 function flatKeys(obj: Json, parentKey?: string): string[] {

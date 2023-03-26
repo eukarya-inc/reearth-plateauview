@@ -49,12 +49,14 @@ export function getAttributes(attributes: Json, mode?: "both" | "label" | "key")
   }
 }
 
-export function getRootFields(properties: Properties, dataType?: string): any {
+export function getRootFields(
+  properties: Properties,
+  dataType?: string,
+  fld?: { title: string; scale?: string },
+): any {
   return filterObjects({
     gml_id: get(properties, ["attributes", "gml:id"]),
-    ...(dataType && ["fld", "htd", "tnm", "ifld"].includes(dataType)
-      ? { name: get(properties, ["attributes", "gml:name"]) }
-      : { 名称: get(properties, ["attributes", "gml:name"]) }),
+    ...name(properties, dataType, fld?.title, fld?.scale),
     分類: get(properties, ["attributes", "bldg:class"]),
     用途: get(properties, ["attributes", "bldg:usage", 0]),
     住所: get(properties, ["attributes", "bldg:address"]),
@@ -121,6 +123,36 @@ export function getRootFields(properties: Properties, dataType?: string): any {
   });
 }
 
+export function name(
+  properties: Properties,
+  dataType?: string,
+  title?: string,
+  scale?: string,
+): { name: string } | { 名称: string } | undefined {
+  const gmlName = get(properties, ["attributes", "gml:name"]) as string | undefined;
+
+  if (dataType && ["fld", "htd", "tnm", "ifld"].includes(dataType)) {
+    if (title && !isNaN(Number(gmlName))) {
+      // 浸水想定区域データで、gml:nameが数字になってしまっているデータのためのワークアラウンド
+      const name = fldName(title, dataType, scale);
+      if (name) return { name };
+    }
+
+    if (gmlName) return { name: gmlName };
+    return;
+  }
+
+  if (gmlName) return { 名称: gmlName };
+  return;
+}
+
+export function fldName(title: string, dataType: string, scale?: string): string {
+  if (typeof title !== "string") return "";
+  return `${title.replace(/^.+?区域(モデル)? /, "").replaceAll(/（.+?）/g, "")}${
+    dataTypeJa[dataType] ?? ""
+  }浸水想定区域図${scale ? `【${scale}】` : ``}`;
+}
+
 function floodFields(properties: Properties): any {
   const fld = get(properties, ["attributes", "uro:BuildingRiverFloodingRiskAttribute"]) as
     | BuildingRiverFloodingRiskAttribute[]
@@ -172,4 +204,11 @@ type BuildingRiverFloodingRiskAttribute = {
   "uro:rank_code"?: string; // 浸水ランクコード
   "uro:rankOrg"?: string; // 浸水ランク（独自分類）
   "uro:rankOrg_code"?: string; // 浸水ランクコード（独自分類）
+};
+
+const dataTypeJa: Record<string, string> = {
+  fld: "洪水",
+  tnm: "津波",
+  htd: "高潮",
+  ifld: "内水",
 };
