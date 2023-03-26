@@ -18,6 +18,7 @@ export const generalFieldName = {
   template: "テンプレート",
   eventField: "イベント",
   infoboxStyle: "インフォボックス スタイル",
+  heightReference: "高さ基準",
 };
 
 export const pointFieldName = {
@@ -77,6 +78,7 @@ export type FieldComponent =
   | SwitchVisibility
   | EventField
   | InfoboxStyle
+  | HeightReference
   | Template
   | PointColor
   | PointColorGradient
@@ -230,6 +232,10 @@ type EventField = FieldBase<"eventField"> & {
 
 type InfoboxStyle = FieldBase<"infoboxStyle"> & {
   displayStyle: "attributes" | "description" | null;
+};
+
+type HeightReference = FieldBase<"heightReference"> & {
+  heightReferenceType: "clamp" | "relative" | "none";
 };
 
 export type PointColor = FieldBase<"pointColor"> & {
@@ -400,6 +406,7 @@ export type Fields = {
   switchVisibility: SwitchVisibility;
   eventField: EventField;
   infoboxStyle: InfoboxStyle;
+  heightReference: HeightReference;
   // point
   pointColor: PointColor;
   pointColorGradient: PointColorGradient;
