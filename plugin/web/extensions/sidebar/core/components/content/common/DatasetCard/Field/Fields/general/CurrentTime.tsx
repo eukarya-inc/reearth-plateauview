@@ -3,30 +3,13 @@ import {
   TextInput,
   Wrapper,
 } from "@web/extensions/sidebar/core/components/content/common/DatasetCard/Field/commonComponents";
+import { formatDateTime } from "@web/extensions/sidebar/utils/date";
 import Divider from "@web/sharedComponents/Divider";
 import { isEqual, pick } from "lodash";
 import debounce from "lodash/debounce";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { BaseFieldProps } from "../types";
-
-const formatDateTime = (d: string, t: string) => {
-  const date = d
-    ?.split(/-|\//)
-    ?.map(s => s.padStart(2, "0"))
-    ?.join("-");
-  const Time = t
-    ?.split(/:/)
-    ?.map(s => s.padStart(2, "0"))
-    ?.join(":");
-  const dateStr = [date, Time].filter(s => !!s).join("T");
-
-  try {
-    return new Date(dateStr).toISOString();
-  } catch {
-    return new Date().toISOString();
-  }
-};
 
 const CurrentTime: React.FC<BaseFieldProps<"currentTime">> = ({
   value,
