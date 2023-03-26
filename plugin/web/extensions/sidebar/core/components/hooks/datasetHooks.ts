@@ -1,5 +1,6 @@
 import { Project } from "@web/extensions/sidebar/types";
-import { postMsg } from "@web/extensions/sidebar/utils";
+import { mergeProperty, postMsg } from "@web/extensions/sidebar/utils";
+import { formatDateTime } from "@web/extensions/sidebar/utils/date";
 import { useCallback } from "react";
 
 import { Data, DataCatalogItem, Template } from "../../types";
@@ -70,6 +71,7 @@ export default ({
     (updatedDataset: DataCatalogItem, cleanseOverride?: any) => {
       updateProject?.(project => {
         const updatedDatasets = [...project.datasets];
+        let updatedSceneOverrides = { ...project.sceneOverrides };
         const datasetIndex = updatedDatasets.findIndex(d2 => d2.dataID === updatedDataset.dataID);
         if (datasetIndex >= 0) {
           if (updatedDatasets[datasetIndex].visible !== updatedDataset.visible) {
@@ -81,11 +83,29 @@ export default ({
           if (cleanseOverride) {
             setCleanseOverride?.(cleanseOverride);
           }
+
+          const dataset = { ...updatedDataset };
+          const currentTimeComponents = dataset.components?.filter(d => d.type === "currentTime");
+          if (currentTimeComponents && currentTimeComponents.length > 0) {
+            const item = currentTimeComponents[currentTimeComponents.length - 1];
+            if (item?.type === "currentTime") {
+              const timeline = {
+                current: formatDateTime(item.currentDate, item.currentTime),
+                start: formatDateTime(item.startDate, item.startTime),
+                stop: formatDateTime(item.stopDate, item.stopTime),
+              };
+              updatedSceneOverrides = [updatedSceneOverrides, { timeline }].reduce((p, v) =>
+                mergeProperty(p, v),
+              );
+            }
+          }
+
           updatedDatasets[datasetIndex] = updatedDataset;
         }
         const updatedProject = {
           ...project,
           datasets: updatedDatasets,
+          sceneOverrides: updatedSceneOverrides,
         };
         postMsg({ action: "updateProject", payload: updatedProject });
         return updatedProject;

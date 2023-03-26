@@ -111,24 +111,6 @@ const CurrentTime: React.FC<BaseFieldProps<"currentTime">> = ({
     }
   }, [isStopDisabled, options.stopDate, options.stopTime]);
 
-  useEffect(
-    () => () => {
-      // TODO: Use undefined to reset time.
-      // But currently we can not override scene property with undefined.
-      const now = Date.now();
-      const start = new Date(now - 86400000).toISOString();
-      const stop = new Date(now).toISOString();
-      onSceneUpdate?.({
-        timeline: {
-          current: start,
-          start,
-          stop,
-        },
-      });
-    },
-    [onSceneUpdate],
-  );
-
   return editMode ? (
     <Wrapper>
       <Divider plain>Current Time</Divider>
