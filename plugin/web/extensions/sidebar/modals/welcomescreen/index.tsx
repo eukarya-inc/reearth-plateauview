@@ -90,8 +90,8 @@ const InnerWrapper = styled.div<{ isMobile?: boolean }>`
   display: flex;
   flex-direction: column;
   position: relative;
-  width: ${({ isMobile }) => (isMobile ? "318px" : "742px")};
-  max-width: 100%;
+  width: 100%;
+  max-width: ${({ isMobile }) => (isMobile ? "70vw" : "742px")};
 `;
 
 const Text = styled.p<{ weight: number; size: number }>`
