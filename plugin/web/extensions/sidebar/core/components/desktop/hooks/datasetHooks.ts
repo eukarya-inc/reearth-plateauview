@@ -68,6 +68,7 @@ export default ({
   const handleDatasetUpdate = useCallback(
     (updatedDataset: DataCatalogItem, cleanseOverride?: any) => {
       updateProject?.(project => {
+        console.log("HDU", updatedDataset);
         const updatedDatasets = [...project.datasets];
         const datasetIndex = updatedDatasets.findIndex(d2 => d2.dataID === updatedDataset.dataID);
         if (datasetIndex >= 0) {

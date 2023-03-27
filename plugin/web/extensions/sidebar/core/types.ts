@@ -1,6 +1,9 @@
 import { RawDataCatalogItem } from "../modals/datacatalog/api/api";
 
-import { FieldComponent } from "./components/content/common/DatasetCard/Field/Fields/types";
+import {
+  ConfigData,
+  FieldComponent,
+} from "./components/content/common/DatasetCard/Field/Fields/types";
 
 export type Root = {
   data: Data[];
@@ -23,6 +26,7 @@ export type Data = {
   components?: FieldComponent[];
   visible?: boolean;
   selectedGroup?: string;
+  selectedDataset?: ConfigData;
 };
 
 export type Group = {
