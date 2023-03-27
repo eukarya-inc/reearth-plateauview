@@ -3,7 +3,7 @@ import { useCallback, useEffect, useState } from "react";
 
 import { BaseFieldProps } from "../../types";
 
-import { FILTERING_FIELD_DEFINITION, OptionsState } from "./constants";
+import { FILTERING_FIELD_DEFINITION, OptionsState, USE_MIN_FIELD_PROPERTIES } from "./constants";
 import { useBuildingFilter } from "./useBuildingFilter";
 
 const useHooks = ({
@@ -65,7 +65,18 @@ const useHooks = ({
             typeof propertyValue === "object" &&
             Object.keys(propertyValue).length
           ) {
-            tempOptions[k] = type;
+            const customType = (() => {
+              const min =
+                USE_MIN_FIELD_PROPERTIES.includes(k) && "minimum" in propertyValue
+                  ? Number(propertyValue.minimum) ?? type.min
+                  : type.min;
+              return {
+                ...type,
+                value: [min ?? type.value[0], type.value[1]] as typeof type.value,
+                min,
+              };
+            })();
+            tempOptions[k] = customType;
           }
         });
       });

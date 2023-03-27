@@ -5,6 +5,10 @@ export const MAX_ABOVEGROUND_FLOOR = 50;
 export const MAX_BASEMENT_FLOOR = 5;
 export const MAX_BUILDING_AGE = new Date().getFullYear();
 
+export const USE_MIN_FIELD_PROPERTIES: (keyof typeof FILTERING_FIELD_DEFINITION)[] = [
+  "buildingAge",
+];
+
 export type FilteringField = {
   id: keyof OptionsState;
   label: string;
@@ -16,7 +20,10 @@ export type FilteringField = {
 };
 
 export type OptionsState = {
-  [K in keyof BaseFieldProps<"buildingFilter">["value"]["userSettings"]]?: FilteringField;
+  [K in keyof Omit<
+    BaseFieldProps<"buildingFilter">["value"]["userSettings"],
+    "override"
+  >]?: FilteringField;
 };
 
 export const FILTERING_FIELD_DEFINITION: Record<
