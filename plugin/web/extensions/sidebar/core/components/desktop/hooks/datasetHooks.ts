@@ -1,6 +1,7 @@
 import { Project } from "@web/extensions/sidebar/types";
 import { mergeProperty, postMsg } from "@web/extensions/sidebar/utils";
 import { formatDateTime } from "@web/extensions/sidebar/utils/date";
+import { findLast } from "lodash";
 import { useCallback } from "react";
 
 import { Data, DataCatalogItem, Template } from "../../../types";
@@ -83,20 +84,18 @@ export default ({
             setCleanseOverride?.(cleanseOverride);
           }
 
-          const dataset = { ...updatedDataset };
-          const currentTimeComponents = dataset.components?.filter(d => d.type === "currentTime");
-          if (currentTimeComponents && currentTimeComponents.length > 0) {
-            const item = currentTimeComponents[currentTimeComponents.length - 1];
-            if (item?.type === "currentTime") {
-              const timeline = {
+          const item = findLast(updatedDataset.components, item => item.type === "currentTime");
+          if (item && item?.type === "currentTime") {
+            const updatedProperty = {
+              timeline: {
                 current: formatDateTime(item.currentDate, item.currentTime),
                 start: formatDateTime(item.startDate, item.startTime),
                 stop: formatDateTime(item.stopDate, item.stopTime),
-              };
-              updatedSceneOverrides = [updatedSceneOverrides, { timeline }].reduce((p, v) =>
-                mergeProperty(p, v),
-              );
-            }
+              },
+            };
+            updatedSceneOverrides = [updatedSceneOverrides, updatedProperty].reduce((p, v) =>
+              mergeProperty(p, v),
+            );
           }
 
           updatedDatasets[datasetIndex] = updatedDataset;
