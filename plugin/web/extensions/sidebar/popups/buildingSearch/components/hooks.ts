@@ -409,7 +409,7 @@ export default () => {
   useEffect(() => {
     document.documentElement.style.setProperty("--theme-color", "#00BEBE");
     onInit((window as any).buildingSearchInit);
-
+    postMsg({ action: "buildingSearchReady" });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

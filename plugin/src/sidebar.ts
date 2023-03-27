@@ -77,6 +77,7 @@ const reearth = (globalThis as any).reearth;
 let welcomePageIsOpen = false;
 let mobileDropdownIsOpen = false;
 let openedBuildingSearchDataID: string | null = null;
+let mobilePendingBuilingSearchData: { viewport: any; data: any } | undefined = undefined;
 
 // this is used for infobox
 let currentSelected: string | undefined = undefined;
@@ -232,7 +233,7 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
     reearth.layers.delete(addedDatasets.find(ad => ad[0] === payload)?.[2]);
     const idx = addedDatasets.findIndex(ad => ad[0] === payload);
     addedDatasets.splice(idx, 1);
-    if (openedBuildingSearchDataID && openedBuildingSearchDataID === payload) {
+    if (openedBuildingSearchDataID === payload) {
       reearth.popup.close();
     }
   } else if (action === "removeAllDatasetsFromScene") {
@@ -429,20 +430,6 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
       payload,
     });
   } else if (action === "buildingSearchOpen") {
-    reearth.popup.show(buildingSearchHtml, {
-      position: reearth.viewport.isMobile ? "bottom-start" : "right-start",
-      offset: {
-        mainAxis: 4,
-        crossAxis: reearth.viewport.isMobile ? reearth.viewport.width * 0.05 : 0,
-      },
-    });
-    reearth.popup.postMessage({
-      type: "buildingSearchInit",
-      payload: {
-        viewport: reearth.viewport,
-        data: payload,
-      },
-    });
     if (openedBuildingSearchDataID) {
       reearth.ui.postMessage({
         action: "buildingSearchClose",
@@ -452,6 +439,37 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
       });
     }
     openedBuildingSearchDataID = payload.dataID;
+
+    reearth.popup.show(buildingSearchHtml, {
+      position: reearth.viewport.isMobile ? "bottom-start" : "right-start",
+      offset: {
+        mainAxis: 4,
+        crossAxis: reearth.viewport.isMobile ? reearth.viewport.width * 0.05 : 0,
+      },
+    });
+
+    if (reearth.viewport.isMobile) {
+      mobilePendingBuilingSearchData = {
+        viewport: reearth.viewport,
+        data: payload,
+      };
+    } else {
+      reearth.popup.postMessage({
+        type: "buildingSearchInit",
+        payload: {
+          viewport: reearth.viewport,
+          data: payload,
+        },
+      });
+    }
+  } else if (action === "buildingSearchReady") {
+    if (mobilePendingBuilingSearchData) {
+      reearth.popup.postMessage({
+        type: "buildingSearchInit",
+        payload: mobilePendingBuilingSearchData,
+      });
+    }
+    mobilePendingBuilingSearchData = undefined;
   }
 
   // ************************************************
@@ -658,7 +676,10 @@ reearth.on("select", (selected: string | undefined) => {
 });
 
 reearth.on("popupclose", () => {
-  if (openedBuildingSearchDataID) {
+  if (
+    openedBuildingSearchDataID &&
+    !(reearth.viewport.isMobile && mobilePendingBuilingSearchData)
+  ) {
     reearth.ui.postMessage({
       action: "buildingSearchClose",
       payload: {
