@@ -51,6 +51,11 @@ export type InfoboxField = {
   visible: boolean;
 };
 
+export type FldInfo = {
+  name?: string;
+  datasetName?: string;
+};
+
 // ****** Building Search ******
 export type BuildingSearch = {
   dataID?: string;
