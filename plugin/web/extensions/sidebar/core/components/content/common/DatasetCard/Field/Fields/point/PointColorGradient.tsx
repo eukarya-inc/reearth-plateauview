@@ -97,6 +97,7 @@ const PointColorGradient: React.FC<BaseFieldProps<"pointColorGradient">> = ({
     if (isEqual(omit(colorGradient, "override"), omit(value, "override"))) return;
     const timer = setTimeout(() => {
       onUpdate({
+        ...value,
         ...colorGradient,
         override: {
           marker: {
