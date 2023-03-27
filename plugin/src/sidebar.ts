@@ -129,6 +129,22 @@ if (
     }
   });
 }
+
+// Set current time to 10a.m. JST of current date on plugin initialize.
+const now = new Date();
+const offset = now.getTimezoneOffset();
+const date = new Date(now.getTime() - offset * 60 * 1000).toISOString().split("T")[0];
+const nextDate = new Date(now.getTime() - offset * 60 * 1000 + 86400000)
+  .toISOString()
+  .split("T")[0];
+reearth.scene.overrideProperty({
+  timeline: {
+    start: `${date}T01:00:00.000Z`,
+    current: `${date}T01:00:00.000Z`,
+    stop: `${nextDate}T01:00:00.000Z`,
+  },
+});
+
 // ************************************************
 
 reearth.on("message", ({ action, payload }: PostMessageProps) => {
