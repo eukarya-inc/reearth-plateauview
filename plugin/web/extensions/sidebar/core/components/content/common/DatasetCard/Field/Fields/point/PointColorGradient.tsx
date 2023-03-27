@@ -98,7 +98,12 @@ const PointColorGradient: React.FC<BaseFieldProps<"pointColorGradient">> = ({
     const timer = setTimeout(() => {
       onUpdate({
         ...value,
-        ...colorGradient,
+        field: colorGradient.field,
+        min: colorGradient.min,
+        max: colorGradient.max,
+        step: colorGradient.step,
+        startColor: colorGradient.startColor,
+        endColor: colorGradient.endColor,
         override: {
           marker: {
             style: "point",
