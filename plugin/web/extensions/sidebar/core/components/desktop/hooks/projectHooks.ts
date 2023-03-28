@@ -17,6 +17,13 @@ import {
 } from "../../content/common/DatasetCard/Field/Fields/types";
 import { mergeOverrides } from "../../utils";
 
+const initTimeline = () => {
+  const now = Date.now();
+  const start = new Date(now).toISOString();
+  const stop = new Date(now + 86400000).toISOString();
+  return { current: start, start, stop };
+};
+
 export const defaultProject: Project = {
   sceneOverrides: {
     default: {
@@ -210,6 +217,7 @@ export default ({
 
   const handleProjectDatasetRemove = useCallback((dataID: string) => {
     updateProject(({ sceneOverrides, datasets }) => {
+      if ("timeline" in sceneOverrides) sceneOverrides.timeline = initTimeline();
       const updatedProject = {
         sceneOverrides,
         datasets: datasets.filter(d => d.dataID !== dataID),
@@ -222,6 +230,7 @@ export default ({
 
   const handleProjectDatasetRemoveAll = useCallback(() => {
     updateProject(({ sceneOverrides }) => {
+      if ("timeline" in sceneOverrides) sceneOverrides.timeline = initTimeline();
       const updatedProject = {
         sceneOverrides,
         datasets: [],
