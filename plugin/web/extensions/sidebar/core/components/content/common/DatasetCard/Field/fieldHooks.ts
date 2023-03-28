@@ -42,6 +42,17 @@ export default ({
           items: [{ title: "新しいアイテム", color: "#00bebe" }],
         }),
       },
+      legendGradient: {
+        name: fieldName["legendGradient"],
+        onClick: onFieldAdd({
+          style: "square",
+          min: 10,
+          max: 100,
+          startColor: "#F2EEEB",
+          endColor: "#753E13",
+          step: 10,
+        }),
+      },
       realtime: {
         name: fieldName["realtime"],
         onClick: onFieldAdd({ updateInterval: 30, userSettings: {} }),
