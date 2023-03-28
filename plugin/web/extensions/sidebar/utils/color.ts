@@ -52,8 +52,6 @@ export const getTransparencyExpression = (
   transparency: number,
   shouldUseRGBA: boolean,
 ) => {
-  console.log("layer: ", layer);
-  console.log("transparency: ", transparency);
   // We can get transparency from RGBA. Because the color is defined as RGBA.
   const overriddenColor = layer?.["3dtiles"]?.color;
   const defaultRGBA = rgbaToString([255, 255, 255, transparency]);
@@ -75,7 +73,6 @@ export const getTransparencyExpression = (
         return [k, defaultRGBA];
       }
       updatedTransparency = selectTransparency(rgba, transparency, shouldUseRGBA);
-      console.log("updatedTransparency: ", updatedTransparency);
       const composedRGBA = [...rgba.slice(0, -1), updatedTransparency] as RGBA;
       return [k, rgbaToString(composedRGBA)];
     });
@@ -86,10 +83,6 @@ export const getTransparencyExpression = (
       },
     };
   })();
-
-  const tempExpression = expression;
-
-  console.log("expression: ", tempExpression);
 
   return { expression, updatedTransparency };
 };

@@ -59,8 +59,6 @@ const renderTileset = (
   const updateTileset = async () => {
     const overriddenLayer = await getOverriddenLayerByDataID(state.dataID);
     const transparency = (state.transparency ?? 100) / 100;
-    console.log("transparency: ", transparency);
-    console.log("overriddenLayer: ", overriddenLayer);
     const { expression, updatedTransparency } = getTransparencyExpression(
       overriddenLayer,
       transparency,
