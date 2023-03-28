@@ -42,7 +42,7 @@ type ActionType =
   | "minimize"
   | "buildingSearchOpen"
   | "buildingSearchOverride"
-  | "buildingSearchReady"
+  | "buildingSearchInit"
   | "groupSelectOpen"
   | "saveGroups"
   | "cameraFlyTo"
