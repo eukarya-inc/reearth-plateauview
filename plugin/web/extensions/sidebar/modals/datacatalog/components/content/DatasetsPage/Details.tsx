@@ -57,7 +57,7 @@ const DatasetDetails: React.FC<Props> = ({
       )}
     </>
   );
-  return dataset ? (
+  return dataset && "dataID" in dataset ? (
     <DetailsComponent
       dataset={dataset}
       addDisabled={addDisabled(dataset.dataID)}
