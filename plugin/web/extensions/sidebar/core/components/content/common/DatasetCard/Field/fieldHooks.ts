@@ -46,11 +46,9 @@ export default ({
         name: fieldName["legendGradient"],
         onClick: onFieldAdd({
           style: "square",
-          min: 10,
-          max: 100,
-          startColor: "#F2EEEB",
-          endColor: "#753E13",
-          step: 10,
+          min: 0,
+          max: 0,
+          step: 0,
         }),
       },
       realtime: {
