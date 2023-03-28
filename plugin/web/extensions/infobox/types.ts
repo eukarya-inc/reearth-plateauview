@@ -45,3 +45,8 @@ export type Properties = FixedProperties & {
   attributes?: any;
   [key: string]: any;
 };
+
+export type FldInfo = {
+  name?: string;
+  datasetName?: string;
+};

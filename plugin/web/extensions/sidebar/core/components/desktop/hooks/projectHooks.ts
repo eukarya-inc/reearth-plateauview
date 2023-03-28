@@ -9,7 +9,7 @@ import {
 import { merge } from "lodash";
 import { useCallback, useEffect, useRef, useState } from "react";
 
-import { BuildingSearch, Data, DataCatalogItem, Template } from "../../../types";
+import { BuildingSearch, Data, DataCatalogItem, FldInfo, Template } from "../../../types";
 import {
   StoryItem,
   Story as FieldStory,
@@ -54,14 +54,6 @@ export const defaultProject: Project = {
       },
     ],
     atmosphere: { shadows: true },
-    light: {
-      lightType: "directionalLight",
-      lightColor: "#e5f5ffff",
-      lightIntensity: 10,
-      lightDirectionX: 0.8,
-      lightDirectionY: -0.7,
-      lightDirectionZ: -0.1,
-    },
   },
   datasets: [],
   userStory: undefined,
@@ -69,12 +61,14 @@ export const defaultProject: Project = {
 
 export default ({
   fieldTemplates,
+  infoboxTemplates,
   backendURL,
   backendProjectName,
   processedCatalog,
   buildingSearch,
 }: {
   fieldTemplates?: Template[];
+  infoboxTemplates?: Template[];
   backendURL?: string;
   backendProjectName?: string;
   processedCatalog: DataCatalogItem[];
@@ -300,6 +294,37 @@ export default ({
     postMsg({ action: "storyPlay", payload: story });
   }, []);
 
+  const handleInfoboxFieldsFetch = useCallback(
+    (dataID: string) => {
+      let fields: (Template & { fldInfo?: FldInfo }) | undefined;
+      const catalogItem = project.datasets?.find(d => d.dataID === dataID);
+      if (catalogItem) {
+        const name = catalogItem.type;
+        const dataType = catalogItem.type_en;
+        fields = infoboxTemplates?.find(
+          ft => ft.type === "infobox" && ft.dataType === dataType,
+        ) ?? {
+          id: "",
+          type: "infobox",
+          name,
+          dataType,
+          fields: [],
+        };
+
+        fields.fldInfo = {
+          name: catalogItem.name,
+          datasetName: catalogItem.selectedDataset?.name,
+        };
+      }
+
+      postMsg({
+        action: "infoboxFieldsFetch",
+        payload: fields,
+      });
+    },
+    [project.datasets, infoboxTemplates],
+  );
+
   const fetchedSharedProject = useRef(false);
 
   useEffect(() => {
@@ -347,5 +372,6 @@ export default ({
     handleProjectDatasetsUpdate,
     handleStorySaveData,
     handleOverride,
+    handleInfoboxFieldsFetch,
   };
 };
