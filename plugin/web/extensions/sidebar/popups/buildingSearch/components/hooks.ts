@@ -397,14 +397,9 @@ export default () => {
     postMsg({ action: "popupClose" });
   }, []);
 
-  const onInit = useCallback(() => {
-    postMsg({ action: "initPopup", payload: { type: "buildingSearch" } });
-  }, []);
-
   useEffect(() => {
     document.documentElement.style.setProperty("--theme-color", "#00BEBE");
-    onInit();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    postMsg({ action: "initPopup", payload: { type: "buildingSearch" } });
   }, []);
 
   const onMessage = useCallback(
