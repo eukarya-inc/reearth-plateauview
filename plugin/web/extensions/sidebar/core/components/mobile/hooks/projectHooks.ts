@@ -54,6 +54,14 @@ export const defaultProject: Project = {
       },
     ],
     atmosphere: { shadows: true },
+    light: {
+      lightType: "directionalLight",
+      lightColor: "#ffffffff",
+      lightIntensity: 2,
+      lightDirectionX: 0.7650124487710819,
+      lightDirectionY: -0.6418383470612292,
+      lightDirectionZ: -0.05291020191779678,
+    },
   },
   datasets: [],
   userStory: undefined,
@@ -151,6 +159,8 @@ export default ({
     (dataset: DataCatalogItem | UserDataItem) => {
       const datasetToAdd = { ...dataset } as DataCatalogItem;
 
+      datasetToAdd.selectedGroup = getDefaultGroup(datasetToAdd.components, fieldTemplates);
+
       if (!dataset.components?.length) {
         const defaultTemplate = fieldTemplates?.find(ft =>
           dataset.type2
@@ -170,6 +180,7 @@ export default ({
               },
             },
           ];
+          datasetToAdd.selectedGroup = getDefaultGroup(defaultTemplate.components);
         }
       }
 
@@ -187,12 +198,11 @@ export default ({
         return updatedProject;
       });
 
-      const selectedGroup = getDefaultGroup(datasetToAdd.components);
-
       const activeIDs = getActiveFieldIDs(
         datasetToAdd.components,
-        selectedGroup,
+        datasetToAdd.selectedGroup,
         datasetToAdd.config?.data,
+        fieldTemplates,
       );
 
       const overrides = processOverrides(datasetToAdd, activeIDs);

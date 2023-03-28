@@ -67,7 +67,7 @@ test("getAttributes", () => {
   ]);
 });
 
-test("getRootFields", () => {
+test("getRootFields bldg", () => {
   const res = getRootFields({
     attributes: {
       "gml:id": "id",
@@ -93,6 +93,7 @@ test("getRootFields", () => {
           "uro:areaClassificationType": "区域区分",
           "uro:districtsAndZonesType": ["地域地区"],
           "uro:buildingRoofEdgeArea": 6399.9406,
+          "uro:totalFloorArea": 1000,
         },
       ],
       "uro:BuildingRiverFloodingRiskAttribute": [
@@ -137,6 +138,7 @@ test("getRootFields", () => {
     地上階数: 12,
     地下階数: 0,
     敷地面積: 100,
+    延床面積: 1000,
     構造種別: "鉄筋コンクリート造",
     "構造種別（独自）": "鉄筋コンクリート造",
     耐火構造種別: "不明",
@@ -170,6 +172,7 @@ test("getRootFields", () => {
     "地上階数",
     "地下階数",
     "敷地面積",
+    "延床面積",
     "構造種別",
     "構造種別（独自）",
     "耐火構造種別",
@@ -192,6 +195,31 @@ test("getRootFields", () => {
     "六角川水系武雄川（都道府県管理区間）_L1（計画規模）_継続時間",
     "土砂災害警戒区域",
   ]);
+});
+
+test("getRootFields luse", () => {
+  const res = getRootFields({
+    attributes: {
+      "gml:id": "id",
+      "luse:class": "山林（樹林地）",
+      "uro:LandUseDetailAttribute": [
+        {
+          "uro:orgLandUse": "山林",
+          "uro:city": "広島県福山市",
+          "uro:surfeyYear": 2000, // sufey is an invalid attribute
+        },
+      ],
+    },
+  });
+
+  expect(res).toEqual({
+    gml_id: "id",
+    分類: "山林（樹林地）",
+    都市名: "広島県福山市",
+    調査年: 2000,
+  });
+
+  expect(flatKeys(res)).toEqual(["", "gml_id", "分類", "都市名", "調査年"]);
 });
 
 test("attributesMap", () => {

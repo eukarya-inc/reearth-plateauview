@@ -12,6 +12,7 @@ import groupSelectPopupHtml from "../dist/web/sidebar/popups/groupSelect/index.h
 import helpPopupHtml from "../dist/web/sidebar/popups/help/index.html?raw";
 import mobileDropdownHtml from "../dist/web/sidebar/popups/mobileDropdown/index.html?raw";
 
+import { inEditor } from "./utils/ineditor";
 import { proxyGTFS } from "./utils/proxy";
 
 const defaultProject: Project = {
@@ -51,6 +52,14 @@ const defaultProject: Project = {
       },
     ],
     atmosphere: { shadows: true },
+    light: {
+      lightType: "directionalLight",
+      lightColor: "#ffffffff",
+      lightIntensity: 2,
+      lightDirectionX: 0.7650124487710819,
+      lightDirectionY: -0.6418383470612292,
+      lightDirectionZ: -0.05291020191779678,
+    },
   },
   datasets: [],
   userStory: undefined,
@@ -106,7 +115,7 @@ if (
     reearth.clientStorage.setAsync("isMobile", false);
   }
   reearth.clientStorage.getAsync("doNotShowWelcome").then((value: any) => {
-    if (!value && !reearth.scene.inEditor) {
+    if (!value && !inEditor()) {
       reearth.modal.show(welcomeScreenHtml, {
         width: reearth.viewport.width,
         height: reearth.viewport.height,
@@ -148,7 +157,7 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
     reearth.clientStorage.getAsync("draftProject").then((draftProject: Project) => {
       const outBoundPayload = {
         projectID: reearth.viewport.query.share || reearth.viewport.query.projectID,
-        inEditor: reearth.scene.inEditor,
+        inEditor: inEditor(),
         catalogURL: reearth.widget.property.default?.catalogURL ?? "",
         catalogProjectName: reearth.widget.property.default?.catalogProjectName ?? "",
         reearthURL: reearth.widget.property.default?.reearthURL ?? "",
@@ -280,7 +289,7 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
       payload: {
         catalog,
         addedDatasets: addedDatasets.map(d => d[0]),
-        inEditor: reearth.scene.inEditor,
+        inEditor: inEditor(),
         searchTerm,
         expandedFolders,
         dataset,
@@ -351,13 +360,14 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
     const { dataID } = payload;
     const layerID = addedDatasets.find(a => a[0] === dataID)?.[2];
     const layer = reearth.layers.findById(layerID);
+    const overriddenLayer = reearth.layers.overridden.find((l: any) => l.id === layerID);
     reearth.ui.postMessage({
       action,
       payload: {
         dataID,
         layer: {
           id: layer.id,
-          data: layer.data,
+          data: { ...layer.data, ...overriddenLayer.data },
         },
       },
     });
@@ -491,13 +501,23 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
     const { dataID } = payload;
     const tilesetLayerID = addedDatasets.find(a => a[0] === dataID)?.[2];
     const tilesetLayer = reearth.layers.findById(tilesetLayerID);
+    const overriddenTilesetLayer = reearth.layers.overridden.find(
+      (l: any) => l.id === tilesetLayerID,
+    );
     const postMsgResp = {
       action,
       payload: {
+        dataID,
         layer: {
           id: tilesetLayer.id,
-          data: tilesetLayer.data,
-          ["3dtiles"]: tilesetLayer?.["3dtiles"],
+          data: {
+            ...(tilesetLayer?.data ?? {}),
+            ...(overriddenTilesetLayer?.data ?? {}),
+          },
+          ["3dtiles"]: {
+            ...(tilesetLayer?.["3dtiles"] ?? {}),
+            ...(overriddenTilesetLayer?.["3dtiles"] ?? {}),
+          },
         },
       },
     };
@@ -584,6 +604,8 @@ reearth.on("select", (selected: string | undefined) => {
   // this is used for infobox
   currentSelected = selected;
 
+  const isSameLayer = currentSelected === prevSelected;
+
   const featureId = reearth.layers.selectedFeature?.id; // For 3dtiles
   const prevSelectedFeatureId = currentSelectedFeatureId ?? featureId;
   currentSelectedFeatureId = featureId;
@@ -606,8 +628,7 @@ reearth.on("select", (selected: string | undefined) => {
   }
 
   if (
-    !currentSelected &&
-    !currentSelectedFeatureId &&
+    ((!currentSelected && !currentSelectedFeatureId) || !isSameLayer) &&
     prevOverriddenLayer.data.type === "3dtiles" &&
     prevSelectedFeatureId &&
     prevCondition?.find((c: [string, string]) => c[0] === `\${id} === "${prevSelectedFeatureId}"`)
@@ -621,7 +642,9 @@ reearth.on("select", (selected: string | undefined) => {
         },
       },
     });
-    return;
+    if (isSameLayer) {
+      return;
+    }
   }
 
   // Handle select color for 3dtiles
@@ -637,10 +660,11 @@ reearth.on("select", (selected: string | undefined) => {
           expression: {
             conditions: [
               [`\${id} === "${currentSelectedFeatureId}"`, "color('red')"],
-              ...(nextConditions ??
-                overriddenLayer?.["3dtiles"]?.color?.expression?.conditions ?? [
-                  ["true", "color('white')"],
-                ]),
+              ...(isSameLayer && nextConditions
+                ? nextConditions
+                : overriddenLayer?.["3dtiles"]?.color?.expression?.conditions ?? [
+                    ["true", "color('white')"],
+                  ]),
             ],
           },
         },
