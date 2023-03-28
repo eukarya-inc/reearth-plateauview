@@ -6,7 +6,7 @@ export const useObservingDataURL = (dataID: string | undefined) => {
   useEffect(() => {
     const waitReturnedPostMsg = async (e: MessageEvent<any>) => {
       if (e.source !== parent) return;
-      if (e.data.action === "findTileset") {
+      if (e.data.action === "findTileset" && e.data.payload.dataID === dataID) {
         const layer = e.data.payload.layer;
         if (layer.data.url) {
           setURL(layer.data.url);

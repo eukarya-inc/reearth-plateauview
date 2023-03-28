@@ -507,6 +507,7 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
     const postMsgResp = {
       action,
       payload: {
+        dataID,
         layer: {
           id: tilesetLayer.id,
           data: {

@@ -1,4 +1,3 @@
-import { postMsg } from "@web/extensions/sidebar/utils";
 import { useCallback, useEffect, useState } from "react";
 
 import { BaseFieldProps } from "../../types";
@@ -84,31 +83,20 @@ const useHooks = ({
       });
       setOptions(tempOptions);
     };
-    const waitReturnedPostMsg = async (e: MessageEvent<any>) => {
-      if (e.source !== parent) return;
-      if (e.data.action === "findTileset") {
-        if (!url) {
-          return;
-        }
-        const data = await (async () => {
-          try {
-            return await fetch(url).then(r => r.json());
-          } catch (e) {
-            console.error(e);
-          }
-        })();
-        handleFilteringFields(data);
-
-        removeEventListener("message", waitReturnedPostMsg);
+    const fetchTileset = async () => {
+      if (!url) {
+        return;
       }
+      const data = await (async () => {
+        try {
+          return await fetch(url).then(r => r.json());
+        } catch (e) {
+          console.error(e);
+        }
+      })();
+      handleFilteringFields(data);
     };
-    addEventListener("message", waitReturnedPostMsg);
-    postMsg({
-      action: "findTileset",
-      payload: {
-        dataID,
-      },
-    });
+    fetchTileset();
   }, [dataID, url]);
 
   useBuildingFilter({ options, dataID, onUpdate: handleUpdate });
