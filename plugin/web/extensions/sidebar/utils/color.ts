@@ -2,8 +2,29 @@ import tinycolor from "tinycolor2";
 
 export type RGBA = [r: number, g: number, b: number, a: number];
 
-export const getRGBAFromString = (rgbaStr: string | undefined): RGBA | undefined => {
-  const matches = rgbaStr?.match(/rgba\((\d*), *(\d*), *(\d*), *((\d|\.)*)\)/)?.slice(0, -1);
+const colorToRGBA = (hexCode: string): RGBA => {
+  const hex = hexCode.replace("#", "");
+
+  const red = parseInt(hex.substring(0, 2), 16);
+  const green = parseInt(hex.substring(2, 4), 16);
+  const blue = parseInt(hex.substring(4, 6), 16);
+
+  const alpha = hex.length > 6 ? parseFloat((parseInt(hex.substr(6, 2), 16) / 255).toFixed(2)) : 1;
+
+  return [red, green, blue, alpha];
+};
+
+export const getRGBAFromString = (colorStr: string | undefined): RGBA | undefined => {
+  if (!colorStr) {
+    return undefined;
+  }
+
+  if (colorStr.startsWith("color(") && colorStr.endsWith(")")) {
+    const hexCode = colorStr.substring(6, colorStr.length - 1);
+    return colorToRGBA(`#${hexCode}`);
+  }
+
+  const matches = colorStr.match(/rgba\((\d*), *(\d*), *(\d*), *((\d|\.)*)\)/)?.slice(0, -1);
   return matches ? (matches.slice(1).map(m => Number(m)) as RGBA) : undefined;
 };
 
@@ -55,6 +76,7 @@ export const getTransparencyExpression = (
   // We can get transparency from RGBA. Because the color is defined as RGBA.
   const overriddenColor = layer?.["3dtiles"]?.color;
   const defaultRGBA = rgbaToString([255, 255, 255, transparency]);
+  const redRGBA = rgbaToString([255, 0, 0, 1]);
   let updatedTransparency = transparency;
 
   const expression = (() => {
@@ -69,7 +91,7 @@ export const getTransparencyExpression = (
 
     const conditions = overriddenColor.expression.conditions.map(([k, v]: [string, string]) => {
       if (k.includes("${id}")) {
-        return [k, "rgba(255, 0, 0, 1)"];
+        return [k, redRGBA];
       }
       const rgba = getRGBAFromString(v);
       if (!rgba) {
