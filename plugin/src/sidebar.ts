@@ -604,6 +604,8 @@ reearth.on("select", (selected: string | undefined) => {
   // this is used for infobox
   currentSelected = selected;
 
+  const isSameLayer = currentSelected === prevSelected;
+
   const featureId = reearth.layers.selectedFeature?.id; // For 3dtiles
   const prevSelectedFeatureId = currentSelectedFeatureId ?? featureId;
   currentSelectedFeatureId = featureId;
@@ -626,8 +628,7 @@ reearth.on("select", (selected: string | undefined) => {
   }
 
   if (
-    !currentSelected &&
-    !currentSelectedFeatureId &&
+    ((!currentSelected && !currentSelectedFeatureId) || !isSameLayer) &&
     prevOverriddenLayer.data.type === "3dtiles" &&
     prevSelectedFeatureId &&
     prevCondition?.find((c: [string, string]) => c[0] === `\${id} === "${prevSelectedFeatureId}"`)
@@ -641,7 +642,9 @@ reearth.on("select", (selected: string | undefined) => {
         },
       },
     });
-    return;
+    if (isSameLayer) {
+      return;
+    }
   }
 
   // Handle select color for 3dtiles
@@ -657,10 +660,11 @@ reearth.on("select", (selected: string | undefined) => {
           expression: {
             conditions: [
               [`\${id} === "${currentSelectedFeatureId}"`, "color('red')"],
-              ...(nextConditions ??
-                overriddenLayer?.["3dtiles"]?.color?.expression?.conditions ?? [
-                  ["true", "color('white')"],
-                ]),
+              ...(isSameLayer && nextConditions
+                ? nextConditions
+                : overriddenLayer?.["3dtiles"]?.color?.expression?.conditions ?? [
+                    ["true", "color('white')"],
+                  ]),
             ],
           },
         },
