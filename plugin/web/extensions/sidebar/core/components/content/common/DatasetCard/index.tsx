@@ -83,6 +83,7 @@ const DatasetCard: React.FC<Props> = ({
     handleMoveUp,
     handleMoveDown,
     handleCurrentGroupUpdate,
+    handleCurrentDatasetUpdate,
     handleGroupsUpdate,
   } = useHooks({
     dataset,
@@ -167,8 +168,11 @@ const DatasetCard: React.FC<Props> = ({
       };
     };
 
-    readyMVTPosition.current = fetchMetadataJSONForMVT();
-  }, [dataset.dataID]);
+    // Wait until reearth layer is overridden with updated dataset
+    readyMVTPosition.current = new Promise(resolve =>
+      setTimeout(() => fetchMetadataJSONForMVT().then(resolve), 100),
+    );
+  }, [dataset]);
 
   const baseFields: BaseFieldType[] = useMemo(
     () => [
@@ -197,7 +201,7 @@ const DatasetCard: React.FC<Props> = ({
         icon: "about",
         onClick: () => {
           if (isMobile) {
-            postMsg({ action: "mobileCatalogOpen", payload: dataset.dataID });
+            postMsg({ action: "mobileCatalogOpen", payload: dataset });
           } else {
             postMsg({ action: "catalogModalOpen" });
           }
@@ -387,6 +391,7 @@ const DatasetCard: React.FC<Props> = ({
                   onMoveDown={handleMoveDown}
                   onGroupsUpdate={handleGroupsUpdate}
                   onCurrentGroupUpdate={handleCurrentGroupUpdate}
+                  onCurrentDatasetUpdate={handleCurrentDatasetUpdate}
                   onSceneUpdate={onSceneUpdate}
                 />
               ))}
