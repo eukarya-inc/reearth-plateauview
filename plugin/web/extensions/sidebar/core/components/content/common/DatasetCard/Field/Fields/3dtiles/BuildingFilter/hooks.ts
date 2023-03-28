@@ -2,6 +2,7 @@ import { postMsg } from "@web/extensions/sidebar/utils";
 import { useCallback, useEffect, useState } from "react";
 
 import { BaseFieldProps } from "../../types";
+import { useObservingDataURL } from "../hooks";
 
 import { FILTERING_FIELD_DEFINITION, OptionsState, USE_MIN_FIELD_PROPERTIES } from "./constants";
 import { useBuildingFilter } from "./useBuildingFilter";
@@ -12,6 +13,7 @@ const useHooks = ({
   onUpdate,
 }: Pick<BaseFieldProps<"buildingFilter">, "value" | "dataID" | "onUpdate">) => {
   const [options, setOptions] = useState<OptionsState>({});
+  const url = useObservingDataURL(dataID);
 
   const handleUpdate = useCallback(
     (property: any) => {
@@ -85,8 +87,6 @@ const useHooks = ({
     const waitReturnedPostMsg = async (e: MessageEvent<any>) => {
       if (e.source !== parent) return;
       if (e.data.action === "findTileset") {
-        const layer = e.data.payload.layer;
-        const url = layer?.data?.url;
         if (!url) {
           return;
         }
@@ -109,7 +109,7 @@ const useHooks = ({
         dataID,
       },
     });
-  }, [dataID]);
+  }, [dataID, url]);
 
   useBuildingFilter({ options, dataID, onUpdate: handleUpdate });
 
