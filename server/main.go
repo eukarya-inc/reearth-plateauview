@@ -165,10 +165,14 @@ func proxyHandlerFunc(c echo.Context) error {
     })
 
     // Invoke the proxy middleware to handle the request and return the response
-    proxyMiddleware(c)
+    err = proxyMiddleware(c)
+    if err != nil {
+        return err
+    }
 
     return nil
 }
+
 
 type customValidator struct {
 	validator *validator.Validate
