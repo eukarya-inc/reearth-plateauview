@@ -75,6 +75,8 @@ export default () => {
       handleFilter(treeTab);
       changeTreeTab(treeTab);
       postMsg({ action: "saveCurrentTreeTab", payload: { currentTreeTab: treeTab } });
+      setExpandedFolders([]);
+      postMsg({ action: "saveExpandedFolders", payload: { expandedFolders: [] } });
     },
     [handleFilter],
   );
