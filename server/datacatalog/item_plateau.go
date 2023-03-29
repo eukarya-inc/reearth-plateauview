@@ -109,7 +109,7 @@ func (i PlateauItem) UrfItems(c PlateauIntermediateItem) []*DataCatalogItem {
 
 	return lo.Map(i.Urf, func(a *cms.PublicAsset, _ int) *DataCatalogItem {
 		an := AssetNameFrom(a.URL)
-		return c.DataCatalogItem("都市計画決定情報モデル", an, a.URL, descFromAsset(a, i.DescriptionUrf), []string{an.UrfFeatureType}, false)
+		return c.DataCatalogItem("都市計画決定情報モデル", an, a.URL, descFromAsset(a, i.DescriptionUrf), urfLayers(an.UrfFeatureType), false)
 	})
 }
 
@@ -151,15 +151,6 @@ func (i PlateauItem) TnmItems(c PlateauIntermediateItem) []*DataCatalogItem {
 		dci.Name = htdTnmIfldName("津波浸水想定区域モデル", i.CityName, an.FldName, c.Dic.Tnm(an.FldName))
 		return dci
 	})
-}
-
-func (i PlateauItem) BridItem(c PlateauIntermediateItem) *DataCatalogItem {
-	if len(i.Brid) == 0 {
-		return nil
-	}
-
-	a := i.Brid[0]
-	return c.DataCatalogItem("橋梁モデル", AssetNameFrom(a.URL), a.URL, i.DescriptionBrid, nil, false)
 }
 
 func (i PlateauItem) DataCatalogItems() []DataCatalogItem {
@@ -393,4 +384,11 @@ func htdTnmIfldName(t, cityName, raw string, e *DicEntry) string {
 		return raw
 	}
 	return fmt.Sprintf("%s %s（%s）", t, e.Description, cityName)
+}
+
+func urfLayers(ty string) []string {
+	if ty == "WaterWay" {
+		ty = "Waterway"
+	}
+	return []string{ty}
 }
