@@ -1,19 +1,18 @@
 import { postMsg } from "@web/extensions/sidebar/utils";
 import { useCallback, useState } from "react";
 
-import { DataCatalogItem, Template } from "../../types";
+import { Template } from "../../../types";
+import { prepareComponentsToSave } from "../../utils";
 
 export default ({
   backendURL,
   backendProjectName,
   backendAccessToken,
-  processedCatalog,
   setLoading,
 }: {
   backendURL?: string;
   backendProjectName?: string;
   backendAccessToken?: string;
-  processedCatalog: DataCatalogItem[];
   setLoading?: React.Dispatch<React.SetStateAction<boolean>>;
 }) => {
   const [fieldTemplates, setFieldTemplates] = useState<Template[]>([]);
@@ -37,6 +36,9 @@ export default ({
     async (template: Template) => {
       if (!backendURL || !backendProjectName || !backendAccessToken) return;
       setLoading?.(true);
+
+      const templateToSave = convertForSave(template, fieldTemplates);
+
       const res = await fetch(
         `${backendURL}/sidebar/${backendProjectName}/templates/${template.id}`,
         {
@@ -44,7 +46,7 @@ export default ({
             authorization: `Bearer ${backendAccessToken}`,
           },
           method: "PATCH",
-          body: JSON.stringify(template),
+          body: JSON.stringify(templateToSave),
         },
       );
       if (res.status !== 200) return;
@@ -59,7 +61,7 @@ export default ({
       });
       setLoading?.(false);
     },
-    [backendURL, backendProjectName, backendAccessToken, setLoading],
+    [backendURL, backendProjectName, backendAccessToken, fieldTemplates, setLoading],
   );
 
   const handleTemplateRemove = useCallback(
@@ -130,30 +132,6 @@ export default ({
     [backendURL, backendProjectName, backendAccessToken],
   );
 
-  const handleInfoboxFieldsFetch = useCallback(
-    (dataID: string) => {
-      let fields;
-      const catalogItem = processedCatalog?.find(d => d.dataID === dataID);
-      if (catalogItem) {
-        const name = catalogItem?.type;
-        const dataType = catalogItem?.type_en;
-        fields = infoboxTemplates.find(ft => ft.type === "infobox" && ft.dataType === dataType) ?? {
-          id: "",
-          type: "infobox",
-          name,
-          dataType,
-          fields: [],
-        };
-      }
-
-      postMsg({
-        action: "infoboxFieldsFetch",
-        payload: fields,
-      });
-    },
-    [processedCatalog, infoboxTemplates],
-  );
-
   const handleInfoboxFieldsSave = useCallback(
     async (template: Template) => {
       if (template.id) {
@@ -175,7 +153,13 @@ export default ({
     handleTemplateAdd,
     handleTemplateSave,
     handleTemplateRemove,
-    handleInfoboxFieldsFetch,
     handleInfoboxFieldsSave,
+  };
+};
+
+const convertForSave = (templateToSave: Template, templates: Template[]): Template => {
+  return {
+    ...templateToSave,
+    components: prepareComponentsToSave(templateToSave.components, templates),
   };
 };

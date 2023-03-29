@@ -1,4 +1,4 @@
-import { mergeOverrides } from "@web/extensions/sidebar/core/components/hooks/utils";
+import { mergeOverrides } from "@web/extensions/sidebar/core/components/utils";
 import { Template } from "@web/extensions/sidebar/core/types";
 import { Select } from "@web/sharedComponents";
 import { styled } from "@web/theme";
@@ -14,9 +14,12 @@ const Template: React.FC<BaseFieldProps<"template">> = ({
   editMode,
   activeIDs,
   templates,
+  selectedGroup,
   configData,
   onUpdate,
   onCurrentGroupUpdate,
+  onCurrentDatasetUpdate,
+  onSceneUpdate,
 }) => {
   const [fieldComponents, setFieldComponents] = useState<FieldComponentType[] | undefined>();
 
@@ -139,9 +142,12 @@ const Template: React.FC<BaseFieldProps<"template">> = ({
               activeIDs={activeIDs}
               isActive={!!activeIDs?.find(id => id === tc.id)}
               templates={templates}
+              selectedGroup={selectedGroup}
               configData={configData}
               onUpdate={handleFieldUpdate}
               onCurrentGroupUpdate={onCurrentGroupUpdate}
+              onCurrentDatasetUpdate={onCurrentDatasetUpdate}
+              onSceneUpdate={onSceneUpdate}
             />
           ))
       )}

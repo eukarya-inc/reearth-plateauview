@@ -67,8 +67,17 @@ type ActionType =
   | "infoboxFieldsSaved"
   | "findLayerByDataID"
   | "getOverriddenLayerByDataID"
-  | "updateMVTRaster"
-  | "unselect";
+  | "unselect"
+  | "mobileDatasetAdd"
+  | "mobileDatasetRemove"
+  | "mobileDatasetRemoveAll"
+  | "mobileProjectDatasetsUpdate"
+  | "mobileBuildingSearch"
+  | "mobileProjectSceneUpdate"
+  | "mobileDatasetUpdate"
+  | "mobileCatalogOpen"
+  | "initMobileCatalog"
+  | "updateMVTRaster";
 // FIXME(@keiya01): support auto csv field complement
 // | "getLocationNamesFromCSVFeatureProperty"
 
@@ -114,6 +123,14 @@ export type ReearthApi = {
     current?: string;
     start?: string;
     stop?: string;
+  };
+  light?: {
+    lightType?: "sunLight" | "directionalLight";
+    lightDirectionX?: number;
+    lightDirectionY?: number;
+    lightDirectionZ?: number;
+    lightColor?: string;
+    lightIntensity?: number;
   };
 };
 

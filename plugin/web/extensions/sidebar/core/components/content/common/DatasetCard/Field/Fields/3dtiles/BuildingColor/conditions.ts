@@ -6,6 +6,7 @@ import {
   equalNumber,
   equalString,
   variable,
+  stringOrNumber,
 } from "../utils";
 
 import { INDEPENDENT_COLOR_TYPE, LAND_SLIDE_RISK_FIELD } from "./constants";
@@ -150,25 +151,32 @@ const PURPOSE_CONDITIONS: Condition[] = [
   DEFAULT_CONDITION,
 ];
 
-const conditionalStructure = "建物構造";
+const createStructureCondition = (value: string) => {
+  return `${variable(
+    `$.attributes["uro:KeyValuePairAttribute"][?(@["uro:key"]=="建物構造コード"&&@["uro:codeValue"]==${stringOrNumber(
+      value,
+    )})]["uro:codeValue"]`,
+  )} === ${stringOrNumber(value)}`;
+};
+
 const STRUCTURE_CONDITIONS: Condition[] = [
   {
-    condition: equalString(conditionalStructure, "耐火構造"),
+    condition: createStructureCondition("耐火構造"),
     color: "rgba(124, 123, 135, 1)",
     label: "耐火構造",
   },
   {
-    condition: equalString(conditionalStructure, "防火造"),
+    condition: createStructureCondition("防火造"),
     color: "rgba(188, 143, 143, 1)",
     label: "防火造",
   },
   {
-    condition: equalString(conditionalStructure, "準防火造"),
+    condition: createStructureCondition("準防火造"),
     color: "rgba(214, 202, 174, 1)",
     label: "準防火造",
   },
   {
-    condition: equalString(conditionalStructure, "木造"),
+    condition: createStructureCondition("木造"),
     color: "rgba(210, 180, 140, 1)",
     label: "木造",
   },
@@ -230,7 +238,7 @@ const STRUCTURE_TYPE_CONDITIONS: Condition[] = [
   DEFAULT_CONDITION,
 ];
 
-const conditionalFireproof = "建物利用現況_耐火構造種別";
+const conditionalFireproof = "耐火構造種別";
 const FIREPROOF_CONDITIONS: Condition[] = [
   {
     condition: equalString(conditionalFireproof, "耐火"),
@@ -292,16 +300,16 @@ const STEEP_SLOPE_RISK_CONDITIONS: Condition[] = [
       LAND_SLIDE_RISK_TYPE_CODES[0],
       LAND_SLIDE_RISK_TYPE_CODES[2],
     ]),
-    color: "rgba(251, 104, 76, 1)",
-    label: "急傾斜地の崩落: 特別警戒区域",
+    color: "rgba(255, 237, 76, 1)",
+    label: "急傾斜地の崩落: 警戒区域",
   },
   {
     condition: makeLandSlideRiskCondition(conditionalLandSlideRisk, LAND_SLIDE_RISK_CODES[0], [
       LAND_SLIDE_RISK_TYPE_CODES[1],
       LAND_SLIDE_RISK_TYPE_CODES[3],
     ]),
-    color: "rgba(255, 237, 76, 1)",
-    label: "急傾斜地の崩落: 警戒区域",
+    color: "rgba(251, 104, 76, 1)",
+    label: "急傾斜地の崩落: 特別警戒区域",
   },
   DEFAULT_CONDITION,
 ];
@@ -311,16 +319,16 @@ const MUDFLOW_RISK_CONDITIONS: Condition[] = [
       LAND_SLIDE_RISK_TYPE_CODES[0],
       LAND_SLIDE_RISK_TYPE_CODES[2],
     ]),
-    color: "rgba(192, 76, 99, 1)",
-    label: "土石流: 特別警戒区域",
+    color: "rgba(237, 216, 111, 1)",
+    label: "土石流: 警戒区域",
   },
   {
     condition: makeLandSlideRiskCondition(conditionalLandSlideRisk, LAND_SLIDE_RISK_CODES[1], [
       LAND_SLIDE_RISK_TYPE_CODES[1],
       LAND_SLIDE_RISK_TYPE_CODES[3],
     ]),
-    color: "rgba(237, 216, 111, 1)",
-    label: "土石流: 警戒区域",
+    color: "rgba(192, 76, 99, 1)",
+    label: "土石流: 特別警戒区域",
   },
   DEFAULT_CONDITION,
 ];
@@ -330,33 +338,101 @@ const LANDSLIDE_RISK_CONDITIONS: Condition[] = [
       LAND_SLIDE_RISK_TYPE_CODES[0],
       LAND_SLIDE_RISK_TYPE_CODES[2],
     ]),
-    color: "rgba(202, 76, 149, 1)",
-    label: "地すべり: 特別警戒区域",
+    color: "rgba(255, 183, 76, 1)",
+    label: "地すべり: 警戒区域",
   },
   {
     condition: makeLandSlideRiskCondition(conditionalLandSlideRisk, LAND_SLIDE_RISK_CODES[2], [
       LAND_SLIDE_RISK_TYPE_CODES[1],
       LAND_SLIDE_RISK_TYPE_CODES[3],
     ]),
-    color: "rgba(255, 183, 76, 1)",
-    label: "地すべり: 警戒区域",
+    color: "rgba(202, 76, 149, 1)",
+    label: "地すべり: 特別警戒区域",
   },
   DEFAULT_CONDITION,
 ];
 
-export const makeSelectedFloodCondition = (
-  propertyName: string | undefined,
-): [condition: string, color: string][] | undefined =>
-  propertyName
+const createFloodCondition = (
+  featurePropertyName: string,
+  { rank, scale }: { rank: number; scale: number | undefined },
+  useOwnData: boolean | undefined,
+  color: string,
+): [condition: string, color: string][] => {
+  if (!useOwnData && featurePropertyName) {
+    return [[equalNumber(featurePropertyName, rank), color]];
+  }
+  const createJSONPath = (useCode: boolean, rankAsNumber: boolean) => {
+    const rankProperty = useCode ? `uro:rankOrg_code` : "uro:rankOrg";
+    const scaleProperty = "uro:scale_code";
+    const convertedRank = rankAsNumber ? rank : rank.toString();
+    return `${variable(
+      `$.attributes["uro:BuildingRiverFloodingRiskAttribute"][?(@["uro:description"]==${stringOrNumber(
+        featurePropertyName,
+      )}&&@["${rankProperty}"]==${stringOrNumber(convertedRank)}${
+        scale ? `&&@["${scaleProperty}"]==${stringOrNumber(scale.toString())}` : ""
+      })]["${rankProperty}"]`,
+    )} === ${stringOrNumber(convertedRank)}`;
+  };
+  return [
+    [createJSONPath(true, false), color],
+    [createJSONPath(true, true), color],
+    [createJSONPath(false, false), color],
+  ];
+};
+
+export const makeSelectedFloodCondition = ({
+  featurePropertyName,
+  useOwnData,
+  floodScale,
+}: {
+  featurePropertyName?: string;
+  useOwnData?: boolean;
+  floodScale?: number;
+}): [condition: string, color: string][] | undefined =>
+  featurePropertyName
     ? [
-        [`\${${propertyName}} === null`, "rgba(135, 206, 235, 1)"],
-        [`isNaN(\${${propertyName}})`, "rgba(135, 206, 235, 1)"],
-        [equalNumber(propertyName, 0), "rgba(243, 240, 122, 1)"],
-        [equalNumber(propertyName, 1), "rgba(243, 240, 122, 1)"],
-        [equalNumber(propertyName, 2), "rgba(255, 184, 141, 1)"],
-        [equalNumber(propertyName, 3), "rgba(255, 132, 132, 1)"],
-        [equalNumber(propertyName, 4), "rgba(255, 94, 94, 1)"],
-        [equalNumber(propertyName, 5), "rgba(237, 87, 181, 1)"],
+        ...createFloodCondition(
+          featurePropertyName,
+          { rank: 0, scale: floodScale },
+          useOwnData,
+          "rgba(243, 240, 122, 1)",
+        ),
+        ...createFloodCondition(
+          featurePropertyName,
+          { rank: 1, scale: floodScale },
+          useOwnData,
+          "rgba(243, 240, 122, 1)",
+        ),
+        ...createFloodCondition(
+          featurePropertyName,
+          { rank: 2, scale: floodScale },
+          useOwnData,
+          "rgba(255, 184, 141, 1)",
+        ),
+        ...createFloodCondition(
+          featurePropertyName,
+          { rank: 3, scale: floodScale },
+          useOwnData,
+          "rgba(255, 132, 132, 1)",
+        ),
+        ...createFloodCondition(
+          featurePropertyName,
+          { rank: 4, scale: floodScale },
+          useOwnData,
+          "rgba(255, 94, 94, 1)",
+        ),
+        ...createFloodCondition(
+          featurePropertyName,
+          { rank: 5, scale: floodScale },
+          useOwnData,
+          "rgba(237, 87, 181, 1)",
+        ),
+        ...createFloodCondition(
+          featurePropertyName,
+          { rank: 6, scale: floodScale },
+          useOwnData,
+          "rgba(209, 82, 209, 1)",
+        ),
         [DEFAULT_CONDITION.condition, DEFAULT_CONDITION.color],
       ]
     : [[DEFAULT_CONDITION.condition, DEFAULT_CONDITION.color]];

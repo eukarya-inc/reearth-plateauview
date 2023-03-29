@@ -13,8 +13,22 @@ type TreeTab = "city" | "type";
 type Props = {
   addedDatasetDataIDs?: string[];
   isMobile?: boolean;
-  catalogData?: DataCatalogItem[];
   searchTerm: string;
+  expandedFolders?: {
+    id?: string | undefined;
+    name?: string | undefined;
+  }[];
+  catalog?: DataCatalogItem[];
+  selectedDataset?: DataCatalogItem;
+  setSelectedDataset: React.Dispatch<React.SetStateAction<DataCatalogItem | undefined>>;
+  setExpandedFolders?: React.Dispatch<
+    React.SetStateAction<
+      {
+        id?: string | undefined;
+        name?: string | undefined;
+      }[]
+    >
+  >;
   onSearch: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onDatasetAdd: (dataset: DataCatalogItem | UserDataItem, keepModalOpen?: boolean) => void;
 };
@@ -22,20 +36,26 @@ type Props = {
 const Catalog: React.FC<Props> = ({
   addedDatasetDataIDs,
   isMobile,
-  catalogData,
   searchTerm,
+  expandedFolders,
+  catalog,
+  selectedDataset,
+  setSelectedDataset,
+  setExpandedFolders,
   onSearch,
   onDatasetAdd,
 }) => {
-  const [selectedDataset, setDataset] = useState<DataCatalogItem>();
   const [filter, setFilter] = useState<GroupBy>("city");
   const [currentTreeTab, changeTreeTab] = useState<TreeTab>("city");
   const [page, setPage] = useState<"catalog" | "details">("catalog");
 
-  const handleOpenDetails = useCallback((data?: DataCatalogItem) => {
-    setDataset(data);
-    setPage("details");
-  }, []);
+  const handleOpenDetails = useCallback(
+    (data?: DataCatalogItem) => {
+      setSelectedDataset(data);
+      setPage("details");
+    },
+    [setSelectedDataset],
+  );
 
   const handleFilter = useCallback((filter: GroupBy) => {
     setFilter(filter);
@@ -56,9 +76,20 @@ const Catalog: React.FC<Props> = ({
     [addedDatasetDataIDs],
   );
 
+  const handleBack = useCallback(() => {
+    setPage("catalog");
+    setSelectedDataset(undefined);
+  }, [setPage, setSelectedDataset]);
+
   useEffect(() => {
     postMsg({ action: "extendPopup" });
   }, []);
+
+  useEffect(() => {
+    if (selectedDataset && page !== "details") {
+      setPage("details");
+    }
+  }, [selectedDataset, page, setPage, setSelectedDataset]);
 
   return (
     <Wrapper>
@@ -69,13 +100,15 @@ const Catalog: React.FC<Props> = ({
           </PopupItem>
           <DatasetTree
             addedDatasetDataIDs={addedDatasetDataIDs}
-            selectedDataset={selectedDataset}
+            selectedItem={selectedDataset}
             isMobile={isMobile}
-            catalog={catalogData}
+            catalog={catalog}
             currentTreeTab={currentTreeTab}
             filter={filter}
-            addDisabled={addDisabled}
             searchTerm={searchTerm}
+            expandedFolders={expandedFolders}
+            setExpandedFolders={setExpandedFolders}
+            addDisabled={addDisabled}
             onSearch={onSearch}
             onTreeTabChange={handleTreeTabChange}
             onOpenDetails={handleOpenDetails}
@@ -85,7 +118,7 @@ const Catalog: React.FC<Props> = ({
       )}
       {page === "details" && (
         <>
-          <PopupItem onBack={() => setPage("catalog")}>
+          <PopupItem onBack={handleBack}>
             <Title>データ詳細</Title>
           </PopupItem>
           <DatasetDetails

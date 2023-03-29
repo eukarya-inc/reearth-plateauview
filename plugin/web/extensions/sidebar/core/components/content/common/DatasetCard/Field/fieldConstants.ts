@@ -11,6 +11,21 @@ export const cleanseOverrides: { [key: string]: any } = {
       },
     },
   },
+  heightReference: {
+    resource: {
+      clampToGround: true,
+    },
+    marker: {
+      heightReference: "clamp",
+    },
+    polygon: {
+      heightReference: "clamp",
+    },
+    polyline: {
+      clampToGround: true,
+    },
+  },
+  pointColorGradient: { marker: { pointColor: "white" } },
   pointSize: { marker: { pointSize: 10 } },
   pointColor: { marker: { pointColor: "white" } },
   pointIcon: {

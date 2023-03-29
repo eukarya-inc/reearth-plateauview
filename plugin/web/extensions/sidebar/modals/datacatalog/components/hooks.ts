@@ -1,7 +1,8 @@
 import { DataCatalogItem } from "@web/extensions/sidebar/core/types";
 import { UserDataItem } from "@web/extensions/sidebar/modals/datacatalog/types";
 import { postMsg } from "@web/extensions/sidebar/utils";
-import { useCallback, useEffect, useState } from "react";
+import { debounce } from "lodash";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import { GroupBy } from "../api/api";
 
@@ -20,10 +21,21 @@ export default () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [filter, setFilter] = useState<GroupBy>("city");
 
-  const handleSearch = useCallback(({ target: { value } }: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchTerm(value);
-    postMsg({ action: "saveSearchTerm", payload: { searchTerm: value } });
-  }, []);
+  const debouncedSearchRef = useRef(
+    debounce((value: string) => {
+      postMsg({ action: "saveSearchTerm", payload: { searchTerm: value } });
+      setExpandedFolders([]);
+      postMsg({ action: "saveExpandedFolders", payload: { expandedFolders: [] } });
+    }, 300),
+  );
+
+  const handleSearch = useCallback(
+    ({ target: { value } }: React.ChangeEvent<HTMLInputElement>) => {
+      setSearchTerm(value);
+      debouncedSearchRef.current(value);
+    },
+    [debouncedSearchRef],
+  );
 
   const handleSelect = useCallback((item?: DataCatalogItem) => {
     selectItem(item);

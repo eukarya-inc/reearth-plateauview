@@ -109,7 +109,7 @@ const Menu: React.FC<Props> = ({
                     isMobile
                   />
                 ),
-                feedback: <Feedback />,
+                feedback: <Feedback backendURL={backendURL} isMobile />,
               }[currentItem.key]}
           </div>
         </>

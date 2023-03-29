@@ -2,6 +2,7 @@ package datacatalog
 
 import (
 	"fmt"
+	"strconv"
 
 	"github.com/eukarya-inc/reearth-plateauview/server/cms"
 	"github.com/samber/lo"
@@ -13,23 +14,31 @@ func (i PlateauItem) BldgItems(c PlateauIntermediateItem) []*DataCatalogItem {
 		return nil
 	}
 
-	firstWard := false
+	firstCode := lo.Min(lo.Filter(lo.MapToSlice(assets, func(k string, v []*cms.PublicAsset) int {
+		if len(v) == 0 {
+			return 0
+		}
+		an := AssetNameFrom(v[0].URL)
+		wc, _ := strconv.Atoi(an.WardCode)
+		return wc
+	}), func(i int, _ int) bool { return i > 0 }))
+
 	return lo.Filter(lo.MapToSlice(assets, func(k string, v []*cms.PublicAsset) *DataCatalogItem {
 		s := BldgSetFrom(v)
 		if s == nil || s.MaxLOD.Texture == nil {
 			return nil
 		}
 
+		an := AssetNameFrom(s.MaxLOD.Texture.URL)
+		wc, _ := strconv.Atoi(an.WardCode)
 		dci := c.DataCatalogItem(
 			"建築物モデル",
-			AssetNameFrom(s.MaxLOD.Texture.URL),
+			an,
 			s.MaxLOD.Texture.URL,
 			i.DescriptionBldg,
 			nil,
-			!firstWard,
+			firstCode > 0 && firstCode == wc,
 		)
-
-		firstWard = true
 
 		if s.MaxLOD.LowTexture != nil {
 			dci.BldgLowTextureURL = assetURLFromFormat(s.MaxLOD.LowTexture.URL, "3dtiles")
@@ -50,9 +59,11 @@ func (i PlateauItem) BldgItems(c PlateauIntermediateItem) []*DataCatalogItem {
 
 type BldgSet struct {
 	MaxLOD *BldgSetLOD
+	LOD0   *BldgSetLOD
 	LOD1   *BldgSetLOD
 	LOD2   *BldgSetLOD
 	LOD3   *BldgSetLOD
+	LOD4   *BldgSetLOD
 }
 
 type BldgSetLOD struct {
@@ -69,9 +80,11 @@ func BldgSetFrom(a []*cms.PublicAsset) *BldgSet {
 	}
 	return &BldgSet{
 		MaxLOD: bldgSetLODFrom(lods, maxlod),
+		LOD0:   bldgSetLODFrom(lods, 0),
 		LOD1:   bldgSetLODFrom(lods, 1),
 		LOD2:   bldgSetLODFrom(lods, 2),
 		LOD3:   bldgSetLODFrom(lods, 3),
+		LOD4:   bldgSetLODFrom(lods, 4),
 	}
 }
 
@@ -99,6 +112,9 @@ func bldgSetLODFrom(assets []assetWithLOD, lod int) *BldgSetLOD {
 }
 
 func (s BldgSet) Config() (c DataCatalogItemConfig) {
+	if l := s.LOD0.Config(); len(l) > 0 {
+		c.Data = append(c.Data, l...)
+	}
 	if l := s.LOD1.Config(); len(l) > 0 {
 		c.Data = append(c.Data, l...)
 	}
@@ -106,6 +122,9 @@ func (s BldgSet) Config() (c DataCatalogItemConfig) {
 		c.Data = append(c.Data, l...)
 	}
 	if l := s.LOD3.Config(); len(l) > 0 {
+		c.Data = append(c.Data, l...)
+	}
+	if l := s.LOD4.Config(); len(l) > 0 {
 		c.Data = append(c.Data, l...)
 	}
 	return

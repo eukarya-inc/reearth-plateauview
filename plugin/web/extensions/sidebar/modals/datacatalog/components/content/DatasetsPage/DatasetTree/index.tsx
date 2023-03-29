@@ -1,7 +1,6 @@
 import { Input, Tabs } from "@web/sharedComponents";
 import { styled } from "@web/theme";
-// import { useCallback, useEffect, useState } from "react";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 
 import { DataCatalogItem, getDataCatalogTree, GroupBy } from "../../../../api/api";
 import Tags, { Tag as TagType } from "../Tags";
@@ -12,7 +11,6 @@ export type Tag = TagType;
 
 export type Props = {
   addedDatasetDataIDs?: string[];
-  selectedDataset?: DataCatalogItem;
   isMobile?: boolean;
   catalog?: DataCatalogItem[];
   currentTreeTab: "city" | "type";
@@ -79,15 +77,6 @@ const DatasetTree: React.FC<Props> = ({
   onOpenDetails,
 }) => {
   const [loading, _toggleLoading] = useState(false); // needs implementation
-  const [expandAll, toggleExpandAll] = useState(false);
-
-  useEffect(() => {
-    if (searchTerm.length > 0) {
-      toggleExpandAll(true);
-    } else {
-      toggleExpandAll(false);
-    }
-  }, [searchTerm]);
 
   const dataCatalogTree = useMemo(
     () =>
@@ -128,7 +117,6 @@ const DatasetTree: React.FC<Props> = ({
               addedDatasetDataIDs={addedDatasetDataIDs}
               catalog={dataCatalogTree}
               isMobile={isMobile}
-              expandAll={expandAll}
               selectedItem={selectedItem}
               expandedFolders={expandedFolders}
               setExpandedFolders={setExpandedFolders}
@@ -145,7 +133,6 @@ const DatasetTree: React.FC<Props> = ({
               addedDatasetDataIDs={addedDatasetDataIDs}
               catalog={dataCatalogTree}
               isMobile={isMobile}
-              expandAll={expandAll}
               selectedItem={selectedItem}
               expandedFolders={expandedFolders}
               setExpandedFolders={setExpandedFolders}

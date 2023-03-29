@@ -25,6 +25,7 @@ export type Props = {
   isEditing?: boolean;
   editMode?: boolean;
   templates?: Template[];
+  selectedGroup?: string;
   configData?: ConfigData[];
   onUpdate?: (id: string) => (property: any) => void;
   onRemove?: (id: string) => void;
@@ -32,6 +33,7 @@ export type Props = {
   onMoveDown?: (index: number) => void;
   onGroupsUpdate?: (fieldID: string) => (selectedGroupID?: string | undefined) => void;
   onCurrentGroupUpdate?: (fieldGroupID: string) => void;
+  onCurrentDatasetUpdate?: (selectedDataset?: ConfigData) => void;
   onSceneUpdate?: (updatedProperties: Partial<ReearthApi>) => void;
 };
 
@@ -58,6 +60,7 @@ const FieldComponent: React.FC<Props> = ({
   isEditing,
   editMode,
   templates,
+  selectedGroup,
   configData,
   onUpdate,
   onRemove,
@@ -65,6 +68,7 @@ const FieldComponent: React.FC<Props> = ({
   onMoveDown,
   onGroupsUpdate,
   onCurrentGroupUpdate,
+  onCurrentDatasetUpdate,
   onSceneUpdate,
 }) => {
   const Field = fields[field.type];
@@ -139,10 +143,13 @@ const FieldComponent: React.FC<Props> = ({
       activeIDs={activeIDs}
       isActive={isActive}
       templates={templates}
+      selectedGroup={selectedGroup}
       configData={configData}
       dataID={dataID}
       onUpdate={onUpdate?.(field.id)}
       onCurrentGroupUpdate={onCurrentGroupUpdate}
+      onCurrentDatasetUpdate={onCurrentDatasetUpdate}
+      onSceneUpdate={onSceneUpdate}
     />
   ) : (
     <AccordionComponent
@@ -164,10 +171,12 @@ const FieldComponent: React.FC<Props> = ({
           editMode={editMode}
           isActive={isActive}
           templates={templates}
+          selectedGroup={selectedGroup}
           configData={configData}
           dataID={dataID}
           onUpdate={onUpdate?.(field.id)}
           onCurrentGroupUpdate={onCurrentGroupUpdate}
+          onCurrentDatasetUpdate={onCurrentDatasetUpdate}
           onSceneUpdate={onSceneUpdate}
         />
       )}

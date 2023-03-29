@@ -1,7 +1,8 @@
 import { getRGBAFromString, RGBA, rgbaToString } from "@web/extensions/sidebar/utils/color";
 import { getOverriddenLayerByDataID } from "@web/extensions/sidebar/utils/getOverriddenLayerByDataID";
 import debounce from "lodash/debounce";
-import { RefObject, useCallback, useEffect, useMemo, useRef } from "react";
+import pick from "lodash/pick";
+import { MutableRefObject, RefObject, useCallback, useEffect, useMemo, useRef } from "react";
 
 import { BaseFieldProps } from "../../types";
 
@@ -17,7 +18,13 @@ export const useBuildingColor = ({
 }: Pick<BaseFieldProps<"buildingColor">, "dataID"> & {
   initialized: boolean;
   options: BaseFieldProps<"buildingColor">["value"]["userSettings"];
-  floods: { id: string; label: string; featurePropertyName: string }[];
+  floods: {
+    id: string;
+    label: string;
+    featurePropertyName: string;
+    useOwnData?: boolean;
+    floodScale?: number;
+  }[];
   onUpdate: (property: any) => void;
 }) => {
   const renderRef = useRef<() => void>();
@@ -25,6 +32,8 @@ export const useBuildingColor = ({
     () => debounce(() => renderRef.current?.(), 100, { maxWait: 300 }),
     [],
   );
+
+  const isInitializedRef = useRef(false);
 
   const onUpdateRef = useRef(onUpdate);
   useEffect(() => {
@@ -37,6 +46,7 @@ export const useBuildingColor = ({
         dataID,
         floods,
         colorType: options.colorType,
+        isInitializedRef,
       },
       onUpdateRef,
     );
@@ -53,8 +63,15 @@ export const useBuildingColor = ({
 
 export type State = {
   dataID: string | undefined;
-  floods: { id: string; label: string; featurePropertyName: string }[];
+  floods: {
+    id: string;
+    label: string;
+    featurePropertyName: string;
+    useOwnData?: boolean;
+    floodScale?: number;
+  }[];
   colorType: string;
+  isInitializedRef: MutableRefObject<boolean>;
 };
 
 const renderTileset = (state: State, onUpdateRef: RefObject<(property: any) => void>) => {
@@ -77,7 +94,15 @@ const renderTileset = (state: State, onUpdateRef: RefObject<(property: any) => v
             (state.colorType as keyof typeof INDEPENDENT_COLOR_TYPE) || "none"
           ]?.map((cond): [string, string] => [cond.condition, cond.color]) ??
           makeSelectedFloodCondition(
-            state.floods?.find(f => f.id === state.colorType)?.featurePropertyName,
+            pick(
+              state.floods?.find(f => f.id === state.colorType),
+              "featurePropertyName",
+              "useOwnData",
+              "floodScale",
+            ) as Pick<
+              (typeof state.floods)[number],
+              "featurePropertyName" | "useOwnData" | "floodScale"
+            >,
           )
         ).map(([k, v]: [string, string]) => {
           const rgba = getRGBAFromString(v);
@@ -90,10 +115,14 @@ const renderTileset = (state: State, onUpdateRef: RefObject<(property: any) => v
       },
     };
 
-    onUpdateRef.current?.({
-      colorBlendMode: "replace",
-      color: expression,
-    });
+    if (!state.isInitializedRef.current) {
+      state.isInitializedRef.current = true;
+    } else {
+      onUpdateRef.current?.({
+        colorBlendMode: "replace",
+        color: expression,
+      });
+    }
   };
 
   updateTileset();

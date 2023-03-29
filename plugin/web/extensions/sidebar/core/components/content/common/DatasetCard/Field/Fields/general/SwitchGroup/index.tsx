@@ -9,14 +9,15 @@ import useHooks from "./hooks";
 const SwitchGroup: React.FC<BaseFieldProps<"switchGroup">> = ({
   value,
   editMode,
+  selectedGroup,
   onUpdate,
   onCurrentGroupUpdate,
 }) => {
   const {
     title,
     groupItems,
-    selectedGroup,
     fieldGroups,
+    currentGroup,
     handleTitleChange,
     handleGroupChoose,
     handleItemGroupChange,
@@ -27,15 +28,17 @@ const SwitchGroup: React.FC<BaseFieldProps<"switchGroup">> = ({
     handleItemMoveDown,
   } = useHooks({
     value,
+    selectedGroup,
     onUpdate,
     onCurrentGroupUpdate,
   });
 
   const uiMenu = (
     <Menu
-      items={groupItems?.map((gi, idx) => {
+      selectable
+      items={groupItems?.map(gi => {
         return {
-          key: idx,
+          key: gi.id,
           label: (
             <p style={{ margin: 0 }} onClick={() => handleGroupChoose(gi.id)}>
               {gi.title}
@@ -48,9 +51,11 @@ const SwitchGroup: React.FC<BaseFieldProps<"switchGroup">> = ({
 
   const editGroupMenu = (groupItemIndex: number) => (
     <Menu
-      items={fieldGroups.map((fg, idx) => {
+      selectable
+      selectedKeys={[groupItems[groupItemIndex].fieldGroupID]}
+      items={fieldGroups.map(fg => {
         return {
-          key: idx,
+          key: fg.id,
           label: (
             <p style={{ margin: 0 }} onClick={() => handleItemGroupChange(groupItemIndex, fg.id)}>
               {fg.name}
@@ -115,7 +120,7 @@ const SwitchGroup: React.FC<BaseFieldProps<"switchGroup">> = ({
         <FieldValue>
           <Dropdown overlay={uiMenu} placement="bottom" trigger={["click"]}>
             <StyledDropdownButton>
-              <p style={{ margin: 0 }}>{selectedGroup ? selectedGroup.title : "-"}</p>
+              <p style={{ margin: 0 }}>{currentGroup ? currentGroup.title : "-"}</p>
               <Icon icon="arrowDownSimple" size={12} />
             </StyledDropdownButton>
           </Dropdown>

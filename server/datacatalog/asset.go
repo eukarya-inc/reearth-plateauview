@@ -1,6 +1,7 @@
 package datacatalog
 
 import (
+	"fmt"
 	"path"
 	"regexp"
 	"strings"
@@ -8,7 +9,7 @@ import (
 	"github.com/samber/lo"
 )
 
-var reAssetName = regexp.MustCompile(`^([0-9]+?)_(.+?)_(.+?)_(.+?)_(.+?_op.*?)(?:_(.+?)(?:_(.+))?)?$`)
+var reAssetName = regexp.MustCompile(`^([0-9]+?)_(.+?)_(.+?)_(.+?)_((?:[0-9]+?_)*op[0-9]*(?:_[0-9]+?)*)(?:_(.+?)(?:_(.+))?)?$`)
 var reLod = regexp.MustCompile(`(?:^|_)lod([0-9]+?)`)
 var reWard = regexp.MustCompile(`^([0-9]+?)_(.+?)_`)
 
@@ -31,6 +32,16 @@ type AssetName struct {
 	UrfFeatureType string
 }
 
+func (an AssetName) FldNameAndCategory() string {
+	if an.FldName == "" && an.FldCategory == "" {
+		return ""
+	}
+	if an.FldCategory == "" {
+		return an.FldName
+	}
+	return fmt.Sprintf("%s_%s", an.FldCategory, an.FldName)
+}
+
 func AssetNameFrom(name string) (a AssetName) {
 	a.Ext = path.Ext(name)
 	name = strings.TrimSuffix(name, a.Ext)
@@ -43,7 +54,7 @@ func AssetNameFrom(name string) (a AssetName) {
 	a.CityCode = m[1]
 	a.CityEn = m[2]
 	a.Year = m[3]
-	a.Format = strings.ReplaceAll(strings.ReplaceAll(m[4], " ", ""), "%20", "")
+	a.Format = strings.ReplaceAll(strings.ReplaceAll(strings.ReplaceAll(m[4], " ", ""), "%20", ""), "+", "")
 	a.Op = m[5]
 	if len(m) > 6 {
 		a.Feature = m[6]
@@ -68,7 +79,7 @@ func AssetNameFrom(name string) (a AssetName) {
 
 	if a.Feature == "urf" {
 		a.UrfFeatureType = a.Ex
-	} else if a.Feature == "fld" || a.Feature == "htd" || a.Feature == "ifld" || a.Feature == "tnm" {
+	} else if a.Feature == "fld" {
 		fldCategory, fldName, found := strings.Cut(a.Ex, "_")
 		if found {
 			a.FldCategory = fldCategory
@@ -76,6 +87,8 @@ func AssetNameFrom(name string) (a AssetName) {
 		} else {
 			a.FldName = a.Ex
 		}
+	} else if a.Feature == "htd" || a.Feature == "ifld" || a.Feature == "tnm" {
+		a.FldName = a.Ex
 	}
 
 	return

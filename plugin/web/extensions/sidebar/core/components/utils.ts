@@ -1,26 +1,34 @@
 import { RawDataCatalogItem } from "@web/extensions/sidebar/modals/datacatalog/api/api";
 import { cloneDeep, isEqual, merge } from "lodash";
 
-import { Data, DataCatalogItem, Template } from "../../types";
-import { cleanseOverrides } from "../content/common/DatasetCard/Field/fieldConstants";
-import { FieldComponent } from "../content/common/DatasetCard/Field/Fields/types";
+import { getTransparencyExpression } from "../../utils/color";
+import { getDefaultGroup } from "../../utils/dataset";
+import { Data, DataCatalogItem, Template } from "../types";
+
+import { cleanseOverrides } from "./content/common/DatasetCard/Field/fieldConstants";
+import { FieldComponent } from "./content/common/DatasetCard/Field/Fields/types";
+
+export const prepareComponentsToSave = (components?: FieldComponent[], templates?: Template[]) => {
+  if (!components) return;
+  return components?.map((c: any) => {
+    const newComp = Object.assign({}, c);
+    if (newComp.type === "template" && newComp.components) {
+      newComp.components =
+        templates
+          ?.find(t => t.id === newComp.templateID)
+          ?.components?.map(c => {
+            return { ...c, userSettings: undefined };
+          }) ?? [];
+    }
+    return { ...newComp, userSettings: undefined };
+  });
+};
 
 export const convertToData = (item: DataCatalogItem, templates?: Template[]): Data => {
   return {
     dataID: item.dataID,
     public: item.public,
-    components: item.components?.map((c: any) => {
-      const newComp = Object.assign({}, c);
-      if (newComp.type === "template" && newComp.components) {
-        newComp.components =
-          templates
-            ?.find(t => t.id === newComp.templateID)
-            ?.components?.map(c => {
-              return { ...c, userSettings: undefined };
-            }) ?? [];
-      }
-      return { ...newComp, userSettings: undefined };
-    }),
+    components: prepareComponentsToSave(item.components, templates),
   };
 };
 
@@ -37,7 +45,6 @@ export const mergeOverrides = (
   }
 
   const overrides = cloneDeep(startingOverride ?? {});
-
   const needOrderComponents = components
     .filter(c => (c as any).userSettings?.updatedAt)
     .sort(
@@ -54,13 +61,35 @@ export const mergeOverrides = (
     );
   }
 
+  let transparency = 100;
+  let switchGroupExist = false;
+
   for (let i = 0; i < components.length; i++) {
     if ((components[i] as any).userSettings?.updatedAt) {
+      transparency = (components[i] as any)?.userSettings?.transparency ?? 100;
       continue;
     }
-    if (components[i].type === "switchDataset" && action === "cleanse") {
-      merge(overrides, components[i].cleanseOverride);
+    if (components[i].type === "switchDataset") {
+      const switchDatasetOverride =
+        (components[i] as any).userSettings?.override ??
+        (action === "cleanse"
+          ? components[i].cleanseOverride
+          : {
+              data: {
+                ...(components[i].cleanseOverride.data.url
+                  ? { url: components[i].cleanseOverride.data.url }
+                  : {}),
+                time: {
+                  updateClockOnLoad: true,
+                },
+              },
+            });
+      merge(overrides, switchDatasetOverride);
       continue;
+    }
+
+    if (components[i].type === "switchGroup") {
+      switchGroupExist = true;
     }
 
     merge(
@@ -69,6 +98,16 @@ export const mergeOverrides = (
         ? cleanseOverrides[components[i].type]
         : (components[i] as any).userSettings?.override ?? components[i].override,
     );
+  }
+
+  // This is a temporary solution for switch groups and transparency to work together: @pyshx
+  if (switchGroupExist && transparency != 100) {
+    const { expression } = getTransparencyExpression(overrides, transparency / 100, false);
+    merge(overrides, {
+      "3dtiles": {
+        color: expression,
+      },
+    });
   }
 
   return isEqual(overrides, {}) ? undefined : overrides;
@@ -112,6 +151,7 @@ export const handleDataCatalogProcessing = (
         ...item,
         ...savedData2,
         visible: true,
+        selectedGroup: getDefaultGroup(savedData2.components),
       };
     } else {
       return newItem(item);

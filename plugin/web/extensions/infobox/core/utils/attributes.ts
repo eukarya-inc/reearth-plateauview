@@ -1,6 +1,6 @@
 import { get } from "lodash";
 
-import type { Properties } from "../../types";
+import type { FldInfo, Properties } from "../../types";
 
 import attributesData from "./attributes.csv?raw";
 import type { Json, JsonArray, JsonObject } from "./json";
@@ -49,11 +49,13 @@ export function getAttributes(attributes: Json, mode?: "both" | "label" | "key")
   }
 }
 
-export function getRootFields(properties: Properties): any {
+export function getRootFields(properties: Properties, dataType?: string, fld?: FldInfo): any {
   return filterObjects({
     gml_id: get(properties, ["attributes", "gml:id"]),
-    名称: get(properties, ["attributes", "gml:name"]),
-    分類: get(properties, ["attributes", "bldg:class"]),
+    ...name(properties, dataType, fld?.name, fld?.datasetName),
+    分類:
+      get(properties, ["attributes", "bldg:class"]) ||
+      get(properties, ["attributes", "luse:class"]),
     用途: get(properties, ["attributes", "bldg:usage", 0]),
     住所: get(properties, ["attributes", "bldg:address"]),
     建築年: get(properties, ["attributes", "bldg:yearOfConstruction"]),
@@ -61,6 +63,12 @@ export function getRootFields(properties: Properties): any {
     地上階数: get(properties, ["attributes", "bldg:storeysAboveGround"]),
     地下階数: get(properties, ["attributes", "bldg:storeysBelowGround"]),
     敷地面積: get(properties, ["attributes", "uro:BuildingDetailAttribute", 0, "uro:siteArea"]),
+    延床面積: get(properties, [
+      "attributes",
+      "uro:BuildingDetailAttribute",
+      0,
+      "uro:totalFloorArea",
+    ]),
     構造種別: get(properties, [
       "attributes",
       "uro:BuildingDetailAttribute",
@@ -98,11 +106,29 @@ export function getRootFields(properties: Properties): any {
       "uro:districtsAndZonesType",
       0,
     ]),
-    調査年: get(properties, ["attributes", "uro:BuildingDetailAttribute", 0, "uro:surveyYear"]),
+    都市名: get(properties, ["attributes", "uro:LandUseDetailAttribute", 0, "uro:city"]),
+    調査年:
+      get(properties, ["attributes", "uro:BuildingDetailAttribute", 0, "uro:surveyYear"]) ||
+      get(properties, ["attributes", "uro:LandUseDetailAttribute", 0, "uro:surveyYear"]) ||
+      get(properties, ["attributes", "uro:LandUseDetailAttribute", 0, "uro:surfeyYear"]),
     "建物利用現況（大分類）": get(properties, ["attributes", "uro:majorUsage"]),
     "建物利用現況（中分類）": get(properties, ["attributes", "uro:orgUsage"]),
     "建物利用現況（小分類）": get(properties, ["attributes", "uro:orgUsage2"]),
     "建物利用現況（詳細分類）": get(properties, ["attributes", "uro:detailedUsage"]),
+    建物ID: get(properties, ["attributes", "uro:BuildingIDAttribute", 0, "uro:buildingID"]),
+    図上面積: get(properties, [
+      "attributes",
+      "uro:BuildingDetailAttribute",
+      0,
+      "uro:buildingRoofEdgeArea",
+    ]),
+    LOD1立ち上げに使用する高さ: get(properties, [
+      "attributes",
+      "uro:BuildingDataQualityAttribute",
+      0,
+      "uro:lod1HeightType",
+    ]),
+
     ...floodFields(properties),
     土砂災害警戒区域: get(properties, [
       "attributes",
@@ -111,6 +137,36 @@ export function getRootFields(properties: Properties): any {
       "uro:description",
     ]),
   });
+}
+
+export function name(
+  properties: Properties,
+  dataType?: string,
+  title?: string,
+  datasetName?: string,
+): { name: string } | { 名称: string } | undefined {
+  const gmlName = get(properties, ["attributes", "gml:name"]) as string | undefined;
+
+  if (dataType && ["fld", "htd", "tnm", "ifld"].includes(dataType)) {
+    if (title && gmlName && !isNaN(Number(gmlName))) {
+      // 浸水想定区域データで、gml:nameが数字になってしまっているデータのためのワークアラウンド
+      const name = fldName(title, dataType, datasetName);
+      if (name) return { name };
+    }
+
+    if (gmlName) return { name: gmlName };
+    return;
+  }
+
+  if (gmlName) return { 名称: gmlName };
+  return;
+}
+
+export function fldName(title: string, dataType: string, scale?: string): string {
+  if (typeof title !== "string") return "";
+  return `${title.replace(/^.+?浸水想定区域(モデル)? /, "").replaceAll(/（.+?）/g, "")}${
+    dataType !== "tnm" ? `${dataTypeJa[dataType] ?? ""}浸水想定区域図` : ""
+  }${scale ? `【${scale}】` : ``}`;
 }
 
 function floodFields(properties: Properties): any {
@@ -164,4 +220,64 @@ type BuildingRiverFloodingRiskAttribute = {
   "uro:rank_code"?: string; // 浸水ランクコード
   "uro:rankOrg"?: string; // 浸水ランク（独自分類）
   "uro:rankOrg_code"?: string; // 浸水ランクコード（独自分類）
+};
+
+const dataTypeJa: Record<string, string> = {
+  fld: "洪水",
+  tnm: "津波",
+  htd: "高潮",
+  ifld: "内水",
+};
+
+// hard code common properties
+export const commonPropertiesMap: { [key: string]: string[] } = {
+  // 建築物モデル
+  bldg: [
+    "gml_id", // 建物ID
+    "名称",
+    "分類",
+    "用途",
+    "住所",
+    "建築年",
+    "計測高さ",
+    "地上階数",
+    "地下階数",
+    "敷地面積",
+    "延床面積",
+    "構造種別",
+    "構造種別（自治体独自）",
+    "耐火構造種別",
+    "都市計画区域",
+    "区域区分",
+    "地域地区",
+    "調査年",
+    "建物利用現況（大分類）",
+    "建物利用現況（中分類）",
+    "建物利用現況（小分類）",
+    "建物利用現況（詳細分類）",
+    "建物ID",
+    "図上面積",
+    "LOD1立ち上げに使用する高さ",
+    // "土砂災害警戒区域",
+  ],
+  // 都市計画決定情報
+  urf: ["gml_id", "feature_type", "feature_type_jp", "function_code", "function"],
+  // 洪水浸水想定区域
+  fld: ["gml_id", "name", "rank", "rank_code", "rank_org", "rank_org_code"],
+  // 高潮浸水想定区域
+  htd: ["gml_id", "name", "rank", "rank_code", "rank_org", "rank_org_code"],
+  // 津波浸水想定区域
+  tnm: ["gml_id", "name", "rank", "rank_code", "rank_org", "rank_org_code"],
+  // 内水浸水想定区域
+  ifld: ["gml_id", "name", "rank", "rank_code", "rank_org", "rank_org_code"],
+  // 道路
+  tran: ["gml_id"],
+  // 都市設備
+  frn: ["gml_id"],
+  // 植生
+  veg: ["gml_id"],
+  // 土地利用
+  luse: ["gml_id", "分類", "都市名", "調査年"],
+  // 土砂災害警戒区域
+  lsld: ["gml_id"],
 };

@@ -1,9 +1,9 @@
-import { postMsg } from "@web/extensions/sidebar/utils";
 import { useCallback, useEffect, useState } from "react";
 
 import { BaseFieldProps } from "../../types";
+import { useObservingDataURL } from "../hooks";
 
-import { FILTERING_FIELD_DEFINITION, OptionsState } from "./constants";
+import { FILTERING_FIELD_DEFINITION, OptionsState, USE_MIN_FIELD_PROPERTIES } from "./constants";
 import { useBuildingFilter } from "./useBuildingFilter";
 
 const useHooks = ({
@@ -12,6 +12,7 @@ const useHooks = ({
   onUpdate,
 }: Pick<BaseFieldProps<"buildingFilter">, "value" | "dataID" | "onUpdate">) => {
   const [options, setOptions] = useState<OptionsState>({});
+  const url = useObservingDataURL(dataID);
 
   const handleUpdate = useCallback(
     (property: any) => {
@@ -21,6 +22,7 @@ const useHooks = ({
           height: options.height?.value,
           abovegroundFloor: options.abovegroundFloor?.value,
           basementFloor: options.basementFloor?.value,
+          buildingAge: options.buildingAge?.value,
           override: { ["3dtiles"]: property },
         },
       });
@@ -64,40 +66,38 @@ const useHooks = ({
             typeof propertyValue === "object" &&
             Object.keys(propertyValue).length
           ) {
-            tempOptions[k] = type;
+            const customType = (() => {
+              const min =
+                USE_MIN_FIELD_PROPERTIES.includes(k) && "minimum" in propertyValue
+                  ? Number(propertyValue.minimum) ?? type.min
+                  : type.min;
+              return {
+                ...type,
+                value: [min ?? type.value[0], type.value[1]] as typeof type.value,
+                min,
+              };
+            })();
+            tempOptions[k] = customType;
           }
         });
       });
       setOptions(tempOptions);
     };
-    const waitReturnedPostMsg = async (e: MessageEvent<any>) => {
-      if (e.source !== parent) return;
-      if (e.data.action === "findTileset") {
-        const layer = e.data.payload.layer;
-        const url = layer?.data?.url;
-        if (!url) {
-          return;
-        }
-        const data = await (async () => {
-          try {
-            return await fetch(url).then(r => r.json());
-          } catch (e) {
-            console.error(e);
-          }
-        })();
-        handleFilteringFields(data);
-
-        removeEventListener("message", waitReturnedPostMsg);
+    const fetchTileset = async () => {
+      if (!url) {
+        return;
       }
+      const data = await (async () => {
+        try {
+          return await fetch(url).then(r => r.json());
+        } catch (e) {
+          console.error(e);
+        }
+      })();
+      handleFilteringFields(data);
     };
-    addEventListener("message", waitReturnedPostMsg);
-    postMsg({
-      action: "findTileset",
-      payload: {
-        dataID,
-      },
-    });
-  }, [dataID]);
+    fetchTileset();
+  }, [dataID, url]);
 
   useBuildingFilter({ options, dataID, onUpdate: handleUpdate });
 

@@ -18,6 +18,7 @@ export const generalFieldName = {
   template: "テンプレート",
   eventField: "イベント",
   infoboxStyle: "インフォボックス スタイル",
+  heightReference: "高さ基準",
 };
 
 export const pointFieldName = {
@@ -77,6 +78,7 @@ export type FieldComponent =
   | SwitchVisibility
   | EventField
   | InfoboxStyle
+  | HeightReference
   | Template
   | PointColor
   | PointColorGradient
@@ -175,9 +177,6 @@ export type GroupItem = {
 export type SwitchGroup = FieldBase<"switchGroup"> & {
   title: string;
   groups: GroupItem[];
-  userSettings: {
-    selected?: GroupItem;
-  };
 };
 
 export type SwitchDataset = FieldBase<"switchDataset"> & {
@@ -233,6 +232,10 @@ type EventField = FieldBase<"eventField"> & {
 
 type InfoboxStyle = FieldBase<"infoboxStyle"> & {
   displayStyle: "attributes" | "description" | null;
+};
+
+type HeightReference = FieldBase<"heightReference"> & {
+  heightReferenceType: "clamp" | "relative" | "none";
 };
 
 export type PointColor = FieldBase<"pointColor"> & {
@@ -345,6 +348,7 @@ type BuildingFilter = FieldBase<"buildingFilter"> & {
     height?: [from: number, to: number];
     abovegroundFloor?: [from: number, to: number];
     basementFloor?: [from: number, to: number];
+    buildingAge?: [from: number, to: number];
     override?: any;
   };
 };
@@ -403,6 +407,7 @@ export type Fields = {
   switchVisibility: SwitchVisibility;
   eventField: EventField;
   infoboxStyle: InfoboxStyle;
+  heightReference: HeightReference;
   // point
   pointColor: PointColor;
   pointColorGradient: PointColorGradient;
@@ -440,13 +445,15 @@ export type BaseFieldProps<T extends keyof Fields> = {
   isActive?: boolean;
   activeIDs?: string[];
   templates?: TemplateType[];
+  selectedGroup?: string;
   configData?: ConfigData[];
   onUpdate: (property: Fields[T]) => void;
   onSceneUpdate: (updatedProperties: Partial<ReearthApi>) => void;
   onCurrentGroupUpdate?: (fieldGroupID: string) => void;
+  onCurrentDatasetUpdate?: (data?: ConfigData) => void;
 };
 
-export type ConfigData = { name: string; type: string; url: string; layers?: string[] };
+export type ConfigData = { name: string; type: string; url: string; layer?: string[] };
 
 export type Expression<T extends string | number | boolean = string | number | boolean> =
   | T

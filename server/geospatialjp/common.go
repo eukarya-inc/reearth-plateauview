@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"net/url"
 	"path"
+	"strings"
 
 	"github.com/eukarya-inc/reearth-plateauview/server/cms"
 	"github.com/eukarya-inc/reearth-plateauview/server/geospatialjp/ckan"
@@ -191,6 +192,16 @@ func (s *Services) RegisterCkanResources(ctx context.Context, i Item) error {
 		log.Infof("geospatialjp: find or create package: %+v", pkg2)
 	}
 
+	// save catalog resource
+	if cbuf != nil && catalogFileName != "" {
+		catalogResource, _ := findResource(pkg, ResourceNameCatalog+suffix, "XLSX", "", "")
+		if _, err = s.Ckan.UploadResource(ctx, catalogResource, catalogFileName, cbuf); err != nil {
+			return fmt.Errorf("G空間情報センターへの目録リソースの登録に失敗しました。: %w", err)
+		}
+	} else {
+		log.Infof("geospatialjp: catalog is not registerd so uploading is skipped")
+	}
+
 	// save citygml resoruce
 	citygmlResource, needUpdate := findResource(pkg, ResourceNameCityGML+suffix, "ZIP", "", citygmlAsset.URL)
 	if needUpdate {
@@ -213,16 +224,6 @@ func (s *Services) RegisterCkanResources(ctx context.Context, i Item) error {
 		}
 	} else {
 		log.Infof("geospatialjp: all is not registerd so uploading is skipped")
-	}
-
-	// save catalog resource
-	if cbuf != nil && catalogFileName != "" {
-		catalogResource, _ := findResource(pkg, ResourceNameCatalog+suffix, "XLSX", "", "")
-		if _, err = s.Ckan.UploadResource(ctx, catalogResource, catalogFileName, cbuf); err != nil {
-			return fmt.Errorf("G空間情報センターへの目録リソースの登録に失敗しました。: %w", err)
-		}
-	} else {
-		log.Infof("geospatialjp: catalog is not registerd so uploading is skipped")
 	}
 
 	// update item
@@ -331,12 +332,23 @@ func (s *Services) findAndUpdateOrCreatePackage(ctx context.Context, c *Catalog,
 }
 
 func (s *Services) findPackage(ctx context.Context, cityCode, cityName string, year int) (_ *ckan.Package, n string, err error) {
-	datasetName := datasetName(cityCode, cityName, year)
-	p, _ := s.Ckan.ShowPackage(ctx, datasetName)
+	// pattern1 -shi
+	name := datasetName(cityCode, cityName, year)
+	p, _ := s.Ckan.ShowPackage(ctx, name)
 	if p.Name != "" {
 		return &p, p.Name, nil
 	}
-	return nil, datasetName, nil
+
+	// pattern2 -city
+	name2 := datasetName(cityCode, strings.Replace(cityName, "-shi", "-city", 1), year)
+	if name != name2 {
+		p, _ = s.Ckan.ShowPackage(ctx, name2)
+		if p.Name != "" {
+			return &p, p.Name, nil
+		}
+	}
+
+	return nil, name, nil
 }
 
 func (s *Services) commentToItem(ctx context.Context, itemID, comment string) {

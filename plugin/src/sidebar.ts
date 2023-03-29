@@ -12,6 +12,7 @@ import groupSelectPopupHtml from "../dist/web/sidebar/popups/groupSelect/index.h
 import helpPopupHtml from "../dist/web/sidebar/popups/help/index.html?raw";
 import mobileDropdownHtml from "../dist/web/sidebar/popups/mobileDropdown/index.html?raw";
 
+import { inEditor } from "./utils/ineditor";
 import { proxyGTFS } from "./utils/proxy";
 
 const defaultProject: Project = {
@@ -28,7 +29,7 @@ const defaultProject: Project = {
         height: 2219.7187259974316,
       },
       sceneMode: "3d",
-      depthTestAgainstTerrain: true,
+      depthTestAgainstTerrain: false,
     },
     terrain: {
       terrain: true,
@@ -51,6 +52,14 @@ const defaultProject: Project = {
       },
     ],
     atmosphere: { shadows: true },
+    light: {
+      lightType: "directionalLight",
+      lightColor: "#ffffffff",
+      lightIntensity: 2,
+      lightDirectionX: 0.7650124487710819,
+      lightDirectionY: -0.6418383470612292,
+      lightDirectionZ: -0.05291020191779678,
+    },
   },
   datasets: [],
   userStory: undefined,
@@ -108,7 +117,7 @@ if (
     reearth.clientStorage.setAsync("isMobile", false);
   }
   reearth.clientStorage.getAsync("doNotShowWelcome").then((value: any) => {
-    if (!value && !reearth.scene.inEditor) {
+    if (!value && !inEditor()) {
       reearth.modal.show(welcomeScreenHtml, {
         width: reearth.viewport.width,
         height: reearth.viewport.height,
@@ -147,27 +156,21 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
 
   // Sidebar
   if (action === "init") {
-    reearth.clientStorage.getAsync("isMobile").then((isMobile: boolean) => {
-      reearth.clientStorage.getAsync("draftProject").then((draftProject: Project) => {
-        const outBoundPayload = {
-          projectID: reearth.viewport.query.share || reearth.viewport.query.projectID,
-          inEditor: reearth.scene.inEditor,
-          catalogURL: reearth.widget.property.default?.catalogURL ?? "",
-          catalogProjectName: reearth.widget.property.default?.catalogProjectName ?? "",
-          reearthURL: reearth.widget.property.default?.reearthURL ?? "",
-          backendURL: reearth.widget.property.default?.plateauURL ?? "",
-          backendProjectName: reearth.widget.property.default?.projectName ?? "",
-          backendAccessToken: reearth.widget.property.default?.plateauAccessToken ?? "",
-          enableGeoPub: reearth.widget.property.default?.enableGeoPub ?? false,
-          draftProject,
-          searchTerm,
-        };
-        if (isMobile) {
-          reearth.popup.postMessage({ action, payload: outBoundPayload });
-        } else {
-          reearth.ui.postMessage({ action, payload: outBoundPayload });
-        }
-      });
+    reearth.clientStorage.getAsync("draftProject").then((draftProject: Project) => {
+      const outBoundPayload = {
+        projectID: reearth.viewport.query.share || reearth.viewport.query.projectID,
+        inEditor: inEditor(),
+        catalogURL: reearth.widget.property.default?.catalogURL ?? "",
+        catalogProjectName: reearth.widget.property.default?.catalogProjectName ?? "",
+        reearthURL: reearth.widget.property.default?.reearthURL ?? "",
+        backendURL: reearth.widget.property.default?.plateauURL ?? "",
+        backendProjectName: reearth.widget.property.default?.projectName ?? "",
+        backendAccessToken: reearth.widget.property.default?.plateauAccessToken ?? "",
+        enableGeoPub: reearth.widget.property.default?.enableGeoPub ?? false,
+        draftProject,
+        searchTerm,
+      };
+      reearth.ui.postMessage({ action, payload: outBoundPayload });
     });
   } else if (action === "storageSave") {
     reearth.clientStorage.setAsync(payload.key, payload.value);
@@ -252,6 +255,10 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
       action,
       payload: reearth.scene.captureScreen(undefined, 0.01),
     });
+    reearth.popup.postMessage({
+      action,
+      payload: reearth.scene.captureScreen(undefined, 0.01),
+    });
   } else if (action === "msgFromModal") {
     reearth.ui.postMessage({ action, payload });
   } else if (action === "minimize") {
@@ -286,7 +293,7 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
       payload: {
         catalog,
         addedDatasets: addedDatasets.map(d => d[0]),
-        inEditor: reearth.scene.inEditor,
+        inEditor: inEditor(),
         searchTerm,
         expandedFolders,
         dataset,
@@ -329,9 +336,24 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
       reearth.camera.flyTo(layerID);
     }
   } else if (action === "cameraLookAt") {
-    reearth.camera.lookAt(...payload);
+    if (reearth.scene?.property?.terrain?.terrain) {
+      reearth.scene
+        .sampleTerrainHeight(payload[0].lng, payload[0].lat)
+        .then((terrainHeight: number | undefined) => {
+          reearth.camera.lookAt(
+            {
+              ...payload[0],
+              height: (payload[0].height ?? 0) + (terrainHeight ?? 0),
+            },
+            payload[1],
+          );
+        });
+    } else {
+      reearth.camera.lookAt(...payload);
+    }
   } else if (action === "getCurrentCamera") {
     reearth.ui.postMessage({ action, payload: reearth.camera.position });
+    reearth.popup.postMessage({ action, payload: reearth.camera.position });
   } else if (action === "checkIfMobile") {
     reearth.ui.postMessage({ action, payload: reearth.viewport.isMobile });
   } else if (action === "extendPopup") {
@@ -343,12 +365,14 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
     const { dataID } = payload;
     const layerID = addedDatasets.find(a => a[0] === dataID)?.[2];
     const layer = reearth.layers.findById(layerID);
+    const overriddenLayer = reearth.layers.overridden.find((l: any) => l.id === layerID);
     reearth.ui.postMessage({
       action,
       payload: {
+        dataID,
         layer: {
           id: layer.id,
-          data: layer.data,
+          data: { ...layer.data, ...overriddenLayer.data },
         },
       },
     });
@@ -356,12 +380,21 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
     const { dataID } = payload;
     const layerID = addedDatasets.find(l => l[0] === dataID)?.[2];
     const overriddenLayer = reearth.layers.overridden.find((l: any) => l.id === layerID);
-    reearth.ui.postMessage({
-      action,
-      payload: {
-        overriddenLayer,
-      },
-    });
+    if (reearth.viewport.isMobile) {
+      reearth.popup.postMessage({
+        action,
+        payload: {
+          overriddenLayer,
+        },
+      });
+    } else {
+      reearth.ui.postMessage({
+        action,
+        payload: {
+          overriddenLayer,
+        },
+      });
+    }
   } else if (action === "updateMVTRaster") {
     const { layerId, maxzoom } = payload;
     reearth.layers.override(layerId, {
@@ -371,6 +404,28 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
     });
   } else if (action === "unselect") {
     reearth.layers.select();
+  }
+
+  // ************************************************
+  // Mobile actions
+  else if (
+    action === "mobileDatasetAdd" ||
+    action === "mobileDatasetUpdate" ||
+    action === "mobileDatasetRemove" ||
+    action === "mobileDatasetRemoveAll" ||
+    action === "mobileProjectDatasetsUpdate" ||
+    action === "mobileProjectSceneUpdate" ||
+    action === "mobileBuildingSearch"
+  ) {
+    reearth.ui.postMessage({ action, payload });
+  } else if (action === "initMobileCatalog") {
+    if (payload) {
+      reearth.popup.postMessage({ action, payload });
+    } else {
+      reearth.ui.postMessage({ action });
+    }
+  } else if (action === "mobileCatalogOpen") {
+    reearth.popup.postMessage({ action, payload });
   }
 
   // ************************************************
@@ -398,7 +453,7 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
     if (openedBuildingSearchDataID) {
       reearth.ui.postMessage({
         action: "buildingSearchClose",
-        paylaod: {
+        payload: {
           dataID: openedBuildingSearchDataID,
         },
       });
@@ -451,16 +506,28 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
     const { dataID } = payload;
     const tilesetLayerID = addedDatasets.find(a => a[0] === dataID)?.[2];
     const tilesetLayer = reearth.layers.findById(tilesetLayerID);
-    reearth.ui.postMessage({
+    const overriddenTilesetLayer = reearth.layers.overridden.find(
+      (l: any) => l.id === tilesetLayerID,
+    );
+    const postMsgResp = {
       action,
       payload: {
+        dataID,
         layer: {
           id: tilesetLayer.id,
-          data: tilesetLayer.data,
-          ["3dtiles"]: tilesetLayer?.["3dtiles"],
+          data: {
+            ...(tilesetLayer?.data ?? {}),
+            ...(overriddenTilesetLayer?.data ?? {}),
+          },
+          ["3dtiles"]: {
+            ...(tilesetLayer?.["3dtiles"] ?? {}),
+            ...(overriddenTilesetLayer?.["3dtiles"] ?? {}),
+          },
         },
       },
-    });
+    };
+    reearth.ui.postMessage(postMsgResp);
+    reearth.popup.postMessage(postMsgResp);
   }
 });
 
@@ -520,10 +587,29 @@ reearth.on("pluginmessage", (pluginMessage: PluginMessage) => {
 
 let currentSelectedFeatureId: string;
 
+const findMergedLayer = (id: string | undefined) => {
+  const l = reearth.layers.findById(id);
+  const overridden = reearth.layers.overridden.find((l: any) => l.id === id);
+  return {
+    ...l,
+    ...overridden,
+    data: {
+      ...(l?.data ?? {}),
+      ...(overridden?.data ?? {}),
+    },
+    "3dtiles": {
+      ...(l?.["3dtiles"] ?? {}),
+      ...(overridden?.["3dtiles"] ?? {}),
+    },
+  };
+};
+
 reearth.on("select", (selected: string | undefined) => {
   const prevSelected = currentSelected ?? selected;
   // this is used for infobox
   currentSelected = selected;
+
+  const isSameLayer = currentSelected === prevSelected;
 
   const featureId = reearth.layers.selectedFeature?.id; // For 3dtiles
   const prevSelectedFeatureId = currentSelectedFeatureId ?? featureId;
@@ -533,7 +619,7 @@ reearth.on("select", (selected: string | undefined) => {
   let shouldUpdateTilesetColor = false;
 
   // Reset previous select color for 3dtiles
-  const prevOverriddenLayer = reearth.layers.overridden.find((l: any) => l.id === prevSelected);
+  const prevOverriddenLayer = findMergedLayer(prevSelected);
   const prevCondition = prevOverriddenLayer?.["3dtiles"]?.color?.expression?.conditions;
   if (prevOverriddenLayer && prevOverriddenLayer.data.type === "3dtiles") {
     shouldUpdateTilesetColor =
@@ -547,8 +633,7 @@ reearth.on("select", (selected: string | undefined) => {
   }
 
   if (
-    !currentSelected &&
-    !currentSelectedFeatureId &&
+    ((!currentSelected && !currentSelectedFeatureId) || !isSameLayer) &&
     prevOverriddenLayer.data.type === "3dtiles" &&
     prevSelectedFeatureId &&
     prevCondition?.find((c: [string, string]) => c[0] === `\${id} === "${prevSelectedFeatureId}"`)
@@ -562,11 +647,13 @@ reearth.on("select", (selected: string | undefined) => {
         },
       },
     });
-    return;
+    if (isSameLayer) {
+      return;
+    }
   }
 
   // Handle select color for 3dtiles
-  const overriddenLayer = reearth.layers.overridden.find((l: any) => l.id === currentSelected);
+  const overriddenLayer = findMergedLayer(currentSelected);
   if (
     overriddenLayer?.data?.type === "3dtiles" &&
     currentSelectedFeatureId &&
@@ -578,10 +665,11 @@ reearth.on("select", (selected: string | undefined) => {
           expression: {
             conditions: [
               [`\${id} === "${currentSelectedFeatureId}"`, "color('red')"],
-              ...(nextConditions ??
-                overriddenLayer?.["3dtiles"]?.color?.expression?.conditions ?? [
-                  ["true", "color('white')"],
-                ]),
+              ...(isSameLayer && nextConditions
+                ? nextConditions
+                : overriddenLayer?.["3dtiles"]?.color?.expression?.conditions ?? [
+                    ["true", "color('white')"],
+                  ]),
             ],
           },
         },
@@ -594,7 +682,7 @@ reearth.on("popupclose", () => {
   if (openedBuildingSearchDataID) {
     reearth.ui.postMessage({
       action: "buildingSearchClose",
-      paylaod: {
+      payload: {
         dataID: openedBuildingSearchDataID,
       },
     });

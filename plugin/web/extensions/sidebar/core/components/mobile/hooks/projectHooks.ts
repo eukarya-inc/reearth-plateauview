@@ -9,14 +9,13 @@ import {
 import { merge } from "lodash";
 import { useCallback, useEffect, useRef, useState } from "react";
 
-import { BuildingSearch, Data, DataCatalogItem, Template } from "../../types";
+import { BuildingSearch, Data, DataCatalogItem, Template } from "../../../types";
 import {
   StoryItem,
   Story as FieldStory,
   FieldComponent,
-} from "../content/common/DatasetCard/Field/Fields/types";
-
-import { mergeOverrides } from "./utils";
+} from "../../content/common/DatasetCard/Field/Fields/types";
+import { mergeOverrides } from "../../utils";
 
 export const defaultProject: Project = {
   sceneOverrides: {
@@ -32,7 +31,7 @@ export const defaultProject: Project = {
         height: 2219.7187259974316,
       },
       sceneMode: "3d",
-      depthTestAgainstTerrain: true,
+      depthTestAgainstTerrain: false,
     },
     terrain: {
       terrain: true,
@@ -55,6 +54,14 @@ export const defaultProject: Project = {
       },
     ],
     atmosphere: { shadows: true },
+    light: {
+      lightType: "directionalLight",
+      lightColor: "#ffffffff",
+      lightIntensity: 2,
+      lightDirectionX: 0.7650124487710819,
+      lightDirectionY: -0.6418383470612292,
+      lightDirectionZ: -0.05291020191779678,
+    },
   },
   datasets: [],
   userStory: undefined,
@@ -83,8 +90,36 @@ export default ({
       let overrides = undefined;
 
       const flattenedComponents = flattenComponents(dataset.components);
-      const inactiveFields = flattenedComponents?.filter(c => !activeIDs.find(id => id === c.id));
-      const activeFields = flattenedComponents?.filter(c => !!activeIDs.find(id => id === c.id));
+      const inactiveFields = flattenedComponents
+        ?.filter(c => !activeIDs.find(id => id === c.id))
+        .map(c => {
+          if (c.type === "switchDataset" && !c.cleanseOverride) {
+            c.cleanseOverride = {
+              data: {
+                url: dataset.config?.data?.[0].url,
+                time: {
+                  updateClockOnLoad: false,
+                },
+              },
+            };
+          }
+          return c;
+        });
+      const activeFields = flattenedComponents
+        ?.filter(c => !!activeIDs.find(id => id === c.id))
+        .map(c => {
+          if (c.type === "switchDataset" && !c.cleanseOverride) {
+            c.cleanseOverride = {
+              data: {
+                url: dataset.config?.data?.[0].url,
+                time: {
+                  updateClockOnLoad: false,
+                },
+              },
+            };
+          }
+          return c;
+        });
 
       const buildingSearchField = buildingSearch?.find(b => b.dataID === dataset.dataID);
       if (buildingSearchField) {
@@ -113,6 +148,7 @@ export default ({
           datasets,
         };
         postMsg({ action: "updateProject", payload: updatedProject });
+        postMsg({ action: "msgToPopup", payload: { project: updatedProject } });
         return updatedProject;
       });
     },
@@ -122,6 +158,8 @@ export default ({
   const handleProjectDatasetAdd = useCallback(
     (dataset: DataCatalogItem | UserDataItem) => {
       const datasetToAdd = { ...dataset } as DataCatalogItem;
+
+      datasetToAdd.selectedGroup = getDefaultGroup(datasetToAdd.components, fieldTemplates);
 
       if (!dataset.components?.length) {
         const defaultTemplate = fieldTemplates?.find(ft =>
@@ -142,6 +180,7 @@ export default ({
               },
             },
           ];
+          datasetToAdd.selectedGroup = getDefaultGroup(defaultTemplate.components);
         }
       }
 
@@ -154,16 +193,16 @@ export default ({
         };
 
         postMsg({ action: "updateProject", payload: updatedProject });
+        postMsg({ action: "msgToPopup", payload: { project: updatedProject } });
 
         return updatedProject;
       });
 
-      const selectedGroup = getDefaultGroup(datasetToAdd.components);
-
       const activeIDs = getActiveFieldIDs(
         datasetToAdd.components,
-        selectedGroup,
+        datasetToAdd.selectedGroup,
         datasetToAdd.config?.data,
+        fieldTemplates,
       );
 
       const overrides = processOverrides(datasetToAdd, activeIDs);
@@ -186,6 +225,7 @@ export default ({
         datasets: datasets.filter(d => d.dataID !== dataID),
       };
       postMsg({ action: "updateProject", payload: updatedProject });
+      postMsg({ action: "msgToPopup", payload: { project: updatedProject } });
       return updatedProject;
     });
     postMsg({ action: "removeDatasetFromScene", payload: dataID });
@@ -198,6 +238,7 @@ export default ({
         datasets: [],
       };
       postMsg({ action: "updateProject", payload: updatedProject });
+      postMsg({ action: "msgToPopup", payload: { project: updatedProject } });
       return updatedProject;
     });
     postMsg({ action: "removeAllDatasetsFromScene" });
@@ -210,23 +251,23 @@ export default ({
         datasets,
       };
       postMsg({ action: "updateProject", payload: updatedProject });
+      postMsg({ action: "msgToPopup", payload: { project: updatedProject } });
       return updatedProject;
     });
   }, []);
 
   const handleOverride = useCallback(
-    (dataID: string, activeIDs?: string[]) => {
-      const dataset = project.datasets.find(d => d.dataID === dataID);
+    (dataset: DataCatalogItem, activeIDs?: string[]) => {
       if (dataset) {
         const overrides = processOverrides(dataset, activeIDs);
 
         postMsg({
           action: "updateDatasetInScene",
-          payload: { dataID, overrides },
+          payload: { dataID: dataset.dataID, overrides },
         });
       }
     },
-    [project.datasets, processOverrides],
+    [processOverrides],
   );
 
   const handleStorySaveData = useCallback(
@@ -269,7 +310,7 @@ export default ({
 
   useEffect(() => {
     if (!backendURL || !backendProjectName || fetchedSharedProject.current) return;
-    if (projectID && processedCatalog.length) {
+    if (projectID && processedCatalog?.length) {
       (async () => {
         const res = await fetch(`${backendURL}/share/${backendProjectName}/${projectID}`);
         if (res.status !== 200) return;
@@ -305,12 +346,12 @@ export default ({
     updateProject,
     setProjectID,
     setCleanseOverride,
+    handleOverride,
     handleProjectSceneUpdate,
     handleProjectDatasetAdd,
     handleProjectDatasetRemove,
     handleProjectDatasetRemoveAll,
     handleProjectDatasetsUpdate,
     handleStorySaveData,
-    handleOverride,
   };
 };
