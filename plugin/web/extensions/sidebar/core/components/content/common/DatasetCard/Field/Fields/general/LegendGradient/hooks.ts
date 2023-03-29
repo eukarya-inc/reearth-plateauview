@@ -1,4 +1,3 @@
-//import { getColorsGradients } from "@web/extensions/sidebar/utils";
 import { generateColorGradient } from "@web/extensions/sidebar/utils/color";
 import { useCallback, useEffect, useState } from "react";
 

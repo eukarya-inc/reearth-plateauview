@@ -4,7 +4,7 @@ import { ReearthApi } from "@web/extensions/sidebar/types";
 export const generalFieldName = {
   idealZoom: "カメラ",
   legend: "凡例",
-  legendGradient: "Legend Gradient",
+  legendGradient: "凡例（グラデーション)",
   realtime: "リアルタイム",
   story: "ストーリー",
   timeline: "タイムライン",
