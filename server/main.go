@@ -182,8 +182,6 @@ func proxyHandlerFunc(c echo.Context) error {
     return nil
 }
 
-
-
 type customValidator struct {
 	validator *validator.Validate
 }
