@@ -30,6 +30,7 @@ type Props = {
     >
   >;
   onSearch: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  setSearchTerm: (searchTerm: string) => void;
   onDatasetAdd: (dataset: DataCatalogItem | UserDataItem, keepModalOpen?: boolean) => void;
 };
 
@@ -43,6 +44,7 @@ const Catalog: React.FC<Props> = ({
   setSelectedDataset,
   setExpandedFolders,
   onSearch,
+  setSearchTerm,
   onDatasetAdd,
 }) => {
   const [filter, setFilter] = useState<GroupBy>("city");
@@ -65,8 +67,11 @@ const Catalog: React.FC<Props> = ({
     (tab: TreeTab) => {
       changeTreeTab(tab);
       handleFilter(tab);
+      postMsg({ action: "saveCurrentTreeTab", payload: { currentTreeTab: tab } });
+      setExpandedFolders?.([]);
+      postMsg({ action: "saveExpandedFolders", payload: { expandedFolders: [] } });
     },
-    [handleFilter],
+    [handleFilter, setExpandedFolders],
   );
 
   const addDisabled = useCallback(
@@ -90,6 +95,28 @@ const Catalog: React.FC<Props> = ({
       setPage("details");
     }
   }, [selectedDataset, page, setPage, setSelectedDataset]);
+
+  useEffect(() => {
+    postMsg({ action: "getTreeFilterData" }); // Needed to trigger sending selected dataset ids from Sidebar
+  }, []);
+
+  useEffect(() => {
+    const eventListenerCallback = (e: MessageEvent<any>) => {
+      if (e.source !== parent) return;
+      if (e.data.action === "getTreeFilterData") {
+        if (e.data.payload.currentTreeTab) {
+          handleFilter(e.data.payload.currentTreeTab);
+          changeTreeTab(e.data.payload.currentTreeTab);
+        }
+        if (e.data.payload.searchTerm) setSearchTerm(e.data.payload.searchTerm);
+        if (e.data.payload.expandedFolders) setExpandedFolders?.(e.data.payload.expandedFolders);
+      }
+    };
+    addEventListener("message", eventListenerCallback);
+    return () => {
+      removeEventListener("message", eventListenerCallback);
+    };
+  }, [handleFilter, handleTreeTabChange, onSearch, setExpandedFolders, setSearchTerm]);
 
   return (
     <Wrapper>
