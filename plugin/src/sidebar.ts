@@ -294,12 +294,30 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
         catalog,
         addedDatasets: addedDatasets.map(d => d[0]),
         inEditor: inEditor(),
-        searchTerm,
-        expandedFolders,
-        dataset,
-        currentTreeTab,
       },
     });
+  } else if (action === "getTreeFilterData") {
+    if (reearth.viewport.isMobile) {
+      reearth.popup.postMessage({
+        action,
+        payload: {
+          searchTerm,
+          expandedFolders,
+          dataset,
+          currentTreeTab,
+        },
+      });
+    } else {
+      reearth.modal.postMessage({
+        action,
+        payload: {
+          searchTerm,
+          expandedFolders,
+          dataset,
+          currentTreeTab,
+        },
+      });
+    }
   } else if (action === "helpPopupOpen") {
     reearth.popup.show(helpPopupHtml, { position: "right-start", offset: 4 });
   } else if (action === "groupSelectOpen") {

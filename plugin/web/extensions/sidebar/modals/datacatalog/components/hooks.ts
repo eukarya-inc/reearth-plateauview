@@ -86,13 +86,21 @@ export default () => {
   }, []);
 
   useEffect(() => {
+    postMsg({ action: "getTreeFilterData" });
+  }, []);
+
+  useEffect(() => {
     const eventListenerCallback = (e: MessageEvent<any>) => {
       if (e.source !== parent) return;
       if (e.data.action === "initDataCatalog") {
         setAddedDatasetDataIDs(e.data.payload.addedDatasets);
         setCatalog(e.data.payload.catalog);
         setEditorState(e.data.payload.inEditor);
-        if (e.data.payload.currentTreeTab) handleTreeTabChange(e.data.payload.currentTreeTab);
+      } else if (e.data.action === "getTreeFilterData") {
+        if (e.data.payload.currentTreeTab) {
+          handleFilter(e.data.payload.currentTreeTab);
+          changeTreeTab(e.data.payload.currentTreeTab);
+        }
         if (e.data.payload.searchTerm) setSearchTerm(e.data.payload.searchTerm);
         if (e.data.payload.expandedFolders) setExpandedFolders(e.data.payload.expandedFolders);
         if (e.data.payload.dataset) {
@@ -124,7 +132,7 @@ export default () => {
     return () => {
       removeEventListener("message", eventListenerCallback);
     };
-  }, [handleOpenDetails, handleSelect, handleTreeTabChange]);
+  }, [handleFilter, handleOpenDetails, handleSelect]);
 
   return {
     currentTab,
