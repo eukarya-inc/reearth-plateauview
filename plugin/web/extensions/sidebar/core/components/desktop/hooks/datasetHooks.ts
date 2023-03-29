@@ -1,9 +1,18 @@
 import { Project } from "@web/extensions/sidebar/types";
 import { postMsg } from "@web/extensions/sidebar/utils";
-import { useCallback } from "react";
+import { formatDateTime } from "@web/extensions/sidebar/utils/date";
+import { findLast } from "lodash";
+import { useCallback, useRef } from "react";
 
 import { Data, DataCatalogItem, Template } from "../../../types";
 import { convertToData } from "../../utils";
+
+const initTimeline = () => {
+  const now = Date.now();
+  const start = new Date(now).toISOString();
+  const stop = new Date(now + 86400000).toISOString();
+  return { current: start, start: start, stop: stop };
+};
 
 export default ({
   data,
@@ -65,6 +74,8 @@ export default ({
     [data, templates, backendAccessToken, backendURL, backendProjectName, handleBackendFetch],
   );
 
+  const isTimelineInitialized = useRef(false);
+
   const handleDatasetUpdate = useCallback(
     (updatedDataset: DataCatalogItem, cleanseOverride?: any) => {
       updateProject?.(project => {
@@ -80,12 +91,33 @@ export default ({
           if (cleanseOverride) {
             setCleanseOverride?.(cleanseOverride);
           }
+
           updatedDatasets[datasetIndex] = updatedDataset;
         }
+
         const updatedProject = {
           ...project,
           datasets: updatedDatasets,
         };
+
+        const item = findLast(updatedDataset.components, item => item.type === "currentTime");
+        if (item && item?.type === "currentTime") {
+          updatedProject.sceneOverrides = {
+            ...updatedProject.sceneOverrides,
+            timeline: {
+              current: formatDateTime(item.currentDate, item.currentTime),
+              start: formatDateTime(item.startDate, item.startTime),
+              stop: formatDateTime(item.stopDate, item.stopTime),
+            },
+          };
+          isTimelineInitialized.current = false;
+        }
+
+        if (!item && !isTimelineInitialized.current) {
+          updatedProject.sceneOverrides.timeline = initTimeline();
+          isTimelineInitialized.current = true;
+        }
+
         postMsg({ action: "updateProject", payload: updatedProject });
         return updatedProject;
       });
