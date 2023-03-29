@@ -137,5 +137,17 @@ const generateOverride = (items: PolygonStrokeType["items"]) => {
         },
       },
     },
+    resource: {
+      stroke: {
+        expression: {
+          conditions: strokeColorConditions,
+        },
+      },
+      strokeWidth: {
+        expression: {
+          conditions: strokeWidthConditions,
+        },
+      },
+    },
   };
 };

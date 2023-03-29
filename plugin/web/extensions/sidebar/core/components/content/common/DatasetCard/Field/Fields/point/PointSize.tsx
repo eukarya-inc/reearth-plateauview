@@ -18,7 +18,7 @@ const PointSize: React.FC<BaseFieldProps<"pointSize">> = ({ value, editMode, onU
       onUpdate({
         ...value,
         pointSize: size,
-        override: { marker: { style: "point", pointSize: size } },
+        override: { marker: { style: "point", pointSize: size }, resource: { markerSize: size } },
       });
     }, 500);
     return () => {

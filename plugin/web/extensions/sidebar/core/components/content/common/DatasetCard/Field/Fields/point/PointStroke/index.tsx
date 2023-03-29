@@ -131,5 +131,17 @@ const generateOverride = (items: PointStrokeType["items"]) => {
         },
       },
     },
+    resource: {
+      stroke: {
+        expression: {
+          conditions: pointOutlineColorConditions,
+        },
+      },
+      strokeWidth: {
+        expression: {
+          conditions: pointOutlineWidthConditions,
+        },
+      },
+    },
   };
 };

@@ -110,5 +110,8 @@ const generateOverride = (items: PolygonColorType["items"]) => {
       },
       fillColor: { expression: { conditions: fillColorConditions } },
     },
+    resource: {
+      fill: { expression: { conditions: fillColorConditions } },
+    },
   };
 };

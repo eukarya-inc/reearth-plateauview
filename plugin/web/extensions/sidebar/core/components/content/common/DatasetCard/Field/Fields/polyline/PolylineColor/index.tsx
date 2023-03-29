@@ -113,5 +113,12 @@ const generateOverride = (items: PolylineColorType["items"]) => {
         },
       },
     },
+    resource: {
+      stroke: {
+        expression: {
+          conditions: strokeColorConditions,
+        },
+      },
+    },
   };
 };
