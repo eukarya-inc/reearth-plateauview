@@ -10,7 +10,6 @@ import DatasetDetails, { Tag } from "./Details";
 
 export type Props = {
   catalog?: DataCatalogItem[];
-  currentTreeTab: "city" | "type";
   addedDatasetDataIDs?: string[];
   inEditor?: boolean;
   selectedDatasetID?: string;
@@ -25,12 +24,10 @@ export type Props = {
   onDatasetAdd: (dataset: DataCatalogItem | UserDataItem, keepModalOpen?: boolean) => void;
   onFilter: (filter: GroupBy) => void;
   onDatasetPublish: (dataID: string, publish: boolean) => void;
-  onTreeTabChange: (tab: "city" | "type") => void;
 };
 
 const DatasetsPage: React.FC<Props> = ({
   catalog,
-  currentTreeTab,
   addedDatasetDataIDs,
   inEditor,
   selectedDatasetID,
@@ -45,7 +42,6 @@ const DatasetsPage: React.FC<Props> = ({
   onFilter,
   onDatasetAdd,
   onDatasetPublish,
-  onTreeTabChange,
 }) => {
   const [selectedTags, selectTags] = useState<Tag[]>([]);
 
@@ -77,7 +73,6 @@ const DatasetsPage: React.FC<Props> = ({
         <DatasetTree
           addedDatasetDataIDs={addedDatasetDataIDs}
           catalog={catalog}
-          currentTreeTab={currentTreeTab}
           selectedTags={selectedTags}
           filter={filter}
           selectedItem={selectedItem}
@@ -87,9 +82,9 @@ const DatasetsPage: React.FC<Props> = ({
           onSearch={onSearch}
           onSelect={onSelect}
           addDisabled={addDisabled}
+          onFilter={onFilter}
           onTagSelect={handleTagSelect}
           onOpenDetails={onOpenDetails}
-          onTreeTabChange={onTreeTabChange}
           onDatasetAdd={onDatasetAdd}
         />
       }

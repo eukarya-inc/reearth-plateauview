@@ -13,7 +13,6 @@ export type Props = {
   addedDatasetDataIDs?: string[];
   isMobile?: boolean;
   catalog?: DataCatalogItem[];
-  currentTreeTab: "city" | "type";
   selectedTags?: Tag[];
   filter: GroupBy;
   selectedItem?: DataCatalogItem;
@@ -23,10 +22,10 @@ export type Props = {
   onSearch: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onSelect?: (item?: DataCatalogItem) => void;
   addDisabled: (dataID: string) => boolean;
+  onFilter: (filter: GroupBy) => void;
   onTagSelect?: (tag: Tag) => void;
   onDatasetAdd: (dataset: DataCatalogItem, keepModalOpen?: boolean) => void;
   onOpenDetails?: (data?: DataCatalogItem) => void;
-  onTreeTabChange: (tab: "city" | "type") => void;
 };
 
 // function typeFilter(catalog: Catalog): DataCatalog {
@@ -61,7 +60,6 @@ const DatasetTree: React.FC<Props> = ({
   addedDatasetDataIDs,
   isMobile,
   catalog,
-  currentTreeTab,
   selectedTags,
   filter,
   selectedItem,
@@ -71,8 +69,8 @@ const DatasetTree: React.FC<Props> = ({
   onSearch,
   onSelect,
   addDisabled,
+  onFilter,
   onTagSelect,
-  onTreeTabChange,
   onDatasetAdd,
   onOpenDetails,
 }) => {
@@ -108,9 +106,9 @@ const DatasetTree: React.FC<Props> = ({
       {showTags && <Tags tags={selectedTags} onTagSelect={onTagSelect} />}
       {searchTerm.length > 0 && <p style={{ margin: "0", alignSelf: "center" }}>検索結果</p>}
       <StyledTabs
-        activeKey={currentTreeTab}
+        activeKey={filter}
         tabBarStyle={showTabs ? { display: "none" } : { userSelect: "none" }}
-        onChange={active => onTreeTabChange(active as "city" | "type")}>
+        onChange={active => onFilter(active as GroupBy)}>
         <Tabs.TabPane key="city" tab="都道府県">
           {dataCatalogTree && (
             <FileTree

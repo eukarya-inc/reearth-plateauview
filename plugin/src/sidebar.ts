@@ -92,7 +92,7 @@ let addedDatasets: [dataID: string, status: "showing" | "hidden", layerID?: stri
 let searchTerm = "";
 let expandedFolders: { id?: string; name?: string }[] = [];
 let dataset: DataCatalogItem | undefined = undefined;
-let currentTreeTab: "city" | "type" = "city";
+let filter = "city";
 
 const sidebarInstance: PluginExtensionInstance = reearth.plugins.instances.find(
   (i: PluginExtensionInstance) => i.id === reearth.widget.id,
@@ -280,8 +280,8 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
     expandedFolders = [...payload.expandedFolders];
   } else if (action === "saveDataset") {
     dataset = { ...payload.dataset };
-  } else if (action === "saveCurrentTreeTab") {
-    currentTreeTab = payload.currentTreeTab;
+  } else if (action === "saveFilter") {
+    filter = payload.filter;
   } else if (action === "triggerHelpOpen") {
     reearth.ui.postMessage({ action });
   } else if (action === "modalClose") {
@@ -304,7 +304,7 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
           searchTerm,
           expandedFolders,
           dataset,
-          currentTreeTab,
+          filter,
         },
       });
     } else {
@@ -314,7 +314,7 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
           searchTerm,
           expandedFolders,
           dataset,
-          currentTreeTab,
+          filter,
         },
       });
     }

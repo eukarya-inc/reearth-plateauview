@@ -7,11 +7,9 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { GroupBy } from "../api/api";
 
 export type Tab = "dataset" | "your-data";
-export type TreeTab = "city" | "type";
 
 export default () => {
   const [currentTab, changeTabs] = useState<Tab>("dataset");
-  const [currentTreeTab, changeTreeTab] = useState<TreeTab>("city");
   const [addedDatasetDataIDs, setAddedDatasetDataIDs] = useState<string[]>();
   const [catalog, setCatalog] = useState<DataCatalogItem[]>([]);
   const [inEditor, setEditorState] = useState(false);
@@ -51,6 +49,9 @@ export default () => {
 
   const handleFilter = useCallback((filter: GroupBy) => {
     setFilter(filter);
+    postMsg({ action: "saveFilter", payload: { filter } });
+    setExpandedFolders([]);
+    postMsg({ action: "saveExpandedFolders", payload: { expandedFolders: [] } });
   }, []);
 
   const handleDatasetAdd = useCallback(
@@ -70,17 +71,6 @@ export default () => {
     postMsg({ action: "updateDataset", payload: { dataID, publish } });
   }, []);
 
-  const handleTreeTabChange = useCallback(
-    (treeTab: TreeTab) => {
-      handleFilter(treeTab);
-      changeTreeTab(treeTab);
-      postMsg({ action: "saveCurrentTreeTab", payload: { currentTreeTab: treeTab } });
-      setExpandedFolders([]);
-      postMsg({ action: "saveExpandedFolders", payload: { expandedFolders: [] } });
-    },
-    [handleFilter],
-  );
-
   useEffect(() => {
     postMsg({ action: "initDataCatalog" }); // Needed to trigger sending selected dataset ids from Sidebar
   }, []);
@@ -97,9 +87,9 @@ export default () => {
         setCatalog(e.data.payload.catalog);
         setEditorState(e.data.payload.inEditor);
       } else if (e.data.action === "getTreeFilterData") {
-        if (e.data.payload.currentTreeTab) {
-          handleFilter(e.data.payload.currentTreeTab);
-          changeTreeTab(e.data.payload.currentTreeTab);
+        if (e.data.payload.filter) {
+          setFilter(e.data.payload.filter);
+          postMsg({ action: "saveFilter", payload: { filter: e.data.payload.filter } });
         }
         if (e.data.payload.searchTerm) setSearchTerm(e.data.payload.searchTerm);
         if (e.data.payload.expandedFolders) setExpandedFolders(e.data.payload.expandedFolders);
@@ -136,7 +126,6 @@ export default () => {
 
   return {
     currentTab,
-    currentTreeTab,
     catalog,
     addedDatasetDataIDs,
     inEditor,
@@ -152,7 +141,6 @@ export default () => {
     handleFilter,
     handleClose,
     handleTabChange: changeTabs,
-    handleTreeTabChange,
     handleDatasetAdd,
     handleDatasetPublish,
   };

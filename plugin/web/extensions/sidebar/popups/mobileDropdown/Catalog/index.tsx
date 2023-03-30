@@ -8,8 +8,6 @@ import { useCallback, useEffect, useState } from "react";
 
 import PopupItem from "../sharedComponents/PopupItem";
 
-type TreeTab = "city" | "type";
-
 type Props = {
   addedDatasetDataIDs?: string[];
   isMobile?: boolean;
@@ -48,7 +46,6 @@ const Catalog: React.FC<Props> = ({
   onDatasetAdd,
 }) => {
   const [filter, setFilter] = useState<GroupBy>("city");
-  const [currentTreeTab, changeTreeTab] = useState<TreeTab>("city");
   const [page, setPage] = useState<"catalog" | "details">("catalog");
 
   const handleOpenDetails = useCallback(
@@ -59,19 +56,14 @@ const Catalog: React.FC<Props> = ({
     [setSelectedDataset],
   );
 
-  const handleFilter = useCallback((filter: GroupBy) => {
-    setFilter(filter);
-  }, []);
-
-  const handleTreeTabChange = useCallback(
-    (tab: TreeTab) => {
-      changeTreeTab(tab);
-      handleFilter(tab);
-      postMsg({ action: "saveCurrentTreeTab", payload: { currentTreeTab: tab } });
+  const handleFilter = useCallback(
+    (filter: GroupBy) => {
+      setFilter(filter);
+      postMsg({ action: "saveFilter", payload: { filter } });
       setExpandedFolders?.([]);
       postMsg({ action: "saveExpandedFolders", payload: { expandedFolders: [] } });
     },
-    [handleFilter, setExpandedFolders],
+    [setExpandedFolders],
   );
 
   const addDisabled = useCallback(
@@ -104,9 +96,9 @@ const Catalog: React.FC<Props> = ({
     const eventListenerCallback = (e: MessageEvent<any>) => {
       if (e.source !== parent) return;
       if (e.data.action === "getTreeFilterData") {
-        if (e.data.payload.currentTreeTab) {
-          handleFilter(e.data.payload.currentTreeTab);
-          changeTreeTab(e.data.payload.currentTreeTab);
+        if (e.data.payload.filter) {
+          setFilter(e.data.payload.filter);
+          postMsg({ action: "saveFilter", payload: { filter: e.data.payload.filter } });
         }
         if (e.data.payload.searchTerm) setSearchTerm(e.data.payload.searchTerm);
         if (e.data.payload.expandedFolders) setExpandedFolders?.(e.data.payload.expandedFolders);
@@ -116,7 +108,7 @@ const Catalog: React.FC<Props> = ({
     return () => {
       removeEventListener("message", eventListenerCallback);
     };
-  }, [handleFilter, handleTreeTabChange, onSearch, setExpandedFolders, setSearchTerm]);
+  }, [handleFilter, onSearch, setExpandedFolders, setSearchTerm]);
 
   return (
     <Wrapper>
@@ -130,14 +122,13 @@ const Catalog: React.FC<Props> = ({
             selectedItem={selectedDataset}
             isMobile={isMobile}
             catalog={catalog}
-            currentTreeTab={currentTreeTab}
             filter={filter}
             searchTerm={searchTerm}
             expandedFolders={expandedFolders}
             setExpandedFolders={setExpandedFolders}
             addDisabled={addDisabled}
             onSearch={onSearch}
-            onTreeTabChange={handleTreeTabChange}
+            onFilter={handleFilter}
             onOpenDetails={handleOpenDetails}
             onDatasetAdd={onDatasetAdd}
           />
