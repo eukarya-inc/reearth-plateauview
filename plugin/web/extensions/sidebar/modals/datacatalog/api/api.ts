@@ -66,7 +66,7 @@ export async function getDataCatalog(
   }
 
   const data: RawDataCatalogItem[] = await res.json();
-  return data.map(modifyDataCatalog);
+  return data.map(modifyDataCatalog).filter(d => d.type_en !== "folder"); // TODO: support folder
 }
 
 export function modifyDataCatalog(
@@ -214,6 +214,7 @@ const types = [
   "bldg",
   "tran",
   "brid",
+  "rail",
   "veg",
   "frn",
   "luse",
