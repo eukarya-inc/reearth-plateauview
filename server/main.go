@@ -124,14 +124,23 @@ func errorMessage(err error, log func(string, ...interface{})) (int, string) {
 func proxyHandlerFunc(c echo.Context) error {
     // Extract the target URL from the request path
     targetPath := c.Param("*")
-    targetURL, err := url.Parse(targetPath)
-    if err != nil {
-        return c.JSON(http.StatusBadRequest, map[string]string{
-            "error": "Invalid target URL",
-        })
-    }
+	targetURL, err := url.ParseRequestURI(targetPath)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]string{
+			"error": "Invalid target URL",
+		})
+	}
 
-    // Create a new middleware.ProxyConfig with the target URL
+	// Add the scheme to the targetURL if not present
+	if targetURL.Scheme == "" {
+		targetURL.Scheme = "https"
+	}
+
+	// Append query string parameters to target URL
+    targetURL.RawQuery = c.QueryString()
+	fmt.Println("targetURL: ", targetURL)
+	
+    // Define the ProxyConfig object with custom Rewrite rules and ModifyResponse function
     proxyConfig := middleware.ProxyConfig{
         Balancer: middleware.NewRoundRobinBalancer([]*middleware.ProxyTarget{
             {
@@ -165,14 +174,12 @@ func proxyHandlerFunc(c echo.Context) error {
     })
 
     // Invoke the proxy middleware to handle the request and return the response
-    err = proxyMiddleware(c)
-    if err != nil {
+    if err := proxyMiddleware(c); err != nil {
         return err
     }
 
     return nil
 }
-
 
 type customValidator struct {
 	validator *validator.Validate
