@@ -1,5 +1,6 @@
-import { Radio } from "@web/sharedComponents";
+import { Checkbox, Radio } from "@web/sharedComponents";
 import { styled } from "@web/theme";
+import { useCallback, useState } from "react";
 
 import { BaseFieldProps } from "../../types";
 
@@ -19,7 +20,19 @@ const BuildingColor: React.FC<BaseFieldProps<"buildingColor">> = ({
     onUpdate,
   });
 
-  return editMode ? null : (
+  const [disableLegend, setDisableLegend] = useState(value.disableLegend);
+  const handleDisableLegend = useCallback(() => {
+    setDisableLegend(e => {
+      onUpdate({ ...value, disableLegend: !e });
+      return !e;
+    });
+  }, [value, onUpdate]);
+
+  return editMode ? (
+    <Checkbox style={{ margin: 0 }} checked={disableLegend} onChange={handleDisableLegend}>
+      <Text>凡例を非表示にする</Text>
+    </Checkbox>
+  ) : (
     <>
       <Radio.Group onChange={handleUpdateColorType} value={options.colorType} defaultValue="none">
         <StyledRadio value="none">
@@ -45,7 +58,7 @@ const BuildingColor: React.FC<BaseFieldProps<"buildingColor">> = ({
           </>
         )}
       </Radio.Group>
-      {initialized && (
+      {initialized && !disableLegend && (
         <LegendContainer>
           {options.colorType.startsWith("floods") ? (
             <LegendImage src={LEGEND_IMAGES.floods} />
@@ -72,6 +85,11 @@ const BuildingColor: React.FC<BaseFieldProps<"buildingColor">> = ({
 };
 
 export default BuildingColor;
+
+const Text = styled.p`
+  margin: 0;
+  font-size: 14px;
+`;
 
 const StyledRadio = styled(Radio)`
   width: 100%;
