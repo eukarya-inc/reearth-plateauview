@@ -143,7 +143,7 @@ func proxyHandlerFunc(c echo.Context) error {
     proxyConfig := middleware.ProxyConfig{
         Balancer: middleware.NewRoundRobinBalancer([]*middleware.ProxyTarget{
             {
-                URL: req.URL,
+                URL: targetURL,
             },
         }),
         ModifyResponse: func(resp *http.Response) error {
