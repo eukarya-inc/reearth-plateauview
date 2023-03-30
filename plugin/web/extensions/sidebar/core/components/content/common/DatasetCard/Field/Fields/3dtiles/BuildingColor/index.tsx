@@ -20,17 +20,22 @@ const BuildingColor: React.FC<BaseFieldProps<"buildingColor">> = ({
     onUpdate,
   });
 
-  const [disableLegend, setDisableLegend] = useState(value.disableLegend);
-  const handleDisableLegend = useCallback(() => {
-    setDisableLegend(e => {
-      onUpdate({ ...value, disableLegend: !e });
+  const [disableFloodRankLegend, setDisableFloodRankLegend] = useState(
+    value.disableFloodRankLegend,
+  );
+  const handleDisableFloodRankLegend = useCallback(() => {
+    setDisableFloodRankLegend(e => {
+      onUpdate({ ...value, disableFloodRankLegend: !e });
       return !e;
     });
   }, [value, onUpdate]);
 
   return editMode ? (
-    <Checkbox style={{ margin: 0 }} checked={disableLegend} onChange={handleDisableLegend}>
-      <Text>凡例を非表示にする</Text>
+    <Checkbox
+      style={{ margin: 0 }}
+      checked={disableFloodRankLegend}
+      onChange={handleDisableFloodRankLegend}>
+      <Text>浸水ランクの凡例を非表示にする</Text>
     </Checkbox>
   ) : (
     <>
@@ -58,11 +63,13 @@ const BuildingColor: React.FC<BaseFieldProps<"buildingColor">> = ({
           </>
         )}
       </Radio.Group>
-      {initialized && !disableLegend && (
+      {initialized && (
         <LegendContainer>
-          {options.colorType.startsWith("floods") ? (
+          {options.colorType.startsWith("floods") && !disableFloodRankLegend ? (
             <LegendImage src={LEGEND_IMAGES.floods} />
-          ) : options.colorType && options.colorType !== "none" ? (
+          ) : options.colorType &&
+            options.colorType !== "none" &&
+            !options.colorType.startsWith("floods") ? (
             <>
               <LegendLabel>凡例</LegendLabel>
               <LegendList>
