@@ -138,7 +138,6 @@ func proxyHandlerFunc(c echo.Context) error {
 
 	// Append query string parameters to target URL
     targetURL.RawQuery = c.QueryString()
-	fmt.Println("targetURL: ", targetURL)
 	
     // Define the ProxyConfig object with custom Rewrite rules and ModifyResponse function
     proxyConfig := middleware.ProxyConfig{
