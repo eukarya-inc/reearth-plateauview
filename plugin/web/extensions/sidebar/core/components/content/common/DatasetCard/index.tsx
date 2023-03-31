@@ -20,7 +20,7 @@ import { useDrag, useDrop } from "react-dnd";
 
 import AddButton from "./AddButton";
 import Field from "./Field";
-import { IdealZoom } from "./Field/Fields/types";
+import { IdealZoom, ConfigData } from "./Field/Fields/types";
 import useHooks from "./hooks";
 
 type Tabs = "default" | "edit";
@@ -73,6 +73,7 @@ const DatasetCard: React.FC<Props> = ({
   onSceneUpdate,
 }) => {
   const [currentTab, changeTab] = useState<Tabs>("default");
+  const [selectedDataset, selectDataset] = useState(dataset.config?.data?.[0]);
 
   const dragRef = useRef<HTMLDivElement>(null);
   const previewRef = useRef<HTMLDivElement>(null);
@@ -108,6 +109,10 @@ const DatasetCard: React.FC<Props> = ({
       | undefined
     >
   >();
+
+  const handleDatasetSelect = useCallback((dataset: ConfigData) => {
+    selectDataset(dataset);
+  }, []);
 
   // Fetch mvt position
   useEffect(() => {
@@ -335,10 +340,8 @@ const DatasetCard: React.FC<Props> = ({
   const exportData = async () => {
     if (dataset.url) {
       downloadData(dataset.url, dataset.name);
-    } else if (dataset.config?.data) {
-      const index = 0;
-      const data = dataset.config.data[index];
-      downloadData(data.url, data.name);
+    } else if (dataset.config?.data && selectedDataset) {
+      downloadData(selectedDataset.url, selectedDataset.name);
     }
   };
 
@@ -424,6 +427,8 @@ const DatasetCard: React.FC<Props> = ({
                   onCurrentGroupUpdate={handleCurrentGroupUpdate}
                   onCurrentDatasetUpdate={handleCurrentDatasetUpdate}
                   onSceneUpdate={onSceneUpdate}
+                  selectedDataset={selectedDataset}
+                  onDatasetSelect={handleDatasetSelect}
                 />
               ))}
             </Content>

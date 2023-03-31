@@ -463,6 +463,8 @@ export type BaseFieldProps<T extends keyof Fields> = {
   onSceneUpdate: (updatedProperties: Partial<ReearthApi>) => void;
   onCurrentGroupUpdate?: (fieldGroupID: string) => void;
   onCurrentDatasetUpdate?: (data?: ConfigData) => void;
+  selectedDataset?: any;
+  onDatasetSelect?: (data: any) => void;
 };
 
 export type ConfigData = { name: string; type: string; url: string; layer?: string[] };
