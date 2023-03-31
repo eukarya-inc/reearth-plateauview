@@ -3,9 +3,7 @@ import { RefObject, useCallback, useEffect, useMemo, useRef } from "react";
 
 import { BaseFieldProps } from "../../types";
 
-import { OptionsState } from "./constants";
-
-const BUILDING_AGE_PROPERTY_NAME = `建築年`;
+import { FILTERING_FIELD_DEFINITION, OptionsState } from "./constants";
 
 export const useBuildingFilter = ({
   options,
@@ -68,7 +66,9 @@ const renderTileset = (state: State, onUpdateRef: RefObject<(property: any) => v
       range: [from: number, to: number] | undefined,
       conditionalValue: string,
     ) =>
-      featurePropertyName === BUILDING_AGE_PROPERTY_NAME && min && min === range?.[0]
+      featurePropertyName === FILTERING_FIELD_DEFINITION.buildingAge.featurePropertyName &&
+      min &&
+      min === range?.[0]
         ? `true`
         : max === range?.[1]
         ? `${conditionalValue} >= ${range?.[0]}`
