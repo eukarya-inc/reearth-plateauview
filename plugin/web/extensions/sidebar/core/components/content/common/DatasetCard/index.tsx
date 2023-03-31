@@ -338,9 +338,11 @@ const DatasetCard: React.FC<Props> = ({
 
   const exportData = async () => {
     if (dataset.url) {
-      downloadData(dataset.url, getNameFromPath(dataset.name));
+      const filename = `${getNameFromPath(dataset.name)}.${dataset.format}`;
+      downloadData(dataset.url, filename);
     } else if (dataset.config?.data && selectedDatasetRef.current) {
-      downloadData(selectedDatasetRef.current.url, selectedDatasetRef.current.name);
+      const filename = `${selectedDatasetRef.current.name}.${dataset.format}`;
+      downloadData(selectedDatasetRef.current.url, filename);
     }
   };
 
