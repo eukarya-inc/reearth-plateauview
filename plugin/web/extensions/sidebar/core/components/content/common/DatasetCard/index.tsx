@@ -1,7 +1,7 @@
 import { BuildingSearch, DataCatalogItem, Template } from "@web/extensions/sidebar/core/types";
 import { ReearthApi } from "@web/extensions/sidebar/types";
 import { postMsg } from "@web/extensions/sidebar/utils";
-import { getNameFromPath } from "@web/extensions/sidebar/utils/file";
+import { getNameFromPath, joinNameWithExtension } from "@web/extensions/sidebar/utils/file";
 import { Dropdown, Icon, Menu, Spin } from "@web/sharedComponents";
 import { DownloadOutlined } from "@web/sharedComponents/Icon/icons";
 import { styled } from "@web/theme";
@@ -338,10 +338,10 @@ const DatasetCard: React.FC<Props> = ({
 
   const exportData = async () => {
     if (dataset.url) {
-      const filename = `${getNameFromPath(dataset.name)}.${dataset.format}`;
+      const filename = joinNameWithExtension(getNameFromPath(dataset.name), dataset.format);
       downloadData(dataset.url, filename);
     } else if (dataset.config?.data && selectedDatasetRef.current) {
-      const filename = `${selectedDatasetRef.current.name}.${dataset.format}`;
+      const filename = joinNameWithExtension(selectedDatasetRef.current.name, dataset.format);
       downloadData(selectedDatasetRef.current.url, filename);
     }
   };

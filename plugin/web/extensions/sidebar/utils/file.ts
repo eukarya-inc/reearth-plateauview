@@ -11,3 +11,8 @@ export const getNameFromPath = (path?: string) => {
 
   return path.split("/").slice(-1)[0];
 };
+
+export const joinNameWithExtension = (name?: string, extension?: string) => {
+  if (!name || !extension) return "";
+  return `${name}.${extension}`;
+};
