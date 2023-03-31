@@ -68,8 +68,11 @@ const useHooks = ({
           ) {
             const customType = (() => {
               const min =
-                USE_MIN_FIELD_PROPERTIES.includes(k) && "minimum" in propertyValue
-                  ? Number(propertyValue.minimum) ?? type.min
+                USE_MIN_FIELD_PROPERTIES.includes(k) &&
+                "minimum" in propertyValue &&
+                type.min &&
+                Number(propertyValue.minimum) >= type.min
+                  ? Number(propertyValue.minimum)
                   : type.min;
               return {
                 ...type,
