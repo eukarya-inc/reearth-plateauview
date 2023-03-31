@@ -5,6 +5,8 @@ import { BaseFieldProps } from "../../types";
 
 import { OptionsState } from "./constants";
 
+const BUILDING_AGE_PROPERTY_NAME = `建築年`;
+
 export const useBuildingFilter = ({
   options,
   dataID,
@@ -60,19 +62,26 @@ const renderTileset = (state: State, onUpdateRef: RefObject<(property: any) => v
     const defaultConditionalValue = (prop: string, startValue: number) =>
       `((\${${prop}} === "" || \${${prop}} === null || isNaN(Number(\${${prop}}))) ? ${startValue} : Number(\${${prop}}))`;
     const condition = (
+      featurePropertyName: string,
       max: number,
       min: number | undefined,
       range: [from: number, to: number] | undefined,
       conditionalValue: string,
     ) =>
-      min && min === range?.[0]
+      featurePropertyName === BUILDING_AGE_PROPERTY_NAME && min && min === range?.[0]
         ? `true`
         : max === range?.[1]
         ? `${conditionalValue} >= ${range?.[0]}`
         : `${conditionalValue} >= ${range?.[0]} && ${conditionalValue} <= ${range?.[1]}`;
     const conditions = Object.entries(state.options || {}).reduce((res, [, v]) => {
       const conditionalValue = defaultConditionalValue(v.featurePropertyName, v.min ?? 0);
-      const conditionDef = condition(v.max, v.min, v.value, conditionalValue);
+      const conditionDef = condition(
+        v.featurePropertyName,
+        v.max,
+        v.min,
+        v.value,
+        conditionalValue,
+      );
       return `${res ? `${res} && ` : ""}${conditionDef}`;
     }, "");
     onUpdateRef.current?.({
