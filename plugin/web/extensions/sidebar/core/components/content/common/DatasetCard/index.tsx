@@ -73,8 +73,7 @@ const DatasetCard: React.FC<Props> = ({
   onSceneUpdate,
 }) => {
   const [currentTab, changeTab] = useState<Tabs>("default");
-  const [selectedDataset, selectDataset] = useState(dataset.config?.data?.[0]);
-
+  const selectedDatasetRef = useRef<ConfigData | undefined>();
   const dragRef = useRef<HTMLDivElement>(null);
   const previewRef = useRef<HTMLDivElement>(null);
 
@@ -110,8 +109,8 @@ const DatasetCard: React.FC<Props> = ({
     >
   >();
 
-  const handleDatasetSelect = useCallback((dataset: ConfigData) => {
-    selectDataset(dataset);
+  const getSelectedDataset = useCallback((data?: ConfigData) => {
+    if (data) selectedDatasetRef.current = data;
   }, []);
 
   // Fetch mvt position
@@ -340,8 +339,8 @@ const DatasetCard: React.FC<Props> = ({
   const exportData = async () => {
     if (dataset.url) {
       downloadData(dataset.url, dataset.name);
-    } else if (dataset.config?.data && selectedDataset) {
-      downloadData(selectedDataset.url, selectedDataset.name);
+    } else if (dataset.config?.data && selectedDatasetRef.current) {
+      downloadData(selectedDatasetRef.current.url, selectedDatasetRef.current.name);
     }
   };
 
@@ -427,8 +426,7 @@ const DatasetCard: React.FC<Props> = ({
                   onCurrentGroupUpdate={handleCurrentGroupUpdate}
                   onCurrentDatasetUpdate={handleCurrentDatasetUpdate}
                   onSceneUpdate={onSceneUpdate}
-                  selectedDataset={selectedDataset}
-                  onDatasetSelect={handleDatasetSelect}
+                  getSelectedDataset={getSelectedDataset}
                 />
               ))}
             </Content>

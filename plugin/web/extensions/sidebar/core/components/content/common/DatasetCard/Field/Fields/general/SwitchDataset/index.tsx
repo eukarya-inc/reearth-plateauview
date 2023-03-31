@@ -2,7 +2,7 @@ import { Icon, Dropdown, Menu, Radio } from "@web/sharedComponents";
 import { styled } from "@web/theme";
 import { useCallback, useEffect, useRef, useState } from "react";
 
-import { BaseFieldProps } from "../../types";
+import { BaseFieldProps, ConfigData } from "../../types";
 
 type UIStyles = "dropdown" | "radio";
 
@@ -15,13 +15,15 @@ const SwitchDataset: React.FC<BaseFieldProps<"switchDataset">> = ({
   value,
   editMode,
   configData,
+  getSelectedDataset,
   onUpdate,
   onCurrentDatasetUpdate,
-  selectedDataset,
-  onDatasetSelect,
 }) => {
   const initialized = useRef(false);
   const [selectedStyle, selectStyle] = useState(value.uiStyle ?? "dropdown");
+  const [selectedDataset, selectDataset] = useState(
+    value.userSettings?.selected ?? configData?.[0],
+  );
 
   const styleOptions = (
     <Menu
@@ -48,7 +50,7 @@ const SwitchDataset: React.FC<BaseFieldProps<"switchDataset">> = ({
         return {
           key: d.name,
           label: (
-            <p style={{ margin: 0 }} onClick={() => onDatasetSelect?.(d)}>
+            <p style={{ margin: 0 }} onClick={() => handleDatasetSelect(d)}>
               {d.name}
             </p>
           ),
@@ -60,6 +62,16 @@ const SwitchDataset: React.FC<BaseFieldProps<"switchDataset">> = ({
   const handleStyleChange = useCallback((style: UIStyles) => {
     selectStyle(style);
   }, []);
+
+  const handleDatasetSelect = useCallback((dataset: ConfigData) => {
+    selectDataset(dataset);
+  }, []);
+
+  useEffect(() => {
+    if (getSelectedDataset && selectedDataset) {
+      getSelectedDataset(selectedDataset);
+    }
+  }, [getSelectedDataset, selectedDataset]);
 
   useEffect(() => {
     if (!initialized.current) {
@@ -121,7 +133,7 @@ const SwitchDataset: React.FC<BaseFieldProps<"switchDataset">> = ({
           value.uiStyle === "radio" && configData ? (
             <Radio.Group
               onChange={e =>
-                  onDatasetSelect?.(
+                handleDatasetSelect(
                   configData.find(cd => cd.name === e.target.value) ?? selectedDataset,
                 )
               }
