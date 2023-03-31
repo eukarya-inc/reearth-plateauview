@@ -61,15 +61,18 @@ const renderTileset = (state: State, onUpdateRef: RefObject<(property: any) => v
       `((\${${prop}} === "" || \${${prop}} === null || isNaN(Number(\${${prop}}))) ? ${startValue} : Number(\${${prop}}))`;
     const condition = (
       max: number,
+      min: number | undefined,
       range: [from: number, to: number] | undefined,
       conditionalValue: string,
     ) =>
-      max === range?.[1]
+      min && min === range?.[0]
+        ? `true`
+        : max === range?.[1]
         ? `${conditionalValue} >= ${range?.[0]}`
         : `${conditionalValue} >= ${range?.[0]} && ${conditionalValue} <= ${range?.[1]}`;
     const conditions = Object.entries(state.options || {}).reduce((res, [, v]) => {
       const conditionalValue = defaultConditionalValue(v.featurePropertyName, v.min ?? 0);
-      const conditionDef = condition(v.max, v.value, conditionalValue);
+      const conditionDef = condition(v.max, v.min, v.value, conditionalValue);
       return `${res ? `${res} && ` : ""}${conditionDef}`;
     }, "");
     onUpdateRef.current?.({
