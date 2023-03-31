@@ -117,7 +117,7 @@ export function getRawDataCatalogTree(
   q?: string | undefined,
 ): (RawDataCatalogGroup | RawDataCatalogItem)[] {
   return mapTree(
-    makeTree(sortInternal(items, groupBy, q)),
+    makeTree(sortInternal(items, groupBy, q), groupBy),
     (item): RawDataCatalogGroup | RawDataCatalogItem =>
       item.item ?? {
         id: item.id,
