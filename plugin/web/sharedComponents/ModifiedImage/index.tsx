@@ -29,6 +29,7 @@ const ModifiedImage = ({ imageUrl, blendColor, width, height }: Props) => {
 };
 
 export default ModifiedImage;
+
 const Loading = styled.div<{ width: number; height: number }>`
   position: relative;
   width: ${({ width }) => width};px;

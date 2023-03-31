@@ -241,18 +241,3 @@ const StyledImgWrapper = styled.div`
   width: 30px;
   position: relative;
 `;
-
-// const BlendColor = styled.div<{ color?: string }>`
-//   position: absolute;
-//   width: 100%;
-//   height: 100%;
-//   left: 0;
-//   top: 0;
-//   background-color: ${({ color }) => color ?? "#d9d9d9"};
-//   mix-blend-mode: color;
-// `;
-
-// const StyledImg = styled.img`
-//   width: 30px;
-//   height: 30px;
-// `;
