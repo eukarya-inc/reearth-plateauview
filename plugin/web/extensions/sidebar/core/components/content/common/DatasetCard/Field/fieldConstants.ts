@@ -132,4 +132,11 @@ export const cleanseOverrides: { [key: string]: any } = {
       show: true,
     },
   },
+  resource: {
+    markerSize: 10,
+    markerColor: "white",
+    stroke: "white",
+    strokeWidth: 5,
+    fill: "transparent",
+  },
 };
