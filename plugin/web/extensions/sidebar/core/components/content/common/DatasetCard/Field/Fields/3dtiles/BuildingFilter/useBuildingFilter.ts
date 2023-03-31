@@ -68,8 +68,11 @@ const renderTileset = (state: State, onUpdateRef: RefObject<(property: any) => v
     ) =>
       featurePropertyName === FILTERING_FIELD_DEFINITION.buildingAge.featurePropertyName &&
       min &&
-      min === range?.[0]
+      min === range?.[0] &&
+      max === range?.[1]
         ? `true`
+        : min === range?.[0]
+        ? `${conditionalValue} <= ${range?.[1]}`
         : max === range?.[1]
         ? `${conditionalValue} >= ${range?.[0]}`
         : `${conditionalValue} >= ${range?.[0]} && ${conditionalValue} <= ${range?.[1]}`;
