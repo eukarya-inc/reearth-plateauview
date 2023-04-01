@@ -89,17 +89,17 @@ export default () => {
 
   useEffect(() => {
     (async () => {
-      if (!backendURL) return;
+      if (!backendURL || !backendProjectName) return;
       const res = await fetch(`${backendURL}/sidebar/${backendProjectName}/templates`);
       if (res.status !== 200) return;
       const resData = await res.json();
 
-      if (resData.templates) {
-        setFieldTemplates(resData.templates.filter((t: Template) => t.type === "field"));
-        setInfoboxTemplates(resData.templates.filter((t: Template) => t.type === "infobox"));
+      if (resData) {
+        setFieldTemplates(resData.filter((t: Template) => t.type === "field"));
+        setInfoboxTemplates(resData.filter((t: Template) => t.type === "infobox"));
       }
     })();
-  }, [backendURL]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [backendURL, backendProjectName]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ****************************************
 
