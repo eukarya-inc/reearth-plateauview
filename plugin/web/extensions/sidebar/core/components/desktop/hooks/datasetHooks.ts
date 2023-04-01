@@ -32,7 +32,7 @@ export default ({
     if (res.status !== 200) return;
     const resData = await res.json();
 
-    return resData.data;
+    return resData;
   }, [backendURL, backendProjectName]);
 
   const handleDataRequest = useCallback(
@@ -41,7 +41,7 @@ export default ({
       const datasetToSave = convertToData(dataset, templates);
 
       const data = await handleDataFetch();
-      const isNew = !data?.find((d: Data) => d.dataID === dataset.dataID);
+      const isNew = data ? !data.find((d: Data) => d.dataID === dataset.dataID) : undefined;
 
       const fetchURL = !isNew
         ? `${backendURL}/sidebar/${backendProjectName}/data/${dataset.id}` // should be id and not dataID because id here is the CMS item's id
