@@ -35,6 +35,7 @@ export default () => {
   const [data, setData] = useState<Data[]>();
 
   const processedCatalog = useMemo(() => {
+    if (catalogData.length < 1 || data === undefined) return;
     const c = handleDataCatalogProcessing(catalogData, data);
     return inEditor ? c : c.filter(c => !!c.public);
   }, [catalogData, inEditor, data]);
@@ -54,12 +55,12 @@ export default () => {
   }, [backendURL]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleDataFetch = useCallback(async () => {
-    if (!backendURL) return;
+    if (!backendURL || !backendProjectName) return;
     const res = await fetch(`${backendURL}/sidebar/${backendProjectName}/data`);
     if (res.status !== 200) return;
     const resData = await res.json();
 
-    setData(resData);
+    setData(resData ?? []);
   }, [backendURL, backendProjectName]);
 
   const handleDataRequest = useCallback(
