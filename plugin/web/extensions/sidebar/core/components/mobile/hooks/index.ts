@@ -279,8 +279,11 @@ export default () => {
   const handleModalOpen = useCallback(() => {
     postMsg({
       action: "catalogModalOpen",
+      payload: {
+        templates: fieldTemplates,
+      },
     });
-  }, []);
+  }, [fieldTemplates]);
 
   return {
     selected,
