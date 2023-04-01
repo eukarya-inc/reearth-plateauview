@@ -198,7 +198,7 @@ const StyledTabs = styled(Tabs)`
 const Loading = styled.div`
   position: absolute;
   width: 100%;
-  height: 100%;
+  height: 400px;
   left: 0;
   top: 0;
   display: flex;
