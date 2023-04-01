@@ -43,7 +43,9 @@ export type RawDataCatalogItem = {
   year: number;
   tags?: { type: "type" | "location"; value: string }[];
   openDataUrl?: string;
-  config?: { data?: { name: string; type: string; url: string; layers?: string[] }[] };
+  config?: {
+    data?: { name: string; type: string; url: string; layers?: string[]; layer?: string[] }[];
+  };
   order?: number;
   // bldg only fields
   bldg_low_texture_url?: string;
