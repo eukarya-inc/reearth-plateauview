@@ -49,6 +49,7 @@ type PlateauItem struct {
 	DescriptionTnm  []string           `json:"description_tnm"`
 	DescriptionBrid string             `json:"description_brid"`
 	DescriptionRail string             `json:"description_rail"`
+	DescriptionGen  []string           `json:"description_gen"`
 	Bldg            []*cms.PublicAsset `json:"bldg"`
 	Tran            []*cms.PublicAsset `json:"tran"`
 	Frn             []*cms.PublicAsset `json:"frn"`
@@ -62,6 +63,7 @@ type PlateauItem struct {
 	Tnm             []*cms.PublicAsset `json:"tnm"`
 	Brid            []*cms.PublicAsset `json:"brid"`
 	Rail            []*cms.PublicAsset `json:"rail"`
+	Gen             []*cms.PublicAsset `json:"gen"`
 	Dictionary      *cms.PublicAsset   `json:"dictionary"`
 	Dic             string             `json:"dic"`
 	SearchIndex     []*cms.PublicAsset `json:"search_index"`
@@ -231,6 +233,11 @@ func (i *PlateauIntermediateItem) DataCatalogItem(t string, an AssetName, assetU
 		return nil
 	}
 
+	id := i.id(an)
+	if id == "" {
+		return nil
+	}
+
 	wardName := i.Dic.WardName(an.WardCode)
 	if wardName == "" && an.WardCode != "" {
 		wardName = an.WardEn
@@ -252,20 +259,6 @@ func (i *PlateauIntermediateItem) DataCatalogItem(t string, an AssetName, assetU
 		t2en = an.UrfFeatureType
 	} else {
 		name = fmt.Sprintf("%s（%s）", t, cityOrWardName)
-	}
-
-	id := strings.Join(lo.Filter([]string{
-		i.CityCode,
-		i.CityEn,
-		an.WardCode,
-		an.WardEn,
-		an.Feature,
-		an.UrfFeatureType,
-		an.FldNameAndCategory(),
-	}, func(s string, _ int) bool { return s != "" }), "_")
-
-	if id == "" {
-		return nil
 	}
 
 	y, _ := strconv.Atoi(an.Year)
@@ -299,6 +292,19 @@ func (i *PlateauIntermediateItem) DataCatalogItem(t string, an AssetName, assetU
 		Layers:      layers,
 		OpenDataURL: i.OpenDataURL,
 	}
+}
+
+func (i *PlateauIntermediateItem) id(an AssetName) string {
+	return strings.Join(lo.Filter([]string{
+		i.CityCode,
+		i.CityEn,
+		an.WardCode,
+		an.WardEn,
+		an.Feature,
+		an.UrfFeatureType,
+		an.FldNameAndCategory(),
+		an.GenName,
+	}, func(s string, _ int) bool { return s != "" }), "_")
 }
 
 func assetsByWards(a []*cms.PublicAsset) map[string][]*cms.PublicAsset {
@@ -335,6 +341,7 @@ func descFromAsset(a *cms.PublicAsset, descs []string) string {
 			return strings.TrimSpace(a)
 		}
 	}
+
 	return ""
 }
 
