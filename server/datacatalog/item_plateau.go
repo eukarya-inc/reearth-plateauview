@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"net/url"
 	"path"
+	"regexp"
 	"strconv"
 	"strings"
 
@@ -76,7 +77,7 @@ func (i PlateauItem) FrnItem(c PlateauIntermediateItem) *DataCatalogItem {
 	}
 
 	a := i.Frn[0]
-	return c.DataCatalogItem("都市設備モデル", AssetNameFrom(a.URL), a.URL, i.DescriptionFrn, nil, false)
+	return c.DataCatalogItem("都市設備モデル", AssetNameFrom(a.URL), a.URL, i.DescriptionFrn, nil, false, "")
 }
 
 func (i PlateauItem) VegItem(c PlateauIntermediateItem) *DataCatalogItem {
@@ -85,7 +86,7 @@ func (i PlateauItem) VegItem(c PlateauIntermediateItem) *DataCatalogItem {
 	}
 
 	a := i.Veg[0]
-	return c.DataCatalogItem("植生モデル", AssetNameFrom(a.URL), a.URL, i.DescriptionVeg, nil, false)
+	return c.DataCatalogItem("植生モデル", AssetNameFrom(a.URL), a.URL, i.DescriptionVeg, nil, false, "")
 }
 
 func (i PlateauItem) LuseItem(c PlateauIntermediateItem) *DataCatalogItem {
@@ -94,7 +95,7 @@ func (i PlateauItem) LuseItem(c PlateauIntermediateItem) *DataCatalogItem {
 	}
 
 	a := i.Luse[0]
-	return c.DataCatalogItem("土地利用モデル", AssetNameFrom(a.URL), a.URL, i.DescriptionLuse, []string{"luse"}, false)
+	return c.DataCatalogItem("土地利用モデル", AssetNameFrom(a.URL), a.URL, i.DescriptionLuse, []string{"luse"}, false, "")
 }
 
 func (i PlateauItem) LsldItem(c PlateauIntermediateItem) *DataCatalogItem {
@@ -103,7 +104,7 @@ func (i PlateauItem) LsldItem(c PlateauIntermediateItem) *DataCatalogItem {
 	}
 
 	a := i.Lsld[0]
-	return c.DataCatalogItem("土砂災害警戒区域モデル", AssetNameFrom(a.URL), a.URL, i.DescriptionLsld, []string{"lsld"}, false)
+	return c.DataCatalogItem("土砂災害警戒区域モデル", AssetNameFrom(a.URL), a.URL, i.DescriptionLsld, []string{"lsld"}, false, "")
 }
 
 func (i PlateauItem) UrfItems(c PlateauIntermediateItem) []*DataCatalogItem {
@@ -113,7 +114,9 @@ func (i PlateauItem) UrfItems(c PlateauIntermediateItem) []*DataCatalogItem {
 
 	return lo.Map(i.Urf, func(a *cms.PublicAsset, _ int) *DataCatalogItem {
 		an := AssetNameFrom(a.URL)
-		return c.DataCatalogItem("都市計画決定情報モデル", an, a.URL, descFromAsset(a, i.DescriptionUrf), urfLayers(an.UrfFeatureType), false)
+
+		name, desc := descFromAsset(a, i.DescriptionUrf)
+		return c.DataCatalogItem("都市計画決定情報モデル", an, a.URL, desc, urfLayers(an.UrfFeatureType), false, name)
 	})
 }
 
@@ -124,9 +127,12 @@ func (i PlateauItem) HtdItems(c PlateauIntermediateItem) []*DataCatalogItem {
 
 	return lo.Map(i.Htd, func(a *cms.PublicAsset, _ int) *DataCatalogItem {
 		an := AssetNameFrom(a.URL)
-		dci := c.DataCatalogItem("高潮浸水想定区域モデル", an, a.URL, descFromAsset(a, i.DescriptionHtd), nil, false)
+
+		name, desc := descFromAsset(a, i.DescriptionHtd)
+		dci := c.DataCatalogItem("高潮浸水想定区域モデル", an, a.URL, desc, nil, false, name)
+
 		if dci != nil {
-			dci.Name = htdTnmIfldName("高潮浸水想定区域モデル", i.CityName, an.FldName, c.Dic.Htd(an.FldName))
+			dci.Name = htdTnmIfldName(name, i.CityName, an.FldName, c.Dic.Htd(an.FldName))
 		}
 		return dci
 	})
@@ -139,10 +145,12 @@ func (i PlateauItem) IfldItems(c PlateauIntermediateItem) []*DataCatalogItem {
 
 	return lo.Map(i.Ifld, func(a *cms.PublicAsset, _ int) *DataCatalogItem {
 		an := AssetNameFrom(a.URL)
-		desc := descFromAsset(a, i.DescriptionIfld)
-		dci := c.DataCatalogItem("内水浸水想定区域モデル", an, a.URL, desc, nil, false)
+
+		name, desc := descFromAsset(a, i.DescriptionIfld)
+		dci := c.DataCatalogItem("内水浸水想定区域モデル", an, a.URL, desc, nil, false, name)
+
 		if dci != nil {
-			dci.Name = htdTnmIfldName("内水浸水想定区域モデル", i.CityName, an.FldName, c.Dic.Ifld(an.FldName))
+			dci.Name = htdTnmIfldName(name, i.CityName, an.FldName, c.Dic.Ifld(an.FldName))
 		}
 		return dci
 	})
@@ -155,9 +163,12 @@ func (i PlateauItem) TnmItems(c PlateauIntermediateItem) []*DataCatalogItem {
 
 	return lo.Map(i.Tnm, func(a *cms.PublicAsset, _ int) *DataCatalogItem {
 		an := AssetNameFrom(a.URL)
-		dci := c.DataCatalogItem("津波浸水想定区域モデル", an, a.URL, descFromAsset(a, i.DescriptionTnm), nil, false)
+
+		name, desc := descFromAsset(a, i.DescriptionTnm)
+		dci := c.DataCatalogItem("津波浸水想定区域モデル", an, a.URL, desc, nil, false, name)
+
 		if dci != nil {
-			dci.Name = htdTnmIfldName("津波浸水想定区域モデル", i.CityName, an.FldName, c.Dic.Tnm(an.FldName))
+			dci.Name = htdTnmIfldName(name, i.CityName, an.FldName, c.Dic.Tnm(an.FldName))
 		}
 		return dci
 	})
@@ -170,7 +181,7 @@ func (i PlateauItem) DataCatalogItems() []DataCatalogItem {
 	}
 
 	return util.DerefSlice(lo.Filter(
-		append(append(append(append(append(append(append(append(
+		append(append(append(append(append(append(append(append(append(
 			i.BldgItems(c),
 			i.TranItem(c),
 			i.FrnItem(c),
@@ -183,7 +194,8 @@ func (i PlateauItem) DataCatalogItems() []DataCatalogItem {
 			i.HtdItems(c)...),
 			i.IfldItems(c)...),
 			i.BridItem(c)),
-			i.RailItem(c),
+			i.RailItem(c)),
+			i.GenItems(c)...,
 		),
 		func(i *DataCatalogItem, _ int) bool {
 			return i != nil
@@ -228,7 +240,7 @@ type PlateauIntermediateItem struct {
 	OpenDataURL string
 }
 
-func (i *PlateauIntermediateItem) DataCatalogItem(t string, an AssetName, assetURL, desc string, layers []string, firstWard bool) *DataCatalogItem {
+func (i *PlateauIntermediateItem) DataCatalogItem(t string, an AssetName, assetURL, desc string, layers []string, firstWard bool, nameOverride string) *DataCatalogItem {
 	if i == nil {
 		return nil
 	}
@@ -248,19 +260,7 @@ func (i *PlateauIntermediateItem) DataCatalogItem(t string, an AssetName, assetU
 		cityOrWardName = wardName
 	}
 
-	var name, t2, t2en string
-	if an.Feature == "urf" {
-		urfName := urfFeatureTypes[an.UrfFeatureType]
-		if urfName == "" {
-			urfName = an.UrfFeatureType
-		}
-		name = fmt.Sprintf("%sモデル（%s）", urfName, cityOrWardName)
-		t2 = urfName
-		t2en = an.UrfFeatureType
-	} else {
-		name = fmt.Sprintf("%s（%s）", t, cityOrWardName)
-	}
-
+	name, t2, t2en := itemName(t, cityOrWardName, nameOverride, an)
 	y, _ := strconv.Atoi(an.Year)
 	pref, prefCode := normalizePref(i.Prefecture)
 
@@ -307,6 +307,33 @@ func (i *PlateauIntermediateItem) id(an AssetName) string {
 	}, func(s string, _ int) bool { return s != "" }), "_")
 }
 
+func itemName(t, cityOrWardName, nameOverride string, an AssetName) (name, t2, t2en string) {
+	if an.Feature == "urf" {
+		t2 = an.UrfFeatureType
+		t2en = an.UrfFeatureType
+
+		if urfName := urfFeatureTypes[an.UrfFeatureType]; urfName != "" {
+			t2 = urfName
+			if nameOverride == "" {
+				name = fmt.Sprintf("%sモデル", urfName)
+			}
+		} else {
+			name = an.UrfFeatureType
+		}
+	}
+
+	if name == "" {
+		if nameOverride != "" {
+			name = nameOverride
+		} else {
+			name = t
+		}
+	}
+
+	name += fmt.Sprintf("（%s）", cityOrWardName)
+	return
+}
+
 func assetsByWards(a []*cms.PublicAsset) map[string][]*cms.PublicAsset {
 	if len(a) == 0 {
 		return nil
@@ -329,20 +356,32 @@ func assetsByWards(a []*cms.PublicAsset) map[string][]*cms.PublicAsset {
 	return r
 }
 
-func descFromAsset(a *cms.PublicAsset, descs []string) string {
+var reName = regexp.MustCompile(`^@name:\s*(.+)(?:$|\n)`)
+
+func descFromAsset(a *cms.PublicAsset, descs []string) (string, string) {
 	if a == nil || len(descs) == 0 {
-		return ""
+		return "", ""
 	}
 
 	fn := strings.TrimSuffix(path.Base(a.URL), path.Ext(a.URL))
 	for _, desc := range descs {
 		b, a, ok := strings.Cut(desc, "\n")
 		if ok && strings.Contains(b, fn) {
-			return strings.TrimSpace(a)
+			return nameFromDescription(strings.TrimSpace(a))
 		}
 	}
 
-	return ""
+	return "", ""
+}
+
+func nameFromDescription(d string) (string, string) {
+	if m := reName.FindStringSubmatch(d); len(m) > 0 {
+		name := m[1]
+		_, n, _ := strings.Cut(d, "\n")
+		return name, strings.TrimSpace(n)
+	}
+
+	return "", d
 }
 
 func searchIndexURLFrom(assets []*cms.PublicAsset, wardCode string) string {

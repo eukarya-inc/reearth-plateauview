@@ -1,13 +1,14 @@
 package datacatalog
 
 import (
+	"fmt"
 	"sort"
 
 	"github.com/eukarya-inc/reearth-plateauview/server/cms"
 	"github.com/samber/lo"
 )
 
-const genModelName = "汎用オブジェクトモデル"
+const genModelName = "汎用都市オブジェクトモデル"
 
 type gen struct {
 	a  *cms.PublicAsset
@@ -50,17 +51,32 @@ func (i PlateauItem) GenItems(c PlateauIntermediateItem) []*DataCatalogItem {
 			layers = append(layers, f.an.GenName)
 		}
 
-		dci := c.DataCatalogItem(genModelName, f.an, f.a.URL, descFromAsset(f.a, i.DescriptionGen), layers, false)
+		name, desc := descFromAsset(f.a, i.DescriptionGen)
+		if name == "" {
+			name = f.an.GenName
+		}
+
+		dci := c.DataCatalogItem(genModelName, f.an, f.a.URL, desc, layers, false, name)
+
 		if dci != nil {
 			dci.Config = DataCatalogItemConfig{
-				Data: lo.Map(gens, func(g gen, _ int) DataCatalogItemConfigItem {
+				Data: lo.Map(gens, func(g gen, i int) DataCatalogItemConfigItem {
 					var layers []string
 					if g.an.Format == "mvt" {
 						layers = append(layers, g.an.GenName)
 					}
 
+					dname := name
+					if len(gens) > 1 {
+						if g.an.LOD != "" {
+							dname = fmt.Sprintf("LOD%s", g.an.LOD)
+						} else {
+							dname = fmt.Sprintf("%s %d", name, i+1)
+						}
+					}
+
 					return DataCatalogItemConfigItem{
-						Name:   dci.Name,
+						Name:   dname,
 						URL:    assetURLFromFormat(g.a.URL, g.an.Format),
 						Type:   g.an.Format,
 						Layers: layers,

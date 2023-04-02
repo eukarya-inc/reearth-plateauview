@@ -38,6 +38,7 @@ func (i PlateauItem) BldgItems(c PlateauIntermediateItem) []*DataCatalogItem {
 			i.DescriptionBldg,
 			nil,
 			firstCode > 0 && firstCode == wc,
+			"",
 		)
 
 		if s.MaxLOD.LowTexture != nil {
