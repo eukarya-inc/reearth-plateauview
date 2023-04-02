@@ -109,8 +109,8 @@ const DatasetTree: React.FC<Props> = ({
         activeKey={filter}
         tabBarStyle={showTabs ? { display: "none" } : { userSelect: "none" }}
         onChange={active => onFilter(active as GroupBy)}>
-        <Tabs.TabPane key="city" tab="都道府県">
-          {dataCatalogTree && (
+        <Tabs.TabPane key="city" tab="都道府県" style={{ position: "relative" }}>
+          {dataCatalogTree ? (
             <FileTree
               addedDatasetDataIDs={addedDatasetDataIDs}
               catalog={dataCatalogTree}
