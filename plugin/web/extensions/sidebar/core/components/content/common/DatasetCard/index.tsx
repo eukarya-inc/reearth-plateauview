@@ -328,15 +328,15 @@ const DatasetCard: React.FC<Props> = ({
   drag(dragRef);
   drop(preview(previewRef));
 
-  const downloadData = async (url: string, name?: string) => {
+  const downloadData = useCallback(async (url: string, name?: string) => {
     const res = await fetch(url, {
       method: "GET",
     });
     const blob = await res.blob();
     fileDownload(blob, name ?? "export-data");
-  };
+  }, []);
 
-  const exportData = async () => {
+  const exportData = useCallback(async () => {
     if (dataset.url) {
       const name = getNameFromPath(dataset.name);
       const format = normalizeExtension(dataset.format);
@@ -348,7 +348,14 @@ const DatasetCard: React.FC<Props> = ({
       const filename = createFileName(name, format);
       downloadData(dataset.selectedDataset.url, filename);
     }
-  };
+  }, [
+    dataset.config?.data,
+    dataset.format,
+    dataset.name,
+    dataset.selectedDataset,
+    dataset.url,
+    downloadData,
+  ]);
 
   return (
     <div ref={previewRef} style={{ opacity }} data-handler-id={handlerId}>
