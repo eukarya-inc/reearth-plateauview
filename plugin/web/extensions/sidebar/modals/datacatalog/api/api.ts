@@ -236,7 +236,7 @@ function sortByOrder(a: number | undefined, b: number | undefined): number {
 
 function filter(q: string | undefined, items: RawDataCatalogItem[]): RawDataCatalogItem[] {
   const filteredItems = items.filter(item => item.type_en !== "folder");
-  if (!q) return items;
+  if (!q) return filteredItems;
   return filteredItems.filter(
     i => i.name?.includes(q) || i.pref.includes(q) || i.city?.includes(q) || i.ward?.includes(q),
   );
