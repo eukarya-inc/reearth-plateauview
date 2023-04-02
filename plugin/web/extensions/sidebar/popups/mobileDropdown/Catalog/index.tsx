@@ -92,14 +92,6 @@ const Catalog: React.FC<Props> = ({
     setData(resData);
   }, [backendURL, backendProjectName]);
 
-  const handleOpenDetails = useCallback(
-    (data?: DataCatalogItem) => {
-      setSelectedDataset(data);
-      setPage("details");
-    },
-    [setSelectedDataset],
-  );
-
   const handleFilter = useCallback((filter: GroupBy) => {
     setFilter(filter);
   }, []);
@@ -145,7 +137,6 @@ const Catalog: React.FC<Props> = ({
             addDisabled={addDisabled}
             onSearch={onSearch}
             onFilter={handleFilter}
-            onOpenDetails={handleOpenDetails}
             onDatasetAdd={onDatasetAdd}
           />
         </>
