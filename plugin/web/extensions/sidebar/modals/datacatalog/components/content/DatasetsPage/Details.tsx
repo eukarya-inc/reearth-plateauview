@@ -13,7 +13,6 @@ export type Tag = TagType;
 export type Props = {
   dataset?: DataCatalogItem;
   isMobile?: boolean;
-  isItemSelected?: boolean;
   inEditor?: boolean;
   addDisabled: (dataID: string) => boolean;
   onTagSelect?: (tag: TagType) => void;
@@ -25,7 +24,6 @@ const DatasetDetails: React.FC<Props> = ({
   dataset,
   // isMobile,
   inEditor,
-  isItemSelected,
   addDisabled,
   // onTagSelect,
   onDatasetAdd,
@@ -73,9 +71,8 @@ const DatasetDetails: React.FC<Props> = ({
     <NoData>
       <NoDataMain>
         <Icon icon="empty" size={64} />
-        {!isItemSelected && <StyledP>データがない</StyledP>}
         <br />
-        <StyledP>データセットを選択してください(プレビューが表示されます)</StyledP>
+        <StyledP>データセットを選択してください</StyledP>
       </NoDataMain>
       <NoDataFooter
         onClick={() =>

@@ -87,7 +87,6 @@ const DatasetsPage: React.FC<Props> = ({
       }
       right={
         <DatasetDetails
-          isItemSelected={!!selectedItem}
           dataset={selectedDataset}
           inEditor={inEditor}
           addDisabled={addDisabled}
