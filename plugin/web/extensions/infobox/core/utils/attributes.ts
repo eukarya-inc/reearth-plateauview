@@ -3,9 +3,10 @@ import { get } from "lodash";
 import type { FldInfo, Properties } from "../../types";
 
 import attributesData from "./attributes.csv?raw";
-import type { Json, JsonArray, JsonObject } from "./json";
+import type { Json, JsonArray, JsonObject, JsonPrimitive } from "./json";
 
 export const attributesMap = new Map<string, string>();
+const ignoredSuffix = ["_codeSpace"];
 
 attributesData
   .split("\n")
@@ -29,17 +30,21 @@ export function getAttributes(attributes: Json, mode?: "both" | "label" | "key")
     return Object.fromEntries(
       Object.entries(obj)
         .sort((a, b) => a[0].localeCompare(b[0]))
-        .map(([k, v]) => {
-          const label = keyMap?.get(k.replace(/_.+?$/, ""));
+        .map(([k, v]): [string, JsonPrimitive | JsonObject | JsonArray] | undefined => {
+          const m = k.match(/^(.*)(_.+?)$/);
+          if (m?.[2] && ignoredSuffix.includes(m[2])) return;
+
+          const label = keyMap?.get(m?.[1] || k);
           const nk =
             (mode === "both" || mode === "label") && label ? label + (suffix(k, keyMap) ?? "") : "";
           const ak = nk ? (mode === "both" ? `${nk}（${k}）` : nk) : k;
-
           if (typeof v === "object" && v) {
             return [ak || k, walk(v, keyMap)];
           }
+
           return [ak || k, v];
-        }),
+        })
+        .filter((e): e is [string, JsonPrimitive | JsonObject | JsonArray] => !!e),
     );
   }
 
@@ -58,7 +63,7 @@ export function getRootFields(properties: Properties, dataType?: string, fld?: F
       get(properties, ["attributes", "luse:class"]),
     用途: get(properties, ["attributes", "bldg:usage", 0]),
     住所: get(properties, ["attributes", "bldg:address"]),
-    建築年: get(properties, ["attributes", "bldg:yearOfConstruction"]),
+    建築年: constructionYear(get(properties, ["attributes", "bldg:yearOfConstruction"]), dataType),
     計測高さ: get(properties, ["attributes", "bldg:measuredHeight"]),
     地上階数: get(properties, ["attributes", "bldg:storeysAboveGround"]),
     地下階数: get(properties, ["attributes", "bldg:storeysBelowGround"]),
@@ -137,6 +142,28 @@ export function getRootFields(properties: Properties, dataType?: string, fld?: F
       "uro:description",
     ]),
   });
+}
+
+export function constructionYear(
+  y: number | string | undefined | null,
+  dataType?: string,
+): string | number | undefined {
+  if (dataType !== "bldg") {
+    if (y === "" || typeof y === "undefined" || y === null) return undefined;
+    return y;
+  }
+
+  if (
+    !y ||
+    (typeof y === "number" && y <= 1) ||
+    y == "0" ||
+    y === "1" ||
+    y === "0000" ||
+    y === "0001"
+  ) {
+    return "不明";
+  }
+  return y;
 }
 
 export function name(
