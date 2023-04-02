@@ -16,3 +16,8 @@ export const createFileName = (name?: string, extension?: string) => {
   if (!name || !extension) return "";
   return `${name}.${extension}`;
 };
+
+export const normalizeExtension = (extension?: string) => {
+  if (!extension) return "";
+  return extension.toLowerCase().replace(/\s/g, "");
+};

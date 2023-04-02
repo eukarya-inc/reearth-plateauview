@@ -1,6 +1,6 @@
 import { expect, test } from "vitest";
 
-import { getExtension, createFileName } from "./file";
+import { getExtension, createFileName, normalizeExtension } from "./file";
 
 test("getExtension", () => {
   expect(getExtension("test.geojson")).toBe("geojson");
@@ -13,4 +13,11 @@ test("createFileName", () => {
   expect(createFileName("", ".czml")).toBe("");
   expect(createFileName("test", "")).toBe("");
   expect(createFileName("", "")).toBe("");
+});
+
+test("normalizeExtension", () => {
+  expect(normalizeExtension(" CZML ")).toBe("czml");
+  expect(normalizeExtension("CZML")).toBe("czml");
+  expect(normalizeExtension("")).toBe("");
+  expect(normalizeExtension()).toBe("");
 });

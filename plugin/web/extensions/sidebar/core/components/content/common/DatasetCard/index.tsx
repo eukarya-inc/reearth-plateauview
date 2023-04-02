@@ -1,7 +1,11 @@
 import { BuildingSearch, DataCatalogItem, Template } from "@web/extensions/sidebar/core/types";
 import { ReearthApi } from "@web/extensions/sidebar/types";
 import { postMsg } from "@web/extensions/sidebar/utils";
-import { getNameFromPath, createFileName } from "@web/extensions/sidebar/utils/file";
+import {
+  getNameFromPath,
+  createFileName,
+  normalizeExtension,
+} from "@web/extensions/sidebar/utils/file";
 import { Dropdown, Icon, Menu, Spin } from "@web/sharedComponents";
 import { DownloadOutlined } from "@web/sharedComponents/Icon/icons";
 import { styled } from "@web/theme";
@@ -20,7 +24,7 @@ import { useDrag, useDrop } from "react-dnd";
 
 import AddButton from "./AddButton";
 import Field from "./Field";
-import { IdealZoom, ConfigData } from "./Field/Fields/types";
+import { IdealZoom } from "./Field/Fields/types";
 import useHooks from "./hooks";
 
 type Tabs = "default" | "edit";
@@ -73,7 +77,7 @@ const DatasetCard: React.FC<Props> = ({
   onSceneUpdate,
 }) => {
   const [currentTab, changeTab] = useState<Tabs>("default");
-  const selectedDatasetRef = useRef<ConfigData | undefined>();
+
   const dragRef = useRef<HTMLDivElement>(null);
   const previewRef = useRef<HTMLDivElement>(null);
 
@@ -108,10 +112,6 @@ const DatasetCard: React.FC<Props> = ({
       | undefined
     >
   >();
-
-  const getSelectedDataset = useCallback((data?: ConfigData) => {
-    if (data) selectedDatasetRef.current = data;
-  }, []);
 
   // Fetch mvt position
   useEffect(() => {
@@ -339,12 +339,14 @@ const DatasetCard: React.FC<Props> = ({
   const exportData = async () => {
     if (dataset.url) {
       const name = getNameFromPath(dataset.name);
-      const filename = createFileName(name, dataset.format);
+      const format = normalizeExtension(dataset.format);
+      const filename = createFileName(name, format);
       downloadData(dataset.url, filename);
-    } else if (dataset.config?.data && selectedDatasetRef.current) {
-      const name = getNameFromPath(selectedDatasetRef.current.name);
-      const filename = createFileName(name, dataset.format);
-      downloadData(selectedDatasetRef.current.url, filename);
+    } else if (dataset.config?.data && dataset.selectedDataset) {
+      const name = getNameFromPath(dataset.selectedDataset.name);
+      const format = normalizeExtension(dataset.format);
+      const filename = createFileName(name, format);
+      downloadData(dataset.selectedDataset.url, filename);
     }
   };
 
@@ -430,7 +432,6 @@ const DatasetCard: React.FC<Props> = ({
                   onCurrentGroupUpdate={handleCurrentGroupUpdate}
                   onCurrentDatasetUpdate={handleCurrentDatasetUpdate}
                   onSceneUpdate={onSceneUpdate}
-                  getSelectedDataset={getSelectedDataset}
                 />
               ))}
             </Content>

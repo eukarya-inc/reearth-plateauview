@@ -35,7 +35,6 @@ export type Props = {
   onCurrentGroupUpdate?: (fieldGroupID: string) => void;
   onCurrentDatasetUpdate?: (selectedDataset?: ConfigData) => void;
   onSceneUpdate?: (updatedProperties: Partial<ReearthApi>) => void;
-  getSelectedDataset?: (data?: ConfigData) => void;
 };
 
 const getFieldGroup = (field: string) => {
@@ -71,7 +70,6 @@ const FieldComponent: React.FC<Props> = ({
   onCurrentGroupUpdate,
   onCurrentDatasetUpdate,
   onSceneUpdate,
-  getSelectedDataset,
 }) => {
   const Field = fields[field.type];
   const [groupPopupOpen, setGroupPopup] = useState(false);
@@ -152,7 +150,6 @@ const FieldComponent: React.FC<Props> = ({
       onCurrentGroupUpdate={onCurrentGroupUpdate}
       onCurrentDatasetUpdate={onCurrentDatasetUpdate}
       onSceneUpdate={onSceneUpdate}
-      getSelectedDataset={getSelectedDataset}
     />
   ) : (
     <AccordionComponent
@@ -181,7 +178,6 @@ const FieldComponent: React.FC<Props> = ({
           onCurrentGroupUpdate={onCurrentGroupUpdate}
           onCurrentDatasetUpdate={onCurrentDatasetUpdate}
           onSceneUpdate={onSceneUpdate}
-          getSelectedDataset={getSelectedDataset}
         />
       )}
     </AccordionComponent>

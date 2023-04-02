@@ -15,7 +15,6 @@ const SwitchDataset: React.FC<BaseFieldProps<"switchDataset">> = ({
   value,
   editMode,
   configData,
-  getSelectedDataset,
   onUpdate,
   onCurrentDatasetUpdate,
 }) => {
@@ -68,10 +67,8 @@ const SwitchDataset: React.FC<BaseFieldProps<"switchDataset">> = ({
   }, []);
 
   useEffect(() => {
-    if (getSelectedDataset && selectedDataset) {
-      getSelectedDataset(selectedDataset);
-    }
-  }, [getSelectedDataset, selectedDataset]);
+    if (!value.userSettings?.selected && selectedDataset) onCurrentDatasetUpdate?.(selectedDataset);
+  });
 
   useEffect(() => {
     if (!initialized.current) {
