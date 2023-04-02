@@ -1,6 +1,7 @@
 import { handleDataCatalogProcessing } from "@web/extensions/sidebar/core/components/utils";
 import { Data } from "@web/extensions/sidebar/core/types";
 import {
+  DataCatalogGroup,
   DataCatalogItem,
   GroupBy,
   RawDataCatalogItem,
@@ -92,6 +93,16 @@ const Catalog: React.FC<Props> = ({
     setData(resData);
   }, [backendURL, backendProjectName]);
 
+  const handleOpenDetails = useCallback(
+    (data?: DataCatalogItem | DataCatalogGroup) => {
+      if (data && "dataID" in data) {
+        setSelectedDataset(data);
+      }
+      setPage("details");
+    },
+    [setSelectedDataset],
+  );
+
   const handleFilter = useCallback((filter: GroupBy) => {
     setFilter(filter);
   }, []);
@@ -137,6 +148,7 @@ const Catalog: React.FC<Props> = ({
             addDisabled={addDisabled}
             onSearch={onSearch}
             onFilter={handleFilter}
+            onSelect={handleOpenDetails}
             onDatasetAdd={onDatasetAdd}
           />
         </>
