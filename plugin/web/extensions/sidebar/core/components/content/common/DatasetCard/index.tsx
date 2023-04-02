@@ -328,7 +328,7 @@ const DatasetCard: React.FC<Props> = ({
   drag(dragRef);
   drop(preview(previewRef));
 
-  const downloadData = useCallback(async (url: string, name?: string) => {
+  const handleDataDownload = useCallback(async (url: string, name?: string) => {
     const res = await fetch(url, {
       method: "GET",
     });
@@ -336,17 +336,17 @@ const DatasetCard: React.FC<Props> = ({
     fileDownload(blob, name ?? "export-data");
   }, []);
 
-  const exportData = useCallback(async () => {
+  const handleDataExport = useCallback(async () => {
     if (dataset.url) {
       const name = getNameFromPath(dataset.name);
       const format = normalizeExtension(dataset.format);
       const filename = createFileName(name, format);
-      downloadData(dataset.url, filename);
+      handleDataDownload(dataset.url, filename);
     } else if (dataset.config?.data && dataset.selectedDataset) {
       const name = getNameFromPath(dataset.selectedDataset.name);
       const format = normalizeExtension(dataset.format);
       const filename = createFileName(name, format);
-      downloadData(dataset.selectedDataset.url, filename);
+      handleDataDownload(dataset.selectedDataset.url, filename);
     }
   }, [
     dataset.config?.data,
@@ -354,7 +354,7 @@ const DatasetCard: React.FC<Props> = ({
     dataset.name,
     dataset.selectedDataset,
     dataset.url,
-    downloadData,
+    handleDataDownload,
   ]);
 
   return (
@@ -408,7 +408,7 @@ const DatasetCard: React.FC<Props> = ({
                 </BaseField>
               ))}
               {(dataset.format === "czml" || dataset.format === "geojson") && (
-                <BaseButton onClick={exportData}>
+                <BaseButton onClick={handleDataExport}>
                   <DownloadOutlined style={{ fontSize: 20, color: "#00BEBE", marginRight: 8 }} />
                   <Text>データをエクスポート</Text>
                 </BaseButton>
