@@ -36,7 +36,7 @@ export default () => {
   const processedCatalog = useMemo(() => {
     if (catalogData.length < 1 || data === undefined) return;
     const c = handleDataCatalogProcessing(catalogData, data);
-    return inEditor ? c : c.filter(c => !!c.public);
+    return inEditor ? c : c.filter(c => !!c.public || c.type_en === "folder");
   }, [catalogData, inEditor, data]);
 
   useEffect(() => {
