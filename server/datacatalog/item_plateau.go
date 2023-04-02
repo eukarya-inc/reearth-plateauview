@@ -6,7 +6,6 @@ import (
 	"encoding/csv"
 	"encoding/json"
 	"fmt"
-	"net/url"
 	"path"
 	"regexp"
 	"strconv"
@@ -382,26 +381,6 @@ func nameFromDescription(d string) (string, string) {
 	}
 
 	return "", d
-}
-
-func searchIndexURLFrom(assets []*cms.PublicAsset, wardCode string) string {
-	a, found := lo.Find(assets, func(a *cms.PublicAsset) bool {
-		if wardCode == "" {
-			return true
-		}
-		return AssetNameFrom(a.URL).WardCode == wardCode
-	})
-	if !found {
-		return ""
-	}
-
-	u, err := url.Parse(a.URL)
-	if err != nil {
-		return ""
-	}
-
-	u.Path = path.Join(assetRootPath(u.Path), "indexRoot.json")
-	return u.String()
 }
 
 type DataCatalogItemConfig struct {
