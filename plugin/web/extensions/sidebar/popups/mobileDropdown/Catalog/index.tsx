@@ -97,8 +97,8 @@ const Catalog: React.FC<Props> = ({
     (data?: DataCatalogItem | DataCatalogGroup) => {
       if (data && "dataID" in data) {
         setSelectedDataset(data);
+        setPage("details");
       }
-      setPage("details");
     },
     [setSelectedDataset],
   );
