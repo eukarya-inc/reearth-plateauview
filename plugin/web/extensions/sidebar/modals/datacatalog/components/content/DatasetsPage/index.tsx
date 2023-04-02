@@ -2,7 +2,7 @@ import { DataCatalogItem } from "@web/extensions/sidebar/core/types";
 import PageLayout from "@web/extensions/sidebar/modals/datacatalog/components/content/PageLayout";
 import { useCallback, useMemo, useState } from "react";
 
-import { GroupBy } from "../../../api/api";
+import { DataCatalogGroup, GroupBy } from "../../../api/api";
 import { UserDataItem } from "../../../types";
 
 import DatasetTree from "./DatasetTree";
@@ -12,14 +12,12 @@ export type Props = {
   catalog?: DataCatalogItem[];
   addedDatasetDataIDs?: string[];
   inEditor?: boolean;
-  selectedDatasetID?: string;
-  selectedItem?: DataCatalogItem;
+  selectedItem?: DataCatalogItem | DataCatalogGroup;
   expandedFolders?: { id?: string; name?: string }[];
   searchTerm: string;
   setExpandedFolders?: React.Dispatch<React.SetStateAction<{ id?: string; name?: string }[]>>;
   onSearch: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  onSelect?: (item?: DataCatalogItem) => void;
-  onOpenDetails?: (data?: DataCatalogItem) => void;
+  onSelect?: (item?: DataCatalogItem | DataCatalogGroup) => void;
   onDatasetAdd: (dataset: DataCatalogItem | UserDataItem, keepModalOpen?: boolean) => void;
   onDatasetPublish: (dataID: string, publish: boolean) => void;
 };
@@ -28,14 +26,12 @@ const DatasetsPage: React.FC<Props> = ({
   catalog,
   addedDatasetDataIDs,
   inEditor,
-  selectedDatasetID,
   selectedItem,
   expandedFolders,
   searchTerm,
   setExpandedFolders,
   onSearch,
   onSelect,
-  onOpenDetails,
   onDatasetAdd,
   onDatasetPublish,
 }) => {
@@ -63,10 +59,11 @@ const DatasetsPage: React.FC<Props> = ({
     [addedDatasetDataIDs],
   );
 
-  const selectedDataset = useMemo(
-    () => catalog?.find(item => item.dataID !== undefined && item.dataID === selectedDatasetID),
-    [catalog, selectedDatasetID],
-  );
+  const selectedDataset = useMemo(() => {
+    return selectedItem && "dataID" in selectedItem
+      ? catalog?.find(item => item.dataID !== undefined && item.dataID === selectedItem.dataID)
+      : catalog?.find(item => item.name === selectedItem?.name && item.type_en === "folder");
+  }, [catalog, selectedItem]);
 
   return (
     <PageLayout
@@ -85,7 +82,6 @@ const DatasetsPage: React.FC<Props> = ({
           addDisabled={addDisabled}
           onFilter={handleFilter}
           onTagSelect={handleTagSelect}
-          onOpenDetails={onOpenDetails}
           onDatasetAdd={onDatasetAdd}
         />
       }

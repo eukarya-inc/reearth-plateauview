@@ -8,7 +8,7 @@ import { postMsg } from "@web/extensions/sidebar/utils";
 import { debounce } from "lodash";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
-import { RawDataCatalogItem, getDataCatalog } from "../api/api";
+import { DataCatalogGroup, RawDataCatalogItem, getDataCatalog } from "../api/api";
 
 export type Tab = "dataset" | "your-data";
 
@@ -17,8 +17,7 @@ export default () => {
   const [addedDatasetDataIDs, setAddedDatasetDataIDs] = useState<string[]>();
   const [catalogData, setCatalog] = useState<RawDataCatalogItem[]>([]);
   const [inEditor, setEditorState] = useState(false);
-  const [selectedDatasetID, setDatasetID] = useState<string>();
-  const [selectedItem, selectItem] = useState<DataCatalogItem>();
+  const [selectedItem, selectItem] = useState<DataCatalogItem | DataCatalogGroup>();
   const [expandedFolders, setExpandedFolders] = useState<{ id?: string; name?: string }[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
 
@@ -148,12 +147,8 @@ export default () => {
     [debouncedSearchRef],
   );
 
-  const handleSelect = useCallback((item?: DataCatalogItem) => {
+  const handleSelect = useCallback((item?: DataCatalogItem | DataCatalogGroup) => {
     selectItem(item);
-  }, []);
-
-  const handleOpenDetails = useCallback((data?: DataCatalogItem) => {
-    setDatasetID(data?.dataID);
   }, []);
 
   const handleClose = useCallback(() => {
@@ -194,7 +189,6 @@ export default () => {
         if (e.data.payload.expandedFolders) setExpandedFolders(e.data.payload.expandedFolders);
         if (e.data.payload.dataset) {
           const item = e.data.payload.dataset;
-          handleOpenDetails(item);
           handleSelect(item);
           if (item.path) {
             setExpandedFolders(
@@ -218,21 +212,19 @@ export default () => {
     return () => {
       removeEventListener("message", eventListenerCallback);
     };
-  }, [handleOpenDetails, handleSelect]);
+  }, [handleSelect]);
 
   return {
     currentTab,
     catalog: processedCatalog,
     addedDatasetDataIDs,
     inEditor,
-    selectedDatasetID,
     selectedItem,
     expandedFolders,
     searchTerm,
     setExpandedFolders,
     handleSearch,
     handleSelect,
-    handleOpenDetails,
     handleClose,
     handleTabChange: changeTabs,
     handleDatasetAdd,

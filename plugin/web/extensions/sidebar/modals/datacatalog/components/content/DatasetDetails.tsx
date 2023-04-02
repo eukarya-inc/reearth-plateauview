@@ -104,6 +104,7 @@ const DatasetDetails: React.FC<Props> = ({
         <HeaderWrapper>
           <Title>{title}</Title>
           {"dataID" in dataset &&
+            dataset.type_en !== "folder" &&
             inEditor &&
             (!published ? (
               <Popconfirm {...popConfirmProps}>
@@ -119,23 +120,27 @@ const DatasetDetails: React.FC<Props> = ({
               </PublishButton>
             ))}
         </HeaderWrapper>
-        <ButtonWrapper>
-          <AddButton disabled={addDisabled} onClick={handleDatasetAdd}>
-            {!addDisabled && <Icon icon="plusCircle" />}
-            {addDisabled ? "シーンに追加済み" : "シーンに追加"}
-          </AddButton>
-          {showShareButton && (
-            <ShareButton isShareable={isShareable}>
-              <Icon icon="share" />
-              シェア
-            </ShareButton>
-          )}
-        </ButtonWrapper>
-        {requireLayerName && (
-          <LayerNamesWrapper>
-            <Text>表示したいレイヤー名を入力してください。</Text>
-            <Input placeholder="レイヤー名" onChange={handleLayersAddOnDataset} />
-          </LayerNamesWrapper>
+        {dataset.type_en !== "folder" && (
+          <>
+            <ButtonWrapper>
+              <AddButton disabled={addDisabled} onClick={handleDatasetAdd}>
+                {!addDisabled && <Icon icon="plusCircle" />}
+                {addDisabled ? "シーンに追加済み" : "シーンに追加"}
+              </AddButton>
+              {showShareButton && (
+                <ShareButton isShareable={isShareable}>
+                  <Icon icon="share" />
+                  シェア
+                </ShareButton>
+              )}
+            </ButtonWrapper>
+            {requireLayerName && (
+              <LayerNamesWrapper>
+                <Text>表示したいレイヤー名を入力してください。</Text>
+                <Input placeholder="レイヤー名" onChange={handleLayersAddOnDataset} />
+              </LayerNamesWrapper>
+            )}
+          </>
         )}
       </TopWrapper>
       {ContentSection && (
