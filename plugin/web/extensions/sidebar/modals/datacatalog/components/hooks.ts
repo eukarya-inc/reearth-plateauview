@@ -205,10 +205,7 @@ export default () => {
         setCatalogProjectName(e.data.payload.catalogProjectName);
         setPublishToGeospatial(e.data.payload.enableGeoPub);
         setTemplates(e.data.payload.templates);
-        if (e.data.payload.filter) {
-          setFilter(e.data.payload.filter);
-          postMsg({ action: "saveFilter", payload: { filter: e.data.payload.filter } });
-        }
+        if (e.data.payload.filter) setFilter(e.data.payload.filter);
         if (e.data.payload.searchTerm) setSearchTerm(e.data.payload.searchTerm);
         if (e.data.payload.expandedFolders) setExpandedFolders(e.data.payload.expandedFolders);
         if (e.data.payload.dataset) {
