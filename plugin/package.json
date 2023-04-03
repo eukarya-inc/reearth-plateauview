@@ -58,7 +58,7 @@
     "clean": "del dist",
     "clean:web": "del dist/web",
     "typecheck": "tsc",
-    "test": "vitest",
+    "test": "vitest --outputDiffMaxSize 100000",
     "coverage": "vitest run --coverage",
     "lint": "eslint .",
     "format": "eslint . --fix",
