@@ -54,19 +54,19 @@ const useModifiedImage = ({ imageUrl, blendColor, width, height }: Props) => {
       const modifiedImage = new Image();
       modifiedImage.src = canvas2.toDataURL();
 
-      setModifiedImageUrl(modifiedImage.src);
-      setLoading(false);
+      modifiedImage.onload = () => {
+        if (modifiedImage.complete) {
+          setModifiedImageUrl(modifiedImage.src);
+          setLoading(false);
+        } else {
+          setModifiedImageUrl(imageUrl);
+          setLoading(false);
+        }
+      };
     };
-    image.onerror = (event: string | Event) => {
-      if (
-        event instanceof Event &&
-        event.target instanceof HTMLImageElement &&
-        !event.target.complete
-      ) {
-        console.error("Failed to load image due to cross-origin error");
-      }
 
-      console.error(`Failed to load image: ${imageUrl}`);
+    image.onerror = (event: string | Event) => {
+      console.error(`Failed to load image: ${imageUrl}`, event);
       setLoading(false);
     };
   }, [imageUrl, blendColor, width, height]);
