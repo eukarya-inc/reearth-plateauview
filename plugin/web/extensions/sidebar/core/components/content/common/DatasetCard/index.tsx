@@ -337,25 +337,18 @@ const DatasetCard: React.FC<Props> = ({
   }, []);
 
   const handleDataExport = useCallback(async () => {
-    if (dataset.url) {
-      const name = getNameFromPath(dataset.name);
-      const format = normalizeExtension(dataset.format);
-      const filename = createFileName(name, format);
-      handleDataDownload(dataset.url, filename);
-    } else if (dataset.config?.data && dataset.selectedDataset) {
+    if (dataset.selectedDataset) {
       const name = getNameFromPath(dataset.selectedDataset.name);
       const format = normalizeExtension(dataset.format);
       const filename = createFileName(name, format);
       handleDataDownload(dataset.selectedDataset.url, filename);
+    } else if (dataset.url) {
+      const name = getNameFromPath(dataset.name);
+      const format = normalizeExtension(dataset.format);
+      const filename = createFileName(name, format);
+      handleDataDownload(dataset.url, filename);
     }
-  }, [
-    dataset.config?.data,
-    dataset.format,
-    dataset.name,
-    dataset.selectedDataset,
-    dataset.url,
-    handleDataDownload,
-  ]);
+  }, [dataset.format, dataset.name, dataset.selectedDataset, dataset.url, handleDataDownload]);
 
   return (
     <div ref={previewRef} style={{ opacity }} data-handler-id={handlerId}>
