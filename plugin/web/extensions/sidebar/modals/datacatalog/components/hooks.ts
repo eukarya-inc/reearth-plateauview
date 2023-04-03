@@ -83,24 +83,22 @@ export default () => {
         method,
         body: JSON.stringify(datasetToSave),
       });
-      if (res.status !== 200) {
-        handleDataFetch();
-        return;
+      if (res.status === 200) {
+        const resData = await res.json();
+        setData(prevData => {
+          if (!prevData) {
+            return [resData];
+          }
+          const index = prevData?.findIndex(d => d.dataID === resData.dataID);
+          if (index) {
+            const updatedData = [...prevData];
+            updatedData[index] = resData;
+            return updatedData;
+          }
+        });
       }
-      const resData = await res.json();
-      setData(prevData => {
-        if (!prevData) {
-          return [resData];
-        }
-        const index = prevData?.findIndex(d => d.dataID === resData.dataID);
-        if (index) {
-          const updatedData = [...prevData];
-          updatedData[index] = resData;
-          return updatedData;
-        }
-      });
     },
-    [data, templates, backendAccessToken, backendURL, backendProjectName, handleDataFetch],
+    [data, templates, backendAccessToken, backendURL, backendProjectName],
   );
 
   const handleDatasetPublish = useCallback(
