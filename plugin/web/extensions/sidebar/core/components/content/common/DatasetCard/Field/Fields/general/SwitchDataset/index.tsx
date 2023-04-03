@@ -67,10 +67,6 @@ const SwitchDataset: React.FC<BaseFieldProps<"switchDataset">> = ({
   }, []);
 
   useEffect(() => {
-    if (!value.userSettings?.selected && selectedDataset) onCurrentDatasetUpdate?.(selectedDataset);
-  });
-
-  useEffect(() => {
     if (!initialized.current) {
       initialized.current = true;
       return;
