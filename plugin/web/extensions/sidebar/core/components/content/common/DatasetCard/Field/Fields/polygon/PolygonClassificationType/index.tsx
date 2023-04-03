@@ -47,7 +47,7 @@ const PolygonClassificationType: React.FC<BaseFieldProps<"polygonClassificationT
   return editMode ? (
     <Wrapper>
       <Field
-        title="Type"
+        title="種類"
         titleWidth={88}
         noBorder
         value={

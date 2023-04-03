@@ -47,7 +47,7 @@ const PolylineClassificationType: React.FC<BaseFieldProps<"polylineClassificatio
   return editMode ? (
     <Wrapper>
       <Field
-        title="Type"
+        title="種類"
         titleWidth={88}
         noBorder
         value={
