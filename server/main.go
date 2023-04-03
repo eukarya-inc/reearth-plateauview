@@ -3,7 +3,6 @@ package main
 import (
 	"errors"
 	"fmt"
-	"io"
 	"net/http"
 	"net/url"
 	"reflect"
@@ -128,23 +127,20 @@ func errorMessage(err error, log func(string, ...interface{})) (int, string) {
 func proxyHandlerFunc(c echo.Context) error {
 	// Extract the target URL from the request path
 	targetPath := c.Param("*")
-	targetURL, err := url.ParseRequestURI(targetPath)
+
+	// This shouldn't be done by us but It'll do for now: @pyshx
+	if strings.HasPrefix(targetPath, "http:/") && len(targetPath) > 6 && targetPath[6] != '/' {
+		targetPath = "http://" + strings.TrimPrefix(targetPath, "http:/")
+	} else if strings.HasPrefix(targetPath, "https:/") && len(targetPath) > 7 && targetPath[7] != '/' {
+		targetPath = "https://" + strings.TrimPrefix(targetPath, "https:/")
+	}
+
+	targetURL, err := url.Parse(targetPath)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]string{
 			"error": "Invalid target URL",
 		})
 	}
-
-	// Add the scheme to the targetURL if not present
-	if targetURL.Scheme == "" {
-		targetURL.Scheme = "https"
-	}
-	if targetURL.Host == "" {
-		targetURL.Host = "api.odpt.org"
-	}
-
-	// Append query string parameters to target URL
-	targetURL.RawQuery = c.QueryString()
 
 	// Define the ProxyConfig object with custom Rewrite rules and ModifyResponse function
 	proxyConfig := middleware.ProxyConfig{
@@ -153,25 +149,6 @@ func proxyHandlerFunc(c echo.Context) error {
 				URL: targetURL,
 			},
 		}),
-		ModifyResponse: func(resp *http.Response) error {
-			// Copy the response headers from the target URL to the client response
-			for k, vv := range resp.Header {
-				for _, v := range vv {
-					c.Response().Header().Add(k, v)
-				}
-			}
-
-			// Set the response status code
-			c.Response().WriteHeader(resp.StatusCode)
-
-			// Copy the response body from the target URL to the client response
-			_, err := io.Copy(c.Response().Writer, resp.Body)
-			if err != nil {
-				return err
-			}
-
-			return nil
-		},
 	}
 
 	// Create a new middleware.ProxyWithConfig() middleware with the target URL
