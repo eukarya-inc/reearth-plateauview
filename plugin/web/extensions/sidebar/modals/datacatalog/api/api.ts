@@ -15,6 +15,7 @@ export type RawDataCatalogTreeItem = RawDataCatalogGroup | RawDataCatalogItem;
 export type RawDataCatalogGroup = {
   id: string;
   name: string;
+  desc?: string;
   children: RawDataCatalogTreeItem[];
 };
 
@@ -159,6 +160,7 @@ export function getRawDataCatalogTree(
       item.item ?? {
         id: item.id,
         name: item.name,
+        desc: item.desc,
         children: [],
       },
   );
@@ -235,9 +237,8 @@ function sortByOrder(a: number | undefined, b: number | undefined): number {
 }
 
 function filter(q: string | undefined, items: RawDataCatalogItem[]): RawDataCatalogItem[] {
-  const filteredItems = items.filter(item => item.type_en !== "folder");
-  if (!q) return filteredItems;
-  return filteredItems.filter(
+  if (!q) return items;
+  return items.filter(
     i => i.name?.includes(q) || i.pref.includes(q) || i.city?.includes(q) || i.ward?.includes(q),
   );
 }
