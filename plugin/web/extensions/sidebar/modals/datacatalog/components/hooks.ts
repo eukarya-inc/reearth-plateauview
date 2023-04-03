@@ -186,10 +186,6 @@ export default () => {
   }, []);
 
   useEffect(() => {
-    postMsg({ action: "getTreeFilterData" });
-  }, []);
-
-  useEffect(() => {
     const eventListenerCallback = (e: MessageEvent<any>) => {
       if (e.source !== parent) return;
       if (e.data.action === "initDataCatalog") {
@@ -202,7 +198,6 @@ export default () => {
         setCatalogProjectName(e.data.payload.catalogProjectName);
         setPublishToGeospatial(e.data.payload.enableGeoPub);
         setTemplates(e.data.payload.templates);
-      } else if (e.data.action === "getTreeFilterData") {
         if (e.data.payload.filter) {
           setFilter(e.data.payload.filter);
           postMsg({ action: "saveFilter", payload: { filter: e.data.payload.filter } });

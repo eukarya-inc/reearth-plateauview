@@ -283,21 +283,6 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
     reearth.modal.close();
     welcomePageIsOpen = false;
   } else if (action === "initDataCatalog") {
-    reearth.modal.postMessage({
-      action,
-      payload: {
-        addedDatasets: addedDatasets.map(d => d[0]),
-        inEditor: inEditor(),
-        backendProjectName: reearth.widget.property.default?.projectName ?? "",
-        backendAccessToken: reearth.widget.property.default?.plateauAccessToken ?? "",
-        backendURL: reearth.widget.property.default?.plateauURL ?? "",
-        catalogURL: reearth.widget.property.default?.catalogURL ?? "",
-        catalogProjectName: reearth.widget.property.default?.catalogProjectName ?? "",
-        enableGeoPub: reearth.widget.property.default?.enableGeoPub ?? false,
-        templates,
-      },
-    });
-  } else if (action === "getTreeFilterData") {
     if (reearth.viewport.isMobile) {
       reearth.popup.postMessage({
         action,
@@ -312,6 +297,15 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
       reearth.modal.postMessage({
         action,
         payload: {
+          addedDatasets: addedDatasets.map(d => d[0]),
+          inEditor: inEditor(),
+          backendProjectName: reearth.widget.property.default?.projectName ?? "",
+          backendAccessToken: reearth.widget.property.default?.plateauAccessToken ?? "",
+          backendURL: reearth.widget.property.default?.plateauURL ?? "",
+          catalogURL: reearth.widget.property.default?.catalogURL ?? "",
+          catalogProjectName: reearth.widget.property.default?.catalogProjectName ?? "",
+          enableGeoPub: reearth.widget.property.default?.enableGeoPub ?? false,
+          templates,
           searchTerm,
           expandedFolders,
           dataset,

@@ -135,13 +135,13 @@ const Catalog: React.FC<Props> = ({
   }, [selectedDataset, page, setPage, setSelectedDataset]);
 
   useEffect(() => {
-    postMsg({ action: "getTreeFilterData" }); // Needed to trigger sending selected dataset ids from Sidebar
+    postMsg({ action: "initDataCatalog" });
   }, []);
 
   useEffect(() => {
     const eventListenerCallback = (e: MessageEvent<any>) => {
       if (e.source !== parent) return;
-      if (e.data.action === "getTreeFilterData") {
+      if (e.data.action === "initDataCatalog") {
         if (e.data.payload.filter) {
           setFilter(e.data.payload.filter);
           postMsg({ action: "saveFilter", payload: { filter: e.data.payload.filter } });

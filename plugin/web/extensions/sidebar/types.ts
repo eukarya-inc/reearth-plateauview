@@ -27,7 +27,6 @@ type ActionType =
   | "saveExpandedFolders"
   | "saveDataset"
   | "saveFilter"
-  | "getTreeFilterData"
   | "triggerHelpOpen"
   | "mapModalOpen"
   | "clipModalOpen"
