@@ -87,9 +87,18 @@ export default () => {
         handleDataFetch();
         return;
       }
-      const data2 = await res.json();
-      console.log("DATA JUST SAVED: ", data2);
-      handleDataFetch(); // MAYBE UPDATE THIS LATER TO JUST UPDATE THE LOCAL VALUE
+      const resData = await res.json();
+      setData(prevData => {
+        if (!prevData) {
+          return [resData];
+        }
+        const index = prevData?.findIndex(d => d.dataID === resData.dataID);
+        if (index) {
+          const updatedData = [...prevData];
+          updatedData[index] = resData;
+          return updatedData;
+        }
+      });
     },
     [data, templates, backendAccessToken, backendURL, backendProjectName, handleDataFetch],
   );
