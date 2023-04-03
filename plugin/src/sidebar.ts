@@ -1,4 +1,4 @@
-import { DataCatalogItem } from "@web/extensions/sidebar/core/types";
+import { DataCatalogItem, Template } from "@web/extensions/sidebar/core/types";
 import { PostMessageProps, Project, PluginMessage } from "@web/extensions/sidebar/types";
 import { isObject, mergeWith, omit, cloneDeep, merge as lodashMerge } from "lodash";
 
@@ -86,13 +86,14 @@ let currentSelected: string | undefined = undefined;
 const defaultLocation = { zone: "outer", section: "left", area: "middle" };
 const mobileLocation = { zone: "outer", section: "center", area: "top" };
 
-let catalog: DataCatalogItem[] = [];
-
 let addedDatasets: [dataID: string, status: "showing" | "hidden", layerID?: string][] = [];
+let templates: Template[] | undefined = undefined;
 
 let searchTerm = "";
 let expandedFolders: { id?: string; name?: string }[] = [];
 let dataset: DataCatalogItem | undefined = undefined;
+let filter = "city";
+
 const sidebarInstance: PluginExtensionInstance = reearth.plugins.instances.find(
   (i: PluginExtensionInstance) => i.id === reearth.widget.id,
 );
@@ -189,9 +190,6 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
     });
   } else if (action === "storageDelete") {
     reearth.clientStorage.deleteAsync(payload.key);
-  } else if (action === "updateDataCatalog") {
-    catalog = payload;
-    reearth.modal.postMessage({ action, payload: { updatedCatalog: payload } });
   } else if (action === "updateProject") {
     reearth.visualizer.overrideProperty(payload.sceneOverrides);
     reearth.clientStorage.setAsync("draftProject", payload);
@@ -268,9 +266,7 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
     }
   } else if (action === "catalogModalOpen") {
     reearth.modal.show(dataCatalogHtml, { background: "transparent" });
-    if (payload) {
-      reearth.modal.postMessage({ action, payload });
-    }
+    templates = payload.templates;
   } else if (action === "triggerCatalogOpen") {
     reearth.ui.postMessage({ action });
   } else if (action === "saveSearchTerm") {
@@ -279,23 +275,44 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
     expandedFolders = [...payload.expandedFolders];
   } else if (action === "saveDataset") {
     dataset = { ...payload.dataset };
+  } else if (action === "saveFilter") {
+    filter = payload.filter;
   } else if (action === "triggerHelpOpen") {
     reearth.ui.postMessage({ action });
   } else if (action === "modalClose") {
     reearth.modal.close();
     welcomePageIsOpen = false;
   } else if (action === "initDataCatalog") {
-    reearth.modal.postMessage({
-      action,
-      payload: {
-        catalog,
-        addedDatasets: addedDatasets.map(d => d[0]),
-        inEditor: inEditor(),
-        searchTerm,
-        expandedFolders,
-        dataset,
-      },
-    });
+    if (reearth.viewport.isMobile) {
+      reearth.popup.postMessage({
+        action,
+        payload: {
+          searchTerm,
+          expandedFolders,
+          dataset,
+          filter,
+        },
+      });
+    } else {
+      reearth.modal.postMessage({
+        action,
+        payload: {
+          addedDatasets: addedDatasets.map(d => d[0]),
+          inEditor: inEditor(),
+          backendProjectName: reearth.widget.property.default?.projectName ?? "",
+          backendAccessToken: reearth.widget.property.default?.plateauAccessToken ?? "",
+          backendURL: reearth.widget.property.default?.plateauURL ?? "",
+          catalogURL: reearth.widget.property.default?.catalogURL ?? "",
+          catalogProjectName: reearth.widget.property.default?.catalogProjectName ?? "",
+          enableGeoPub: reearth.widget.property.default?.enableGeoPub ?? false,
+          templates,
+          searchTerm,
+          expandedFolders,
+          dataset,
+          filter,
+        },
+      });
+    }
   } else if (action === "helpPopupOpen") {
     reearth.popup.show(helpPopupHtml, { position: "right-start", offset: 4 });
   } else if (action === "groupSelectOpen") {
@@ -714,7 +731,7 @@ reearth.on("popupclose", () => {
 });
 
 function createLayer(dataset: DataCatalogItem, overrides?: any) {
-  const format = dataset.format?.toLowerCase();
+  const format = dataset.format?.toLowerCase().replace(/\s/g, "");
   const merge = (obj1: any, obj2: any): any => {
     const merged = cloneDeep(obj1);
     mergeWith(merged, obj2, (mergedValue, obj2Value) => {
@@ -729,9 +746,9 @@ function createLayer(dataset: DataCatalogItem, overrides?: any) {
     type: "simple",
     title: dataset.name,
     data: {
-      type: format,
+      type: dataset.config?.data?.[0].type.toLowerCase().replace(/\s/g, "") ?? format,
       url: dataset.config?.data?.[0].url ?? dataset.url,
-      layers: dataset.config?.data?.[0].layers ?? dataset.layers,
+      layers: dataset.config?.data?.[0].layer ?? dataset.layers,
       ...(format === "wms" ? { parameters: { transparent: "true", format: "image/png" } } : {}),
       ...(["luse", "lsld", "urf", "rail", "tran"].includes(dataset.type_en) ||
       (dataset.type_en === "tran" && format === "mvt")
