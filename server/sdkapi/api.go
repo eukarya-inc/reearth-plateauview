@@ -3,6 +3,7 @@ package sdkapi
 import (
 	"context"
 	"encoding/csv"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -14,6 +15,8 @@ import (
 	"github.com/eukarya-inc/reearth-plateauview/server/cms"
 	"github.com/eukarya-inc/reearth-plateauview/server/putil"
 	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
+	"github.com/reearth/reearthx/rerror"
 )
 
 func Handler(conf Config, g *echo.Group) error {
@@ -36,18 +39,29 @@ func Handler(conf Config, g *echo.Group) error {
 func handler(conf Config, g *echo.Group, cms *CMS) error {
 	conf.Default()
 
-	c := putil.NewCacheMiddleware(putil.CacheConfig{
-		Disabled: conf.DisableCache,
-		TTL:      time.Duration(conf.CacheTTL) * time.Second,
-	})
+	g.Use(
+		auth(conf.Token),
+		middleware.CORS(),
+		middleware.Gzip(),
+		putil.NewCacheMiddleware(putil.CacheConfig{
+			Disabled: conf.DisableCache,
+			TTL:      time.Duration(conf.CacheTTL) * time.Second,
+		}).Middleware(),
+	)
 
 	g.GET("/datasets", func(c echo.Context) error {
+		if hit, err := lastModified(c, cms, conf.Model); err != nil {
+			return err
+		} else if hit {
+			return nil
+		}
+
 		data, err := cms.Datasets(c.Request().Context(), conf.Model)
 		if err != nil {
 			return err
 		}
 		return c.JSON(http.StatusOK, data)
-	}, auth(conf.Token), c.Middleware())
+	})
 
 	g.GET("/datasets/:id/files", func(c echo.Context) error {
 		data, err := cms.Files(c.Request().Context(), conf.Model, c.Param("id"))
@@ -55,7 +69,7 @@ func handler(conf Config, g *echo.Group, cms *CMS) error {
 			return err
 		}
 		return c.JSON(http.StatusOK, data)
-	}, auth(conf.Token))
+	})
 
 	return nil
 }
@@ -133,4 +147,28 @@ func isInt(s string) bool {
 		}
 	}
 	return true
+}
+
+func lastModified(c echo.Context, cms *CMS, prj string, models ...string) (bool, error) {
+	if cms == nil || cms.IntegrationAPIClient == nil {
+		return false, nil
+	}
+
+	mlastModified := time.Time{}
+
+	for _, m := range models {
+		model, err := cms.IntegrationAPIClient.GetModelByKey(c.Request().Context(), prj, m)
+		if err != nil {
+			if errors.Is(err, rerror.ErrNotFound) {
+				return false, c.JSON(http.StatusNotFound, "not found")
+			}
+			return false, err
+		}
+
+		if model != nil && mlastModified.Before(model.LastModified) {
+			mlastModified = model.LastModified
+		}
+	}
+
+	return putil.LastModified(c, mlastModified)
 }
