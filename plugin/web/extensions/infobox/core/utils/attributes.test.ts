@@ -1,6 +1,13 @@
 import { expect, test, vi } from "vitest";
 
-import { attributesMap, getAttributes, getRootFields, name, fldName } from "./attributes";
+import {
+  attributesMap,
+  getAttributes,
+  getRootFields,
+  name,
+  fldName,
+  constructionYear,
+} from "./attributes";
 import type { Json } from "./json";
 
 test("getAttributes", () => {
@@ -67,7 +74,7 @@ test("getAttributes", () => {
   ]);
 });
 
-test("getRootFields", () => {
+test("getRootFields bldg", () => {
   const res = getRootFields({
     attributes: {
       "gml:id": "id",
@@ -197,6 +204,31 @@ test("getRootFields", () => {
   ]);
 });
 
+test("getRootFields luse", () => {
+  const res = getRootFields({
+    attributes: {
+      "gml:id": "id",
+      "luse:class": "山林（樹林地）",
+      "uro:LandUseDetailAttribute": [
+        {
+          "uro:orgLandUse": "山林",
+          "uro:city": "広島県福山市",
+          "uro:surfeyYear": 2000, // sufey is an invalid attribute
+        },
+      ],
+    },
+  });
+
+  expect(res).toEqual({
+    gml_id: "id",
+    分類: "山林（樹林地）",
+    都市名: "広島県福山市",
+    調査年: 2000,
+  });
+
+  expect(flatKeys(res)).toEqual(["", "gml_id", "分類", "都市名", "調査年"]);
+});
+
 test("attributesMap", () => {
   expect(attributesMap.get("ddd")).toBe("DDD");
 });
@@ -251,6 +283,35 @@ function flatKeys(obj: Json, parentKey?: string): string[] {
     ),
   ];
 }
+
+test("constructionYear", () => {
+  expect(constructionYear("")).toBe(undefined);
+  expect(constructionYear(null)).toBe(undefined);
+  expect(constructionYear(undefined)).toBe(undefined);
+  expect(constructionYear(-1)).toBe(-1);
+  expect(constructionYear(0)).toBe(0);
+  expect(constructionYear(1)).toBe(1);
+  expect(constructionYear("0")).toBe("0");
+  expect(constructionYear("1")).toBe("1");
+  expect(constructionYear("0000")).toBe("0000");
+  expect(constructionYear("0001")).toBe("0001");
+  expect(constructionYear(2001)).toBe(2001);
+  expect(constructionYear("2001")).toBe("2001");
+  expect(constructionYear(2)).toBe(2);
+  expect(constructionYear("", "bldg")).toBe("不明");
+  expect(constructionYear(null, "bldg")).toBe("不明");
+  expect(constructionYear(undefined, "bldg")).toBe("不明");
+  expect(constructionYear(-1, "bldg")).toBe("不明");
+  expect(constructionYear(0, "bldg")).toBe("不明");
+  expect(constructionYear(1, "bldg")).toBe("不明");
+  expect(constructionYear("0", "bldg")).toBe("不明");
+  expect(constructionYear("1", "bldg")).toBe("不明");
+  expect(constructionYear("0000", "bldg")).toBe("不明");
+  expect(constructionYear("0001", "bldg")).toBe("不明");
+  expect(constructionYear(2001, "bldg")).toBe(2001);
+  expect(constructionYear("2001", "bldg")).toBe("2001");
+  expect(constructionYear(2, "bldg")).toBe(2);
+});
 
 vi.mock("./attributes.csv?raw", () => ({
   default: "ddd,DDD\naaa,AAA\n_code,コード\n",

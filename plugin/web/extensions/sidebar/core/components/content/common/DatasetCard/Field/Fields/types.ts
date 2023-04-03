@@ -4,6 +4,7 @@ import { ReearthApi } from "@web/extensions/sidebar/types";
 export const generalFieldName = {
   idealZoom: "カメラ",
   legend: "凡例",
+  legendGradient: "凡例（グラデーション)",
   realtime: "リアルタイム",
   story: "ストーリー",
   timeline: "タイムライン",
@@ -65,6 +66,7 @@ export const fieldName = {
 export type FieldComponent =
   | IdealZoom
   | Legend
+  | LegendGradient
   | StyleCode
   | ButtonLink
   | Description
@@ -134,6 +136,15 @@ export type LegendItem = {
 export type Legend = FieldBase<"legend"> & {
   style: LegendStyleType;
   items?: LegendItem[];
+};
+
+type LegendGradient = FieldBase<"legendGradient"> & {
+  style: Omit<LegendStyleType, "icon">;
+  min?: number;
+  max?: number;
+  startColor?: string;
+  endColor?: string;
+  step?: number;
 };
 
 type CurrentTime = FieldBase<"currentTime"> & {
@@ -344,11 +355,15 @@ type Clipping = FieldBase<"clipping"> & {
 };
 
 type BuildingFilter = FieldBase<"buildingFilter"> & {
-  userSettings: {
-    height?: [from: number, to: number];
-    abovegroundFloor?: [from: number, to: number];
-    basementFloor?: [from: number, to: number];
-    buildingAge?: [from: number, to: number];
+  userSettings: Record<
+    "height" | "abovegroundFloor" | "basementFloor" | "buildingAge",
+    | {
+        value?: [from: number, to: number];
+        min?: number;
+        max?: number;
+      }
+    | undefined
+  > & {
     override?: any;
   };
 };
@@ -369,6 +384,7 @@ type BuildingTransparency = FieldBase<"buildingTransparency"> & {
 };
 
 type BuildingColor = FieldBase<"buildingColor"> & {
+  disableFloodRankLegend?: boolean;
   userSettings: {
     colorType: string;
     updatedAt?: Date;
@@ -386,7 +402,10 @@ type FloodColor = FieldBase<"floodColor"> & {
 
 type FloodFilter = FieldBase<"floodFilter"> & {
   userSettings: {
-    rank?: [from: number, to: number];
+    value?: [from: number, to: number];
+    min?: number;
+    max?: number;
+    isOrg?: boolean;
     override?: any;
   };
 };
@@ -395,6 +414,7 @@ export type Fields = {
   // general
   idealZoom: IdealZoom;
   legend: Legend;
+  legendGradient: LegendGradient;
   description: Description;
   styleCode: StyleCode;
   switchGroup: SwitchGroup;

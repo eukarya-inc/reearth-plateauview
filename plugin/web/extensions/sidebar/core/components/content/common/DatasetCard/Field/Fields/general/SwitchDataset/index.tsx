@@ -83,7 +83,7 @@ const SwitchDataset: React.FC<BaseFieldProps<"switchDataset">> = ({
         override: {
           data: {
             url: selectedDataset?.url,
-            type: selectedDataset?.type,
+            type: selectedDataset?.type.toLowerCase().replace(/\s/g, ""),
             layers: selectedDataset?.layer,
             time: {
               updateClockOnLoad: true,
@@ -115,7 +115,7 @@ const SwitchDataset: React.FC<BaseFieldProps<"switchDataset">> = ({
             getPopupContainer={trigger => trigger.parentElement ?? document.body}>
             <StyledDropdownButton>
               <p style={{ margin: 0 }}>{uiStyles[selectedStyle]}</p>
-              <Icon icon="arrowDownSimple" size={12} />
+              <StyledIcon icon="arrowDownSimple" size={12} />
             </StyledDropdownButton>
           </Dropdown>
         </FieldValue>
@@ -148,7 +148,7 @@ const SwitchDataset: React.FC<BaseFieldProps<"switchDataset">> = ({
                 getPopupContainer={trigger => trigger.parentElement ?? document.body}>
                 <StyledDropdownButton>
                   <p style={{ margin: 0 }}>{selectedDataset.name}</p>
-                  <Icon icon="arrowDownSimple" size={12} />
+                  <StyledIcon icon="arrowDownSimple" size={12} />
                 </StyledDropdownButton>
               </Dropdown>
             </FieldValue>
@@ -178,6 +178,10 @@ const StyledDropdownButton = styled.div`
   height: 32px;
   padding: 0 16px;
   cursor: pointer;
+`;
+
+const StyledIcon = styled(Icon)`
+  font-size: 0;
 `;
 
 const Field = styled.div<{ gap?: number }>`

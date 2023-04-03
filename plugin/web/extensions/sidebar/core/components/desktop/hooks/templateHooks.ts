@@ -2,6 +2,7 @@ import { postMsg } from "@web/extensions/sidebar/utils";
 import { useCallback, useState } from "react";
 
 import { Template } from "../../../types";
+import { prepareComponentsToSave } from "../../utils";
 
 export default ({
   backendURL,
@@ -15,6 +16,8 @@ export default ({
   setLoading?: React.Dispatch<React.SetStateAction<boolean>>;
 }) => {
   const [fieldTemplates, setFieldTemplates] = useState<Template[]>([]);
+
+  const [updatedTemplateIDs, setUpdatedTemplateIDs] = useState<string[]>();
 
   const handleTemplateAdd = useCallback(async () => {
     if (!backendURL || !backendProjectName || !backendAccessToken) return;
@@ -35,6 +38,9 @@ export default ({
     async (template: Template) => {
       if (!backendURL || !backendProjectName || !backendAccessToken) return;
       setLoading?.(true);
+
+      const templateToSave = convertForSave(template, fieldTemplates);
+
       const res = await fetch(
         `${backendURL}/sidebar/${backendProjectName}/templates/${template.id}`,
         {
@@ -42,11 +48,12 @@ export default ({
             authorization: `Bearer ${backendAccessToken}`,
           },
           method: "PATCH",
-          body: JSON.stringify(template),
+          body: JSON.stringify(templateToSave),
         },
       );
       if (res.status !== 200) return;
       const updatedTemplate = await res.json();
+      setUpdatedTemplateIDs(ids => [...(ids ?? []), updatedTemplate.id]);
       setFieldTemplates(t => {
         return t.map(t2 => {
           if (t2.id === updatedTemplate.id) {
@@ -57,7 +64,7 @@ export default ({
       });
       setLoading?.(false);
     },
-    [backendURL, backendProjectName, backendAccessToken, setLoading],
+    [backendURL, backendProjectName, backendAccessToken, fieldTemplates, setLoading],
   );
 
   const handleTemplateRemove = useCallback(
@@ -144,11 +151,20 @@ export default ({
   return {
     fieldTemplates,
     infoboxTemplates,
+    updatedTemplateIDs,
+    setUpdatedTemplateIDs,
     setFieldTemplates,
     setInfoboxTemplates,
     handleTemplateAdd,
     handleTemplateSave,
     handleTemplateRemove,
     handleInfoboxFieldsSave,
+  };
+};
+
+const convertForSave = (templateToSave: Template, templates: Template[]): Template => {
+  return {
+    ...templateToSave,
+    components: prepareComponentsToSave(templateToSave.components, templates),
   };
 };

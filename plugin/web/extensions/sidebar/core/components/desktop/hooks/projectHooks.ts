@@ -5,8 +5,8 @@ import {
   flattenComponents,
   getActiveFieldIDs,
   getDefaultGroup,
+  getDefaultDataset,
 } from "@web/extensions/sidebar/utils/dataset";
-import { merge } from "lodash";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { BuildingSearch, Data, DataCatalogItem, FldInfo, Template } from "../../../types";
@@ -70,17 +70,19 @@ export const defaultProject: Project = {
 export default ({
   fieldTemplates,
   infoboxTemplates,
+  updatedTemplateIDs,
   backendURL,
   backendProjectName,
-  processedCatalog,
   buildingSearch,
+  setUpdatedTemplateIDs,
 }: {
   fieldTemplates?: Template[];
   infoboxTemplates?: Template[];
+  updatedTemplateIDs?: string[];
   backendURL?: string;
   backendProjectName?: string;
-  processedCatalog: DataCatalogItem[];
   buildingSearch?: BuildingSearch;
+  setUpdatedTemplateIDs?: React.Dispatch<React.SetStateAction<string[] | undefined>>;
 }) => {
   const [projectID, setProjectID] = useState<string>();
   const [project, updateProject] = useState<Project>(defaultProject);
@@ -91,7 +93,7 @@ export default ({
       if (!activeIDs) return undefined;
       let overrides = undefined;
 
-      const flattenedComponents = flattenComponents(dataset.components);
+      const flattenedComponents = flattenComponents(dataset.components, fieldTemplates);
       const inactiveFields = flattenedComponents
         ?.filter(c => !activeIDs.find(id => id === c.id))
         .map(c => {
@@ -139,7 +141,7 @@ export default ({
 
       return overrides;
     },
-    [cleanseOverride, buildingSearch],
+    [cleanseOverride, fieldTemplates, buildingSearch],
   );
 
   const handleProjectSceneUpdate = useCallback(
@@ -161,6 +163,7 @@ export default ({
       const datasetToAdd = { ...dataset } as DataCatalogItem;
 
       datasetToAdd.selectedGroup = getDefaultGroup(datasetToAdd.components, fieldTemplates);
+      datasetToAdd.selectedDataset = getDefaultDataset(datasetToAdd);
 
       if (!dataset.components?.length) {
         const defaultTemplate = fieldTemplates?.find(ft =>
@@ -253,6 +256,38 @@ export default ({
     });
   }, []);
 
+  useEffect(() => {
+    if (project.datasets.length > 0 && updatedTemplateIDs && updatedTemplateIDs.length > 0) {
+      if (
+        project.datasets.find(d =>
+          d.components?.find(c =>
+            updatedTemplateIDs?.find(id => c.type === "template" && id === c.templateID),
+          ),
+        )
+      ) {
+        const updatedDatasets = project.datasets.map(d => {
+          return {
+            ...d,
+            components: d.components?.map(c => {
+              const updatedTemplate = updatedTemplateIDs?.find(
+                id => c.type === "template" && c.templateID === id,
+              );
+              if (updatedTemplate) {
+                return {
+                  ...c,
+                  userSettings: undefined,
+                };
+              }
+              return c;
+            }) as FieldComponent[],
+          };
+        });
+        handleProjectDatasetsUpdate(updatedDatasets);
+      }
+      setUpdatedTemplateIDs?.(undefined);
+    }
+  }, [project.datasets, updatedTemplateIDs, handleProjectDatasetsUpdate, setUpdatedTemplateIDs]);
+
   const handleOverride = useCallback(
     (dataID: string, activeIDs?: string[]) => {
       const dataset = project.datasets.find(d => d.dataID === dataID);
@@ -339,18 +374,14 @@ export default ({
 
   useEffect(() => {
     if (!backendURL || !backendProjectName || fetchedSharedProject.current) return;
-    if (projectID && processedCatalog.length) {
+    if (projectID) {
       (async () => {
         const res = await fetch(`${backendURL}/share/${backendProjectName}/${projectID}`);
         if (res.status !== 200) return;
         const data = await res.json();
         if (data) {
           (data.datasets as Data[]).forEach(d => {
-            const dataset = processedCatalog.find(item => item.dataID === d.dataID);
-            const mergedDataset: DataCatalogItem = merge(dataset, d, {});
-            if (mergedDataset) {
-              handleProjectDatasetAdd(mergedDataset);
-            }
+            handleProjectDatasetAdd(d);
           });
           if (data.userStory && data.userStory.length > 0) {
             handleInitUserStory(data.userStory);
@@ -364,7 +395,6 @@ export default ({
     projectID,
     backendURL,
     backendProjectName,
-    processedCatalog,
     handleProjectDatasetAdd,
     handleInitUserStory,
     handleProjectSceneUpdate,

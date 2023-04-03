@@ -17,6 +17,29 @@ func TestAssetNameFrom(t *testing.T) {
 	}, AssetNameFrom("https://example.com/12345/13229_nishitokyo-shi_2022_citygml_1_op.zip"))
 
 	assert.Equal(t, AssetName{
+		CityCode: "22100",
+		CityEn:   "shizuoka-shi",
+		Year:     "2022",
+		Format:   "citygml",
+		Op:       "1_op",
+		Ext:      ".zip",
+	}, AssetNameFrom("22100_shizuoka-shi_2022_citygml_1_op.zip"))
+
+	assert.Equal(t, AssetName{
+		CityCode: "22100",
+		CityEn:   "shizuoka-shi",
+		Year:     "2022",
+		Format:   "3dtiles",
+		Op:       "op_1",
+		Feature:  "bldg",
+		WardCode: "22101",
+		WardEn:   "aoi-ku",
+		Ex:       "22101_aoi-ku_lod1",
+		LOD:      "1",
+		Ext:      ".zip",
+	}, AssetNameFrom("22100_shizuoka-shi_2022_3dtiles_op_1_bldg_22101_aoi-ku_lod1.zip"))
+
+	assert.Equal(t, AssetName{
 		CityCode:  "13100",
 		CityEn:    "tokyo23-ku",
 		Year:      "2022",
@@ -30,6 +53,30 @@ func TestAssetNameFrom(t *testing.T) {
 		Op:        "1_1_op",
 		Ext:       ".zip",
 	}, AssetNameFrom("https://example.com/12345/13100_tokyo23-ku_2022_3dtiles%20_1_1_op_bldg_13101_chiyoda-ku_lod2_no_texture.zip"))
+
+	assert.Equal(t, AssetName{
+		CityCode: "22325",
+		CityEn:   "kannami-cho",
+		Year:     "2022",
+		Format:   "3dtiles",
+		Op:       "op",
+		Feature:  "bldg",
+		Ex:       "lod1",
+		LOD:      "1",
+		Ext:      ".zip",
+	}, AssetNameFrom("22325_kannami-cho_2022_3dtiles_op_bldg_lod1.zip"))
+
+	assert.Equal(t, AssetName{
+		CityCode: "22221",
+		CityEn:   "kosai-shi",
+		Year:     "2022",
+		Format:   "3dtiles",
+		Op:       "op_nodem",
+		Feature:  "bldg",
+		Ex:       "lod1",
+		LOD:      "1",
+		Ext:      ".zip",
+	}, AssetNameFrom("22221_kosai-shi_2022_3dtiles_op_nodem_bldg_lod1.zip"))
 
 	assert.Equal(t, AssetName{
 		CityCode:    "13229",
@@ -127,6 +174,18 @@ func TestAssetNameFrom(t *testing.T) {
 		Feature:  "brid",
 		Ext:      ".zip",
 	}, AssetNameFrom("14100_yokohama-shi_2022_3dtiles_1_op_brid.zip"))
+
+	assert.Equal(t, AssetName{
+		CityCode: "07212",
+		CityEn:   "minamisouma-shi",
+		Year:     "2022",
+		Format:   "mvt",
+		Op:       "1_op",
+		Feature:  "rail",
+		Ex:       "lod1",
+		LOD:      "1",
+		Ext:      ".zip",
+	}, AssetNameFrom("07212_minamisouma-shi_2022_mvt_1_op_rail_lod1.zip"))
 }
 
 func TestAssetName_String(t *testing.T) {

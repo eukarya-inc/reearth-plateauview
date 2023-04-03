@@ -1,7 +1,8 @@
-import { postMsg } from "@web/extensions/sidebar/utils";
-import { useCallback, useEffect, useState } from "react";
+import omit from "lodash/omit";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import { BaseFieldProps } from "../../types";
+import { useObservingDataURL } from "../hooks";
 
 import {
   FEATURE_PROPERTY_NAME_RANK_CODE,
@@ -14,10 +15,11 @@ const useHooks = ({
   value,
   dataID,
   onUpdate,
-}: Pick<BaseFieldProps<"floodFilter">, "value" | "dataID" | "onUpdate">) => {
+}: Pick<BaseFieldProps<"floodFilter">, "value" | "dataID" | "onUpdate" | "configData">) => {
   const [options, setOptions] = useState<FilteringField>({
-    value: value.userSettings?.rank,
+    ...omit(value.userSettings, "override"),
   });
+  const url = useObservingDataURL(dataID);
 
   const handleUpdate = useCallback(
     (property: any) => {
@@ -25,12 +27,12 @@ const useHooks = ({
         ...value,
         userSettings: {
           ...value.userSettings,
-          rank: options.value,
+          ...options,
           override: { ["3dtiles"]: property },
         },
       });
     },
-    [onUpdate, value, options.value],
+    [onUpdate, value, options],
   );
 
   const handleUpdateRange = useCallback((v: number | number[]) => {
@@ -45,6 +47,7 @@ const useHooks = ({
     }
   }, []);
 
+  const fetchedURLRef = useRef<string>();
   useEffect(() => {
     const handleFilteringFields = (data: any) => {
       let tempOptions: typeof options = {};
@@ -58,44 +61,39 @@ const useHooks = ({
           Object.keys(propertyValue).length
         ) {
           const obj = propertyValue as any;
+          const min = obj.minimum;
+          const max = obj.maximum;
+          const shouldChangeMin = options.min !== min && options.value?.[0] === options.min;
+          const shouldChangeMax = options.max !== max && options.value?.[1] === options.max;
           tempOptions = {
-            min: obj.minimum,
-            max: obj.maximum,
-            value: [obj.minimum, obj.maximum],
+            min,
+            max,
+            value: [
+              (shouldChangeMin ? min : options.value?.[0]) ?? min,
+              (shouldChangeMax ? max : options.value?.[1]) ?? max,
+            ].filter(v => v !== undefined) as typeof options.value,
             isOrg: propertyKey.includes(FEATURE_PROPERTY_NAME_RANK_ORG_CODE),
           };
         }
       });
       setOptions(tempOptions);
     };
-    const waitReturnedPostMsg = async (e: MessageEvent<any>) => {
-      if (e.source !== parent) return;
-      if (e.data.action === "findTileset") {
-        const layer = e.data.payload.layer;
-        const url = layer?.data?.url;
-        if (!url) {
-          return;
-        }
-        const data = await (async () => {
-          try {
-            return await fetch(url).then(r => r.json());
-          } catch (e) {
-            console.error(e);
-          }
-        })();
-        handleFilteringFields(data);
-
-        removeEventListener("message", waitReturnedPostMsg);
+    const fetchTileset = async () => {
+      if (!url || fetchedURLRef.current === url) {
+        return;
       }
+      fetchedURLRef.current = url;
+      const data = await (async () => {
+        try {
+          return await fetch(url).then(r => r.json());
+        } catch (e) {
+          console.error(e);
+        }
+      })();
+      handleFilteringFields(data);
     };
-    addEventListener("message", waitReturnedPostMsg);
-    postMsg({
-      action: "findTileset",
-      payload: {
-        dataID,
-      },
-    });
-  }, [dataID]);
+    fetchTileset();
+  }, [dataID, url, options]);
 
   useFloodFilter({ options, dataID, onUpdate: handleUpdate });
 

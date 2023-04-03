@@ -1,7 +1,8 @@
-import { postMsg } from "@web/extensions/sidebar/utils";
-import { useCallback, useEffect, useState } from "react";
+import omit from "lodash/omit";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import { BaseFieldProps } from "../../types";
+import { useObservingDataURL } from "../hooks";
 
 import { FILTERING_FIELD_DEFINITION, OptionsState, USE_MIN_FIELD_PROPERTIES } from "./constants";
 import { useBuildingFilter } from "./useBuildingFilter";
@@ -11,17 +12,38 @@ const useHooks = ({
   dataID,
   onUpdate,
 }: Pick<BaseFieldProps<"buildingFilter">, "value" | "dataID" | "onUpdate">) => {
-  const [options, setOptions] = useState<OptionsState>({});
+  const [options, setOptions] = useState<OptionsState>(() =>
+    value.userSettings
+      ? Object.fromEntries(
+          Object.entries(FILTERING_FIELD_DEFINITION)
+            .map(([k_, v]) => {
+              const k = k_ as keyof typeof FILTERING_FIELD_DEFINITION;
+              return value.userSettings[k]
+                ? [k, { ...v, ...omit(value.userSettings[k], "override") }]
+                : undefined;
+            })
+            .filter(
+              (
+                f,
+              ): f is [
+                keyof typeof FILTERING_FIELD_DEFINITION,
+                (typeof FILTERING_FIELD_DEFINITION)[keyof typeof FILTERING_FIELD_DEFINITION],
+              ] => !!f,
+            ),
+        )
+      : {},
+  );
+  const url = useObservingDataURL(dataID);
 
   const handleUpdate = useCallback(
     (property: any) => {
       onUpdate({
         ...value,
         userSettings: {
-          height: options.height?.value,
-          abovegroundFloor: options.abovegroundFloor?.value,
-          basementFloor: options.basementFloor?.value,
-          buildingAge: options.buildingAge?.value,
+          height: options.height,
+          abovegroundFloor: options.abovegroundFloor,
+          basementFloor: options.basementFloor,
+          buildingAge: options.buildingAge,
           override: { ["3dtiles"]: property },
         },
       });
@@ -53,6 +75,7 @@ const useHooks = ({
     [handleUpdateOptions],
   );
 
+  const fetchedUrlRef = useRef<string>();
   useEffect(() => {
     const handleFilteringFields = (data: any) => {
       const tempOptions: typeof options = {};
@@ -67,12 +90,23 @@ const useHooks = ({
           ) {
             const customType = (() => {
               const min =
-                USE_MIN_FIELD_PROPERTIES.includes(k) && "minimum" in propertyValue
-                  ? Number(propertyValue.minimum) ?? type.min
+                USE_MIN_FIELD_PROPERTIES.includes(k) &&
+                "minimum" in propertyValue &&
+                type.min &&
+                Number(propertyValue.minimum) >= type.min
+                  ? Number(propertyValue.minimum)
                   : type.min;
+              const max = type.max;
+              const shouldChangeMin =
+                options[k]?.min !== min && options[k]?.value[0] === options[k]?.min;
+              const shouldChangeMax =
+                options[k]?.max !== max && options[k]?.value[1] === options[k]?.max;
               return {
                 ...type,
-                value: [min ?? type.value[0], type.value[1]] as typeof type.value,
+                value: [
+                  (shouldChangeMin ? min : options[k]?.value[0]) ?? type.value[0],
+                  (shouldChangeMax ? max : options[k]?.value[1]) ?? type.value[1],
+                ].filter(v => v !== undefined) as typeof type.value,
                 min,
               };
             })();
@@ -82,34 +116,22 @@ const useHooks = ({
       });
       setOptions(tempOptions);
     };
-    const waitReturnedPostMsg = async (e: MessageEvent<any>) => {
-      if (e.source !== parent) return;
-      if (e.data.action === "findTileset") {
-        const layer = e.data.payload.layer;
-        const url = layer?.data?.url;
-        if (!url) {
-          return;
-        }
-        const data = await (async () => {
-          try {
-            return await fetch(url).then(r => r.json());
-          } catch (e) {
-            console.error(e);
-          }
-        })();
-        handleFilteringFields(data);
-
-        removeEventListener("message", waitReturnedPostMsg);
+    const fetchTileset = async () => {
+      if (!url || fetchedUrlRef.current === url) {
+        return;
       }
+      fetchedUrlRef.current = url;
+      const data = await (async () => {
+        try {
+          return await fetch(url).then(r => r.json());
+        } catch (e) {
+          console.error(e);
+        }
+      })();
+      handleFilteringFields(data);
     };
-    addEventListener("message", waitReturnedPostMsg);
-    postMsg({
-      action: "findTileset",
-      payload: {
-        dataID,
-      },
-    });
-  }, [dataID]);
+    fetchTileset();
+  }, [dataID, url, options]);
 
   useBuildingFilter({ options, dataID, onUpdate: handleUpdate });
 

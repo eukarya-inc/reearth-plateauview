@@ -1,4 +1,4 @@
-import { DataCatalogItem } from "@web/extensions/sidebar/core/types";
+import { DataCatalogItem, Template } from "@web/extensions/sidebar/core/types";
 import { PostMessageProps, Project, PluginMessage } from "@web/extensions/sidebar/types";
 import { isObject, mergeWith, omit, cloneDeep, merge as lodashMerge } from "lodash";
 
@@ -77,7 +77,8 @@ const reearth = (globalThis as any).reearth;
 
 let welcomePageIsOpen = false;
 let mobileDropdownIsOpen = false;
-let openedBuildingSearchDataID: string | null = null;
+let openedpendingBuildingSearchDataID: string | null = null;
+let pendingBuildingSearchData: { viewport: any; data: any } | undefined = undefined;
 
 // this is used for infobox
 let currentSelected: string | undefined = undefined;
@@ -85,13 +86,14 @@ let currentSelected: string | undefined = undefined;
 const defaultLocation = { zone: "outer", section: "left", area: "middle" };
 const mobileLocation = { zone: "outer", section: "center", area: "top" };
 
-let catalog: DataCatalogItem[] = [];
-
 let addedDatasets: [dataID: string, status: "showing" | "hidden", layerID?: string][] = [];
+let templates: Template[] | undefined = undefined;
 
 let searchTerm = "";
 let expandedFolders: { id?: string; name?: string }[] = [];
 let dataset: DataCatalogItem | undefined = undefined;
+let filter = "city";
+
 const sidebarInstance: PluginExtensionInstance = reearth.plugins.instances.find(
   (i: PluginExtensionInstance) => i.id === reearth.widget.id,
 );
@@ -188,9 +190,6 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
     });
   } else if (action === "storageDelete") {
     reearth.clientStorage.deleteAsync(payload.key);
-  } else if (action === "updateDataCatalog") {
-    catalog = payload;
-    reearth.modal.postMessage({ action, payload: { updatedCatalog: payload } });
   } else if (action === "updateProject") {
     reearth.visualizer.overrideProperty(payload.sceneOverrides);
     reearth.clientStorage.setAsync("draftProject", payload);
@@ -233,13 +232,13 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
     reearth.layers.delete(addedDatasets.find(ad => ad[0] === payload)?.[2]);
     const idx = addedDatasets.findIndex(ad => ad[0] === payload);
     addedDatasets.splice(idx, 1);
-    if (openedBuildingSearchDataID && openedBuildingSearchDataID === payload) {
+    if (openedpendingBuildingSearchDataID === payload) {
       reearth.popup.close();
     }
   } else if (action === "removeAllDatasetsFromScene") {
     reearth.layers.delete(...addedDatasets.map(ad => ad[2]));
     addedDatasets = [];
-    if (openedBuildingSearchDataID) {
+    if (openedpendingBuildingSearchDataID) {
       reearth.popup.close();
     }
   } else if (action === "updateDataset") {
@@ -267,9 +266,7 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
     }
   } else if (action === "catalogModalOpen") {
     reearth.modal.show(dataCatalogHtml, { background: "transparent" });
-    if (payload) {
-      reearth.modal.postMessage({ action, payload });
-    }
+    templates = payload.templates;
   } else if (action === "triggerCatalogOpen") {
     reearth.ui.postMessage({ action });
   } else if (action === "saveSearchTerm") {
@@ -278,23 +275,44 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
     expandedFolders = [...payload.expandedFolders];
   } else if (action === "saveDataset") {
     dataset = { ...payload.dataset };
+  } else if (action === "saveFilter") {
+    filter = payload.filter;
   } else if (action === "triggerHelpOpen") {
     reearth.ui.postMessage({ action });
   } else if (action === "modalClose") {
     reearth.modal.close();
     welcomePageIsOpen = false;
   } else if (action === "initDataCatalog") {
-    reearth.modal.postMessage({
-      action,
-      payload: {
-        catalog,
-        addedDatasets: addedDatasets.map(d => d[0]),
-        inEditor: inEditor(),
-        searchTerm,
-        expandedFolders,
-        dataset,
-      },
-    });
+    if (reearth.viewport.isMobile) {
+      reearth.popup.postMessage({
+        action,
+        payload: {
+          searchTerm,
+          expandedFolders,
+          dataset,
+          filter,
+        },
+      });
+    } else {
+      reearth.modal.postMessage({
+        action,
+        payload: {
+          addedDatasets: addedDatasets.map(d => d[0]),
+          inEditor: inEditor(),
+          backendProjectName: reearth.widget.property.default?.projectName ?? "",
+          backendAccessToken: reearth.widget.property.default?.plateauAccessToken ?? "",
+          backendURL: reearth.widget.property.default?.plateauURL ?? "",
+          catalogURL: reearth.widget.property.default?.catalogURL ?? "",
+          catalogProjectName: reearth.widget.property.default?.catalogProjectName ?? "",
+          enableGeoPub: reearth.widget.property.default?.enableGeoPub ?? false,
+          templates,
+          searchTerm,
+          expandedFolders,
+          dataset,
+          filter,
+        },
+      });
+    }
   } else if (action === "helpPopupOpen") {
     reearth.popup.show(helpPopupHtml, { position: "right-start", offset: 4 });
   } else if (action === "groupSelectOpen") {
@@ -304,7 +322,15 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
     reearth.ui.postMessage({ action, payload });
     reearth.popup.close();
   } else if (action === "initPopup") {
-    reearth.ui.postMessage({ action });
+    if (payload?.type === "buildingSearch") {
+      reearth.popup.postMessage({
+        type: "msgToPopup",
+        payload: { ...pendingBuildingSearchData, type: "buildingSearchData" },
+      });
+      pendingBuildingSearchData = undefined;
+    } else {
+      reearth.ui.postMessage({ action });
+    }
   } else if (action === "initWelcome") {
     reearth.modal.postMessage({ type: "msgToModal", message: reearth.viewport.isMobile });
   } else if (action === "msgToPopup") {
@@ -361,16 +387,29 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
     const layerID = addedDatasets.find(a => a[0] === dataID)?.[2];
     const layer = reearth.layers.findById(layerID);
     const overriddenLayer = reearth.layers.overridden.find((l: any) => l.id === layerID);
-    reearth.ui.postMessage({
-      action,
-      payload: {
-        dataID,
-        layer: {
-          id: layer.id,
-          data: { ...layer.data, ...overriddenLayer.data },
+    if (reearth.viewport.isMobile) {
+      reearth.popup.postMessage({
+        action,
+        payload: {
+          dataID,
+          layer: {
+            id: layer?.id,
+            data: { ...layer?.data, ...overriddenLayer?.data },
+          },
         },
-      },
-    });
+      });
+    } else {
+      reearth.ui.postMessage({
+        action,
+        payload: {
+          dataID,
+          layer: {
+            id: layer?.id,
+            data: { ...layer?.data, ...overriddenLayer?.data },
+          },
+        },
+      });
+    }
   } else if (action === "getOverriddenLayerByDataID") {
     const { dataID } = payload;
     const layerID = addedDatasets.find(l => l[0] === dataID)?.[2];
@@ -431,29 +470,32 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
       payload,
     });
   } else if (action === "buildingSearchOpen") {
-    reearth.popup.show(buildingSearchHtml, {
-      position: reearth.viewport.isMobile ? "bottom-start" : "right-start",
-      offset: {
-        mainAxis: 4,
-        crossAxis: reearth.viewport.isMobile ? reearth.viewport.width * 0.05 : 0,
-      },
-    });
-    reearth.popup.postMessage({
-      type: "buildingSearchInit",
-      payload: {
-        viewport: reearth.viewport,
-        data: payload,
-      },
-    });
-    if (openedBuildingSearchDataID) {
+    if (openedpendingBuildingSearchDataID) {
       reearth.ui.postMessage({
         action: "buildingSearchClose",
         payload: {
-          dataID: openedBuildingSearchDataID,
+          dataID: openedpendingBuildingSearchDataID,
+        },
+      });
+      reearth.popup.postMessage({
+        type: "msgToPopup",
+        payload: { viewport: reearth.viewport, data: payload, type: "buildingSearchData" },
+      });
+      pendingBuildingSearchData = undefined;
+    } else {
+      pendingBuildingSearchData = {
+        viewport: reearth.viewport,
+        data: payload,
+      };
+      reearth.popup.show(buildingSearchHtml, {
+        position: reearth.viewport.isMobile ? "bottom-start" : "right-start",
+        offset: {
+          mainAxis: 4,
+          crossAxis: reearth.viewport.isMobile ? reearth.viewport.width * 0.05 : 0,
         },
       });
     }
-    openedBuildingSearchDataID = payload.dataID;
+    openedpendingBuildingSearchDataID = payload.dataID;
   }
 
   // ************************************************
@@ -501,13 +543,23 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
     const { dataID } = payload;
     const tilesetLayerID = addedDatasets.find(a => a[0] === dataID)?.[2];
     const tilesetLayer = reearth.layers.findById(tilesetLayerID);
+    const overriddenTilesetLayer = reearth.layers.overridden.find(
+      (l: any) => l.id === tilesetLayerID,
+    );
     const postMsgResp = {
       action,
       payload: {
+        dataID,
         layer: {
           id: tilesetLayer.id,
-          data: tilesetLayer.data,
-          ["3dtiles"]: tilesetLayer?.["3dtiles"],
+          data: {
+            ...(tilesetLayer?.data ?? {}),
+            ...(overriddenTilesetLayer?.data ?? {}),
+          },
+          ["3dtiles"]: {
+            ...(tilesetLayer?.["3dtiles"] ?? {}),
+            ...(overriddenTilesetLayer?.["3dtiles"] ?? {}),
+          },
         },
       },
     };
@@ -539,10 +591,10 @@ reearth.on("resize", () => {
     });
   }
 
-  if (openedBuildingSearchDataID) {
+  if (openedpendingBuildingSearchDataID) {
     reearth.popup.postMessage({
-      type: "resize",
-      payload: reearth.viewport,
+      type: "msgToPopup",
+      payload: { ...reearth.viewport, type: "resize" },
     });
     if (reearth.viewport.isMobile) {
       reearth.popup.update({
@@ -594,6 +646,8 @@ reearth.on("select", (selected: string | undefined) => {
   // this is used for infobox
   currentSelected = selected;
 
+  const isSameLayer = currentSelected === prevSelected;
+
   const featureId = reearth.layers.selectedFeature?.id; // For 3dtiles
   const prevSelectedFeatureId = currentSelectedFeatureId ?? featureId;
   currentSelectedFeatureId = featureId;
@@ -616,8 +670,7 @@ reearth.on("select", (selected: string | undefined) => {
   }
 
   if (
-    !currentSelected &&
-    !currentSelectedFeatureId &&
+    ((!currentSelected && !currentSelectedFeatureId) || !isSameLayer) &&
     prevOverriddenLayer.data.type === "3dtiles" &&
     prevSelectedFeatureId &&
     prevCondition?.find((c: [string, string]) => c[0] === `\${id} === "${prevSelectedFeatureId}"`)
@@ -631,7 +684,9 @@ reearth.on("select", (selected: string | undefined) => {
         },
       },
     });
-    return;
+    if (isSameLayer) {
+      return;
+    }
   }
 
   // Handle select color for 3dtiles
@@ -647,10 +702,11 @@ reearth.on("select", (selected: string | undefined) => {
           expression: {
             conditions: [
               [`\${id} === "${currentSelectedFeatureId}"`, "color('red')"],
-              ...(nextConditions ??
-                overriddenLayer?.["3dtiles"]?.color?.expression?.conditions ?? [
-                  ["true", "color('white')"],
-                ]),
+              ...(isSameLayer && nextConditions
+                ? nextConditions
+                : overriddenLayer?.["3dtiles"]?.color?.expression?.conditions ?? [
+                    ["true", "color('white')"],
+                  ]),
             ],
           },
         },
@@ -660,19 +716,22 @@ reearth.on("select", (selected: string | undefined) => {
 });
 
 reearth.on("popupclose", () => {
-  if (openedBuildingSearchDataID) {
+  if (
+    openedpendingBuildingSearchDataID &&
+    !(reearth.viewport.isMobile && pendingBuildingSearchData)
+  ) {
     reearth.ui.postMessage({
       action: "buildingSearchClose",
       payload: {
-        dataID: openedBuildingSearchDataID,
+        dataID: openedpendingBuildingSearchDataID,
       },
     });
-    openedBuildingSearchDataID = null;
+    openedpendingBuildingSearchDataID = null;
   }
 });
 
 function createLayer(dataset: DataCatalogItem, overrides?: any) {
-  const format = dataset.format?.toLowerCase();
+  const format = dataset.format?.toLowerCase().replace(/\s/g, "");
   const merge = (obj1: any, obj2: any): any => {
     const merged = cloneDeep(obj1);
     mergeWith(merged, obj2, (mergedValue, obj2Value) => {
@@ -687,11 +746,11 @@ function createLayer(dataset: DataCatalogItem, overrides?: any) {
     type: "simple",
     title: dataset.name,
     data: {
-      type: format,
+      type: dataset.config?.data?.[0].type.toLowerCase().replace(/\s/g, "") ?? format,
       url: dataset.config?.data?.[0].url ?? dataset.url,
-      layers: dataset.config?.data?.[0].layers ?? dataset.layers,
+      layers: dataset.config?.data?.[0].layer ?? dataset.layers,
       ...(format === "wms" ? { parameters: { transparent: "true", format: "image/png" } } : {}),
-      ...(["luse", "lsld", "urf"].includes(dataset.type_en) ||
+      ...(["luse", "lsld", "urf", "rail", "tran"].includes(dataset.type_en) ||
       (dataset.type_en === "tran" && format === "mvt")
         ? { jsonProperties: ["attributes"] }
         : {}),
@@ -699,9 +758,20 @@ function createLayer(dataset: DataCatalogItem, overrides?: any) {
     },
     visible: true,
     infobox: lodashMerge(
-      ["bldg", "tran", "frn", "veg", "luse", "lsld", "urf", "fld", "htd", "tnm", "ifld"].includes(
-        dataset.type_en,
-      )
+      [
+        "bldg",
+        "tran",
+        "frn",
+        "veg",
+        "luse",
+        "lsld",
+        "urf",
+        "fld",
+        "htd",
+        "tnm",
+        "ifld",
+        "rail",
+      ].includes(dataset.type_en)
         ? {
             blocks: [
               {

@@ -4,12 +4,14 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"net/url"
 	"reflect"
 	"runtime"
 	"runtime/debug"
 	"strings"
 
 	"github.com/eukarya-inc/reearth-plateauview/server/cms/cmswebhook"
+	"github.com/eukarya-inc/reearth-plateauview/server/putil"
 	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -41,19 +43,24 @@ func main() {
 		middleware.CORSWithConfig(middleware.CORSConfig{
 			AllowOrigins: conf.Origin,
 		}),
-		private,
 	)
 
 	e.GET("/ping", func(c echo.Context) error {
 		return c.JSON(http.StatusOK, "pong")
-	})
+	}, putil.NoCacheMiddleware)
+
+	e.GET("/proxy/*", proxyHandlerFunc)
 
 	services := lo.Must(Services(conf))
 	serviceNames := lo.Map(services, func(s *Service, _ int) string { return s.Name })
 	webhookHandlers := []cmswebhook.Handler{}
 	for _, s := range services {
 		if s.Echo != nil {
-			lo.Must0(s.Echo(e.Group("")))
+			g := e.Group("")
+			if !s.DisableNoCache {
+				g.Use(putil.NoCacheMiddleware)
+			}
+			lo.Must0(s.Echo(g))
 		}
 		if s.Webhook != nil {
 			webhookHandlers = append(webhookHandlers, s.Webhook)
@@ -117,6 +124,46 @@ func errorMessage(err error, log func(string, ...interface{})) (int, string) {
 	return code, msg
 }
 
+func proxyHandlerFunc(c echo.Context) error {
+	// Extract the target URL from the request path
+	targetPath := c.Param("*")
+
+	// This shouldn't be done by us but It'll do for now: @pyshx
+	if strings.HasPrefix(targetPath, "http:/") && len(targetPath) > 6 && targetPath[6] != '/' {
+		targetPath = "http://" + strings.TrimPrefix(targetPath, "http:/")
+	} else if strings.HasPrefix(targetPath, "https:/") && len(targetPath) > 7 && targetPath[7] != '/' {
+		targetPath = "https://" + strings.TrimPrefix(targetPath, "https:/")
+	}
+
+	targetURL, err := url.Parse(targetPath)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]string{
+			"error": "Invalid target URL",
+		})
+	}
+
+	// Define the ProxyConfig object with custom Rewrite rules and ModifyResponse function
+	proxyConfig := middleware.ProxyConfig{
+		Balancer: middleware.NewRoundRobinBalancer([]*middleware.ProxyTarget{
+			{
+				URL: targetURL,
+			},
+		}),
+	}
+
+	// Create a new middleware.ProxyWithConfig() middleware with the target URL
+	proxyMiddleware := middleware.ProxyWithConfig(proxyConfig)(func(c echo.Context) error {
+		return nil
+	})
+
+	// Invoke the proxy middleware to handle the request and return the response
+	if err := proxyMiddleware(c); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 type customValidator struct {
 	validator *validator.Validate
 }
@@ -130,11 +177,4 @@ func (cv *customValidator) Validate(i any) error {
 
 func funcName(i interface{}) string {
 	return strings.TrimPrefix(runtime.FuncForPC(reflect.ValueOf(i).Pointer()).Name(), "main.")
-}
-
-func private(next echo.HandlerFunc) echo.HandlerFunc {
-	return func(c echo.Context) error {
-		c.Response().Header().Set(echo.HeaderCacheControl, "private, no-store, no-cache, must-revalidate")
-		return next(c)
-	}
 }

@@ -133,7 +133,7 @@ const Legend: React.FC<BaseFieldProps<"legend">> = ({ value, editMode, onUpdate 
             getPopupContainer={trigger => trigger.parentElement ?? document.body}>
             <StyledDropdownButton>
               <p style={{ margin: 0 }}>{legendStyles[legend.style]}</p>
-              <Icon icon="arrowDownSimple" size={12} />
+              <StyledIcon icon="arrowDownSimple" size={12} />
             </StyledDropdownButton>
           </Dropdown>
         </FieldValue>
@@ -189,6 +189,10 @@ const StyledDropdownButton = styled.div`
   cursor: pointer;
 `;
 
+const StyledIcon = styled(Icon)`
+  font-size: 0;
+`;
+
 const Text = styled.p`
   margin: 0;
 `;
@@ -197,7 +201,7 @@ const Field = styled.div<{ gap?: number }>`
   display: flex;
   align-items: center;
   ${({ gap }) => gap && `gap: ${gap}px;`}
-  height: 32px;
+  min-height: 32px;
 `;
 
 const FieldTitle = styled(Text)`
@@ -215,6 +219,7 @@ const FieldValue = styled.div`
 `;
 
 const ColorBlock = styled.div<{ color?: string; legendStyle?: "circle" | "square" | "line" }>`
+  flex: none;
   width: 30px;
   height: ${({ legendStyle }) => (legendStyle === "line" ? "3px" : "30px")};
   background: ${({ color }) => color ?? "#d9d9d9"};
@@ -229,6 +234,8 @@ const ColorBlock = styled.div<{ color?: string; legendStyle?: "circle" | "square
 `;
 
 const StyledImgWrapper = styled.div`
+  flex: none;
+  width: 30px;
   position: relative;
 `;
 

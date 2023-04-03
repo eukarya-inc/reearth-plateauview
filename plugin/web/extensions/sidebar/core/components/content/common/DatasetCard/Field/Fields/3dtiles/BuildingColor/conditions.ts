@@ -206,29 +206,29 @@ const STRUCTURE_TYPE_CONDITIONS: Condition[] = [
     label: "鉄骨造",
   },
   {
-    condition: equalString(conditionalStructureType, "れんが造"),
-    color: "rgba(119, 23, 28, 1)",
-    label: "れんが造",
-  },
-  {
     condition: equalString(conditionalStructureType, "軽量鉄骨造"),
     color: "rgba(160, 79, 146, 1)",
     label: "軽量鉄骨造",
   },
   {
-    condition: equalString(conditionalStructureType, "コンクリートブロック造"),
+    condition: equalString(conditionalStructureType, "レンガ造・コンクリートブロック造・石造"),
     color: "rgba(119, 23, 28, 1)",
-    label: "コンクリートブロック造",
-  },
-  {
-    condition: equalString(conditionalStructureType, "石造"),
-    color: "rgba(119, 23, 28, 1)",
-    label: "石造",
+    label: "レンガ造・コンクリートブロック造・石造",
   },
   {
     condition: equalString(conditionalStructureType, "非木造"),
     color: "rgba(137, 182, 220, 1)",
     label: "非木造",
+  },
+  {
+    condition: equalString(conditionalStructureType, "耐火"),
+    color: "rgba(127, 123, 133, 1)",
+    label: "耐火",
+  },
+  {
+    condition: equalString(conditionalStructureType, "簡易耐火"),
+    color: "rgba(140, 155, 177, 1)",
+    label: "簡易耐火",
   },
   {
     condition: equalString(conditionalStructureType, "不明"),
@@ -298,7 +298,7 @@ const STEEP_SLOPE_RISK_CONDITIONS: Condition[] = [
   {
     condition: makeLandSlideRiskCondition(conditionalLandSlideRisk, LAND_SLIDE_RISK_CODES[0], [
       LAND_SLIDE_RISK_TYPE_CODES[0],
-      LAND_SLIDE_RISK_TYPE_CODES[2],
+      // LAND_SLIDE_RISK_TYPE_CODES[2],
     ]),
     color: "rgba(255, 237, 76, 1)",
     label: "急傾斜地の崩落: 警戒区域",
@@ -306,7 +306,7 @@ const STEEP_SLOPE_RISK_CONDITIONS: Condition[] = [
   {
     condition: makeLandSlideRiskCondition(conditionalLandSlideRisk, LAND_SLIDE_RISK_CODES[0], [
       LAND_SLIDE_RISK_TYPE_CODES[1],
-      LAND_SLIDE_RISK_TYPE_CODES[3],
+      // LAND_SLIDE_RISK_TYPE_CODES[3],
     ]),
     color: "rgba(251, 104, 76, 1)",
     label: "急傾斜地の崩落: 特別警戒区域",
@@ -317,7 +317,7 @@ const MUDFLOW_RISK_CONDITIONS: Condition[] = [
   {
     condition: makeLandSlideRiskCondition(conditionalLandSlideRisk, LAND_SLIDE_RISK_CODES[1], [
       LAND_SLIDE_RISK_TYPE_CODES[0],
-      LAND_SLIDE_RISK_TYPE_CODES[2],
+      // LAND_SLIDE_RISK_TYPE_CODES[2],
     ]),
     color: "rgba(237, 216, 111, 1)",
     label: "土石流: 警戒区域",
@@ -325,7 +325,7 @@ const MUDFLOW_RISK_CONDITIONS: Condition[] = [
   {
     condition: makeLandSlideRiskCondition(conditionalLandSlideRisk, LAND_SLIDE_RISK_CODES[1], [
       LAND_SLIDE_RISK_TYPE_CODES[1],
-      LAND_SLIDE_RISK_TYPE_CODES[3],
+      // LAND_SLIDE_RISK_TYPE_CODES[3],
     ]),
     color: "rgba(192, 76, 99, 1)",
     label: "土石流: 特別警戒区域",
@@ -336,7 +336,7 @@ const LANDSLIDE_RISK_CONDITIONS: Condition[] = [
   {
     condition: makeLandSlideRiskCondition(conditionalLandSlideRisk, LAND_SLIDE_RISK_CODES[2], [
       LAND_SLIDE_RISK_TYPE_CODES[0],
-      LAND_SLIDE_RISK_TYPE_CODES[2],
+      // LAND_SLIDE_RISK_TYPE_CODES[2],
     ]),
     color: "rgba(255, 183, 76, 1)",
     label: "地すべり: 警戒区域",
@@ -344,7 +344,7 @@ const LANDSLIDE_RISK_CONDITIONS: Condition[] = [
   {
     condition: makeLandSlideRiskCondition(conditionalLandSlideRisk, LAND_SLIDE_RISK_CODES[2], [
       LAND_SLIDE_RISK_TYPE_CODES[1],
-      LAND_SLIDE_RISK_TYPE_CODES[3],
+      // LAND_SLIDE_RISK_TYPE_CODES[3],
     ]),
     color: "rgba(202, 76, 149, 1)",
     label: "地すべり: 特別警戒区域",

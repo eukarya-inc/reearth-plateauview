@@ -28,7 +28,7 @@ func (i PlateauItem) FldItems(c PlateauIntermediateItem) []*DataCatalogItem {
 		return river{
 			a:   a,
 			an:  an,
-			dic: c.Dic.Fld(an.FldName),
+			dic: c.Dic.Fld(an.FldName, an.FldCategory),
 			i:   i,
 		}
 	})
@@ -37,7 +37,8 @@ func (i PlateauItem) FldItems(c PlateauIntermediateItem) []*DataCatalogItem {
 		if r.dic == nil {
 			return ""
 		}
-		return fmt.Sprintf("%s_%s", r.dic.Description, r.dic.Admin)
+		key := fmt.Sprintf("%s_%s", r.dic.Description, r.dic.Admin)
+		return key
 	})
 
 	type entry struct {
@@ -54,20 +55,22 @@ func (i PlateauItem) FldItems(c PlateauIntermediateItem) []*DataCatalogItem {
 
 		r := rivers[0]
 		dci := c.DataCatalogItem(fldModelName, r.an, r.a.URL, descFromAsset(r.a, i.DescriptionFld), nil, false)
-		dci.Name = fldName(fldModelName, i.CityName, r.an.FldName, r.dic)
-		dci.Config = DataCatalogItemConfig{
-			Data: lo.Map(rivers, func(rr river, _ int) DataCatalogItemConfigItem {
-				name := dci.Name
-				if rr.dic != nil {
-					name = rr.dic.Scale
-				}
+		if dci != nil {
+			dci.Name = fldName(fldModelName, i.CityName, r.an.FldName, r.dic)
+			dci.Config = DataCatalogItemConfig{
+				Data: lo.Map(rivers, func(rr river, _ int) DataCatalogItemConfigItem {
+					name := dci.Name
+					if rr.dic != nil {
+						name = rr.dic.Scale
+					}
 
-				return DataCatalogItemConfigItem{
-					Name: name,
-					URL:  assetURLFromFormat(rr.a.URL, rr.an.Format),
-					Type: rr.an.Format,
-				}
-			}),
+					return DataCatalogItemConfigItem{
+						Name: name,
+						URL:  assetURLFromFormat(rr.a.URL, rr.an.Format),
+						Type: rr.an.Format,
+					}
+				}),
+			}
 		}
 
 		return entry{i: r.i, item: dci}
@@ -100,6 +103,16 @@ func sortRivers(rivers []river) {
 		if rivers[b].dic == nil {
 			return true
 		}
+		s1, s2 := rivers[a].dic.Scale, rivers[b].dic.Scale
+		if s1 == keikakukibo && s2 == souteisaidaikibo {
+			return true
+		}
+		if s1 == souteisaidaikibo && s2 == keikakukibo {
+			return false
+		}
 		return strings.Compare(rivers[a].dic.Scale, rivers[b].dic.Scale) < 0
 	})
 }
+
+const keikakukibo = "計画規模"
+const souteisaidaikibo = "想定最大規模"
