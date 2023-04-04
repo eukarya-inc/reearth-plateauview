@@ -1,4 +1,4 @@
-import { postMsg, generateID } from "@web/extensions/sidebar/utils";
+import { postMsg, generateID, updateExtended } from "@web/extensions/sidebar/utils";
 import { getActiveFieldIDs } from "@web/extensions/sidebar/utils/dataset";
 import { useCallback, useEffect, useState } from "react";
 
@@ -9,7 +9,6 @@ import {
   RawDataCatalogItem,
 } from "../../../../modals/datacatalog/api/api";
 import { BuildingSearch, FldInfo, Template } from "../../../types";
-import { updateExtended } from "../../utils";
 
 import useProjectHooks from "./projectHooks";
 

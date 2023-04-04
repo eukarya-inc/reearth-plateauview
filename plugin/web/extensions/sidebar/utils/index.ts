@@ -2,6 +2,8 @@ import { PostMessageProps } from "@web/extensions/sidebar/types";
 import { cloneDeep, mergeWith } from "lodash";
 
 export * from "./array";
+export * from "./dataset";
+export * from "./overrides";
 
 export function postMsg({ action, payload }: PostMessageProps) {
   parent.postMessage(
@@ -35,4 +37,20 @@ export const checkKeyPress = (e: React.MouseEvent<HTMLButtonElement>, keys: stri
     }
   });
   return keyPressed;
+};
+
+export const updateExtended = (e: { vertically: boolean }) => {
+  const html = document.querySelector("html");
+  const body = document.querySelector("body");
+  const root = document.getElementById("root");
+
+  if (e?.vertically) {
+    html?.classList.add("extended");
+    body?.classList.add("extended");
+    root?.classList.add("extended");
+  } else {
+    html?.classList.remove("extended");
+    body?.classList.remove("extended");
+    root?.classList.remove("extended");
+  }
 };

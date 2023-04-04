@@ -1,6 +1,6 @@
 import { UserDataItem } from "@web/extensions/sidebar/modals/datacatalog/types";
 import { Project, ReearthApi } from "@web/extensions/sidebar/types";
-import { generateID, mergeProperty, postMsg } from "@web/extensions/sidebar/utils";
+import { generateID, mergeProperty, postMsg, mergeOverrides } from "@web/extensions/sidebar/utils";
 import {
   flattenComponents,
   getActiveFieldIDs,
@@ -15,7 +15,6 @@ import {
   Story as FieldStory,
   FieldComponent,
 } from "../../content/common/DatasetCard/Field/Fields/types";
-import { mergeOverrides } from "../../utils";
 
 export const defaultProject: Project = {
   sceneOverrides: {
