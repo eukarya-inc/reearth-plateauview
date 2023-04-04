@@ -12,7 +12,7 @@ const canvas = document.createElement("canvas");
 
 const useModifiedImage = ({ imageUrl, blendColor, width, height }: Props) => {
   const [modifiedImageUrl, setModifiedImageUrl] = useState("");
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (!blendColor) {
@@ -26,7 +26,7 @@ const useModifiedImage = ({ imageUrl, blendColor, width, height }: Props) => {
     const image = new Image();
     image.crossOrigin = "anonymous";
     image.src = imageUrl;
-    image.onload = (event: string | Event) => {
+    image.onload = event => {
       if (!image.complete) {
         console.error(`Failed to load image: ${imageUrl}`, event);
         setLoading(false);
