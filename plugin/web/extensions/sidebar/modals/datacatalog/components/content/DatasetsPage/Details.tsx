@@ -36,9 +36,8 @@ const DatasetDetails: React.FC<Props> = ({
 
   const ContentComponent: React.FC = () => (
     <>
-      {/* && dataset?.type !== "group" */}
       {/* {!isMobile && <Tags tags={datasetTags} onTagSelect={onTagSelect} />} */}
-      {dataset && (
+      {dataset && "dataID" in dataset && dataset?.type !== "group" && (
         <Content>
           {dataset?.desc
             ?.split(

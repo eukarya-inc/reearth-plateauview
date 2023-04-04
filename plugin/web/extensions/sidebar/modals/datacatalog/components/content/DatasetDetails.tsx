@@ -43,7 +43,7 @@ const DatasetDetails: React.FC<Props> = ({
 
   const handleDatasetAdd = useCallback(
     (e: React.MouseEvent<HTMLButtonElement>) => {
-      if (!dataset || !("layers" in dataset) || addDisabled) return;
+      if (!dataset || !("dataID" in dataset) || addDisabled) return;
       const terminalDataset = dataset;
       if (layers.length) terminalDataset.layers = layers;
 
