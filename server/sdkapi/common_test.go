@@ -31,10 +31,16 @@ func TestItems_DatasetResponse(t *testing.T) {
 			Prefecture:  "東京都",
 			CityName:    "千代田区",
 			Description: "description",
-			Bldg:        []cms.PublicAsset{{}},
-			Tran:        []cms.PublicAsset{{}},
-			Frn:         []cms.PublicAsset{{}},
-			Veg:         []cms.PublicAsset{{}},
+			CityGML: &cms.PublicAsset{
+				ID:                      "citygml",
+				ArchiveExtractionStatus: "done",
+			},
+			Bldg:           []cms.PublicAsset{{}},
+			Tran:           []cms.PublicAsset{{}},
+			Frn:            []cms.PublicAsset{{}},
+			Veg:            []cms.PublicAsset{{}},
+			MaxLOD:         &cms.PublicAsset{URL: "https://example.com/csv"},
+			SDKPublication: "公開する",
 		},
 	}.DatasetResponse())
 }
