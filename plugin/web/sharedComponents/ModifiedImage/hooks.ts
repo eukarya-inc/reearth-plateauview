@@ -16,9 +16,9 @@ const useModifiedImage = ({ imageUrl, blendColor, width, height }: Props) => {
     const image = new Image();
     image.crossOrigin = "anonymous";
     image.src = imageUrl;
-    image.onload = () => {
+    image.onload = (event: string | Event) => {
       if (!image.complete) {
-        console.error("Failed to load image due to cross-origin error");
+        console.error(`Failed to load image: ${imageUrl}`, event);
         setLoading(false);
         return;
       }
