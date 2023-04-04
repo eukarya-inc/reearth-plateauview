@@ -12,13 +12,13 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestFetcher(t *testing.T) {
-	f := lo.Must(NewFetcher(nil, "https://api.cms.plateau.reearth.io"))
-	res := lo.Must(f.Do(context.Background(), "plateau-2022"))
-	item, _ := lo.Find(res.Plateau, func(i PlateauItem) bool { return i.CityName == "佐久市" })
-	fld := item.GenItems(item.IntermediateItem())
-	t.Log(string(lo.Must(json.MarshalIndent(fld, "", "  "))))
-}
+// func TestFetcher(t *testing.T) {
+// 	f := lo.Must(NewFetcher(nil, ""))
+// 	cmsres := lo.Must(f.Do(context.Background(), ""))
+// 	item, _ := lo.Find(cmsres.Plateau, func(i PlateauItem) bool { return i.CityName == "" })
+// 	res := item.GenItems(item.IntermediateItem())
+// 	t.Log(string(lo.Must(json.MarshalIndent(res, "", "  "))))
+// }
 
 func TestFetcher_Do(t *testing.T) {
 	httpmock.Activate()
