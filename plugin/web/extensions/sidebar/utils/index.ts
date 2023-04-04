@@ -1,21 +1,12 @@
-import { PostMessageProps } from "@web/extensions/sidebar/types";
 import { cloneDeep, mergeWith } from "lodash";
 
 import { Cond } from "../core/components/content/common/DatasetCard/Field/Fields/types";
 
 export * from "./array";
+export * from "./color";
 export * from "./dataset";
 export * from "./overrides";
-
-export function postMsg({ action, payload }: PostMessageProps) {
-  parent.postMessage(
-    {
-      action,
-      payload,
-    },
-    "*",
-  );
-}
+export * from "./postMessage";
 
 export function mergeProperty(a: any, b: any) {
   const a2 = cloneDeep(a);
@@ -60,3 +51,23 @@ export const updateExtended = (e: { vertically: boolean }) => {
 export function stringifyCondition(condition: Cond<any>): string {
   return String(condition.operand) + String(condition.operator) + String(condition.value);
 }
+
+export const defaultConditionalNumber = (prop: string, defaultValue?: number) =>
+  `((${variable(prop)} === "" || ${variable(prop)} === null || isNaN(Number(${variable(
+    prop,
+  )}))) ? ${defaultValue || 1} : Number(${variable(prop)}))`;
+
+export const compareRange = (conditionalValue: string, range: [from: number, to: number]) =>
+  `(${conditionalValue} >= ${range?.[0]} && ${conditionalValue} <= ${range?.[1]})`;
+
+export const compareGreaterThan = (conditionalValue: string, num: number) =>
+  `(${conditionalValue} >= ${num})`;
+
+export const equalString = (prop: string, value: string) => `(${variable(prop)} === "${value}")`;
+
+export const equalNumber = (prop: string, value: number) => `(${variable(prop)} === ${value})`;
+
+export const stringOrNumber = (v: string | number) =>
+  typeof v === "number" ? v.toString() : `"${v}"`;
+
+export const variable = (prop: string) => `\${${prop}}`;
