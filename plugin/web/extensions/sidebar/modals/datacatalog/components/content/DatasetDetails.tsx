@@ -104,7 +104,6 @@ const DatasetDetails: React.FC<Props> = ({
         <HeaderWrapper>
           <Title>{title}</Title>
           {"dataID" in dataset &&
-            dataset.type_en !== "folder" &&
             inEditor &&
             (!published ? (
               <Popconfirm {...popConfirmProps}>
