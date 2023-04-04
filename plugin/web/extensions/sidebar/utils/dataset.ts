@@ -63,48 +63,6 @@ export const getDefaultDataset = (dataset?: DataCatalogItem | UserDataItem) => {
   }
 };
 
-export const splitComponents = (
-  activeIDs: string[],
-  dataset: DataCatalogItem,
-  templates?: Template[],
-) => {
-  const flattenedComponents = flattenComponents(dataset.components, templates);
-  const inactiveComponents = flattenedComponents
-    ?.filter(c => !activeIDs.find(id => id === c.id))
-    .map(c => {
-      if (c.type === "switchDataset" && !c.cleanseOverride) {
-        c.cleanseOverride = {
-          data: {
-            url: dataset.config?.data?.[0].url,
-            time: {
-              updateClockOnLoad: false,
-            },
-          },
-        };
-      }
-      return c;
-    });
-  const activeComponents = flattenedComponents
-    ?.filter(c => !!activeIDs.find(id => id === c.id))
-    .map(c => {
-      if (c.type === "switchDataset" && !c.cleanseOverride) {
-        c.cleanseOverride = {
-          data: {
-            url: dataset.config?.data?.[0].url,
-            time: {
-              updateClockOnLoad: false,
-            },
-          },
-        };
-      }
-      return c;
-    });
-  return {
-    activeComponents,
-    inactiveComponents,
-  };
-};
-
 export const processComponentsToSave = (components?: FieldComponent[], templates?: Template[]) => {
   if (!components) return;
   return components?.map((c: any) => {

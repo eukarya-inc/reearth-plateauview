@@ -2,7 +2,7 @@ import { cleanseOverrides } from "@web/extensions/sidebar/core/components/conten
 import { FieldComponent } from "@web/extensions/sidebar/core/components/content/common/DatasetCard/Field/Fields/types";
 import { BuildingSearch, DataCatalogItem, Template } from "@web/extensions/sidebar/core/types";
 import { getTransparencyExpression } from "@web/extensions/sidebar/utils/color";
-import { splitComponents } from "@web/extensions/sidebar/utils/dataset";
+import { flattenComponents } from "@web/extensions/sidebar/utils/dataset";
 import { cloneDeep, isEqual, merge } from "lodash";
 
 export const prepareComponentsForOverride = (
@@ -11,7 +11,38 @@ export const prepareComponentsForOverride = (
   templates?: Template[],
   buildingSearch?: BuildingSearch,
 ) => {
-  const { activeComponents, inactiveComponents } = splitComponents(activeIDs, dataset, templates);
+  const flattenedComponents = flattenComponents(dataset.components, templates);
+  const inactiveComponents = flattenedComponents
+    ?.filter(c => !activeIDs.find(id => id === c.id))
+    .map(c => {
+      if (c.type === "switchDataset" && !c.cleanseOverride) {
+        c.cleanseOverride = {
+          data: {
+            url: dataset.config?.data?.[0].url,
+            time: {
+              updateClockOnLoad: false,
+            },
+          },
+        };
+      }
+      return c;
+    });
+
+  const activeComponents = flattenedComponents
+    ?.filter(c => !!activeIDs.find(id => id === c.id))
+    .map(c => {
+      if (c.type === "switchDataset" && !c.cleanseOverride) {
+        c.cleanseOverride = {
+          data: {
+            url: dataset.config?.data?.[0].url,
+            time: {
+              updateClockOnLoad: false,
+            },
+          },
+        };
+      }
+      return c;
+    });
 
   const buildingSearchField = buildingSearch?.find(b => b.dataID === dataset.dataID);
   if (buildingSearchField) {
