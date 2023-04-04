@@ -1,4 +1,4 @@
-import { DataCatalogItem } from "@web/extensions/sidebar/core/types";
+import { DataCatalogGroup, DataCatalogItem } from "@web/extensions/sidebar/core/types";
 import { UserDataItem } from "@web/extensions/sidebar/modals/datacatalog/types";
 import { checkKeyPress } from "@web/extensions/sidebar/utils";
 import { getNameFromPath } from "@web/extensions/sidebar/utils/file";
@@ -8,7 +8,7 @@ import { styled } from "@web/theme";
 import { ComponentType, useCallback, useMemo, ChangeEvent, useState } from "react";
 
 export type Props = {
-  dataset: DataCatalogItem | UserDataItem;
+  dataset: DataCatalogItem | DataCatalogGroup | UserDataItem;
   isShareable?: boolean;
   isPublishable?: boolean;
   addDisabled: boolean;
@@ -43,7 +43,7 @@ const DatasetDetails: React.FC<Props> = ({
 
   const handleDatasetAdd = useCallback(
     (e: React.MouseEvent<HTMLButtonElement>) => {
-      if (!dataset || addDisabled) return;
+      if (!dataset || !("dataID" in dataset) || addDisabled) return;
       const terminalDataset = dataset;
       if (layers.length) terminalDataset.layers = layers;
 
@@ -120,7 +120,7 @@ const DatasetDetails: React.FC<Props> = ({
               </PublishButton>
             ))}
         </HeaderWrapper>
-        {dataset.type_en !== "folder" && (
+        {"dataID" in dataset && (
           <>
             <ButtonWrapper>
               <AddButton disabled={addDisabled} onClick={handleDatasetAdd}>

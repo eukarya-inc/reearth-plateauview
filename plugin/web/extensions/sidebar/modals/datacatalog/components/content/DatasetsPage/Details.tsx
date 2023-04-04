@@ -1,4 +1,4 @@
-import { DataCatalogItem } from "@web/extensions/sidebar/core/types";
+import { DataCatalogGroup, DataCatalogItem } from "@web/extensions/sidebar/core/types";
 import DetailsComponent from "@web/extensions/sidebar/modals/datacatalog/components/content/DatasetDetails";
 import { Icon } from "@web/sharedComponents";
 import { styled } from "@web/theme";
@@ -11,7 +11,7 @@ import { Tag as TagType } from "./Tags";
 export type Tag = TagType;
 
 export type Props = {
-  dataset?: DataCatalogItem;
+  dataset?: DataCatalogItem | DataCatalogGroup;
   isMobile?: boolean;
   inEditor?: boolean;
   addDisabled: (dataID: string) => boolean;
@@ -37,7 +37,7 @@ const DatasetDetails: React.FC<Props> = ({
   const ContentComponent: React.FC = () => (
     <>
       {/* {!isMobile && <Tags tags={datasetTags} onTagSelect={onTagSelect} />} */}
-      {dataset && dataset?.type !== "group" && (
+      {dataset && "dataID" in dataset && dataset?.type !== "group" && (
         <Content>
           {dataset?.desc
             ?.split(
@@ -57,12 +57,12 @@ const DatasetDetails: React.FC<Props> = ({
       )}
     </>
   );
-  return dataset ? (
+  return dataset && ("dataID" in dataset || dataset.desc) ? (
     <DetailsComponent
       dataset={dataset}
-      addDisabled={addDisabled(dataset.dataID)}
+      addDisabled={"dataID" in dataset && addDisabled(dataset.dataID)}
       inEditor={inEditor}
-      isPublishable={!!dataset.itemId}
+      isPublishable={"dataID" in dataset && !!dataset.itemId}
       contentSection={ContentComponent}
       onDatasetAdd={onDatasetAdd}
       onDatasetPublish={onDatasetPublish}
