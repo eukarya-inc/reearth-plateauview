@@ -60,7 +60,7 @@ const DatasetsPage: React.FC<Props> = ({
 
   const selectedDataset = useMemo(() => {
     return selectedItem && "dataID" in selectedItem
-      ? catalog?.find(item => item.dataID === selectedItem.dataID)
+      ? catalog?.find(item => item.dataID !== undefined && item.dataID === selectedItem.dataID)
       : selectedItem;
   }, [catalog, selectedItem]);
 
