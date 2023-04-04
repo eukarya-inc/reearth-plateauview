@@ -8,7 +8,7 @@ import { postMsg } from "@web/extensions/sidebar/utils";
 import { debounce } from "lodash";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
-import { DataCatalogGroup, RawDataCatalogItem, getDataCatalog } from "../api/api";
+import { RawDataCatalogItem, getDataCatalog, GroupBy, DataCatalogGroup } from "../api/api";
 
 export type Tab = "dataset" | "your-data";
 
@@ -82,15 +82,22 @@ export default () => {
         method,
         body: JSON.stringify(datasetToSave),
       });
-      if (res.status !== 200) {
-        handleDataFetch();
-        return;
+      if (res.status === 200) {
+        const resData = await res.json();
+        setData(prevData => {
+          if (!prevData) {
+            return [resData];
+          }
+          const index = prevData?.findIndex(d => d.dataID === resData.dataID);
+          if (index) {
+            const updatedData = [...prevData];
+            updatedData[index] = resData;
+            return updatedData;
+          }
+        });
       }
-      const data2 = await res.json();
-      console.log("DATA JUST SAVED: ", data2);
-      handleDataFetch(); // MAYBE UPDATE THIS LATER TO JUST UPDATE THE LOCAL VALUE
     },
-    [data, templates, backendAccessToken, backendURL, backendProjectName, handleDataFetch],
+    [data, templates, backendAccessToken, backendURL, backendProjectName],
   );
 
   const handleDatasetPublish = useCallback(
@@ -130,6 +137,7 @@ export default () => {
       handleDataRequest,
     ],
   );
+  const [filter, setFilter] = useState<GroupBy>("city");
 
   const debouncedSearchRef = useRef(
     debounce((value: string) => {
@@ -153,6 +161,13 @@ export default () => {
 
   const handleClose = useCallback(() => {
     postMsg({ action: "modalClose" });
+  }, []);
+
+  const handleFilter = useCallback((filter: GroupBy) => {
+    setFilter(filter);
+    postMsg({ action: "saveFilter", payload: { filter } });
+    setExpandedFolders([]);
+    postMsg({ action: "saveExpandedFolders", payload: { expandedFolders: [] } });
   }, []);
 
   const handleDatasetAdd = useCallback(
@@ -185,6 +200,7 @@ export default () => {
         setCatalogProjectName(e.data.payload.catalogProjectName);
         setPublishToGeospatial(e.data.payload.enableGeoPub);
         setTemplates(e.data.payload.templates);
+        if (e.data.payload.filter) setFilter(e.data.payload.filter);
         if (e.data.payload.searchTerm) setSearchTerm(e.data.payload.searchTerm);
         if (e.data.payload.expandedFolders) setExpandedFolders(e.data.payload.expandedFolders);
         if (e.data.payload.dataset) {
@@ -212,7 +228,7 @@ export default () => {
     return () => {
       removeEventListener("message", eventListenerCallback);
     };
-  }, [handleSelect]);
+  }, [handleFilter, handleSelect]);
 
   return {
     currentTab,
@@ -222,9 +238,11 @@ export default () => {
     selectedItem,
     expandedFolders,
     searchTerm,
+    filter,
     setExpandedFolders,
     handleSearch,
     handleSelect,
+    handleFilter,
     handleClose,
     handleTabChange: changeTabs,
     handleDatasetAdd,
