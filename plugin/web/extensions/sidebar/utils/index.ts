@@ -1,6 +1,8 @@
 import { PostMessageProps } from "@web/extensions/sidebar/types";
 import { cloneDeep, mergeWith } from "lodash";
 
+import { Cond } from "../core/components/content/common/DatasetCard/Field/Fields/types";
+
 export * from "./array";
 export * from "./dataset";
 export * from "./overrides";
@@ -54,3 +56,7 @@ export const updateExtended = (e: { vertically: boolean }) => {
     root?.classList.remove("extended");
   }
 };
+
+export function stringifyCondition(condition: Cond<any>): string {
+  return String(condition.operand) + String(condition.operator) + String(condition.value);
+}
