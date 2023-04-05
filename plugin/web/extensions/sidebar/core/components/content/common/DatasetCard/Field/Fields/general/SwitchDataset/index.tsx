@@ -1,5 +1,6 @@
 import { Icon, Dropdown, Menu, Radio } from "@web/sharedComponents";
 import { styled } from "@web/theme";
+import { isEqual } from "lodash";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { BaseFieldProps, ConfigData } from "../../types";
@@ -72,7 +73,8 @@ const SwitchDataset: React.FC<BaseFieldProps<"switchDataset">> = ({
       return;
     }
 
-    if (selectedDataset === value.userSettings?.selected && selectedStyle === value.uiStyle) return;
+    if (isEqual(selectedDataset, value.userSettings?.selected) && selectedStyle === value.uiStyle)
+      return;
     onUpdate({
       ...value,
       uiStyle: selectedStyle,

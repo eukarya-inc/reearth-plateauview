@@ -1,6 +1,7 @@
 import { postMsg, generateID, updateExtended } from "@web/extensions/sidebar/utils";
 import { getActiveFieldIDs } from "@web/extensions/sidebar/utils/dataset";
-import { useCallback, useEffect, useState } from "react";
+import { merge, omit } from "lodash";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { Tab } from "..";
 import { DataCatalogItem } from "../../../../modals/datacatalog/api/api";
@@ -74,14 +75,22 @@ export default () => {
           if (cleanseOverride) {
             setCleanseOverride?.(cleanseOverride);
           }
-          updatedDatasets[datasetIndex] = updatedDataset;
+          const updatedComponents = updatedDataset.components;
+          merge(updatedDatasets[datasetIndex], omit(updatedDataset, "components"));
+          updatedDatasets[datasetIndex].components = mergeComponents(
+            updatedDatasets[datasetIndex].components,
+            updatedComponents,
+          );
         }
         const updatedProject = {
           ...project,
           datasets: updatedDatasets,
         };
         postMsg({ action: "updateProject", payload: updatedProject });
-        postMsg({ action: "msgToPopup", payload: { project: updatedProject } });
+        postMsg({
+          action: "msgToPopup",
+          payload: { project: updatedProject, updatedDatasetID: updatedDataset.id },
+        });
         return updatedProject;
       });
 
@@ -277,3 +286,48 @@ addEventListener("message", e => {
     }
   }
 });
+
+// Merge components recursively.
+// Because we are using postMessage to communicate between sidebar and popup on mobile, updated dataset is not synched
+// So we need to merge updated components manually.
+const mergeComponents = (
+  dest: DataCatalogItem["components"],
+  src: DataCatalogItem["components"],
+) => {
+  return dest?.map((dc, i) => {
+    const sc = src?.[i];
+    if (!sc) {
+      return dc;
+    }
+
+    if (
+      "userSettings" in dc &&
+      "components" in dc.userSettings &&
+      "userSettings" in sc &&
+      "components" in sc.userSettings
+    ) {
+      dc.userSettings.components = mergeComponents(
+        dc.userSettings.components,
+        sc.userSettings.components,
+      );
+    }
+
+    if (
+      (!("userSettings" in dc) || !("components" in dc.userSettings)) &&
+      "userSettings" in sc &&
+      "components" in sc.userSettings
+    ) {
+      (dc as any).userSettings = {
+        ...((dc as any).userSettings ?? {}),
+        components: sc.userSettings.components,
+      };
+    }
+
+    return merge(dc, {
+      ...sc,
+      ...("userSettings" in sc && sc.userSettings
+        ? { userSettings: omit(sc.userSettings, "components") }
+        : {}),
+    });
+  });
+};
