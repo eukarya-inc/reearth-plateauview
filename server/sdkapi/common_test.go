@@ -31,10 +31,16 @@ func TestItems_DatasetResponse(t *testing.T) {
 			Prefecture:  "東京都",
 			CityName:    "千代田区",
 			Description: "description",
-			Bldg:        []cms.PublicAsset{{}},
-			Tran:        []cms.PublicAsset{{}},
-			Frn:         []cms.PublicAsset{{}},
-			Veg:         []cms.PublicAsset{{}},
+			CityGML: &cms.PublicAsset{
+				ID:                      "citygml",
+				ArchiveExtractionStatus: "done",
+			},
+			Bldg:           []cms.PublicAsset{{}},
+			Tran:           []cms.PublicAsset{{}},
+			Frn:            []cms.PublicAsset{{}},
+			Veg:            []cms.PublicAsset{{}},
+			MaxLOD:         &cms.PublicAsset{URL: "https://example.com/csv"},
+			SDKPublication: "公開する",
 		},
 	}.DatasetResponse())
 }
@@ -126,8 +132,8 @@ func TestItemsFromIntegration(t *testing.T) {
 				},
 				{
 					Key: "bldg",
-					Value: []map[string]any{
-						{
+					Value: []any{
+						map[string]any{
 							"archiveExtractionStatus": "done",
 							"contentType":             "application/octet-stream",
 							"createdAt":               "2023-03-01T00:00:00.00Z",
@@ -166,18 +172,20 @@ func TestItemsFromIntegration(t *testing.T) {
 			CityName:    "city",
 			Description: "desc",
 			CityGML: &cms.PublicAsset{
-				Type:        "asset",
-				ID:          "assetc",
-				URL:         "https://example.com/c.zip",
-				ContentType: "application/octet-stream",
+				Type:                    "asset",
+				ID:                      "assetc",
+				URL:                     "https://example.com/c.zip",
+				ContentType:             "application/octet-stream",
+				ArchiveExtractionStatus: "done",
 			},
 			MaxLOD: nil,
 			Bldg: []cms.PublicAsset{
 				{
-					Type:        "asset",
-					ID:          "asset",
-					URL:         "https://example.com/b.zip",
-					ContentType: "application/octet-stream",
+					Type:                    "asset",
+					ID:                      "asset",
+					URL:                     "https://example.com/b.zip",
+					ContentType:             "application/octet-stream",
+					ArchiveExtractionStatus: "done",
 				},
 			},
 			Tran:           []cms.PublicAsset{},
@@ -187,4 +195,17 @@ func TestItemsFromIntegration(t *testing.T) {
 		},
 	}, items)
 
+}
+
+func TestCityCode(t *testing.T) {
+	assert.Equal(t, 123, cityCode(&cms.PublicAsset{
+		URL: "https://example.com/aaa/123_aaa.zip",
+	}))
+	assert.Equal(t, 0, cityCode(&cms.PublicAsset{
+		URL: "https://example.com/aaa/aaa_aaa.zip",
+	}))
+	assert.Equal(t, 0, cityCode(&cms.PublicAsset{
+		URL: "",
+	}))
+	assert.Equal(t, 0, cityCode(nil))
 }
