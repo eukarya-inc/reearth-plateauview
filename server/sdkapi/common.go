@@ -4,15 +4,20 @@ import (
 	"fmt"
 	"net/url"
 	"path"
+	"sort"
+	"strconv"
 	"strings"
 
+	"github.com/eukarya-inc/jpareacode"
 	"github.com/eukarya-inc/reearth-plateauview/server/cms"
 	"github.com/mitchellh/mapstructure"
+	"github.com/reearth/reearthx/log"
 	"github.com/samber/lo"
 	"golang.org/x/exp/slices"
 )
 
 const modelKey = "plateau"
+const tokyo = "東京都"
 
 type Config struct {
 	CMSBaseURL   string
@@ -42,6 +47,7 @@ type DatasetPref struct {
 
 type DatasetCity struct {
 	ID           string   `json:"id"`
+	CityCode     int      `json:"-"`
 	Title        string   `json:"title"`
 	Description  string   `json:"description"`
 	FeatureTypes []string `json:"featureTypes"`
@@ -58,12 +64,39 @@ type File struct {
 type Items []Item
 
 func (i Items) DatasetResponse() (r *DatasetResponse) {
+	warning := []string{}
 	r = &DatasetResponse{}
 	prefs := []*DatasetPref{}
 	prefm := map[string]*DatasetPref{}
 	for _, i := range i {
+		invalid := false
+		if !i.IsPublic() {
+			warning = append(warning, fmt.Sprintf("%s:not_published", i.CityName))
+			invalid = true
+		}
+
+		if i.CityGML == nil || i.CityGML.ID == "" {
+			warning = append(warning, fmt.Sprintf("%s:no_citygml", i.CityName))
+			invalid = true
+		}
+
+		if i.CityGML != nil && !i.CityGML.IsExtractionDone() {
+			warning = append(warning, fmt.Sprintf("%s:invalid_citygml", i.CityName))
+			invalid = true
+		}
+
+		if i.MaxLOD == nil || i.MaxLOD.URL == "" {
+			warning = append(warning, fmt.Sprintf("%s:no_maxlod", i.CityName))
+			invalid = true
+		}
+
 		ft := i.FeatureTypes()
 		if len(ft) == 0 {
+			warning = append(warning, fmt.Sprintf("%s:no_features", i.CityName))
+			invalid = true
+		}
+
+		if invalid {
 			continue
 		}
 
@@ -78,6 +111,7 @@ func (i Items) DatasetResponse() (r *DatasetResponse) {
 
 		d := DatasetCity{
 			ID:           i.ID,
+			CityCode:     i.CityCode(),
 			Title:        i.CityName,
 			Description:  i.Description,
 			FeatureTypes: ft,
@@ -86,7 +120,31 @@ func (i Items) DatasetResponse() (r *DatasetResponse) {
 		pd.Data = append(pd.Data, d)
 	}
 
+	// sort
+	sort.Slice(prefs, func(a, b int) bool {
+		at, bt := prefs[a].Title, prefs[b].Title
+		ac, bc := 0, 0
+		if at != tokyo {
+			ac = jpareacode.PrefectureCodeInt(at)
+		}
+		if bt != tokyo {
+			bc = jpareacode.PrefectureCodeInt(bt)
+		}
+		return ac < bc
+	})
+
+	for _, p := range prefs {
+		sort.Slice(p.Data, func(a, b int) bool {
+			return p.Data[a].CityCode < p.Data[b].CityCode
+		})
+	}
+
 	r.Data = prefs
+
+	if len(warning) > 0 {
+		log.Warnf("sdk: dataset warn: %s", strings.Join(warning, ", "))
+	}
+
 	return
 }
 
@@ -106,6 +164,10 @@ type Item struct {
 
 func (i Item) IsPublic() bool {
 	return i.SDKPublication == "公開する"
+}
+
+func (i Item) CityCode() int {
+	return cityCode(i.CityGML)
 }
 
 func (i Item) FeatureTypes() (t []string) {
@@ -175,17 +237,17 @@ func (mm MaxLODMap) Files(urls []*url.URL) (r FilesResponse) {
 }
 
 type IItem struct {
-	ID             string           `json:"id" cms:"id,text"`
-	Prefecture     string           `json:"prefecture" cms:"prefecture,text"`
-	CityName       string           `json:"city_name" cms:"city_name,text"`
-	CityGML        map[string]any   `json:"citygml" cms:"citygml,asset"`
-	Description    string           `json:"description_bldg" cms:"description_bldg,textarea"`
-	MaxLOD         map[string]any   `json:"max_lod" cms:"max_lod,asset"`
-	Bldg           []map[string]any `json:"bldg" cms:"bldg,asset"`
-	Tran           []map[string]any `json:"tran" cms:"tran,asset"`
-	Frn            []map[string]any `json:"frn" cms:"frn,asset"`
-	Veg            []map[string]any `json:"veg" cms:"veg,asset"`
-	SDKPublication string           `json:"sdk_publication" cms:"sdk_publication,select"`
+	ID             string `json:"id" cms:"id,text"`
+	Prefecture     string `json:"prefecture" cms:"prefecture,text"`
+	CityName       string `json:"city_name" cms:"city_name,text"`
+	CityGML        any    `json:"citygml" cms:"citygml,asset"`
+	Description    string `json:"description_bldg" cms:"description_bldg,textarea"`
+	MaxLOD         any    `json:"max_lod" cms:"max_lod,asset"`
+	Bldg           []any  `json:"bldg" cms:"bldg,asset"`
+	Tran           []any  `json:"tran" cms:"tran,asset"`
+	Frn            []any  `json:"frn" cms:"frn,asset"`
+	Veg            []any  `json:"veg" cms:"veg,asset"`
+	SDKPublication string `json:"sdk_publication" cms:"sdk_publication,select"`
 }
 
 func (i IItem) Item() Item {
@@ -202,6 +264,25 @@ func (i IItem) Item() Item {
 		Veg:            assetsToPublic(integrationAssetToAssets(i.Veg)),
 		SDKPublication: i.SDKPublication,
 	}
+}
+
+func cityCode(a *cms.PublicAsset) int {
+	if a == nil || a.URL == "" {
+		return 0
+	}
+
+	u, err := url.Parse(a.URL)
+	if err != nil {
+		return 0
+	}
+
+	code, _, ok := strings.Cut(path.Base(u.Path), "_")
+	if !ok {
+		return 0
+	}
+
+	c, _ := strconv.Atoi(code)
+	return c
 }
 
 func ItemsFromIntegration(items []cms.Item) Items {
@@ -227,8 +308,8 @@ func assetsToPublic(a []cms.Asset) []cms.PublicAsset {
 	})
 }
 
-func integrationAssetToAssets(a []map[string]any) []cms.Asset {
-	return lo.FilterMap(a, func(a map[string]any, _ int) (cms.Asset, bool) {
+func integrationAssetToAssets(a []any) []cms.Asset {
+	return lo.FilterMap(a, func(a any, _ int) (cms.Asset, bool) {
 		pa := integrationAssetToAsset(a)
 		if pa == nil {
 			return cms.Asset{}, false
@@ -237,12 +318,18 @@ func integrationAssetToAssets(a []map[string]any) []cms.Asset {
 	})
 }
 
-func integrationAssetToAsset(a map[string]any) *cms.Asset {
+func integrationAssetToAsset(a any) *cms.Asset {
 	if a == nil {
 		return nil
 	}
+
+	m, ok := a.(map[string]any)
+	if !ok {
+		return nil
+	}
+
 	pa := &cms.Asset{}
-	if err := mapstructure.Decode(a, pa); err != nil {
+	if err := mapstructure.Decode(m, pa); err != nil {
 		return nil
 	}
 	return pa

@@ -1,15 +1,10 @@
-import { postMsg, generateID } from "@web/extensions/sidebar/utils";
+import { postMsg, generateID, updateExtended } from "@web/extensions/sidebar/utils";
 import { getActiveFieldIDs } from "@web/extensions/sidebar/utils/dataset";
 import { useCallback, useEffect, useState } from "react";
 
 import { Tab } from "..";
-import {
-  DataCatalogItem,
-  getDataCatalog,
-  RawDataCatalogItem,
-} from "../../../../modals/datacatalog/api/api";
+import { DataCatalogItem } from "../../../../modals/datacatalog/api/api";
 import { BuildingSearch, FldInfo, Template } from "../../../types";
-import { updateExtended } from "../../utils";
 
 import useProjectHooks from "./projectHooks";
 
@@ -27,7 +22,6 @@ export default () => {
   const [fieldTemplates, setFieldTemplates] = useState<Template[]>([]);
   const [infoboxTemplates, setInfoboxTemplates] = useState<Template[]>([]);
 
-  const [catalogData, setCatalog] = useState<RawDataCatalogItem[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
@@ -108,15 +102,6 @@ export default () => {
   useEffect(() => {
     postMsg({ action: "init" }); // Needed to trigger sending initialization data to sidebar
   }, []);
-
-  useEffect(() => {
-    const catalogBaseUrl = catalogURL || backendURL;
-    if (catalogBaseUrl) {
-      getDataCatalog(catalogBaseUrl, catalogProjectName).then(res => {
-        setCatalog(res);
-      });
-    }
-  }, [backendURL, catalogProjectName, catalogURL]);
 
   // ****************************************
 
@@ -202,7 +187,7 @@ export default () => {
   // Building Search
   const handleBuildingSearch = useCallback(
     (dataID: string) => {
-      const plateauItem = catalogData.find(pd => pd.id === dataID);
+      const plateauItem = project.datasets.find(pd => pd.id === dataID);
       const searchIndex = plateauItem?.["search_index"];
       postMsg({
         action: "buildingSearchOpen",
@@ -213,7 +198,7 @@ export default () => {
         },
       });
     },
-    [catalogData],
+    [project.datasets],
   );
 
   const handleBuildingSearchOverride = useCallback(
@@ -272,6 +257,7 @@ export default () => {
     selected,
     project,
     templates: fieldTemplates,
+    catalogProjectName,
     catalogURL,
     reearthURL,
     backendURL,
