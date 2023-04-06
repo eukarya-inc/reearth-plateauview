@@ -1,8 +1,8 @@
-import { Field } from "@web/extensions/sidebar/core/components/content/common/DatasetCard/Field/common";
 import {
+  Field,
   TextInput,
   Wrapper,
-} from "@web/extensions/sidebar/core/components/content/common/DatasetCard/Field/common/styledComponents";
+} from "@web/extensions/sidebar/core/components/content/common/DatasetCard/Field/common";
 import Divider from "@web/sharedComponents/Divider";
 import { isEqual, pick } from "lodash";
 import debounce from "lodash/debounce";

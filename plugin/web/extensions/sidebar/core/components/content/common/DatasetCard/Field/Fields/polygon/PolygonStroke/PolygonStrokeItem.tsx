@@ -3,8 +3,8 @@ import {
   ConditionField,
   ItemControls,
   NumberField,
+  Item,
 } from "@web/extensions/sidebar/core/components/content/common/DatasetCard/Field/common";
-import { Item } from "@web/extensions/sidebar/core/components/content/common/DatasetCard/Field/common/styledComponents";
 import { useCallback } from "react";
 
 import { Cond } from "../../types";

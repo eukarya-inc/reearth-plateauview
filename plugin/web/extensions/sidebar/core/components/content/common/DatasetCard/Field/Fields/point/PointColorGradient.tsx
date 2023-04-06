@@ -1,8 +1,8 @@
 import {
   TextField,
   ColorField,
+  Wrapper,
 } from "@web/extensions/sidebar/core/components/content/common/DatasetCard/Field/common";
-import { Wrapper } from "@web/extensions/sidebar/core/components/content/common/DatasetCard/Field/common/styledComponents";
 import { generateColorGradient } from "@web/extensions/sidebar/utils/color";
 import { isEqual, omit } from "lodash";
 import { useCallback, useEffect, useMemo, useState } from "react";

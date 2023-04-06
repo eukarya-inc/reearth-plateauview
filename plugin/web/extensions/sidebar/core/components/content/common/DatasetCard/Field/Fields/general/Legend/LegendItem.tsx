@@ -2,8 +2,8 @@ import {
   ColorField,
   TextField,
   ItemControls,
+  Item,
 } from "@web/extensions/sidebar/core/components/content/common/DatasetCard/Field/common";
-import { Item } from "@web/extensions/sidebar/core/components/content/common/DatasetCard/Field/common/styledComponents";
 import { useCallback, ChangeEvent } from "react";
 
 import { LegendItem, LegendStyleType } from "../../types";

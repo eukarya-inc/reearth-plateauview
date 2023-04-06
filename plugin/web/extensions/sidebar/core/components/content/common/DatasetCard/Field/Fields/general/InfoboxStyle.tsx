@@ -1,5 +1,7 @@
-import { Field } from "@web/extensions/sidebar/core/components/content/common/DatasetCard/Field/common";
-import { Wrapper } from "@web/extensions/sidebar/core/components/content/common/DatasetCard/Field/common/styledComponents";
+import {
+  Field,
+  Wrapper,
+} from "@web/extensions/sidebar/core/components/content/common/DatasetCard/Field/common";
 import { Select } from "@web/sharedComponents";
 import { useCallback, useState } from "react";
 

@@ -7,6 +7,8 @@ import SelectField from "./SelectField";
 import SwitchField from "./SwitchField";
 import TextField from "./TextField";
 
+export * from "./styledComponents";
+
 export {
   ColorField,
   ConditionField,
