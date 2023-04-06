@@ -2,7 +2,7 @@ import { Field } from "@web/extensions/sidebar/core/components/content/common/Da
 import {
   TextInput,
   Wrapper,
-} from "@web/extensions/sidebar/core/components/content/common/DatasetCard/Field/commonComponents";
+} from "@web/extensions/sidebar/core/components/content/common/DatasetCard/Field/common/styledComponents";
 import debounce from "lodash/debounce";
 import isEqual from "lodash/isEqual";
 import pick from "lodash/pick";

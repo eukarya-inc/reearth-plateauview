@@ -2,7 +2,7 @@ import {
   Field,
   TextField,
 } from "@web/extensions/sidebar/core/components/content/common/DatasetCard/Field/common";
-import { Wrapper } from "@web/extensions/sidebar/core/components/content/common/DatasetCard/Field/commonComponents";
+import { Wrapper } from "@web/extensions/sidebar/core/components/content/common/DatasetCard/Field/common/styledComponents";
 import { Select } from "@web/sharedComponents";
 import { isEqual } from "lodash";
 import { useCallback, useEffect, useMemo, useState } from "react";

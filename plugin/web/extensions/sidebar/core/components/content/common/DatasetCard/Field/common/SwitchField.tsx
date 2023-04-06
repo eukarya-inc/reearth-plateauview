@@ -1,7 +1,7 @@
 import { Switch } from "@web/sharedComponents";
 import { ComponentProps } from "react";
 
-import { FieldTitle, FieldValue, FieldWrapper } from "../commonComponents";
+import { FieldTitle, FieldValue, FieldWrapper } from "./styledComponents";
 
 type Props = {
   title: string;

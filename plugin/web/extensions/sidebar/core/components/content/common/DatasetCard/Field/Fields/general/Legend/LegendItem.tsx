@@ -3,7 +3,7 @@ import {
   TextField,
   ItemControls,
 } from "@web/extensions/sidebar/core/components/content/common/DatasetCard/Field/common";
-import { Item } from "@web/extensions/sidebar/core/components/content/common/DatasetCard/Field/commonComponents";
+import { Item } from "@web/extensions/sidebar/core/components/content/common/DatasetCard/Field/common/styledComponents";
 import { useCallback, ChangeEvent } from "react";
 
 import { LegendItem, LegendStyleType } from "../../types";

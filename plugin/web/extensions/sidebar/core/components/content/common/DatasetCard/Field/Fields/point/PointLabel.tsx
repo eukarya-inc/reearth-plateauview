@@ -3,7 +3,7 @@ import {
   SwitchField,
   TextField,
 } from "@web/extensions/sidebar/core/components/content/common/DatasetCard/Field/common";
-import { Wrapper } from "@web/extensions/sidebar/core/components/content/common/DatasetCard/Field/commonComponents";
+import { Wrapper } from "@web/extensions/sidebar/core/components/content/common/DatasetCard/Field/common/styledComponents";
 import { styled } from "@web/theme";
 import { isEqual } from "lodash";
 import { ChangeEvent, useCallback, useState, useEffect } from "react";

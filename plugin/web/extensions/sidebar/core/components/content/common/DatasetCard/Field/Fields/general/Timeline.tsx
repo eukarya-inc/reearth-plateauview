@@ -4,7 +4,7 @@ import { debounce } from "lodash";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { Field } from "../../common";
-import { TextInput } from "../../commonComponents";
+import { TextInput } from "../../common/styledComponents";
 import { BaseFieldProps } from "../types";
 
 const Timeline: React.FC<BaseFieldProps<"timeline">> = ({ value, editMode, onUpdate }) => {

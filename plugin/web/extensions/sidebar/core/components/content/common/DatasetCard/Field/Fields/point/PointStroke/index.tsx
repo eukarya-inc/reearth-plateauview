@@ -2,7 +2,7 @@ import AddButton from "@web/extensions/sidebar/core/components/content/common/Da
 import {
   ButtonWrapper,
   Wrapper,
-} from "@web/extensions/sidebar/core/components/content/common/DatasetCard/Field/commonComponents";
+} from "@web/extensions/sidebar/core/components/content/common/DatasetCard/Field/common/styledComponents";
 import {
   generateID,
   moveItemDown,

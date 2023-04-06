@@ -194,10 +194,6 @@ export default ({
         name: fieldName["polylineColor"],
         onClick: onFieldAdd({}),
       },
-      // polylineColorGradient: {
-      //   name: fieldName["polylineColorGradient"],
-      //   onClick: onFieldAdd({}),
-      // },
       polylineStrokeWeight: {
         name: fieldName["polylineStrokeWeight"],
         onClick: onFieldAdd({}),
@@ -215,10 +211,6 @@ export default ({
         name: fieldName["polygonColor"],
         onClick: onFieldAdd({}),
       },
-      // polygonColorGradient: {
-      //   name: fieldName["polygonColorGradient"],
-      //   onClick: ({ key }) => console.log("do something: ", key),
-      // },
       polygonStroke: {
         name: fieldName["polygonStroke"],
         onClick: onFieldAdd({}),
@@ -277,7 +269,6 @@ export default ({
         point: { name: "ポイント", fields: pointFields },
         polyline: { name: "ポリライン", fields: polylineFields },
         polygon: { name: "ポリゴン", fields: polygonFields },
-        // "3d-model": { name: "3Dモデル", fields: ThreeDModelFields },
         "3d-tile": { name: "3Dタイル", fields: ThreeDTileFields },
       };
     }, [generalFields, pointFields, polygonFields, polylineFields, ThreeDTileFields]);

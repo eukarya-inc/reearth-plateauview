@@ -64,6 +64,7 @@ const fields: Fields<FieldComponent> = {
   eventField: { Component: EventField, hasUI: false },
   infoboxStyle: { Component: InfoboxStyle, hasUI: false },
   heightReference: { Component: HeightReference, hasUI: false },
+  template: { Component: Template, hasUI: true },
   // point
   pointColor: { Component: PointColor, hasUI: false },
   pointColorGradient: { Component: PointColorGradient, hasUI: false },
@@ -91,8 +92,6 @@ const fields: Fields<FieldComponent> = {
   buildingShadow: { Component: BuildingShadow, hasUI: true },
   floodColor: { Component: FloodColor, hasUI: true },
   floodFilter: { Component: FloodFilter, hasUI: true },
-  // 3d-model
-  template: { Component: Template, hasUI: true },
 };
 
 export default fields;

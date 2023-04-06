@@ -1,6 +1,6 @@
 import { ComponentProps, useEffect, useState } from "react";
 
-import { FieldTitle, FieldValue, FieldWrapper, NumberInput, TextInput } from "../commonComponents";
+import { FieldTitle, FieldValue, FieldWrapper, NumberInput, TextInput } from "./styledComponents";
 
 type Props = {
   title: string;

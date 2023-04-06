@@ -1,8 +1,9 @@
 import { Select } from "@web/sharedComponents";
 import { ChangeEvent, useEffect, useState } from "react";
 
-import { FieldTitle, FieldValue, FieldWrapper, TextInput } from "../commonComponents";
 import { Cond } from "../Fields/types";
+
+import { FieldTitle, FieldValue, FieldWrapper, TextInput } from "./styledComponents";
 
 const operatorOptions = [
   { value: ">", label: ">" },

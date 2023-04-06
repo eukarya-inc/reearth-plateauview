@@ -2,7 +2,7 @@ import { Field } from "@web/extensions/sidebar/core/components/content/common/Da
 import {
   TextInput,
   Wrapper,
-} from "@web/extensions/sidebar/core/components/content/common/DatasetCard/Field/commonComponents";
+} from "@web/extensions/sidebar/core/components/content/common/DatasetCard/Field/common/styledComponents";
 import { useCallback, useEffect, useState } from "react";
 
 import { BaseFieldProps } from "../types";
