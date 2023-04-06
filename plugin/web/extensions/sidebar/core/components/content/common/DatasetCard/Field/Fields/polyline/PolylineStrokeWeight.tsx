@@ -26,6 +26,9 @@ const PolylineStrokeWeight: React.FC<BaseFieldProps<"polylineStrokeWeight">> = (
           polyline: {
             strokeWidth,
           },
+          resource: {
+            strokeWidth,
+          },
         },
       });
     }, 500);

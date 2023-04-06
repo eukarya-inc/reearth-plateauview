@@ -115,5 +115,12 @@ const generateOverride = (pointColors: PointColorType["pointColors"]) => {
         },
       },
     },
+    resource: {
+      markerColor: {
+        expression: {
+          conditions,
+        },
+      },
+    },
   };
 };
