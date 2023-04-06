@@ -1,7 +1,7 @@
 import {
   Field,
   TextInput,
-} from "@web/extensions/sidebar/core/components/content/common/DatasetCard/Field/common";
+} from "@web/extensions/sidebar/core/components/content/common/DatasetCard/Field/sharedComponents";
 import { useCallback, useEffect, useState } from "react";
 
 import { BaseFieldProps } from "../types";

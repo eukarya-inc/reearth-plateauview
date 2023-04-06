@@ -4,7 +4,7 @@ import {
   ItemControls,
   NumberField,
   Item,
-} from "@web/extensions/sidebar/core/components/content/common/DatasetCard/Field/common";
+} from "@web/extensions/sidebar/core/components/content/common/DatasetCard/Field/sharedComponents";
 import { useCallback } from "react";
 
 import { Cond } from "../../types";

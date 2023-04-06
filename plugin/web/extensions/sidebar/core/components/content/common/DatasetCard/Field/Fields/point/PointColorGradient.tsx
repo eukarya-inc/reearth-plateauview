@@ -2,7 +2,7 @@ import {
   TextField,
   ColorField,
   Wrapper,
-} from "@web/extensions/sidebar/core/components/content/common/DatasetCard/Field/common";
+} from "@web/extensions/sidebar/core/components/content/common/DatasetCard/Field/sharedComponents";
 import { generateColorGradient } from "@web/extensions/sidebar/utils/color";
 import { isEqual, omit } from "lodash";
 import { useCallback, useEffect, useMemo, useState } from "react";
