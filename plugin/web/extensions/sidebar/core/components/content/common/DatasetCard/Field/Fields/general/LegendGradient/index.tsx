@@ -1,7 +1,13 @@
 import { Icon, Dropdown, Menu } from "@web/sharedComponents";
 import { styled } from "@web/theme";
 
-import { ColorField, TextField, FieldTitle, FieldValue, FieldWrapper } from "../../../common";
+import {
+  ColorField,
+  FieldTitle,
+  FieldValue,
+  FieldWrapper,
+  TextField,
+} from "../../../sharedComponents";
 import { BaseFieldProps, LegendStyleType } from "../../types";
 
 import useHooks from "./hooks";
