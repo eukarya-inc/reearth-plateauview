@@ -48,7 +48,7 @@ func main() {
 		return c.JSON(http.StatusOK, "pong")
 	}, putil.NoCacheMiddleware)
 
-	e.GET("/proxy/*", proxyHandlerFunc, middleware.CORS())
+	e.GET("/proxy/*", proxyHandlerFunc, ACAOHeaderOverwriteMiddleware)
 
 	services := lo.Must(Services(conf))
 	serviceNames := lo.Map(services, func(s *Service, _ int) string { return s.Name })
