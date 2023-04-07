@@ -751,28 +751,35 @@ reearth.on("popupclose", () => {
   }
 });
 
+const merge = (obj1: any, obj2: any): any => {
+  const merged = cloneDeep(obj1);
+  mergeWith(merged, obj2, (mergedValue, obj2Value) => {
+    if (isObject(mergedValue)) {
+      return merge(mergedValue, obj2Value);
+    }
+    return obj2Value !== undefined ? obj2Value : mergedValue;
+  });
+  return merged;
+};
+
 function createLayer(dataset: DataCatalogItem, overrides?: any) {
-  const format = dataset.format?.toLowerCase().replace(/\s/g, "");
-  const merge = (obj1: any, obj2: any): any => {
-    const merged = cloneDeep(obj1);
-    mergeWith(merged, obj2, (mergedValue, obj2Value) => {
-      if (isObject(mergedValue)) {
-        return merge(mergedValue, obj2Value);
-      }
-      return obj2Value !== undefined ? obj2Value : mergedValue;
-    });
-    return merged;
-  };
+  const hasConfigData = dataset.config?.data?.[0].type && dataset.config?.data?.[0].url;
+  const format = (hasConfigData ? dataset.config?.data?.[0].type : dataset.format)
+    ?.toLowerCase()
+    .replace(/\s/g, "");
+  const url = hasConfigData ? dataset.config?.data?.[0].url : dataset.url;
+  const layers = hasConfigData ? dataset.config?.data?.[0].layer : dataset.layers;
+
   return {
     type: "simple",
     title: dataset.name,
     data: {
-      type: dataset.config?.data?.[0].type.toLowerCase().replace(/\s/g, "") ?? format,
-      url: dataset.config?.data?.[0].url ?? dataset.url,
-      layers: dataset.config?.data?.[0].layer ?? dataset.layers,
+      type: format,
+      url,
+      layers,
       ...(format === "wms" ? { parameters: { transparent: "true", format: "image/png" } } : {}),
-      ...(["luse", "lsld", "urf", "rail", "tran"].includes(dataset.type_en) ||
-      (dataset.type_en === "tran" && format === "mvt")
+      ...(["luse", "lsld", "urf", "rail"].includes(dataset.type_en) ||
+      (["tran", "usecase"].includes(dataset.type_en) && format === "mvt")
         ? { jsonProperties: ["attributes"] }
         : {}),
       ...(overrides?.data || {}),
