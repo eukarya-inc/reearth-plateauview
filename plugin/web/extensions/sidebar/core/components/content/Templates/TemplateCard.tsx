@@ -11,8 +11,8 @@ import {
   AccordionItemState,
 } from "react-accessible-accordion";
 
-import AddButton from "../common/DatasetCard/AddButton";
 import Field from "../common/DatasetCard/Field";
+import { AddButton } from "../common/DatasetCard/Field/sharedComponents";
 
 import useHooks from "./hooks";
 

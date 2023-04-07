@@ -1,4 +1,4 @@
-import AddButton from "@web/extensions/sidebar/core/components/content/common/DatasetCard/AddButton";
+import { AddButton } from "@web/extensions/sidebar/core/components/content/common/DatasetCard/Field/sharedComponents";
 import { styled } from "@web/theme";
 
 import { BaseFieldProps } from "../../types";

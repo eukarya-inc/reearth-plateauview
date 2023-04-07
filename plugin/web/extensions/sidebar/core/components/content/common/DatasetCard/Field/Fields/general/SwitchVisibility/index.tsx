@@ -1,5 +1,5 @@
-import AddButton from "@web/extensions/sidebar/core/components/content/common/DatasetCard/AddButton";
 import {
+  AddButton,
   ButtonWrapper,
   Wrapper,
 } from "@web/extensions/sidebar/core/components/content/common/DatasetCard/Field/sharedComponents";

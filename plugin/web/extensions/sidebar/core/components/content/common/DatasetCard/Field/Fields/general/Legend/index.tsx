@@ -1,4 +1,4 @@
-import AddButton from "@web/extensions/sidebar/core/components/content/common/DatasetCard/AddButton";
+import { AddButton } from "@web/extensions/sidebar/core/components/content/common/DatasetCard/Field/sharedComponents";
 import { array_move } from "@web/extensions/sidebar/utils";
 import { Icon, Dropdown, Menu } from "@web/sharedComponents";
 import ModifiedImage from "@web/sharedComponents/ModifiedImage";

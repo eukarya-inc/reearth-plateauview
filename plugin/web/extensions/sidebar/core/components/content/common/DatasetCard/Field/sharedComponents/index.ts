@@ -1,3 +1,4 @@
+import AddButton from "./AddButton";
 import ColorField from "./ColorField";
 import ConditionField from "./ConditionField";
 import Field from "./Field";
@@ -18,4 +19,5 @@ export {
   SwitchField,
   TextField,
   NumberField,
+  AddButton,
 };
