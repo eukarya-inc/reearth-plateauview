@@ -5,7 +5,7 @@ import {
   Wrapper,
 } from "@web/extensions/sidebar/core/components/content/common/FieldComponent/sharedComponents";
 import { styled } from "@web/theme";
-import { isEqual } from "lodash";
+import { isEqual } from "lodash-es";
 import { ChangeEvent, useCallback, useState, useEffect } from "react";
 
 import { BaseFieldProps, Fields } from "../types";

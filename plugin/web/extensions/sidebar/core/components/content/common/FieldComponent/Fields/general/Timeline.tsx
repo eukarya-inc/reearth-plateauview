@@ -1,6 +1,6 @@
 import { Checkbox } from "@web/sharedComponents";
 import { styled } from "@web/theme";
-import { debounce } from "lodash";
+import { debounce } from "lodash-es";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { Field, TextInput } from "../../sharedComponents";

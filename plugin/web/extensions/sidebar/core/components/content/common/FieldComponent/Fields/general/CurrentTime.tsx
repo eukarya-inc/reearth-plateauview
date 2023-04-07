@@ -4,7 +4,7 @@ import {
   Wrapper,
 } from "@web/extensions/sidebar/core/components/content/common/FieldComponent/sharedComponents";
 import Divider from "@web/sharedComponents/Divider";
-import { isEqual, pick } from "lodash";
+import { isEqual, pick } from "lodash-es";
 import debounce from "lodash/debounce";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 

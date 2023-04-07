@@ -2,7 +2,7 @@ import { Template } from "@web/extensions/sidebar/core/types";
 import { mergeOverrides } from "@web/extensions/sidebar/utils";
 import { Select } from "@web/sharedComponents";
 import { styled } from "@web/theme";
-import { isEqual } from "lodash";
+import { isEqual } from "lodash-es";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import FieldComponent from "../..";

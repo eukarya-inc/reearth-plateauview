@@ -3,7 +3,7 @@ import { FieldComponent } from "@web/extensions/sidebar/core/components/content/
 import { BuildingSearch, DataCatalogItem, Template } from "@web/extensions/sidebar/core/types";
 import { getTransparencyExpression } from "@web/extensions/sidebar/utils/color";
 import { flattenComponents } from "@web/extensions/sidebar/utils/dataset";
-import { cloneDeep, isEqual, merge } from "lodash";
+import { cloneDeep, isEqual, merge } from "lodash-es";
 
 export const prepareComponentsForOverride = (
   activeIDs: string[],

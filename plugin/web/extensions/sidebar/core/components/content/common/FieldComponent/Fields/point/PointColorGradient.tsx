@@ -4,7 +4,7 @@ import {
   Wrapper,
 } from "@web/extensions/sidebar/core/components/content/common/FieldComponent/sharedComponents";
 import { generateColorGradient } from "@web/extensions/sidebar/utils/color";
-import { isEqual, omit } from "lodash";
+import { isEqual, omit } from "lodash-es";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { BaseFieldProps } from "../types";

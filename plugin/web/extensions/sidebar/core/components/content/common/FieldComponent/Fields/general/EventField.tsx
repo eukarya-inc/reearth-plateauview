@@ -4,7 +4,7 @@ import {
   Wrapper,
 } from "@web/extensions/sidebar/core/components/content/common/FieldComponent/sharedComponents";
 import { Select } from "@web/sharedComponents";
-import { isEqual } from "lodash";
+import { isEqual } from "lodash-es";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { BaseFieldProps } from "../types";

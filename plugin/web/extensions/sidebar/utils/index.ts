@@ -1,4 +1,4 @@
-import { cloneDeep, mergeWith } from "lodash";
+import { cloneDeep, mergeWith } from "lodash-es";
 
 import { Cond } from "../core/components/content/common/FieldComponent/Fields/types";
 
