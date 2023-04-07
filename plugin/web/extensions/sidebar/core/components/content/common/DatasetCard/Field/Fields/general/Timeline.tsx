@@ -3,7 +3,7 @@ import { styled } from "@web/theme";
 import { debounce } from "lodash";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
-import { Field, TextInput } from "../../common";
+import { Field, TextInput } from "../../sharedComponents";
 import { BaseFieldProps } from "../types";
 
 const Timeline: React.FC<BaseFieldProps<"timeline">> = ({ value, editMode, onUpdate }) => {
