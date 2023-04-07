@@ -1,6 +1,9 @@
 import { RawDataCatalogItem } from "../modals/datacatalog/api/api";
 
-import { ConfigData, FieldComponent } from "./components/content/common/Field/Fields/types";
+import {
+  ConfigData,
+  FieldComponent,
+} from "./components/content/common/FieldComponent/Fields/types";
 
 export type Root = {
   data: Data[];

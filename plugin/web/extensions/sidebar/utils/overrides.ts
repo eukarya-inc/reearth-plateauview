@@ -1,5 +1,5 @@
-import { cleanseOverrides } from "@web/extensions/sidebar/core/components/content/common/Field/fieldConstants";
-import { FieldComponent } from "@web/extensions/sidebar/core/components/content/common/Field/Fields/types";
+import { cleanseOverrides } from "@web/extensions/sidebar/core/components/content/common/FieldComponent/fieldConstants";
+import { FieldComponent } from "@web/extensions/sidebar/core/components/content/common/FieldComponent/Fields/types";
 import { BuildingSearch, DataCatalogItem, Template } from "@web/extensions/sidebar/core/types";
 import { getTransparencyExpression } from "@web/extensions/sidebar/utils/color";
 import { flattenComponents } from "@web/extensions/sidebar/utils/dataset";

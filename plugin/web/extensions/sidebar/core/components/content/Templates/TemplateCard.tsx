@@ -11,8 +11,8 @@ import {
   AccordionItemState,
 } from "react-accessible-accordion";
 
-import Field from "../common/Field";
-import { AddButton } from "../common/Field/sharedComponents";
+import Field from "../common/FieldComponent";
+import { AddButton } from "../common/FieldComponent/sharedComponents";
 
 import useHooks from "./hooks";
 
