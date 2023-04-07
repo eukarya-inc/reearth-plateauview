@@ -9,9 +9,9 @@ import {
 import { getActiveFieldIDs } from "@web/extensions/sidebar/utils/dataset";
 import { useCallback, useEffect, useState } from "react";
 
-import { cleanseOverrides } from "./Field/fieldConstants";
-import generateFieldComponentsList from "./Field/fieldHooks";
-import { ConfigData } from "./Field/Fields/types";
+import { cleanseOverrides } from "../Field/fieldConstants";
+import generateFieldComponentsList from "../Field/fieldHooks";
+import { ConfigData } from "../Field/Fields/types";
 
 export default ({
   dataset,

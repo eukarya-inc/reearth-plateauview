@@ -22,9 +22,10 @@ import {
 } from "react-accessible-accordion";
 import { useDrag, useDrop } from "react-dnd";
 
-import Field from "./Field";
-import { IdealZoom } from "./Field/Fields/types";
-import { AddButton } from "./Field/sharedComponents";
+import Field from "../Field";
+import { IdealZoom } from "../Field/Fields/types";
+import { AddButton } from "../Field/sharedComponents";
+
 import useHooks from "./hooks";
 
 type Tabs = "default" | "edit";

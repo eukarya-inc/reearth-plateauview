@@ -1,4 +1,4 @@
-import { StoryItem } from "./core/components/content/common/DatasetCard/Field/Fields/types";
+import { StoryItem } from "./core/components/content/common/Field/Fields/types";
 import { DataCatalogItem } from "./core/types";
 
 type ActionType =
