@@ -753,8 +753,8 @@ reearth.on("popupclose", () => {
 });
 
 function createLayer(dataset: DataCatalogItem, overrides?: any) {
-  const hasConfigData = dataset.config?.data?.[0].type && dataset.config?.data?.[0].url;
-  const format = (hasConfigData ? dataset.config?.data?.[0].type : dataset.format)
+  const hasConfigData = !!(dataset.config?.data?.[0].type && dataset.config?.data?.[0].url);
+  const format = (hasConfigData ? (dataset.config?.data?.[0].type as string) : dataset.format)
     ?.toLowerCase()
     .replace(/\s/g, "");
   const url = hasConfigData ? dataset.config?.data?.[0].url : dataset.url;
