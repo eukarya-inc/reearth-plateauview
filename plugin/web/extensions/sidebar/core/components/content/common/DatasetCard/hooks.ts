@@ -7,11 +7,11 @@ import {
   postMsg,
 } from "@web/extensions/sidebar/utils";
 import { getActiveFieldIDs } from "@web/extensions/sidebar/utils/dataset";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, useRef } from "react";
 
 import { cleanseOverrides } from "../FieldComponent/fieldConstants";
 import generateFieldComponentsList from "../FieldComponent/fieldHooks";
-import { ConfigData } from "../FieldComponent/Fields/types";
+import { ConfigData, FieldComponent } from "../FieldComponent/Fields/types";
 
 export default ({
   dataset,
@@ -29,6 +29,7 @@ export default ({
   onOverride?: (dataID: string, activeIDs?: string[]) => void;
 }) => {
   const [activeComponentIDs, setActiveIDs] = useState<string[] | undefined>();
+  const latestComponents = useRef<FieldComponent[]>(dataset.components ?? []);
 
   useEffect(() => {
     const newActiveIDs = getActiveFieldIDs(
@@ -68,6 +69,7 @@ export default ({
       postMsg({ action: "unselect" });
       onDatasetUpdate?.({
         ...dataset,
+        components: latestComponents.current,
         selectedDataset,
       });
     },
@@ -84,9 +86,12 @@ export default ({
         ...property,
       };
 
+      const newDatasetComponents = [...(dataset.components ?? []), newField];
+      latestComponents.current = newDatasetComponents;
+
       onDatasetUpdate?.({
         ...dataset,
-        components: [...(dataset.components ?? []), newField],
+        components: newDatasetComponents,
       });
     };
 
@@ -99,6 +104,7 @@ export default ({
 
       newDatasetComponents[componentIndex] = { ...property };
 
+      latestComponents.current = newDatasetComponents;
       onDatasetUpdate?.({
         ...dataset,
         components: newDatasetComponents,
@@ -130,7 +136,7 @@ export default ({
       } else {
         cleanseOverride = cleanseOverrides[removedComponent.type] ?? undefined;
       }
-
+      latestComponents.current = newDatasetComponents;
       onDatasetUpdate?.(
         {
           ...dataset,
@@ -152,7 +158,7 @@ export default ({
       if (newDatasetComponents.length > 0 && componentIndex !== undefined) {
         newDatasetComponents[componentIndex].group = selectedGroupID;
       }
-
+      latestComponents.current = newDatasetComponents;
       onDatasetUpdate?.({
         ...dataset,
         components: newDatasetComponents,
@@ -169,7 +175,10 @@ export default ({
   const handleMoveUp = useCallback(
     (idx: number) => {
       const newComponents = moveItemUp(idx, dataset.components);
-      if (newComponents) onDatasetUpdate({ ...dataset, components: newComponents });
+      if (newComponents) {
+        latestComponents.current = newComponents;
+        onDatasetUpdate({ ...dataset, components: newComponents });
+      }
     },
     [dataset, onDatasetUpdate],
   );
@@ -177,7 +186,10 @@ export default ({
   const handleMoveDown = useCallback(
     (idx: number) => {
       const newComponents = moveItemDown(idx, dataset.components);
-      if (newComponents) onDatasetUpdate({ ...dataset, components: newComponents });
+      if (newComponents) {
+        latestComponents.current = newComponents;
+        onDatasetUpdate({ ...dataset, components: newComponents });
+      }
     },
     [dataset, onDatasetUpdate],
   );
