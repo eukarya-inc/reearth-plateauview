@@ -7,6 +7,7 @@ import {
   prepareComponentsForOverride,
 } from "@web/extensions/sidebar/utils";
 import { getActiveFieldIDs, processDatasetToAdd } from "@web/extensions/sidebar/utils/dataset";
+import { merge } from "lodash";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { BuildingSearch, Data, DataCatalogItem, Template } from "../../../types";
@@ -76,6 +77,7 @@ export default ({
   const [projectID, setProjectID] = useState<string>();
   const [project, updateProject] = useState<Project>(defaultProject);
   const [cleanseOverride, setCleanseOverride] = useState<any>();
+  const cachedDatasetOverrides = useRef<Map<string, any>>(new Map());
 
   const processOverrides = useCallback(
     (dataset: DataCatalogItem, activeIDs?: string[]) => {
@@ -140,6 +142,9 @@ export default ({
       );
 
       const overrides = processOverrides(datasetToAdd, activeIDs);
+      if (dataset.dataID) {
+        cachedDatasetOverrides.current.set(dataset.dataID, overrides);
+      }
 
       postMsg({
         action: "addDatasetToScene",
@@ -195,6 +200,8 @@ export default ({
       if (dataset) {
         const overrides = processOverrides(dataset, activeIDs);
 
+        cachedDatasetOverrides.current.set(dataset.dataID, overrides);
+
         postMsg({
           action: "updateDatasetInScene",
           payload: { dataID: dataset.dataID, overrides },
@@ -202,6 +209,41 @@ export default ({
       }
     },
     [processOverrides],
+  );
+
+  const handleOverrideForMobileBuildingSearch = useCallback(
+    ({ dataID, overrides }: { dataID: string; overrides: any }) => {
+      const mergedOverrides = merge(
+        {},
+        cachedDatasetOverrides.current.get(dataID) ?? {},
+        overrides ?? {},
+      );
+      postMsg({
+        action: "updateDatasetInScene",
+        payload: { dataID, overrides: mergedOverrides },
+      });
+    },
+    [],
+  );
+
+  const handleOverrideForMobileBuildingSearchClose = useCallback(
+    ({ dataID }: { dataID: string }) => {
+      const overrides = merge(
+        {
+          "3dtiles": {
+            show: true,
+            color: "white",
+          },
+        },
+        cachedDatasetOverrides.current.get(dataID) ?? {},
+      );
+
+      postMsg({
+        action: "updateDatasetInScene",
+        payload: { dataID, overrides },
+      });
+    },
+    [],
   );
 
   const handleStorySaveData = useCallback(
@@ -276,6 +318,8 @@ export default ({
     setProjectID,
     setCleanseOverride,
     handleOverride,
+    handleOverrideForMobileBuildingSearch,
+    handleOverrideForMobileBuildingSearchClose,
     handleProjectSceneUpdate,
     handleProjectDatasetAdd,
     handleProjectDatasetRemove,

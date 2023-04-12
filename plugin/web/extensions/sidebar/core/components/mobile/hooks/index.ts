@@ -1,4 +1,4 @@
-import { postMsg, generateID, updateExtended } from "@web/extensions/sidebar/utils";
+import { postMsg, updateExtended } from "@web/extensions/sidebar/utils";
 import { getActiveFieldIDs } from "@web/extensions/sidebar/utils/dataset";
 import { useCallback, useEffect, useState } from "react";
 
@@ -17,7 +17,7 @@ export default () => {
   const [reearthURL, setReearthURL] = useState<string>();
   const [backendURL, setBackendURL] = useState<string>();
   const [backendProjectName, setBackendProjectName] = useState<string>();
-  const [buildingSearch, setBuildingSearch] = useState<BuildingSearch>([]);
+  const [buildingSearch] = useState<BuildingSearch>([]);
 
   const [fieldTemplates, setFieldTemplates] = useState<Template[]>([]);
   const [infoboxTemplates, setInfoboxTemplates] = useState<Template[]>([]);
@@ -44,6 +44,8 @@ export default () => {
     setProjectID,
     setCleanseOverride,
     handleOverride,
+    handleOverrideForMobileBuildingSearch,
+    handleOverrideForMobileBuildingSearchClose,
     handleProjectSceneUpdate,
     handleProjectDatasetAdd,
     handleProjectDatasetRemove,
@@ -172,9 +174,9 @@ export default () => {
       } else if (e.data.action === "infoboxFieldsFetch") {
         handleInfoboxFieldsFetch(e.data.payload);
       } else if (e.data.action === "buildingSearchOverride") {
-        handleBuildingSearchOverride(e.data.payload);
+        handleOverrideForMobileBuildingSearch(e.data.payload);
       } else if (e.data.action === "buildingSearchClose") {
-        handleBuildingSearchClose(e.data.payload);
+        handleOverrideForMobileBuildingSearchClose(e.data.payload);
       }
     };
     addEventListener("message", eventListenerCallback);
@@ -200,49 +202,6 @@ export default () => {
     },
     [project.datasets],
   );
-
-  const handleBuildingSearchOverride = useCallback(
-    ({ dataID, overrides }: { dataID: string; overrides: any }) => {
-      setBuildingSearch(bs => {
-        const id = generateID();
-        const fieldItem = {
-          dataID,
-          active: true,
-          field: {
-            id,
-            type: "search",
-            updatedAt: new Date(),
-            override: overrides,
-          },
-          cleanseField: {
-            id,
-            type: "search",
-            updatedAt: new Date(),
-          },
-        };
-        const target = bs.find(b => b.dataID === dataID);
-        if (target) {
-          target.active = true;
-          target.field = fieldItem.field;
-          target.cleanseField = fieldItem.cleanseField;
-        } else {
-          bs.push(fieldItem);
-        }
-        return [...bs];
-      });
-    },
-    [],
-  );
-
-  const handleBuildingSearchClose = useCallback(({ dataID }: { dataID: string }) => {
-    setBuildingSearch(bs => {
-      const target = bs.find(b => b.dataID === dataID);
-      if (target) {
-        target.active = false;
-      }
-      return [...bs];
-    });
-  }, []);
 
   const handleModalOpen = useCallback(() => {
     postMsg({
