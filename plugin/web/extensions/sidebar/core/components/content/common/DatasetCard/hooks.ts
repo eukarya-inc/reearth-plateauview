@@ -97,7 +97,7 @@ export default ({
 
   const handleFieldUpdate = useCallback(
     (id: string) => (property: any) => {
-      const newDatasetComponents = dataset.components ? [...dataset.components] : [];
+      const newDatasetComponents = [...(latestComponents.current ?? [])];
       const componentIndex = newDatasetComponents?.findIndex(c => c.id === id);
 
       if (!newDatasetComponents || componentIndex === undefined) return;
@@ -193,6 +193,10 @@ export default ({
     },
     [dataset, onDatasetUpdate],
   );
+
+  useEffect(() => {
+    latestComponents.current = dataset.components ?? [];
+  }, [dataset.components]);
 
   return {
     activeComponentIDs,
