@@ -100,7 +100,7 @@ func TestService_RegisterCkanResources(t *testing.T) {
 		CityGML:       "citygml",
 		Catalog:       "catalog",
 		All:           "all",
-	}))
+	}, false))
 
 	pkg, err := ckanm.ShowPackage(ctx, "plateau-12210-mobara-shi-2022")
 	assert.NoError(t, err)
@@ -114,14 +114,17 @@ func TestService_RegisterCkanResources(t *testing.T) {
 	assert.Equal(t, "CityGML（v2）", pkg.Resources[1].Name)
 	assert.Equal(t, "https://example.com/12210_mobara-shi_2022_citygml_1_lsld.zip", pkg.Resources[1].URL)
 	assert.Equal(t, "データ目録（v2）", pkg.Resources[2].Name)
-	assert.Equal(t, cms.Item{ID: "item", Fields: []cms.Field{{Key: "sdk_publication", Type: "select", Value: "公開する"}}}, cmsm.item)
+	assert.Equal(t, cms.Item{ID: "item", Fields: []cms.Field{
+		{Key: "catalog_status", Type: "select", Value: "完了"},
+		{Key: "sdk_publication", Type: "select", Value: "公開する"},
+	}}, cmsm.item)
 
 	// case2: upload citygml and catalog of 第1版
 	assert.ErrorContains(t, s.RegisterCkanResources(ctx, Item{
 		Specification: "第1版",
 		CityGML:       "citygml2",
 		Catalog:       "catalog2",
-	}), "目録ファイルにG空間情報センター用メタデータシートがありません。")
+	}, false), "目録ファイルにG空間情報センター用メタデータシートがありません。")
 
 	// case3: upload citygml and catalog of 第1版 to an existing package
 	ckanm = ckan.NewMock("org", []ckan.Package{
@@ -150,7 +153,7 @@ func TestService_RegisterCkanResources(t *testing.T) {
 		Specification: "第2版",
 		CityGML:       "citygml2",
 		Catalog:       "catalog2",
-	}))
+	}, false))
 
 	pkg, err = ckanm.ShowPackage(ctx, "plateau-12210-mobara-shi-2020")
 	assert.NoError(t, err)

@@ -8,6 +8,7 @@ import (
 	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
 	"github.com/xuri/excelize/v2"
+	"golang.org/x/text/width"
 )
 
 type Catalog struct {
@@ -73,9 +74,6 @@ func (c *Catalog) Validate() error {
 	if c.Notes == "" {
 		missingkeys = append(missingkeys, "説明")
 	}
-	if c.Thumbnail == nil {
-		missingkeys = append(missingkeys, "サムネイル画像")
-	}
 
 	if len(missingkeys) > 0 {
 		errs = append(errs, fmt.Sprintf("%sは必須です。", strings.Join(missingkeys, "・")))
@@ -125,10 +123,9 @@ func (c *CatalogFile) Parse() (res *Catalog, err error) {
 	res.Charge, errs = c.getCellValue(sheet, "有償無償区分*", "D19", errs)
 	res.Emergency, errs = c.getCellValue(sheet, "災害時区分*", "D20", errs)
 	res.Area, errs = c.getCellValue(sheet, "地理的範囲", "D21", errs)
-	res.ThumbnailFileName, res.Thumbnail, errs = c.getPicture(sheet, "サムネイル画像", "D22", errs)
+	res.ThumbnailFileName, res.Thumbnail, _ = c.getPicture(sheet, "サムネイル画像", "D22", errs) // optional
 	res.Fee, errs = c.getCellValue(sheet, "価格情報", "D23", errs)
 	res.LicenseAgreement, errs = c.getCellValue(sheet, "使用許諾", "D24", errs)
-	// メタデータ is not implemented
 
 	if len(errs) > 0 {
 		return res, fmt.Errorf("目録の読み込みに失敗しました。%w", errorsJoin(errs))
@@ -160,7 +157,10 @@ func (c *CatalogFile) File() *excelize.File {
 func (c *CatalogFile) getSheet() string {
 	if i := c.file.GetSheetIndex("G空間登録用メタデータ "); i < 0 {
 		if i = c.file.GetSheetIndex("G空間登録用メタデータ"); i < 0 {
-			return ""
+			if i = c.file.GetSheetIndex("G空間登録用メタデータ_基本セット"); i < 0 {
+				return ""
+			}
+			return "G空間登録用メタデータ_基本セット"
 		}
 		return "G空間登録用メタデータ"
 	}
@@ -181,7 +181,7 @@ func (c *CatalogFile) getCellValue(sheet, name, _axis string, errs []error) (str
 	if err != nil {
 		return "", append(errs, fmt.Errorf("「%s」が見つかりませんでした。", name))
 	}
-	return strings.ReplaceAll(cell, "\u2028", "\n"), nil
+	return width.Fold.String(strings.ReplaceAll(cell, "\u2028", "\n")), nil
 }
 
 func (c *CatalogFile) getCellValueAsTags(sheet, name, axis string, errs []error) ([]string, []error) {
