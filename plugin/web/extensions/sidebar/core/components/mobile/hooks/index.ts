@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 
 import { Tab } from "..";
 import { DataCatalogItem } from "../../../../modals/datacatalog/api/api";
-import { BuildingSearch, FldInfo, Template } from "../../../types";
+import { FldInfo, Template } from "../../../types";
 
 import useProjectHooks from "./projectHooks";
 
@@ -17,7 +17,6 @@ export default () => {
   const [reearthURL, setReearthURL] = useState<string>();
   const [backendURL, setBackendURL] = useState<string>();
   const [backendProjectName, setBackendProjectName] = useState<string>();
-  const [buildingSearch] = useState<BuildingSearch>([]);
 
   const [fieldTemplates, setFieldTemplates] = useState<Template[]>([]);
   const [infoboxTemplates, setInfoboxTemplates] = useState<Template[]>([]);
@@ -56,7 +55,6 @@ export default () => {
     fieldTemplates,
     backendURL,
     backendProjectName,
-    buildingSearch,
   });
 
   const handleDatasetUpdate = useCallback(
@@ -223,7 +221,6 @@ export default () => {
     backendProjectName,
     inEditor,
     searchTerm,
-    buildingSearch,
     setSelected,
   };
 };

@@ -10,7 +10,7 @@ import { getActiveFieldIDs, processDatasetToAdd } from "@web/extensions/sidebar/
 import { merge } from "lodash";
 import { useCallback, useEffect, useRef, useState } from "react";
 
-import { BuildingSearch, Data, DataCatalogItem, Template } from "../../../types";
+import { Data, DataCatalogItem, Template } from "../../../types";
 import { StoryItem, Story as FieldStory } from "../../content/common/FieldComponent/Fields/types";
 
 export const defaultProject: Project = {
@@ -67,12 +67,10 @@ export default ({
   fieldTemplates,
   backendURL,
   backendProjectName,
-  buildingSearch,
 }: {
   fieldTemplates?: Template[];
   backendURL?: string;
   backendProjectName?: string;
-  buildingSearch?: BuildingSearch;
 }) => {
   const [projectID, setProjectID] = useState<string>();
   const [project, updateProject] = useState<Project>(defaultProject);
@@ -88,7 +86,6 @@ export default ({
         activeIDs,
         dataset,
         fieldTemplates,
-        buildingSearch,
       );
 
       const cleanseOverrides = mergeOverrides("cleanse", inactiveComponents, cleanseOverride);
@@ -98,7 +95,7 @@ export default ({
 
       return overrides;
     },
-    [cleanseOverride, fieldTemplates, buildingSearch],
+    [cleanseOverride, fieldTemplates],
   );
 
   const handleProjectSceneUpdate = useCallback(
