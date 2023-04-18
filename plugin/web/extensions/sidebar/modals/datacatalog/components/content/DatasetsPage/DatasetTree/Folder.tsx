@@ -88,7 +88,6 @@ const Wrapper = styled.div<{ isOpen?: boolean }>`
     isOpen
       ? "height: 100%;"
       : `
-  height: 29px; 
   overflow: hidden;
   `}
 `;
@@ -99,8 +98,6 @@ const FolderItem = styled.div<{ nestLevel: number; selected?: boolean }>`
   justify-content: space-between;
   box-sizing: border-box;
   gap: 8px;
-  height: 29px;
-
   ${({ selected }) =>
     selected &&
     `
@@ -128,7 +125,4 @@ const NameWrapper = styled.div<{ isMobile?: boolean }>`
 const Name = styled.p`
   margin: 0;
   user-select: none;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  overflow: hidden;
 `;
