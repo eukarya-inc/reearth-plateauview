@@ -90,6 +90,7 @@ const Wrapper = styled.div<{ isOpen?: boolean }>`
       : `
   overflow: hidden;
   `}
+  min-height: 29px;
 `;
 
 const FolderItem = styled.div<{ nestLevel: number; selected?: boolean }>`
@@ -113,6 +114,7 @@ const FolderItem = styled.div<{ nestLevel: number; selected?: boolean }>`
     background: #00bebe;
     color: white;
   }
+  min-height: 29px;
 `;
 
 const NameWrapper = styled.div<{ isMobile?: boolean }>`
