@@ -62,7 +62,8 @@
     "coverage": "vitest run --coverage",
     "lint": "eslint .",
     "format": "eslint . --fix",
-    "type": "tsc"
+    "type": "tsc",
+    "e2e": "playwright test"
   },
   "devDependencies": {
     "@playwright/test": "^1.33.0",
