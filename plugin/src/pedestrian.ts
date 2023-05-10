@@ -73,10 +73,6 @@ if (reearth.viewport.isMobile) {
   updateSpeed();
 
   const updateCamera = () => {
-    // let moveRate = (1 + reearth.camera.position.height / 100.0) * speeds[speed];
-    // const moveRate = speeds[speed];
-    // if (moveRate < 0.1) moveRate = 0.1;
-
     if (flags.moveForward) {
       reearth.camera.moveForward(moveRate);
     }
