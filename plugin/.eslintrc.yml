@@ -1,3 +1,6 @@
 root: true
 extends:
   - reearth
+overrides:
+  - files: playwright.config.ts
+    extends: reearth/node
