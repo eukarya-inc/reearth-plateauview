@@ -87,6 +87,21 @@ export default () => {
     [moveDownOn, moveUpOn],
   );
 
+  const [speed, setSpeed] = useState(1);
+  const updateSpeed = useCallback((speed: number) => {
+    setSpeed(speed);
+    postMsg("setSpeed", { speed });
+  }, []);
+  const handleSpeed1x = useCallback(() => {
+    updateSpeed(1);
+  }, [updateSpeed]);
+  const handleSpeed2x = useCallback(() => {
+    updateSpeed(2);
+  }, [updateSpeed]);
+  const handleSpeed3x = useCallback(() => {
+    updateSpeed(3);
+  }, [updateSpeed]);
+
   const onExit = useCallback(() => {
     setMode("ready");
     setMainButtonText("始める");
@@ -202,7 +217,7 @@ export default () => {
 
   const initMiniMap = useCallback(() => {
     miniMap.current = L.map("minimap", {
-      zoomControl: false,
+      zoomControl: true,
       dragging: false,
       boxZoom: false,
       doubleClickZoom: false,
@@ -300,6 +315,10 @@ export default () => {
     moveDownOn,
     miniMapViewRotate,
     visible,
+    speed,
+    handleSpeed1x,
+    handleSpeed2x,
+    handleSpeed3x,
     handleMoveForwardClick,
     handleMoveBackwardClick,
     handleMoveLeftClick,
