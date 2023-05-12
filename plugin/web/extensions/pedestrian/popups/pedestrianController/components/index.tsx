@@ -18,9 +18,7 @@ const PedestrianController: React.FC = () => {
     miniMapViewRotate,
     visible,
     speed,
-    handleSpeed1x,
-    handleSpeed2x,
-    handleSpeed3x,
+    handleSetSpeed,
     handleMoveForwardClick,
     handleMoveBackwardClick,
     handleMoveLeftClick,
@@ -113,19 +111,19 @@ const PedestrianController: React.FC = () => {
             text="x1"
             disabled={mode !== "pedestrian"}
             active={speed === 1}
-            onClick={handleSpeed1x}
+            onClick={() => handleSetSpeed(1)}
           />
           <ControlButton
             text="x2"
             disabled={mode !== "pedestrian"}
             active={speed === 2}
-            onClick={handleSpeed2x}
+            onClick={() => handleSetSpeed(2)}
           />
           <ControlButton
             text="x3"
             disabled={mode !== "pedestrian"}
             active={speed === 3}
-            onClick={handleSpeed3x}
+            onClick={() => handleSetSpeed(3)}
           />
         </Line>
         <MiniMapWrapper hidden={mode !== "pedestrian"}>
