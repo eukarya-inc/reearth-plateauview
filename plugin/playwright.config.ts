@@ -1,4 +1,4 @@
-import { type PlaywrightTestConfig } from "@playwright/test";
+import { devices, type PlaywrightTestConfig } from "@playwright/test";
 
 const config: PlaywrightTestConfig = {
   use: {
@@ -9,6 +9,18 @@ const config: PlaywrightTestConfig = {
   testDir: "e2e",
   globalSetup: "./e2e/utils/setup.ts",
   reporter: process.env.CI ? "github" : "list",
+  projects: [
+    {
+      name: "chromium",
+      use: {
+        ...devices["Desktop Chrome"],
+        headless: false,
+        launchOptions: {
+          args: ["--no-sandbox"],
+        },
+      },
+    },
+  ],
 };
 
 export default config;
