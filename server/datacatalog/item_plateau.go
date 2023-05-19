@@ -46,6 +46,74 @@ type PlateauItem struct {
 	OpenDataURL     string             `json:"opendata_url"`
 }
 
+func (i PlateauItem) Feature(ty string) []*cms.PublicAsset {
+	switch ty {
+	case "bldg":
+		return i.Bldg
+	case "tran":
+		return i.Tran
+	case "frn":
+		return i.Frn
+	case "veg":
+		return i.Veg
+	case "luse":
+		return i.Luse
+	case "lsld":
+		return i.Lsld
+	case "urf":
+		return i.Urf
+	case "fld":
+		return i.Fld
+	case "htd":
+		return i.Htd
+	case "ifld":
+		return i.Ifld
+	case "tnm":
+		return i.Tnm
+	case "brid":
+		return i.Brid
+	case "rail":
+		return i.Rail
+	case "gen":
+		return i.Gen
+	}
+	return nil
+}
+
+func (i PlateauItem) FeatureDescription(ty string) []string {
+	switch ty {
+	case "bldg":
+		return []string{i.DescriptionBldg}
+	case "tran":
+		return []string{i.DescriptionTran}
+	case "frn":
+		return []string{i.DescriptionFrn}
+	case "veg":
+		return []string{i.DescriptionVeg}
+	case "luse":
+		return []string{i.DescriptionLuse}
+	case "lsld":
+		return []string{i.DescriptionLsld}
+	case "urf":
+		return i.DescriptionUrf
+	case "fld":
+		return i.DescriptionFld
+	case "htd":
+		return i.DescriptionHtd
+	case "ifld":
+		return i.DescriptionIfld
+	case "tnm":
+		return i.DescriptionTnm
+	case "brid":
+		return []string{i.DescriptionBrid}
+	case "rail":
+		return []string{i.DescriptionRail}
+	case "gen":
+		return i.DescriptionGen
+	}
+	return nil
+}
+
 func (i PlateauItem) LuseItem(c PlateauIntermediateItem) *DataCatalogItem {
 	if i.Luse == nil {
 		return nil
@@ -131,28 +199,15 @@ func (i PlateauItem) TnmItems(c PlateauIntermediateItem) []*DataCatalogItem {
 	})
 }
 
-func (i PlateauItem) DataCatalogItems(c PlateauIntermediateItem) []DataCatalogItem {
+func (i PlateauItem) AllDataCatalogItems(c PlateauIntermediateItem) []DataCatalogItem {
 	if c.ID == "" {
 		return nil
 	}
 
 	return util.DerefSlice(lo.Filter(
-		append(append(append(append(append(append(append(append(append(
-			i.BldgItems(c),
-			i.TranItem(c),
-			i.FrnItem(c),
-			i.VegItem(c),
-			i.LuseItem(c),
-			i.LsldItem(c)),
-			i.UrfItems(c)...),
-			i.FldItems(c)...),
-			i.TnmItems(c)...),
-			i.HtdItems(c)...),
-			i.IfldItems(c)...),
-			i.BridItem(c)),
-			i.RailItem(c)),
-			i.GenItems(c)...,
-		),
+		lo.FlatMap(FeatureTypes, func(ty string, _ int) []*DataCatalogItem {
+			return i.DataCatalogItems(c, ty)
+		}),
 		func(i *DataCatalogItem, _ int) bool {
 			return i != nil
 		},

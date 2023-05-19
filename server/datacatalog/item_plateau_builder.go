@@ -276,27 +276,31 @@ func openDataURLFromAssetName(a AssetName) string {
 type DataCatalogItemBuilder struct {
 	Assets           []*cms.PublicAsset
 	Description      string
-	ModelName        string
-	Layers           []string
 	IntermediateItem PlateauIntermediateItem
-	NameOverride     string
-	FirstWard        bool
-	MultipleLOD      bool
+	Options          DataCatalogItemBuilderOption
 }
 
-func (b DataCatalogItemBuilder) Build() *DataCatalogItem {
+type DataCatalogItemBuilderOption struct {
+	ModelName    string
+	Layers       []string
+	NameOverride string
+	FirstWard    bool
+	MultipleLOD  bool
+}
+
+func (b DataCatalogItemBuilder) Build() []*DataCatalogItem {
 	if len(b.Assets) == 0 {
 		return nil
 	}
 
 	an := AssetNameFrom(b.Assets[0].URL)
 
-	dci := b.IntermediateItem.DataCatalogItem(b.ModelName, an, b.Assets[0].URL, b.Description, b.Layers, b.FirstWard, b.NameOverride)
-	if dci != nil && b.MultipleLOD {
-		dci.Config = multipleLODData(b.Assets, b.ModelName, b.Layers)
+	dci := b.IntermediateItem.DataCatalogItem(b.Options.ModelName, an, b.Assets[0].URL, b.Description, b.Options.Layers, b.Options.FirstWard, b.Options.NameOverride)
+	if dci != nil && b.Options.MultipleLOD {
+		dci.Config = multipleLODData(b.Assets, b.Options.ModelName, b.Options.Layers)
 	}
 
-	return dci
+	return []*DataCatalogItem{dci}
 }
 
 func multipleLODData(assets []*cms.PublicAsset, modelName string, layers []string) DataCatalogItemConfig {

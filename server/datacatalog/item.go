@@ -64,7 +64,7 @@ func (d ResponseAll) plateau() []DataCatalogItem {
 			return nil
 		}
 		m[c.CityCode] = c.Year
-		return i.DataCatalogItems(c)
+		return i.AllDataCatalogItems(c)
 	}), func(i DataCatalogItem, _ int) bool {
 		y, ok := m[i.CityCode]
 		return ok && y == i.Year
