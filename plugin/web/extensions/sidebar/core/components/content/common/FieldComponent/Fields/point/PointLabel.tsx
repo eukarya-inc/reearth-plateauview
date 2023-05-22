@@ -10,14 +10,24 @@ import { ChangeEvent, useCallback, useState, useEffect } from "react";
 
 import { BaseFieldProps, Fields } from "../types";
 
+const generateConditions = (propertyName: string) => {
+  const fieldValue = "${" + String(propertyName) + "}";
+  return [`true`, ` ${fieldValue} `];
+};
+
+const extractValue = (fieldValue: string) => {
+  if (fieldValue.startsWith("={") && fieldValue.endsWith("}")) {
+    return fieldValue.substring(2, fieldValue.length - 1);
+  } else if (fieldValue.startsWith("=${") && fieldValue.endsWith("}")) {
+    return fieldValue.substring(3, fieldValue.length - 1);
+  } else {
+    return fieldValue.substring(1);
+  }
+};
+
 const PointLabel: React.FC<BaseFieldProps<"pointLabel">> = ({ value, editMode, onUpdate }) => {
   const [pointLabel, setPointLabel] = useState(value);
   const [conditions, setConditions] = useState<string[]>();
-
-  const generateConditions = (propertyName: string) => {
-    const fieldValue = "${" + String(propertyName) + "}";
-    return [`true`, ` ${fieldValue} `];
-  };
 
   const updatePointLabelByProp = useCallback((prop: string, value: any) => {
     setPointLabel(pointLabel => {
@@ -32,16 +42,8 @@ const PointLabel: React.FC<BaseFieldProps<"pointLabel">> = ({ value, editMode, o
   const handleFieldChange = useCallback(
     (e: ChangeEvent<HTMLInputElement>) => {
       const fieldValue = e.target.value;
-
       if (fieldValue.startsWith("=")) {
-        let extractedValue = fieldValue;
-        if (fieldValue.startsWith("={") && fieldValue.endsWith("}")) {
-          extractedValue = fieldValue.substring(2, fieldValue.length - 1);
-        } else if (fieldValue.startsWith("=${") && fieldValue.endsWith("}")) {
-          extractedValue = fieldValue.substring(3, fieldValue.length - 1);
-        } else {
-          extractedValue = fieldValue.substring(1);
-        }
+        const extractedValue = extractValue(fieldValue);
         setConditions(generateConditions(extractedValue));
       } else setConditions(undefined);
       updatePointLabelByProp("field", fieldValue);
@@ -94,7 +96,6 @@ const PointLabel: React.FC<BaseFieldProps<"pointLabel">> = ({ value, editMode, o
   useEffect(() => {
     if (isEqual(value, pointLabel)) return;
     const timer = setTimeout(() => {
-      console.log("generateConditions:", conditions);
       onUpdate({
         ...pointLabel,
         override: {
