@@ -236,10 +236,10 @@ const ButtonWrapper = styled.div<{ selected?: boolean }>`
 const CheckWrapper = styled.div<{ isMobile?: boolean }>`
   display: flex;
   flex-direction: row;
-  align-items: ${({ isMobile }) => (!isMobile ? "center" : "flex-start")};
-  align-self: ${({ isMobile }) => (!isMobile ? "center" : "flex-end")};
+  align-items: ${({ isMobile }) => (isMobile ? "flex-start" : "center")};
+  align-self: ${({ isMobile }) => (isMobile ? "flex-end" : "center")};
   gap: 8px;
-  margin-top: ${({ isMobile }) => (!isMobile ? "50px" : "8px")};
+  margin-top: ${({ isMobile }) => (isMobile ? "8px" : "50px")};
 `;
 
 const VideoWrapper = styled.div`
