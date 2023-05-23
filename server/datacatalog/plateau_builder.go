@@ -57,7 +57,7 @@ type DataCatalogItemBuilderOption struct {
 	UseGroupNameAsName  bool
 	UseGroupNameAsLayer bool
 	GroupBy             func(AssetName) string
-	SortGroupBy         func(string, string, AssetName, AssetName) bool
+	SortGroupBy         func(AssetName, AssetName) bool
 	SortAssetBy         func(AssetName, AssetName) bool
 }
 
@@ -100,7 +100,7 @@ func (b DataCatalogItemBuilder) Build() []*DataCatalogItem {
 		// sort groups
 		sort.SliceStable(groups, func(i, j int) bool {
 			if b.Options.SortGroupBy != nil {
-				return b.Options.SortGroupBy(groups[i].Name, groups[j].Name, groups[i].Assets[0].Name, groups[j].Assets[0].Name)
+				return b.Options.SortGroupBy(groups[i].Assets[0].Name, groups[j].Assets[0].Name)
 			}
 
 			// sort by asset index

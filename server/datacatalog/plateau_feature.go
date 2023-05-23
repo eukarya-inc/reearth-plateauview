@@ -46,8 +46,8 @@ var FeatureOptions = map[string]DataCatalogItemBuilderOption{
 		GroupBy: func(an AssetName) string {
 			return an.WardEn
 		},
-		SortGroupBy: func(a, b string, c, d AssetName) bool {
-			return c.WardCodeInt() < d.WardCodeInt()
+		SortGroupBy: func(a, b AssetName) bool {
+			return a.WardCodeInt() < b.WardCodeInt()
 		},
 	},
 	"tran": {
@@ -82,7 +82,7 @@ var FeatureOptions = map[string]DataCatalogItemBuilderOption{
 		GroupBy: func(an AssetName) string {
 			return normalizeUrfFeatureType(an.UrfFeatureType)
 		},
-		SortGroupBy: func(_, _ string, c, d AssetName) bool {
+		SortGroupBy: func(c, d AssetName) bool {
 			i1 := slices.Index(urfFeatureTypes, normalizeUrfFeatureType(c.UrfFeatureType))
 			if i1 < 0 {
 				i1 = len(urfFeatureTypes)
