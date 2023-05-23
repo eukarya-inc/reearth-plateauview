@@ -199,6 +199,8 @@ const WelcomeCloseButton = styled(CloseButton)<{ isMobile?: boolean }>`
   position: absolute;
   right: 0;
   top: 0;
+  width: 40px;
+  height: 40px;
   ${({ isMobile }) =>
     isMobile &&
     `   background-color: #00bebe;
