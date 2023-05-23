@@ -128,7 +128,7 @@ const WarningWrapper = styled.div`
   align-items: flex-start;
   padding: 0px;
   gap: 6px;
-  width: 318px;
+  width: 100%;
   height: 66px;
   margin-top: 48px;
 `;
