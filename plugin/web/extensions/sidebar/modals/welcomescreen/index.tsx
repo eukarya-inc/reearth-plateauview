@@ -19,49 +19,66 @@ const WelcomeScreen: React.FC = () => {
   return (
     <Wrapper>
       {!showVideo ? (
-        <InnerWrapper isMobile={isMobile}>
-          <WelcomeCloseButton size={40} icon="close" onClick={handleClose} isMobile={isMobile} />
-          <TextWrapper isMobile={isMobile}>
-            <Title weight={700} size={isMobile ? 24 : 48}>
-              ようこそ
-            </Title>
-            <Text weight={500} size={isMobile ? 16 : 20}>
-              {isMobile ? "データがお好きですか？" : "マップを使ってみる"}
-            </Text>
-          </TextWrapper>
-          <ContentWrapper isMobile={isMobile}>
-            {!isMobile && (
-              <ImgWrapper
-                type="text"
-                href="https://www.mlit.go.jp/plateau/learning/?topic=plateau-view"
-                target="_blank"
-                imgUrl={welcomeScreenVideo}>
-                <Icon icon="playCircle" size={48} color="#fff" />
-              </ImgWrapper>
-            )}
-            <BtnsWrapper isMobile={isMobile}>
+        <>
+          {isMobile && (
+            <MobileCloseBtnWrapper onClick={handleClose}>
+              <Icon icon="close" size={48} />
+            </MobileCloseBtnWrapper>
+          )}
+
+          <InnerWrapper isMobile={isMobile}>
+            {!isMobile && <WelcomeCloseButton size={40} icon="close" onClick={handleClose} />}
+            <TextWrapper isMobile={isMobile}>
+              {isMobile && <Icon icon="mobileWS" size={48} color="#fff" />}
+              <Title weight={700} size={isMobile ? 24 : 48}>
+                ようこそ
+              </Title>
+              <Text weight={500} size={isMobile ? 16 : 20}>
+                {isMobile ? "データがお好きですか？" : "マップを使ってみる"}
+              </Text>
+              {isMobile && (
+                <WarningWrapper>
+                  <WarningText weight={700} size={14}>
+                    <InlineIcon icon="warningCircle" size={16} />
+                    スマホではデータサイズの問題から、テクスチャ付きのデータが正常に表示されない場合があります。ご了承ください。
+                  </WarningText>
+                </WarningWrapper>
+              )}
+            </TextWrapper>
+            <ContentWrapper isMobile={isMobile}>
               {!isMobile && (
-                <ButtonWrapper onClick={handleOpenHelp}>
+                <ImgWrapper
+                  type="text"
+                  href="https://www.mlit.go.jp/plateau/learning/?topic=plateau-view"
+                  target="_blank"
+                  imgUrl={welcomeScreenVideo}>
+                  <Icon icon="playCircle" size={143} color="#fff" />
+                </ImgWrapper>
+              )}
+              <BtnsWrapper isMobile={isMobile}>
+                {!isMobile && (
+                  <ButtonWrapper onClick={handleOpenHelp}>
+                    <Text weight={500} size={14}>
+                      ヘルプをみる
+                    </Text>
+                  </ButtonWrapper>
+                )}
+                <ButtonWrapper onClick={handleOpenCatalog}>
+                  <Icon size={20} icon="plusCircle" color="#fafafa" />
                   <Text weight={500} size={14}>
-                    ヘルプをみる
+                    カタログから検索する
                   </Text>
                 </ButtonWrapper>
-              )}
-              <ButtonWrapper onClick={handleOpenCatalog}>
-                <Icon size={20} icon="plusCircle" color="#fafafa" />
-                <Text weight={500} size={14}>
-                  カタログから検索する
-                </Text>
-              </ButtonWrapper>
-            </BtnsWrapper>
-          </ContentWrapper>
-          <CheckWrapper>
-            <Checkbox checked={dontShowAgain} onClick={handleDontShowAgain} />
-            <Text weight={700} size={14}>
-              閉じて今後は表示しない
-            </Text>
-          </CheckWrapper>
-        </InnerWrapper>
+              </BtnsWrapper>
+            </ContentWrapper>
+            <CheckWrapper isMobile={isMobile}>
+              <Checkbox checked={dontShowAgain} onClick={handleDontShowAgain} />
+              <Text weight={700} size={14}>
+                閉じて今後は表示しない
+              </Text>
+            </CheckWrapper>
+          </InnerWrapper>
+        </>
       ) : (
         <CloseBtnWrapper isMobile={isMobile}>
           <VideoCloseButton size={40} icon="close" onClick={handleCloseVideo} isMobile={isMobile} />
@@ -102,15 +119,41 @@ const Text = styled.p<{ weight: number; size: number }>`
 `;
 
 const Title = styled(Text)<{ isMobile?: boolean }>`
-  ${({ isMobile }) => !isMobile && `margin-bottom: 24px;`}
+  ${({ isMobile }) => (!isMobile ? `margin-bottom: 24px;` : `margin-bottom: 4px;`)}
 `;
 
+const WarningWrapper = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  padding: 0px;
+  gap: 6px;
+  isolation: isolate;
+  width: 318px;
+  height: 66px;
+  margin-top: 48px;
+`;
+const WarningText = styled(Text)`
+  line-height: 22px;
+`;
+const InlineIcon = styled(Icon)`
+  display: inline-block;
+`;
 const TextWrapper = styled.div<{ isMobile?: boolean }>`
   display: flex;
   flex-direction: column;
   align-items: ${({ isMobile }) => (isMobile ? "center" : "flex-start")};
   justify-content: flex-end;
   margin-bottom: ${({ isMobile }) => (isMobile ? "60px" : "24px")};
+  ${({ isMobile }) =>
+    isMobile &&
+    `
+      padding: 0;
+      gap: 21px;
+      width: 99.02px;
+      height: 142.06px;
+      text-align: left;
+    `}
 `;
 
 const ContentWrapper = styled.div<{ isMobile?: boolean }>`
@@ -157,9 +200,17 @@ const CloseButton = styled(Icon)<{ isMobile?: boolean }>`
 
 const WelcomeCloseButton = styled(CloseButton)`
   position: absolute;
-  right: ${({ isMobile }) => (isMobile ? "-48px" : "-40px")};
-  top: ${({ isMobile }) => (isMobile ? "-48px" : "-40px")};
+  right: -40px;
+  top: -40px;
   flex-grow: 1;
+`;
+const MobileCloseBtnWrapper = styled.div`
+  position: absolute;
+  right: 0;
+  top: 0;
+  background-color: #00bebe;
+  color: white;
+  border: none;
 `;
 
 const VideoCloseButton = styled(CloseButton)`
@@ -185,11 +236,11 @@ const ButtonWrapper = styled.div<{ selected?: boolean }>`
   }
 `;
 
-const CheckWrapper = styled.div`
+const CheckWrapper = styled.div<{ isMobile?: boolean }>`
   display: flex;
   flex-direction: row;
-  align-items: center;
-  align-self: center;
+  align-items: ${({ isMobile }) => (!isMobile ? "center" : "flex-start")};
+  align-self: ${({ isMobile }) => (!isMobile ? "center" : "flex-end")};
   gap: 8px;
   margin-top: 50px;
 `;
