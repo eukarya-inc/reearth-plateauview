@@ -44,8 +44,7 @@ type DataCatalogItemBuilder struct {
 
 type DataCatalogItemBuilderOption struct {
 	ModelName           string
-	NameOverride        string
-	NameOverrideBy      func(AssetName) (string, string, string)
+	Name                func(AssetName) (string, string, string)
 	SubName             func(AssetName, Dic) string
 	ItemName            func(AssetName, Dic, int, int) string
 	MultipleDesc        bool
@@ -131,11 +130,8 @@ func (b DataCatalogItemBuilder) Build() []*DataCatalogItem {
 	for i, g := range groups {
 		itemID := b.Options.ItemID && i == 0
 
-		// desc and name override
+		// name and description
 		name, desc := "", ""
-		if b.Options.NameOverride != "" {
-			name = b.Options.NameOverride
-		}
 		if b.Options.MultipleDesc {
 			an, ad := descFromAsset(g.Assets[0].URL, b.Descriptions)
 			if an != "" && name == "" {
@@ -169,81 +165,71 @@ func (b DataCatalogItemBuilder) Build() []*DataCatalogItem {
 			}
 		}
 
-		dci := b.IntermediateItem.dataCatalogItem(
-			b.Options.ModelName,
+		// config
+		var data []DataCatalogItemConfigItem
+		mn := b.Options.ModelName
+		if name != "" {
+			mn = name
+		} else if b.Options.UseGroupNameAsName && g.Name != "" {
+			mn = g.Name
+		}
+
+		itemName := b.Options.ItemName
+		if itemName == nil && b.Options.LOD {
+			itemName = func(n AssetName, _ Dic, i, len int) string {
+				if n.LOD == "" {
+					if len == 1 {
+						return mn
+					}
+					return fmt.Sprintf("%s%d", mn, i+1)
+				}
+				return fmt.Sprintf("LOD%s", n.LOD)
+			}
+		}
+
+		itemLayers := b.Options.ItemLayers
+		if itemLayers == nil && b.Options.LOD {
+			itemLayers = func(n AssetName) []string {
+				if b.Options.UseGroupNameAsLayer {
+					return []string{g.Name}
+				}
+				if b.Options.LayersForLOD == nil {
+					return b.Options.Layers
+				}
+				return b.Options.LayersForLOD[n.LOD]
+			}
+		}
+
+		if itemName != nil {
+			data = lo.Map(g.Assets, func(a asset, i int) DataCatalogItemConfigItem {
+				name := itemName(a.Name, b.IntermediateItem.Dic, i, len(g.Assets))
+				if name == "" {
+					name = mn
+				}
+
+				var layers []string
+				if itemLayers != nil && isLayerSupported(a.Name.Format) {
+					layers = itemLayers(a.Name)
+				}
+
+				return DataCatalogItemConfigItem{
+					Name:   name,
+					URL:    assetURLFromFormat(a.URL, a.Name.Format),
+					Type:   a.Name.Format,
+					Layers: layers,
+				}
+			})
+		}
+
+		dci := b.dataCatalogItem(
 			defaultAsset.Name,
 			defaultAsset.URL,
 			desc,
 			mainDefaultLayers,
 			itemID,
 			name,
-			b.Options.NameOverrideBy,
-			b.Options.SubName,
+			data,
 		)
-
-		// config
-		var data []DataCatalogItemConfigItem
-		if dci != nil {
-			mn := b.Options.ModelName
-			if name != "" {
-				mn = name
-			} else if b.Options.UseGroupNameAsName && g.Name != "" {
-				mn = g.Name
-			}
-
-			itemName := b.Options.ItemName
-			if itemName == nil && b.Options.LOD {
-				itemName = func(n AssetName, _ Dic, i, len int) string {
-					if n.LOD == "" {
-						if len == 1 {
-							return mn
-						}
-						return fmt.Sprintf("%s%d", mn, i+1)
-					}
-					return fmt.Sprintf("LOD%s", n.LOD)
-				}
-			}
-
-			itemLayers := b.Options.ItemLayers
-			if itemLayers == nil && b.Options.LOD {
-				itemLayers = func(n AssetName) []string {
-					if b.Options.UseGroupNameAsLayer {
-						return []string{g.Name}
-					}
-					if b.Options.LayersForLOD == nil {
-						return b.Options.Layers
-					}
-					return b.Options.LayersForLOD[n.LOD]
-				}
-			}
-
-			if itemName != nil {
-				data = lo.Map(g.Assets, func(a asset, i int) DataCatalogItemConfigItem {
-					name := itemName(a.Name, b.IntermediateItem.Dic, i, len(g.Assets))
-					if name == "" {
-						name = mn
-					}
-
-					var layers []string
-					if itemLayers != nil && isLayerSupported(a.Name.Format) {
-						layers = itemLayers(a.Name)
-					}
-
-					return DataCatalogItemConfigItem{
-						Name:   name,
-						URL:    assetURLFromFormat(a.URL, a.Name.Format),
-						Type:   a.Name.Format,
-						Layers: layers,
-					}
-				})
-			}
-		}
-
-		if len(data) > 0 {
-			dci.Config = DataCatalogItemConfig{
-				Data: data,
-			}
-		}
 
 		results = append(results, dci)
 	}
@@ -291,22 +277,24 @@ func (i PlateauItem) IntermediateItem() PlateauIntermediateItem {
 	}
 }
 
-func (i *PlateauIntermediateItem) dataCatalogItem(t string, an AssetName, assetURL, desc string, layers []string, addItemID bool, nameOverride string, nameOverrideBy func(AssetName) (string, string, string), subname func(AssetName, Dic) string) *DataCatalogItem {
-	if i == nil {
+func (b *DataCatalogItemBuilder) dataCatalogItem(an AssetName, assetURL, desc string, layers []string, addItemID bool, nameOverride string, items []DataCatalogItemConfigItem) *DataCatalogItem {
+	if b == nil {
 		return nil
 	}
 
-	id := i.id(an)
+	dic := b.IntermediateItem.Dic
+
+	id := b.IntermediateItem.id(an)
 	if id == "" {
 		return nil
 	}
 
-	wardName := i.Dic.WardName(an.WardCode)
+	wardName := dic.WardName(an.WardCode)
 	if wardName == "" && an.WardCode != "" {
 		wardName = an.WardEn
 	}
 
-	cityOrWardName := i.City
+	cityOrWardName := b.IntermediateItem.City
 	if wardName != "" {
 		cityOrWardName = wardName
 	}
@@ -314,59 +302,67 @@ func (i *PlateauIntermediateItem) dataCatalogItem(t string, an AssetName, assetU
 	// name
 	name := ""
 	t2, t2en := "", ""
-	if name == "" && nameOverrideBy != nil {
-		name, t2, t2en = nameOverrideBy(an)
+	if name == "" && b.Options.Name != nil {
+		name, t2, t2en = b.Options.Name(an)
 	}
 	if name == "" {
 		name = nameOverride
 	}
 	if name == "" {
-		name = t
+		name = b.Options.ModelName
 	}
 
 	// sub name
 	name2 := ""
-	if subname != nil {
-		name2 = subname(an, i.Dic)
+	if b.Options.SubName != nil {
+		name2 = b.Options.SubName(an, dic)
 		if name2 != "" {
 			name2 = " " + name2
 		}
 	}
 
-	prefCode := jpareacode.PrefectureCodeInt(i.Prefecture)
+	prefCode := jpareacode.PrefectureCodeInt(b.IntermediateItem.Prefecture)
 
 	var itemID string
 	if addItemID {
-		itemID = i.ID
+		itemID = b.IntermediateItem.ID
 	}
 
-	opd := i.OpenDataURL
+	opd := b.IntermediateItem.OpenDataURL
 	if opd == "" {
 		opd = openDataURLFromAssetName(an)
+	}
+
+	var config any
+	if len(items) > 0 {
+		config = DataCatalogItemConfig{
+			Data: items,
+		}
 	}
 
 	return &DataCatalogItem{
 		ID:          id,
 		ItemID:      itemID,
-		Type:        t,
+		Type:        b.Options.ModelName,
 		TypeEn:      an.Feature,
 		Type2:       t2,
 		Type2En:     t2en,
 		Name:        fmt.Sprintf("%s%s（%s）", name, name2, cityOrWardName),
-		Pref:        i.Prefecture,
+		Pref:        b.IntermediateItem.Prefecture,
 		PrefCode:    jpareacode.FormatPrefectureCode(prefCode),
-		City:        i.City,
-		CityEn:      i.CityEn,
-		CityCode:    cityCode(i.CityCode, i.City, prefCode),
+		City:        b.IntermediateItem.City,
+		CityEn:      b.IntermediateItem.CityEn,
+		CityCode:    cityCode(b.IntermediateItem.CityCode, b.IntermediateItem.City, prefCode),
 		Ward:        wardName,
 		WardEn:      an.WardEn,
 		WardCode:    cityCode(an.WardCode, wardName, prefCode),
 		Description: desc,
 		URL:         assetURLFromFormat(assetURL, an.Format),
 		Format:      an.Format,
-		Year:        i.Year,
+		Year:        b.IntermediateItem.Year,
 		Layers:      layers,
 		OpenDataURL: opd,
+		Config:      config,
 	}
 }
 

@@ -93,7 +93,7 @@ var FeatureOptions = map[string]DataCatalogItemBuilderOption{
 			}
 			return i1 < i2
 		},
-		NameOverrideBy: func(an AssetName) (string, string, string) {
+		Name: func(an AssetName) (string, string, string) {
 			ft := normalizeUrfFeatureType(an.UrfFeatureType)
 			if urfName := urfFeatureTypeMap[ft]; urfName != "" {
 				return fmt.Sprintf("%sモデル", urfName), urfName, ft
@@ -186,7 +186,7 @@ var FeatureOptions = map[string]DataCatalogItemBuilderOption{
 }
 
 func normalizeUrfFeatureType(ft string) string {
-	if ft == "Waterway" {
+	if ft == "WaterWay" {
 		return "Waterway"
 	}
 	return ft
