@@ -73,6 +73,7 @@ func TestPlateauIntermediateItem_DataCatalogItem(t *testing.T) {
 			[]string{"luse"},
 			false,
 			"",
+			nil,
 		),
 	)
 
@@ -127,6 +128,7 @@ func TestPlateauIntermediateItem_DataCatalogItem(t *testing.T) {
 			nil,
 			false,
 			"",
+			nil,
 		),
 	)
 
@@ -184,6 +186,7 @@ func TestPlateauIntermediateItem_DataCatalogItem(t *testing.T) {
 			nil,
 			true,
 			"",
+			nil,
 		),
 	)
 
@@ -232,6 +235,7 @@ func TestPlateauIntermediateItem_DataCatalogItem(t *testing.T) {
 			[]string{"UrbanPlanningArea"},
 			false,
 			"",
+			nil,
 		),
 	)
 
@@ -280,6 +284,7 @@ func TestPlateauIntermediateItem_DataCatalogItem(t *testing.T) {
 			[]string{"UrbanPlanningArea"},
 			false,
 			"NAME",
+			nil,
 		),
 	)
 }
@@ -296,10 +301,8 @@ func TestMultipleLODData(t *testing.T) {
 			},
 		},
 	}, multipleLODData(
-		[]*cms.PublicAsset{
-			{
-				URL: "https://example.com/01100_sapporo-shi_2020_mvt_op.zip",
-			},
+		[]string{
+			"https://example.com/01100_sapporo-shi_2020_mvt_op.zip",
 		},
 		"xxxモデル",
 		map[string][]string{"": {"layer"}},
@@ -322,16 +325,12 @@ func TestMultipleLODData(t *testing.T) {
 			},
 		},
 	}, multipleLODData(
-		[]*cms.PublicAsset{
-			{
-				URL: "https://example.com/01100_sapporo-shi_2020_mvt_op.zip",
-			},
-			{
-				URL: "https://example.com/01100_sapporo-shi_2020_3dtiles_op.zip",
-			},
+		[]string{
+			"https://example.com/01100_sapporo-shi_2020_mvt_op.zip",
+			"https://example.com/01100_sapporo-shi_2020_3dtiles_op.zip",
 		},
 		"xxxモデル",
-		map[string][]string{"": []string{"layer"}},
+		map[string][]string{"": {"layer"}},
 	))
 
 	// case3: multiple asset with LOD
@@ -351,13 +350,9 @@ func TestMultipleLODData(t *testing.T) {
 			},
 		},
 	}, multipleLODData(
-		[]*cms.PublicAsset{
-			{
-				URL: "https://example.com/01100_sapporo-shi_2020_mvt_op_tran_lod1.zip",
-			},
-			{
-				URL: "https://example.com/01100_sapporo-shi_2020_3dtiles_op_tran_lod2.zip",
-			},
+		[]string{
+			"https://example.com/01100_sapporo-shi_2020_mvt_op_tran_lod1.zip",
+			"https://example.com/01100_sapporo-shi_2020_3dtiles_op_tran_lod2.zip",
 		},
 		"xxxモデル",
 		map[string][]string{"": {"layer"}, "1": {"layer1"}},

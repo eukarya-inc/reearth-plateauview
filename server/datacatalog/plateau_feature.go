@@ -1,5 +1,11 @@
 package datacatalog
 
+import (
+	"fmt"
+
+	"golang.org/x/exp/slices"
+)
+
 var FeatureTypes = []string{
 	"bldg",
 	"tran",
@@ -20,10 +26,6 @@ var FeatureTypes = []string{
 func (i PlateauItem) DataCatalogItems(c PlateauIntermediateItem, ty string) []*DataCatalogItem {
 	// worksround
 	switch ty {
-	case "bldg":
-		return i.BldgItems(c)
-	case "urf":
-		return i.UrfItems(c)
 	case "fld":
 		return i.FldItems(c)
 	case "htd":
@@ -32,8 +34,6 @@ func (i PlateauItem) DataCatalogItems(c PlateauIntermediateItem, ty string) []*D
 		return i.IfldItems(c)
 	case "tnm":
 		return i.TnmItems(c)
-	case "gen":
-		return i.GenItems(c)
 	}
 
 	o, ok := FeatureOptions[ty]
@@ -50,6 +50,18 @@ func (i PlateauItem) DataCatalogItems(c PlateauIntermediateItem, ty string) []*D
 }
 
 var FeatureOptions = map[string]DataCatalogItemBuilderOption{
+	"bldg": {
+		ModelName:          "建築物モデル",
+		LOD:                true,
+		UseMaxLODAsDefault: true,
+		ItemID:             true,
+		GroupBy: func(an AssetName) string {
+			return an.WardEn
+		},
+		SortGroupBy: func(a, b string, c, d AssetName) bool {
+			return c.WardCodeInt() < d.WardCodeInt() || c.LODInt() < d.LODInt()
+		},
+	},
 	"tran": {
 		ModelName: "道路モデル",
 		LOD:       true,
@@ -75,6 +87,31 @@ var FeatureOptions = map[string]DataCatalogItemBuilderOption{
 		ModelName: "土砂災害警戒区域モデル",
 		Layers:    []string{"lsld"},
 	},
+	"urf": {
+		ModelName:           "都市計画決定情報モデル",
+		UseGroupNameAsLayer: true,
+		MultipleDesc:        true,
+		NameOverrideBy: func(an AssetName) (string, string, string) {
+			if urfName := urfFeatureTypeMap[an.UrfFeatureType]; urfName != "" {
+				return fmt.Sprintf("%sモデル", urfName), urfName, an.UrfFeatureType
+			}
+			return an.UrfFeatureType, an.UrfFeatureType, an.UrfFeatureType
+		},
+		GroupBy: func(an AssetName) string {
+			return an.UrfFeatureType
+		},
+		SortGroupBy: func(_, _ string, c, d AssetName) bool {
+			i1 := slices.Index(urfFeatureTypes, c.UrfFeatureType)
+			if i1 < 0 {
+				i1 = len(urfFeatureTypes)
+			}
+			i2 := slices.Index(urfFeatureTypes, d.UrfFeatureType)
+			if i2 < 0 {
+				i2 = len(urfFeatureTypes)
+			}
+			return i1 < i2
+		},
+	},
 	"brid": {
 		ModelName: "橋梁モデル",
 		LOD:       true,
@@ -84,5 +121,15 @@ var FeatureOptions = map[string]DataCatalogItemBuilderOption{
 		ModelName: "鉄道モデル",
 		LOD:       true,
 		Layers:    []string{"rail"},
+	},
+	"gen": {
+		ModelName:           "汎用都市オブジェクトモデル",
+		MultipleDesc:        true,
+		LOD:                 true,
+		UseGroupNameAsName:  true,
+		UseGroupNameAsLayer: true,
+		GroupBy: func(n AssetName) string {
+			return n.GenName
+		},
 	},
 }

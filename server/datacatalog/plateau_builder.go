@@ -21,12 +21,17 @@ import (
 
 //go:embed urf.csv
 var urfFeatureTypesData []byte
-var urfFeatureTypes map[string]string
+var urfFeatureTypeMap map[string]string
+var urfFeatureTypes []string
 
 func init() {
 	r := csv.NewReader(bom.NewReader(bytes.NewReader(urfFeatureTypesData)))
 	d := lo.Must(r.ReadAll())
-	urfFeatureTypes = lo.SliceToMap(d[1:], func(c []string) (string, string) {
+	urfFeatureTypes = make([]string, 0, len(d)-1)
+	for _, c := range d[1:] {
+		urfFeatureTypes = append(urfFeatureTypes, c[0])
+	}
+	urfFeatureTypeMap = lo.SliceToMap(d[1:], func(c []string) (string, string) {
 		return c[0], c[1]
 	})
 }
@@ -39,13 +44,19 @@ type DataCatalogItemBuilder struct {
 }
 
 type DataCatalogItemBuilderOption struct {
-	ModelName          string
-	NameOverride       string
-	FirstWard          bool
-	LOD                bool
-	Layers             []string
-	LayersForLOD       map[string][]string
-	UseMaxLODAsDefault bool
+	ModelName           string
+	NameOverride        string
+	NameOverrideBy      func(AssetName) (string, string, string)
+	MultipleDesc        bool
+	ItemID              bool
+	LOD                 bool
+	Layers              []string
+	LayersForLOD        map[string][]string
+	UseMaxLODAsDefault  bool
+	UseGroupNameAsName  bool
+	UseGroupNameAsLayer bool
+	GroupBy             func(AssetName) string
+	SortGroupBy         func(string, string, AssetName, AssetName) bool
 }
 
 func (b DataCatalogItemBuilder) Build() []*DataCatalogItem {
@@ -53,43 +64,127 @@ func (b DataCatalogItemBuilder) Build() []*DataCatalogItem {
 		return nil
 	}
 
-	assets := lo.Map(b.Assets, func(a *cms.PublicAsset, _ int) AssetName {
-		return AssetNameFrom(a.URL)
+	type asset struct {
+		Index int
+		URL   string
+		Name  AssetName
+	}
+
+	type assetGroup struct {
+		Name   string
+		Assets []asset
+	}
+
+	assets := lo.Map(b.Assets, func(a *cms.PublicAsset, i int) asset {
+		return asset{
+			Index: i,
+			URL:   a.URL,
+			Name:  AssetNameFrom(a.URL),
+		}
 	})
 
-	desc := ""
-	if len(b.Descriptions) > 0 {
-		desc = b.Descriptions[0]
-	}
-
-	// default layers
-	layersForLOD := b.Options.LayersForLOD
-	defaultLayers := b.Options.Layers
-	if layersForLOD == nil {
-		layersForLOD = map[string][]string{"": defaultLayers}
-	}
-
-	// default asset and its URL
-	defaultAsset := assets[0]
-	defaultAssetURL := b.Assets[0].URL
-	if b.Options.UseMaxLODAsDefault {
-		maxLOD := lo.MaxBy(assets, func(a, b AssetName) bool {
-			return a.LODInt() > b.LODInt()
+	// create groups
+	var groups []assetGroup
+	if b.Options.GroupBy != nil {
+		groups = lo.MapToSlice(lo.GroupBy(assets, func(a asset) string {
+			return b.Options.GroupBy(a.Name)
+		}), func(k string, a []asset) assetGroup {
+			return assetGroup{
+				Name:   k,
+				Assets: a,
+			}
 		})
-		if an, i, ok := lo.FindIndexOf(assets, func(a AssetName) bool {
-			return a.LOD == maxLOD.LOD
-		}); ok {
-			defaultAsset = an
-			defaultAssetURL = b.Assets[i].URL
+
+		// sort groups
+		sort.SliceStable(groups, func(i, j int) bool {
+			if b.Options.SortGroupBy != nil {
+				return b.Options.SortGroupBy(groups[i].Name, groups[j].Name, groups[i].Assets[0].Name, groups[j].Assets[0].Name)
+			}
+
+			// sort by asset index
+			return groups[i].Assets[0].Index < groups[j].Assets[0].Index
+		})
+	} else {
+		groups = []assetGroup{{Assets: assets}}
+	}
+
+	results := make([]*DataCatalogItem, 0, len(groups))
+
+	for i, g := range groups {
+		itemID := b.Options.ItemID && i == 0
+
+		// desc and name override
+		name, desc := "", ""
+		if b.Options.NameOverride != "" {
+			name = b.Options.NameOverride
 		}
+		if b.Options.MultipleDesc {
+			an, ad := descFromAsset(g.Assets[0].URL, b.Descriptions)
+			if an != "" && name == "" {
+				name = an
+			}
+			if name == "" && b.Options.UseGroupNameAsName {
+				name = g.Name
+			}
+			if ad != "" {
+				desc = ad
+			}
+		} else if len(b.Descriptions) > 0 {
+			desc = b.Descriptions[0]
+		}
+
+		// default asset and its URL
+		defaultAsset := g.Assets[0]
+		if b.Options.UseMaxLODAsDefault {
+			defaultAsset = lo.MaxBy(g.Assets, func(a, b asset) bool {
+				return a.Name.LODInt() > b.Name.LODInt()
+			})
+		}
+
+		// default layers
+		layersForLOD := b.Options.LayersForLOD
+		defaultLayers := b.Options.Layers
+		if b.Options.UseGroupNameAsLayer {
+			defaultLayers = []string{g.Name}
+		}
+		if b.Options.UseGroupNameAsLayer || layersForLOD == nil {
+			layersForLOD = map[string][]string{"": defaultLayers}
+		}
+
+		var mainDefaultLayers []string
+		if isLayerSupported(defaultAsset.Name.Format) {
+			mainDefaultLayers = defaultLayers
+		}
+
+		dci := b.IntermediateItem.DataCatalogItem(
+			b.Options.ModelName,
+			defaultAsset.Name,
+			defaultAsset.URL,
+			desc,
+			mainDefaultLayers,
+			itemID,
+			name,
+			b.Options.NameOverrideBy,
+		)
+		if dci != nil && b.Options.LOD {
+			assetURLs := lo.Map(g.Assets, func(a asset, _ int) string {
+				return a.URL
+			})
+
+			mn := b.Options.ModelName
+			if name != "" {
+				mn = name
+			} else if b.Options.UseGroupNameAsName && g.Name != "" {
+				mn = g.Name
+			}
+
+			dci.Config = multipleLODData(assetURLs, mn, layersForLOD)
+		}
+
+		results = append(results, dci)
 	}
 
-	dci := b.IntermediateItem.DataCatalogItem(b.Options.ModelName, defaultAsset, defaultAssetURL, desc, defaultLayers, b.Options.FirstWard, b.Options.NameOverride)
-	if dci != nil && b.Options.LOD {
-		dci.Config = multipleLODData(b.Assets, b.Options.ModelName, layersForLOD)
-	}
-
-	return []*DataCatalogItem{dci}
+	return results
 }
 
 type PlateauIntermediateItem struct {
@@ -132,7 +227,7 @@ func (i PlateauItem) IntermediateItem() PlateauIntermediateItem {
 	}
 }
 
-func (i *PlateauIntermediateItem) DataCatalogItem(t string, an AssetName, assetURL, desc string, layers []string, firstWard bool, nameOverride string) *DataCatalogItem {
+func (i *PlateauIntermediateItem) DataCatalogItem(t string, an AssetName, assetURL, desc string, layers []string, addItemID bool, nameOverride string, nameOverrideBy func(AssetName) (string, string, string)) *DataCatalogItem {
 	if i == nil {
 		return nil
 	}
@@ -152,11 +247,23 @@ func (i *PlateauIntermediateItem) DataCatalogItem(t string, an AssetName, assetU
 		cityOrWardName = wardName
 	}
 
-	name, t2, t2en := itemName(t, cityOrWardName, nameOverride, an)
-	pref, prefCode := normalizePref(i.Prefecture)
+	// name
+	name := ""
+	t2, t2en := "", ""
+	if name == "" && nameOverrideBy != nil {
+		name, t2, t2en = nameOverrideBy(an)
+	}
+	if name == "" {
+		name = nameOverride
+	}
+	if name == "" {
+		name = t
+	}
+
+	prefCode := jpareacode.PrefectureCodeInt(i.Prefecture)
 
 	var itemID string
-	if an.Feature == "bldg" && (an.WardCode == "" || firstWard) {
+	if addItemID {
 		itemID = i.ID
 	}
 
@@ -172,8 +279,8 @@ func (i *PlateauIntermediateItem) DataCatalogItem(t string, an AssetName, assetU
 		TypeEn:      an.Feature,
 		Type2:       t2,
 		Type2En:     t2en,
-		Name:        name,
-		Pref:        pref,
+		Name:        fmt.Sprintf("%s（%s）", name, cityOrWardName),
+		Pref:        i.Prefecture,
 		PrefCode:    jpareacode.FormatPrefectureCode(prefCode),
 		City:        i.City,
 		CityEn:      i.CityEn,
@@ -203,33 +310,6 @@ func (i *PlateauIntermediateItem) id(an AssetName) string {
 	}, func(s string, _ int) bool { return s != "" }), "_")
 }
 
-func itemName(t, cityOrWardName, nameOverride string, an AssetName) (name, t2, t2en string) {
-	if an.Feature == "urf" {
-		t2 = an.UrfFeatureType
-		t2en = an.UrfFeatureType
-
-		if urfName := urfFeatureTypes[an.UrfFeatureType]; urfName != "" {
-			t2 = urfName
-			if nameOverride == "" {
-				name = fmt.Sprintf("%sモデル", urfName)
-			}
-		} else {
-			name = an.UrfFeatureType
-		}
-	}
-
-	if name == "" {
-		if nameOverride != "" {
-			name = nameOverride
-		} else {
-			name = t
-		}
-	}
-
-	name += fmt.Sprintf("（%s）", cityOrWardName)
-	return
-}
-
 func assetsByWards(a []*cms.PublicAsset) map[string][]*cms.PublicAsset {
 	if len(a) == 0 {
 		return nil
@@ -254,12 +334,12 @@ func assetsByWards(a []*cms.PublicAsset) map[string][]*cms.PublicAsset {
 
 var reName = regexp.MustCompile(`^@name:\s*(.+)(?:$|\n)`)
 
-func descFromAsset(a *cms.PublicAsset, descs []string) (string, string) {
-	if a == nil || len(descs) == 0 {
+func descFromAsset(assetURL string, descs []string) (string, string) {
+	if assetURL == "" || len(descs) == 0 {
 		return "", ""
 	}
 
-	fn := strings.TrimSuffix(path.Base(a.URL), path.Ext(a.URL))
+	fn := strings.TrimSuffix(path.Base(assetURL), path.Ext(assetURL))
 	for _, desc := range descs {
 		b, a, ok := strings.Cut(desc, "\n")
 		if ok && strings.Contains(b, fn) {
@@ -335,9 +415,9 @@ type DataCatalogItemConfigItem struct {
 	Layers []string `json:"layer,omitempty"`
 }
 
-func multipleLODData(assets []*cms.PublicAsset, modelName string, layers map[string][]string) DataCatalogItemConfig {
-	data := lo.Map(assets, func(a *cms.PublicAsset, j int) DataCatalogItemConfigItem {
-		an := AssetNameFrom(a.URL)
+func multipleLODData(assets []string, modelName string, layers map[string][]string) DataCatalogItemConfig {
+	data := lo.Map(assets, func(a string, j int) DataCatalogItemConfigItem {
+		an := AssetNameFrom(a)
 		name := ""
 		if an.LOD != "" {
 			name = fmt.Sprintf("LOD%s", an.LOD)
@@ -348,7 +428,7 @@ func multipleLODData(assets []*cms.PublicAsset, modelName string, layers map[str
 		}
 
 		var l []string
-		if layers != nil {
+		if layers != nil && isLayerSupported(an.Format) {
 			l = slices.Clone(layers[an.LOD])
 			if l == nil {
 				l = slices.Clone(layers[""])
@@ -357,7 +437,7 @@ func multipleLODData(assets []*cms.PublicAsset, modelName string, layers map[str
 
 		return DataCatalogItemConfigItem{
 			Name:   name,
-			URL:    assetURLFromFormat(a.URL, an.Format),
+			URL:    assetURLFromFormat(a, an.Format),
 			Type:   an.Format,
 			Layers: l,
 		}

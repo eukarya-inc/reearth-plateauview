@@ -36,8 +36,13 @@ type AssetName struct {
 }
 
 func (an AssetName) LODInt() int {
-	lod, _ := strconv.Atoi(an.LOD)
-	return lod
+	i, _ := strconv.Atoi(an.LOD)
+	return i
+}
+
+func (an AssetName) WardCodeInt() int {
+	i, _ := strconv.Atoi(an.WardCode)
+	return i
 }
 
 func (an AssetName) FldNameAndCategory() string {

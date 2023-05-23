@@ -114,19 +114,6 @@ func (i PlateauItem) FeatureDescription(ty string) []string {
 	return nil
 }
 
-func (i PlateauItem) UrfItems(c PlateauIntermediateItem) []*DataCatalogItem {
-	if len(i.Urf) == 0 {
-		return nil
-	}
-
-	return lo.Map(i.Urf, func(a *cms.PublicAsset, _ int) *DataCatalogItem {
-		an := AssetNameFrom(a.URL)
-
-		name, desc := descFromAsset(a, i.DescriptionUrf)
-		return c.DataCatalogItem("都市計画決定情報モデル", an, a.URL, desc, urfLayers(an.UrfFeatureType), false, name)
-	})
-}
-
 func (i PlateauItem) HtdItems(c PlateauIntermediateItem) []*DataCatalogItem {
 	if len(i.Htd) == 0 {
 		return nil
@@ -135,8 +122,8 @@ func (i PlateauItem) HtdItems(c PlateauIntermediateItem) []*DataCatalogItem {
 	return lo.Map(i.Htd, func(a *cms.PublicAsset, _ int) *DataCatalogItem {
 		an := AssetNameFrom(a.URL)
 
-		_, desc := descFromAsset(a, i.DescriptionHtd)
-		dci := c.DataCatalogItem("高潮浸水想定区域モデル", an, a.URL, desc, nil, false, "")
+		_, desc := descFromAsset(a.URL, i.DescriptionHtd)
+		dci := c.DataCatalogItem("高潮浸水想定区域モデル", an, a.URL, desc, nil, false, "", nil)
 
 		if dci != nil {
 			dci.Name = htdTnmIfldName("高潮浸水想定区域モデル", i.CityName, an.FldName, c.Dic.Htd(an.FldName))
@@ -153,8 +140,8 @@ func (i PlateauItem) IfldItems(c PlateauIntermediateItem) []*DataCatalogItem {
 	return lo.Map(i.Ifld, func(a *cms.PublicAsset, _ int) *DataCatalogItem {
 		an := AssetNameFrom(a.URL)
 
-		_, desc := descFromAsset(a, i.DescriptionIfld)
-		dci := c.DataCatalogItem("内水浸水想定区域モデル", an, a.URL, desc, nil, false, "")
+		_, desc := descFromAsset(a.URL, i.DescriptionIfld)
+		dci := c.DataCatalogItem("内水浸水想定区域モデル", an, a.URL, desc, nil, false, "", nil)
 
 		if dci != nil {
 			dci.Name = htdTnmIfldName("内水浸水想定区域モデル", i.CityName, an.FldName, c.Dic.Ifld(an.FldName))
@@ -171,8 +158,8 @@ func (i PlateauItem) TnmItems(c PlateauIntermediateItem) []*DataCatalogItem {
 	return lo.Map(i.Tnm, func(a *cms.PublicAsset, _ int) *DataCatalogItem {
 		an := AssetNameFrom(a.URL)
 
-		_, desc := descFromAsset(a, i.DescriptionTnm)
-		dci := c.DataCatalogItem("津波浸水想定区域モデル", an, a.URL, desc, nil, false, "")
+		_, desc := descFromAsset(a.URL, i.DescriptionTnm)
+		dci := c.DataCatalogItem("津波浸水想定区域モデル", an, a.URL, desc, nil, false, "", nil)
 
 		if dci != nil {
 			dci.Name = htdTnmIfldName("津波浸水想定区域モデル", i.CityName, an.FldName, c.Dic.Tnm(an.FldName))

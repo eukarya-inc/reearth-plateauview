@@ -277,3 +277,8 @@ func TestAssetName_LODInt(t *testing.T) {
 	assert.Equal(t, 0, AssetName{}.LODInt())
 	assert.Equal(t, 1, AssetName{LOD: "1"}.LODInt())
 }
+
+func TestAssetName_WardCodeInt(t *testing.T) {
+	assert.Equal(t, 0, AssetName{}.WardCodeInt())
+	assert.Equal(t, 10000, AssetName{WardCode: "10000"}.WardCodeInt())
+}

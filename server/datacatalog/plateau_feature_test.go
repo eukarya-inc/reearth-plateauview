@@ -515,6 +515,9 @@ func TestUrf(t *testing.T) {
 			{
 				URL: "https://example.com/01100_sapporo-shi_2020_mvt_op_urf_DistrictsAndZones.zip",
 			},
+			{
+				URL: "https://example.com/01100_sapporo-shi_2020_mvt_op_urf_XXX.zip",
+			},
 		},
 	}
 
@@ -574,6 +577,24 @@ func TestUrf(t *testing.T) {
 			Year:        2020,
 			Format:      "mvt",
 			Layers:      []string{"DistrictsAndZones"},
+		},
+		{
+			ID:          "01100_sapporo-shi_urf_XXX",
+			Name:        "XXX（札幌市）",
+			Pref:        "北海道",
+			PrefCode:    "01",
+			City:        "札幌市",
+			CityEn:      "sapporo-shi",
+			CityCode:    "01100",
+			Type:        "都市計画決定情報モデル",
+			TypeEn:      "urf",
+			Type2:       "XXX",
+			Type2En:     "XXX",
+			URL:         "https://example.com/01100_sapporo-shi_2020_mvt_op_urf_XXX/{z}/{x}/{y}.mvt",
+			OpenDataURL: "https://example.com",
+			Year:        2020,
+			Format:      "mvt",
+			Layers:      []string{"XXX"},
 		},
 	}, i.DataCatalogItems(i.IntermediateItem(), "urf"))
 }
@@ -1038,10 +1059,9 @@ func TestBrid(t *testing.T) {
 						Layers: []string{"brid"},
 					},
 					{
-						Name:   "LOD3",
-						URL:    "https://example.com/01100_sapporo-shi_2020_3dtiles_4_op_brid_lod3/tileset.json",
-						Type:   "3dtiles",
-						Layers: []string{"brid"},
+						Name: "LOD3",
+						URL:  "https://example.com/01100_sapporo-shi_2020_3dtiles_4_op_brid_lod3/tileset.json",
+						Type: "3dtiles",
 					},
 				},
 			},
@@ -1095,10 +1115,9 @@ func TestRail(t *testing.T) {
 						Layers: []string{"rail"},
 					},
 					{
-						Name:   "鉄道モデル2",
-						URL:    "https://example.com/01100_sapporo-shi_2020_3dtiles_4_op_rail/tileset.json",
-						Type:   "3dtiles",
-						Layers: []string{"rail"},
+						Name: "鉄道モデル2",
+						URL:  "https://example.com/01100_sapporo-shi_2020_3dtiles_4_op_rail/tileset.json",
+						Type: "3dtiles",
 					},
 				},
 			},
