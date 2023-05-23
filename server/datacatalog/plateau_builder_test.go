@@ -58,7 +58,7 @@ func TestPlateauIntermediateItem_DataCatalogItem(t *testing.T) {
 			CityCode:    "01100",
 			OpenDataURL: "https://example.com",
 			Year:        2020,
-		}).DataCatalogItem(
+		}).dataCatalogItem(
 			"土地利用モデル",
 			AssetName{
 				CityCode: "01100",
@@ -73,6 +73,7 @@ func TestPlateauIntermediateItem_DataCatalogItem(t *testing.T) {
 			[]string{"luse"},
 			false,
 			"",
+			nil,
 			nil,
 		),
 	)
@@ -111,7 +112,7 @@ func TestPlateauIntermediateItem_DataCatalogItem(t *testing.T) {
 					{Code: "011012", Name: "kita-ku", Description: "北区"},
 				},
 			},
-		}).DataCatalogItem(
+		}).dataCatalogItem(
 			"建築物モデル",
 			AssetName{
 				CityCode: "01100",
@@ -128,6 +129,7 @@ func TestPlateauIntermediateItem_DataCatalogItem(t *testing.T) {
 			nil,
 			false,
 			"",
+			nil,
 			nil,
 		),
 	)
@@ -169,7 +171,7 @@ func TestPlateauIntermediateItem_DataCatalogItem(t *testing.T) {
 					{Code: "011012", Name: "kita-ku", Description: "北区"},
 				},
 			},
-		}).DataCatalogItem(
+		}).dataCatalogItem(
 			"建築物モデル",
 			AssetName{
 				CityCode: "01100",
@@ -187,15 +189,16 @@ func TestPlateauIntermediateItem_DataCatalogItem(t *testing.T) {
 			true,
 			"",
 			nil,
+			nil,
 		),
 	)
 
-	// case4: urf
+	// case4: name override by
 	assert.Equal(
 		t,
 		&DataCatalogItem{
 			ID:          "01100_sapporo-shi_urf_UrbanPlanningArea",
-			Name:        "都市計画区域モデル（札幌市）",
+			Name:        "1（札幌市）",
 			Pref:        "北海道",
 			PrefCode:    "01",
 			City:        "札幌市",
@@ -203,8 +206,8 @@ func TestPlateauIntermediateItem_DataCatalogItem(t *testing.T) {
 			CityCode:    "01100",
 			Type:        "都市計画決定情報モデル",
 			TypeEn:      "urf",
-			Type2:       "都市計画区域",
-			Type2En:     "UrbanPlanningArea",
+			Type2:       "2",
+			Type2En:     "3",
 			Description: "説明",
 			URL:         "https://example.com/01100_sapporo-shi_2020_mvt_op_urf_UrbanPlanningArea/{z}/{x}/{y}.mvt",
 			OpenDataURL: "https://www.geospatial.jp/ckan/dataset/plateau-01100-sapporo-shi-2020",
@@ -219,7 +222,7 @@ func TestPlateauIntermediateItem_DataCatalogItem(t *testing.T) {
 			CityEn:     "sapporo-shi",
 			CityCode:   "01100",
 			Year:       2020,
-		}).DataCatalogItem(
+		}).dataCatalogItem(
 			"都市計画決定情報モデル",
 			AssetName{
 				CityCode:       "01100",
@@ -235,6 +238,9 @@ func TestPlateauIntermediateItem_DataCatalogItem(t *testing.T) {
 			[]string{"UrbanPlanningArea"},
 			false,
 			"",
+			func(an AssetName) (string, string, string) {
+				return "1", "2", "3"
+			},
 			nil,
 		),
 	)
@@ -252,8 +258,6 @@ func TestPlateauIntermediateItem_DataCatalogItem(t *testing.T) {
 			CityCode:    "01100",
 			Type:        "都市計画決定情報モデル",
 			TypeEn:      "urf",
-			Type2:       "都市計画区域",
-			Type2En:     "UrbanPlanningArea",
 			Description: "説明",
 			URL:         "https://example.com/01100_sapporo-shi_2020_mvt_op_urf_UrbanPlanningArea/{z}/{x}/{y}.mvt",
 			OpenDataURL: "https://www.geospatial.jp/ckan/dataset/plateau-01100-sapporo-shi-2020",
@@ -268,7 +272,7 @@ func TestPlateauIntermediateItem_DataCatalogItem(t *testing.T) {
 			CityEn:     "sapporo-shi",
 			CityCode:   "01100",
 			Year:       2020,
-		}).DataCatalogItem(
+		}).dataCatalogItem(
 			"都市計画決定情報モデル",
 			AssetName{
 				CityCode:       "01100",
@@ -285,76 +289,57 @@ func TestPlateauIntermediateItem_DataCatalogItem(t *testing.T) {
 			false,
 			"NAME",
 			nil,
+			nil,
 		),
 	)
-}
 
-func TestMultipleLODData(t *testing.T) {
-	// case1: single asset without LOD
-	assert.Equal(t, DataCatalogItemConfig{
-		Data: []DataCatalogItemConfigItem{
-			{
-				Name:   "xxxモデル",
-				URL:    "https://example.com/01100_sapporo-shi_2020_mvt_op/{z}/{x}/{y}.mvt",
-				Type:   "mvt",
-				Layers: []string{"layer"},
+	// case6: sub name
+	assert.Equal(
+		t,
+		&DataCatalogItem{
+			ID:          "01100_sapporo-shi_urf_UrbanPlanningArea",
+			Name:        "都市計画決定情報モデル SUB（札幌市）",
+			Pref:        "北海道",
+			PrefCode:    "01",
+			City:        "札幌市",
+			CityEn:      "sapporo-shi",
+			CityCode:    "01100",
+			Type:        "都市計画決定情報モデル",
+			TypeEn:      "urf",
+			Description: "説明",
+			URL:         "https://example.com/01100_sapporo-shi_2020_mvt_op_urf_UrbanPlanningArea/{z}/{x}/{y}.mvt",
+			OpenDataURL: "https://www.geospatial.jp/ckan/dataset/plateau-01100-sapporo-shi-2020",
+			Format:      "mvt",
+			Layers:      []string{"UrbanPlanningArea"},
+			Year:        2020,
+		},
+		(&PlateauIntermediateItem{
+			ID:         "itemid",
+			Prefecture: "北海道",
+			City:       "札幌市",
+			CityEn:     "sapporo-shi",
+			CityCode:   "01100",
+			Year:       2020,
+		}).dataCatalogItem(
+			"都市計画決定情報モデル",
+			AssetName{
+				CityCode:       "01100",
+				CityEn:         "sapporo-shi",
+				Format:         "mvt",
+				Op:             "op",
+				Feature:        "urf",
+				Year:           "2020",
+				UrfFeatureType: "UrbanPlanningArea",
 			},
-		},
-	}, multipleLODData(
-		[]string{
-			"https://example.com/01100_sapporo-shi_2020_mvt_op.zip",
-		},
-		"xxxモデル",
-		map[string][]string{"": {"layer"}},
-	))
-
-	// case2: multiple asset without LOD
-	assert.Equal(t, DataCatalogItemConfig{
-		Data: []DataCatalogItemConfigItem{
-			{
-				Name:   "xxxモデル1",
-				URL:    "https://example.com/01100_sapporo-shi_2020_mvt_op/{z}/{x}/{y}.mvt",
-				Type:   "mvt",
-				Layers: []string{"layer"},
+			"https://example.com/01100_sapporo-shi_2020_mvt_op_urf_UrbanPlanningArea.zip",
+			"説明",
+			[]string{"UrbanPlanningArea"},
+			false,
+			"",
+			nil,
+			func(an AssetName, dic Dic) string {
+				return "SUB"
 			},
-			{
-				Name:   "xxxモデル2",
-				URL:    "https://example.com/01100_sapporo-shi_2020_3dtiles_op/tileset.json",
-				Type:   "3dtiles",
-				Layers: []string{"layer"},
-			},
-		},
-	}, multipleLODData(
-		[]string{
-			"https://example.com/01100_sapporo-shi_2020_mvt_op.zip",
-			"https://example.com/01100_sapporo-shi_2020_3dtiles_op.zip",
-		},
-		"xxxモデル",
-		map[string][]string{"": {"layer"}},
-	))
-
-	// case3: multiple asset with LOD
-	assert.Equal(t, DataCatalogItemConfig{
-		Data: []DataCatalogItemConfigItem{
-			{
-				Name:   "LOD1",
-				URL:    "https://example.com/01100_sapporo-shi_2020_mvt_op_tran_lod1/{z}/{x}/{y}.mvt",
-				Type:   "mvt",
-				Layers: []string{"layer1"},
-			},
-			{
-				Name:   "LOD2",
-				URL:    "https://example.com/01100_sapporo-shi_2020_3dtiles_op_tran_lod2/tileset.json",
-				Type:   "3dtiles",
-				Layers: []string{"layer"},
-			},
-		},
-	}, multipleLODData(
-		[]string{
-			"https://example.com/01100_sapporo-shi_2020_mvt_op_tran_lod1.zip",
-			"https://example.com/01100_sapporo-shi_2020_3dtiles_op_tran_lod2.zip",
-		},
-		"xxxモデル",
-		map[string][]string{"": {"layer"}, "1": {"layer1"}},
-	))
+		),
+	)
 }

@@ -114,60 +114,6 @@ func (i PlateauItem) FeatureDescription(ty string) []string {
 	return nil
 }
 
-func (i PlateauItem) HtdItems(c PlateauIntermediateItem) []*DataCatalogItem {
-	if len(i.Htd) == 0 {
-		return nil
-	}
-
-	return lo.Map(i.Htd, func(a *cms.PublicAsset, _ int) *DataCatalogItem {
-		an := AssetNameFrom(a.URL)
-
-		_, desc := descFromAsset(a.URL, i.DescriptionHtd)
-		dci := c.DataCatalogItem("高潮浸水想定区域モデル", an, a.URL, desc, nil, false, "", nil)
-
-		if dci != nil {
-			dci.Name = htdTnmIfldName("高潮浸水想定区域モデル", i.CityName, an.FldName, c.Dic.Htd(an.FldName))
-		}
-		return dci
-	})
-}
-
-func (i PlateauItem) IfldItems(c PlateauIntermediateItem) []*DataCatalogItem {
-	if len(i.Ifld) == 0 {
-		return nil
-	}
-
-	return lo.Map(i.Ifld, func(a *cms.PublicAsset, _ int) *DataCatalogItem {
-		an := AssetNameFrom(a.URL)
-
-		_, desc := descFromAsset(a.URL, i.DescriptionIfld)
-		dci := c.DataCatalogItem("内水浸水想定区域モデル", an, a.URL, desc, nil, false, "", nil)
-
-		if dci != nil {
-			dci.Name = htdTnmIfldName("内水浸水想定区域モデル", i.CityName, an.FldName, c.Dic.Ifld(an.FldName))
-		}
-		return dci
-	})
-}
-
-func (i PlateauItem) TnmItems(c PlateauIntermediateItem) []*DataCatalogItem {
-	if len(i.Tnm) == 0 {
-		return nil
-	}
-
-	return lo.Map(i.Tnm, func(a *cms.PublicAsset, _ int) *DataCatalogItem {
-		an := AssetNameFrom(a.URL)
-
-		_, desc := descFromAsset(a.URL, i.DescriptionTnm)
-		dci := c.DataCatalogItem("津波浸水想定区域モデル", an, a.URL, desc, nil, false, "", nil)
-
-		if dci != nil {
-			dci.Name = htdTnmIfldName("津波浸水想定区域モデル", i.CityName, an.FldName, c.Dic.Tnm(an.FldName))
-		}
-		return dci
-	})
-}
-
 func (i PlateauItem) AllDataCatalogItems(c PlateauIntermediateItem) []DataCatalogItem {
 	if c.ID == "" {
 		return nil

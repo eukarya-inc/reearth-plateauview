@@ -13,6 +13,7 @@ import (
 var reAssetName = regexp.MustCompile(`^([0-9]+?)_(.+?)_(.+?)_(.+?)_((?:[0-9]+?_)*op[0-9]*(?:_[0-9]+?)*)(_nodem)?(?:_(.+?)(?:_(.+))?)?$`)
 var reLod = regexp.MustCompile(`(^|.*_)lod([0-9]+?)`)
 var reWard = regexp.MustCompile(`^([0-9]+?)_([a-zA-Z].+)`)
+var reFldScale = regexp.MustCompile(`^l[0-9]+$`)
 
 type AssetName struct {
 	CityCode       string
@@ -29,8 +30,9 @@ type AssetName struct {
 	LOD            string
 	LowTexture     bool
 	NoTexture      bool
-	FldCategory    string
+	FldAdmin       string
 	FldName        string
+	FldScale       string
 	UrfFeatureType string
 	GenName        string
 }
@@ -45,14 +47,16 @@ func (an AssetName) WardCodeInt() int {
 	return i
 }
 
-func (an AssetName) FldNameAndCategory() string {
-	if an.FldName == "" && an.FldCategory == "" {
-		return ""
-	}
-	if an.FldCategory == "" {
-		return an.FldName
-	}
-	return fmt.Sprintf("%s_%s", an.FldCategory, an.FldName)
+func (an AssetName) FldFullName() string {
+	return strings.Join(lo.Filter([]string{an.FldAdmin, an.FldName, an.FldScale}, func(s string, _ int) bool { return s != "" }), "_")
+}
+
+func (an AssetName) FldAdminAndName() string {
+	return strings.Join(lo.Filter([]string{an.FldAdmin, an.FldName}, func(s string, _ int) bool { return s != "" }), "_")
+}
+
+func (an AssetName) FldNameAndScale() string {
+	return strings.Join(lo.Filter([]string{an.FldName, an.FldScale}, func(s string, _ int) bool { return s != "" }), "_")
 }
 
 func AssetNameFrom(name string) (a AssetName) {
@@ -105,10 +109,16 @@ func AssetNameFrom(name string) (a AssetName) {
 
 	switch a.Feature {
 	case "fld":
-		fldCategory, fldName, found := strings.Cut(a.Ex, "_")
-		if found {
-			a.FldCategory = fldCategory
-			a.FldName = fldName
+		fldElements := strings.Split(a.Ex, "_")
+		if len(fldElements) > 1 {
+			a.FldAdmin = fldElements[0]
+			last := fldElements[len(fldElements)-1]
+			if reFldScale.MatchString(last) {
+				a.FldScale = last
+				a.FldName = strings.Join(fldElements[1:len(fldElements)-1], "_")
+			} else {
+				a.FldName = strings.Join(fldElements[1:], "_")
+			}
 		} else {
 			a.FldName = a.Ex
 		}
@@ -151,7 +161,7 @@ func (a AssetName) String() string {
 		a.Feature,
 		a.WardCode,
 		a.WardEn,
-		a.FldCategory,
+		a.FldAdmin,
 		a.FldName,
 		a.UrfFeatureType,
 		a.GenName,

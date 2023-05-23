@@ -20,10 +20,10 @@ func TestBldg(t *testing.T) {
 		OpenDataURL:     "https://example.com",
 		Bldg: []*cms.PublicAsset{
 			{
-				URL: "https://example.com/01100_sapporo-shi_2020_3dtiles_op_bldg_01101_chuo-ku_lod1.zip",
+				URL: "https://example.com/01100_sapporo-shi_2020_3dtiles_op_bldg_01101_chuo-ku_lod2.zip",
 			},
 			{
-				URL: "https://example.com/01100_sapporo-shi_2020_3dtiles_op_bldg_01101_chuo-ku_lod2.zip",
+				URL: "https://example.com/01100_sapporo-shi_2020_3dtiles_op_bldg_01101_chuo-ku_lod1.zip",
 			},
 			{
 				URL: "https://example.com/01100_sapporo-shi_2020_3dtiles_op_bldg_01102_kita-ku_lod1.zip",
@@ -798,7 +798,7 @@ func TestTnm(t *testing.T) {
 		},
 		{
 			ID:          "01100_sapporo-shi_tnm_03_1",
-			Name:        "03_1", // TODO: fix
+			Name:        "津波浸水想定区域モデル 03_1（札幌市）",
 			Pref:        "北海道",
 			PrefCode:    "01",
 			City:        "札幌市",
@@ -858,7 +858,7 @@ func TestHtd(t *testing.T) {
 		},
 		{
 			ID:          "01100_sapporo-shi_htd_02_1",
-			Name:        "02_1",
+			Name:        "高潮浸水想定区域モデル 02_1（札幌市）",
 			Pref:        "北海道",
 			PrefCode:    "01",
 			City:        "札幌市",
@@ -918,7 +918,7 @@ func TestIfld(t *testing.T) {
 		},
 		{
 			ID:          "01100_sapporo-shi_ifld_02_1",
-			Name:        "02_1",
+			Name:        "内水浸水想定区域モデル 02_1（札幌市）",
 			Pref:        "北海道",
 			PrefCode:    "01",
 			City:        "札幌市",
