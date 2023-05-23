@@ -149,7 +149,7 @@ const TextWrapper = styled.div<{ isMobile?: boolean }>`
     `
       padding: 0;
       width: 100%;
-      height: 142.06px;
+      height: 100%;
       text-align: left;
     `}
 `;
