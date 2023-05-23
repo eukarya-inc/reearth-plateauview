@@ -32,7 +32,7 @@ func init() {
 
 type DataCatalogItemBuilder struct {
 	Assets           []*cms.PublicAsset
-	Description      string
+	Descriptions     []string
 	IntermediateItem PlateauIntermediateItem
 	Options          DataCatalogItemBuilderOption
 }
@@ -42,7 +42,7 @@ type DataCatalogItemBuilderOption struct {
 	Layers       []string
 	NameOverride string
 	FirstWard    bool
-	MultipleLOD  bool
+	LOD          bool
 }
 
 func (b DataCatalogItemBuilder) Build() []*DataCatalogItem {
@@ -51,9 +51,13 @@ func (b DataCatalogItemBuilder) Build() []*DataCatalogItem {
 	}
 
 	an := AssetNameFrom(b.Assets[0].URL)
+	desc := ""
+	if len(b.Descriptions) > 0 {
+		desc = b.Descriptions[0]
+	}
 
-	dci := b.IntermediateItem.DataCatalogItem(b.Options.ModelName, an, b.Assets[0].URL, b.Description, b.Options.Layers, b.Options.FirstWard, b.Options.NameOverride)
-	if dci != nil && b.Options.MultipleLOD {
+	dci := b.IntermediateItem.DataCatalogItem(b.Options.ModelName, an, b.Assets[0].URL, desc, b.Options.Layers, b.Options.FirstWard, b.Options.NameOverride)
+	if dci != nil && b.Options.LOD {
 		dci.Config = multipleLODData(b.Assets, b.Options.ModelName, b.Options.Layers)
 	}
 

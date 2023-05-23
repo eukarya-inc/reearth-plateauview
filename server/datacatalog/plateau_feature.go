@@ -42,31 +42,36 @@ func (i PlateauItem) DataCatalogItems(c PlateauIntermediateItem, ty string) []*D
 		return i.GenItems(c)
 	}
 
+	o, ok := FeatureOptions[ty]
+	if !ok {
+		return nil
+	}
+
 	return DataCatalogItemBuilder{
 		Assets:           i.Feature(ty),
-		Description:      i.DescriptionVeg,
+		Descriptions:     i.FeatureDescription(ty),
 		IntermediateItem: c,
-		Options:          FeatureOptions[ty],
+		Options:          o,
 	}.Build()
 }
 
 var FeatureOptions = map[string]DataCatalogItemBuilderOption{
 	"frn": {
-		ModelName:   "都市設備モデル",
-		MultipleLOD: true,
+		ModelName: "都市設備モデル",
+		LOD:       true,
 	},
 	"veg": {
-		ModelName:   "植生モデル",
-		MultipleLOD: true,
+		ModelName: "植生モデル",
+		LOD:       true,
 	},
 	"brid": {
-		ModelName:   "橋梁モデル",
-		MultipleLOD: true,
-		Layers:      []string{"brid"},
+		ModelName: "橋梁モデル",
+		LOD:       true,
+		Layers:    []string{"brid"},
 	},
 	"rail": {
-		ModelName:   "鉄道モデル",
-		MultipleLOD: true,
-		Layers:      []string{"rail"},
+		ModelName: "鉄道モデル",
+		LOD:       true,
+		Layers:    []string{"rail"},
 	},
 }
