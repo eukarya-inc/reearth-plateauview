@@ -30,6 +30,47 @@ func init() {
 	})
 }
 
+type DataCatalogItemBuilder struct {
+	Assets           []*cms.PublicAsset
+	Description      string
+	IntermediateItem PlateauIntermediateItem
+	Options          DataCatalogItemBuilderOption
+}
+
+type DataCatalogItemBuilderOption struct {
+	ModelName    string
+	Layers       []string
+	NameOverride string
+	FirstWard    bool
+	MultipleLOD  bool
+}
+
+func (b DataCatalogItemBuilder) Build() []*DataCatalogItem {
+	if len(b.Assets) == 0 {
+		return nil
+	}
+
+	an := AssetNameFrom(b.Assets[0].URL)
+
+	dci := b.IntermediateItem.DataCatalogItem(b.Options.ModelName, an, b.Assets[0].URL, b.Description, b.Options.Layers, b.Options.FirstWard, b.Options.NameOverride)
+	if dci != nil && b.Options.MultipleLOD {
+		dci.Config = multipleLODData(b.Assets, b.Options.ModelName, b.Options.Layers)
+	}
+
+	return []*DataCatalogItem{dci}
+}
+
+type PlateauIntermediateItem struct {
+	ID          string
+	Prefecture  string
+	City        string
+	CityEn      string
+	CityCode    string
+	Dic         Dic
+	OpenDataURL string
+	Year        int
+}
+
 func (i PlateauItem) IntermediateItem() PlateauIntermediateItem {
 	au := ""
 	if i.CityGML != nil {
@@ -57,17 +98,6 @@ func (i PlateauItem) IntermediateItem() PlateauIntermediateItem {
 		OpenDataURL: i.OpenDataURL,
 		Year:        y,
 	}
-}
-
-type PlateauIntermediateItem struct {
-	ID          string
-	Prefecture  string
-	City        string
-	CityEn      string
-	CityCode    string
-	Dic         Dic
-	OpenDataURL string
-	Year        int
 }
 
 func (i *PlateauIntermediateItem) DataCatalogItem(t string, an AssetName, assetURL, desc string, layers []string, firstWard bool, nameOverride string) *DataCatalogItem {
@@ -218,17 +248,6 @@ func nameFromDescription(d string) (string, string) {
 	return "", d
 }
 
-type DataCatalogItemConfig struct {
-	Data []DataCatalogItemConfigItem `json:"data,omitempty"`
-}
-
-type DataCatalogItemConfigItem struct {
-	Name   string   `json:"name"`
-	URL    string   `json:"url"`
-	Type   string   `json:"type"`
-	Layers []string `json:"layer,omitempty"`
-}
-
 type assetWithLOD struct {
 	A   *cms.PublicAsset
 	F   AssetName
@@ -273,34 +292,15 @@ func openDataURLFromAssetName(a AssetName) string {
 	return fmt.Sprintf("https://www.geospatial.jp/ckan/dataset/plateau-%s-%s-%s", a.CityCode, a.CityEn, a.Year)
 }
 
-type DataCatalogItemBuilder struct {
-	Assets           []*cms.PublicAsset
-	Description      string
-	IntermediateItem PlateauIntermediateItem
-	Options          DataCatalogItemBuilderOption
+type DataCatalogItemConfig struct {
+	Data []DataCatalogItemConfigItem `json:"data,omitempty"`
 }
 
-type DataCatalogItemBuilderOption struct {
-	ModelName    string
-	Layers       []string
-	NameOverride string
-	FirstWard    bool
-	MultipleLOD  bool
-}
-
-func (b DataCatalogItemBuilder) Build() []*DataCatalogItem {
-	if len(b.Assets) == 0 {
-		return nil
-	}
-
-	an := AssetNameFrom(b.Assets[0].URL)
-
-	dci := b.IntermediateItem.DataCatalogItem(b.Options.ModelName, an, b.Assets[0].URL, b.Description, b.Options.Layers, b.Options.FirstWard, b.Options.NameOverride)
-	if dci != nil && b.Options.MultipleLOD {
-		dci.Config = multipleLODData(b.Assets, b.Options.ModelName, b.Options.Layers)
-	}
-
-	return []*DataCatalogItem{dci}
+type DataCatalogItemConfigItem struct {
+	Name   string   `json:"name"`
+	URL    string   `json:"url"`
+	Type   string   `json:"type"`
+	Layers []string `json:"layer,omitempty"`
 }
 
 func multipleLODData(assets []*cms.PublicAsset, modelName string, layers []string) DataCatalogItemConfig {
@@ -322,6 +322,7 @@ func multipleLODData(assets []*cms.PublicAsset, modelName string, layers []strin
 			Layers: layers,
 		}
 	})
+
 	sort.Slice(data, func(a, b int) bool {
 		return strings.Compare(data[a].Name, data[b].Name) < 0
 	})
