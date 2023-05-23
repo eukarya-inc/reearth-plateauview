@@ -22,9 +22,7 @@ const WelcomeScreen: React.FC = () => {
           <WelcomeCloseButton size={40} icon="close" onClick={handleClose} isMobile={isMobile} />
 
           <TextWrapper isMobile={isMobile}>
-            {isMobile && (
-              <MobileIcon icon="mobileWS" size={48} color="#fff" width={99.02} height={142.06} />
-            )}
+            {isMobile && <MobileIcon icon="mobileWS" color="#fff" width={99.02} height={142.06} />}
             <Title weight={700} size={isMobile ? 36 : 48}>
               ようこそ
             </Title>
@@ -47,7 +45,7 @@ const WelcomeScreen: React.FC = () => {
                 href="https://www.mlit.go.jp/plateau/learning/?topic=plateau-view"
                 target="_blank"
                 imgUrl={welcomeScreenVideo}>
-                <Icon icon="playCircle" size={143} color="#fff" />
+                <Icon icon="playCircle" size={48} color="#fff" />
               </ImgWrapper>
             )}
             <BtnsWrapper isMobile={isMobile}>
@@ -194,6 +192,7 @@ const CloseButton = styled(Icon)<{ isMobile?: boolean }>`
   border: none;
   color: white;
   cursor: pointer;
+  justify-content: center;
 `;
 
 const WelcomeCloseButton = styled(CloseButton)<{ isMobile?: boolean }>`
