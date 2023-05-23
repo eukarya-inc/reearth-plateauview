@@ -15,70 +15,64 @@ const WelcomeScreen: React.FC = () => {
     handleOpenHelp,
     handleOpenCatalog,
   } = useHooks();
-
   return (
     <Wrapper>
       {!showVideo ? (
-        <>
-          {isMobile && (
-            <MobileCloseBtnWrapper onClick={handleClose}>
-              <Icon icon="close" size={48} />
-            </MobileCloseBtnWrapper>
-          )}
+        <InnerWrapper isMobile={isMobile}>
+          <WelcomeCloseButton size={40} icon="close" onClick={handleClose} isMobile={isMobile} />
 
-          <InnerWrapper isMobile={isMobile}>
-            {!isMobile && <WelcomeCloseButton size={40} icon="close" onClick={handleClose} />}
-            <TextWrapper isMobile={isMobile}>
-              {isMobile && <Icon icon="mobileWS" size={48} color="#fff" />}
-              <Title weight={700} size={isMobile ? 24 : 48}>
-                ようこそ
-              </Title>
-              <Text weight={500} size={isMobile ? 16 : 20}>
-                {isMobile ? "データがお好きですか？" : "マップを使ってみる"}
-              </Text>
-              {isMobile && (
-                <WarningWrapper>
-                  <WarningText weight={700} size={14}>
-                    <InlineIcon icon="warningCircle" size={16} />
-                    スマホではデータサイズの問題から、テクスチャ付きのデータが正常に表示されない場合があります。ご了承ください。
-                  </WarningText>
-                </WarningWrapper>
-              )}
-            </TextWrapper>
-            <ContentWrapper isMobile={isMobile}>
+          <TextWrapper isMobile={isMobile}>
+            {isMobile && (
+              <MobileIcon icon="mobileWS" size={48} color="#fff" width={99.02} height={142.06} />
+            )}
+            <Title weight={700} size={isMobile ? 36 : 48}>
+              ようこそ
+            </Title>
+            <Text weight={500} size={isMobile ? 16 : 20}>
+              {isMobile ? "データがお好きですか？" : "マップを使ってみる"}
+            </Text>
+            {isMobile && (
+              <WarningWrapper>
+                <WarningText weight={500} size={14}>
+                  <InlineIcon icon="warningCircle" size={16} />
+                  スマホではデータサイズの問題から、テクスチャ付きのデータが正常に表示されない場合があります。ご了承ください。
+                </WarningText>
+              </WarningWrapper>
+            )}
+          </TextWrapper>
+          <ContentWrapper isMobile={isMobile}>
+            {!isMobile && (
+              <ImgWrapper
+                type="text"
+                href="https://www.mlit.go.jp/plateau/learning/?topic=plateau-view"
+                target="_blank"
+                imgUrl={welcomeScreenVideo}>
+                <Icon icon="playCircle" size={143} color="#fff" />
+              </ImgWrapper>
+            )}
+            <BtnsWrapper isMobile={isMobile}>
               {!isMobile && (
-                <ImgWrapper
-                  type="text"
-                  href="https://www.mlit.go.jp/plateau/learning/?topic=plateau-view"
-                  target="_blank"
-                  imgUrl={welcomeScreenVideo}>
-                  <Icon icon="playCircle" size={143} color="#fff" />
-                </ImgWrapper>
-              )}
-              <BtnsWrapper isMobile={isMobile}>
-                {!isMobile && (
-                  <ButtonWrapper onClick={handleOpenHelp}>
-                    <Text weight={500} size={14}>
-                      ヘルプをみる
-                    </Text>
-                  </ButtonWrapper>
-                )}
-                <ButtonWrapper onClick={handleOpenCatalog}>
-                  <Icon size={20} icon="plusCircle" color="#fafafa" />
+                <ButtonWrapper onClick={handleOpenHelp}>
                   <Text weight={500} size={14}>
-                    カタログから検索する
+                    ヘルプをみる
                   </Text>
                 </ButtonWrapper>
-              </BtnsWrapper>
-            </ContentWrapper>
-            <CheckWrapper isMobile={isMobile}>
-              <Checkbox checked={dontShowAgain} onClick={handleDontShowAgain} />
-              <Text weight={700} size={14}>
-                閉じて今後は表示しない
-              </Text>
-            </CheckWrapper>
-          </InnerWrapper>
-        </>
+              )}
+              <ButtonWrapper onClick={handleOpenCatalog}>
+                <Icon size={20} icon="plusCircle" color="#fafafa" />
+                <Text weight={500} size={14}>
+                  カタログから検索する
+                </Text>
+              </ButtonWrapper>
+            </BtnsWrapper>
+          </ContentWrapper>
+          <CheckWrapper isMobile={isMobile}>
+            <Checkbox checked={dontShowAgain} onClick={handleDontShowAgain} />
+            <Text weight={700} size={14}>
+              閉じて今後は表示しない
+            </Text>
+          </CheckWrapper>
+        </InnerWrapper>
       ) : (
         <CloseBtnWrapper isMobile={isMobile}>
           <VideoCloseButton size={40} icon="close" onClick={handleCloseVideo} isMobile={isMobile} />
@@ -106,11 +100,17 @@ const Wrapper = styled.div`
 const InnerWrapper = styled.div<{ isMobile?: boolean }>`
   display: flex;
   flex-direction: column;
-  position: relative;
+  ${({ isMobile }) =>
+    !isMobile &&
+    `  position: relative;
+  `};
   width: 100%;
   max-width: ${({ isMobile }) => (isMobile ? "70vw" : "742px")};
 `;
 
+const MobileIcon = styled(Icon)`
+  align-self: center;
+`;
 const Text = styled.p<{ weight: number; size: number }>`
   font-weight: ${({ weight }) => weight}px;
   font-size: ${({ size }) => size}px;
@@ -128,7 +128,6 @@ const WarningWrapper = styled.div`
   align-items: flex-start;
   padding: 0px;
   gap: 6px;
-  isolation: isolate;
   width: 318px;
   height: 66px;
   margin-top: 48px;
@@ -142,15 +141,14 @@ const InlineIcon = styled(Icon)`
 const TextWrapper = styled.div<{ isMobile?: boolean }>`
   display: flex;
   flex-direction: column;
-  align-items: ${({ isMobile }) => (isMobile ? "center" : "flex-start")};
+  align-items: flex-start;
   justify-content: flex-end;
   margin-bottom: ${({ isMobile }) => (isMobile ? "60px" : "24px")};
   ${({ isMobile }) =>
     isMobile &&
     `
       padding: 0;
-      gap: 21px;
-      width: 99.02px;
+      width: 100%;
       height: 142.06px;
       text-align: left;
     `}
@@ -198,19 +196,17 @@ const CloseButton = styled(Icon)<{ isMobile?: boolean }>`
   cursor: pointer;
 `;
 
-const WelcomeCloseButton = styled(CloseButton)`
+const WelcomeCloseButton = styled(CloseButton)<{ isMobile?: boolean }>`
   position: absolute;
-  right: -40px;
-  top: -40px;
-  flex-grow: 1;
-`;
-const MobileCloseBtnWrapper = styled.div`
-  position: absolute;
-  right: 0;
-  top: 0;
-  background-color: #00bebe;
+  right: ${({ isMobile }) => (isMobile ? "0" : "-40")};
+  top: ${({ isMobile }) => (isMobile ? "0" : "-40")};
+  ${({ isMobile }) =>
+    isMobile &&
+    `   background-color: #00bebe;
   color: white;
-  border: none;
+  `};
+  align-items: center;
+  flex-grow: 1;
 `;
 
 const VideoCloseButton = styled(CloseButton)`
@@ -242,7 +238,7 @@ const CheckWrapper = styled.div<{ isMobile?: boolean }>`
   align-items: ${({ isMobile }) => (!isMobile ? "center" : "flex-start")};
   align-self: ${({ isMobile }) => (!isMobile ? "center" : "flex-end")};
   gap: 8px;
-  margin-top: 50px;
+  margin-top: ${({ isMobile }) => (!isMobile ? "50px" : "8px")};
 `;
 
 const VideoWrapper = styled.div`
