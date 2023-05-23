@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"path"
 	"regexp"
+	"strconv"
 	"strings"
 
 	"github.com/samber/lo"
@@ -32,6 +33,11 @@ type AssetName struct {
 	FldName        string
 	UrfFeatureType string
 	GenName        string
+}
+
+func (an AssetName) LODInt() int {
+	lod, _ := strconv.Atoi(an.LOD)
+	return lod
 }
 
 func (an AssetName) FldNameAndCategory() string {

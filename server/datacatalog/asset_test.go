@@ -272,3 +272,8 @@ func TestAssetName_String(t *testing.T) {
 		Ext:      ".zip",
 	}.String())
 }
+
+func TestAssetName_LODInt(t *testing.T) {
+	assert.Equal(t, 0, AssetName{}.LODInt())
+	assert.Equal(t, 1, AssetName{LOD: "1"}.LODInt())
+}

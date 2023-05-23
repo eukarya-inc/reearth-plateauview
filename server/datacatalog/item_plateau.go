@@ -114,24 +114,6 @@ func (i PlateauItem) FeatureDescription(ty string) []string {
 	return nil
 }
 
-func (i PlateauItem) LuseItem(c PlateauIntermediateItem) *DataCatalogItem {
-	if i.Luse == nil {
-		return nil
-	}
-
-	a := i.Luse[0]
-	return c.DataCatalogItem("土地利用モデル", AssetNameFrom(a.URL), a.URL, i.DescriptionLuse, []string{"luse"}, false, "")
-}
-
-func (i PlateauItem) LsldItem(c PlateauIntermediateItem) *DataCatalogItem {
-	if i.Lsld == nil {
-		return nil
-	}
-
-	a := i.Lsld[0]
-	return c.DataCatalogItem("土砂災害警戒区域モデル", AssetNameFrom(a.URL), a.URL, i.DescriptionLsld, []string{"lsld"}, false, "")
-}
-
 func (i PlateauItem) UrfItems(c PlateauIntermediateItem) []*DataCatalogItem {
 	if len(i.Urf) == 0 {
 		return nil

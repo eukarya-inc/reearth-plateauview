@@ -22,12 +22,6 @@ func (i PlateauItem) DataCatalogItems(c PlateauIntermediateItem, ty string) []*D
 	switch ty {
 	case "bldg":
 		return i.BldgItems(c)
-	case "tran":
-		return []*DataCatalogItem{i.TranItem(c)}
-	case "luse":
-		return []*DataCatalogItem{i.LuseItem(c)}
-	case "lsld":
-		return []*DataCatalogItem{i.LsldItem(c)}
 	case "urf":
 		return i.UrfItems(c)
 	case "fld":
@@ -56,6 +50,15 @@ func (i PlateauItem) DataCatalogItems(c PlateauIntermediateItem, ty string) []*D
 }
 
 var FeatureOptions = map[string]DataCatalogItemBuilderOption{
+	"tran": {
+		ModelName: "道路モデル",
+		LOD:       true,
+		LayersForLOD: map[string][]string{
+			"1": {"Road"},
+			"2": {"TrafficArea", "AuxiliaryTrafficArea"},
+		},
+		UseMaxLODAsDefault: true,
+	},
 	"frn": {
 		ModelName: "都市設備モデル",
 		LOD:       true,
@@ -63,6 +66,14 @@ var FeatureOptions = map[string]DataCatalogItemBuilderOption{
 	"veg": {
 		ModelName: "植生モデル",
 		LOD:       true,
+	},
+	"luse": {
+		ModelName: "土地利用モデル",
+		Layers:    []string{"luse"},
+	},
+	"lsld": {
+		ModelName: "土砂災害警戒区域モデル",
+		Layers:    []string{"lsld"},
 	},
 	"brid": {
 		ModelName: "橋梁モデル",

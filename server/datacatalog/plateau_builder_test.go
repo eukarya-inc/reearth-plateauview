@@ -234,6 +234,54 @@ func TestPlateauIntermediateItem_DataCatalogItem(t *testing.T) {
 			"",
 		),
 	)
+
+	// case5: name override
+	assert.Equal(
+		t,
+		&DataCatalogItem{
+			ID:          "01100_sapporo-shi_urf_UrbanPlanningArea",
+			Name:        "NAME（札幌市）",
+			Pref:        "北海道",
+			PrefCode:    "01",
+			City:        "札幌市",
+			CityEn:      "sapporo-shi",
+			CityCode:    "01100",
+			Type:        "都市計画決定情報モデル",
+			TypeEn:      "urf",
+			Type2:       "都市計画区域",
+			Type2En:     "UrbanPlanningArea",
+			Description: "説明",
+			URL:         "https://example.com/01100_sapporo-shi_2020_mvt_op_urf_UrbanPlanningArea/{z}/{x}/{y}.mvt",
+			OpenDataURL: "https://www.geospatial.jp/ckan/dataset/plateau-01100-sapporo-shi-2020",
+			Format:      "mvt",
+			Layers:      []string{"UrbanPlanningArea"},
+			Year:        2020,
+		},
+		(&PlateauIntermediateItem{
+			ID:         "itemid",
+			Prefecture: "北海道",
+			City:       "札幌市",
+			CityEn:     "sapporo-shi",
+			CityCode:   "01100",
+			Year:       2020,
+		}).DataCatalogItem(
+			"都市計画決定情報モデル",
+			AssetName{
+				CityCode:       "01100",
+				CityEn:         "sapporo-shi",
+				Format:         "mvt",
+				Op:             "op",
+				Feature:        "urf",
+				Year:           "2020",
+				UrfFeatureType: "UrbanPlanningArea",
+			},
+			"https://example.com/01100_sapporo-shi_2020_mvt_op_urf_UrbanPlanningArea.zip",
+			"説明",
+			[]string{"UrbanPlanningArea"},
+			false,
+			"NAME",
+		),
+	)
 }
 
 func TestMultipleLODData(t *testing.T) {
@@ -254,7 +302,7 @@ func TestMultipleLODData(t *testing.T) {
 			},
 		},
 		"xxxモデル",
-		[]string{"layer"},
+		map[string][]string{"": {"layer"}},
 	))
 
 	// case2: multiple asset without LOD
@@ -283,7 +331,7 @@ func TestMultipleLODData(t *testing.T) {
 			},
 		},
 		"xxxモデル",
-		[]string{"layer"},
+		map[string][]string{"": []string{"layer"}},
 	))
 
 	// case3: multiple asset with LOD
@@ -293,7 +341,7 @@ func TestMultipleLODData(t *testing.T) {
 				Name:   "LOD1",
 				URL:    "https://example.com/01100_sapporo-shi_2020_mvt_op_tran_lod1/{z}/{x}/{y}.mvt",
 				Type:   "mvt",
-				Layers: []string{"layer"},
+				Layers: []string{"layer1"},
 			},
 			{
 				Name:   "LOD2",
@@ -312,6 +360,6 @@ func TestMultipleLODData(t *testing.T) {
 			},
 		},
 		"xxxモデル",
-		[]string{"layer"},
+		map[string][]string{"": {"layer"}, "1": {"layer1"}},
 	))
 }

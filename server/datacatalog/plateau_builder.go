@@ -16,6 +16,7 @@ import (
 	"github.com/eukarya-inc/reearth-plateauview/server/cms"
 	"github.com/samber/lo"
 	"github.com/spkg/bom"
+	"golang.org/x/exp/slices"
 )
 
 //go:embed urf.csv
@@ -38,11 +39,13 @@ type DataCatalogItemBuilder struct {
 }
 
 type DataCatalogItemBuilderOption struct {
-	ModelName    string
-	Layers       []string
-	NameOverride string
-	FirstWard    bool
-	LOD          bool
+	ModelName          string
+	NameOverride       string
+	FirstWard          bool
+	LOD                bool
+	Layers             []string
+	LayersForLOD       map[string][]string
+	UseMaxLODAsDefault bool
 }
 
 func (b DataCatalogItemBuilder) Build() []*DataCatalogItem {
@@ -50,15 +53,40 @@ func (b DataCatalogItemBuilder) Build() []*DataCatalogItem {
 		return nil
 	}
 
-	an := AssetNameFrom(b.Assets[0].URL)
+	assets := lo.Map(b.Assets, func(a *cms.PublicAsset, _ int) AssetName {
+		return AssetNameFrom(a.URL)
+	})
+
 	desc := ""
 	if len(b.Descriptions) > 0 {
 		desc = b.Descriptions[0]
 	}
 
-	dci := b.IntermediateItem.DataCatalogItem(b.Options.ModelName, an, b.Assets[0].URL, desc, b.Options.Layers, b.Options.FirstWard, b.Options.NameOverride)
+	// default layers
+	layersForLOD := b.Options.LayersForLOD
+	defaultLayers := b.Options.Layers
+	if layersForLOD == nil {
+		layersForLOD = map[string][]string{"": defaultLayers}
+	}
+
+	// default asset and its URL
+	defaultAsset := assets[0]
+	defaultAssetURL := b.Assets[0].URL
+	if b.Options.UseMaxLODAsDefault {
+		maxLOD := lo.MaxBy(assets, func(a, b AssetName) bool {
+			return a.LODInt() > b.LODInt()
+		})
+		if an, i, ok := lo.FindIndexOf(assets, func(a AssetName) bool {
+			return a.LOD == maxLOD.LOD
+		}); ok {
+			defaultAsset = an
+			defaultAssetURL = b.Assets[i].URL
+		}
+	}
+
+	dci := b.IntermediateItem.DataCatalogItem(b.Options.ModelName, defaultAsset, defaultAssetURL, desc, defaultLayers, b.Options.FirstWard, b.Options.NameOverride)
 	if dci != nil && b.Options.LOD {
-		dci.Config = multipleLODData(b.Assets, b.Options.ModelName, b.Options.Layers)
+		dci.Config = multipleLODData(b.Assets, b.Options.ModelName, layersForLOD)
 	}
 
 	return []*DataCatalogItem{dci}
@@ -307,7 +335,7 @@ type DataCatalogItemConfigItem struct {
 	Layers []string `json:"layer,omitempty"`
 }
 
-func multipleLODData(assets []*cms.PublicAsset, modelName string, layers []string) DataCatalogItemConfig {
+func multipleLODData(assets []*cms.PublicAsset, modelName string, layers map[string][]string) DataCatalogItemConfig {
 	data := lo.Map(assets, func(a *cms.PublicAsset, j int) DataCatalogItemConfigItem {
 		an := AssetNameFrom(a.URL)
 		name := ""
@@ -319,11 +347,19 @@ func multipleLODData(assets []*cms.PublicAsset, modelName string, layers []strin
 			name = fmt.Sprintf("%s%d", modelName, j+1)
 		}
 
+		var l []string
+		if layers != nil {
+			l = slices.Clone(layers[an.LOD])
+			if l == nil {
+				l = slices.Clone(layers[""])
+			}
+		}
+
 		return DataCatalogItemConfigItem{
 			Name:   name,
 			URL:    assetURLFromFormat(a.URL, an.Format),
 			Type:   an.Format,
-			Layers: layers,
+			Layers: l,
 		}
 	})
 
