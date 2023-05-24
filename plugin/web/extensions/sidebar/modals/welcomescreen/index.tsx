@@ -15,17 +15,18 @@ const WelcomeScreen: React.FC = () => {
     handleOpenHelp,
     handleOpenCatalog,
   } = useHooks();
-
   return (
     <Wrapper>
       {!showVideo ? (
         <InnerWrapper isMobile={isMobile}>
           <WelcomeCloseButton size={40} icon="close" onClick={handleClose} isMobile={isMobile} />
+
           <TextWrapper isMobile={isMobile}>
-            <Title weight={700} size={isMobile ? 24 : 48}>
+            {isMobile && <MobileIcon icon="mobileWS" color="#fff" width={99.02} height={142.06} />}
+            <Title weight={700} size={isMobile ? 36 : 48} isMobile={isMobile}>
               ようこそ
             </Title>
-            <Text weight={500} size={isMobile ? 16 : 20}>
+            <Text weight={isMobile ? 700 : 500} size={isMobile ? 20 : 24}>
               {isMobile ? "データがお好きですか？" : "マップを使ってみる"}
             </Text>
           </TextWrapper>
@@ -55,7 +56,15 @@ const WelcomeScreen: React.FC = () => {
               </ButtonWrapper>
             </BtnsWrapper>
           </ContentWrapper>
-          <CheckWrapper>
+          {isMobile && (
+            <WarningWrapper>
+              <WarningText weight={500} size={14}>
+                <InlineIcon icon="warningCircle" size={16} color="#FAAD14" />
+                スマホではデータサイズの問題から、テクスチャ付きのデータが正常に表示されない場合があります。ご了承ください。
+              </WarningText>
+            </WarningWrapper>
+          )}
+          <CheckWrapper isMobile={isMobile}>
             <Checkbox checked={dontShowAgain} onClick={handleDontShowAgain} />
             <Text weight={700} size={14}>
               閉じて今後は表示しない
@@ -89,11 +98,18 @@ const Wrapper = styled.div`
 const InnerWrapper = styled.div<{ isMobile?: boolean }>`
   display: flex;
   flex-direction: column;
-  position: relative;
+  ${({ isMobile }) =>
+    !isMobile &&
+    `  position: relative;
+  `};
   width: 100%;
-  max-width: ${({ isMobile }) => (isMobile ? "70vw" : "742px")};
+  max-width: ${({ isMobile }) => (isMobile ? "80vw" : "742px")};
 `;
 
+const MobileIcon = styled(Icon)`
+  align-self: center;
+  margin-bottom: 24px;
+`;
 const Text = styled.p<{ weight: number; size: number }>`
   font-weight: ${({ weight }) => weight}px;
   font-size: ${({ size }) => size}px;
@@ -102,15 +118,42 @@ const Text = styled.p<{ weight: number; size: number }>`
 `;
 
 const Title = styled(Text)<{ isMobile?: boolean }>`
-  ${({ isMobile }) => !isMobile && `margin-bottom: 24px;`}
+  ${({ isMobile }) =>
+    !isMobile ? `margin-bottom: 24px;` : `margin-bottom: 4px; line-height:46px;`}
 `;
 
+const WarningWrapper = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  padding: 0px;
+  gap: 6px;
+  width: 100%;
+  margin-top: 12vh;
+`;
+const WarningText = styled(Text)`
+  line-height: 22px;
+`;
+const InlineIcon = styled(Icon)`
+  display: inline-block;
+  height: 16px;
+  vertical-align: middle;
+  margin-right: 3px;
+`;
 const TextWrapper = styled.div<{ isMobile?: boolean }>`
   display: flex;
   flex-direction: column;
-  align-items: ${({ isMobile }) => (isMobile ? "center" : "flex-start")};
+  align-items: flex-start;
   justify-content: flex-end;
-  margin-bottom: ${({ isMobile }) => (isMobile ? "60px" : "24px")};
+  margin-bottom: ${({ isMobile }) => (isMobile ? "41.94px" : "24px")};
+  ${({ isMobile }) =>
+    isMobile &&
+    `
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      text-align: left;
+    `}
 `;
 
 const ContentWrapper = styled.div<{ isMobile?: boolean }>`
@@ -153,12 +196,21 @@ const CloseButton = styled(Icon)<{ isMobile?: boolean }>`
   border: none;
   color: white;
   cursor: pointer;
+  justify-content: center;
 `;
 
-const WelcomeCloseButton = styled(CloseButton)`
+const WelcomeCloseButton = styled(CloseButton)<{ isMobile?: boolean }>`
   position: absolute;
-  right: ${({ isMobile }) => (isMobile ? "-48px" : "-40px")};
-  top: ${({ isMobile }) => (isMobile ? "-48px" : "-40px")};
+  right: ${({ isMobile }) => (isMobile ? "0" : "-40px")};
+  top: ${({ isMobile }) => (isMobile ? "0" : "-40px")};
+  width: 40px;
+  height: 40px;
+  ${({ isMobile }) =>
+    isMobile &&
+    `   background-color: #00bebe;
+  color: white;
+  `};
+  align-items: center;
   flex-grow: 1;
 `;
 
@@ -185,13 +237,13 @@ const ButtonWrapper = styled.div<{ selected?: boolean }>`
   }
 `;
 
-const CheckWrapper = styled.div`
+const CheckWrapper = styled.div<{ isMobile?: boolean }>`
   display: flex;
   flex-direction: row;
-  align-items: center;
-  align-self: center;
+  align-items: ${({ isMobile }) => (isMobile ? "flex-start" : "center")};
+  align-self: ${({ isMobile }) => (isMobile ? "flex-start" : "center")};
   gap: 8px;
-  margin-top: 50px;
+  margin-top: ${({ isMobile }) => (isMobile ? "26px" : "50px")};
 `;
 
 const VideoWrapper = styled.div`
