@@ -94,10 +94,22 @@ export default () => {
   useEffect(() => {
     if (size.height > prevSizeRef.current.height) {
       postMsg("resize", [size.width, size.height, !minimizedRef.current]);
+      if (size.width) {
+        document.documentElement.style.width = `${size.width}px`;
+      }
+      if (size.height) {
+        document.documentElement.style.height = `${size.height}px`;
+      }
     } else if (size.height < prevSizeRef.current.height) {
       setTimeout(() => {
         if (sizeRef.current === size) {
           postMsg("resize", [size.width, size.height, !minimizedRef.current]);
+          if (size.width) {
+            document.documentElement.style.width = `${size.width}px`;
+          }
+          if (size.height) {
+            document.documentElement.style.height = `${size.height}px`;
+          }
         }
       }, 500);
     }

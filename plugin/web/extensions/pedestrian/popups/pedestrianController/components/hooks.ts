@@ -265,7 +265,11 @@ export default () => {
 
   useEffect(() => {
     document.documentElement.style.setProperty("--theme-color", "#00BEBE");
-    (globalThis as any).parent.document.body.setAttribute("tabindex", "0");
+    // without sandbox
+    try {
+      (globalThis as any).parent.document.body.setAttribute("tabindex", "0");
+      // eslint-disable-next-line no-empty
+    } catch (error) {}
 
     if (!miniMap.current) {
       initMiniMap();
@@ -277,14 +281,24 @@ export default () => {
   useEffect(() => {
     document.addEventListener("keydown", onKeyDown, false);
     document.addEventListener("keyup", onKeyUp, false);
-    (globalThis as any).parent.document.addEventListener("keydown", onKeyDown, false);
-    (globalThis as any).parent.document.addEventListener("keyup", onKeyUp, false);
+
+    // without sandbox
+    try {
+      (globalThis as any).parent.document.addEventListener("keydown", onKeyDown, false);
+      (globalThis as any).parent.document.addEventListener("keyup", onKeyUp, false);
+      // eslint-disable-next-line no-empty
+    } catch (error) {}
 
     return () => {
       document.removeEventListener("keydown", onKeyDown, false);
       document.removeEventListener("keyup", onKeyUp, false);
-      (globalThis as any).parent.document.removeEventListener("keydown", onKeyDown);
-      (globalThis as any).parent.document.removeEventListener("keyup", onKeyUp);
+
+      // without sandbox
+      try {
+        (globalThis as any).parent.document.removeEventListener("keydown", onKeyDown);
+        (globalThis as any).parent.document.removeEventListener("keyup", onKeyUp);
+        // eslint-disable-next-line no-empty
+      } catch (error) {}
     };
   }, [onKeyDown, onKeyUp]);
 
