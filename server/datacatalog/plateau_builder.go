@@ -6,6 +6,7 @@ import (
 	"encoding/csv"
 	"encoding/json"
 	"fmt"
+	"net/url"
 	"path"
 	"regexp"
 	"sort"
@@ -37,6 +38,7 @@ func init() {
 
 type DataCatalogItemBuilder struct {
 	Assets           []*cms.PublicAsset
+	SearchIndex      []*cms.PublicAsset
 	Descriptions     []string
 	IntermediateItem PlateauIntermediateItem
 	Options          DataCatalogItemBuilderOption
@@ -59,6 +61,7 @@ type DataCatalogItemBuilderOption struct {
 	GroupBy             func(AssetName) string
 	SortGroupBy         func(AssetName, AssetName) bool
 	SortAssetBy         func(AssetName, AssetName) bool
+	SearchIndex         bool
 }
 
 func (b DataCatalogItemBuilder) Build() []*DataCatalogItem {
@@ -160,6 +163,8 @@ func (b DataCatalogItemBuilder) Build() []*DataCatalogItem {
 		if isLayerSupported(defaultAsset.Name.Format) {
 			if b.Options.UseGroupNameAsLayer {
 				mainDefaultLayers = []string{g.Name}
+			} else if b.Options.LayersForLOD != nil {
+				mainDefaultLayers = b.Options.LayersForLOD[defaultAsset.Name.LOD]
 			} else {
 				mainDefaultLayers = b.Options.Layers
 			}
@@ -183,7 +188,11 @@ func (b DataCatalogItemBuilder) Build() []*DataCatalogItem {
 					}
 					return fmt.Sprintf("%s%d", mn, i+1)
 				}
-				return fmt.Sprintf("LOD%s", n.LOD)
+				notexture := ""
+				if n.NoTexture {
+					notexture = "（テクスチャなし）"
+				}
+				return fmt.Sprintf("LOD%s%s", n.LOD, notexture)
 			}
 		}
 
@@ -323,16 +332,26 @@ func (b *DataCatalogItemBuilder) dataCatalogItem(an AssetName, assetURL, desc st
 
 	prefCode := jpareacode.PrefectureCodeInt(b.IntermediateItem.Prefecture)
 
+	// item id
 	var itemID string
 	if addItemID {
 		itemID = b.IntermediateItem.ID
 	}
 
+	// open data
 	opd := b.IntermediateItem.OpenDataURL
 	if opd == "" {
 		opd = openDataURLFromAssetName(an)
 	}
 
+	// search index
+	wardCode := cityCode(an.WardCode, wardName, prefCode)
+	var searchIndex string
+	if b.Options.SearchIndex {
+		searchIndex = searchIndexURLFrom(b.SearchIndex, wardCode)
+	}
+
+	// config
 	var config any
 	if len(items) > 0 {
 		config = DataCatalogItemConfig{
@@ -355,7 +374,7 @@ func (b *DataCatalogItemBuilder) dataCatalogItem(an AssetName, assetURL, desc st
 		CityCode:    cityCode(b.IntermediateItem.CityCode, b.IntermediateItem.City, prefCode),
 		Ward:        wardName,
 		WardEn:      an.WardEn,
-		WardCode:    cityCode(an.WardCode, wardName, prefCode),
+		WardCode:    wardCode,
 		Description: desc,
 		URL:         assetURLFromFormat(assetURL, an.Format),
 		Format:      an.Format,
@@ -363,6 +382,7 @@ func (b *DataCatalogItemBuilder) dataCatalogItem(an AssetName, assetURL, desc st
 		Layers:      layers,
 		OpenDataURL: opd,
 		Config:      config,
+		SearchIndex: searchIndex,
 	}
 }
 
@@ -420,4 +440,24 @@ type DataCatalogItemConfigItem struct {
 	URL    string   `json:"url"`
 	Type   string   `json:"type"`
 	Layers []string `json:"layer,omitempty"`
+}
+
+func searchIndexURLFrom(assets []*cms.PublicAsset, wardCode string) string {
+	a, found := lo.Find(assets, func(a *cms.PublicAsset) bool {
+		if wardCode == "" {
+			return true
+		}
+		return AssetNameFrom(a.URL).WardCode == wardCode
+	})
+	if !found {
+		return ""
+	}
+
+	u, err := url.Parse(a.URL)
+	if err != nil {
+		return ""
+	}
+
+	u.Path = path.Join(assetRootPath(u.Path), "indexRoot.json")
+	return u.String()
 }

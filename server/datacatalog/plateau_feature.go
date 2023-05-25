@@ -15,9 +15,9 @@ var FeatureTypes = []string{
 	"lsld",
 	"urf",
 	"fld",
+	"tnm",
 	"htd",
 	"ifld",
-	"tnm",
 	"brid",
 	"rail",
 	"gen",
@@ -32,6 +32,7 @@ func (i PlateauItem) DataCatalogItems(c PlateauIntermediateItem, ty string) []*D
 	return DataCatalogItemBuilder{
 		Assets:           i.Feature(ty),
 		Descriptions:     i.FeatureDescription(ty),
+		SearchIndex:      i.SearchIndex,
 		IntermediateItem: c,
 		Options:          o,
 	}.Build()
@@ -49,11 +50,13 @@ var FeatureOptions = map[string]DataCatalogItemBuilderOption{
 		SortGroupBy: func(a, b AssetName) bool {
 			return a.WardCodeInt() < b.WardCodeInt()
 		},
+		SearchIndex: true,
 	},
 	"tran": {
 		ModelName: "道路モデル",
 		LOD:       true,
 		LayersForLOD: map[string][]string{
+			"0": {"Road"},
 			"1": {"Road"},
 			"2": {"TrafficArea", "AuxiliaryTrafficArea"},
 		},
@@ -106,6 +109,9 @@ var FeatureOptions = map[string]DataCatalogItemBuilderOption{
 		MultipleDesc: true,
 		GroupBy: func(an AssetName) string {
 			return an.FldAdminAndName()
+		},
+		SortGroupBy: func(a, b AssetName) bool {
+			return a.FldName < b.FldName || a.FldAdmin < b.FldAdmin
 		},
 		SortAssetBy: func(a, b AssetName) bool {
 			return a.FldScale < b.FldScale

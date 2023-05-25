@@ -28,6 +28,17 @@ func TestBldg(t *testing.T) {
 			{
 				URL: "https://example.com/01100_sapporo-shi_2020_3dtiles_op_bldg_01102_kita-ku_lod1.zip",
 			},
+			{
+				URL: "https://example.com/01100_sapporo-shi_2020_3dtiles_op_bldg_01102_kita-ku_lod1_no_texture.zip",
+			},
+		},
+		SearchIndex: []*cms.PublicAsset{
+			{
+				URL: "https://example.com/01100_sapporo-shi_2020_3dtiles_op_bldg_01101_chuo-ku_index.zip",
+			},
+			{
+				URL: "https://example.com/01100_sapporo-shi_2020_3dtiles_op_bldg_01102_kita-ku_index.zip",
+			},
 		},
 		Dic: `{"admin":[{"name":"chuo-ku","code":"01101","description":"中央区"},{"name":"kita-ku","code":"01102","description":"北区"}]}`,
 	}
@@ -49,9 +60,10 @@ func TestBldg(t *testing.T) {
 			TypeEn:      "bldg",
 			Description: "説明",
 			URL:         "https://example.com/01100_sapporo-shi_2020_3dtiles_op_bldg_01101_chuo-ku_lod2/tileset.json",
-			OpenDataURL: "https://example.com",
-			Year:        2020,
 			Format:      "3dtiles",
+			SearchIndex: "https://example.com/01100_sapporo-shi_2020_3dtiles_op_bldg_01101_chuo-ku_index/indexRoot.json",
+			Year:        2020,
+			OpenDataURL: "https://example.com",
 			Config: DataCatalogItemConfig{
 				Data: []DataCatalogItemConfigItem{
 					{
@@ -82,14 +94,20 @@ func TestBldg(t *testing.T) {
 			TypeEn:      "bldg",
 			Description: "説明",
 			URL:         "https://example.com/01100_sapporo-shi_2020_3dtiles_op_bldg_01102_kita-ku_lod1/tileset.json",
-			OpenDataURL: "https://example.com",
-			Year:        2020,
 			Format:      "3dtiles",
+			SearchIndex: "https://example.com/01100_sapporo-shi_2020_3dtiles_op_bldg_01102_kita-ku_index/indexRoot.json",
+			Year:        2020,
+			OpenDataURL: "https://example.com",
 			Config: DataCatalogItemConfig{
 				Data: []DataCatalogItemConfigItem{
 					{
 						Name: "LOD1",
 						URL:  "https://example.com/01100_sapporo-shi_2020_3dtiles_op_bldg_01102_kita-ku_lod1/tileset.json",
+						Type: "3dtiles",
+					},
+					{
+						Name: "LOD1（テクスチャなし）",
+						URL:  "https://example.com/01100_sapporo-shi_2020_3dtiles_op_bldg_01102_kita-ku_lod1_no_texture/tileset.json",
 						Type: "3dtiles",
 					},
 				},
@@ -115,6 +133,11 @@ func TestBldg(t *testing.T) {
 				URL: "https://example.com/01100_sapporo-shi_2020_3dtiles_op_bldg_lod2.zip",
 			},
 		},
+		SearchIndex: []*cms.PublicAsset{
+			{
+				URL: "https://example.com/01100_sapporo-shi_2020_3dtiles_op_bldg_index.zip",
+			},
+		},
 	}
 
 	assert.Equal(t, []*DataCatalogItem{
@@ -131,9 +154,10 @@ func TestBldg(t *testing.T) {
 			TypeEn:      "bldg",
 			Description: "説明",
 			URL:         "https://example.com/01100_sapporo-shi_2020_3dtiles_op_bldg_lod2/tileset.json",
-			OpenDataURL: "https://example.com",
-			Year:        2020,
 			Format:      "3dtiles",
+			SearchIndex: "https://example.com/01100_sapporo-shi_2020_3dtiles_op_bldg_index/indexRoot.json",
+			Year:        2020,
+			OpenDataURL: "https://example.com",
 			Config: DataCatalogItemConfig{
 				Data: []DataCatalogItemConfigItem{
 					{
@@ -674,6 +698,35 @@ func TestFld(t *testing.T) {
 			},
 		},
 		{
+			ID:          "01100_sapporo-shi_fld_natl_shinkawa_shinkawa_l1",
+			Name:        "洪水浸水想定区域モデル 新川水系新川（国管理区間）（札幌市）",
+			Pref:        "北海道",
+			PrefCode:    "01",
+			City:        "札幌市",
+			CityEn:      "sapporo-shi",
+			CityCode:    "01100",
+			Type:        "洪水浸水想定区域モデル",
+			TypeEn:      "fld",
+			URL:         "https://example.com/01100_sapporo-shi_2020_3dtiles_op_fld_natl_shinkawa_shinkawa_l1/tileset.json",
+			OpenDataURL: "https://example.com",
+			Year:        2020,
+			Format:      "3dtiles",
+			Config: DataCatalogItemConfig{
+				Data: []DataCatalogItemConfigItem{
+					{
+						Name: "計画規模",
+						URL:  "https://example.com/01100_sapporo-shi_2020_3dtiles_op_fld_natl_shinkawa_shinkawa_l1/tileset.json",
+						Type: "3dtiles",
+					},
+					{
+						Name: "想定最大規模",
+						URL:  "https://example.com/01100_sapporo-shi_2020_3dtiles_op_fld_natl_shinkawa_shinkawa_l2/tileset.json",
+						Type: "3dtiles",
+					},
+				},
+			},
+		},
+		{
 			ID:          "01100_sapporo-shi_fld_pref_shinkawa_shinkawa_l1",
 			Name:        "洪水浸水想定区域モデル 新川水系新川（都道府県管理区間）（札幌市）",
 			Pref:        "北海道",
@@ -698,35 +751,6 @@ func TestFld(t *testing.T) {
 					{
 						Name: "想定最大規模",
 						URL:  "https://example.com/01100_sapporo-shi_2020_3dtiles_op_fld_pref_shinkawa_shinkawa_l2/tileset.json",
-						Type: "3dtiles",
-					},
-				},
-			},
-		},
-		{
-			ID:          "01100_sapporo-shi_fld_natl_shinkawa_shinkawa_l1",
-			Name:        "洪水浸水想定区域モデル 新川水系新川（国管理区間）（札幌市）",
-			Pref:        "北海道",
-			PrefCode:    "01",
-			City:        "札幌市",
-			CityEn:      "sapporo-shi",
-			CityCode:    "01100",
-			Type:        "洪水浸水想定区域モデル",
-			TypeEn:      "fld",
-			URL:         "https://example.com/01100_sapporo-shi_2020_3dtiles_op_fld_natl_shinkawa_shinkawa_l1/tileset.json",
-			OpenDataURL: "https://example.com",
-			Year:        2020,
-			Format:      "3dtiles",
-			Config: DataCatalogItemConfig{
-				Data: []DataCatalogItemConfigItem{
-					{
-						Name: "計画規模",
-						URL:  "https://example.com/01100_sapporo-shi_2020_3dtiles_op_fld_natl_shinkawa_shinkawa_l1/tileset.json",
-						Type: "3dtiles",
-					},
-					{
-						Name: "想定最大規模",
-						URL:  "https://example.com/01100_sapporo-shi_2020_3dtiles_op_fld_natl_shinkawa_shinkawa_l2/tileset.json",
 						Type: "3dtiles",
 					},
 				},

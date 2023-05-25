@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"net/http"
+	"os"
 	"testing"
 
 	"github.com/jarcoal/httpmock"
@@ -19,9 +20,11 @@ func TestFetcher(t *testing.T) {
 	}
 	f := lo.Must(NewFetcher(nil, base))
 	cmsres := lo.Must(f.Do(context.Background(), prj))
-	item, _ := lo.Find(cmsres.Plateau, func(i PlateauItem) bool { return i.CityName == "" })
-	res := item.AllDataCatalogItems(item.IntermediateItem())
-	t.Log(string(lo.Must(json.MarshalIndent(res, "", "  "))))
+	res := cmsres.All()
+	// item, _ := lo.Find(cmsres.Plateau, func(i PlateauItem) bool { return i.CityName == "" })
+	// res := item.AllDataCatalogItems(item.IntermediateItem())
+	// t.Log(string(lo.Must(json.MarshalIndent(res, "", "  "))))
+	lo.Must0(os.WriteFile("datacatalog.json", lo.Must(json.MarshalIndent(res, "", "  ")), 0644))
 }
 
 func TestFetcher_Do(t *testing.T) {
