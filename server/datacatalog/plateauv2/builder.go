@@ -64,20 +64,48 @@ type DataCatalogItemBuilderOption struct {
 	SearchIndex         bool
 }
 
+func (b DataCatalogItemBuilder) override() Override {
+	return Override{
+		Name:   b.Options.ModelName,
+		Layers: b.Options.Layers,
+	}
+}
+
+func (b DataCatalogItemBuilder) groupOverride(g assetGroup, defaultAsset asset) (o Override) {
+	if b.Options.UseGroupNameAsName {
+		o.Name = g.Name
+	}
+	if b.Options.UseGroupNameAsLayer {
+		o.Layers = []string{g.Name}
+	} else if defaultAsset.Name.LOD != "" && b.Options.LayersForLOD != nil {
+		o.Layers = b.Options.LayersForLOD[defaultAsset.Name.LOD]
+	}
+	return
+}
+
+type asset struct {
+	Index int
+	URL   string
+	Name  AssetName
+}
+
+type assetGroup struct {
+	Name   string
+	Assets []asset
+}
+
+func (g assetGroup) DefaultAsset(maxLOD bool) asset {
+	if maxLOD {
+		return lo.MaxBy(g.Assets, func(a, b asset) bool {
+			return a.Name.LODInt() > b.Name.LODInt()
+		})
+	}
+	return g.Assets[0]
+}
+
 func (b DataCatalogItemBuilder) Build() []*DataCatalogItem {
 	if len(b.Assets) == 0 {
 		return nil
-	}
-
-	type asset struct {
-		Index int
-		URL   string
-		Name  AssetName
-	}
-
-	type assetGroup struct {
-		Name   string
-		Assets []asset
 	}
 
 	assets := lo.Map(b.Assets, func(a *cms.PublicAsset, i int) asset {
@@ -128,65 +156,28 @@ func (b DataCatalogItemBuilder) Build() []*DataCatalogItem {
 		}
 	}
 
+	overrideBase := b.override()
+
 	results := make([]*DataCatalogItem, 0, len(groups))
 
 	for i, g := range groups {
 		itemID := b.Options.ItemID && i == 0
-
-		// name and description
-		name, desc := "", ""
-		if b.Options.MultipleDesc {
-			ad := descFromAsset(g.Assets[0].Name, b.Descriptions)
-			if ad.NameOverride != "" && name == "" {
-				name = ad.NameOverride
-			}
-			if name == "" && b.Options.UseGroupNameAsName {
-				name = g.Name
-			}
-			if ad.Desc != "" {
-				desc = ad.Desc
-			}
-		} else if len(b.Descriptions) > 0 {
-			desc = b.Descriptions[0]
-		}
-
-		// default asset and its URL
-		defaultAsset := g.Assets[0]
-		if b.Options.UseMaxLODAsDefault {
-			defaultAsset = lo.MaxBy(g.Assets, func(a, b asset) bool {
-				return a.Name.LODInt() > b.Name.LODInt()
-			})
-		}
-
-		// default layers
-		var mainDefaultLayers []string
-		if datacatalogutil.IsLayerSupported(defaultAsset.Name.Format) {
-			if b.Options.UseGroupNameAsLayer {
-				mainDefaultLayers = []string{g.Name}
-			} else if b.Options.LayersForLOD != nil {
-				mainDefaultLayers = b.Options.LayersForLOD[defaultAsset.Name.LOD]
-			} else {
-				mainDefaultLayers = b.Options.Layers
-			}
-		}
+		defaultAsset := g.DefaultAsset(b.Options.UseMaxLODAsDefault)
+		defaultDescription := descFromAsset(defaultAsset.Name, b.Descriptions, !b.Options.MultipleDesc)
+		overrideGroup := b.groupOverride(g, defaultAsset).Merge(overrideBase)
+		overrideDefault := defaultDescription.Override.Merge(overrideGroup)
 
 		// config
 		var data []DataCatalogItemConfigItem
-		mn := b.Options.ModelName
-		if name != "" {
-			mn = name
-		} else if b.Options.UseGroupNameAsName && g.Name != "" {
-			mn = g.Name
-		}
 
 		itemName := b.Options.ItemName
 		if itemName == nil && b.Options.LOD {
 			itemName = func(n AssetName, _ Dic, i, len int) string {
 				if n.LOD == "" {
 					if len == 1 {
-						return mn
+						return overrideDefault.Name
 					}
-					return fmt.Sprintf("%s%d", mn, i+1)
+					return fmt.Sprintf("%s%d", overrideDefault.Name, i+1)
 				}
 				notexture := ""
 				if n.NoTexture {
@@ -213,7 +204,7 @@ func (b DataCatalogItemBuilder) Build() []*DataCatalogItem {
 			data = lo.Map(g.Assets, func(a asset, i int) DataCatalogItemConfigItem {
 				name := itemName(a.Name, b.IntermediateItem.Dic, i, len(g.Assets))
 				if name == "" {
-					name = mn
+					name = overrideDefault.Name
 				}
 
 				var layers []string
@@ -231,13 +222,11 @@ func (b DataCatalogItemBuilder) Build() []*DataCatalogItem {
 		}
 
 		dci := b.dataCatalogItem(
-			defaultAsset.Name,
-			defaultAsset.URL,
-			desc,
-			mainDefaultLayers,
+			defaultAsset,
+			defaultDescription.Desc,
 			itemID,
-			name,
 			data,
+			overrideDefault,
 		)
 
 		results = append(results, dci)
@@ -286,21 +275,21 @@ func (i CMSItem) IntermediateItem() PlateauIntermediateItem {
 	}
 }
 
-func (b *DataCatalogItemBuilder) dataCatalogItem(an AssetName, assetURL, desc string, layers []string, addItemID bool, nameOverride string, items []DataCatalogItemConfigItem) *DataCatalogItem {
+func (b *DataCatalogItemBuilder) dataCatalogItem(a asset, desc string, addItemID bool, items []DataCatalogItemConfigItem, override Override) *DataCatalogItem {
 	if b == nil {
 		return nil
 	}
 
 	dic := b.IntermediateItem.Dic
 
-	id := b.IntermediateItem.id(an)
+	id := b.IntermediateItem.id(a.Name)
 	if id == "" {
 		return nil
 	}
 
-	wardName := dic.WardName(an.WardCode)
-	if wardName == "" && an.WardCode != "" {
-		wardName = an.WardEn
+	wardName := dic.WardName(a.Name.WardCode)
+	if wardName == "" && a.Name.WardCode != "" {
+		wardName = a.Name.WardEn
 	}
 
 	cityOrWardName := b.IntermediateItem.City
@@ -312,10 +301,10 @@ func (b *DataCatalogItemBuilder) dataCatalogItem(an AssetName, assetURL, desc st
 	name := ""
 	t2, t2en := "", ""
 	if name == "" && b.Options.Name != nil {
-		name, t2, t2en = b.Options.Name(an)
+		name, t2, t2en = b.Options.Name(a.Name)
 	}
 	if name == "" {
-		name = nameOverride
+		name = override.Name
 	}
 	if name == "" {
 		name = b.Options.ModelName
@@ -324,7 +313,7 @@ func (b *DataCatalogItemBuilder) dataCatalogItem(an AssetName, assetURL, desc st
 	// sub name
 	name2 := ""
 	if b.Options.SubName != nil {
-		name2 = b.Options.SubName(an, dic)
+		name2 = b.Options.SubName(a.Name, dic)
 		if name2 != "" {
 			name2 = " " + name2
 		}
@@ -341,11 +330,11 @@ func (b *DataCatalogItemBuilder) dataCatalogItem(an AssetName, assetURL, desc st
 	// open data
 	opd := b.IntermediateItem.OpenDataURL
 	if opd == "" {
-		opd = openDataURLFromAssetName(an)
+		opd = openDataURLFromAssetName(a.Name)
 	}
 
 	// search index
-	wardCode := datacatalogutil.CityCode(an.WardCode, wardName, prefCode)
+	wardCode := datacatalogutil.CityCode(a.Name.WardCode, wardName, prefCode)
 	var searchIndex string
 	if b.Options.SearchIndex {
 		searchIndex = searchIndexURLFrom(b.SearchIndex, wardCode)
@@ -363,7 +352,7 @@ func (b *DataCatalogItemBuilder) dataCatalogItem(an AssetName, assetURL, desc st
 		ID:          id,
 		ItemID:      itemID,
 		Type:        b.Options.ModelName,
-		TypeEn:      an.Feature,
+		TypeEn:      a.Name.Feature,
 		Type2:       t2,
 		Type2En:     t2en,
 		Name:        fmt.Sprintf("%s%s（%s）", name, name2, cityOrWardName),
@@ -373,13 +362,13 @@ func (b *DataCatalogItemBuilder) dataCatalogItem(an AssetName, assetURL, desc st
 		CityEn:      b.IntermediateItem.CityEn,
 		CityCode:    datacatalogutil.CityCode(b.IntermediateItem.CityCode, b.IntermediateItem.City, prefCode),
 		Ward:        wardName,
-		WardEn:      an.WardEn,
+		WardEn:      a.Name.WardEn,
 		WardCode:    wardCode,
 		Description: desc,
-		URL:         datacatalogutil.AssetURLFromFormat(assetURL, an.Format),
-		Format:      an.Format,
+		URL:         datacatalogutil.AssetURLFromFormat(a.URL, a.Name.Format),
+		Format:      a.Name.Format,
 		Year:        b.IntermediateItem.Year,
-		Layers:      layers,
+		Layers:      override.LayersIfSupported(a.Name.Format),
 		OpenDataURL: opd,
 		Config:      config,
 		SearchIndex: searchIndex,

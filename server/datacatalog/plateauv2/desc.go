@@ -8,15 +8,15 @@ import (
 )
 
 type Description struct {
-	NameOverride   string
-	TypeOverride   string
-	TypeEnOverride string
-	AreaOverride   string
-	LayerOverride  []string
-	Desc           string
+	Override Override
+	Desc     string
 }
 
-func descFromAsset(an AssetName, descs []string) Description {
+func descFromAsset(an AssetName, descs []string, single bool) Description {
+	if single && len(descs) > 0 {
+		return DescriptionFrom(descs[0])
+	}
+
 	if len(descs) == 0 {
 		return Description{}
 	}
@@ -26,19 +26,25 @@ func descFromAsset(an AssetName, descs []string) Description {
 	for _, desc := range descs {
 		b, a, ok := strings.Cut(desc, "\n")
 		if ok && strings.Contains(b, fn) {
-			tags, rest := extractTags(strings.TrimSpace(a))
-			return Description{
-				NameOverride:   tags["name"],
-				TypeOverride:   tags["type"],
-				TypeEnOverride: tags["type_en"],
-				AreaOverride:   tags["area"],
-				LayerOverride:  multipleValues(tags["layer"]),
-				Desc:           rest,
-			}
+			return DescriptionFrom(a)
 		}
 	}
 
 	return Description{}
+}
+
+func DescriptionFrom(d string) Description {
+	tags, rest := extractTags(strings.TrimSpace(d))
+	return Description{
+		Override: Override{
+			Name:   tags["name"],
+			Type:   tags["type"],
+			TypeEn: tags["type_en"],
+			Area:   tags["area"],
+			Layers: multipleValues(tags["layer"]),
+		},
+		Desc: rest,
+	}
 }
 
 func extractTags(s string) (map[string]string, string) {
