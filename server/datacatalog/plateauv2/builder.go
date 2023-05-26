@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"net/url"
 	"path"
-	"regexp"
 	"sort"
 	"strconv"
 	"strings"
@@ -137,15 +136,15 @@ func (b DataCatalogItemBuilder) Build() []*DataCatalogItem {
 		// name and description
 		name, desc := "", ""
 		if b.Options.MultipleDesc {
-			an, ad := descFromAsset(g.Assets[0].URL, b.Descriptions)
-			if an != "" && name == "" {
-				name = an
+			ad := descFromAsset(g.Assets[0].Name, b.Descriptions)
+			if ad.NameOverride != "" && name == "" {
+				name = ad.NameOverride
 			}
 			if name == "" && b.Options.UseGroupNameAsName {
 				name = g.Name
 			}
-			if ad != "" {
-				desc = ad
+			if ad.Desc != "" {
+				desc = ad.Desc
 			}
 		} else if len(b.Descriptions) > 0 {
 			desc = b.Descriptions[0]
@@ -398,34 +397,6 @@ func (i *PlateauIntermediateItem) id(an AssetName) string {
 		an.FldFullName(),
 		an.GenName,
 	}, func(s string, _ int) bool { return s != "" }), "_")
-}
-
-var reName = regexp.MustCompile(`^@name:\s*(.+)(?:$|\n)`)
-
-func descFromAsset(assetURL string, descs []string) (string, string) {
-	if assetURL == "" || len(descs) == 0 {
-		return "", ""
-	}
-
-	fn := strings.TrimSuffix(path.Base(assetURL), path.Ext(assetURL))
-	for _, desc := range descs {
-		b, a, ok := strings.Cut(desc, "\n")
-		if ok && strings.Contains(b, fn) {
-			return nameFromDescription(strings.TrimSpace(a))
-		}
-	}
-
-	return "", ""
-}
-
-func nameFromDescription(d string) (string, string) {
-	if m := reName.FindStringSubmatch(d); len(m) > 0 {
-		name := m[1]
-		_, n, _ := strings.Cut(d, "\n")
-		return name, strings.TrimSpace(n)
-	}
-
-	return "", d
 }
 
 func openDataURLFromAssetName(a AssetName) string {
