@@ -47,3 +47,32 @@ func (o Override) LayersIfSupported(ty string) []string {
 	}
 	return nil
 }
+
+func (o Override) Item() ItemOverride {
+	return ItemOverride{
+		Name:   o.Name,
+		Layers: o.Layers,
+	}
+}
+
+type ItemOverride struct {
+	Name   string
+	Layers []string
+}
+
+func (o ItemOverride) Merge(p ItemOverride) ItemOverride {
+	if o.Name == "" {
+		o.Name = p.Name
+	}
+	if len(o.Layers) == 0 {
+		o.Layers = p.Layers
+	}
+	return o
+}
+
+func (o ItemOverride) LayersIfSupported(ty string) []string {
+	if datacatalogutil.IsLayerSupported(ty) {
+		return o.Layers
+	}
+	return nil
+}

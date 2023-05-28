@@ -30,20 +30,20 @@ func (d Dic) WardName(code string) string {
 	return e.Description
 }
 
-var fldCatJa = map[string]string{
+var fldAdminJa = map[string]string{
 	"natl": "国",
 	"pref": "都道府県",
 }
 
-func (d Dic) Fld(name, cat string) *DicEntry {
-	catja := fldCatJa[cat]
+func (d Dic) FindByAsset(an AssetName) *DicEntry {
+	catja := fldAdminJa[an.FldAdmin]
 	if catja == "" {
-		return d.FindByName("fld", name)
+		return d.findByName(an.Feature, an.FldName)
 	}
-	return d.findByNameAndScale("fld", name, catja)
+	return d.findByNameAndAdmin(an.Feature, an.FldNameAndScale(), catja)
 }
 
-func (d Dic) FindByName(key, name string) *DicEntry {
+func (d Dic) findByName(key, name string) *DicEntry {
 	entries, ok := d[key]
 	if !ok {
 		return nil
@@ -58,7 +58,7 @@ func (d Dic) FindByName(key, name string) *DicEntry {
 	return &e
 }
 
-func (d Dic) findByNameAndScale(key, name, admin string) *DicEntry {
+func (d Dic) findByNameAndAdmin(key, name, admin string) *DicEntry {
 	entries, ok := d[key]
 	if !ok {
 		return nil
