@@ -45,50 +45,54 @@ type DataCatalogItemBuilder struct {
 }
 
 type ItemContext struct {
-	AssetName AssetName
-	DicEntry  *DicEntry
-	GroupName string
-	Index     int
-	AssetLen  int
+	AssetName   AssetName
+	Description Description
+	DicEntry    *DicEntry
+	GroupName   string
+	Index       int
+	AssetLen    int
 }
 
 type DataCatalogItemBuilderOption struct {
-	Type               string
-	TypeEn             string
-	Layers             []string
-	Group              func(ItemContext) Override
-	Item               func(ItemContext) ItemOverride
-	MultipleDesc       bool
-	ItemID             bool
-	LOD                bool
-	UseMaxLODAsDefault bool
-	GroupBy            func(AssetName) string
-	SortGroupBy        func(AssetName, AssetName) bool
-	SortAssetBy        func(AssetName, AssetName) bool
-	SearchIndex        bool
+	Type                string
+	TypeEn              string
+	Layers              []string
+	Group               func(ItemContext) Override
+	Item                func(ItemContext) ItemOverride
+	MultipleDesc        bool
+	ItemID              bool
+	LOD                 bool
+	UseMaxLODAsDefault  bool
+	GroupBy             func(AssetName, []AssetName) string
+	SortGroupBy         func(AssetName, AssetName) bool
+	SortAssetBy         func(AssetName, AssetName) bool
+	OmitGroupNameFromID bool
+	SearchIndex         bool
 }
 
-func (b DataCatalogItemBuilder) groupOverride(defaultAsset asset, defaultDic *DicEntry, g assetGroup) (o Override) {
+func (b DataCatalogItemBuilder) groupOverride(defaultAsset asset, defaultDescription Description, defaultDic *DicEntry, g assetGroup) (o Override) {
 	if b.Options.Group != nil {
 		o = b.Options.Group(ItemContext{
-			AssetName: defaultAsset.Name,
-			DicEntry:  defaultDic,
-			GroupName: g.Name,
-			Index:     -1,
-			AssetLen:  len(g.Assets),
+			AssetName:   defaultAsset.Name,
+			Description: defaultDescription,
+			DicEntry:    defaultDic,
+			GroupName:   g.Name,
+			Index:       -1,
+			AssetLen:    len(g.Assets),
 		})
 	}
 	return o
 }
 
-func (b DataCatalogItemBuilder) itemOverride(g assetGroup, a asset, dic *DicEntry, i int, all []asset) (o ItemOverride) {
+func (b DataCatalogItemBuilder) itemOverride(g assetGroup, a asset, desc Description, dic *DicEntry, i int, all []asset) (o ItemOverride) {
 	if b.Options.Item != nil {
 		o = b.Options.Item(ItemContext{
-			AssetName: a.Name,
-			DicEntry:  dic,
-			GroupName: g.Name,
-			Index:     i,
-			AssetLen:  len(all),
+			AssetName:   a.Name,
+			Description: desc,
+			DicEntry:    dic,
+			GroupName:   g.Name,
+			Index:       i,
+			AssetLen:    len(all),
 		})
 	}
 
@@ -154,7 +158,7 @@ func (b DataCatalogItemBuilder) Build() []*DataCatalogItem {
 	var groups []assetGroup
 	if b.Options.GroupBy != nil {
 		groups = lo.MapToSlice(lo.GroupBy(assets, func(a asset) string {
-			return b.Options.GroupBy(a.Name)
+			return b.Options.GroupBy(a.Name, lo.Map(assets, func(a asset, _ int) AssetName { return a.Name }))
 		}), func(k string, a []asset) assetGroup {
 			return assetGroup{
 				Name:   k,
@@ -204,7 +208,7 @@ func (b DataCatalogItemBuilder) Build() []*DataCatalogItem {
 		defaultAsset := g.DefaultAsset(b.Options.UseMaxLODAsDefault)
 		defaultDescription := descFromAsset(defaultAsset.Name, b.Descriptions, !b.Options.MultipleDesc)
 		defaultDic := b.IntermediateItem.Dic.FindByAsset(defaultAsset.Name)
-		defaultOverride := defaultDescription.Override.Merge(b.groupOverride(defaultAsset, defaultDic, g).Merge(overrideBase))
+		defaultOverride := defaultDescription.Override.Merge(b.groupOverride(defaultAsset, defaultDescription, defaultDic, g).Merge(overrideBase))
 
 		// config
 		var config []DataCatalogItemConfigItem
@@ -212,7 +216,7 @@ func (b DataCatalogItemBuilder) Build() []*DataCatalogItem {
 			config = lo.Map(g.Assets, func(a asset, i int) DataCatalogItemConfigItem {
 				description := descFromAsset(a.Name, b.Descriptions, !b.Options.MultipleDesc)
 				dic := b.IntermediateItem.Dic.FindByAsset(a.Name)
-				override := description.Override.Item().Merge(b.itemOverride(g, a, dic, i, g.Assets).Merge(overrideBase.Item()))
+				override := description.Override.Item().Merge(b.itemOverride(g, a, description, dic, i, g.Assets).Merge(overrideBase.Item()))
 
 				return DataCatalogItemConfigItem{
 					Name:   override.Name,
@@ -225,6 +229,7 @@ func (b DataCatalogItemBuilder) Build() []*DataCatalogItem {
 
 		dci := b.dataCatalogItem(
 			defaultAsset,
+			g,
 			defaultDescription.Desc,
 			itemID,
 			config,
@@ -277,12 +282,16 @@ func (i CMSItem) IntermediateItem() PlateauIntermediateItem {
 	}
 }
 
-func (b *DataCatalogItemBuilder) dataCatalogItem(a asset, desc string, addItemID bool, items []DataCatalogItemConfigItem, override Override) *DataCatalogItem {
+func (b *DataCatalogItemBuilder) dataCatalogItem(a asset, g assetGroup, desc string, addItemID bool, items []DataCatalogItemConfigItem, override Override) *DataCatalogItem {
 	if b == nil {
 		return nil
 	}
 
-	id := b.IntermediateItem.id(a.Name)
+	gname := ""
+	if !b.Options.OmitGroupNameFromID {
+		gname = g.Name
+	}
+	id := b.IntermediateItem.id(a.Name, gname)
 	if id == "" {
 		return nil
 	}
@@ -366,16 +375,14 @@ func (b *DataCatalogItemBuilder) dataCatalogItem(a asset, desc string, addItemID
 	}
 }
 
-func (i *PlateauIntermediateItem) id(an AssetName) string {
+func (i *PlateauIntermediateItem) id(an AssetName, groupName string) string {
 	return strings.Join(lo.Filter([]string{
 		i.CityCode,
 		i.CityEn,
 		an.WardCode,
 		an.WardEn,
 		an.Feature,
-		an.UrfFeatureType,
-		an.FldFullName(),
-		an.GenName,
+		groupName,
 	}, func(s string, _ int) bool { return s != "" }), "_")
 }
 

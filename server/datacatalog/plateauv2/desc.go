@@ -37,14 +37,15 @@ func DescriptionFrom(d string) Description {
 	tags, rest := extractTags(strings.TrimSpace(d))
 	return Description{
 		Override: Override{
-			Name:    tags["name"],
-			SubName: tags["subname"],
-			Type:    tags["type"],
-			TypeEn:  tags["type_en"],
-			Type2:   tags["type2"],
-			Type2En: tags["type2_en"],
-			Area:    tags["area"],
-			Layers:  multipleValues(tags["layer"]),
+			Name:     tags["name"],
+			SubName:  tags["subname"],
+			Type:     tags["type"],
+			TypeEn:   tags["type_en"],
+			Type2:    tags["type2"],
+			Type2En:  tags["type2_en"],
+			Area:     tags["area"],
+			ItemName: tags["item_name"],
+			Layers:   multipleValues(tags["layer"]),
 		},
 		Desc: rest,
 	}

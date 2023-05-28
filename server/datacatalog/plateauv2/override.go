@@ -3,14 +3,15 @@ package plateauv2
 import "github.com/eukarya-inc/reearth-plateauview/server/datacatalog/datacatalogutil"
 
 type Override struct {
-	Name    string
-	SubName string
-	Type    string
-	TypeEn  string
-	Type2   string
-	Type2En string
-	Area    string
-	Layers  []string
+	Name     string
+	SubName  string
+	Type     string
+	TypeEn   string
+	Type2    string
+	Type2En  string
+	Area     string
+	ItemName string
+	Layers   []string
 }
 
 func (o Override) Merge(p Override) Override {
@@ -50,7 +51,7 @@ func (o Override) LayersIfSupported(ty string) []string {
 
 func (o Override) Item() ItemOverride {
 	return ItemOverride{
-		Name:   o.Name,
+		Name:   o.ItemName,
 		Layers: o.Layers,
 	}
 }

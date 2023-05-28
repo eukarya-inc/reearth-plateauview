@@ -2,7 +2,10 @@ package plateauv2
 
 import (
 	"fmt"
+	"sort"
+	"strings"
 
+	"github.com/samber/lo"
 	"golang.org/x/exp/slices"
 )
 
@@ -21,6 +24,7 @@ var FeatureTypes = []string{
 	"brid",
 	"rail",
 	"gen",
+	"extra",
 }
 
 var FeatureOptions = map[string]DataCatalogItemBuilderOption{
@@ -30,19 +34,25 @@ var FeatureOptions = map[string]DataCatalogItemBuilderOption{
 		LOD:                true,
 		UseMaxLODAsDefault: true,
 		ItemID:             true,
-		GroupBy: func(an AssetName) string {
+		GroupBy: func(an AssetName, assets []AssetName) string {
 			return an.WardEn
 		},
 		SortGroupBy: func(a, b AssetName) bool {
 			return a.WardCodeInt() < b.WardCodeInt()
 		},
-		SearchIndex: true,
+		OmitGroupNameFromID: true,
+		SearchIndex:         true,
 	},
 	"tran": {
 		Type:               "道路モデル",
 		TypeEn:             "tran",
 		LOD:                true,
 		UseMaxLODAsDefault: true,
+		Group: func(ctx ItemContext) Override {
+			return Override{
+				Layers: tranLayersForLOD[ctx.AssetName.LOD],
+			}
+		},
 		Item: func(ctx ItemContext) ItemOverride {
 			return ItemOverride{
 				Layers: tranLayersForLOD[ctx.AssetName.LOD],
@@ -90,7 +100,7 @@ var FeatureOptions = map[string]DataCatalogItemBuilderOption{
 			}
 		},
 		MultipleDesc: true,
-		GroupBy: func(an AssetName) string {
+		GroupBy: func(an AssetName, assets []AssetName) string {
 			return normalizeUrfFeatureType(an.UrfFeatureType)
 		},
 		SortGroupBy: func(c, d AssetName) bool {
@@ -130,8 +140,19 @@ var FeatureOptions = map[string]DataCatalogItemBuilderOption{
 			}
 		},
 		MultipleDesc: true,
-		GroupBy: func(an AssetName) string {
-			return an.FldAdminAndName()
+		GroupBy: func(an AssetName, assets []AssetName) string {
+			l := "l1"
+			a := lo.Filter(assets, func(a AssetName, _ int) bool {
+				return a.FldName == an.FldName && a.FldAdmin == an.FldAdmin
+			})
+			sort.SliceStable(a, func(i, j int) bool {
+				return a[i].FldScale < a[j].FldScale
+			})
+			if len(a) > 0 {
+				l = a[0].FldScale
+			}
+
+			return fmt.Sprintf("%s_%s", an.FldAdminAndName(), l) // for compat
 		},
 		SortGroupBy: func(a, b AssetName) bool {
 			return a.FldAdminAndName() < b.FldAdminAndName()
@@ -153,7 +174,7 @@ var FeatureOptions = map[string]DataCatalogItemBuilderOption{
 			}
 		},
 		MultipleDesc: true,
-		GroupBy: func(an AssetName) string {
+		GroupBy: func(an AssetName, assets []AssetName) string {
 			return an.FldName
 		},
 	},
@@ -170,7 +191,7 @@ var FeatureOptions = map[string]DataCatalogItemBuilderOption{
 			}
 		},
 		MultipleDesc: true,
-		GroupBy: func(an AssetName) string {
+		GroupBy: func(an AssetName, assets []AssetName) string {
 			return an.FldName
 		},
 	},
@@ -187,7 +208,7 @@ var FeatureOptions = map[string]DataCatalogItemBuilderOption{
 			}
 		},
 		MultipleDesc: true,
-		GroupBy: func(an AssetName) string {
+		GroupBy: func(an AssetName, assets []AssetName) string {
 			return an.FldName
 		},
 	},
@@ -215,13 +236,26 @@ var FeatureOptions = map[string]DataCatalogItemBuilderOption{
 			}
 		},
 		Item: func(ctx ItemContext) ItemOverride {
+			name := ctx.Description.Override.Name
+			if name == "" {
+				name = ctx.GroupName
+			}
 			return ItemOverride{
-				Name:   ctx.GroupName,
+				Name:   name,
 				Layers: []string{ctx.GroupName},
 			}
 		},
-		GroupBy: func(n AssetName) string {
+		GroupBy: func(n AssetName, assets []AssetName) string {
 			return n.GenName
+		},
+	},
+	"extra": {
+		Type:         "その他のデータセット",
+		TypeEn:       "ex",
+		MultipleDesc: true,
+		LOD:          true,
+		GroupBy: func(n AssetName, assets []AssetName) string {
+			return strings.Join(n.FeatureEx, "-")
 		},
 	},
 }
