@@ -216,7 +216,7 @@ const DatasetCard: React.FC<Props> = ({
           if (isMobile) {
             postMsg({ action: "mobileCatalogOpen", payload: dataset });
           } else {
-            postMsg({ action: "catalogModalOpen" });
+            postMsg({ action: "catalogModalOpen", payload: templates });
           }
           postMsg({ action: "saveDataset", payload: { dataset } });
         },

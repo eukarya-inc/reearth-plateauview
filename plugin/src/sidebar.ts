@@ -287,7 +287,9 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
     }
   } else if (action === "catalogModalOpen") {
     reearth.modal.show(dataCatalogHtml, { background: "transparent" });
-    templates = payload.templates;
+    if (payload?.templates) {
+      templates = payload.templates;
+    }
     reearth.modal.postMessage({
       action: "setPrimaryColor",
       payload: reearth.scene.property?.theme?.themeSelectColor ?? defaultThemeColor,
