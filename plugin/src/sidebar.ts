@@ -107,15 +107,15 @@ const sidebarInstance: PluginExtensionInstance = reearth.plugins.instances.find(
 
 reearth.ui.show(html, { extended: true });
 
+reearth.ui.postMessage({
+  action: "setPrimaryColor",
+  payload: reearth.scene.property?.theme?.themeSelectColor ?? defaultThemeColor,
+});
+
 if (
   sidebarInstance.runTimes === 1 ||
   (sidebarInstance.runTimes === 2 && reearth.viewport.isMobile)
 ) {
-  reearth.ui.postMessage({
-    action: "setPrimaryColor",
-    payload: reearth.scene.property?.theme?.themeSelectColor ?? defaultThemeColor,
-  });
-
   reearth.visualizer.overrideProperty(defaultProject.sceneOverrides);
   reearth.clientStorage.setAsync("draftProject", defaultProject);
 
