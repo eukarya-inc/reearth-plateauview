@@ -36,11 +36,12 @@ var fldAdminJa = map[string]string{
 }
 
 func (d Dic) FindByAsset(an AssetName) *DicEntry {
-	catja := fldAdminJa[an.FldAdmin]
-	if catja == "" {
-		return d.findByName(an.Feature, an.FldName)
+	if an.Feature == "fld" {
+		if catja := fldAdminJa[an.FldAdmin]; catja != "" {
+			return d.findByNameAndAdmin(an.Feature, an.FldNameAndScale(), catja)
+		}
 	}
-	return d.findByNameAndAdmin(an.Feature, an.FldNameAndScale(), catja)
+	return d.findByName(an.Feature, an.FldName)
 }
 
 func (d Dic) findByName(key, name string) *DicEntry {

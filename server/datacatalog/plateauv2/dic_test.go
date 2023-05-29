@@ -32,18 +32,6 @@ func TestDic(t *testing.T) {
 				Description: "xxx",
 			},
 		},
-		"tnm": []DicEntry{
-			{
-				Name:        "ccc",
-				Description: "xxx",
-			},
-		},
-		"ifld": []DicEntry{
-			{
-				Name:        "ddd",
-				Description: "xxx",
-			},
-		},
 	}
 
 	assert.Equal(t, "A市", d.WardName("11111"))
@@ -84,9 +72,8 @@ func TestDic(t *testing.T) {
 		Admin:       "",
 		Scale:       "",
 	}, d.FindByAsset(AssetName{
-		Feature:  "htd",
-		FldName:  "bbb",
-		FldAdmin: "pref",
+		Feature: "htd",
+		FldName: "bbb",
 	}))
 	assert.Nil(t, d.FindByAsset(AssetName{
 		Feature:  "htd",
