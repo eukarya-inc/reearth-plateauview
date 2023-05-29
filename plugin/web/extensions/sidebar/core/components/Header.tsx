@@ -68,12 +68,13 @@ const Header: React.FC<Props> = ({
   return (
     <HeaderWrapper className={className} minimized={minimized}>
       <TopSection>
-        {!useCustomProjectHeader && <PlateauIcon icon="plateauLogo" size={114} wide />}
-        {useCustomProjectHeader && (
+        {useCustomProjectHeader ? (
           <CustomProjectHeader>
             {customLogo && <CustomLogo src={customLogo} />}
             {customProjectName && <CustomProjectName>{customProjectName}</CustomProjectName>}
           </CustomProjectHeader>
+        ) : (
+          <PlateauIcon icon="plateauLogo" size={114} wide />
         )}
         <MinimizeButton minimized={minimized}>
           <Icon icon={minimized ? "menu" : "close"} onClick={onMinimize} />

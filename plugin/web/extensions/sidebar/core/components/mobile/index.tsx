@@ -99,12 +99,13 @@ const MobileSidebar: React.FC<Props> = ({ className }) => {
 
   return (
     <Wrapper className={className}>
-      {!useCustomProjectHeader && <PlateauIcon icon="plateauLogo" size={114} wide />}
-      {useCustomProjectHeader && (
+      {useCustomProjectHeader ? (
         <CustomProjectHeader>
           {customLogo && <CustomLogo src={customLogo} />}
           {customProjectName && <CustomProjectName>{customProjectName}</CustomProjectName>}
         </CustomProjectHeader>
+      ) : (
+        <PlateauIcon icon="plateauLogo" size={114} wide />
       )}
       <IconGroup>
         <StyledIcon
