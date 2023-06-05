@@ -1,0 +1,30 @@
+# github action to run playwright
+name: e2e
+on:
+  workflow_dispatch:
+jobs:
+  e2e:
+    name: E2E tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+      - name: Get yarn cache directory path
+        id: yarn-cache-dir-path
+        run: echo "dir=$(yarn cache dir)" >> $GITHUB_OUTPUT
+      - uses: actions/cache@v3
+        id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
+        with:
+          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+        working-directory: plugin
+      - name: Install playwright browsers
+        run: yarn run playwright install --with-deps
+        working-directory: plugin
+      - name: Run tests
+        run: yarn run e2e
+        working-directory: plugin
