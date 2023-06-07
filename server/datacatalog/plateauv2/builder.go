@@ -13,8 +13,8 @@ import (
 	"strings"
 
 	"github.com/eukarya-inc/jpareacode"
-	"github.com/eukarya-inc/reearth-plateauview/server/cms"
 	"github.com/eukarya-inc/reearth-plateauview/server/datacatalog/datacatalogutil"
+	cms "github.com/reearth/reearth-cms-api/go"
 	"github.com/samber/lo"
 	"github.com/spkg/bom"
 )
@@ -372,6 +372,8 @@ func (b *DataCatalogItemBuilder) dataCatalogItem(a asset, g assetGroup, desc str
 		OpenDataURL: opd,
 		Config:      config,
 		SearchIndex: searchIndex,
+		Root:        override.Root,
+		Order:       override.Order,
 	}
 }
 

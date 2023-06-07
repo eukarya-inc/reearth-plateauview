@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 
-	"github.com/eukarya-inc/reearth-plateauview/server/cms/cmswebhook"
 	"github.com/eukarya-inc/reearth-plateauview/server/cmsintegration"
 	"github.com/eukarya-inc/reearth-plateauview/server/datacatalog"
 	"github.com/eukarya-inc/reearth-plateauview/server/dataconv"
@@ -15,6 +14,7 @@ import (
 	"github.com/eukarya-inc/reearth-plateauview/server/share"
 	"github.com/eukarya-inc/reearth-plateauview/server/sidebar"
 	"github.com/labstack/echo/v4"
+	"github.com/reearth/reearth-cms-api/go/cmswebhook"
 )
 
 type Service struct {
@@ -236,12 +236,24 @@ func DataConv(conf *Config) (*Service, error) {
 	if err != nil {
 		return nil, err
 	}
-	if w == nil {
+
+	api, err := dataconv.Handler(c)
+	if err != nil {
+		return nil, err
+	}
+
+	if w == nil && api == nil {
 		return nil, nil
 	}
 
 	return &Service{
 		Name:    "dataconv",
 		Webhook: w,
+		Echo: func(g *echo.Group) error {
+			if api != nil {
+				g.POST("/dataconv", echo.WrapHandler(api))
+			}
+			return nil
+		},
 	}, nil
 }
