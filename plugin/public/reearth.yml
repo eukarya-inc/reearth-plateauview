@@ -33,6 +33,28 @@ extensions:
             - id: enableGeoPub
               type: bool
               title: G空間情報センターに公開
+        - id: customDataset
+          title: Custom Dataset
+          fields:
+            - id: customDatasetURL
+              type: string
+              title: Custom Dataset URL
+            - id: customDatasetProjectName
+              type: string
+              title: Custom Dataset Project Name
+            - id: customAccessToken
+              type: string
+              title: Custom Dataset Access Token
+              private: true
+            - id: customCatalogURL
+              type: string
+              title: Custom Dataset Catalog URL
+            - id: customCatalogProjectName
+              type: string
+              title: Custom Dataset Catalog Project Name
+            - id: customReearthURL
+              type: string
+              title: Custom Dataset Re:Earth URL
         - id: appearance
           title: Appearance
           fields:

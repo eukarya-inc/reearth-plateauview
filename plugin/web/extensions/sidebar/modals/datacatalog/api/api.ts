@@ -62,6 +62,8 @@ type RawRawDataCatalogItem = {
   code: number;
 };
 
+export type DataSource = "plateau" | "custom";
+
 export type RawDataCatalogItem = Omit<RawRawDataCatalogItem, "layers" | "layer" | "config"> & {
   layers?: string[];
   config?: {

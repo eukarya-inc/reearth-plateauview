@@ -4,13 +4,29 @@ import { Icon } from "@web/sharedComponents";
 import { styled } from "@web/theme";
 
 import useHooks from "./hooks";
+import useDataset from "./useDataset";
 
 const DataCatalog: React.FC = () => {
+  const { currentTab, inEditor, isCustomProject, handleClose, handleTabChange } = useHooks();
+
   const {
-    currentTab,
+    catalog: customCatalog,
+    addedDatasetDataIDs: customAddedDatasetDataIDs,
+    selectedItem: customSelectedItem,
+    expandedFolders: customExpandedFolders,
+    searchTerm: customSearchTerm,
+    filter: customFilter,
+    setExpandedFolders: setCustomExpandedFolders,
+    handleSearch: handleCustomSearch,
+    handleSelect: handleCustomSelect,
+    handleFilter: handleCustomFilter,
+    handleDatasetAdd: handleCustomDatasetAdd,
+    handleDatasetPublish: handleCustomDatasetPublish,
+  } = useDataset({ inEditor, dataSource: "custom" });
+
+  const {
     catalog,
     addedDatasetDataIDs,
-    inEditor,
     selectedItem,
     expandedFolders,
     searchTerm,
@@ -19,19 +35,22 @@ const DataCatalog: React.FC = () => {
     handleSearch,
     handleSelect,
     handleFilter,
-    handleClose,
-    handleTabChange,
     handleDatasetAdd,
     handleDatasetPublish,
-  } = useHooks();
+  } = useDataset({ inEditor, dataSource: "plateau" });
 
   return (
     <Wrapper>
       <Header>
         <Title>データカタログ</Title>
         <TabsWrapper>
-          <Tab selected={currentTab === "dataset"} onClick={() => handleTabChange("dataset")}>
-            <Logo icon="plateauLogoPart" selected={currentTab === "dataset"} />
+          {isCustomProject && (
+            <Tab selected={currentTab === "custom"} onClick={() => handleTabChange("custom")}>
+              <TabName>Custom Dataset</TabName>
+            </Tab>
+          )}
+          <Tab selected={currentTab === "plateau"} onClick={() => handleTabChange("plateau")}>
+            <Logo icon="plateauLogoPart" selected={currentTab === "plateau"} />
             <TabName>PLATEAUデータセット</TabName>
           </Tab>
           <Tab selected={currentTab === "your-data"} onClick={() => handleTabChange("your-data")}>
@@ -45,7 +64,7 @@ const DataCatalog: React.FC = () => {
       </Header>
       {currentTab === "your-data" ? (
         <YourDataPage onDatasetAdd={handleDatasetAdd} />
-      ) : (
+      ) : currentTab === "plateau" ? (
         <DatasetsPage
           catalog={catalog}
           addedDatasetDataIDs={addedDatasetDataIDs}
@@ -54,12 +73,32 @@ const DataCatalog: React.FC = () => {
           expandedFolders={expandedFolders}
           searchTerm={searchTerm}
           filter={filter}
+          dataSource={"plateau"}
+          editable={!isCustomProject}
           setExpandedFolders={setExpandedFolders}
           onSearch={handleSearch}
           onSelect={handleSelect}
           onFilter={handleFilter}
           onDatasetAdd={handleDatasetAdd}
           onDatasetPublish={handleDatasetPublish}
+        />
+      ) : (
+        <DatasetsPage
+          catalog={customCatalog}
+          addedDatasetDataIDs={customAddedDatasetDataIDs}
+          inEditor={inEditor}
+          selectedItem={customSelectedItem}
+          expandedFolders={customExpandedFolders}
+          searchTerm={customSearchTerm}
+          filter={customFilter}
+          dataSource={"custom"}
+          editable={isCustomProject}
+          setExpandedFolders={setCustomExpandedFolders}
+          onSearch={handleCustomSearch}
+          onSelect={handleCustomSelect}
+          onFilter={handleCustomFilter}
+          onDatasetAdd={handleCustomDatasetAdd}
+          onDatasetPublish={handleCustomDatasetPublish}
         />
       )}
     </Wrapper>
