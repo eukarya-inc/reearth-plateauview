@@ -1,0 +1,52 @@
+name: PR Title Checker
+on:
+  pull_request:
+    types:
+      - opened
+      - edited
+      - synchronize
+      - labeled
+      - unlabeled
+# below permissions are needed to allow forked PR creators to edit title: https://github.com/actions/labeler/issues/12#issuecomment-1095272652
+permissions:
+  checks: write
+  contents: read
+  pull-requests: write
+jobs:
+  pr_title:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/labeler@v4
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: amannn/action-semantic-pull-request@v5
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ignoreLabels: meta
+          scopes: |
+            plugin
+            server
+            terrafom
+          subjectPattern: ^(?![A-Z]).+$
+          subjectPatternError: |
+            The subject "{subject}" found in the pull request title "{title}"
+            didn't match the configured pattern. Please ensure that the subject
+            doesn't start with an uppercase character.
+
+  pr_scope_check:
+    needs: pr_title  # Ensure this job runs after the pr_title job
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check PR Scope and Keywords
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          scope=$(jq --raw-output .pull_request.labels[0].name "$GITHUB_EVENT_PATH")
+          title=$(jq --raw-output .pull_request.title "$GITHUB_EVENT_PATH")
+          contains_major=$(echo "$title" | grep -w -i -c "major")
+          contains_minor=$(echo "$title" | grep -w -i -c "minor")
+
+          if [[ "$scope" == "plugin" && ($contains_major -eq 0 && $contains_minor -eq 0) ]]; then
+            echo "Error: The identified scope is 'plugin', but the 'major' or 'minor' keyword is missing from the title."
+            exit 1
+          fi
