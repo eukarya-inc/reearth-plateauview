@@ -41,8 +41,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          labels=$(jq --raw-output '.pull_request.labels | map(.name) | select(length > 0) | .[0]' "$GITHUB_EVENT_PATH")
-          title=$(jq --raw-output .pull_request.title "$GITHUB_EVENT_PATH")
+          labels=$(echo "${{ github.event.pull_request.labels }}" | grep -oP '(?<=name": ")[^"]+' | head -n 1)
+          title=$(echo "${{ github.event.pull_request.title }}")
           contains_major=$(echo "$title" | grep -w -i -c "major")
           contains_minor=$(echo "$title" | grep -w -i -c "minor")
   
