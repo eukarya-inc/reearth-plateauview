@@ -34,19 +34,19 @@ jobs:
             doesn't start with an uppercase character.
 
   pr_scope_check:
-    needs: pr_title  # Ensure this job runs after the pr_title job
+    needs: pr_title 
     runs-on: ubuntu-latest
     steps:
       - name: Check PR Scope and Keywords
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          scope=$(jq --raw-output .pull_request.labels[0].name "$GITHUB_EVENT_PATH")
+          labels=$(jq --raw-output '.pull_request.labels // [] | .[0].name' "$GITHUB_EVENT_PATH")
           title=$(jq --raw-output .pull_request.title "$GITHUB_EVENT_PATH")
           contains_major=$(echo "$title" | grep -w -i -c "major")
           contains_minor=$(echo "$title" | grep -w -i -c "minor")
-
-          if [[ "$scope" == "plugin" && ($contains_major -eq 0 && $contains_minor -eq 0) ]]; then
+  
+          if [[ "$labels" == "plugin" && ($contains_major -eq 0 && $contains_minor -eq 0) ]]; then
             echo "Error: The identified scope is 'plugin', but the 'major' or 'minor' keyword is missing from the title."
             exit 1
           fi
