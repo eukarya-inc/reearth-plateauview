@@ -58,6 +58,9 @@ jobs:
           echo "title: $title"
 
           contains_major=$(echo "$title" | grep -i -c "major")
+
+          echo "contains_major: $contains_major"
+
           contains_minor=$(echo "$title" | grep -i -c "minor")
 
           echo "contains_major: $contains_major"
