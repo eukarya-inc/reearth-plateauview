@@ -33,7 +33,7 @@ jobs:
             .github/workflows/deploy-server-prod.yml
   ci-plugin-version-update:
     needs: prepare
-    if: needs.prepare.outputs.plugin == 'true' && github.event_name == 'push' && github.ref_name == 'main'
+    if: ${{ !failure() && needs.prepare.outputs.plugin == 'true' && github.event_name == 'push' && github.ref_name == 'main' }}
     uses: ./.github/workflows/ci-plugin-version-update.yml
     with:
       commit-sha: ${{ github.sha }}

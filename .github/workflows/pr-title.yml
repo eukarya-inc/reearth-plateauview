@@ -32,33 +32,35 @@ jobs:
             The subject "{subject}" found in the pull request title "{title}"
             didn't match the configured pattern. Please ensure that the subject
             doesn't start with an uppercase character.
-
+  contains_plugin_changes:
+    needs: pr_title
+    runs-on: ubuntu-latest
+    outputs:
+      plugin: ${{ steps.plugin.outputs.any_changed }}
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: changed files for plugin
+        id: plugin
+        uses: tj-actions/changed-files@v36
+        with:
+          files: |
+            plugin
   pr_scope_check:
-    needs: pr_title 
+    needs: contains_plugin_changes
+    if: ${{ !failure() && needs.contains_plugin_changes.outputs.plugin == 'true' }}
     runs-on: ubuntu-latest
     steps:
       - name: Check PR Scope and Keywords
         env:
             GITHUB_CONTEXT: ${{ toJson(github) }}
         run: |
-          contains_plugin="false"
-          for label in ${{ github.event.pull_request.labels }}; do
-            if [[ "$label" == "plugin" ]]; then
-              contains_plugin="true"
-              break
-            fi
-          done
-
-          echo "$contains_plugin"
-          echo "$GITHUB_CONTEXT"
-  
           title=$(echo "${{ github.event.pull_request.title }}")
           contains_major=$(echo "$title" | grep -w -i -c "major")
           contains_minor=$(echo "$title" | grep -w -i -c "minor")
     
-          if [[ "$contains_plugin" == "false" ]]; then
-            echo "Skipping validation. The identified scope is not 'plugin'."
-          elif [[ "$contains_plugin" == "true" && $contains_major -eq 0 && $contains_minor -eq 0 ]]; then
+          if [[ $contains_major -eq 0 && $contains_minor -eq 0 ]]; then
             echo "Error: The identified scope is 'plugin', but the 'major' or 'minor' keyword is missing from the title."
             exit 1
           fi
