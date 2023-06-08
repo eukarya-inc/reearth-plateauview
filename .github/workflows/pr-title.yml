@@ -48,6 +48,9 @@ jobs:
               break
             fi
           done
+
+          echo "$contains_plugin"
+          echo ${{github}}
   
           title=$(echo "${{ github.event.pull_request.title }}")
           contains_major=$(echo "$title" | grep -w -i -c "major")
