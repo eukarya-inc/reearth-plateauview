@@ -1,0 +1,6 @@
+plugin:
+  - web/**/*
+server:
+  - server/**/*
+terraform:
+  - terraform/**/*
