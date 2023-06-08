@@ -41,12 +41,14 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          labels=$(jq --raw-output '.pull_request.labels // [] | .[0].name' "$GITHUB_EVENT_PATH")
+          labels=$(jq --raw-output '.pull_request.labels | map(.name) | select(length > 0) | .[0]' "$GITHUB_EVENT_PATH")
           title=$(jq --raw-output .pull_request.title "$GITHUB_EVENT_PATH")
           contains_major=$(echo "$title" | grep -w -i -c "major")
           contains_minor=$(echo "$title" | grep -w -i -c "minor")
   
-          if [[ "$labels" == "plugin" && ($contains_major -eq 0 && $contains_minor -eq 0) ]]; then
+          if [[ -z "$labels" || "$labels" != "plugin" ]]; then
+            echo "Skipping validation. The identified scope is not 'plugin'."
+          elif [[ $contains_major -eq 0 && $contains_minor -eq 0 ]]; then
             echo "Error: The identified scope is 'plugin', but the 'major' or 'minor' keyword is missing from the title."
             exit 1
           fi
