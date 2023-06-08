@@ -57,8 +57,8 @@ jobs:
           title=$(echo "${{ github.event.pull_request.title }}")
           echo "title: $title"
 
-          contains_major=$(echo "$title" | grep -w -i -c "major")
-          contains_minor=$(echo "$title" | grep -w -i -c "minor")
+          contains_major=$(echo "$title" | grep -i -c "major")
+          contains_minor=$(echo "$title" | grep -i -c "minor")
 
           echo "contains_major: $contains_major"
           echo "contains_minor: $contains_minor"
