@@ -19,6 +19,7 @@ jobs:
         with:
           files: |
             plugin
+            .github/workflows/ci.yml
             .github/workflows/ci-plugin.yml
       - name: changed files for server
         id: server
