@@ -42,7 +42,7 @@ jobs:
             GITHUB_CONTEXT: ${{ toJson(github) }}
         run: |
           contains_plugin="false"
-          for label in ${{ github.event.pull_request.labels.*.name }}; do
+          for label in ${{ github.event.pull_request.labels }}; do
             if [[ "$label" == "plugin" ]]; then
               contains_plugin="true"
               break
