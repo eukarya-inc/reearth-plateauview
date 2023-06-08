@@ -59,7 +59,10 @@ jobs:
           title=$(echo "${{ github.event.pull_request.title }}")
           contains_major=$(echo "$title" | grep -w -i -c "major")
           contains_minor=$(echo "$title" | grep -w -i -c "minor")
-    
+
+          echo "contains_major: $contains_major"
+          echo "contains_minor: $contains_minor"
+          
           if [[ $contains_major -eq 0 && $contains_minor -eq 0 ]]; then
             echo "Error: The identified scope is 'plugin', but the 'major' or 'minor' keyword is missing from the title."
             exit 1
