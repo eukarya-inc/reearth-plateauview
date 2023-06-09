@@ -383,7 +383,7 @@ const DatasetCard: React.FC<Props> = ({
                     </LeftMain>
                     <ArrowIcon icon="arrowDown" size={16} expanded={expanded} />
                   </HeaderContents>
-                  {inEditor && expanded && (
+                  {inEditor && expanded && editable && (
                     <TabWrapper>
                       <Tab
                         id="default"
@@ -391,11 +391,9 @@ const DatasetCard: React.FC<Props> = ({
                         onClick={handleTabChange}>
                         公開
                       </Tab>
-                      {editable && (
-                        <Tab id="edit" selected={currentTab === "edit"} onClick={handleTabChange}>
-                          設定
-                        </Tab>
-                      )}
+                      <Tab id="edit" selected={currentTab === "edit"} onClick={handleTabChange}>
+                        設定
+                      </Tab>
                     </TabWrapper>
                   )}
                 </StyledAccordionItemButton>
