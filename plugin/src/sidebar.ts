@@ -106,7 +106,6 @@ let filter = "city";
 
 let dataset: DataCatalogItem | undefined = undefined;
 
-let customSearchTerm = "";
 let customExpandedFolders: { id?: string; name?: string }[] = [];
 let customFilter = "city";
 
@@ -329,16 +328,13 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
   } else if (action === "triggerCatalogOpen") {
     reearth.ui.postMessage({ action });
   } else if (action === "saveSearchTerm") {
-    if (payload.dataSource === "custom") {
-      customSearchTerm = payload.searchTerm;
-    } else {
-      searchTerm = payload.searchTerm;
-    }
+    searchTerm = payload.searchTerm;
   } else if (action === "saveExpandedFolders") {
-    if (payload.dataSource === "custom") {
-      customExpandedFolders = [...payload.expandedFolders];
-    } else {
+    if (payload.dataSource !== "custom") {
       expandedFolders = [...payload.expandedFolders];
+    }
+    if (payload.dataSource !== "plateau") {
+      customExpandedFolders = [...payload.expandedFolders];
     }
   } else if (action === "saveDataset") {
     dataset = { ...payload.dataset };
@@ -363,7 +359,6 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
           expandedFolders,
           filter,
           currentDatasetDataSource,
-          customSearchTerm,
           customExpandedFolders,
           customFilter,
           customCatalogURL: reearth.widget.property.customDataset?.customCatalogURL ?? "",
@@ -397,7 +392,6 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
             reearth.widget.property.customDataset?.customDatasetProjectName ?? "",
           customBackendAccessToken: reearth.widget.property.customDataset?.customAccessToken ?? "",
           customAddedDatasets: addedDatasets.filter(d => d[3] === "custom").map(d => d[0]),
-          customSearchTerm,
           customExpandedFolders,
           customFilter,
         },

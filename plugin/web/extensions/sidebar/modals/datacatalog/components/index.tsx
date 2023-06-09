@@ -7,37 +7,39 @@ import useHooks from "./hooks";
 import useDataset from "./useDataset";
 
 const DataCatalog: React.FC = () => {
-  const { currentTab, inEditor, isCustomProject, handleClose, handleTabChange } = useHooks();
+  const {
+    currentTab,
+    inEditor,
+    isCustomProject,
+    searchTerm,
+    selectedItem,
+    customSelectedItem,
+    expandedFolders,
+    customExpandedFolders,
+    filter,
+    customFilter,
+    handleFilter,
+    handleCustomFilter,
+    handleSelect,
+    handleCustomSelect,
+    handleSearch,
+    handleClose,
+    handleTabChange,
+    setExpandedFolders,
+    setCustomExpandedFolders,
+  } = useHooks();
 
   const {
     catalog: customCatalog,
     addedDatasetDataIDs: customAddedDatasetDataIDs,
-    selectedItem: customSelectedItem,
-    expandedFolders: customExpandedFolders,
-    searchTerm: customSearchTerm,
-    filter: customFilter,
-    setExpandedFolders: setCustomExpandedFolders,
-    handleSearch: handleCustomSearch,
-    handleSelect: handleCustomSelect,
-    handleFilter: handleCustomFilter,
     handleDatasetAdd: handleCustomDatasetAdd,
     handleDatasetPublish: handleCustomDatasetPublish,
   } = useDataset({ inEditor, dataSource: "custom" });
 
-  const {
-    catalog,
-    addedDatasetDataIDs,
-    selectedItem,
-    expandedFolders,
-    searchTerm,
-    filter,
-    setExpandedFolders,
-    handleSearch,
-    handleSelect,
-    handleFilter,
-    handleDatasetAdd,
-    handleDatasetPublish,
-  } = useDataset({ inEditor, dataSource: "plateau" });
+  const { catalog, addedDatasetDataIDs, handleDatasetAdd, handleDatasetPublish } = useDataset({
+    inEditor,
+    dataSource: "plateau",
+  });
 
   return (
     <Wrapper>
@@ -89,12 +91,12 @@ const DataCatalog: React.FC = () => {
           inEditor={inEditor}
           selectedItem={customSelectedItem}
           expandedFolders={customExpandedFolders}
-          searchTerm={customSearchTerm}
+          searchTerm={searchTerm}
           filter={customFilter}
           dataSource={"custom"}
           editable={isCustomProject}
           setExpandedFolders={setCustomExpandedFolders}
-          onSearch={handleCustomSearch}
+          onSearch={handleSearch}
           onSelect={handleCustomSelect}
           onFilter={handleCustomFilter}
           onDatasetAdd={handleCustomDatasetAdd}

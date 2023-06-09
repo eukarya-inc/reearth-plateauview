@@ -22,7 +22,7 @@ const MobileDropdown: React.FC = () => {
   const [expandedFolders, setExpandedFolders] = useState<{ id?: string; name?: string }[]>([]);
 
   const [isCustomProject, setIsCustomProject] = useState<boolean>(false);
-  const [customSearchTerm, setCustomSearchTerm] = useState<string>("");
+
   const [customExpandedFolders, setCustomExpandedFolders] = useState<
     { id?: string; name?: string }[]
   >([]);
@@ -51,6 +51,8 @@ const MobileDropdown: React.FC = () => {
     (tab: Tab) => {
       postMsg({ action: "msgFromPopup", payload: { currentTab: tab } }); // changes the selected tab in the ui
       setCurrentTab(tab); // changes the selected tab in the popup
+      setSearchTerm("");
+      postMsg({ action: "saveSearchTerm", payload: { searchTerm: "" } });
     },
     [setCurrentTab],
   );
@@ -81,16 +83,8 @@ const MobileDropdown: React.FC = () => {
 
   const handleSearch = useCallback(({ target: { value } }: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(value);
-    postMsg({ action: "saveSearchTerm", payload: { searchTerm: value, dataSource: "plateau" } });
+    postMsg({ action: "saveSearchTerm", payload: { searchTerm: value } });
   }, []);
-
-  const handleCustomSearch = useCallback(
-    ({ target: { value } }: React.ChangeEvent<HTMLInputElement>) => {
-      setCustomSearchTerm(value);
-      postMsg({ action: "saveSearchTerm", payload: { searchTerm: value, dataSource: "custom" } });
-    },
-    [],
-  );
 
   const handleDatasetAdd = useCallback(
     (dataset: DataCatalogItem | UserDataItem) => {
@@ -114,7 +108,6 @@ const MobileDropdown: React.FC = () => {
           if (e.data.payload.expandedFolders) setExpandedFolders(e.data.payload.expandedFolders);
 
           if (e.data.payload.isCustomProject) setIsCustomProject(e.data.payload.isCustomProject);
-          if (e.data.payload.customSearchTerm) setCustomSearchTerm(e.data.payload.customSearchTerm);
           if (e.data.payload.customExpandedFolders)
             setCustomExpandedFolders(e.data.payload.customExpandedFolders);
 
@@ -173,7 +166,6 @@ const MobileDropdown: React.FC = () => {
               backendURL={backendURL}
               backendProjectName={backendProjectName}
               customAddedDatasetDataIDs={customAddedDatasetDataIDs}
-              customSearchTerm={customSearchTerm}
               customExpandedFolders={customExpandedFolders}
               customCatalogProjectName={customCatalogProjectName}
               customCatalogURL={customCatalogURL}
@@ -183,9 +175,7 @@ const MobileDropdown: React.FC = () => {
               setExpandedFolders={setExpandedFolders}
               setCustomExpandedFolders={setCustomExpandedFolders}
               onSearch={handleSearch}
-              onCustomSearch={handleCustomSearch}
               setSearchTerm={setSearchTerm}
-              setCustomSearchTerm={setCustomSearchTerm}
               onDatasetAdd={handleDatasetAdd}
             />
           ),

@@ -44,7 +44,6 @@ type Props = {
   setSearchTerm: (searchTerm: string) => void;
 
   customAddedDatasetDataIDs?: string[];
-  customSearchTerm: string;
   customExpandedFolders?: {
     id?: string | undefined;
     name?: string | undefined;
@@ -61,8 +60,6 @@ type Props = {
       }[]
     >
   >;
-  onCustomSearch: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  setCustomSearchTerm: (searchTerm: string) => void;
 
   setSelectedDataset: React.Dispatch<React.SetStateAction<DataCatalogItem | undefined>>;
   onDatasetAdd: (dataset: DataCatalogItem | UserDataItem, keepModalOpen?: boolean) => void;
@@ -75,7 +72,6 @@ const Catalog: React.FC<Props> = ({
   inEditor,
   isCustomProject,
   selectedDataset,
-
   addedDatasetDataIDs,
   searchTerm,
   expandedFolders,
@@ -86,18 +82,13 @@ const Catalog: React.FC<Props> = ({
   setExpandedFolders,
   onSearch,
   setSearchTerm,
-
   customAddedDatasetDataIDs,
-  customSearchTerm,
   customExpandedFolders,
   customCatalogProjectName,
   customCatalogURL,
   customBackendURL,
   customBackendProjectName,
   setCustomExpandedFolders,
-  onCustomSearch,
-  setCustomSearchTerm,
-
   setSelectedDataset,
   onDatasetAdd,
 }) => {
@@ -235,7 +226,6 @@ const Catalog: React.FC<Props> = ({
         if (e.data.payload.searchTerm) setSearchTerm(e.data.payload.searchTerm);
         if (e.data.payload.expandedFolders) setExpandedFolders?.(e.data.payload.expandedFolders);
         if (e.data.payload.customFilter) setCustomFilter(e.data.payload.customFilter);
-        if (e.data.payload.customSearchTerm) setCustomSearchTerm(e.data.payload.customSearchTerm);
         if (e.data.payload.customExpandedFolders)
           setCustomExpandedFolders?.(e.data.payload.customExpandedFolders);
         changeTabs(
@@ -256,14 +246,7 @@ const Catalog: React.FC<Props> = ({
     return () => {
       removeEventListener("message", eventListenerCallback);
     };
-  }, [
-    handleFilter,
-    onSearch,
-    setExpandedFolders,
-    setSearchTerm,
-    setCustomSearchTerm,
-    setCustomExpandedFolders,
-  ]);
+  }, [handleFilter, onSearch, setExpandedFolders, setSearchTerm, setCustomExpandedFolders]);
 
   return (
     <Wrapper>
@@ -287,11 +270,11 @@ const Catalog: React.FC<Props> = ({
               isMobile={isMobile}
               catalog={customProcessedCatalog}
               filter={customFilter}
-              searchTerm={customSearchTerm}
+              searchTerm={searchTerm}
               expandedFolders={customExpandedFolders}
               setExpandedFolders={setCustomExpandedFolders}
               addDisabled={addDisabled}
-              onSearch={onCustomSearch}
+              onSearch={onSearch}
               onFilter={handleCustomFilter}
               onSelect={handleOpenDetails}
               onDatasetAdd={onDatasetAdd}

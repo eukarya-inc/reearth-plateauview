@@ -5,16 +5,9 @@ import {
   handleDataCatalogProcessing,
   postMsg,
 } from "@web/extensions/sidebar/utils";
-import { debounce } from "lodash-es";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
-import {
-  RawDataCatalogItem,
-  getDataCatalog,
-  GroupBy,
-  DataCatalogGroup,
-  DataSource,
-} from "../api/api";
+import { RawDataCatalogItem, getDataCatalog, DataSource } from "../api/api";
 
 type Props = {
   dataSource: "plateau" | "custom";
@@ -26,9 +19,6 @@ export default ({ inEditor, dataSource }: Props) => {
   const [catalogData, setCatalog] = useState<(RawDataCatalogItem & { dataSource?: DataSource })[]>(
     [],
   );
-  const [selectedItem, selectItem] = useState<DataCatalogItem | DataCatalogGroup>();
-  const [expandedFolders, setExpandedFolders] = useState<{ id?: string; name?: string }[]>([]);
-  const [searchTerm, setSearchTerm] = useState("");
 
   const [templates, setTemplates] = useState<Template[]>([]);
 
@@ -148,41 +138,10 @@ export default ({ inEditor, dataSource }: Props) => {
       handleDataRequest,
     ],
   );
-  const [filter, setFilter] = useState<GroupBy>("city");
-
-  const debouncedSearchRef = useRef(
-    debounce((value: string) => {
-      postMsg({ action: "saveSearchTerm", payload: { dataSource, searchTerm: value } });
-      setExpandedFolders([]);
-      postMsg({ action: "saveExpandedFolders", payload: { dataSource, expandedFolders: [] } });
-    }, 300),
-  );
-
-  const handleSearch = useCallback(
-    ({ target: { value } }: React.ChangeEvent<HTMLInputElement>) => {
-      setSearchTerm(value);
-      debouncedSearchRef.current(value);
-    },
-    [debouncedSearchRef],
-  );
-
-  const handleSelect = useCallback((item?: DataCatalogItem | DataCatalogGroup) => {
-    selectItem(item);
-  }, []);
 
   const handleClose = useCallback(() => {
     postMsg({ action: "modalClose" });
   }, []);
-
-  const handleFilter = useCallback(
-    (filter: GroupBy) => {
-      setFilter(filter);
-      postMsg({ action: "saveFilter", payload: { dataSource, filter } });
-      setExpandedFolders([]);
-      postMsg({ action: "saveExpandedFolders", payload: { dataSource, expandedFolders: [] } });
-    },
-    [dataSource],
-  );
 
   const handleDatasetAdd = useCallback(
     (dataset: DataCatalogItem | UserDataItem, keepModalOpen?: boolean) => {
@@ -207,9 +166,6 @@ export default ({ inEditor, dataSource }: Props) => {
           setCatalogURL(e.data.payload.catalogURL);
           setCatalogProjectName(e.data.payload.catalogProjectName);
           setPublishToGeospatial(e.data.payload.enableGeoPub);
-          if (e.data.payload.filter) setFilter(e.data.payload.filter);
-          if (e.data.payload.searchTerm) setSearchTerm(e.data.payload.searchTerm);
-          if (e.data.payload.expandedFolders) setExpandedFolders(e.data.payload.expandedFolders);
         } else {
           setAddedDatasetDataIDs(e.data.payload.customAddedDatasets);
           setBackendProjectName(e.data.payload.customBackendProjectName);
@@ -218,29 +174,9 @@ export default ({ inEditor, dataSource }: Props) => {
           setCatalogURL(e.data.payload.customCatalogURL);
           setCatalogProjectName(e.data.payload.customCatalogProjectName);
           setPublishToGeospatial(false);
-          if (e.data.payload.customFilter) setFilter(e.data.payload.customFilter);
-          if (e.data.payload.customSearchTerm) setSearchTerm(e.data.payload.customSearchTerm);
-          if (e.data.payload.customExpandedFolders)
-            setExpandedFolders(e.data.payload.customExpandedFolders);
         }
 
         setTemplates(e.data.payload.templates);
-
-        if (e.data.payload.dataset) {
-          const item = e.data.payload.dataset;
-          handleSelect(item);
-          if (item.path) {
-            setExpandedFolders(
-              item.path
-                .map((item: string) => ({ name: item }))
-                .filter((folder: { name?: string }) => folder.name !== item.name),
-            );
-          }
-          postMsg({
-            action: "saveDataset",
-            payload: { dataset: undefined },
-          });
-        }
       } else if (e.data.action === "updateDataCatalog") {
         if (dataSource === "plateau" && e.data.payload.updatedDatasetDataIDs) {
           setAddedDatasetDataIDs(e.data.payload.updatedDatasetDataIDs);
@@ -253,19 +189,11 @@ export default ({ inEditor, dataSource }: Props) => {
     return () => {
       removeEventListener("message", eventListenerCallback);
     };
-  }, [dataSource, handleFilter, handleSelect]);
+  }, [dataSource]);
 
   return {
     catalog: processedCatalog,
     addedDatasetDataIDs,
-    selectedItem,
-    expandedFolders,
-    searchTerm,
-    filter,
-    setExpandedFolders,
-    handleSearch,
-    handleSelect,
-    handleFilter,
     handleDatasetAdd,
     handleDatasetPublish,
   };

@@ -32,7 +32,6 @@ export default () => {
   const [infoboxTemplates, setInfoboxTemplates] = useState<Template[]>([]);
 
   const [searchTerm, setSearchTerm] = useState("");
-  const [customSearchTerm, setCustomSearchTerm] = useState("");
 
   useEffect(() => {
     (async () => {
@@ -203,7 +202,6 @@ export default () => {
         setCustomProjectName(e.data.payload.customProjectName);
         setCustomLogo(e.data.payload.customLogo);
         if (e.data.payload.searchTerm) setSearchTerm(e.data.payload.searchTerm);
-        if (e.data.payload.customSearchTerm) setCustomSearchTerm(e.data.payload.customSearchTerm);
         if (e.data.payload.draftProject) {
           updateProject(e.data.payload.draftProject);
         }
@@ -265,7 +263,6 @@ export default () => {
     backendProjectName,
     inEditor,
     searchTerm,
-    customSearchTerm,
     isCustomProject,
     customReearthURL,
     customCatalogURL,
