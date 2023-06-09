@@ -282,7 +282,6 @@ export default () => {
     customReearthURL,
     customBackendURL,
     customBackendProjectName,
-    //
     customProjectName,
     customLogo,
     handlePageChange,
