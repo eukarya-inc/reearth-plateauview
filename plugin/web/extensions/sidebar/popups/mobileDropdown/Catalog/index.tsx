@@ -129,20 +129,16 @@ const Catalog: React.FC<Props> = ({
         setCatalog(res);
       });
     }
+  }, [backendURL, catalogProjectName, catalogURL]);
+
+  useEffect(() => {
     const customCatalogBaseUrl = customCatalogURL || customBackendURL;
     if (customCatalogBaseUrl) {
       getDataCatalog(customCatalogBaseUrl, customCatalogProjectName).then(res => {
         setCustomCatalog(res);
       });
     }
-  }, [
-    backendURL,
-    catalogProjectName,
-    catalogURL,
-    customBackendURL,
-    customCatalogProjectName,
-    customCatalogURL,
-  ]);
+  }, [customBackendURL, customCatalogProjectName, customCatalogURL]);
 
   useEffect(() => {
     if (!isCustomProject && !backendURL) return;
