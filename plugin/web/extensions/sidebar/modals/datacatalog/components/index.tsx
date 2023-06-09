@@ -18,6 +18,7 @@ const DataCatalog: React.FC = () => {
     customExpandedFolders,
     filter,
     customFilter,
+    customDataCatalogTitle,
     handleFilter,
     handleCustomFilter,
     handleSelect,
@@ -48,7 +49,7 @@ const DataCatalog: React.FC = () => {
         <TabsWrapper>
           {isCustomProject && (
             <Tab selected={currentTab === "custom"} onClick={() => handleTabChange("custom")}>
-              <TabName>Custom Dataset</TabName>
+              <TabName>{customDataCatalogTitle}</TabName>
             </Tab>
           )}
           <Tab selected={currentTab === "plateau"} onClick={() => handleTabChange("plateau")}>
@@ -151,6 +152,7 @@ const Tab = styled.div<{ selected?: boolean }>`
   background: ${({ selected }) => (selected ? "#f4f4f4" : "#c8c8c8")};
   color: ${({ selected }) => (selected ? "var(--theme-color)" : "#898989")};
   padding: 8px 12px;
+  max-width: 370px;
   cursor: pointer;
 `;
 
@@ -161,6 +163,9 @@ const Logo = styled(Icon)<{ selected?: boolean }>`
 const TabName = styled.p`
   margin: 0;
   user-select: none;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 `;
 
 const CloseButton = styled.button`

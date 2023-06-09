@@ -11,6 +11,7 @@ export default () => {
   const [inEditor, setEditorState] = useState(false);
   const [isCustomProject, setIsCustomProject] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const [customDataCatalogTitle, setCustomDataCatalogTitle] = useState<string>("");
 
   const [expandedFolders, setExpandedFolders] = useState<{ id?: string; name?: string }[]>([]);
   const [customExpandedFolders, setCustomExpandedFolders] = useState<
@@ -86,6 +87,9 @@ export default () => {
           setCustomExpandedFolders(e.data.payload.customExpandedFolders);
         if (e.data.payload.filter) setFilter(e.data.payload.filter);
         if (e.data.payload.customFilter) setFilter(e.data.payload.customFilter);
+        if (e.data.payload.customDataCatalogTitle) {
+          setCustomDataCatalogTitle(e.data.payload.customDataCatalogTitle);
+        }
         if (e.data.payload.dataset) {
           const item = e.data.payload.dataset;
           if (item.dataSource === "custom") {
@@ -154,6 +158,7 @@ export default () => {
     customSelectedItem,
     filter,
     customFilter,
+    customDataCatalogTitle,
     handleFilter,
     handleCustomFilter,
     handleSelect,

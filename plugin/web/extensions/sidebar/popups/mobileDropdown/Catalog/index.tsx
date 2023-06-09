@@ -100,6 +100,7 @@ const Catalog: React.FC<Props> = ({
 
   const [catalogData, setCatalog] = useState<RawDataCatalogItem[]>([]);
   const [customCatalogData, setCustomCatalog] = useState<RawDataCatalogItem[]>([]);
+  const [customDataCatalogTitle, setCustomDataCatalogTitle] = useState<string>("");
 
   const [data, setData] = useState<Data[]>();
 
@@ -228,6 +229,9 @@ const Catalog: React.FC<Props> = ({
         if (e.data.payload.customFilter) setCustomFilter(e.data.payload.customFilter);
         if (e.data.payload.customExpandedFolders)
           setCustomExpandedFolders?.(e.data.payload.customExpandedFolders);
+        if (e.data.payload.customDataCatalogTitle) {
+          setCustomDataCatalogTitle(e.data.payload.customDataCatalogTitle);
+        }
         changeTabs(
           e.data.payload.currentDatasetDataSource
             ? e.data.payload.currentDatasetDataSource
@@ -255,10 +259,13 @@ const Catalog: React.FC<Props> = ({
           <TabsWrapper>
             {isCustomProject && (
               <Tab selected={currentTab === "custom"} onClick={() => changeTabs("custom")}>
-                <TabName>Custom Dataset</TabName>
+                <TabName>{customDataCatalogTitle}</TabName>
               </Tab>
             )}
-            <Tab selected={currentTab === "plateau"} onClick={() => changeTabs("plateau")}>
+            <Tab
+              selected={currentTab === "plateau"}
+              onClick={() => changeTabs("plateau")}
+              isPlateau={true}>
               <Logo icon="plateauLogoPart" selected={currentTab === "plateau"} />
               <TabName>PLATEAUデータセット</TabName>
             </Tab>
@@ -333,9 +340,10 @@ const TabsWrapper = styled.div`
   padding: 8px 10px 0 10px;
   gap: 10px;
   background-color: #f4f4f4;
+  align-items: flex-end;
 `;
 
-const Tab = styled.div<{ selected?: boolean }>`
+const Tab = styled.div<{ selected?: boolean; isPlateau?: boolean }>`
   display: flex;
   gap: 8px;
   border-width: 1px 1px 0px 1px;
@@ -346,6 +354,8 @@ const Tab = styled.div<{ selected?: boolean }>`
   color: ${({ selected }) => (selected ? "var(--theme-color)" : "#898989")};
   padding: 8px 12px;
   cursor: pointer;
+
+  ${({ isPlateau }) => (isPlateau ? "width: 206px; flex-shrink: 0" : "")}
 `;
 
 const TabName = styled.p`

@@ -364,6 +364,7 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
           customCatalogURL: reearth.widget.property.customDataset?.customCatalogURL ?? "",
           customCatalogProjectName:
             reearth.widget.property.customDataset?.customCatalogProjectName ?? "",
+          customDataCatalogTitle: reearth.widget.property.appearance?.customProjectName ?? "",
         },
       });
     } else {
@@ -394,6 +395,7 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
           customAddedDatasets: addedDatasets.filter(d => d[3] === "custom").map(d => d[0]),
           customExpandedFolders,
           customFilter,
+          customDataCatalogTitle: reearth.widget.property.appearance?.customProjectName ?? "",
         },
       });
     }
