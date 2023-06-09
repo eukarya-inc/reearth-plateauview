@@ -125,7 +125,7 @@ const Catalog: React.FC<Props> = ({
   useEffect(() => {
     const catalogBaseUrl = catalogURL || backendURL;
     if (catalogBaseUrl) {
-      getDataCatalog(catalogBaseUrl, catalogProjectName).then(res => {
+      getDataCatalog(catalogBaseUrl, catalogProjectName, "plateau").then(res => {
         setCatalog(res);
       });
     }
@@ -134,7 +134,7 @@ const Catalog: React.FC<Props> = ({
   useEffect(() => {
     const customCatalogBaseUrl = customCatalogURL || customBackendURL;
     if (customCatalogBaseUrl) {
-      getDataCatalog(customCatalogBaseUrl, customCatalogProjectName).then(res => {
+      getDataCatalog(customCatalogBaseUrl, customCatalogProjectName, "custom").then(res => {
         setCustomCatalog(res);
       });
     }

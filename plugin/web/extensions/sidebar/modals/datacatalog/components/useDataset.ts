@@ -23,7 +23,7 @@ type Props = {
 
 export default ({ inEditor, dataSource }: Props) => {
   const [addedDatasetDataIDs, setAddedDatasetDataIDs] = useState<string[]>();
-  const [catalogData, setCatalog] = useState<(RawDataCatalogItem & { dataSource: DataSource })[]>(
+  const [catalogData, setCatalog] = useState<(RawDataCatalogItem & { dataSource?: DataSource })[]>(
     [],
   );
   const [selectedItem, selectItem] = useState<DataCatalogItem | DataCatalogGroup>();
@@ -51,8 +51,8 @@ export default ({ inEditor, dataSource }: Props) => {
   useEffect(() => {
     const catalogBaseUrl = catalogURL || backendURL;
     if (catalogBaseUrl) {
-      getDataCatalog(catalogBaseUrl, catalogProjectName).then(res => {
-        setCatalog(res.map(r => ({ ...r, dataSource })));
+      getDataCatalog(catalogBaseUrl, catalogProjectName, dataSource).then(res => {
+        setCatalog(res);
       });
     }
   }, [backendURL, catalogProjectName, catalogURL, dataSource]);
