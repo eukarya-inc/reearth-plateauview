@@ -63,8 +63,9 @@ export default ({
     });
     if (res.status !== 200) return;
     const newTemplate = await res.json();
-    setFieldTemplates(t => [...t, { ...newTemplate, dataSource }]);
-    return newTemplate as Template;
+    const newTemplateWithDataSource = { ...newTemplate, dataSource };
+    setFieldTemplates(t => [...t, newTemplateWithDataSource]);
+    return newTemplateWithDataSource as Template;
   }, [
     isCustomProject,
     plateauBackendURL,
@@ -150,7 +151,7 @@ export default ({
         },
         method: "DELETE",
       });
-      if (res.status !== 200) return;
+      if (res.status !== 200 && res.status !== 204) return;
       setFieldTemplates(t => t.filter(t2 => t2.id !== id));
     },
     [
