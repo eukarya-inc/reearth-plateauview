@@ -70,14 +70,16 @@ const Templates: React.FC<Props> = ({
               templates.map(t => (
                 <TemplateComponent key={t.id} onClick={() => handleTemplateSelect(t)}>
                   {t.name}
-                  <StyledIcon
-                    icon="trash"
-                    size={16}
-                    onClick={e => {
-                      e?.stopPropagation();
-                      onTemplateRemove(t.id);
-                    }}
-                  />
+                  {!(t.dataSource === "plateau" && isCustomProject) && (
+                    <StyledIcon
+                      icon="trash"
+                      size={16}
+                      onClick={e => {
+                        e?.stopPropagation();
+                        onTemplateRemove(t.id);
+                      }}
+                    />
+                  )}
                 </TemplateComponent>
               ))}
           </>
