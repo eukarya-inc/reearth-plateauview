@@ -9,7 +9,7 @@ extensions:
     schema:
       groups:
         - id: default
-          title: Plateau Dataset
+          title: PLATEAUデータセット
           fields:
             - id: plateauURL
               type: string
@@ -34,27 +34,27 @@ extensions:
               type: bool
               title: G空間情報センターに公開
         - id: customDataset
-          title: Custom Dataset
+          title: カスタムデータセット
           fields:
             - id: customDatasetURL
               type: string
-              title: Custom Dataset URL
+              title: バックエンドURL
             - id: customDatasetProjectName
               type: string
-              title: Custom Dataset Project Name
+              title: プロジェクト名
             - id: customAccessToken
               type: string
-              title: Custom Dataset Access Token
+              title: バックエンドアクセストークン
               private: true
             - id: customCatalogURL
               type: string
-              title: Custom Dataset Catalog URL
+              title: データカタログURL
             - id: customCatalogProjectName
               type: string
-              title: Custom Dataset Catalog Project Name
+              title: データカタログのプロジェクト名
             - id: customReearthURL
               type: string
-              title: Custom Dataset Re:Earth URL
+              title: Re:Earthプロジェクトの公開URL
         - id: appearance
           title: Appearance
           fields:
