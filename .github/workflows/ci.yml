@@ -33,16 +33,9 @@ jobs:
             .github/workflows/build-server.yml
             .github/workflows/deploy-server-dev.yml
             .github/workflows/deploy-server-prod.yml
-  ci-plugin-version-update:
-    needs: prepare
-    if: ${{ !failure() && needs.prepare.outputs.plugin == 'true' && github.event_name == 'push' && github.ref_name == 'main' }}
-    uses: ./.github/workflows/ci-plugin-version-update.yml
-    with:
-      commit-sha: ${{ github.sha }}
   ci-plugin:
     needs: 
       - prepare
-      - ci-plugin-version-update
     if: ${{ !failure() && needs.prepare.outputs.plugin == 'true' }} 
     uses: ./.github/workflows/ci-plugin.yml
   ci-server:
