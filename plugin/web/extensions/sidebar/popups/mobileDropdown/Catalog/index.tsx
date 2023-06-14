@@ -235,9 +235,7 @@ const Catalog: React.FC<Props> = ({
         changeTabs(
           e.data.payload.currentDatasetDataSource
             ? e.data.payload.currentDatasetDataSource
-            : e.data.payload.customBackendURL &&
-              e.data.payload.customBackendProjectName &&
-              e.data.payload.customBackendAccessToken
+            : e.data.payload.customCatalogURL && e.data.payload.customCatalogProjectName
             ? "custom"
             : "plateau",
         );

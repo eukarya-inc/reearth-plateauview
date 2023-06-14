@@ -67,21 +67,22 @@ const Templates: React.FC<Props> = ({
               <Icon icon="plus" size={16} /> New Template
             </TemplateAddButton>
             {templates.length > 0 &&
-              templates.map(t => (
-                <TemplateComponent key={t.id} onClick={() => handleTemplateSelect(t)}>
-                  {t.name}
-                  {!(t.dataSource === "plateau" && isCustomProject) && (
-                    <StyledIcon
-                      icon="trash"
-                      size={16}
-                      onClick={e => {
-                        e?.stopPropagation();
-                        onTemplateRemove(t.id);
-                      }}
-                    />
-                  )}
-                </TemplateComponent>
-              ))}
+              templates.map(
+                t =>
+                  !(t.dataSource === "plateau" && isCustomProject) && (
+                    <TemplateComponent key={t.id} onClick={() => handleTemplateSelect(t)}>
+                      {t.name}
+                      <StyledIcon
+                        icon="trash"
+                        size={16}
+                        onClick={e => {
+                          e?.stopPropagation();
+                          onTemplateRemove(t.id);
+                        }}
+                      />
+                    </TemplateComponent>
+                  ),
+              )}
           </>
         )}
       </Content>

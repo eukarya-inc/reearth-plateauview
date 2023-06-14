@@ -148,18 +148,20 @@ export function modifyDataCatalog(
 export function getDataCatalogTree(
   items: DataCatalogItem[],
   groupBy: GroupBy,
+  customDataset: boolean,
   q?: string | undefined,
 ): DataCatalogTreeItem[] {
-  return getRawDataCatalogTree(items, groupBy, q) as DataCatalogTreeItem[];
+  return getRawDataCatalogTree(items, groupBy, customDataset, q) as DataCatalogTreeItem[];
 }
 
 export function getRawDataCatalogTree(
   items: RawDataCatalogItem[],
   groupBy: GroupBy,
+  customDataset: boolean,
   q?: string | undefined,
 ): (RawDataCatalogGroup | RawDataCatalogItem)[] {
   return mapTree(
-    makeTree(sortInternal(items, groupBy, q)),
+    makeTree(sortInternal(items, groupBy, customDataset, q)),
     (item): RawDataCatalogGroup | RawDataCatalogItem =>
       item.item ?? {
         id: item.id,
@@ -177,22 +179,23 @@ type InternalDataCatalogItem = RawDataCatalogItem & {
 function sortInternal(
   items: RawDataCatalogItem[],
   groupBy: GroupBy,
+  customDataset: boolean,
   q?: string | undefined,
 ): InternalDataCatalogItem[] {
   return filter(q, items)
     .map(
       (i): InternalDataCatalogItem => ({
         ...i,
-        path: path(i, groupBy),
+        path: path(i, groupBy, customDataset),
       }),
     )
     .sort((a, b) => sortBy(a, b, groupBy));
 }
 
-function path(i: RawDataCatalogItem, groupBy: GroupBy): string[] {
+function path(i: RawDataCatalogItem, groupBy: GroupBy, customDataset: boolean): string[] {
   return groupBy === "type"
     ? [
-        i.type,
+        ...(!customDataset ? [i.type] : []),
         i.pref,
         ...((i.ward || i.type2) && i.city ? [i.city] : []),
         ...(i.name || "（名称未決定）").split("/"),
@@ -201,7 +204,8 @@ function path(i: RawDataCatalogItem, groupBy: GroupBy): string[] {
         i.pref,
         ...(i.city ? [i.city] : []),
         ...(i.ward ? [i.ward] : []),
-        ...(i.type2 || (!i.root && typesWithFolders.includes(i.type_en) && i.pref !== zenkyu)
+        ...(!customDataset &&
+        (i.type2 || (!i.root && typesWithFolders.includes(i.type_en) && i.pref !== zenkyu))
           ? [i.type]
           : []),
         ...(i.name || "（名称未決定）").split("/"),
