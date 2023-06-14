@@ -16,6 +16,7 @@ type Props = {
   minimized: boolean;
   customProjectName?: string;
   customLogo?: string;
+  hideFeedback: boolean;
   onMinimize: () => void;
   onClick: (p: Pages) => void;
 };
@@ -27,6 +28,7 @@ const Header: React.FC<Props> = ({
   minimized,
   customProjectName,
   customLogo,
+  hideFeedback,
   onMinimize,
   onClick,
 }) => {
@@ -57,9 +59,10 @@ const Header: React.FC<Props> = ({
         icon: <StyledIcon icon="templates" />,
       },
     ];
+    const itemsFiltered = hideFeedback ? items.filter(i => i.key !== "feedback") : items;
 
-    return !inEditor ? [...items.slice(0, -1)] : [...items];
-  }, [inEditor]);
+    return !inEditor ? [...itemsFiltered.slice(0, -1)] : [...itemsFiltered];
+  }, [inEditor, hideFeedback]);
 
   const useCustomProjectHeader = useMemo(() => {
     return customProjectName || customLogo;

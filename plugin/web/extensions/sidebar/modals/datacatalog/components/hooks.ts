@@ -118,18 +118,18 @@ export default () => {
           });
         }
 
-        const isCustomProject =
-          e.data.payload.customBackendURL &&
-          e.data.payload.customBackendProjectName &&
-          e.data.payload.customBackendAccessToken;
         changeTabs(
           e.data.payload.currentDatasetDataSource
             ? e.data.payload.currentDatasetDataSource
-            : isCustomProject
+            : e.data.payload.customCatalogURL && e.data.payload.customCatalogProjectName
             ? "custom"
             : "plateau",
         );
-        setIsCustomProject(isCustomProject);
+        setIsCustomProject(
+          e.data.payload.customBackendURL &&
+            e.data.payload.customBackendProjectName &&
+            e.data.payload.customBackendAccessToken,
+        );
         if (e.data.payload.currentDatasetDataSource) {
           postMsg({ action: "clearCurrentDatasetDataSource" });
         }
