@@ -1,6 +1,6 @@
 module github.com/eukarya-inc/reearth-plateauview/server
 
-go 1.19
+go 1.20
 
 require (
 	github.com/dustin/go-humanize v1.0.1
@@ -12,7 +12,7 @@ require (
 	github.com/labstack/echo/v4 v4.10.0
 	github.com/mitchellh/mapstructure v1.5.0
 	github.com/paulmach/go.geojson v1.4.0
-	github.com/reearth/go3dtiles v0.0.0-20221207041852-493e7e51cca9
+	github.com/reearth/go3dtiles v0.0.0-20230612053146-a6d07c1ab855
 	github.com/reearth/reearth-cms-api/go v0.0.0-20230611180738-b6e050021ee0
 	github.com/reearth/reearthx v0.0.0-20230322184331-1c50e053c6b4
 	github.com/samber/lo v1.38.1
@@ -23,8 +23,8 @@ require (
 	github.com/tdewolff/canvas v0.0.0-20221230020303-9eb6d3934367
 	github.com/thanhpk/randstr v1.0.4
 	github.com/vincent-petithory/dataurl v1.0.0
-	golang.org/x/net v0.4.0
-	gonum.org/v1/gonum v0.12.0
+	golang.org/x/net v0.6.0
+	gonum.org/v1/gonum v0.13.0
 )
 
 require (
@@ -36,8 +36,8 @@ require (
 	github.com/benoitkugler/textprocessing v0.0.2 // indirect
 	github.com/dsnet/compress v0.0.1 // indirect
 	github.com/fatih/color v1.10.0 // indirect
-	github.com/go-fonts/latin-modern v0.2.0 // indirect
-	github.com/go-latex/latex v0.0.0-20210823091927-c0d11ff05a81 // indirect
+	github.com/go-fonts/latin-modern v0.3.0 // indirect
+	github.com/go-latex/latex v0.0.0-20230307184459-12ec69307ad9 // indirect
 	github.com/goccy/go-yaml v1.9.8 // indirect
 	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0 // indirect
 	github.com/maruel/panicparse/v2 v2.3.1 // indirect
@@ -47,7 +47,7 @@ require (
 	github.com/tdewolff/minify/v2 v2.12.4 // indirect
 	github.com/tdewolff/parse/v2 v2.6.4 // indirect
 	github.com/wcharczuk/go-chart/v2 v2.1.0 // indirect
-	golang.org/x/image v0.0.0-20220617043117-41969df76e82 // indirect
+	golang.org/x/image v0.6.0 // indirect
 	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1 // indirect
 	gonum.org/v1/plot v0.11.0 // indirect
 	star-tex.org/x/tex v0.4.0 // indirect
@@ -65,9 +65,9 @@ require (
 	github.com/mohae/deepcopy v0.0.0-20170929034955-c48cc78d4826 // indirect
 	github.com/pkg/errors v0.9.1
 	github.com/pmezard/go-difflib v1.0.0 // indirect
-	github.com/qmuntal/draco-go v0.4.0 // indirect
+	github.com/qmuntal/draco-go v0.5.0 // indirect
 	github.com/qmuntal/draco-go/gltf/draco v0.1.0
-	github.com/qmuntal/gltf v0.23.1
+	github.com/qmuntal/gltf v0.24.0
 	github.com/sendgrid/rest v2.6.9+incompatible // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasttemplate v1.2.2 // indirect
@@ -80,7 +80,7 @@ require (
 	golang.org/x/crypto v0.2.0 // indirect
 	golang.org/x/exp v0.0.0-20230522175609-2e198f4a06a1
 	golang.org/x/sys v0.6.0 // indirect
-	golang.org/x/text v0.5.0
+	golang.org/x/text v0.8.0
 	golang.org/x/time v0.2.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
