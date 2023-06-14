@@ -58,7 +58,7 @@ test("modifyDataCatalog", () => {
 });
 
 test("getRawDataCatalogTree by cities", () => {
-  expect(getRawDataCatalogTree(dataCatalog, "city", "")).toEqual([
+  expect(getRawDataCatalogTree(dataCatalog, "city", false, "")).toEqual([
     {
       id: "node-0",
       name: "全球データ",
@@ -129,7 +129,7 @@ test("getRawDataCatalogTree by cities", () => {
 });
 
 test("getRawDataCatalogTree by types", () => {
-  expect(getRawDataCatalogTree(dataCatalog, "type", "")).toEqual([
+  expect(getRawDataCatalogTree(dataCatalog, "type", false, "")).toEqual([
     {
       id: "node-0",
       name: "建築物モデル",
@@ -246,7 +246,7 @@ test("getRawDataCatalogTree by types", () => {
 });
 
 test("getRawDataCatalogTree filter", () => {
-  expect(getRawDataCatalogTree(dataCatalog, "type", "世田谷")).toEqual([
+  expect(getRawDataCatalogTree(dataCatalog, "type", false, "世田谷")).toEqual([
     {
       id: "node-0",
       name: "建築物モデル",

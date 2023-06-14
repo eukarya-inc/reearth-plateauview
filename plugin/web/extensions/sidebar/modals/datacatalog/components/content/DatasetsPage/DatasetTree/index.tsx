@@ -85,8 +85,13 @@ const DatasetTree: React.FC<Props> = ({
   const dataCatalogTree = useMemo(
     () =>
       catalog &&
-      getDataCatalogTree(catalog, filter, searchTerm.length > 0 ? searchTerm : undefined),
-    [catalog, filter, searchTerm],
+      getDataCatalogTree(
+        catalog,
+        filter,
+        dataSource === "custom",
+        searchTerm.length > 0 ? searchTerm : undefined,
+      ),
+    [catalog, filter, dataSource, searchTerm],
   );
 
   const showInput = useMemo(
