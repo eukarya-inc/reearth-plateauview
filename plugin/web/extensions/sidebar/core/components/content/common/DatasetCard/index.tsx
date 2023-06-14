@@ -88,6 +88,7 @@ const DatasetCard: React.FC<Props> = ({
     editable,
     activeComponentIDs,
     fieldComponentsList,
+    datasetTemplates,
     handleFieldUpdate,
     handleFieldRemove,
     handleMoveUp,
@@ -431,7 +432,7 @@ const DatasetCard: React.FC<Props> = ({
                   isEditing={currentTab === "edit"}
                   dataID={dataset.dataID}
                   editMode={inEditor && currentTab === "edit"}
-                  templates={templates}
+                  templates={datasetTemplates}
                   configData={dataset.config?.data}
                   selectedGroup={dataset.selectedGroup}
                   onUpdate={handleFieldUpdate}
