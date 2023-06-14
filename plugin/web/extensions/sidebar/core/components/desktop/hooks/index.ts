@@ -10,6 +10,7 @@ import useTemplateHooks from "./templateHooks";
 
 export default () => {
   const [inEditor, setInEditor] = useState(true);
+  const [hideFeedback, setHideFeedback] = useState(false);
 
   // plateau project
   const [reearthURL, setReearthURL] = useState<string>();
@@ -145,6 +146,7 @@ export default () => {
       } else if (e.data.action === "init" && e.data.payload) {
         setProjectID(e.data.payload.projectID);
         setInEditor(e.data.payload.inEditor);
+        setHideFeedback(e.data.payload.hideFeedback);
 
         setReearthURL(e.data.payload.reearthURL);
         setBackendURL(e.data.payload.backendURL);
@@ -271,6 +273,7 @@ export default () => {
   return {
     project,
     inEditor,
+    hideFeedback,
     reearthURL: reearthPublishURL,
     backendURL,
     backendProjectName,

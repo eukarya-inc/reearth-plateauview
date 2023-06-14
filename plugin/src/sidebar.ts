@@ -189,6 +189,7 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
         projectID: reearth.viewport.query.share || reearth.viewport.query.projectID,
         inEditor: inEditor(),
         draftProject,
+        hideFeedback: reearth.widget.property.default?.hideFeedback ?? false,
         // plateau dataset
         catalogURL: reearth.widget.property.default?.catalogURL ?? "",
         catalogProjectName: reearth.widget.property.default?.catalogProjectName ?? "",
