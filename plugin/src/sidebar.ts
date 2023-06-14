@@ -17,10 +17,12 @@ import { inEditor } from "./utils/ineditor";
 import { mergeDefaultOverrides } from "./utils/merge";
 import { proxyGTFS } from "./utils/proxy";
 
+const reearth = (globalThis as any).reearth;
+
 const defaultProject: Project = {
   sceneOverrides: {
     default: {
-      camera: {
+      camera: reearth.scene.property.default?.camera ?? {
         lat: 35.65075152248653,
         lng: 139.7617718208305,
         altitude: 2219.7187259974316,
@@ -77,8 +79,6 @@ type PluginExtensionInstance = {
   extensionId: string;
   runTimes?: number;
 };
-
-const reearth = (globalThis as any).reearth;
 
 let welcomePageIsOpen = false;
 let mobileDropdownIsOpen = false;
