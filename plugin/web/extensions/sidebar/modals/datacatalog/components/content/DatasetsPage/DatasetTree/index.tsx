@@ -116,51 +116,70 @@ const DatasetTree: React.FC<Props> = ({
       )}
       {showTags && <Tags tags={selectedTags} onTagSelect={onTagSelect} />}
       {searchTerm.length > 0 && <p style={{ margin: "0", alignSelf: "center" }}>検索結果</p>}
-      <StyledTabs
-        activeKey={filter}
-        tabBarStyle={showTabs ? { display: "none" } : { userSelect: "none" }}
-        onChange={active => onFilter(active as GroupBy)}>
-        <Tabs.TabPane key="city" tab="都道府県" style={{ position: "relative" }}>
-          {dataCatalogTree ? (
-            <FileTree
-              addedDatasetDataIDs={addedDatasetDataIDs}
-              catalog={dataCatalogTree}
-              isMobile={isMobile}
-              selectedItem={selectedItem}
-              expandedFolders={expandedFolders}
-              dataSource={dataSource}
-              setExpandedFolders={setExpandedFolders}
-              onSelect={onSelect}
-              addDisabled={addDisabled}
-              onDatasetAdd={onDatasetAdd}
-            />
-          ) : (
-            <Loading>
-              <Spin />
-            </Loading>
-          )}
-        </Tabs.TabPane>
-        <Tabs.TabPane key="type" tab="種類" style={{ position: "relative" }}>
-          {dataCatalogTree ? (
-            <FileTree
-              addedDatasetDataIDs={addedDatasetDataIDs}
-              catalog={dataCatalogTree}
-              isMobile={isMobile}
-              selectedItem={selectedItem}
-              expandedFolders={expandedFolders}
-              dataSource={dataSource}
-              setExpandedFolders={setExpandedFolders}
-              onSelect={onSelect}
-              addDisabled={addDisabled}
-              onDatasetAdd={onDatasetAdd}
-            />
-          ) : (
-            <Loading>
-              <Spin />
-            </Loading>
-          )}
-        </Tabs.TabPane>
-      </StyledTabs>
+      {dataSource !== "custom" ? (
+        <StyledTabs
+          activeKey={filter}
+          tabBarStyle={showTabs ? { display: "none" } : { userSelect: "none" }}
+          onChange={active => onFilter(active as GroupBy)}>
+          <Tabs.TabPane key="city" tab="都道府県" style={{ position: "relative" }}>
+            {dataCatalogTree ? (
+              <FileTree
+                addedDatasetDataIDs={addedDatasetDataIDs}
+                catalog={dataCatalogTree}
+                isMobile={isMobile}
+                selectedItem={selectedItem}
+                expandedFolders={expandedFolders}
+                dataSource={dataSource}
+                setExpandedFolders={setExpandedFolders}
+                onSelect={onSelect}
+                addDisabled={addDisabled}
+                onDatasetAdd={onDatasetAdd}
+              />
+            ) : (
+              <Loading>
+                <Spin />
+              </Loading>
+            )}
+          </Tabs.TabPane>
+          <Tabs.TabPane key="type" tab="種類" style={{ position: "relative" }}>
+            {dataCatalogTree ? (
+              <FileTree
+                addedDatasetDataIDs={addedDatasetDataIDs}
+                catalog={dataCatalogTree}
+                isMobile={isMobile}
+                selectedItem={selectedItem}
+                expandedFolders={expandedFolders}
+                dataSource={dataSource}
+                setExpandedFolders={setExpandedFolders}
+                onSelect={onSelect}
+                addDisabled={addDisabled}
+                onDatasetAdd={onDatasetAdd}
+              />
+            ) : (
+              <Loading>
+                <Spin />
+              </Loading>
+            )}
+          </Tabs.TabPane>
+        </StyledTabs>
+      ) : dataCatalogTree ? (
+        <FileTree
+          addedDatasetDataIDs={addedDatasetDataIDs}
+          catalog={dataCatalogTree}
+          isMobile={isMobile}
+          selectedItem={selectedItem}
+          expandedFolders={expandedFolders}
+          dataSource={dataSource}
+          setExpandedFolders={setExpandedFolders}
+          onSelect={onSelect}
+          addDisabled={addDisabled}
+          onDatasetAdd={onDatasetAdd}
+        />
+      ) : (
+        <Loading>
+          <Spin />
+        </Loading>
+      )}
     </Wrapper>
   );
 };
