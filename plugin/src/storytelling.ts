@@ -12,13 +12,17 @@ import html from "../dist/web/storytelling/core/index.html?raw";
 import storyeditorHtml from "../dist/web/storytelling/modals/sceneEditor/index.html?raw";
 
 const reearth = (globalThis as any).reearth;
-const defaultThemeColor = "#00BEBE";
+const themeColor =
+  reearth.scene.property?.theme?.themeType === "custom" &&
+  reearth.scene.property?.theme?.themeSelectColor
+    ? reearth.scene.property.theme.themeSelectColor
+    : "#00BEBE";
 
 reearth.ui.show(html, { width: 122, height: 40, extended: false });
 
 reearth.ui.postMessage({
   action: "setPrimaryColor",
-  payload: reearth.scene.property?.theme?.themeSelectColor ?? defaultThemeColor,
+  payload: themeColor,
 });
 
 let sidebarId: string;
@@ -62,7 +66,7 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
     });
     reearth.modal.postMessage({
       action: "setPrimaryColor",
-      payload: reearth.scene.property?.theme?.themeSelectColor ?? defaultThemeColor,
+      payload: themeColor,
     });
   } else if (action === "sceneEditorClose") {
     reearth.modal.close();
