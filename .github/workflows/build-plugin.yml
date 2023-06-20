@@ -1,6 +1,24 @@
 name: build-plugin
 on:
-  workflow_call:
+  workflow_dispatch:
+    inputs:
+      sha_short:
+        description: 'sha_short'
+        required: true
+      new_tag:
+        description: 'new_tag'
+        required: true
+      new_tag_short:
+        description: 'new_tag_short'
+        required: true
+      name:
+        description: 'name'
+        required: true
+      sha:
+        description: "sha"
+        required: true
+  repository_dispatch:
+      types: [build-server]
 jobs:
   ci-plugin:
     runs-on: ubuntu-latest
