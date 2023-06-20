@@ -28,6 +28,7 @@ const MobileDropdown: React.FC = () => {
   >([]);
 
   const [inEditor, setInEditor] = useState(false);
+  const [hideFeedback, setHideFeedback] = useState(false);
 
   const [selectedDataset, setSelectedDataset] = useState<DataCatalogItem>();
 
@@ -104,6 +105,7 @@ const MobileDropdown: React.FC = () => {
           if (e.data.payload.templates) setTemplates(e.data.payload.templates);
           if (e.data.payload.project) setProject(e.data.payload.project);
           if (e.data.payload.inEditor) setInEditor(e.data.payload.inEditor);
+          if (e.data.payload.hideFeedback) setHideFeedback(e.data.payload.hideFeedback);
           if (e.data.payload.searchTerm) setSearchTerm(e.data.payload.searchTerm);
           if (e.data.payload.expandedFolders) setExpandedFolders(e.data.payload.expandedFolders);
 
@@ -194,6 +196,7 @@ const MobileDropdown: React.FC = () => {
           ),
           menu: (
             <Menu
+              hideFeedback={hideFeedback}
               project={project}
               reearthURL={reearthURL}
               backendURL={backendURL}

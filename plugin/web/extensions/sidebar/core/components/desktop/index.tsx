@@ -21,6 +21,7 @@ const DesktopSidebar: React.FC<Props> = ({ className }) => {
   const {
     project,
     inEditor,
+    hideFeedback,
     reearthURL,
     backendURL,
     backendProjectName,
@@ -81,6 +82,7 @@ const DesktopSidebar: React.FC<Props> = ({ className }) => {
         minimized={minimized}
         customProjectName={customProjectName}
         customLogo={customLogo}
+        hideFeedback={hideFeedback}
         onMinimize={handleMinimize}
         onClick={handlePageChange}
       />
@@ -126,7 +128,7 @@ const DesktopSidebar: React.FC<Props> = ({ className }) => {
                 />
               ),
               help: <Help />,
-              feedback: <Feedback backendURL={backendURL} />,
+              ...(hideFeedback ? {} : { feedback: <Feedback backendURL={backendURL} /> }),
               template: (
                 <Templates
                   templates={templates}

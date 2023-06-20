@@ -33,6 +33,9 @@ extensions:
             - id: enableGeoPub
               type: bool
               title: G空間情報センターに公開
+            - id: hideFeedback
+              type: bool
+              title: フィードバックを非表示
         - id: customDataset
           title: カスタムデータセット
           fields:

@@ -200,6 +200,12 @@ export default ({
     [dataset, onDatasetUpdate],
   );
 
+  const datasetTemplates = useMemo(() => {
+    return isCustomProject
+      ? templates?.filter(t => t.dataSource === dataset.dataSource)
+      : templates;
+  }, [isCustomProject, templates, dataset.dataSource]);
+
   useEffect(() => {
     latestComponents.current = dataset.components ?? [];
   }, [dataset.components]);
@@ -208,6 +214,7 @@ export default ({
     editable,
     activeComponentIDs,
     fieldComponentsList,
+    datasetTemplates,
     handleFieldUpdate,
     handleFieldRemove,
     handleMoveUp,
