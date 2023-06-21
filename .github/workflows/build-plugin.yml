@@ -47,13 +47,15 @@ jobs:
       - name: Test
         run: yarn test
       - name: Build
-        run: yarn build
+        run: yarn build:plugin
+      - name: Pack
+        run: mv dist/plugin dist/plateau-plugin && zip -r dist/plateau-plugin.zip dist/plateau-plugin
       - name: Save artifacts
         uses: actions/upload-artifact@v2
         if: github.ref == 'refs/heads/main'
         with:
           name: plateau-plugin
-          path: plugin/dist/plugin
+          path: plugin/dist/plateau-plugin.zip
   
   release-nightly:
     name: Release nightly/rc
@@ -61,19 +63,19 @@ jobs:
     needs: [ci-plugin]
     if: ${{ github.event.inputs.name != 'blank' }}
     env:
-      ARTIFACT: plateau-plugin_${{ github.event.inputs.name }}
+      ARTIFACT: plateau-plugin_${{ github.event.inputs.name }}.zip
     steps:
       - uses: actions/download-artifact@v2
         with:
           name: plateau-plugin
       - name: Rename artifact
-        run: mv plateau-plugin $ARTIFACT
+        run: mv plateau-plugin.zip $ARTIFACT
       - name: Release
         uses: ncipollo/release-action@v1
         with:
           allowUpdates: true
           artifacts: ${{ env.ARTIFACT }}
-          artifactContentType: application/gzip
+          artifactContentType: application/zip
           commit: ${{ github.event.inputs.sha }}
           name: ${{ github.event.inputs.name }}
           tag: ${{ github.event.inputs.name }}
@@ -91,10 +93,10 @@ jobs:
         uses: dsaltares/fetch-gh-release-asset@master
         with:
           version: tags/rc
-          file: plateau-plugin_rc
+          file: plateau-plugin_rc.zip
           token: ${{ secrets.GITHUB_TOKEN }}
       - name: Rename artifact
-        run: mv plateau-plugin_rc $ARTIFACT
+        run: mv plateau-plugin_rc.zip $ARTIFACT
       - name: Download latest changelog
         uses: dawidd6/action-download-artifact@v2
         with:
@@ -105,7 +107,7 @@ jobs:
         with:
           allowUpdates: true
           artifacts: ${{ env.ARTIFACT }}
-          artifactContentType: application/gzip
+          artifactContentType: application/zip
           commit: ${{ github.event.inputs.sha }}
           name: ${{ github.event.inputs.new_tag }}
           tag: ${{ github.event.inputs.new_tag }}
