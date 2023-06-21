@@ -1,4 +1,4 @@
-name: ci-plugin-version-update
+name: release
 on:
   workflow_dispatch:
     inputs:
@@ -55,4 +55,5 @@ jobs:
           rm CHANGELOG_latest.md
           git add CHANGELOG.md plugin/public/reearth.yml
           git commit -m "chore(plugin): update plugin version to $TAG"
+          git tag $TAG
           git push --atomic origin main $TAG
