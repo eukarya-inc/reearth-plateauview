@@ -1,7 +1,7 @@
 name: ci
 on:
   push:
-    branches: [main]
+    branches: [main, release]
   pull_request:
 jobs:
   prepare:
@@ -34,13 +34,12 @@ jobs:
             .github/workflows/deploy-server-dev.yml
             .github/workflows/deploy-server-prod.yml
   ci-plugin:
-    needs: 
-      - prepare
+    needs: prepare
     if: ${{ !failure() && needs.prepare.outputs.plugin == 'true' }} 
     uses: ./.github/workflows/ci-plugin.yml
   ci-server:
     needs: prepare
-    if: needs.prepare.outputs.server == 'true'
+    if: ${{ !failure() && needs.prepare.outputs.server == 'true' }}
     uses: ./.github/workflows/ci-server.yml
   ci:
     runs-on: ubuntu-latest
@@ -101,7 +100,7 @@ jobs:
       - ci-plugin
       - ci-collect-info
     runs-on: ubuntu-latest
-    if: ${{!failure() && github.event_name == 'push' && github.ref_name == 'main'}}
+    if: ${{!failure() && github.event_name == 'push' && (github.ref_name == 'main' || github.ref_name == 'release')}}
     steps:
       - name: Dispatch Plugin Build
         uses: benc-uk/workflow-dispatch@v1
