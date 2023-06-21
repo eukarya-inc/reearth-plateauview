@@ -48,12 +48,14 @@ jobs:
         run: |
           current_version=$(awk '/version: [0-9]+\.[0-9]+\.[0-9]+/{print $2}' plugin/public/reearth.yml)
           sed -i "s/$current_version/$VER/" plugin/public/reearth.yml      
-      - name: Commit and push changes
+      - name: Commit and push to release
         env:
          TAG: ${{ steps.changelog.outputs.version }}
         run: |
           rm CHANGELOG_latest.md
           git add CHANGELOG.md plugin/public/reearth.yml
-          git commit -m "chore(plugin): update plugin version to $TAG"
+          git commit -am "$TAG"
           git tag $TAG
-          git push --atomic origin main $TAG
+          git push --atomic origin release $TAG
+      - name: Commit & push to main
+        run: git switch main && git cherry-pick release && git push
