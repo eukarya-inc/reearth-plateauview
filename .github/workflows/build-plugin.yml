@@ -49,7 +49,7 @@ jobs:
       - name: Build
         run: yarn build:plugin
       - name: Pack
-        run: mv dist/plugin dist/plateau-plugin && zip -r dist/plateau-plugin.zip dist/plateau-plugin
+        run: cd dist && mv plugin plateau-plugin && zip -r plateau-plugin.zip plateau-plugin
       - name: Save artifacts
         uses: actions/upload-artifact@v2
         if: github.ref == 'refs/heads/main'
