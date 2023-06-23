@@ -40,13 +40,21 @@
     },
     {
       "matchPaths": [
-        "web/**"
+        "plugin/**"
       ],
       "matchPackagePatterns": [
         "*"
       ],
-      "groupName": "web",
-      "groupSlug": "web dependencies",
+      "groupName": "plugin",
+      "groupSlug": "plugin dependencies",
+      "schedule": ["before 3:00 am on the 4th day of the month"]
+    },
+    {
+      "matchPackagePatterns": [
+        "*"
+      ],
+      "groupName": "misc",
+      "groupSlug": "misc dependencies",
       "schedule": ["before 3:00 am on the 4th day of the month"]
     }
   ]
