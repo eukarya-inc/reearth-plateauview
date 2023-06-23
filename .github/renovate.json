@@ -1,0 +1,53 @@
+{
+  "extends": [
+    "config:base",
+    ":semanticCommits",
+    ":semanticCommitScopeDisabled",
+    ":maintainLockFilesWeekly",
+    ":enableVulnerabilityAlertsWithLabel(security)",
+    ":semanticCommitTypeAll(chore)"
+  ],
+  "postUpdateOptions": [
+    "gomodTidy",
+    "gomodUpdateImportPaths"
+  ],
+  "packageRules": [
+    {
+      "matchManagers": ["github-actions"],
+      "groupName": "GitHub Actions dependencies",
+      "schedule": ["before 3am on the first day of the month"]
+    },
+    {
+      "matchManagers": ["dockerfile"],
+      "groupName": "Docker dependencies",
+      "schedule": ["before 3am on the first day of the month"]
+    },
+    {
+      "matchManagers": ["terraform", "terraform-version"],
+      "groupName": "Terraform dependencies",
+      "schedule": ["before 3am on the first day of the month"]
+    },
+    {
+      "matchPaths": [
+        "server/**"
+      ],
+      "matchPackagePatterns": [
+        "*"
+      ],
+      "groupName": "server",
+      "groupSlug": "server dependencies",
+      "schedule": ["before 3:00 am on the 4th day of the month"]
+    },
+    {
+      "matchPaths": [
+        "web/**"
+      ],
+      "matchPackagePatterns": [
+        "*"
+      ],
+      "groupName": "web",
+      "groupSlug": "web dependencies",
+      "schedule": ["before 3:00 am on the 4th day of the month"]
+    }
+  ]
+}
