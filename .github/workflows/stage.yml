@@ -8,9 +8,9 @@ jobs:
     steps:
       - name: git config
         env:
-          GPT_USER: ${{ secrets.GPT_USER }}
+          GPT_USER: ${{ secrets.GPT }}
         run: |
-          git config --global user.name $GPT_USER
+          git config --global user.name $GPT
           git config --global pull.rebase false
       - uses: actions/checkout@v3
         with:
