@@ -8,7 +8,7 @@ jobs:
     steps:
       - name: git config
         env:
-          GPT_USER: ${{ secrets.GPT }}
+          GPT: ${{ secrets.GPT }}
         run: |
           git config --global user.name $GPT
           git config --global pull.rebase false
