@@ -125,6 +125,10 @@ resource "google_cloud_run_service" "reearth_cms_api" {
           name  = "REEARTH_CMS_AUTH0_WEBCLIENTID"
           value = module.auth0.auth0_client_spa.client_id
         }
+        env {
+          name  = "REEARTH_CMS_TASK_DECOMPRESSORIMAGE"
+          value = "reearth/reearth-cms-decompressor:rc"
+        }
       }
     }
     metadata {
