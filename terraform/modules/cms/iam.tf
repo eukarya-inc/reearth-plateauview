@@ -98,7 +98,12 @@ resource "google_service_account" "cms_worker_m2m" {
 }
 
 resource "google_project_iam_member" "cms_worker_m2m" {
-  role    = google_project_iam_custom_role.cms_worker_m2m.id
+  for_each = toset([
+    google_project_iam_custom_role.cms_worker_m2m.id,
+    "roles/pubsub.publisher",
+    "roles/storage.objectAdmin",
+  ])
+  role    = each.value
   project = data.google_project.project.project_id
 
   member = "serviceAccount:${google_service_account.cms_worker_m2m.email}"
@@ -121,5 +126,6 @@ resource "google_project_iam_custom_role" "cms_worker_m2m" {
     "iam.serviceAccounts.signJwt",
     "resourcemanager.projects.get",
     "run.jobs.run",
+    "cloudbuild.builds.create",
   ]
 }

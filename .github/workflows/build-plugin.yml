@@ -52,7 +52,6 @@ jobs:
         run: cd dist && mv plugin plateau-plugin && zip -r plateau-plugin.zip plateau-plugin
       - name: Save artifacts
         uses: actions/upload-artifact@v2
-        if: github.ref == 'refs/heads/main' || 'refs/heads/release'
         with:
           name: plateau-plugin
           path: plugin/dist/plateau-plugin.zip

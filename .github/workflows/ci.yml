@@ -77,7 +77,7 @@ jobs:
         run: |
           echo "::set-output name=sha_short::$(git rev-parse --short HEAD)"
           echo "BRANCH=$BRANCH"
-          if [[ "$BRANCH" = "main" ]]; then
+          if [[ "$BRANCH" = "release" ]]; then
             TAG=$(git tag --points-at HEAD)
             if [[ ! -z "$TAG" ]]; then
               echo "::set-output name=new_tag::$TAG"
