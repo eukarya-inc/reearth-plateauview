@@ -59,11 +59,12 @@ func TestDescFromAsset(t *testing.T) {
 	}, desc)
 
 	desc = descFromAsset(a, []string{
-		"000000_hoge-shi_2020_mvt_op_urf_urf.zip\n@name:CCC",
+		"000000_hoge-shi_2020_mvt_op_urf_urf.zip\n@name:CCC\n@group:aaaa",
 	}, false)
 	assert.Equal(t, Description{
 		Override: Override{
-			Name: "CCC",
+			Name:  "CCC",
+			Group: "aaaa",
 		},
 	}, desc)
 

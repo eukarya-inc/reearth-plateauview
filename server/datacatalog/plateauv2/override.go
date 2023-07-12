@@ -14,6 +14,7 @@ type Override struct {
 	Type2En  string
 	Area     string
 	ItemName string
+	Group    string
 	Layers   []string
 	Root     bool
 	Order    *int
@@ -40,6 +41,12 @@ func (o Override) Merge(p Override) Override {
 	}
 	if o.Area == "" {
 		o.Area = p.Area
+	}
+	if o.ItemName == "" {
+		o.ItemName = p.ItemName
+	}
+	if o.Group == "" {
+		o.Group = p.Group
 	}
 	if len(o.Layers) == 0 {
 		o.Layers = p.Layers

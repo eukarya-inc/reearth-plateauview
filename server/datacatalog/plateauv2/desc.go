@@ -53,6 +53,7 @@ func DescriptionFrom(d string) Description {
 			Type2En:  tags["type2_en"],
 			Area:     tags["area"],
 			ItemName: tags["item_name"],
+			Group:    tags["group"],
 			Layers:   multipleValues(tags["layer"]),
 			Root:     tags["root"] == "true",
 			Order:    orderr,
