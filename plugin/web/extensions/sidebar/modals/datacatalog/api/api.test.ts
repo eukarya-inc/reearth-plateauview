@@ -675,6 +675,7 @@ const zenkyuData: RawDataCatalogItem = {
   desc: "",
   year: 2022,
 };
+
 const zenkyuDataByType = {
   ...zenkyuData,
   path: ["ユースケース", "全球データ", "zenkyu"],
