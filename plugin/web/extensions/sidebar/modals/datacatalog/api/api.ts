@@ -199,14 +199,14 @@ function path(i: RawDataCatalogItem, groupBy: GroupBy, customDataset: boolean): 
         ...(!customDataset ? [i.type] : []),
         i.pref,
         ...((i.ward || i.type2) && i.city ? [i.city] : []),
-        ...(i.group ? [i.group] : []),
+        ...(i.group?.split("/") ?? []),
         ...(i.name || "（名称未決定）").split("/"),
       ]
     : [
         i.pref,
         ...(i.city ? [i.city] : []),
         ...(i.ward ? [i.ward] : []),
-        ...(i.group ? [i.group] : []),
+        ...(i.group?.split("/") ?? []),
         ...(!customDataset &&
         (i.type2 || (!i.root && typesWithFolders.includes(i.type_en) && i.pref !== zenkyu))
           ? [i.type]
