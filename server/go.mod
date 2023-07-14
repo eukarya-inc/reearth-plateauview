@@ -23,7 +23,7 @@ require (
 	github.com/tdewolff/canvas v0.0.0-20221230020303-9eb6d3934367
 	github.com/thanhpk/randstr v1.0.4
 	github.com/vincent-petithory/dataurl v1.0.0
-	golang.org/x/net v0.6.0
+	golang.org/x/net v0.7.0
 	gonum.org/v1/gonum v0.13.0
 )
 
