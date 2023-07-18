@@ -1,3 +1,5 @@
+import { readFileSync, writeFileSync } from "fs";
+
 import { expect, test } from "vitest";
 
 import {
@@ -5,23 +7,29 @@ import {
   getRawDataCatalogTree,
   modifyDataCatalog,
   type RawDataCatalogItem,
-  // type RawDataCatalogTreeItem,
+  type RawDataCatalogTreeItem,
 } from "./api";
 
-// test("getRawDataCatalogTree", async () => {
-//   const r = await getDataCatalog("", "");
-//   const d = getRawDataCatalogTree(r, "city", "");
-//   print(d);
-// });
+test.skip("getRawDataCatalogTree", async () => {
+  // const r = await getDataCatalog("https://", "");
+  const r = JSON.parse(readFileSync("datacatalog.json", "utf8"));
+  const d = getRawDataCatalogTree(r, "city", false, "");
+  const s = print(d);
+  writeFileSync("test.txt", s);
+});
 
-// function print(c: RawDataCatalogTreeItem[], depth?: number) {
-//   c.forEach(c => {
-//     console.log(" ".repeat(depth || 0), c.name);
-//     if ("children" in c) {
-//       return print(c.children, (depth || 0) + 1);
-//     }
-//   });
-// }
+function print(c: RawDataCatalogTreeItem[], depth?: number): string {
+  let s = "";
+
+  c.forEach(c => {
+    s += " ".repeat(depth || 0) + " " + c.name + "\n";
+    if ("children" in c) {
+      s += print(c.children, (depth || 0) + 1);
+    }
+  });
+
+  return s;
+}
 
 test("modifyDataCatalog", () => {
   const d = {

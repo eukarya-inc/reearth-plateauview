@@ -228,13 +228,19 @@ function sortByCity(a: InternalDataCatalogItem, b: InternalDataCatalogItem): num
       a.pref_code_i - b.pref_code_i ||
       (a.ward ? 0 : 1) - (b.ward ? 0 : 1) || // items that have a ward is upper
       (a.city ? 0 : 1) - (b.city ? 0 : 1) || // items that have a city is upper
+      (b.group ? 0 : 1) - (a.group ? 0 : 1) || // items that have no groups is upper
       a.code - b.code ||
-      types.indexOf(a.type_en) - types.indexOf(b.type_en),
+      typeIndexOf(a.type_en) - typeIndexOf(b.type_en),
   );
 }
 
 function sortByType(a: RawDataCatalogItem, b: RawDataCatalogItem): number {
-  return clamp(types.indexOf(a.type_en) - types.indexOf(b.type_en));
+  return clamp(typeIndexOf(a.type_en) - typeIndexOf(b.type_en));
+}
+
+function typeIndexOf(type_en: string): number {
+  const i = types.indexOf(type_en);
+  return i === -1 ? 99999 : i;
 }
 
 function sortByOrder(a: number | undefined, b: number | undefined): number {
