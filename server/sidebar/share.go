@@ -52,13 +52,13 @@ func (s *Handler) GetShare() echo.HandlerFunc {
 
 		f := res.FieldByKey(shareCMSDataFieldKey)
 		if f == nil {
-			log.Errorf("share: item got, but field %s does not contain: %+v", shareCMSDataFieldKey, res)
+			log.Errorfc(ctx, "share: item got, but field %s does not contain: %+v", shareCMSDataFieldKey, res)
 			return rerror.ErrNotFound
 		}
 
 		v, ok := f.Value.(string)
 		if !ok {
-			log.Errorf("share: item got, but field %s's value is not a string: %+v", shareCMSDataFieldKey, res)
+			log.Errorfc(ctx, "share: item got, but field %s's value is not a string: %+v", shareCMSDataFieldKey, res)
 			return rerror.ErrNotFound
 		}
 

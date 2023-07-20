@@ -395,10 +395,10 @@ func (c *Ckan) send(
 		req.Header.Set("X-CKAN-API-Key", c.token)
 	}
 
-	log.Infof("ckan: send: %s %s", method, u)
+	log.Infofc(ctx, "ckan: send: %s %s", method, u)
 	res, err := c.client.Do(req)
 	if err != nil {
-		log.Errorf("ckan: send error: %s", err)
+		log.Errorfc(ctx, "ckan: send error: %s", err)
 		return fmt.Errorf("failed to send request: %w", err)
 	}
 
@@ -406,7 +406,7 @@ func (c *Ckan) send(
 
 	b, err := io.ReadAll(res.Body)
 	if err != nil {
-		log.Errorf("ckan: result (%d): failed to read response body")
+		log.Errorfc(ctx, "ckan: result (%d): failed to read response body")
 		return fmt.Errorf("failed to read response body: %w", err)
 	}
 
@@ -417,7 +417,7 @@ func (c *Ckan) send(
 			msg = eres.Error.Message
 		}
 
-		log.Infof("ckan: result (%d): %s", res.StatusCode, msg)
+		log.Infofc(ctx, "ckan: result (%d): %s", res.StatusCode, msg)
 		return fmt.Errorf("status code %d: %s", res.StatusCode, msg)
 	}
 
@@ -427,7 +427,7 @@ func (c *Ckan) send(
 		}
 	}
 
-	log.Debugf("ckan: ok: %s", b)
+	log.Debugfc(ctx, "ckan: ok: %s", b)
 
 	return nil
 }

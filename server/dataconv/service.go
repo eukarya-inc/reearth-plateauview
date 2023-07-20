@@ -127,13 +127,13 @@ func (s *Service) Convert(ctx context.Context, i Item, pid string) error {
 func getGeoJSON(ctx context.Context, u string) (*geojson.FeatureCollection, error) {
 	req, err := http.NewRequestWithContext(ctx, "GET", u, nil)
 	if err != nil {
-		log.Errorf("dataconv: failed to create a request: %v", err)
+		log.Errorfc(ctx, "dataconv: failed to create a request: %v", err)
 		return nil, nil
 	}
 
 	res, err := http.DefaultClient.Do(req)
 	if err != nil {
-		log.Errorf("dataconv: failed to get asset: %v", err)
+		log.Errorfc(ctx, "dataconv: failed to get asset: %v", err)
 		return nil, nil
 	}
 
@@ -142,13 +142,13 @@ func getGeoJSON(ctx context.Context, u string) (*geojson.FeatureCollection, erro
 	}()
 
 	if res.StatusCode != http.StatusOK {
-		log.Errorf("dataconv: failed to get asset: status code is %d", res.StatusCode)
+		log.Errorfc(ctx, "dataconv: failed to get asset: status code is %d", res.StatusCode)
 		return nil, nil
 	}
 
 	f := geojson.FeatureCollection{}
 	if err := json.NewDecoder(bom.NewReader(res.Body)).Decode(&f); err != nil {
-		log.Errorf("dataconv: invalid geojson: %v", err)
+		log.Errorfc(ctx, "dataconv: invalid geojson: %v", err)
 	}
 
 	return &f, nil

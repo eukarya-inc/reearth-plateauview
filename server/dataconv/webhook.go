@@ -43,7 +43,7 @@ func webhookHandler(ctx context.Context, s *Service, w *cmswebhook.Payload) erro
 			key = w.ItemData.Model.Key
 		}
 		// skipped
-		log.Debugf("dataconv: skipped: invalid webhook: type=%s, projectid=%s, model=%s", w.Type, pid, key)
+		log.Debugfc(ctx, "dataconv: skipped: invalid webhook: type=%s, projectid=%s, model=%s", w.Type, pid, key)
 		return nil
 	}
 
@@ -52,12 +52,12 @@ func webhookHandler(ctx context.Context, s *Service, w *cmswebhook.Payload) erro
 
 	if err := s.Convert(ctx, i, pid); err != nil {
 		if errors.Cause(err) == ErrSkip {
-			log.Infof("dataconv: skipped: %s", err)
+			log.Infofc(ctx, "dataconv: skipped: %s", err)
 		} else {
-			log.Errorf("dataconv: failed: %s", err)
+			log.Errorfc(ctx, "dataconv: failed: %s", err)
 		}
 	}
 
-	log.Infof("dataconv: done: %s", i.ID)
+	log.Infofc(ctx, "dataconv: done: %s", i.ID)
 	return nil
 }

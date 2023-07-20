@@ -33,9 +33,10 @@ func Echo(conf Config, g *echo.Group) error {
 	)
 
 	g.GET("/:project", func(c echo.Context) error {
-		res, err := f.Do(c.Request().Context(), c.Param("project"))
+		ctx := c.Request().Context()
+		res, err := f.Do(ctx, c.Param("project"))
 		if err != nil {
-			log.Errorf("datacatalog: %v", err)
+			log.Errorfc(ctx, "datacatalog: %v", err)
 			return c.JSON(http.StatusInternalServerError, "error")
 		}
 		return c.JSON(http.StatusOK, res.All())

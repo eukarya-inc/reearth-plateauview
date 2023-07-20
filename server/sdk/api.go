@@ -40,10 +40,10 @@ func requestHandler(conf Config, g *echo.Group, s *Services) error {
 			return echo.NewHTTPError(http.StatusBadRequest, "project is empty")
 		}
 
-		log.Infof("sdk: request max lod extraction for %d items: %v", len(q.IDs), q.IDs)
+		log.Infofc(ctx, "sdk: request max lod extraction for %d items: %v", len(q.IDs), q.IDs)
 
 		for _, id := range q.IDs {
-			log.Infof("sdk:	request max lod extraction for %s", id)
+			log.Infofc(ctx, "sdk:	request max lod extraction for %s", id)
 
 			i, err := s.CMS.GetItem(ctx, id, false)
 			if i == nil || err != nil {
@@ -51,9 +51,9 @@ func requestHandler(conf Config, g *echo.Group, s *Services) error {
 					return echo.NewHTTPError(http.StatusBadRequest, "invalid id")
 				}
 				if err != nil {
-					log.Errorf("sdk: failed to get item: %v", err)
+					log.Errorfc(ctx, "sdk: failed to get item: %v", err)
 				} else {
-					log.Errorf("sdk: item is nil: %s", id)
+					log.Errorfc(ctx, "sdk: item is nil: %s", id)
 				}
 				return echo.NewHTTPError(http.StatusInternalServerError, "internal")
 			}

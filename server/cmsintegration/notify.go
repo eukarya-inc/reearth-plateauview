@@ -29,14 +29,14 @@ func NotifyHandler(conf Config) (echo.HandlerFunc, error) {
 			return c.JSON(http.StatusBadRequest, "invalid payload")
 		}
 
-		log.Infof("cmsintegration notify: received: %+v", f)
+		log.Infofc(ctx, "cmsintegration notify: received: %+v", f)
 
 		id, err := fme.ParseID(f.ID, conf.Secret)
 		if err != nil {
 			return c.JSON(http.StatusUnauthorized, "unauthorized")
 		}
 
-		log.Errorf("cmsintegration notify: validate: itemID=%s, assetID=%s", id.ItemID, id.AssetID)
+		log.Errorfc(ctx, "cmsintegration notify: validate: itemID=%s, assetID=%s", id.ItemID, id.AssetID)
 
 		if f.Status != "ok" && f.Status != "error" {
 			return c.JSON(http.StatusBadRequest, fmt.Sprintf("invalid type: %s", f.Type))
@@ -48,13 +48,13 @@ func NotifyHandler(conf Config) (echo.HandlerFunc, error) {
 
 		cc := commentContent(f)
 		if err := s.CMS.CommentToItem(ctx, id.ItemID, cc); err != nil {
-			log.Errorf("cmsintegration notify: failed to comment: %w", err)
+			log.Errorfc(ctx, "cmsintegration notify: failed to comment: %w", err)
 			return nil
 		}
 
 		if conf.Debug {
 			if err := s.CMS.CommentToItem(ctx, id.ItemID, fmt.Sprintf("%+v", f.Results)); err != nil {
-				log.Errorf("cmsintegration notify: failed to comment: %w", err)
+				log.Errorfc(ctx, "cmsintegration notify: failed to comment: %w", err)
 			}
 		}
 
@@ -63,11 +63,11 @@ func NotifyHandler(conf Config) (echo.HandlerFunc, error) {
 				ConversionStatus:  StatusError,
 				ConversionEnabled: ConversionDisabled,
 			}.Fields()); err != nil {
-				log.Errorf("cmsintegration notify: failed to update item: %w", err)
+				log.Errorfc(ctx, "cmsintegration notify: failed to update item: %w", err)
 
 				if conf.Debug {
 					if err := s.CMS.CommentToItem(ctx, id.ItemID, fmt.Sprintf("debug: failed to update item 1: %s", err)); err != nil {
-						log.Errorf("cmsintegration notify: failed to comment: %w", err)
+						log.Errorfc(ctx, "cmsintegration notify: failed to comment: %w", err)
 					}
 				}
 
@@ -78,7 +78,7 @@ func NotifyHandler(conf Config) (echo.HandlerFunc, error) {
 
 		r, unknown, err := uploadAssets(ctx, s.CMS, id.ProjectID, f)
 		if err != nil {
-			log.Errorf("cmsintegration notify: failed to update assets: %w", err)
+			log.Errorfc(ctx, "cmsintegration notify: failed to update assets: %w", err)
 			// err is reported as a comment later
 		}
 
@@ -88,25 +88,25 @@ func NotifyHandler(conf Config) (echo.HandlerFunc, error) {
 
 			if conf.Debug {
 				if err := s.CMS.CommentToItem(ctx, id.ItemID, fmt.Sprintf("debug: unprocessed keys: %s", err)); err != nil {
-					log.Errorf("cmsintegration notify: failed to comment: %w", err)
+					log.Errorfc(ctx, "cmsintegration notify: failed to comment: %w", err)
 				}
 			}
 		}
 
 		if dicURL := f.GetDic(); dicURL != "" {
 			if r.Dic, err = readDic(ctx, dicURL); err != nil {
-				log.Errorf("cmsintegration: failed to read dic from %s: %v", dicURL, err)
+				log.Errorfc(ctx, "cmsintegration: failed to read dic from %s: %v", dicURL, err)
 			}
 		}
 
 		r.ConversionStatus = StatusOK
 		if f := r.Fields(); len(f) > 0 {
 			if _, err := s.CMS.UpdateItem(ctx, id.ItemID, f); err != nil {
-				log.Errorf("cmsintegration notify: failed to update item: %w", err)
+				log.Errorfc(ctx, "cmsintegration notify: failed to update item: %w", err)
 
 				if conf.Debug {
 					if err := s.CMS.CommentToItem(ctx, id.ItemID, fmt.Sprintf("debug: failed to upload item 3: %s", err)); err != nil {
-						log.Errorf("cmsintegration notify: failed to comment: %w", err)
+						log.Errorfc(ctx, "cmsintegration notify: failed to comment: %w", err)
 					}
 				}
 
@@ -114,7 +114,7 @@ func NotifyHandler(conf Config) (echo.HandlerFunc, error) {
 			}
 		}
 
-		log.Infof("cmsintegration notify: done")
+		log.Infofc(ctx, "cmsintegration notify: done")
 
 		comment := ""
 		if err != nil {
@@ -123,7 +123,7 @@ func NotifyHandler(conf Config) (echo.HandlerFunc, error) {
 			comment = "変換結果アセットのアップロードと設定が完了しました。"
 		}
 		if err := s.CMS.CommentToItem(ctx, id.ItemID, comment); err != nil {
-			log.Errorf("cmsintegration notify: failed to comment: %w", err)
+			log.Errorfc(ctx, "cmsintegration notify: failed to comment: %w", err)
 		}
 
 		return nil
@@ -169,18 +169,18 @@ func uploadAssets(ctx context.Context, c cms.Interface, pid string, f FMEResult)
 			continue
 		}
 
-		log.Infof("cmsintegration notify: uploading %s (%d/3): %s", e.Key, e.Retry, e.Value)
+		log.Infofc(ctx, "cmsintegration notify: uploading %s (%d/3): %s", e.Key, e.Retry, e.Value)
 
 		assetID, err := c.UploadAsset(ctx, pid, e.Value)
 		if err != nil {
-			log.Errorf("cmsintegration notify: failed to upload asset %s (%d/3): %w", e.Key, e.Retry, err)
+			log.Errorfc(ctx, "cmsintegration notify: failed to upload asset %s (%d/3): %w", e.Key, e.Retry, err)
 			e.Retry++
 			e.Error = err
 			queue = append(queue, e)
 			continue
 		}
 
-		log.Infof("cmsintegration notify: asset uploaded %s: %s", e.Key, assetID)
+		log.Infofc(ctx, "cmsintegration notify: asset uploaded %s: %s", e.Key, assetID)
 		if _, ok := result[e.Key]; !ok {
 			result[e.Key] = []string{}
 		}

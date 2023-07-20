@@ -15,6 +15,7 @@ import (
 	"github.com/labstack/echo/v4/middleware"
 	cms "github.com/reearth/reearth-cms-api/go"
 	"github.com/reearth/reearth-cms-api/go/cmswebhook"
+	"github.com/reearth/reearthx/appx"
 	"github.com/reearth/reearthx/log"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/samber/lo"
@@ -43,6 +44,7 @@ func main2(conf *Config) {
 	e.Validator = &customValidator{validator: validator.New()}
 	e.Use(
 		middleware.Recover(),
+		echo.WrapMiddleware(appx.RequestIDMiddleware()),
 		logger.AccessLogger(),
 		middleware.CORSWithConfig(middleware.CORSConfig{
 			AllowOrigins: conf.Origin,
