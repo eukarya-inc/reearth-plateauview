@@ -2,9 +2,12 @@ package sdkapi
 
 import (
 	"context"
+	"encoding/csv"
 	"fmt"
+	"io"
 	"net/url"
 	"path"
+	"strconv"
 
 	cms "github.com/reearth/reearth-cms-api/go"
 	"github.com/reearth/reearthx/rerror"
@@ -37,7 +40,7 @@ func (c *CMS) Datasets(ctx context.Context, model string) (*DatasetResponse, err
 	return c.DatasetsWithIntegrationAPI(ctx, model)
 }
 
-func (c *CMS) Files(ctx context.Context, model, id string) (any, error) {
+func (c *CMS) Files(ctx context.Context, model, id string) (FilesResponse, error) {
 	if c.PublicAPI {
 		return c.FilesWithPublicAPI(ctx, model, id)
 	}
@@ -53,7 +56,7 @@ func (c *CMS) DatasetsWithPublicAPI(ctx context.Context, model string) (*Dataset
 	return Items(items).DatasetResponse(), nil
 }
 
-func (c *CMS) FilesWithPublicAPI(ctx context.Context, model, id string) (any, error) {
+func (c *CMS) FilesWithPublicAPI(ctx context.Context, model, id string) (FilesResponse, error) {
 	item, err := c.PublicAPIClient.GetItem(ctx, c.Project, model, id)
 	if err != nil {
 		return nil, rerror.ErrInternalBy(err)
@@ -72,12 +75,7 @@ func (c *CMS) FilesWithPublicAPI(ctx context.Context, model, id string) (any, er
 		return nil, rerror.ErrInternalBy(err)
 	}
 
-	files := lo.FilterMap(asset.Files, func(u string, _ int) (*url.URL, bool) {
-		res, err := url.Parse(u)
-		return res, err == nil && path.Ext(res.Path) == ".gml"
-	})
-
-	return maxlod.Map().Files(files), nil
+	return MaxLODFiles(maxlod, asset.Files, nil), nil
 }
 
 func (c *CMS) DatasetsWithIntegrationAPI(ctx context.Context, model string) (*DatasetResponse, error) {
@@ -89,7 +87,7 @@ func (c *CMS) DatasetsWithIntegrationAPI(ctx context.Context, model string) (*Da
 	return ItemsFromIntegration(items.Items).DatasetResponse(), nil
 }
 
-func (c *CMS) FilesWithIntegrationAPI(ctx context.Context, model, id string) (any, error) {
+func (c *CMS) FilesWithIntegrationAPI(ctx context.Context, model, id string) (FilesResponse, error) {
 	item, err := c.IntegrationAPIClient.GetItem(ctx, id, true)
 	if err != nil {
 		return nil, rerror.ErrInternalBy(err)
@@ -121,14 +119,67 @@ func (c *CMS) FilesWithIntegrationAPI(ctx context.Context, model, id string) (an
 		return nil, rerror.ErrInternalBy(err)
 	}
 
-	files := lo.FilterMap(asset.File.Paths(), func(u string, _ int) (*url.URL, bool) {
+	return MaxLODFiles(maxlod, asset.File.Paths(), assetBase), nil
+}
+
+func ReadMaxLODCSV(b io.Reader) (MaxLODColumns, error) {
+	r := csv.NewReader(b)
+	r.ReuseRecord = true
+	var results MaxLODColumns
+	for {
+		c, err := r.Read()
+		if err == io.EOF {
+			break
+		}
+
+		if err != nil {
+			return nil, fmt.Errorf("failed to read csv: %w", err)
+		}
+
+		if len(c) < 3 || !isInt(c[0]) {
+			continue
+		}
+
+		m, err := strconv.ParseFloat(c[2], 64)
+		if err != nil {
+			continue
+		}
+
+		f := ""
+		if len(c) > 3 {
+			f = c[3]
+		}
+
+		results = append(results, MaxLODColumn{
+			Code:   c[0],
+			Type:   c[1],
+			MaxLOD: m,
+			File:   f,
+		})
+	}
+
+	return results, nil
+}
+
+func MaxLODFiles(maxLOD MaxLODColumns, assetPaths []string, assetBase *url.URL) FilesResponse {
+	files := lo.FilterMap(assetPaths, func(u string, _ int) (*url.URL, bool) {
 		if path.Ext(u) != ".gml" {
 			return nil, false
 		}
+
+		u2, err := url.Parse(u)
+		if err != nil {
+			return nil, false
+		}
+
+		if assetBase == nil {
+			return u2, true
+		}
+
 		fu := util.CloneRef(assetBase)
 		fu.Path = path.Join(fu.Path, u)
 		return fu, true
 	})
 
-	return maxlod.Map().Files(files), nil
+	return maxLOD.Map().Files(files)
 }
