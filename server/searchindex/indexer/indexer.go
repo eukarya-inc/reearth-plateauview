@@ -83,7 +83,7 @@ func (indexer *Indexer) Build() (res Result, errMsg error) {
 		return
 	}
 
-	log.Debugf("Number of features counted: %d", len(features))
+	log.Debugf("indexer: Number of features counted: %d", len(features))
 
 	for idValue, tilsetFeature := range features {
 		// taking all positionProperties map entries as string for better writing experience
@@ -131,7 +131,7 @@ func ReadTilesetFeatures(ts *tiles.Tileset, config *Config, fsys FS, debug bool)
 			}
 
 			if debug {
-				log.Debugln(tileUri)
+				log.Debugf("indexer: %s", tileUri)
 			}
 
 			if strings.HasSuffix(tileUri, ".json") {

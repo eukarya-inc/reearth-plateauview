@@ -14,7 +14,7 @@ require (
 	github.com/paulmach/go.geojson v1.4.0
 	github.com/reearth/go3dtiles v0.0.0-20230612053146-a6d07c1ab855
 	github.com/reearth/reearth-cms-api/go v0.0.0-20230611180738-b6e050021ee0
-	github.com/reearth/reearthx v0.0.0-20230322184331-1c50e053c6b4
+	github.com/reearth/reearthx v0.0.0-20230712023029-a4a80621d9e1
 	github.com/samber/lo v1.38.1
 	github.com/sendgrid/sendgrid-go v3.12.0+incompatible
 	github.com/spf13/afero v1.9.3
@@ -35,7 +35,7 @@ require (
 	github.com/benoitkugler/textlayout v0.1.3 // indirect
 	github.com/benoitkugler/textprocessing v0.0.2 // indirect
 	github.com/dsnet/compress v0.0.1 // indirect
-	github.com/fatih/color v1.10.0 // indirect
+	github.com/fatih/color v1.12.0 // indirect
 	github.com/go-fonts/latin-modern v0.3.0 // indirect
 	github.com/go-latex/latex v0.0.0-20230307184459-12ec69307ad9 // indirect
 	github.com/goccy/go-yaml v1.9.8 // indirect
@@ -48,7 +48,7 @@ require (
 	github.com/tdewolff/parse/v2 v2.6.4 // indirect
 	github.com/wcharczuk/go-chart/v2 v2.1.0 // indirect
 	golang.org/x/image v0.6.0 // indirect
-	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1 // indirect
+	golang.org/x/xerrors v0.0.0-20220411194840-2f41105eb62f // indirect
 	gonum.org/v1/plot v0.11.0 // indirect
 	star-tex.org/x/tex v0.4.0 // indirect
 )

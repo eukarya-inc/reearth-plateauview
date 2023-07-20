@@ -79,7 +79,7 @@ func main2(conf *Config) {
 
 	log.Infof("enabled services: %v", serviceNames)
 	addr := fmt.Sprintf("[::]:%d", conf.Port)
-	log.Fatalln(e.StartH2CServer(addr, &http2.Server{}))
+	log.Fatalf("%v", e.StartH2CServer(addr, &http2.Server{}))
 }
 
 func errorHandler(next func(error, echo.Context)) func(error, echo.Context) {
