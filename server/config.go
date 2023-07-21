@@ -10,6 +10,7 @@ import (
 	"github.com/eukarya-inc/reearth-plateauview/server/dataconv"
 	"github.com/eukarya-inc/reearth-plateauview/server/geospatialjp"
 	"github.com/eukarya-inc/reearth-plateauview/server/opinion"
+	"github.com/eukarya-inc/reearth-plateauview/server/plateaucms"
 	"github.com/eukarya-inc/reearth-plateauview/server/sdk"
 	"github.com/eukarya-inc/reearth-plateauview/server/sdkapi"
 	"github.com/eukarya-inc/reearth-plateauview/server/searchindex"
@@ -160,20 +161,27 @@ func (c *Config) Geospatialjp() geospatialjp.Config {
 	}
 }
 
-func (c *Config) Sidebar() sidebar.Config {
-	return sidebar.Config{
+func (c *Config) PLATEAUCMS() plateaucms.Config {
+	return plateaucms.Config{
 		CMSBaseURL:      c.CMS_BaseURL,
 		CMSMainToken:    c.CMS_Token,
 		CMSTokenProject: c.CMS_TokenProject,
-		DisableShare:    c.Share_Disable,
 		// compat
 		CMSMainProject: c.CMS_SystemProject,
 		AdminToken:     c.Sidebar_Token,
 	}
 }
 
+func (c *Config) Sidebar() sidebar.Config {
+	return sidebar.Config{
+		Config:       c.PLATEAUCMS(),
+		DisableShare: c.Share_Disable,
+	}
+}
+
 func (c *Config) DataCatalog() datacatalog.Config {
 	return datacatalog.Config{
+		Config:       c.PLATEAUCMS(),
 		CMSBase:      c.CMS_BaseURL,
 		DisableCache: c.DataCatalog_DisableCache,
 		CacheTTL:     c.DataCatalog_CacheTTL,

@@ -1,9 +1,11 @@
 package datacatalog
 
 import (
+	"context"
 	"net/http"
 	"time"
 
+	"github.com/eukarya-inc/reearth-plateauview/server/plateaucms"
 	"github.com/eukarya-inc/reearth-plateauview/server/putil"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -11,13 +13,19 @@ import (
 )
 
 type Config struct {
+	plateaucms.Config
 	CMSBase      string
 	DisableCache bool
 	CacheTTL     int
 }
 
 func Echo(conf Config, g *echo.Group) error {
-	f, err := NewFetcher(nil, conf.CMSBase)
+	pcms, err := plateaucms.New(conf.Config)
+	if err != nil {
+		return err
+	}
+
+	f, err := NewFetcher(conf.CMSBase)
 	if err != nil {
 		return err
 	}
@@ -30,11 +38,13 @@ func Echo(conf Config, g *echo.Group) error {
 			TTL:          time.Duration(conf.CacheTTL) * time.Second,
 			CacheControl: true,
 		}).Middleware(),
+		pcms.AuthMiddleware(false),
 	)
 
-	g.GET("/:project", func(c echo.Context) error {
+	g.GET("/:pid", func(c echo.Context) error {
 		ctx := c.Request().Context()
-		res, err := f.Do(ctx, c.Param("project"))
+		prj := c.Param("pid")
+		res, err := f.Do(ctx, prj, options(ctx, prj))
 		if err != nil {
 			log.Errorfc(ctx, "datacatalog: %v", err)
 			return c.JSON(http.StatusInternalServerError, "error")
@@ -43,4 +53,16 @@ func Echo(conf Config, g *echo.Group) error {
 	})
 
 	return nil
+}
+
+func options(ctx context.Context, prj string) FetcherDoOptions {
+	md := plateaucms.GetCMSMetadataFromContext(ctx)
+	if md.Name == "" {
+		return FetcherDoOptions{}
+	}
+
+	return FetcherDoOptions{
+		Subproject: md.SubPorjectAlias,
+		CityName:   md.Name,
+	}
 }
