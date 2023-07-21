@@ -71,6 +71,10 @@ func (s *Handler) CreateShare() echo.HandlerFunc {
 	return func(c echo.Context) error {
 		ctx := c.Request().Context()
 		md := plateaucms.GetCMSMetadataFromContext(ctx)
+		if md.ProjectAlias == "" {
+			return rerror.ErrNotFound
+		}
+
 		cmsh := plateaucms.GetCMSFromContext(ctx)
 
 		body, err := io.ReadAll(c.Request().Body)
