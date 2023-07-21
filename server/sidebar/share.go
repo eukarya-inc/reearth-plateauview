@@ -7,6 +7,7 @@ import (
 	"io"
 	"net/http"
 
+	"github.com/eukarya-inc/reearth-plateauview/server/plateaucms"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	cms "github.com/reearth/reearth-cms-api/go"
@@ -29,7 +30,7 @@ func ShareEcho(g *echo.Group, c Config) error {
 		return err
 	}
 
-	g.Use(middleware.CORS(), middleware.BodyLimit("10M"), h.AuthMiddleware(true))
+	g.Use(middleware.CORS(), middleware.BodyLimit("10M"), h.cms.AuthMiddleware(true))
 
 	g.GET("/:pid/:id", h.GetShare())
 	g.POST("/:pid", h.CreateShare())
@@ -39,7 +40,7 @@ func ShareEcho(g *echo.Group, c Config) error {
 func (s *Handler) GetShare() echo.HandlerFunc {
 	return func(c echo.Context) error {
 		ctx := c.Request().Context()
-		cmsh := getCMSFromContext(ctx)
+		cmsh := plateaucms.GetCMSFromContext(ctx)
 
 		res, err := cmsh.GetItem(c.Request().Context(), c.Param("id"), false)
 		if err != nil {
@@ -69,8 +70,8 @@ func (s *Handler) GetShare() echo.HandlerFunc {
 func (s *Handler) CreateShare() echo.HandlerFunc {
 	return func(c echo.Context) error {
 		ctx := c.Request().Context()
-		md := getCMSMetadataFromContext(ctx)
-		cmsh := getCMSFromContext(ctx)
+		md := plateaucms.GetCMSMetadataFromContext(ctx)
+		cmsh := plateaucms.GetCMSFromContext(ctx)
 
 		body, err := io.ReadAll(c.Request().Body)
 		if err != nil {
