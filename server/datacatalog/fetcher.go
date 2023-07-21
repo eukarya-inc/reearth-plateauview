@@ -3,7 +3,6 @@ package datacatalog
 import (
 	"context"
 	"errors"
-	"net/http"
 	"net/url"
 	"path"
 	"time"
@@ -26,7 +25,12 @@ type Fetcher struct {
 	base *url.URL
 }
 
-func NewFetcher(c *http.Client, cmsbase string) (*Fetcher, error) {
+type FetcherDoOptions struct {
+	Subproject string
+	CityName   string
+}
+
+func NewFetcher(cmsbase string) (*Fetcher, error) {
 	u, err := url.Parse(cmsbase)
 	if err != nil {
 		return nil, err
@@ -34,7 +38,7 @@ func NewFetcher(c *http.Client, cmsbase string) (*Fetcher, error) {
 
 	u.Path = path.Join(u.Path, "api", "p")
 
-	cmsp, err := cms.NewPublicAPIClient[plateauv2.CMSItem](c, cmsbase)
+	cmsp, err := cms.NewPublicAPIClient[any](nil, cmsbase)
 	if err != nil {
 		return nil, err
 	}
@@ -42,8 +46,8 @@ func NewFetcher(c *http.Client, cmsbase string) (*Fetcher, error) {
 	cmsp = cmsp.WithTimeout(time.Duration(timeoutSecond) * time.Second)
 
 	return &Fetcher{
-		cmsp: cmsp,
-		cmsu: cms.ChangePublicAPIClientType[plateauv2.CMSItem, UsecaseItem](cmsp),
+		cmsp: cms.ChangePublicAPIClientType[any, plateauv2.CMSItem](cmsp),
+		cmsu: cms.ChangePublicAPIClientType[any, UsecaseItem](cmsp),
 		base: u,
 	}, nil
 }
@@ -60,8 +64,8 @@ func (f *Fetcher) Clone() *Fetcher {
 	}
 }
 
-func (f *Fetcher) Do(ctx context.Context, project string) (ResponseAll, error) {
-	f1, f2, f3 := f.Clone(), f.Clone(), f.Clone()
+func (f *Fetcher) Do(ctx context.Context, project string, opts FetcherDoOptions) (ResponseAll, error) {
+	f1, f2, f3, f4, f5 := f.Clone(), f.Clone(), f.Clone(), f.Clone(), f.Clone()
 
 	res1 := lo.Async2(func() ([]plateauv2.CMSItem, error) {
 		return f1.plateau(ctx, project, ModelPlateau)
@@ -71,6 +75,18 @@ func (f *Fetcher) Do(ctx context.Context, project string) (ResponseAll, error) {
 	})
 	res3 := lo.Async2(func() ([]UsecaseItem, error) {
 		return f3.usecase(ctx, project, ModelDataset)
+	})
+	res4 := lo.Async2(func() ([]plateauv2.CMSItem, error) {
+		if opts.CityName == "" || opts.Subproject == "" {
+			return nil, nil
+		}
+		return f4.plateau(ctx, opts.Subproject, ModelPlateau)
+	})
+	res5 := lo.Async2(func() ([]UsecaseItem, error) {
+		if opts.CityName == "" || opts.Subproject == "" {
+			return nil, nil
+		}
+		return f5.usecase(ctx, opts.Subproject, ModelDataset)
 	})
 
 	notFound := 0
@@ -106,6 +122,26 @@ func (f *Fetcher) Do(ctx context.Context, project string) (ResponseAll, error) {
 		r.Usecase = append(r.Usecase, res.A...)
 	}
 
+	if res := <-res4; res.B != nil {
+		if errors.Is(res.B, cms.ErrNotFound) {
+			notFound++
+		} else {
+			return ResponseAll{}, res.B
+		}
+	} else {
+		r.Plateau = append(r.Plateau, filterPlateau(res.A, opts.CityName)...)
+	}
+
+	if res := <-res5; res.B != nil {
+		if errors.Is(res.B, cms.ErrNotFound) {
+			notFound++
+		} else {
+			return ResponseAll{}, res.B
+		}
+	} else {
+		r.Usecase = append(r.Usecase, filterUsecase(res.A, opts.CityName)...)
+	}
+
 	if notFound == 3 {
 		return r, rerror.ErrNotFound
 	}
@@ -133,4 +169,24 @@ func (f *Fetcher) usecase(ctx context.Context, project, model string) (resp []Us
 	}
 
 	return r, nil
+}
+
+func filterPlateau(data []plateauv2.CMSItem, cityName string) []plateauv2.CMSItem {
+	if cityName == "" {
+		return nil
+	}
+
+	return lo.Filter(data, func(v plateauv2.CMSItem, _ int) bool {
+		return v.CityName == cityName
+	})
+}
+
+func filterUsecase(data []UsecaseItem, cityName string) []UsecaseItem {
+	if cityName == "" {
+		return nil
+	}
+
+	return lo.Filter(data, func(v UsecaseItem, _ int) bool {
+		return v.CityName == cityName
+	})
 }

@@ -16,6 +16,7 @@ import (
 )
 
 const (
+	ProjectNameParam  = "pid"
 	tokenProject      = "system"
 	tokenModel        = "workspaces"
 	tokenProjectField = "project_alias"
@@ -61,15 +62,32 @@ func New(c Config) (*CMS, error) {
 	}, nil
 }
 
+func (h *CMS) Clone() *CMS {
+	return &CMS{
+		cmsbase:         h.cmsbase,
+		cmsTokenProject: h.cmsTokenProject,
+		cmsMain:         h.cmsMain,
+		// compat
+		cmsMainProject: h.cmsMainProject,
+		cmsToken:       h.cmsToken,
+		adminToken:     h.adminToken,
+	}
+}
+
 func (h *CMS) AuthMiddleware(skipAuth bool) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
 			req := c.Request()
 			ctx := req.Context()
-			prj := c.Param("pid")
+			prj := c.Param(ProjectNameParam)
 
 			md, err := h.Metadata(ctx, prj)
 			if err != nil {
+				if errors.Is(err, rerror.ErrNotFound) {
+					ctx = context.WithValue(ctx, cmsMetadataContextKey{}, md)
+					c.SetRequest(req.WithContext(ctx))
+					return next(c)
+				}
 				return err
 			}
 
@@ -108,9 +126,11 @@ func GetCMSMetadataFromContext(ctx context.Context) Metadata {
 }
 
 type Metadata struct {
+	Name               string `json:"name" cms:"name,text"`
 	ProjectAlias       string `json:"project_alias" cms:"project_alias,text"`
 	CMSAPIKey          string `json:"cms_apikey" cms:"cms_apikey,text"`
 	SidebarAccessToken string `json:"sidebar_access_token" cms:"sidebar_access_token,text"`
+	SubPorjectAlias    string `json:"subproject_alias" cms:"subproject_alias,text"`
 }
 
 func (h *CMS) Metadata(ctx context.Context, prj string) (Metadata, error) {

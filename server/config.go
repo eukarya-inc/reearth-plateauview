@@ -181,6 +181,7 @@ func (c *Config) Sidebar() sidebar.Config {
 
 func (c *Config) DataCatalog() datacatalog.Config {
 	return datacatalog.Config{
+		Config:       c.PLATEAUCMS(),
 		CMSBase:      c.CMS_BaseURL,
 		DisableCache: c.DataCatalog_DisableCache,
 		CacheTTL:     c.DataCatalog_CacheTTL,

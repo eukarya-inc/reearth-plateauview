@@ -20,8 +20,8 @@ func TestFetcher(t *testing.T) {
 	if base == "" || prj == "" {
 		t.SkipNow()
 	}
-	f := lo.Must(NewFetcher(nil, base))
-	cmsres := lo.Must(f.Do(context.Background(), prj))
+	f := lo.Must(NewFetcher(base))
+	cmsres := lo.Must(f.Do(context.Background(), prj, FetcherDoOptions{}))
 	res := cmsres.All()
 	// item, _ := lo.Find(cmsres.Plateau, func(i PlateauItem) bool { return i.CityName == "" })
 	// res := item.AllDataCatalogItems(item.IntermediateItem())
@@ -34,20 +34,20 @@ func TestFetcher_Do(t *testing.T) {
 	defer httpmock.Deactivate()
 
 	httpmock.RegisterResponderWithQuery("GET", "https://example.com/api/p/ppp/plateau", "page=1&per_page=100", lo.Must(httpmock.NewJsonResponder(http.StatusOK, map[string]any{
-		"results":    []any{map[string]string{"id": "x"}},
+		"results":    []any{map[string]any{"id": "x"}},
 		"totalCount": 1,
 	})))
 	httpmock.RegisterResponderWithQuery("GET", "https://example.com/api/p/ppp/usecase", "page=1&per_page=100", lo.Must(httpmock.NewJsonResponder(http.StatusOK, map[string]any{
-		"results":    []any{map[string]string{"id": "y"}},
+		"results":    []any{map[string]any{"id": "y"}},
 		"totalCount": 1,
 	})))
 	httpmock.RegisterResponderWithQuery("GET", "https://example.com/api/p/ppp/dataset", "page=1&per_page=100", lo.Must(httpmock.NewJsonResponder(http.StatusOK, map[string]any{
-		"results":    []any{map[string]string{"id": "z"}},
+		"results":    []any{map[string]any{"id": "z"}},
 		"totalCount": 1,
 	})))
 
 	ctx := context.Background()
-	r, err := lo.Must(NewFetcher(nil, "https://example.com")).Do(ctx, "ppp")
+	r, err := lo.Must(NewFetcher("https://example.com")).Do(ctx, "ppp", FetcherDoOptions{})
 	assert.Equal(t, ResponseAll{
 		Plateau: []plateauv2.CMSItem{{ID: "x"}},
 		Usecase: []UsecaseItem{{ID: "y", Type: "ユースケース"}, {ID: "z"}},
@@ -66,12 +66,12 @@ func TestFetcher_Do2(t *testing.T) {
 		"error": "not found",
 	})))
 	httpmock.RegisterResponderWithQuery("GET", "https://example.com/api/p/ppp/dataset", "page=1&per_page=100", lo.Must(httpmock.NewJsonResponder(http.StatusOK, map[string]any{
-		"results":    []any{map[string]string{"id": "z"}},
+		"results":    []any{map[string]any{"id": "z"}},
 		"totalCount": 1,
 	})))
 
 	ctx := context.Background()
-	r, err := lo.Must(NewFetcher(nil, "https://example.com")).Do(ctx, "ppp")
+	r, err := lo.Must(NewFetcher("https://example.com")).Do(ctx, "ppp", FetcherDoOptions{})
 	assert.Equal(t, ResponseAll{
 		Plateau: nil,
 		Usecase: []UsecaseItem{{ID: "z"}},
@@ -94,7 +94,47 @@ func TestFetcher_Do3(t *testing.T) {
 	})))
 
 	ctx := context.Background()
-	r, err := lo.Must(NewFetcher(nil, "https://example.com")).Do(ctx, "ppp")
+	r, err := lo.Must(NewFetcher("https://example.com")).Do(ctx, "ppp", FetcherDoOptions{})
 	assert.Equal(t, rerror.ErrNotFound, err)
 	assert.Empty(t, r)
+}
+
+func TestFetcher_Do4(t *testing.T) {
+	httpmock.Activate()
+	defer httpmock.Deactivate()
+
+	httpmock.RegisterResponderWithQuery("GET", "https://example.com/api/p/ppp/plateau", "page=1&per_page=100", lo.Must(httpmock.NewJsonResponder(http.StatusOK, map[string]any{
+		"results":    []any{map[string]any{"id": "x"}},
+		"totalCount": 1,
+	})))
+	httpmock.RegisterResponderWithQuery("GET", "https://example.com/api/p/ppp/usecase", "page=1&per_page=100", lo.Must(httpmock.NewJsonResponder(http.StatusOK, map[string]any{
+		"results":    []any{map[string]any{"id": "y"}},
+		"totalCount": 1,
+	})))
+	httpmock.RegisterResponderWithQuery("GET", "https://example.com/api/p/ppp/dataset", "page=1&per_page=100", lo.Must(httpmock.NewJsonResponder(http.StatusOK, map[string]any{
+		"results":    []any{map[string]any{"id": "z"}},
+		"totalCount": 1,
+	})))
+	httpmock.RegisterResponderWithQuery("GET", "https://example.com/api/p/subprj/plateau", "page=1&per_page=100", lo.Must(httpmock.NewJsonResponder(http.StatusOK, map[string]any{
+		"results": []any{
+			map[string]any{"id": "a", "city_name": "xxx市"},
+			map[string]any{"id": "b", "city_name": "yyy市"},
+		},
+		"totalCount": 1,
+	})))
+	httpmock.RegisterResponderWithQuery("GET", "https://example.com/api/p/subprj/dataset", "page=1&per_page=100", lo.Must(httpmock.NewJsonResponder(http.StatusOK, map[string]any{
+		"results":    []any{map[string]any{"id": "c", "city_name": "xxx市"}},
+		"totalCount": 1,
+	})))
+
+	ctx := context.Background()
+	r, err := lo.Must(NewFetcher("https://example.com")).Do(ctx, "ppp", FetcherDoOptions{
+		Subproject: "subprj",
+		CityName:   "xxx市",
+	})
+	assert.Equal(t, ResponseAll{
+		Plateau: []plateauv2.CMSItem{{ID: "x"}, {ID: "a", CityName: "xxx市"}},
+		Usecase: []UsecaseItem{{ID: "y", Type: "ユースケース"}, {ID: "z"}, {ID: "c", CityName: "xxx市"}},
+	}, r)
+	assert.NoError(t, err)
 }
