@@ -28,17 +28,17 @@ func NotifyHandler(conf Config) (echo.HandlerFunc, error) {
 			return c.JSON(http.StatusBadRequest, "invalid payload")
 		}
 
-		log.Infof("sdk notify: received: %+v", f)
+		log.Infofc(ctx, "sdk notify: received: %+v", f)
 
 		if err := s.ReceiveFMEResult(ctx, f); err != nil {
 			if errors.Is(err, ErrInvalidID) {
 				return c.JSON(http.StatusUnauthorized, "unauthorized")
 			}
-			log.Errorf("sdk notify: error: %v", err)
+			log.Errorfc(ctx, "sdk notify: error: %v", err)
 			return nil
 		}
 
-		log.Infof("sdk notify: done")
+		log.Infofc(ctx, "sdk notify: done")
 		return nil
 	}, nil
 }

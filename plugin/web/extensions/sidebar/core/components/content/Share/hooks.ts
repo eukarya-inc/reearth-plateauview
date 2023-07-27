@@ -6,15 +6,23 @@ export type Project = ProjectType;
 
 export default ({
   project,
-  reearthURL,
-  backendURL,
-  backendProjectName,
+  reearthURL: plateauReearthURL,
+  backendURL: plateauBackendURL,
+  backendProjectName: plateauBackendProjectName,
+  isCustomProject,
+  customReearthURL,
+  customBackendURL,
+  customBackendProjectName,
   messageApi,
 }: {
   project?: Project;
   reearthURL?: string;
   backendURL?: string;
   backendProjectName?: string;
+  isCustomProject: boolean;
+  customReearthURL?: string;
+  customBackendURL?: string;
+  customBackendProjectName?: string;
   messageApi: any;
 }) => {
   const [publishedUrl, setPublishedUrl] = useState<string>();
@@ -58,8 +66,22 @@ export default ({
           link.click();
           link.remove();
         } else if (e.data.action === "getCurrentCamera") {
-          if (!backendURL || !backendProjectName || !reearthURL || !project || !e.data.payload)
+          if (
+            (!isCustomProject &&
+              (!plateauBackendURL || !plateauBackendProjectName || !plateauReearthURL)) ||
+            (isCustomProject &&
+              (!customBackendURL || !customBackendProjectName || !customReearthURL)) ||
+            !project ||
+            !e.data.payload
+          )
             return;
+
+          const backendURL = isCustomProject ? customBackendURL : plateauBackendURL;
+          const backendProjectName = isCustomProject
+            ? customBackendProjectName
+            : plateauBackendProjectName;
+          const reearthURL = isCustomProject ? customReearthURL : plateauReearthURL;
+
           const updatedProject: Project = {
             ...project,
             sceneOverrides: [
@@ -84,7 +106,9 @@ export default ({
             }
           } else {
             const project = await resp.json();
-            setPublishedUrl(`${reearthURL}${reearthURL.includes("?") ? "&" : "?"}share=${project}`);
+            setPublishedUrl(
+              `${reearthURL}${reearthURL?.includes("?") ? "&" : "?"}share=${project}`,
+            );
           }
         }
       }
@@ -93,7 +117,17 @@ export default ({
     return () => {
       removeEventListener("message", eventListenerCallback);
     };
-  }, [project, reearthURL, messageApi, backendProjectName, backendURL]);
+  }, [
+    project,
+    messageApi,
+    plateauReearthURL,
+    plateauBackendURL,
+    plateauBackendProjectName,
+    isCustomProject,
+    customReearthURL,
+    customBackendURL,
+    customBackendProjectName,
+  ]);
 
   return {
     shareDisabled,
@@ -135,6 +169,10 @@ function generatePrintView(payload?: string) {
   };
   const localizedDate = currentDate.toLocaleDateString("ja", options);
 
+  const themeColor = getComputedStyle(document.documentElement).getPropertyValue(
+    "--theme-color" ?? "#00BEBE",
+  );
+
   iframeDoc.open();
 
   const iframeHTML = `
@@ -142,8 +180,8 @@ function generatePrintView(payload?: string) {
     <body>
       <div style="display: flex; flex-direction: column; max-width: 1200px; height: 100%; margin: 0 auto; padding: 20px;">
         <div style="display: flex; justify-content: right; align-items: center; gap: 8px; height: 60px;">
-          <button onclick="downloadScreenshot()" style="padding: 8px; border: none; border-radius: 4px; background: #00BEBE; color: white; cursor: pointer;">ダウンロード</button>
-          <button onclick="printScreenshot()" style="padding: 9px; border: none; border-radius: 4px; background: #00BEBE; color: white; cursor: pointer;">プリント</button>
+          <button onclick="downloadScreenshot()" style="padding: 8px; border: none; border-radius: 4px; background: ${themeColor}; color: white; cursor: pointer;">ダウンロード</button>
+          <button onclick="printScreenshot()" style="padding: 9px; border: none; border-radius: 4px; background: ${themeColor}; color: white; cursor: pointer;">プリント</button>
         </div>
         <div style="display: flex; justify-content: center; width: 100%;">
           <img src="${payload}" style="max-width: 100%; object-fit: contain;" />

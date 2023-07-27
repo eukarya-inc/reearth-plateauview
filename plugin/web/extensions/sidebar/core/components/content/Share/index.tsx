@@ -11,6 +11,10 @@ export type Props = {
   backendURL?: string;
   backendProjectName?: string;
   isMobile?: boolean;
+  isCustomProject: boolean;
+  customReearthURL?: string;
+  customBackendURL?: string;
+  customBackendProjectName?: string;
 };
 
 const Share: React.FC<Props> = ({
@@ -18,6 +22,10 @@ const Share: React.FC<Props> = ({
   reearthURL,
   backendURL,
   backendProjectName,
+  isCustomProject,
+  customReearthURL,
+  customBackendURL,
+  customBackendProjectName,
   isMobile,
 }) => {
   const [copiedUrl, setCopiedUrl] = useState(false);
@@ -36,6 +44,10 @@ const Share: React.FC<Props> = ({
     reearthURL,
     backendURL,
     backendProjectName,
+    isCustomProject,
+    customReearthURL,
+    customBackendURL,
+    customBackendProjectName,
     messageApi,
   });
 
@@ -143,7 +155,7 @@ const Button = styled.button`
 const ShareButton = styled.button<{ disabled?: boolean }>`
   height: 32px;
   width: 100%;
-  background: ${({ disabled }) => (disabled ? "#D1D1D1" : "#00bebe")};
+  background: ${({ disabled }) => (disabled ? "#D1D1D1" : "var(--theme-color)")};
   color: white;
   border: none;
   border-radius: 2px;
@@ -163,7 +175,7 @@ const ButtonWrapper = styled(FlexWrapper)`
 `;
 
 const StyledButton = styled.button`
-  background: #00bebe;
+  background: var(--theme-color);
   border: none;
   border-radius: 2px;
   width: 40px;
@@ -172,8 +184,8 @@ const StyledButton = styled.button`
   color: white;
 
   :hover {
-    background: #00bebe;
-    border-color: #00bebe;
+    background: var(--theme-color);
+    border-color: var(--theme-color);
   }
 `;
 

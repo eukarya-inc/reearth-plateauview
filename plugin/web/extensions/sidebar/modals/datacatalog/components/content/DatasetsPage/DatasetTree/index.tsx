@@ -5,6 +5,7 @@ import { useMemo, useState } from "react";
 import {
   DataCatalogGroup,
   DataCatalogItem,
+  DataSource,
   getDataCatalogTree,
   GroupBy,
 } from "../../../../api/api";
@@ -23,6 +24,7 @@ export type Props = {
   selectedItem?: DataCatalogItem | DataCatalogGroup;
   expandedFolders?: { id?: string; name?: string }[];
   searchTerm: string;
+  dataSource?: DataSource;
   setExpandedFolders?: React.Dispatch<React.SetStateAction<{ id?: string; name?: string }[]>>;
   onSearch: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onSelect?: (item?: DataCatalogItem | DataCatalogGroup) => void;
@@ -69,6 +71,7 @@ const DatasetTree: React.FC<Props> = ({
   selectedItem,
   expandedFolders,
   searchTerm,
+  dataSource,
   setExpandedFolders,
   onSearch,
   onSelect,
@@ -82,8 +85,13 @@ const DatasetTree: React.FC<Props> = ({
   const dataCatalogTree = useMemo(
     () =>
       catalog &&
-      getDataCatalogTree(catalog, filter, searchTerm.length > 0 ? searchTerm : undefined),
-    [catalog, filter, searchTerm],
+      getDataCatalogTree(
+        catalog,
+        filter,
+        dataSource === "custom",
+        searchTerm.length > 0 ? searchTerm : undefined,
+      ),
+    [catalog, filter, dataSource, searchTerm],
   );
 
   const showInput = useMemo(
@@ -108,49 +116,70 @@ const DatasetTree: React.FC<Props> = ({
       )}
       {showTags && <Tags tags={selectedTags} onTagSelect={onTagSelect} />}
       {searchTerm.length > 0 && <p style={{ margin: "0", alignSelf: "center" }}>検索結果</p>}
-      <StyledTabs
-        activeKey={filter}
-        tabBarStyle={showTabs ? { display: "none" } : { userSelect: "none" }}
-        onChange={active => onFilter(active as GroupBy)}>
-        <Tabs.TabPane key="city" tab="都道府県" style={{ position: "relative" }}>
-          {dataCatalogTree ? (
-            <FileTree
-              addedDatasetDataIDs={addedDatasetDataIDs}
-              catalog={dataCatalogTree}
-              isMobile={isMobile}
-              selectedItem={selectedItem}
-              expandedFolders={expandedFolders}
-              setExpandedFolders={setExpandedFolders}
-              onSelect={onSelect}
-              addDisabled={addDisabled}
-              onDatasetAdd={onDatasetAdd}
-            />
-          ) : (
-            <Loading>
-              <Spin />
-            </Loading>
-          )}
-        </Tabs.TabPane>
-        <Tabs.TabPane key="type" tab="種類" style={{ position: "relative" }}>
-          {dataCatalogTree ? (
-            <FileTree
-              addedDatasetDataIDs={addedDatasetDataIDs}
-              catalog={dataCatalogTree}
-              isMobile={isMobile}
-              selectedItem={selectedItem}
-              expandedFolders={expandedFolders}
-              setExpandedFolders={setExpandedFolders}
-              onSelect={onSelect}
-              addDisabled={addDisabled}
-              onDatasetAdd={onDatasetAdd}
-            />
-          ) : (
-            <Loading>
-              <Spin />
-            </Loading>
-          )}
-        </Tabs.TabPane>
-      </StyledTabs>
+      {dataSource !== "custom" ? (
+        <StyledTabs
+          activeKey={filter}
+          tabBarStyle={showTabs ? { display: "none" } : { userSelect: "none" }}
+          onChange={active => onFilter(active as GroupBy)}>
+          <Tabs.TabPane key="city" tab="都道府県" style={{ position: "relative" }}>
+            {dataCatalogTree ? (
+              <FileTree
+                addedDatasetDataIDs={addedDatasetDataIDs}
+                catalog={dataCatalogTree}
+                isMobile={isMobile}
+                selectedItem={selectedItem}
+                expandedFolders={expandedFolders}
+                dataSource={dataSource}
+                setExpandedFolders={setExpandedFolders}
+                onSelect={onSelect}
+                addDisabled={addDisabled}
+                onDatasetAdd={onDatasetAdd}
+              />
+            ) : (
+              <Loading>
+                <Spin />
+              </Loading>
+            )}
+          </Tabs.TabPane>
+          <Tabs.TabPane key="type" tab="種類" style={{ position: "relative" }}>
+            {dataCatalogTree ? (
+              <FileTree
+                addedDatasetDataIDs={addedDatasetDataIDs}
+                catalog={dataCatalogTree}
+                isMobile={isMobile}
+                selectedItem={selectedItem}
+                expandedFolders={expandedFolders}
+                dataSource={dataSource}
+                setExpandedFolders={setExpandedFolders}
+                onSelect={onSelect}
+                addDisabled={addDisabled}
+                onDatasetAdd={onDatasetAdd}
+              />
+            ) : (
+              <Loading>
+                <Spin />
+              </Loading>
+            )}
+          </Tabs.TabPane>
+        </StyledTabs>
+      ) : dataCatalogTree ? (
+        <FileTree
+          addedDatasetDataIDs={addedDatasetDataIDs}
+          catalog={dataCatalogTree}
+          isMobile={isMobile}
+          selectedItem={selectedItem}
+          expandedFolders={expandedFolders}
+          dataSource={dataSource}
+          setExpandedFolders={setExpandedFolders}
+          onSelect={onSelect}
+          addDisabled={addDisabled}
+          onDatasetAdd={onDatasetAdd}
+        />
+      ) : (
+        <Loading>
+          <Spin />
+        </Loading>
+      )}
     </Wrapper>
   );
 };
@@ -168,7 +197,7 @@ const Wrapper = styled.div<{ isMobile?: boolean }>`
 const StyledInput = styled(Input.Search)`
   .ant-input {
     :hover {
-      border: 1px solid #00bebe;
+      border: 1px solid var(--theme-color);
     }
   }
   .ant-input-group-addon {
@@ -186,13 +215,13 @@ const StyledTabs = styled(Tabs)`
     padding: 0 10px;
   }
   .ant-tabs-tab:hover {
-    color: #00bebe;
+    color: var(--theme-color);
   }
   .ant-tabs-ink-bar {
-    background: #00bebe;
+    background: var(--theme-color);
   }
   .ant-tabs-tab.ant-tabs-tab-active .ant-tabs-tab-btn {
-    color: #00bebe;
+    color: var(--theme-color);
   }
 `;
 

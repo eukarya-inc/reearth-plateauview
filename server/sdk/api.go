@@ -24,17 +24,26 @@ func requestHandler(conf Config, g *echo.Group, s *Services) error {
 	g.POST("/request_max_lod", func(c echo.Context) error {
 		ctx := c.Request().Context()
 		q := struct {
-			IDs []string `json:"ids"`
+			IDs     []string `json:"ids"`
+			Project string   `json:"project"`
 		}{}
 
 		if err := c.Bind(&q); err != nil {
 			return err
 		}
 
-		log.Infof("sdk: request max lod extraction for %d items: %v", len(q.IDs), q.IDs)
+		if len(q.IDs) == 0 {
+			return echo.NewHTTPError(http.StatusBadRequest, "ids is empty")
+		}
+
+		if q.Project == "" {
+			return echo.NewHTTPError(http.StatusBadRequest, "project is empty")
+		}
+
+		log.Infofc(ctx, "sdk: request max lod extraction for %d items: %v", len(q.IDs), q.IDs)
 
 		for _, id := range q.IDs {
-			log.Infof("sdk:	request max lod extraction for %s", id)
+			log.Infofc(ctx, "sdk:	request max lod extraction for %s", id)
 
 			i, err := s.CMS.GetItem(ctx, id, false)
 			if i == nil || err != nil {
@@ -42,16 +51,15 @@ func requestHandler(conf Config, g *echo.Group, s *Services) error {
 					return echo.NewHTTPError(http.StatusBadRequest, "invalid id")
 				}
 				if err != nil {
-					log.Errorf("sdk: failed to get item: %v", err)
+					log.Errorfc(ctx, "sdk: failed to get item: %v", err)
 				} else {
-					log.Errorf("sdk: item is nil: %s", id)
+					log.Errorfc(ctx, "sdk: item is nil: %s", id)
 				}
 				return echo.NewHTTPError(http.StatusInternalServerError, "internal")
 			}
 
 			item := ItemFrom(*i)
-			// project id can be empty
-			s.RequestMaxLODExtraction(c.Request().Context(), item)
+			s.RequestMaxLODExtraction(c.Request().Context(), item, q.Project, true)
 		}
 
 		return c.JSON(http.StatusOK, "ok")

@@ -4,31 +4,37 @@ import (
 	"context"
 	"testing"
 
-	"github.com/eukarya-inc/reearth-plateauview/server/cms"
 	"github.com/eukarya-inc/reearth-plateauview/server/fme"
 	"github.com/jarcoal/httpmock"
+	cms "github.com/reearth/reearth-cms-api/go"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestServices_RequestMaxLODExtraction(t *testing.T) {
+	ctx := context.Background()
 	s := Services{
 		CMS:       &cmsMock{},
 		FME:       &fmeMock{},
 		FMESecret: "secret",
 	}
-	ctx := context.Background()
+
+	project := "project_id"
 	item := Item{
 		ID:           "id",
 		CityGML:      "citygml",
 		MaxLOD:       "max_lod",
-		MaxLODStatus: StatusReady,
-		ProjectID:    "project_id",
+		MaxLODStatus: StatusOK,
 	}
 
-	s.RequestMaxLODExtraction(ctx, item)
+	s.RequestMaxLODExtraction(ctx, item, project, false)
+
+	assert.Nil(t, s.CMS.(*cmsMock).AssetCalls)
+	assert.Nil(t, s.CMS.(*cmsMock).UpdateItemCalls)
+	assert.Nil(t, s.FME.(*fmeMock).RequestCalls)
+
+	s.RequestMaxLODExtraction(ctx, item, project, true)
 
 	assert.Equal(t, []string{"citygml"}, s.CMS.(*cmsMock).AssetCalls)
-
 	assert.Equal(t, []struct {
 		ID     string
 		Fields []cms.Field
@@ -42,7 +48,6 @@ func TestServices_RequestMaxLODExtraction(t *testing.T) {
 			},
 		},
 	}}, s.CMS.(*cmsMock).UpdateItemCalls)
-
 	assert.Equal(t, []fme.Request{
 		fme.MaxLODRequest{
 			ID: fme.ID{

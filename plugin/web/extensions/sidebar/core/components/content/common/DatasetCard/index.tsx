@@ -52,6 +52,7 @@ export type Props = {
   inEditor?: boolean;
   savingDataset?: boolean;
   isMobile?: boolean;
+  isCustomProject: boolean;
   moveCard: (dragIndex: number, hoverIndex: number) => void;
   onDatasetSave?: (dataID: string) => void;
   onDatasetRemove?: (dataID: string) => void;
@@ -69,6 +70,7 @@ const DatasetCard: React.FC<Props> = ({
   inEditor,
   savingDataset,
   isMobile,
+  isCustomProject,
   moveCard,
   onDatasetSave,
   onDatasetRemove,
@@ -83,8 +85,10 @@ const DatasetCard: React.FC<Props> = ({
   const previewRef = useRef<HTMLDivElement>(null);
 
   const {
+    editable,
     activeComponentIDs,
     fieldComponentsList,
+    datasetTemplates,
     handleFieldUpdate,
     handleFieldRemove,
     handleMoveUp,
@@ -97,6 +101,7 @@ const DatasetCard: React.FC<Props> = ({
     inEditor,
     templates,
     buildingSearch,
+    isCustomProject,
     onDatasetUpdate,
     onOverride,
   });
@@ -216,7 +221,10 @@ const DatasetCard: React.FC<Props> = ({
           if (isMobile) {
             postMsg({ action: "mobileCatalogOpen", payload: dataset });
           } else {
-            postMsg({ action: "catalogModalOpen" });
+            postMsg({
+              action: "catalogModalOpen",
+              payload: { templates, dataSource: dataset.dataSource },
+            });
           }
           postMsg({ action: "saveDataset", payload: { dataset } });
         },
@@ -240,7 +248,7 @@ const DatasetCard: React.FC<Props> = ({
           ]
         : []),
     ],
-    [currentTab, dataset, isMobile, onDatasetRemove, onBuildingSearch],
+    [templates, currentTab, dataset, isMobile, onDatasetRemove, onBuildingSearch],
   );
 
   const handleTabChange: React.MouseEventHandler<HTMLParagraphElement> = useCallback(e => {
@@ -376,7 +384,7 @@ const DatasetCard: React.FC<Props> = ({
                     </LeftMain>
                     <ArrowIcon icon="arrowDown" size={16} expanded={expanded} />
                   </HeaderContents>
-                  {inEditor && expanded && (
+                  {inEditor && expanded && editable && (
                     <TabWrapper>
                       <Tab
                         id="default"
@@ -397,13 +405,15 @@ const DatasetCard: React.FC<Props> = ({
             <Content>
               {baseFields.map((field, idx) => (
                 <BaseField key={idx} onClick={field.onClick}>
-                  {field.icon && <Icon icon={field.icon} size={20} color="#00BEBE" />}
+                  {field.icon && <Icon icon={field.icon} size={20} color="var(--theme-color)" />}
                   {field.title && <FieldName>{field.title}</FieldName>}
                 </BaseField>
               ))}
               {(dataset.format === "czml" || dataset.format === "geojson") && (
                 <BaseButton onClick={handleDataExport}>
-                  <DownloadOutlined style={{ fontSize: 20, color: "#00BEBE", marginRight: 8 }} />
+                  <DownloadOutlined
+                    style={{ fontSize: 20, color: "var(--theme-color)", marginRight: 8 }}
+                  />
                   <Text>データをエクスポート</Text>
                 </BaseButton>
               )}
@@ -422,7 +432,7 @@ const DatasetCard: React.FC<Props> = ({
                   isEditing={currentTab === "edit"}
                   dataID={dataset.dataID}
                   editMode={inEditor && currentTab === "edit"}
-                  templates={templates}
+                  templates={datasetTemplates}
                   configData={dataset.config?.data}
                   selectedGroup={dataset.selectedGroup}
                   onUpdate={handleFieldUpdate}

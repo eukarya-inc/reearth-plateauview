@@ -1,3 +1,5 @@
+import { readFileSync, writeFileSync } from "fs";
+
 import { expect, test } from "vitest";
 
 import {
@@ -5,21 +7,29 @@ import {
   getRawDataCatalogTree,
   modifyDataCatalog,
   type RawDataCatalogItem,
+  type RawDataCatalogTreeItem,
 } from "./api";
 
-// test("getDataCatalog", async () => {
-//   const d = await getDataCatalog("");
-//   print(d[0]);
-// });
+test.skip("getRawDataCatalogTree", async () => {
+  // const r = await getDataCatalog("https://", "");
+  const r = JSON.parse(readFileSync("datacatalog.json", "utf8"));
+  const d = getRawDataCatalogTree(r, "city", false, "");
+  const s = print(d);
+  writeFileSync("test.txt", s);
+});
 
-// function print(c: RawDataCatalogTreeItem[], depth?: number) {
-//   c.forEach(c => {
-//     console.log(" ".repeat(depth || 0), c.code, c.name);
-//     if ("children" in c) {
-//       return print(c.children, (depth || 0) + 1);
-//     }
-//   });
-// }
+function print(c: RawDataCatalogTreeItem[], depth?: number): string {
+  let s = "";
+
+  c.forEach(c => {
+    s += " ".repeat(depth || 0) + " " + c.name + "\n";
+    if ("children" in c) {
+      s += print(c.children, (depth || 0) + 1);
+    }
+  });
+
+  return s;
+}
 
 test("modifyDataCatalog", () => {
   const d = {
@@ -56,7 +66,7 @@ test("modifyDataCatalog", () => {
 });
 
 test("getRawDataCatalogTree by cities", () => {
-  expect(getRawDataCatalogTree(dataCatalog, "city", "")).toEqual([
+  expect(getRawDataCatalogTree(dataCatalog, "city", false, "")).toEqual([
     {
       id: "node-0",
       name: "全球データ",
@@ -126,8 +136,106 @@ test("getRawDataCatalogTree by cities", () => {
   ]);
 });
 
+test("getRawDataCatalogTree by cities as custom dataset", () => {
+  expect(getRawDataCatalogTree(dataCatalog, "city", true, "")).toEqual([
+    {
+      id: "node-0",
+      name: "全球データ",
+      desc: "",
+      children: [zenkyuData],
+    },
+    {
+      id: "node-2",
+      name: "東京都",
+      desc: "",
+      children: [
+        {
+          id: "node-3",
+          name: "東京都23区",
+          desc: "",
+          children: [
+            {
+              id: "node-4",
+              name: "千代田区",
+              desc: "",
+              children: [chiyodakuBldg, chiyodakuShelter],
+            },
+            {
+              id: "node-7",
+              name: "世田谷区",
+              desc: "",
+              children: [setagayakuBldg, setagayakuShelter],
+            },
+            tokyo23kuPark,
+          ],
+        },
+        {
+          id: "node-11",
+          name: "八王子市",
+          desc: "",
+          children: [hachiojiBldg, hachiojiLandmark],
+        },
+        {
+          id: "tokyoUsecase",
+          name: "usecase",
+          path: ["東京都", "usecase"],
+          pref: "東京都",
+          pref_code: "13",
+          pref_code_i: 13,
+          city_code_i: NaN,
+          ward_code_i: NaN,
+          type: "ユースケース",
+          type_en: "usecase",
+          code: 13000,
+          format: "",
+          url: "",
+          desc: "",
+          year: 2021,
+        },
+      ],
+    },
+    {
+      id: "node-15",
+      name: "栃木県",
+      desc: "",
+      children: [
+        {
+          id: "node-16",
+          name: "宇都宮市",
+          desc: "",
+          children: [
+            utsunomiyashiBldg,
+            {
+              id: "h",
+              type: "都市計画決定情報モデル",
+              type_en: "urf",
+              type2: "用途地域",
+              type2_en: "UseDistrict",
+              name: "用途地域（宇都宮市）",
+              path: ["栃木県", "宇都宮市", "用途地域（宇都宮市）"],
+              pref: "栃木県",
+              pref_code: "09",
+              pref_code_i: 9,
+              city: "宇都宮市",
+              city_en: "utsunomiya-shi",
+              city_code: "09201",
+              city_code_i: 9201,
+              ward_code_i: NaN,
+              code: 9201,
+              format: "",
+              url: "",
+              desc: "",
+              year: 2022,
+            },
+          ],
+        },
+      ],
+    },
+  ]);
+});
+
 test("getRawDataCatalogTree by types", () => {
-  expect(getRawDataCatalogTree(dataCatalog, "type", "")).toEqual([
+  expect(getRawDataCatalogTree(dataCatalog, "type", false, "")).toEqual([
     {
       id: "node-0",
       name: "建築物モデル",
@@ -244,7 +352,7 @@ test("getRawDataCatalogTree by types", () => {
 });
 
 test("getRawDataCatalogTree filter", () => {
-  expect(getRawDataCatalogTree(dataCatalog, "type", "世田谷")).toEqual([
+  expect(getRawDataCatalogTree(dataCatalog, "type", false, "世田谷")).toEqual([
     {
       id: "node-0",
       name: "建築物モデル",
@@ -575,6 +683,7 @@ const zenkyuData: RawDataCatalogItem = {
   desc: "",
   year: 2022,
 };
+
 const zenkyuDataByType = {
   ...zenkyuData,
   path: ["ユースケース", "全球データ", "zenkyu"],

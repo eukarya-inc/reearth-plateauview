@@ -8,7 +8,8 @@ import (
 	"strings"
 
 	"github.com/eukarya-inc/jpareacode"
-	"github.com/eukarya-inc/reearth-plateauview/server/cms"
+	"github.com/eukarya-inc/reearth-plateauview/server/datacatalog/datacatalogutil"
+	cms "github.com/reearth/reearth-cms-api/go"
 	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
 )
@@ -47,6 +48,18 @@ type UsecaseItem struct {
 
 var reReiwa = regexp.MustCompile(`令和([0-9]+?)年度`)
 
+func (i UsecaseItem) YearInt() (year int) {
+	if ym := reReiwa.FindStringSubmatch(i.Year); len(ym) > 1 {
+		yy, _ := strconv.Atoi(ym[1])
+		if yy > 0 {
+			year = yy + 2018
+		}
+	} else if yy, err := strconv.Atoi(strings.TrimSuffix(strings.TrimSuffix(i.Year, "度"), "年")); err == nil {
+		year = yy
+	}
+	return year
+}
+
 func (i UsecaseItem) DataCatalogs() []DataCatalogItem {
 	pref, prefCodeInt := normalizePref(i.Prefecture)
 	prefCode := jpareacode.FormatPrefectureCode(prefCodeInt)
@@ -59,8 +72,8 @@ func (i UsecaseItem) DataCatalogs() []DataCatalogItem {
 		city, ward, _ = strings.Cut(i.CityName, "/")
 	}
 
-	cCode := cityCode("", city, prefCodeInt)
-	wCode := cityCode("", ward, prefCodeInt)
+	cCode := datacatalogutil.CityCode("", city, prefCodeInt)
+	wCode := datacatalogutil.CityCode("", ward, prefCodeInt)
 
 	if i.DataFormat == folder {
 		return []DataCatalogItem{{
@@ -90,14 +103,6 @@ func (i UsecaseItem) DataCatalogs() []DataCatalogItem {
 	}
 
 	f := formatTypeEn(i.DataFormat)
-
-	y := 0
-	if ym := reReiwa.FindStringSubmatch(i.Year); len(ym) > 1 {
-		yy, _ := strconv.Atoi(ym[1])
-		if yy > 0 {
-			y = yy + 2018
-		}
-	}
 
 	t := i.Type
 	if t != "" && t != "ユースケース" && !strings.HasSuffix(t, "情報") {
@@ -130,11 +135,11 @@ func (i UsecaseItem) DataCatalogs() []DataCatalogItem {
 		Ward:        ward,
 		WardCode:    wCode,
 		Format:      f,
-		URL:         assetURLFromFormat(u, f),
+		URL:         datacatalogutil.AssetURLFromFormat(u, f),
 		Description: i.Description,
 		Config:      c,
 		Layers:      layers,
-		Year:        y,
+		Year:        i.YearInt(),
 		OpenDataURL: i.OpenDataURL,
 		Order:       i.Order,
 	}}
@@ -145,4 +150,19 @@ func formatTypeEn(f string) string {
 		return "3dtiles"
 	}
 	return strings.ToLower(f)
+}
+
+func normalizePref(pref string) (string, int) {
+	if pref == "全球" || pref == "全国" {
+		pref = "全球データ"
+	}
+
+	var prefCode int
+	if pref == "全球データ" {
+		prefCode = 0
+	} else {
+		prefCode = jpareacode.PrefectureCodeInt(pref)
+	}
+
+	return pref, prefCode
 }

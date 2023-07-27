@@ -150,6 +150,14 @@ if (reearth.viewport.isMobile) {
     if (action === "pedestrianShow") {
       controllerShown = true;
       reearth.popup.show(pedestrianControllerHtml, initControllerOptions);
+      reearth.popup.postMessage({
+        action: "setPrimaryColor",
+        payload:
+          reearth.scene.property?.theme?.themeType === "custom" &&
+          reearth.scene.property?.theme?.themeSelectColor
+            ? reearth.scene.property.theme.themeSelectColor
+            : "#00BEBE",
+      });
     } else if (action === "pedestrianClose") {
       controllerShown = false;
       reearth.popup.close();

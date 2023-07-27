@@ -2,21 +2,18 @@ package sdkapi
 
 import (
 	"context"
-	"encoding/csv"
 	"errors"
 	"fmt"
-	"io"
 	"net/http"
-	"strconv"
 	"strings"
 	"time"
 	"unicode"
 
-	"github.com/eukarya-inc/reearth-plateauview/server/cms"
 	"github.com/eukarya-inc/reearth-plateauview/server/putil"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
-	"github.com/reearth/reearthx/rerror"
+	cms "github.com/reearth/reearth-cms-api/go"
+	"github.com/reearth/reearthx/log"
 )
 
 func Handler(conf Config, g *echo.Group) error {
@@ -27,7 +24,7 @@ func Handler(conf Config, g *echo.Group) error {
 		return err
 	}
 
-	// cl, err := cms.NewPublicAPIClient[Item](nil, conf.CMSBaseURL, conf.Project)
+	// cl, err := cms.NewPublicAPIClient[Item](nil, conf.CMSBaseURL)
 	// if err != nil {
 	// 	return err
 	// }
@@ -90,6 +87,8 @@ func auth(expected string) echo.MiddlewareFunc {
 }
 
 func getMaxLOD(ctx context.Context, u string) (MaxLODColumns, error) {
+	log.Debugfc(ctx, "sdkapi: fetch max lod: %s", u)
+
 	req, err := http.NewRequestWithContext(ctx, "GET", u, nil)
 	if err != nil {
 		return nil, err
@@ -108,42 +107,7 @@ func getMaxLOD(ctx context.Context, u string) (MaxLODColumns, error) {
 		return nil, fmt.Errorf("invalid status code: %d", res.StatusCode)
 	}
 
-	r := csv.NewReader(res.Body)
-	r.ReuseRecord = true
-	var results MaxLODColumns
-	for {
-		c, err := r.Read()
-		if err == io.EOF {
-			break
-		}
-
-		if err != nil {
-			return nil, fmt.Errorf("failed to read csv: %w", err)
-		}
-
-		if len(c) < 3 || !isInt(c[0]) {
-			continue
-		}
-
-		m, err := strconv.ParseFloat(c[2], 64)
-		if err != nil {
-			continue
-		}
-
-		f := ""
-		if len(c) > 3 {
-			f = c[3]
-		}
-
-		results = append(results, MaxLODColumn{
-			Code:   c[0],
-			Type:   c[1],
-			MaxLOD: m,
-			File:   f,
-		})
-	}
-
-	return results, nil
+	return ReadMaxLODCSV(res.Body)
 }
 
 func isInt(s string) bool {
@@ -155,17 +119,17 @@ func isInt(s string) bool {
 	return true
 }
 
-func lastModified(c echo.Context, cms *CMS, prj string, models ...string) (bool, error) {
-	if cms == nil || cms.IntegrationAPIClient == nil {
+func lastModified(c echo.Context, cmsc *CMS, prj string, models ...string) (bool, error) {
+	if cmsc == nil || cmsc.IntegrationAPIClient == nil {
 		return false, nil
 	}
 
 	mlastModified := time.Time{}
 
 	for _, m := range models {
-		model, err := cms.IntegrationAPIClient.GetModelByKey(c.Request().Context(), prj, m)
+		model, err := cmsc.IntegrationAPIClient.GetModelByKey(c.Request().Context(), prj, m)
 		if err != nil {
-			if errors.Is(err, rerror.ErrNotFound) {
+			if errors.Is(err, cms.ErrNotFound) {
 				return false, c.JSON(http.StatusNotFound, "not found")
 			}
 			return false, err

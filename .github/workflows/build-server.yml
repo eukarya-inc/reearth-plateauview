@@ -1,9 +1,6 @@
 name: build-server
 on:
-  workflow_run:
-    workflows: [ci-server]
-    types: [completed]
-    branches: [main]
+  workflow_call:
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.workflow_run.head_branch }}
   cancel-in-progress: true
@@ -33,7 +30,7 @@ jobs:
       - name: Save docker image
         run: docker save ${{ env.IMAGE_NAME }} | gzip > plateauview-api.tar.gz
       - name: Save imaged to artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: plateauview-api
           path: plateauview-api.tar.gz

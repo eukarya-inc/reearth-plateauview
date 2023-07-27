@@ -5,15 +5,20 @@ import { Project, ReearthApi } from "@web/extensions/sidebar/types";
 import { postMsg } from "@web/extensions/sidebar/utils";
 import { Icon } from "@web/sharedComponents";
 import { styled } from "@web/theme";
-import { ReactNode, useCallback, useEffect, useState } from "react";
+import { ReactNode, useCallback, useEffect, useMemo, useState } from "react";
 
 import PopupItem from "../sharedComponents/PopupItem";
 
 export type Props = {
+  hideFeedback: boolean;
   project: Project;
   reearthURL?: string;
   backendURL?: string;
   backendProjectName?: string;
+  isCustomProject: boolean;
+  customReearthURL?: string;
+  customBackendURL?: string;
+  customBackendProjectName?: string;
   onProjectSceneUpdate: (updatedProperties: Partial<ReearthApi>) => void;
 };
 
@@ -44,13 +49,22 @@ const menuItems: MenuItem[] = [
 ];
 
 const Menu: React.FC<Props> = ({
+  hideFeedback,
   project,
   reearthURL,
   backendURL,
   backendProjectName,
+  isCustomProject,
+  customReearthURL,
+  customBackendURL,
+  customBackendProjectName,
   onProjectSceneUpdate,
 }) => {
   const [currentItem, changeItem] = useState<MenuItem | undefined>();
+
+  const menuItemsFiltered = useMemo(() => {
+    return hideFeedback ? menuItems.filter(item => item.key !== "feedback") : menuItems;
+  }, [hideFeedback]);
 
   const handleHeightUpdate = useCallback(
     (id: string) => {
@@ -106,15 +120,21 @@ const Menu: React.FC<Props> = ({
                     reearthURL={reearthURL}
                     backendURL={backendURL}
                     backendProjectName={backendProjectName}
+                    isCustomProject={isCustomProject}
+                    customReearthURL={customReearthURL}
+                    customBackendURL={customBackendURL}
+                    customBackendProjectName={customBackendProjectName}
                     isMobile
                   />
                 ),
-                feedback: <Feedback backendURL={backendURL} isMobile />,
+                ...(hideFeedback
+                  ? {}
+                  : { feedback: <Feedback backendURL={backendURL} isMobile /> }),
               }[currentItem.key]}
           </div>
         </>
       ) : (
-        menuItems.map(i => (
+        menuItemsFiltered.map(i => (
           <PopupItem key={i.key} onClick={() => handleClick(i)}>
             {i.icon}
             <Title>{i.title}</Title>

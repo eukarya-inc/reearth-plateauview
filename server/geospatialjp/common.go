@@ -8,9 +8,9 @@ import (
 	"path"
 	"strings"
 
-	"github.com/eukarya-inc/reearth-plateauview/server/cms"
 	"github.com/eukarya-inc/reearth-plateauview/server/geospatialjp/ckan"
 	"github.com/pkg/errors"
+	cms "github.com/reearth/reearth-cms-api/go"
 	"github.com/reearth/reearthx/log"
 	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
@@ -64,7 +64,7 @@ func (s *Services) CheckCatalog(ctx context.Context, projectID string, i Item) e
 		if _, err := s.CMS.UpdateItem(ctx, i.ID, Item{
 			CatalogStatus: StatusError,
 		}.Fields()); err != nil {
-			log.Errorf("failed to update item %s: %w", i.ID, err)
+			log.Errorfc(ctx, "failed to update item %s: %w", i.ID, err)
 		}
 		return fmt.Errorf("目録アセットの読み込みに失敗しました。該当アセットが削除されていませんか？: %w", err)
 	}
@@ -75,7 +75,7 @@ func (s *Services) CheckCatalog(ctx context.Context, projectID string, i Item) e
 		if _, err := s.CMS.UpdateItem(ctx, i.ID, Item{
 			CatalogStatus: StatusError,
 		}.Fields()); err != nil {
-			log.Errorf("failed to update item %s: %w", i.ID, err)
+			log.Errorfc(ctx, "failed to update item %s: %w", i.ID, err)
 		}
 		return err
 	}
@@ -83,14 +83,14 @@ func (s *Services) CheckCatalog(ctx context.Context, projectID string, i Item) e
 	if c != nil {
 		c2 := *c
 		c2.Thumbnail = nil
-		log.Infof("geospatialjp: catalog: %+v", c2)
+		log.Infofc(ctx, "geospatialjp: catalog: %+v", c2)
 	}
 
 	if c == nil {
 		if _, err := s.CMS.UpdateItem(ctx, i.ID, Item{
 			CatalogStatus: StatusError,
 		}.Fields()); err != nil {
-			log.Errorf("failed to update item %s: %w", i.ID, err)
+			log.Errorfc(ctx, "failed to update item %s: %w", i.ID, err)
 		}
 		return fmt.Errorf("G空間情報センター用メタデータシートが見つかりません。")
 	}
@@ -100,7 +100,7 @@ func (s *Services) CheckCatalog(ctx context.Context, projectID string, i Item) e
 		if _, err := s.CMS.UpdateItem(ctx, i.ID, Item{
 			CatalogStatus: StatusError,
 		}.Fields()); err != nil {
-			log.Errorf("failed to update item %s: %w", i.ID, err)
+			log.Errorfc(ctx, "failed to update item %s: %w", i.ID, err)
 		}
 		return err
 	}
@@ -146,7 +146,7 @@ func (s *Services) RegisterCkanResources(ctx context.Context, i Item, disableSDK
 		return fmt.Errorf("CityGMLのzipファイル名から市区町村コードまたは市区町村英名を読み取ることができませんでした。ファイル名の形式が正しいか確認してください。: %w", err)
 	}
 
-	log.Infof("geospatialjp: citygml: code=%s name=%s year=%d suffix=%s", cityCode, cityName, dataYear, suffix)
+	log.Infofc(ctx, "geospatialjp: citygml: code=%s name=%s year=%d suffix=%s", cityCode, cityName, dataYear, suffix)
 
 	// get all url
 	var allAsset *cms.Asset
@@ -177,7 +177,7 @@ func (s *Services) RegisterCkanResources(ctx context.Context, i Item, disableSDK
 	if c != nil {
 		c2 := *c
 		c2.Thumbnail = nil
-		log.Infof("geospatialjp: catalog: %+v", c2)
+		log.Infofc(ctx, "geospatialjp: catalog: %+v", c2)
 	}
 
 	// find or create package
@@ -189,7 +189,7 @@ func (s *Services) RegisterCkanResources(ctx context.Context, i Item, disableSDK
 	if pkg != nil {
 		pkg2 := *pkg
 		pkg2.ThumbnailURL = fmt.Sprintf("<len:%d>", len(pkg.ThumbnailURL))
-		log.Infof("geospatialjp: find or create package: %+v", pkg2)
+		log.Infofc(ctx, "geospatialjp: find or create package: %+v", pkg2)
 	}
 
 	// save catalog resource
@@ -199,7 +199,7 @@ func (s *Services) RegisterCkanResources(ctx context.Context, i Item, disableSDK
 			return fmt.Errorf("G空間情報センターへの目録リソースの登録に失敗しました。: %w", err)
 		}
 	} else {
-		log.Infof("geospatialjp: catalog is not registerd so uploading is skipped")
+		log.Infofc(ctx, "geospatialjp: catalog is not registerd so uploading is skipped")
 	}
 
 	// save citygml resoruce
@@ -209,7 +209,7 @@ func (s *Services) RegisterCkanResources(ctx context.Context, i Item, disableSDK
 			return fmt.Errorf("G空間情報センターへのCityGMLリソースの登録に失敗しました。: %w", err)
 		}
 	} else {
-		log.Infof("geospatialjp: updating citygml resource was skipped")
+		log.Infofc(ctx, "geospatialjp: updating citygml resource was skipped")
 	}
 
 	// save all resource
@@ -220,10 +220,10 @@ func (s *Services) RegisterCkanResources(ctx context.Context, i Item, disableSDK
 				return fmt.Errorf("G空間情報センターへの全データリソースの登録に失敗しました。: %w", err)
 			}
 		} else {
-			log.Infof("geospatialjp: updating all resource was skipped")
+			log.Infofc(ctx, "geospatialjp: updating all resource was skipped")
 		}
 	} else {
-		log.Infof("geospatialjp: all is not registerd so uploading is skipped")
+		log.Infofc(ctx, "geospatialjp: all is not registerd so uploading is skipped")
 	}
 
 	sdkpub := ""
@@ -238,7 +238,7 @@ func (s *Services) RegisterCkanResources(ctx context.Context, i Item, disableSDK
 			SDKPublication: sdkpub,
 			CatalogStatus:  StatusOK,
 		}.Fields()); err != nil {
-			log.Errorf("geospatialjp: failed to update an item: %v", err)
+			log.Errorfc(ctx, "geospatialjp: failed to update an item: %v", err)
 		}
 	}
 
@@ -314,7 +314,7 @@ func (s *Services) findOrCreatePackage(ctx context.Context, c *Catalog, cityCode
 		}
 
 		newpkg := lo.ToPtr(packageFromCatalog(c, s.CkanOrg, pkgName, s.CkanPrivate))
-		log.Infof("geospartialjp: package %s not found so new package will be created", pkgName)
+		log.Infofc(ctx, "geospartialjp: package %s not found so new package will be created", pkgName)
 
 		pkg2, err := s.Ckan.CreatePackage(ctx, *newpkg)
 		if err != nil {
@@ -359,6 +359,6 @@ func (s *Services) findPackage(ctx context.Context, cityCode, cityName string, y
 
 func (s *Services) commentToItem(ctx context.Context, itemID, comment string) {
 	if err2 := s.CMS.CommentToItem(ctx, itemID, comment); err2 != nil {
-		log.Errorf("failed to comment to item %s: %s", itemID, err2)
+		log.Errorfc(ctx, "failed to comment to item %s: %s", itemID, err2)
 	}
 }

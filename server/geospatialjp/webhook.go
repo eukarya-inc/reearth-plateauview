@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/eukarya-inc/reearth-plateauview/server/cms/cmswebhook"
+	"github.com/reearth/reearth-cms-api/go/cmswebhook"
 	"github.com/reearth/reearthx/log"
 )
 
@@ -26,27 +26,28 @@ func WebhookHandler(conf Config) (cmswebhook.Handler, error) {
 	}
 
 	return func(req *http.Request, w *cmswebhook.Payload) error {
+		ctx := req.Context()
+
 		if !w.Operator.IsUser() && w.Operator.IsIntegrationBy(conf.CMSIntegration) {
-			log.Debugf("geospatialjp webhook: invalid event operator: %+v", w.Operator)
+			log.Debugfc(ctx, "geospatialjp webhook: invalid event operator: %+v", w.Operator)
 			return nil
 		}
 
 		if w.Type != cmswebhook.EventItemCreate && w.Type != cmswebhook.EventItemUpdate && w.Type != cmswebhook.EventItemPublish {
-			log.Debugf("geospatialjp webhook: invalid event type: %s", w.Type)
+			log.Debugfc(ctx, "geospatialjp webhook: invalid event type: %s", w.Type)
 			return nil
 		}
 
 		if w.ItemData == nil || w.ItemData.Item == nil || w.ItemData.Model == nil {
-			log.Debugf("geospatialjp webhook: invalid event data: %+v", w.Data)
+			log.Debugfc(ctx, "geospatialjp webhook: invalid event data: %+v", w.Data)
 			return nil
 		}
 
 		if w.ItemData.Model.Key != modelKey {
-			log.Debugf("geospatialjp webhook: invalid model id: %s, key: %s", w.ItemData.Item.ModelID, w.ItemData.Model.Key)
+			log.Debugfc(ctx, "geospatialjp webhook: invalid model id: %s, key: %s", w.ItemData.Item.ModelID, w.ItemData.Model.Key)
 			return nil
 		}
 
-		ctx := req.Context()
 		item := ItemFrom(*w.ItemData.Item)
 
 		var err error
@@ -85,7 +86,7 @@ func WebhookHandler(conf Config) (cmswebhook.Handler, error) {
 				if _, err2 := s.CMS.UpdateItem(ctx, item.ID, Item{
 					CatalogStatus: StatusError,
 				}.Fields()); err2 != nil {
-					log.Errorf("failed to update item %s: %s", item.ID, err2)
+					log.Errorfc(ctx, "failed to update item %s: %s", item.ID, err2)
 				}
 			} else {
 				s.commentToItem(ctx, item.ID, "目録ファイルの検査が完了しました。エラーはありません。")
@@ -93,10 +94,10 @@ func WebhookHandler(conf Config) (cmswebhook.Handler, error) {
 		}
 
 		if err != nil {
-			log.Errorf("geospatialjp webhook: failed to %s: %s", act, err)
+			log.Errorfc(ctx, "geospatialjp webhook: failed to %s: %s", act, err)
 		}
 
-		log.Infof("geospatialjp webhook: done")
+		log.Infofc(ctx, "geospatialjp webhook: done")
 		return nil
 	}, nil
 }

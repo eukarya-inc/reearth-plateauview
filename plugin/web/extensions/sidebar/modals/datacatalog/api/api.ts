@@ -56,14 +56,16 @@ type RawRawDataCatalogItem = {
     }[];
   };
   order?: number;
+  root?: boolean;
+  group?: string;
   // bldg only fields
-  bldg_low_texture_url?: string;
-  bldg_no_texture_url?: string;
   search_index?: string;
   // internal
   path?: string[];
   code: number;
 };
+
+export type DataSource = "plateau" | "custom";
 
 export type RawDataCatalogItem = Omit<RawRawDataCatalogItem, "layers" | "layer" | "config"> & {
   layers?: string[];
@@ -82,6 +84,7 @@ export type GroupBy = "city" | "type" | "tag"; // Tag not implemented yet
 export async function getDataCatalog(
   base: string,
   project?: string,
+  dataSource?: DataSource,
 ): Promise<RawDataCatalogItem[]> {
   const res = await fetch(`${base}/datacatalog${project ? `/${project}` : ""}`);
   if (!res.ok) {
@@ -89,12 +92,13 @@ export async function getDataCatalog(
   }
 
   const data: RawRawDataCatalogItem[] = await res.json();
-  return data.map(modifyDataCatalog);
+  return data.map(d => modifyDataCatalog(d, dataSource));
 }
 
 export function modifyDataCatalog(
   d: Omit<RawRawDataCatalogItem, "pref_code_i" | "city_code_i" | "ward_code_i" | "tags" | "code">,
-): RawDataCatalogItem {
+  dataSource?: DataSource,
+): RawDataCatalogItem & { dataSource?: DataSource } {
   const pref = d.pref === "全国" || d.pref === "全球" ? zenkyu : d.pref;
   const pref_code = d.pref === "全国" || d.pref === "全球" || d.pref === zenkyu ? "0" : d.pref_code;
   const pref_code_i = parseInt(pref_code ?? "");
@@ -137,6 +141,7 @@ export function modifyDataCatalog(
           },
         }
       : {}),
+    dataSource,
   };
 }
 
@@ -144,18 +149,20 @@ export function modifyDataCatalog(
 export function getDataCatalogTree(
   items: DataCatalogItem[],
   groupBy: GroupBy,
+  customDataset: boolean,
   q?: string | undefined,
 ): DataCatalogTreeItem[] {
-  return getRawDataCatalogTree(items, groupBy, q) as DataCatalogTreeItem[];
+  return getRawDataCatalogTree(items, groupBy, customDataset, q) as DataCatalogTreeItem[];
 }
 
 export function getRawDataCatalogTree(
   items: RawDataCatalogItem[],
   groupBy: GroupBy,
+  customDataset: boolean,
   q?: string | undefined,
 ): (RawDataCatalogGroup | RawDataCatalogItem)[] {
   return mapTree(
-    makeTree(sortInternal(items, groupBy, q)),
+    makeTree(sortInternal(items, groupBy, customDataset, q)),
     (item): RawDataCatalogGroup | RawDataCatalogItem =>
       item.item ?? {
         id: item.id,
@@ -173,36 +180,40 @@ type InternalDataCatalogItem = RawDataCatalogItem & {
 function sortInternal(
   items: RawDataCatalogItem[],
   groupBy: GroupBy,
+  customDataset: boolean,
   q?: string | undefined,
 ): InternalDataCatalogItem[] {
   return filter(q, items)
     .map(
       (i): InternalDataCatalogItem => ({
         ...i,
-        path: path(i, groupBy),
+        path: path(i, groupBy, customDataset),
       }),
     )
     .sort((a, b) => sortBy(a, b, groupBy));
 }
 
-function path(i: RawDataCatalogItem, groupBy: GroupBy): string[] {
+function path(i: RawDataCatalogItem, groupBy: GroupBy, customDataset: boolean): string[] {
   return groupBy === "type"
     ? [
-        i.type,
+        ...(!customDataset ? [i.type] : []),
         i.pref,
         ...((i.ward || i.type2) && i.city ? [i.city] : []),
+        ...(i.group?.split("/") ?? []),
         ...(i.name || "（名称未決定）").split("/"),
       ]
     : [
         i.pref,
         ...(i.city ? [i.city] : []),
         ...(i.ward ? [i.ward] : []),
-        ...(i.type2 || (typesWithFolders.includes(i.type_en) && i.pref !== zenkyu) ? [i.type] : []),
+        ...(i.group?.split("/") ?? []),
+        ...(!customDataset &&
+        (i.type2 || (!i.root && typesWithFolders.includes(i.type_en) && i.pref !== zenkyu))
+          ? [i.type]
+          : []),
         ...(i.name || "（名称未決定）").split("/"),
       ];
 }
-
-const typesWithFolders = ["usecase", "gen", "fld", "htd", "tnm", "ifld"];
 
 function sortBy(a: InternalDataCatalogItem, b: InternalDataCatalogItem, sort: GroupBy): number {
   return sort === "type"
@@ -217,13 +228,19 @@ function sortByCity(a: InternalDataCatalogItem, b: InternalDataCatalogItem): num
       a.pref_code_i - b.pref_code_i ||
       (a.ward ? 0 : 1) - (b.ward ? 0 : 1) || // items that have a ward is upper
       (a.city ? 0 : 1) - (b.city ? 0 : 1) || // items that have a city is upper
+      (b.group ? 0 : 1) - (a.group ? 0 : 1) || // items that have no groups is upper
       a.code - b.code ||
-      types.indexOf(a.type_en) - types.indexOf(b.type_en),
+      typeIndexOf(a.type_en) - typeIndexOf(b.type_en),
   );
 }
 
 function sortByType(a: RawDataCatalogItem, b: RawDataCatalogItem): number {
-  return clamp(types.indexOf(a.type_en) - types.indexOf(b.type_en));
+  return clamp(typeIndexOf(a.type_en) - typeIndexOf(b.type_en));
+}
+
+function typeIndexOf(type_en: string): number {
+  const i = types.indexOf(type_en);
+  return i === -1 ? 99999 : i;
 }
 
 function sortByOrder(a: number | undefined, b: number | undefined): number {
@@ -267,6 +284,7 @@ const types = [
   "htd",
   "ifld",
   "gen",
+  "ex",
   "shelter",
   "landmark",
   "station",
@@ -276,3 +294,5 @@ const types = [
   "border",
   "usecase",
 ];
+
+const typesWithFolders = ["usecase", "gen", "fld", "htd", "tnm", "ifld", "urf", "ex"];

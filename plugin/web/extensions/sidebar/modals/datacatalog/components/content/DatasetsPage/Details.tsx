@@ -14,6 +14,7 @@ export type Props = {
   dataset?: DataCatalogItem | DataCatalogGroup;
   isMobile?: boolean;
   inEditor?: boolean;
+  editable?: boolean;
   addDisabled: (dataID: string) => boolean;
   onTagSelect?: (tag: TagType) => void;
   onDatasetAdd: (dataset: DataCatalogItem | UserDataItem, keepModalOpen?: boolean) => void;
@@ -25,6 +26,7 @@ const DatasetDetails: React.FC<Props> = ({
   // isMobile,
   inEditor,
   addDisabled,
+  editable,
   // onTagSelect,
   onDatasetAdd,
   onDatasetPublish,
@@ -63,6 +65,7 @@ const DatasetDetails: React.FC<Props> = ({
       addDisabled={"dataID" in dataset && addDisabled(dataset.dataID)}
       inEditor={inEditor}
       isPublishable={"dataID" in dataset && !!dataset.itemId}
+      editable={editable}
       contentSection={ContentComponent}
       onDatasetAdd={onDatasetAdd}
       onDatasetPublish={onDatasetPublish}
@@ -109,7 +112,7 @@ const NoDataFooter = styled.div`
   align-items: center;
   gap: 4px;
   margin: 0;
-  color: #00bebe;
+  color: var(--theme-color);
   cursor: pointer;
 `;
 
@@ -122,7 +125,7 @@ const Content = styled.div`
   margin-top: 16px;
   white-space: pre-wrap;
   a {
-    color: #00bebe;
+    color: var(--theme-color);
     svg {
       transform: translateY(2px);
     }

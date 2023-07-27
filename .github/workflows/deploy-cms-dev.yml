@@ -32,7 +32,6 @@ jobs:
       - name: Download CMS web
         uses: dawidd6/action-download-artifact@v2
         with:
-          github_token: ${{ secrets.GPT }}
           repo: reearth/reearth-cms
           workflow: ci_web.yml
           branch: release

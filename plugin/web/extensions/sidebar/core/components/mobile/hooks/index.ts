@@ -1,6 +1,6 @@
 import { postMsg, updateExtended } from "@web/extensions/sidebar/utils";
 import { getActiveFieldIDs } from "@web/extensions/sidebar/utils/dataset";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, useMemo } from "react";
 
 import { Tab } from "..";
 import { DataCatalogItem } from "../../../../modals/datacatalog/api/api";
@@ -10,6 +10,7 @@ import useProjectHooks from "./projectHooks";
 
 export default () => {
   const [inEditor, setInEditor] = useState(true);
+  const [hideFeedback, setHideFeedback] = useState(false);
   const [selected, setSelected] = useState<Tab | undefined>();
 
   const [catalogURL, setCatalogURL] = useState<string>();
@@ -18,6 +19,16 @@ export default () => {
   const [backendURL, setBackendURL] = useState<string>();
   const [backendProjectName, setBackendProjectName] = useState<string>();
 
+  const [isCustomProject, setIsCustomProject] = useState<boolean>(false);
+  const [customCatalogURL, setCustomCatalogURL] = useState<string>();
+  const [customCatalogProjectName, setCustomCatalogProjectName] = useState<string>();
+  const [customReearthURL, setCustomReearthURL] = useState<string>();
+  const [customBackendURL, setCustomBackendURL] = useState<string>();
+  const [customBackendProjectName, setCustomBackendProjectName] = useState<string>();
+
+  const [customProjectName, setCustomProjectName] = useState<string>();
+  const [customLogo, setCustomLogo] = useState<string>();
+
   const [fieldTemplates, setFieldTemplates] = useState<Template[]>([]);
   const [infoboxTemplates, setInfoboxTemplates] = useState<Template[]>([]);
 
@@ -25,10 +36,23 @@ export default () => {
 
   useEffect(() => {
     (async () => {
-      if (!backendURL || !backendProjectName) return;
-      const res = await fetch(`${backendURL}/sidebar/${backendProjectName}/templates`);
-      if (res.status !== 200) return;
-      const resData = await res.json();
+      let resData: Template[] = [];
+      if (backendURL && backendProjectName) {
+        const res = await fetch(`${backendURL}/sidebar/${backendProjectName}/templates`);
+        if (res.status === 200) {
+          const plateauResData = (await res.json()) as Template[];
+          resData = plateauResData.map(t => ({ ...t, dataSource: "plateau" }));
+        }
+      }
+      if (isCustomProject) {
+        const res = await fetch(
+          `${customBackendURL}/sidebar/${customBackendProjectName}/templates`,
+        );
+        if (res.status === 200) {
+          const customResData = (await res.json()) as Template[];
+          resData = resData.concat(customResData.map(t => ({ ...t, dataSource: "custom" })));
+        }
+      }
 
       if (resData) {
         setFieldTemplates(resData.filter((t: Template) => t.type === "field"));
@@ -55,7 +79,14 @@ export default () => {
     fieldTemplates,
     backendURL,
     backendProjectName,
+    isCustomProject,
+    customBackendURL,
+    customBackendProjectName,
   });
+
+  const reearthPublishURL = useMemo(() => {
+    return isCustomProject ? customReearthURL : reearthURL;
+  }, [isCustomProject, customReearthURL, reearthURL]);
 
   const handleDatasetUpdate = useCallback(
     (updatedDataset: DataCatalogItem, cleanseOverride?: any) => {
@@ -154,11 +185,24 @@ export default () => {
       } else if (e.data.action === "init" && e.data.payload) {
         setProjectID(e.data.payload.projectID);
         setInEditor(e.data.payload.inEditor);
+        setHideFeedback(e.data.payload.hideFeedback);
         setCatalogURL(e.data.payload.catalogURL);
         setCatalogProjectName(e.data.payload.catalogProjectName);
         setReearthURL(`${e.data.payload.reearthURL}`);
         setBackendURL(e.data.payload.backendURL);
         setBackendProjectName(e.data.payload.backendProjectName);
+        setCustomCatalogURL(e.data.payload.customCatalogURL);
+        setCustomCatalogProjectName(e.data.payload.customCatalogProjectName);
+        setCustomReearthURL(e.data.payload.customReearthURL);
+        setCustomBackendURL(e.data.payload.customBackendURL);
+        setCustomBackendProjectName(e.data.payload.customBackendProjectName);
+        setIsCustomProject(
+          e.data.payload.customBackendURL &&
+            e.data.payload.customBackendProjectName &&
+            e.data.payload.customBackendAccessToken,
+        );
+        setCustomProjectName(e.data.payload.customProjectName);
+        setCustomLogo(e.data.payload.customLogo);
         if (e.data.payload.searchTerm) setSearchTerm(e.data.payload.searchTerm);
         if (e.data.payload.draftProject) {
           updateProject(e.data.payload.draftProject);
@@ -216,11 +260,20 @@ export default () => {
     templates: fieldTemplates,
     catalogProjectName,
     catalogURL,
-    reearthURL,
+    reearthURL: reearthPublishURL,
     backendURL,
     backendProjectName,
     inEditor,
+    hideFeedback,
     searchTerm,
+    isCustomProject,
+    customReearthURL,
+    customCatalogURL,
+    customCatalogProjectName,
+    customBackendURL,
+    customBackendProjectName,
+    customProjectName,
+    customLogo,
     setSelected,
   };
 };

@@ -10,8 +10,8 @@ import (
 	"strings"
 
 	"github.com/eukarya-inc/jpareacode"
-	"github.com/eukarya-inc/reearth-plateauview/server/cms"
 	"github.com/mitchellh/mapstructure"
+	cms "github.com/reearth/reearth-cms-api/go"
 	"github.com/reearth/reearthx/log"
 	"github.com/samber/lo"
 	"golang.org/x/exp/slices"
@@ -48,6 +48,7 @@ type DatasetPref struct {
 
 type DatasetCity struct {
 	ID           string   `json:"id"`
+	Spec         string   `json:"spec"`
 	CityCode     int      `json:"-"`
 	Title        string   `json:"title"`
 	Description  string   `json:"description"`
@@ -75,23 +76,27 @@ func (i Items) DatasetResponse() (r *DatasetResponse) {
 	for _, i := range i {
 		invalid := false
 		if !i.IsPublic() {
-			warning = append(warning, fmt.Sprintf("%s:not_published", i.CityName))
+			warning = append(warning, fmt.Sprintf("%s:%s:not_published", i.ID, i.CityName))
 			invalid = true
 		}
 
 		if i.CityGML == nil || i.CityGML.ID == "" {
-			warning = append(warning, fmt.Sprintf("%s:no_citygml", i.CityName))
+			warning = append(warning, fmt.Sprintf("%s:%s:no_citygml", i.ID, i.CityName))
 			invalid = true
 		}
 
 		if i.CityGML != nil && !i.CityGML.IsExtractionDone() {
-			warning = append(warning, fmt.Sprintf("%s:invalid_citygml", i.CityName))
+			warning = append(warning, fmt.Sprintf("%s:%s:invalid_citygml", i.ID, i.CityName))
 			invalid = true
 		}
 
 		if i.MaxLOD == nil || i.MaxLOD.URL == "" {
-			warning = append(warning, fmt.Sprintf("%s:no_maxlod", i.CityName))
+			warning = append(warning, fmt.Sprintf("%s:%s:no_maxlod", i.ID, i.CityName))
 			invalid = true
+		}
+
+		if i.Dem == "" {
+			warning = append(warning, fmt.Sprintf("%s:%s:no_dem_info", i.ID, i.CityName))
 		}
 
 		citycode, year := i.CityCode(), i.Year()
@@ -128,6 +133,7 @@ func (i Items) DatasetResponse() (r *DatasetResponse) {
 
 		d := DatasetCity{
 			ID:           i.ID,
+			Spec:         i.SpecVersion(),
 			CityCode:     citycode,
 			Title:        i.CityName,
 			Description:  i.Description,
@@ -177,6 +183,7 @@ func (i Items) DatasetResponse() (r *DatasetResponse) {
 
 type Item struct {
 	ID             string            `json:"id"`
+	Specification  string            `json:"specification"`
 	Prefecture     string            `json:"prefecture"`
 	CityName       string            `json:"city_name"`
 	CityGML        *cms.PublicAsset  `json:"citygml"`
@@ -199,6 +206,10 @@ type Item struct {
 
 func (i Item) IsPublic() bool {
 	return i.SDKPublication == "公開する"
+}
+
+func (i Item) SpecVersion() string {
+	return strings.TrimSuffix(strings.TrimPrefix(i.Specification, "第"), "版")
 }
 
 func (i Item) CityCode() int {
@@ -332,6 +343,7 @@ func (mm MaxLODMap) Files(urls []*url.URL) (r FilesResponse) {
 
 type IItem struct {
 	ID             string `json:"id" cms:"id,text"`
+	Specification  string `json:"specification" cms:"specification,select"`
 	Prefecture     string `json:"prefecture" cms:"prefecture,text"`
 	CityName       string `json:"city_name" cms:"city_name,text"`
 	CityGML        any    `json:"citygml" cms:"citygml,asset"`
@@ -341,12 +353,21 @@ type IItem struct {
 	Tran           []any  `json:"tran" cms:"tran,asset"`
 	Frn            []any  `json:"frn" cms:"frn,asset"`
 	Veg            []any  `json:"veg" cms:"veg,asset"`
+	Fld            []any  `json:"fld" cms:"fld,asset"`
+	Tnm            []any  `json:"tnm" cms:"tnm,asset"`
+	Htd            []any  `json:"htd" cms:"htd,asset"`
+	Ifld           []any  `json:"ifld" cms:"ifld,asset"`
+	Luse           []any  `json:"luse" cms:"luse,asset"`
+	Lsld           []any  `json:"lsld" cms:"lsld,asset"`
+	Urf            []any  `json:"urf" cms:"veg,asset"`
+	Dem            string `json:"dem" cms:"dem,select"`
 	SDKPublication string `json:"sdk_publication" cms:"sdk_publication,select"`
 }
 
 func (i IItem) Item() Item {
 	return Item{
 		ID:             i.ID,
+		Specification:  i.Specification,
 		Prefecture:     i.Prefecture,
 		CityName:       i.CityName,
 		CityGML:        integrationAssetToAsset(i.CityGML).ToPublic(),
@@ -356,6 +377,14 @@ func (i IItem) Item() Item {
 		Tran:           assetsToPublic(integrationAssetToAssets(i.Tran)),
 		Frn:            assetsToPublic(integrationAssetToAssets(i.Frn)),
 		Veg:            assetsToPublic(integrationAssetToAssets(i.Veg)),
+		Fld:            assetsToPublic(integrationAssetToAssets(i.Fld)),
+		Tnm:            assetsToPublic(integrationAssetToAssets(i.Tnm)),
+		Htd:            assetsToPublic(integrationAssetToAssets(i.Htd)),
+		Ifld:           assetsToPublic(integrationAssetToAssets(i.Ifld)),
+		Luse:           assetsToPublic(integrationAssetToAssets(i.Luse)),
+		Lsld:           assetsToPublic(integrationAssetToAssets(i.Lsld)),
+		Urf:            assetsToPublic(integrationAssetToAssets(i.Urf)),
+		Dem:            i.Dem,
 		SDKPublication: i.SDKPublication,
 	}
 }
@@ -393,6 +422,9 @@ func ItemFromIntegration(ci *cms.Item) Item {
 }
 
 func assetsToPublic(a []cms.Asset) []cms.PublicAsset {
+	if len(a) == 0 {
+		return nil
+	}
 	return lo.FilterMap(a, func(a cms.Asset, _ int) (cms.PublicAsset, bool) {
 		p := a.ToPublic()
 		if p == nil {

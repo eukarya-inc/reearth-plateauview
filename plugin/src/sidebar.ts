@@ -1,4 +1,5 @@
 import { DataCatalogItem, Template } from "@web/extensions/sidebar/core/types";
+import { DataSource } from "@web/extensions/sidebar/modals/datacatalog/api/api";
 import { PostMessageProps, Project, PluginMessage } from "@web/extensions/sidebar/types";
 import { omit, merge as lodashMerge } from "lodash";
 
@@ -16,10 +17,12 @@ import { inEditor } from "./utils/ineditor";
 import { mergeDefaultOverrides } from "./utils/merge";
 import { proxyGTFS } from "./utils/proxy";
 
+const reearth = (globalThis as any).reearth;
+
 const defaultProject: Project = {
   sceneOverrides: {
     default: {
-      camera: {
+      camera: reearth.scene.property.default?.camera ?? {
         lat: 35.65075152248653,
         lng: 139.7617718208305,
         altitude: 2219.7187259974316,
@@ -75,8 +78,6 @@ type PluginExtensionInstance = {
   runTimes?: number;
 };
 
-const reearth = (globalThis as any).reearth;
-
 let welcomePageIsOpen = false;
 let mobileDropdownIsOpen = false;
 let openedpendingBuildingSearchDataID: string | null = null;
@@ -88,13 +89,29 @@ let currentSelected: string | undefined = undefined;
 const defaultLocation = { zone: "outer", section: "left", area: "middle" };
 const mobileLocation = { zone: "outer", section: "center", area: "top" };
 
-let addedDatasets: [dataID: string, status: "showing" | "hidden", layerID?: string][] = [];
+let addedDatasets: [
+  dataID: string,
+  status: "showing" | "hidden",
+  layerID?: string,
+  dataSource?: DataSource,
+][] = [];
 let templates: Template[] | undefined = undefined;
+let currentDatasetDataSource: DataSource | undefined = undefined;
 
 let searchTerm = "";
 let expandedFolders: { id?: string; name?: string }[] = [];
-let dataset: DataCatalogItem | undefined = undefined;
 let filter = "city";
+
+let dataset: DataCatalogItem | undefined = undefined;
+
+let customExpandedFolders: { id?: string; name?: string }[] = [];
+let customFilter = "city";
+
+const themeColor =
+  reearth.scene.property?.theme?.themeType === "custom" &&
+  reearth.scene.property?.theme?.themeSelectColor
+    ? reearth.scene.property.theme.themeSelectColor
+    : "#00BEBE";
 
 const sidebarInstance: PluginExtensionInstance = reearth.plugins.instances.find(
   (i: PluginExtensionInstance) => i.id === reearth.widget.id,
@@ -104,6 +121,11 @@ const sidebarInstance: PluginExtensionInstance = reearth.plugins.instances.find(
 // initializations
 
 reearth.ui.show(html, { extended: true });
+
+reearth.ui.postMessage({
+  action: "setPrimaryColor",
+  payload: themeColor,
+});
 
 if (
   sidebarInstance.runTimes === 1 ||
@@ -125,6 +147,10 @@ if (
         height: reearth.viewport.height,
       });
       welcomePageIsOpen = true;
+      reearth.modal.postMessage({
+        action: "setPrimaryColor",
+        payload: themeColor,
+      });
     }
   });
 } else {
@@ -152,6 +178,10 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
       width: reearth.viewport.width - 12,
     });
     mobileDropdownIsOpen = true;
+    reearth.popup.postMessage({
+      action: "setPrimaryColor",
+      payload: themeColor,
+    });
   } else if (action === "msgToMobileDropdown") {
     reearth.popup.postMessage({ action: "msgToPopup", payload });
   }
@@ -162,6 +192,9 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
       const outBoundPayload = {
         projectID: reearth.viewport.query.share || reearth.viewport.query.projectID,
         inEditor: inEditor(),
+        draftProject,
+        hideFeedback: reearth.widget.property.default?.hideFeedback ?? false,
+        // plateau dataset
         catalogURL: reearth.widget.property.default?.catalogURL ?? "",
         catalogProjectName: reearth.widget.property.default?.catalogProjectName ?? "",
         reearthURL: reearth.widget.property.default?.reearthURL ?? "",
@@ -169,8 +202,18 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
         backendProjectName: reearth.widget.property.default?.projectName ?? "",
         backendAccessToken: reearth.widget.property.default?.plateauAccessToken ?? "",
         enableGeoPub: reearth.widget.property.default?.enableGeoPub ?? false,
-        draftProject,
-        searchTerm,
+        // custom dataset
+        customCatalogURL: reearth.widget.property.customDataset?.customCatalogURL ?? "",
+        customCatalogProjectName:
+          reearth.widget.property.customDataset?.customCatalogProjectName ?? "",
+        customBackendURL: reearth.widget.property.customDataset?.customDatasetURL ?? "",
+        customBackendProjectName:
+          reearth.widget.property.customDataset?.customDatasetProjectName ?? "",
+        customBackendAccessToken: reearth.widget.property.customDataset?.customAccessToken ?? "",
+        customReearthURL: reearth.widget.property.customDataset?.customReearthURL ?? "",
+        // appearance
+        customProjectName: reearth.widget.property.appearance?.customProjectName ?? "",
+        customLogo: reearth.widget.property.appearance?.customLogo ?? "",
       };
       reearth.ui.postMessage({ action, payload: outBoundPayload });
     });
@@ -204,14 +247,23 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
       const data = createLayer(payload.dataset, payload.overrides);
       console.log("DATA to add", data);
       const layerID = reearth.layers.add(data);
-      const idx = addedDatasets.push([payload.dataset.dataID, "showing", layerID]) - 1;
+      const idx =
+        addedDatasets.push([
+          payload.dataset.dataID,
+          "showing",
+          layerID,
+          payload.dataset.dataSource,
+        ]) - 1;
       if (!payload.dataset.visible) {
         reearth.layers.hide(addedDatasets[idx][2]);
         addedDatasets[idx][1] = "hidden";
       }
       reearth.modal.postMessage({
         action: "updateDataCatalog",
-        payload: { updatedDatasetDataIDs: addedDatasets.map(d => d[0]) },
+        payload: {
+          updatedDatasetDataIDs: addedDatasets.filter(d => d[3] === "plateau").map(d => d[0]),
+          customUpdatedDatasetDataIDs: addedDatasets.filter(d => d[3] === "custom").map(d => d[0]),
+        },
       });
     }
   } else if (action === "updateDatasetInScene") {
@@ -268,17 +320,35 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
     }
   } else if (action === "catalogModalOpen") {
     reearth.modal.show(dataCatalogHtml, { background: "transparent" });
-    templates = payload.templates;
+    if (payload?.templates) {
+      templates = payload.templates;
+    }
+    if (payload?.dataSource) {
+      currentDatasetDataSource = payload.dataSource;
+    }
+    reearth.modal.postMessage({
+      action: "setPrimaryColor",
+      payload: themeColor,
+    });
   } else if (action === "triggerCatalogOpen") {
     reearth.ui.postMessage({ action });
   } else if (action === "saveSearchTerm") {
     searchTerm = payload.searchTerm;
   } else if (action === "saveExpandedFolders") {
-    expandedFolders = [...payload.expandedFolders];
+    if (payload.dataSource !== "custom") {
+      expandedFolders = [...payload.expandedFolders];
+    }
+    if (payload.dataSource !== "plateau") {
+      customExpandedFolders = [...payload.expandedFolders];
+    }
   } else if (action === "saveDataset") {
     dataset = { ...payload.dataset };
   } else if (action === "saveFilter") {
-    filter = payload.filter;
+    if (payload.dataSource === "custom") {
+      customFilter = payload.filter;
+    } else {
+      filter = payload.filter;
+    }
   } else if (action === "triggerHelpOpen") {
     reearth.ui.postMessage({ action });
   } else if (action === "modalClose") {
@@ -289,37 +359,64 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
       reearth.popup.postMessage({
         action,
         payload: {
+          dataset,
           searchTerm,
           expandedFolders,
-          dataset,
           filter,
+          currentDatasetDataSource,
+          customExpandedFolders,
+          customFilter,
+          customCatalogURL: reearth.widget.property.customDataset?.customCatalogURL ?? "",
+          customCatalogProjectName:
+            reearth.widget.property.customDataset?.customCatalogProjectName ?? "",
+          customDataCatalogTitle: reearth.widget.property.appearance?.customProjectName ?? "",
         },
       });
     } else {
       reearth.modal.postMessage({
         action,
         payload: {
-          addedDatasets: addedDatasets.map(d => d[0]),
           inEditor: inEditor(),
+          dataset,
+          templates,
+          currentDatasetDataSource,
           backendProjectName: reearth.widget.property.default?.projectName ?? "",
           backendAccessToken: reearth.widget.property.default?.plateauAccessToken ?? "",
           backendURL: reearth.widget.property.default?.plateauURL ?? "",
           catalogURL: reearth.widget.property.default?.catalogURL ?? "",
           catalogProjectName: reearth.widget.property.default?.catalogProjectName ?? "",
           enableGeoPub: reearth.widget.property.default?.enableGeoPub ?? false,
-          templates,
+          addedDatasets: addedDatasets.filter(d => d[3] === "plateau").map(d => d[0]),
           searchTerm,
           expandedFolders,
-          dataset,
           filter,
+          customCatalogURL: reearth.widget.property.customDataset?.customCatalogURL ?? "",
+          customCatalogProjectName:
+            reearth.widget.property.customDataset?.customCatalogProjectName ?? "",
+          customBackendURL: reearth.widget.property.customDataset?.customDatasetURL ?? "",
+          customBackendProjectName:
+            reearth.widget.property.customDataset?.customDatasetProjectName ?? "",
+          customBackendAccessToken: reearth.widget.property.customDataset?.customAccessToken ?? "",
+          customAddedDatasets: addedDatasets.filter(d => d[3] === "custom").map(d => d[0]),
+          customExpandedFolders,
+          customFilter,
+          customDataCatalogTitle: reearth.widget.property.appearance?.customProjectName ?? "",
         },
       });
     }
   } else if (action === "helpPopupOpen") {
     reearth.popup.show(helpPopupHtml, { position: "right-start", offset: 4 });
+    reearth.popup.postMessage({
+      action: "setPrimaryColor",
+      payload: themeColor,
+    });
   } else if (action === "groupSelectOpen") {
     reearth.popup.show(groupSelectPopupHtml, { position: "right", offset: 4 });
     reearth.popup.postMessage({ action: "groupSelectInit", payload });
+    reearth.popup.postMessage({
+      action: "setPrimaryColor",
+      payload: themeColor,
+    });
   } else if (action === "saveGroups") {
     reearth.ui.postMessage({ action, payload });
     reearth.popup.close();
@@ -349,8 +446,16 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
     mobileDropdownIsOpen = false;
   } else if (action === "mapModalOpen") {
     reearth.modal.show(mapVideoHtml, { background: "transparent" });
+    reearth.modal.postMessage({
+      action: "setPrimaryColor",
+      payload: themeColor,
+    });
   } else if (action === "clipModalOpen") {
     reearth.modal.show(clipVideoHtml, { background: "transparent" });
+    reearth.modal.postMessage({
+      action: "setPrimaryColor",
+      payload: themeColor,
+    });
   } else if (action === "cameraFlyTo") {
     if (Array.isArray(payload)) {
       reearth.camera.flyTo(...payload);
@@ -461,6 +566,8 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
         },
       });
     }
+  } else if (action === "clearCurrentDatasetDataSource") {
+    currentDatasetDataSource = undefined;
   }
 
   // ************************************************
@@ -516,6 +623,10 @@ reearth.on("message", ({ action, payload }: PostMessageProps) => {
           mainAxis: 4,
           crossAxis: reearth.viewport.isMobile ? reearth.viewport.width * 0.05 : 0,
         },
+      });
+      reearth.popup.postMessage({
+        action: "setPrimaryColor",
+        payload: themeColor,
       });
     }
     openedpendingBuildingSearchDataID = payload.dataID;

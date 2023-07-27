@@ -10,10 +10,10 @@ import (
 	"github.com/eukarya-inc/reearth-plateauview/server/dataconv"
 	"github.com/eukarya-inc/reearth-plateauview/server/geospatialjp"
 	"github.com/eukarya-inc/reearth-plateauview/server/opinion"
+	"github.com/eukarya-inc/reearth-plateauview/server/plateaucms"
 	"github.com/eukarya-inc/reearth-plateauview/server/sdk"
 	"github.com/eukarya-inc/reearth-plateauview/server/sdkapi"
 	"github.com/eukarya-inc/reearth-plateauview/server/searchindex"
-	"github.com/eukarya-inc/reearth-plateauview/server/share"
 	"github.com/eukarya-inc/reearth-plateauview/server/sidebar"
 	"github.com/joho/godotenv"
 	"github.com/kelseyhightower/envconfig"
@@ -36,6 +36,7 @@ type Config struct {
 	CMS_IntegrationID                 string
 	CMS_PlateauProject                string
 	CMS_SystemProject                 string
+	CMS_TokenProject                  string
 	FME_BaseURL                       string
 	FME_Mock                          bool
 	FME_Token                         string
@@ -134,16 +135,6 @@ func (c *Config) SDKAPI() sdkapi.Config {
 	}
 }
 
-func (c *Config) Share() share.Config {
-	return share.Config{
-		CMSBase:  c.CMS_BaseURL,
-		CMSToken: c.CMS_Token,
-		Disable:  c.Share_Disable,
-		// CMSModel:   c.CMS_ShareModel,
-		// CMSDataFieldKey: c.CMS_ShareField,
-	}
-}
-
 func (c *Config) Opinion() opinion.Config {
 	return opinion.Config{
 		SendGridAPIKey: c.SendGrid_APIKey,
@@ -170,16 +161,27 @@ func (c *Config) Geospatialjp() geospatialjp.Config {
 	}
 }
 
+func (c *Config) PLATEAUCMS() plateaucms.Config {
+	return plateaucms.Config{
+		CMSBaseURL:      c.CMS_BaseURL,
+		CMSMainToken:    c.CMS_Token,
+		CMSTokenProject: c.CMS_TokenProject,
+		// compat
+		CMSMainProject: c.CMS_SystemProject,
+		AdminToken:     c.Sidebar_Token,
+	}
+}
+
 func (c *Config) Sidebar() sidebar.Config {
 	return sidebar.Config{
-		CMSBaseURL: c.CMS_BaseURL,
-		CMSToken:   c.CMS_Token,
-		AdminToken: c.Sidebar_Token,
+		Config:       c.PLATEAUCMS(),
+		DisableShare: c.Share_Disable,
 	}
 }
 
 func (c *Config) DataCatalog() datacatalog.Config {
 	return datacatalog.Config{
+		Config:       c.PLATEAUCMS(),
 		CMSBase:      c.CMS_BaseURL,
 		DisableCache: c.DataCatalog_DisableCache,
 		CacheTTL:     c.DataCatalog_CacheTTL,
@@ -191,6 +193,7 @@ func (c *Config) DataConv() dataconv.Config {
 		Disable:  c.DataConv_Disable,
 		CMSBase:  c.CMS_BaseURL,
 		CMSToken: c.CMS_Token,
+		APIToken: c.Sidebar_Token,
 		// CMSModel: ,
 	}
 }

@@ -7,9 +7,9 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/eukarya-inc/reearth-plateauview/server/cms"
 	"github.com/jarcoal/httpmock"
 	"github.com/labstack/echo/v4"
+	cms "github.com/reearth/reearth-cms-api/go"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/stretchr/testify/assert"
 )
@@ -44,8 +44,9 @@ func TestHandler(t *testing.T) {
 				"title": "pref",
 				"data": []any{
 					map[string]any{
-						"featureTypes": []any{"bldg"},
+						"featureTypes": []any{"bldg", "fld", "dem"},
 						"id":           "item",
+						"spec":         "2.3",
 						"title":        "city",
 						"description":  "desc",
 					},
@@ -154,6 +155,10 @@ var mockItem = cms.Item{
 	ID: "item",
 	Fields: []cms.Field{
 		{
+			Key:   "specification",
+			Value: "第2.3版",
+		},
+		{
 			Key:   "prefecture",
 			Value: "pref",
 		},
@@ -182,6 +187,14 @@ var mockItem = cms.Item{
 			},
 		},
 		{
+			Key: "fld",
+			Value: []any{
+				map[string]any{
+					"url": "https://example.com/fld.zip",
+				},
+			},
+		},
+		{
 			Key: "max_lod",
 			Value: map[string]any{
 				"url": "https://example.com/max_lod.csv",
@@ -191,12 +204,20 @@ var mockItem = cms.Item{
 			Key:   "sdk_publication",
 			Value: "公開する",
 		},
+		{
+			Key:   "dem",
+			Value: "有り",
+		},
 	},
 }
 
 var mockItem2 = cms.Item{
 	ID: "aaa",
 	Fields: []cms.Field{
+		{
+			Key:   "specification",
+			Value: "第2.3版",
+		},
 		{
 			Key:   "prefecture",
 			Value: "pref",

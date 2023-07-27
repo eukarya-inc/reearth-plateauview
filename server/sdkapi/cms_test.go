@@ -1,25 +1,29 @@
 package sdkapi
 
-/*
 import (
 	"context"
-	"encoding/json"
 	"testing"
 
-	"github.com/eukarya-inc/reearth-plateauview/server/cms"
+	cms "github.com/reearth/reearth-cms-api/go"
 	"github.com/samber/lo"
 )
 
 func TestCMS(t *testing.T) {
+	cmsbase := ""
+	cmstoken := ""
+	cmsproject := ""
+
+	if cmsbase == "" || cmstoken == "" || cmsproject == "" {
+		t.SkipNow()
+	}
+
 	ctx := context.Background()
-	cms := lo.Must(cms.New("", ""))
+	cms := lo.Must(cms.New(cmsbase, cmstoken))
 	c := &CMS{
-		Project:              "",
+		Project:              cmsproject,
 		IntegrationAPIClient: cms,
 	}
-	res := lo.Must(c.Datasets(ctx, modelKey))
+	_ = lo.Must(c.Datasets(ctx, modelKey))
 	// res := lo.Must(cms.GetItemsByKey(ctx, "", modelKey, true))
-	t.Log(string(lo.Must(json.MarshalIndent(res, "", "  "))))
+	// t.Log(string(lo.Must(json.MarshalIndent(res, "", "  "))))
 }
-
-// */

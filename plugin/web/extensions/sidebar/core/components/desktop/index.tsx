@@ -21,6 +21,7 @@ const DesktopSidebar: React.FC<Props> = ({ className }) => {
   const {
     project,
     inEditor,
+    hideFeedback,
     reearthURL,
     backendURL,
     backendProjectName,
@@ -28,6 +29,12 @@ const DesktopSidebar: React.FC<Props> = ({ className }) => {
     currentPage,
     loading,
     buildingSearch,
+    customReearthURL,
+    customBackendURL,
+    customBackendProjectName,
+    customProjectName,
+    customLogo,
+    isCustomProject,
     handlePageChange,
     handleTemplateAdd,
     handleTemplateSave,
@@ -73,6 +80,9 @@ const DesktopSidebar: React.FC<Props> = ({ className }) => {
         current={currentPage}
         inEditor={inEditor}
         minimized={minimized}
+        customProjectName={customProjectName}
+        customLogo={customLogo}
+        hideFeedback={hideFeedback}
         onMinimize={handleMinimize}
         onClick={handlePageChange}
       />
@@ -87,6 +97,7 @@ const DesktopSidebar: React.FC<Props> = ({ className }) => {
                   templates={templates}
                   buildingSearch={buildingSearch}
                   savingDataset={loading}
+                  isCustomProject={isCustomProject}
                   onDatasetSave={handleDatasetSave}
                   onDatasetUpdate={handleDatasetUpdate}
                   onDatasetRemove={handleProjectDatasetRemove}
@@ -110,14 +121,19 @@ const DesktopSidebar: React.FC<Props> = ({ className }) => {
                   reearthURL={reearthURL}
                   backendURL={backendURL}
                   backendProjectName={backendProjectName}
+                  isCustomProject={isCustomProject}
+                  customReearthURL={customReearthURL}
+                  customBackendURL={customBackendURL}
+                  customBackendProjectName={customBackendProjectName}
                 />
               ),
               help: <Help />,
-              feedback: <Feedback backendURL={backendURL} />,
+              ...(hideFeedback ? {} : { feedback: <Feedback backendURL={backendURL} /> }),
               template: (
                 <Templates
                   templates={templates}
                   savingTemplate={loading}
+                  isCustomProject={isCustomProject}
                   onTemplateAdd={handleTemplateAdd}
                   onTemplateSave={handleTemplateSave}
                   onTemplateRemove={handleTemplateRemove}

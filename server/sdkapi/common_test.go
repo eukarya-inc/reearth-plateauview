@@ -4,7 +4,7 @@ import (
 	"net/url"
 	"testing"
 
-	"github.com/eukarya-inc/reearth-plateauview/server/cms"
+	cms "github.com/reearth/reearth-cms-api/go"
 	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )
@@ -22,7 +22,7 @@ func TestItems_DatasetResponse(t *testing.T) {
 						Description:  "description",
 						CityCode:     10000,
 						Year:         2022,
-						FeatureTypes: []string{"bldg", "tran", "frn", "veg"},
+						FeatureTypes: []string{"bldg", "tran", "frn", "veg", "dem"},
 					},
 				},
 			},
@@ -43,6 +43,7 @@ func TestItems_DatasetResponse(t *testing.T) {
 			Frn:            []cms.PublicAsset{{}},
 			Veg:            []cms.PublicAsset{{}},
 			MaxLOD:         &cms.PublicAsset{URL: "https://example.com/csv"},
+			Dem:            "有り",
 			SDKPublication: "公開する",
 		},
 	}.DatasetResponse())
@@ -109,6 +110,10 @@ func TestItemsFromIntegration(t *testing.T) {
 			ID: "xxx",
 			Fields: []cms.Field{
 				{
+					Key:   "specification",
+					Value: "第2.3版",
+				},
+				{
 					Key:   "prefecture",
 					Value: "pref",
 				},
@@ -170,6 +175,10 @@ func TestItemsFromIntegration(t *testing.T) {
 					Key:   "sdk_publication",
 					Value: "公開する",
 				},
+				{
+					Key:   "dem",
+					Value: "有り",
+				},
 			},
 		},
 	}
@@ -177,10 +186,11 @@ func TestItemsFromIntegration(t *testing.T) {
 	items := ItemsFromIntegration(cmsitems)
 	assert.Equal(t, Items{
 		{
-			ID:          "xxx",
-			Prefecture:  "pref",
-			CityName:    "city",
-			Description: "desc",
+			ID:            "xxx",
+			Specification: "第2.3版",
+			Prefecture:    "pref",
+			CityName:      "city",
+			Description:   "desc",
 			CityGML: &cms.PublicAsset{
 				Type:                    "asset",
 				ID:                      "assetc",
@@ -198,9 +208,7 @@ func TestItemsFromIntegration(t *testing.T) {
 					ArchiveExtractionStatus: "done",
 				},
 			},
-			Tran:           []cms.PublicAsset{},
-			Frn:            []cms.PublicAsset{},
-			Veg:            []cms.PublicAsset{},
+			Dem:            "有り",
 			SDKPublication: "公開する",
 		},
 	}, items)

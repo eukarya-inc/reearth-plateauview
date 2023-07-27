@@ -50,7 +50,7 @@ func (s *FME) Request(ctx context.Context, r Request) error {
 		req.Header.Set("Authorization", fmt.Sprintf("fmetoken token=%s", s.token))
 	}
 
-	log.Infof("fme: request: %s %s", req.Method, req.URL.String())
+	log.Infofc(ctx, "fme: request: %s %s", req.Method, req.URL.String())
 
 	res, err := s.client.Do(req)
 	if err != nil {

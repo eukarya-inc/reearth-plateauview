@@ -10,6 +10,7 @@ import TemplateCard from "./TemplateCard";
 export type Props = {
   templates: Template[];
   savingTemplate: boolean;
+  isCustomProject: boolean;
   onTemplateAdd: () => Promise<Template | undefined>;
   onTemplateSave: (template: Template) => Promise<void>;
   onTemplateRemove: (id: string) => Promise<void>;
@@ -18,6 +19,7 @@ export type Props = {
 const Templates: React.FC<Props> = ({
   templates,
   savingTemplate,
+  isCustomProject,
   onTemplateAdd,
   onTemplateSave,
   onTemplateRemove,
@@ -53,6 +55,7 @@ const Templates: React.FC<Props> = ({
               template={selectedTemplate}
               templates={templates}
               savingTemplate={savingTemplate}
+              isCustomProject={isCustomProject}
               onTemplateSave={onTemplateSave}
               onTemplateUpdate={handleTemplateUpdate}
             />
@@ -64,19 +67,22 @@ const Templates: React.FC<Props> = ({
               <Icon icon="plus" size={16} /> New Template
             </TemplateAddButton>
             {templates.length > 0 &&
-              templates.map(t => (
-                <TemplateComponent key={t.id} onClick={() => handleTemplateSelect(t)}>
-                  {t.name}
-                  <StyledIcon
-                    icon="trash"
-                    size={16}
-                    onClick={e => {
-                      e?.stopPropagation();
-                      onTemplateRemove(t.id);
-                    }}
-                  />
-                </TemplateComponent>
-              ))}
+              templates.map(
+                t =>
+                  !(t.dataSource === "plateau" && isCustomProject) && (
+                    <TemplateComponent key={t.id} onClick={() => handleTemplateSelect(t)}>
+                      {t.name}
+                      <StyledIcon
+                        icon="trash"
+                        size={16}
+                        onClick={e => {
+                          e?.stopPropagation();
+                          onTemplateRemove(t.id);
+                        }}
+                      />
+                    </TemplateComponent>
+                  ),
+              )}
           </>
         )}
       </Content>
