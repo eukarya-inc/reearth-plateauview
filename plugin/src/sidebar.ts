@@ -926,7 +926,7 @@ function createLayer(dataset: DataCatalogItem, overrides?: any) {
     ),
     ...(overrides !== undefined
       ? mergeDefaultOverrides(defaultOverrides, omit(overrides, ["data", "infobox"]), format)
-      : format === "geojson" || format === "czml"
+      : format === "geojson" || format === "czml" || format === "gpx"
       ? defaultOverrides
       : format === "gtfs"
       ? proxyGTFS(overrides)
