@@ -69,7 +69,9 @@ const LocalDataTab: React.FC<Props> = ({ onOpenDetails, setSelectedLocalItem }) 
             id: id,
             dataID: id,
             description: `このファイルは今お使いのWebブラウザでのみ閲覧可能です。共有URLを用いて共有するには、公開Webサーバー上のデータを読み込む必要があります。${
-              format === "csv" ? "<br/>" : ""
+              format === "csv"
+                ? "<br/><br/>パフォーマンス上の問題が発生するため、6000レコード以上を含むCSVファイルをアップロードしないでください。"
+                : ""
             }`,
             name: filename,
             visible: true,

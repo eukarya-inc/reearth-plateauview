@@ -60,7 +60,9 @@ const WebDataTab: React.FC<Props> = ({ onOpenDetails, setSelectedWebItem }) => {
       id: id,
       dataID: id,
       description: `著作権や制約に関する情報などの詳細については、このデータの提供者にお問い合わせください。${
-        format === "csv" ? "<br/>" : ""
+        format === "csv"
+          ? "<br/><br/>パフォーマンス上の問題が発生するため、6000レコード以上を含むCSVファイルをアップロードしないでください。"
+          : ""
       }`,
       name: filename,
       url: dataUrl,
