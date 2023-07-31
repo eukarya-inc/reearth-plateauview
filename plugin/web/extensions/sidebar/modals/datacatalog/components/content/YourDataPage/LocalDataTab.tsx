@@ -69,11 +69,6 @@ const LocalDataTab: React.FC<Props> = ({ onOpenDetails, setSelectedLocalItem }) 
             noHeader: false,
           },
         },
-        marker: {
-          style: "point",
-          pointSize: 10,
-          pointColor: "#ff0000",
-        },
       };
     }
     return undefined;

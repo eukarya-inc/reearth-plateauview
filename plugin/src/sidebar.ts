@@ -925,7 +925,9 @@ function createLayer(dataset: DataCatalogItem, overrides?: any) {
       overrides?.infobox ?? {},
       infoboxGlobal,
     ),
-    ...(dataset.additionalData?.marker ? { marker: dataset.additionalData.marker } : {}),
+    ...(dataset.additionalData?.data?.csv?.latColume && dataset.additionalData?.data?.csv?.lngColumn
+      ? { marker: defaultMarkerAppearanceForCSV }
+      : {}),
     ...(overrides !== undefined
       ? mergeDefaultOverrides(defaultOverrides, omit(overrides, ["data", "infobox"]), format)
       : format === "geojson" || format === "czml" || format === "gpx"
@@ -967,4 +969,10 @@ const defaultOverrides = {
   polyline: {
     clampToGround: true,
   },
+};
+
+const defaultMarkerAppearanceForCSV = {
+  style: "point",
+  pointSize: 10,
+  pointColor: "#FFFFFF",
 };

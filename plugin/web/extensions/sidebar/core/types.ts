@@ -86,5 +86,4 @@ export type AdditionalData = {
       noHeader?: boolean;
     };
   };
-  marker?: any;
 };
