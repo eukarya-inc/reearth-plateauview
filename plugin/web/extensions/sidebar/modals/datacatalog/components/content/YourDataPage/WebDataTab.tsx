@@ -36,6 +36,8 @@ const WebDataTab: React.FC<Props> = ({ onOpenDetails, setSelectedWebItem }) => {
     return false;
   }, []);
 
+  const [isLoading, setLoading] = useState(false);
+
   const handleClick = useCallback(async () => {
     // Catalog Item
     const filename = dataUrl.substring(dataUrl.lastIndexOf("/") + 1);
@@ -44,11 +46,13 @@ const WebDataTab: React.FC<Props> = ({ onOpenDetails, setSelectedWebItem }) => {
 
     let additionalData: AdditionalData | undefined;
     if (format === "csv") {
+      setLoading(true);
       const csv = await fetch(dataUrl);
       if (csv.status === 200) {
         const content = await csv.text();
         additionalData = getAdditionalData(content, format);
       }
+      setLoading(false);
     }
 
     const item: UserDataItem = {
@@ -92,7 +96,7 @@ const WebDataTab: React.FC<Props> = ({ onOpenDetails, setSelectedWebItem }) => {
         />
       </Form.Item>
       <Form.Item style={{ textAlign: "right" }}>
-        <Button type="primary" htmlType="submit" onClick={handleClick}>
+        <Button type="primary" htmlType="submit" onClick={handleClick} loading={isLoading}>
           データの閲覧
         </Button>
       </Form.Item>
