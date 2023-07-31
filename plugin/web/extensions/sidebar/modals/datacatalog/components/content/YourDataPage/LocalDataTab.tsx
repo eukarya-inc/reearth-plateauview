@@ -7,6 +7,7 @@ import { RcFile } from "antd/lib/upload";
 import { useCallback, useMemo, useState } from "react";
 
 import FileTypeSelect, { fileFormats, FileType } from "./LocalFileTypeSelect";
+import { getAdditionalData } from "./utils";
 
 type Props = {
   onOpenDetails?: (data?: UserDataItem) => void;
@@ -45,35 +46,6 @@ const LocalDataTab: React.FC<Props> = ({ onOpenDetails, setSelectedLocalItem }) 
     return type;
   }, []);
 
-  const getAdditionalData = useCallback((content: string | undefined, format: string) => {
-    if (!content) return undefined;
-    if (format === "csv") {
-      const header = content.split("\r\n")[0];
-      const cols = header.split(",");
-      const latColumn = cols.find(col =>
-        ["latitude", "lat", "緯度", "北緯"].includes(col.toLowerCase()),
-      );
-      const lngColumn = cols.find(col =>
-        ["longitude", "lng", "lon", "経度", "東経"].includes(col.toLowerCase()),
-      );
-      const heightColumn = cols.find(col =>
-        ["height", "altitude", "alt", "高度"].includes(col.toLowerCase()),
-      );
-      if (!latColumn || !lngColumn) return undefined;
-      return {
-        data: {
-          csv: {
-            latColumn,
-            lngColumn,
-            heightColumn,
-            noHeader: false,
-          },
-        },
-      };
-    }
-    return undefined;
-  }, []);
-
   const beforeUpload = useCallback(
     (file: RcFile, files: RcFile[]) => {
       const reader = new FileReader();
@@ -96,8 +68,9 @@ const LocalDataTab: React.FC<Props> = ({ onOpenDetails, setSelectedLocalItem }) 
             type: "item",
             id: id,
             dataID: id,
-            description:
-              "このファイルは今お使いのWebブラウザでのみ閲覧可能です。共有URLを用いて共有するには、公開Webサーバー上のデータを読み込む必要があります。",
+            description: `このファイルは今お使いのWebブラウザでのみ閲覧可能です。共有URLを用いて共有するには、公開Webサーバー上のデータを読み込む必要があります。${
+              format === "csv" ? "<br/>" : ""
+            }`,
             name: filename,
             visible: true,
             url: url,
@@ -117,7 +90,7 @@ const LocalDataTab: React.FC<Props> = ({ onOpenDetails, setSelectedLocalItem }) 
       setFileList([...files]);
       return false;
     },
-    [fileType, onOpenDetails, setDataFormat, setSelectedLocalItem, getAdditionalData],
+    [fileType, onOpenDetails, setDataFormat, setSelectedLocalItem],
   );
 
   const props: UploadProps = useMemo(

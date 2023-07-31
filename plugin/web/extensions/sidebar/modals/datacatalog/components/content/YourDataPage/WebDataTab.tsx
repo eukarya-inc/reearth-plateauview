@@ -1,8 +1,10 @@
+import { AdditionalData } from "@web/extensions/sidebar/core/types";
 import { UserDataItem } from "@web/extensions/sidebar/modals/datacatalog/types";
 import { getExtension } from "@web/extensions/sidebar/utils/file";
 import { Input, Form, Button } from "@web/sharedComponents";
 import { useCallback, useState } from "react";
 
+import { getAdditionalData } from "./utils";
 import WebFileTypeSelect, { FileType, getSupportedType } from "./WebFileTypeSelect";
 
 type Props = {
@@ -38,16 +40,29 @@ const WebDataTab: React.FC<Props> = ({ onOpenDetails, setSelectedWebItem }) => {
     // Catalog Item
     const filename = dataUrl.substring(dataUrl.lastIndexOf("/") + 1);
     const id = "id" + Math.random().toString(16).slice(2);
+    const format = setDataFormat(fileType, filename);
+
+    let additionalData: AdditionalData | undefined;
+    if (format === "csv") {
+      const csv = await fetch(dataUrl);
+      if (csv.status === 200) {
+        const content = await csv.text();
+        additionalData = getAdditionalData(content, format);
+      }
+    }
+
     const item: UserDataItem = {
       type: "item",
       id: id,
       dataID: id,
-      description:
-        "著作権や制約に関する情報などの詳細については、このデータの提供者にお問い合わせください。",
+      description: `著作権や制約に関する情報などの詳細については、このデータの提供者にお問い合わせください。${
+        format === "csv" ? "<br/>" : ""
+      }`,
       name: filename,
       url: dataUrl,
       visible: true,
-      format: setDataFormat(fileType, filename),
+      format,
+      additionalData,
     };
     const requireLayerName = needsLayerName(dataUrl);
     if (onOpenDetails) onOpenDetails(item, requireLayerName);
