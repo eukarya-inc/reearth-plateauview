@@ -925,7 +925,7 @@ function createLayer(dataset: DataCatalogItem, overrides?: any) {
       overrides?.infobox ?? {},
       infoboxGlobal,
     ),
-    ...(dataset.additionalData?.data?.csv?.latColume && dataset.additionalData?.data?.csv?.lngColumn
+    ...(dataset.additionalData?.data?.csv?.latColumn && dataset.additionalData?.data?.csv?.lngColumn
       ? { marker: defaultMarkerAppearanceForCSV }
       : {}),
     ...(overrides !== undefined

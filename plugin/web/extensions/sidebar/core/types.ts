@@ -80,7 +80,7 @@ export type BuildingSearch = {
 export type AdditionalData = {
   data?: {
     csv?: {
-      latColume?: string;
+      latColumn?: string;
       lngColumn?: string;
       heightColumn?: string;
       noHeader?: boolean;
