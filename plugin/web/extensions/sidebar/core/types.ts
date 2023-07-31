@@ -17,7 +17,8 @@ export type DataCatalogGroup = {
   children: DataCatalogTreeItem[];
 };
 
-export type DataCatalogItem = RawDataCatalogItem & Data & { dataSource?: DataSource };
+export type DataCatalogItem = RawDataCatalogItem &
+  Data & { dataSource?: DataSource; additionalData?: AdditionalData };
 
 export type DataCatalogTreeItem = DataCatalogGroup | DataCatalogItem;
 
@@ -74,3 +75,16 @@ export type BuildingSearch = {
     updatedAt?: Date;
   };
 }[];
+
+// ****** Additional Data ******
+export type AdditionalData = {
+  data?: {
+    csv?: {
+      latColume?: string;
+      lngColumn?: string;
+      heightColumn?: string;
+      noHeader?: boolean;
+    };
+  };
+  marker?: any;
+};

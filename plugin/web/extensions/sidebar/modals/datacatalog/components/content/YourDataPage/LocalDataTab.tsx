@@ -45,6 +45,40 @@ const LocalDataTab: React.FC<Props> = ({ onOpenDetails, setSelectedLocalItem }) 
     return type;
   }, []);
 
+  const getAdditionalData = useCallback((content: string | undefined, format: string) => {
+    if (!content) return undefined;
+    if (format === "csv") {
+      const header = content.split("\r\n")[0];
+      const cols = header.split(",");
+      const latColumn = cols.find(col =>
+        ["latitude", "lat", "緯度", "北緯"].includes(col.toLowerCase()),
+      );
+      const lngColumn = cols.find(col =>
+        ["longitude", "lng", "lon", "経度", "東経"].includes(col.toLowerCase()),
+      );
+      const heightColumn = cols.find(col =>
+        ["height", "altitude", "alt", "高度"].includes(col.toLowerCase()),
+      );
+      if (!latColumn || !lngColumn) return undefined;
+      return {
+        data: {
+          csv: {
+            latColumn,
+            lngColumn,
+            heightColumn,
+            noHeader: false,
+          },
+        },
+        marker: {
+          style: "point",
+          pointSize: 10,
+          pointColor: "#ff0000",
+        },
+      };
+    }
+    return undefined;
+  }, []);
+
   const beforeUpload = useCallback(
     (file: RcFile, files: RcFile[]) => {
       const reader = new FileReader();
@@ -55,13 +89,14 @@ const LocalDataTab: React.FC<Props> = ({ onOpenDetails, setSelectedLocalItem }) 
           // Catalog Item
           const filename = file.name;
           const id = "id" + Math.random().toString(16).slice(2);
+          const content = reader.result?.toString();
           const url = (() => {
-            const content = reader.result?.toString();
             if (!content) {
               return;
             }
             return "data:text/plain;charset=UTF-8," + encodeURIComponent(content);
           })();
+          const format = setDataFormat(fileType, filename);
           const item: UserDataItem = {
             type: "item",
             id: id,
@@ -71,7 +106,8 @@ const LocalDataTab: React.FC<Props> = ({ onOpenDetails, setSelectedLocalItem }) 
             name: filename,
             visible: true,
             url: url,
-            format: setDataFormat(fileType, filename),
+            format,
+            additionalData: getAdditionalData(content, format),
           };
           if (onOpenDetails) onOpenDetails(item);
           if (setSelectedLocalItem) setSelectedLocalItem(item);
@@ -86,7 +122,7 @@ const LocalDataTab: React.FC<Props> = ({ onOpenDetails, setSelectedLocalItem }) 
       setFileList([...files]);
       return false;
     },
-    [fileType, onOpenDetails, setDataFormat, setSelectedLocalItem],
+    [fileType, onOpenDetails, setDataFormat, setSelectedLocalItem, getAdditionalData],
   );
 
   const props: UploadProps = useMemo(
