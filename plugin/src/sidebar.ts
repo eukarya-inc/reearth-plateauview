@@ -884,6 +884,7 @@ function createLayer(dataset: DataCatalogItem, overrides?: any) {
       (["tran", "usecase"].includes(dataset.type_en) && format === "mvt")
         ? { jsonProperties: ["attributes"] }
         : {}),
+      ...(dataset.additionalData?.data?.csv ? { csv: dataset.additionalData.data.csv } : {}),
       ...(overrides?.data || {}),
     },
     visible: true,
@@ -924,6 +925,9 @@ function createLayer(dataset: DataCatalogItem, overrides?: any) {
       overrides?.infobox ?? {},
       infoboxGlobal,
     ),
+    ...(dataset.additionalData?.data?.csv?.latColumn && dataset.additionalData?.data?.csv?.lngColumn
+      ? { marker: defaultMarkerAppearanceForCSV }
+      : {}),
     ...(overrides !== undefined
       ? mergeDefaultOverrides(defaultOverrides, omit(overrides, ["data", "infobox"]), format)
       : format === "geojson" || format === "czml" || format === "gpx"
@@ -965,4 +969,10 @@ const defaultOverrides = {
   polyline: {
     clampToGround: true,
   },
+};
+
+const defaultMarkerAppearanceForCSV = {
+  style: "point",
+  pointSize: 10,
+  pointColor: "#FFFFFF",
 };
