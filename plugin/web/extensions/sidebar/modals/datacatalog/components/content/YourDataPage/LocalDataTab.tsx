@@ -7,6 +7,7 @@ import { RcFile } from "antd/lib/upload";
 import { useCallback, useMemo, useState } from "react";
 
 import FileTypeSelect, { fileFormats, FileType } from "./LocalFileTypeSelect";
+import { getAdditionalData } from "./utils";
 
 type Props = {
   onOpenDetails?: (data?: UserDataItem) => void;
@@ -55,23 +56,28 @@ const LocalDataTab: React.FC<Props> = ({ onOpenDetails, setSelectedLocalItem }) 
           // Catalog Item
           const filename = file.name;
           const id = "id" + Math.random().toString(16).slice(2);
+          const content = reader.result?.toString();
           const url = (() => {
-            const content = reader.result?.toString();
             if (!content) {
               return;
             }
             return "data:text/plain;charset=UTF-8," + encodeURIComponent(content);
           })();
+          const format = setDataFormat(fileType, filename);
           const item: UserDataItem = {
             type: "item",
             id: id,
             dataID: id,
-            description:
-              "このファイルは今お使いのWebブラウザでのみ閲覧可能です。共有URLを用いて共有するには、公開Webサーバー上のデータを読み込む必要があります。",
+            description: `このファイルは今お使いのWebブラウザでのみ閲覧可能です。共有URLを用いて共有するには、公開Webサーバー上のデータを読み込む必要があります。${
+              format === "csv"
+                ? "<br/><br/>パフォーマンス上の問題が発生するため、6000レコード以上を含むCSVファイルをアップロードしないでください。"
+                : ""
+            }`,
             name: filename,
             visible: true,
             url: url,
-            format: setDataFormat(fileType, filename),
+            format,
+            additionalData: getAdditionalData(content, format),
           };
           if (onOpenDetails) onOpenDetails(item);
           if (setSelectedLocalItem) setSelectedLocalItem(item);

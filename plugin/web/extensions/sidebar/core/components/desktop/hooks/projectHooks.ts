@@ -317,21 +317,27 @@ export default ({
   );
 
   const fetchedSharedProject = useRef(false);
+  const fetchingSharedProject = useRef(false);
 
   useEffect(() => {
     if (
       (!isCustomProject && (!plateauBackendURL || !plateuProjectName)) ||
       (isCustomProject && (!customBackendURL || !customBackendProjectName)) ||
-      fetchedSharedProject.current
+      fetchedSharedProject.current ||
+      fetchingSharedProject.current
     )
       return;
 
     if (projectID) {
+      fetchingSharedProject.current = true;
       (async () => {
         const backendURL = isCustomProject ? customBackendURL : plateauBackendURL;
         const backendProjectName = isCustomProject ? customBackendProjectName : plateuProjectName;
         const res = await fetch(`${backendURL}/share/${backendProjectName}/${projectID}`);
-        if (res.status !== 200) return;
+        if (res.status !== 200) {
+          fetchingSharedProject.current = false;
+          return;
+        }
         const data = await res.json();
         if (data) {
           (data.datasets as Data[]).reverse().forEach(d => {
@@ -343,6 +349,7 @@ export default ({
           handleProjectSceneUpdate(data.sceneOverrides);
         }
         fetchedSharedProject.current = true;
+        fetchingSharedProject.current = false;
       })();
     }
   }, [
