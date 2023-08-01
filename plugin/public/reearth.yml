@@ -68,6 +68,13 @@ extensions:
               type: url
               title: Logo File
               ui: image
+        - id: welcomePage
+          title: Welcome Page
+          fields:
+            - id: welcomePageDisabled
+              type: bool
+              title: Disable
+              defaultValue: false
     widgetLayout:
       defaultLocation:
         zone: outer
