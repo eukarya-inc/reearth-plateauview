@@ -69,7 +69,7 @@ extensions:
               title: Logo File
               ui: image
         - id: welcomePage
-          title: Welcome Page
+          title: ようこそ画面
           fields:
             - id: welcomePageDisabled
               type: bool
