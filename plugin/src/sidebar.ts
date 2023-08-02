@@ -117,6 +117,8 @@ const sidebarInstance: PluginExtensionInstance = reearth.plugins.instances.find(
   (i: PluginExtensionInstance) => i.id === reearth.widget.id,
 );
 
+const welcomePageEnabled = !reearth.widget.property.welcomePage?.welcomePageDisabled;
+
 // ************************************************
 // initializations
 
@@ -141,7 +143,7 @@ if (
     reearth.clientStorage.setAsync("isMobile", false);
   }
   reearth.clientStorage.getAsync("doNotShowWelcome").then((value: any) => {
-    if (!value && !inEditor()) {
+    if (!value && !inEditor() && welcomePageEnabled) {
       reearth.modal.show(welcomeScreenHtml, {
         width: reearth.viewport.width,
         height: reearth.viewport.height,

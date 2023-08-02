@@ -68,6 +68,13 @@ extensions:
               type: url
               title: Logo File
               ui: image
+        - id: welcomePage
+          title: ようこそ画面
+          fields:
+            - id: welcomePageDisabled
+              type: bool
+              title: 非表示
+              defaultValue: false
     widgetLayout:
       defaultLocation:
         zone: outer
