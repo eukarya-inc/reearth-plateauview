@@ -73,7 +73,7 @@ extensions:
           fields:
             - id: welcomePageDisabled
               type: bool
-              title: Disable
+              title: 非表示
               defaultValue: false
     widgetLayout:
       defaultLocation:
