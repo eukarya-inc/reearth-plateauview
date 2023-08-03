@@ -904,6 +904,7 @@ function createLayer(dataset: DataCatalogItem, overrides?: any) {
         "tnm",
         "ifld",
         "rail",
+        "brid",
       ].includes(dataset.type_en)
         ? {
             blocks: [

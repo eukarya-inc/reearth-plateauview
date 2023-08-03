@@ -309,4 +309,6 @@ export const commonPropertiesMap: { [key: string]: string[] } = {
   lsld: ["gml_id"],
   // 鉄道モデル
   rail: ["gml_id"],
+  // 橋梁モデル
+  brid: ["gml_id"],
 };
