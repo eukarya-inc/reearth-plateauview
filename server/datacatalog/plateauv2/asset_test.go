@@ -226,6 +226,18 @@ func TestAssetNameFrom(t *testing.T) {
 		LOD:       "2",
 		Ext:       ".zip",
 	}, AssetNameFrom("22203_numazu-shi_2022_3dtiles_1_op_ex-fport-shizuragyoko-cons_lod2.zip"))
+
+	assert.Equal(t, AssetName{
+		CityCode:  "01100",
+		CityEn:    "sapporo-shi",
+		Year:      "2020",
+		Format:    "3dtiles",
+		Op:        "4_op",
+		Feature:   "ex",
+		FeatureEx: []string{"port", "hogehoge", "hoge"},
+		Ext:       ".zip",
+		NoTexture: true,
+	}, AssetNameFrom("01100_sapporo-shi_2020_3dtiles_4_op_ex-port-hogehoge-hoge_no_texture.zip"))
 }
 
 func TestAssetName_String(t *testing.T) {

@@ -93,9 +93,13 @@ func AssetNameFrom(name string) (a AssetName) {
 		a.Ex = strings.TrimSuffix(a.Ex, "_low_texture")
 	}
 
-	a.NoTexture = strings.HasSuffix(a.Ex, "_no_texture")
+	a.NoTexture = strings.HasSuffix(a.Ex, "_no_texture") || a.Ex == "no_texture"
 	if a.NoTexture {
-		a.Ex = strings.TrimSuffix(a.Ex, "_no_texture")
+		if a.Ex == "no_texture" {
+			a.Ex = ""
+		} else {
+			a.Ex = strings.TrimSuffix(a.Ex, "_no_texture")
+		}
 	}
 
 	lodm := reLod.FindStringSubmatch(a.Ex)

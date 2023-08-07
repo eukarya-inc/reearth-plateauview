@@ -105,12 +105,11 @@ func (b DataCatalogItemBuilder) itemOverride(g assetGroup, a asset, desc Descrip
 				o.Name = b.Options.Type
 			}
 		} else {
-			notexture := ""
-			if a.Name.NoTexture {
-				notexture = "（テクスチャなし）"
-			}
+			o.Name = fmt.Sprintf("LOD%s", a.Name.LOD)
+		}
 
-			o.Name = fmt.Sprintf("LOD%s%s", a.Name.LOD, notexture)
+		if a.Name.NoTexture {
+			o.Name += "（テクスチャなし）"
 		}
 	}
 
@@ -291,6 +290,7 @@ func (b *DataCatalogItemBuilder) dataCatalogItem(a asset, g assetGroup, desc str
 	if !b.Options.OmitGroupNameFromID {
 		gname = g.Name
 	}
+
 	id := b.IntermediateItem.id(a.Name, gname)
 	if id == "" {
 		return nil

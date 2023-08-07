@@ -1244,9 +1244,11 @@ func TestExtra(t *testing.T) {
 			`01100_sapporo-shi_2020_mvt_4_op_ex-port-hogehoge-hoge_lod1.zip
 @layer: layer1
 説明2`,
-			`01100_sapporo-shi_2020_mvt_4_op_ex-port-hogehoge-hoge_lod2.zip
+			`01100_sapporo-shi_2020_mvt_4_op_ex-port-hogehoge-hoge_lod2_no_texture.zip
 @layer: layer1, layer2
 説明3`,
+			`01100_sapporo-shi_2020_3dtiles_4_op_ex-port-hogehoge-hoge_no_texture.zip
+説明4`,
 		},
 		OpenDataURL: "https://example.com",
 		Extra: []*cms.PublicAsset{
@@ -1257,7 +1259,10 @@ func TestExtra(t *testing.T) {
 				URL: "https://example.com/01100_sapporo-shi_2020_mvt_4_op_ex-port-hogehoge-hoge_lod1.zip",
 			},
 			{
-				URL: "https://example.com/01100_sapporo-shi_2020_mvt_4_op_ex-port-hogehoge-hoge_lod2.zip",
+				URL: "https://example.com/01100_sapporo-shi_2020_mvt_4_op_ex-port-hogehoge-hoge_lod2_no_texture.zip",
+			},
+			{
+				URL: "https://example.com/01100_sapporo-shi_2020_3dtiles_4_op_ex-port-hogehoge-hoge_no_texture.zip",
 			},
 		},
 	}
@@ -1298,14 +1303,18 @@ func TestExtra(t *testing.T) {
 			CityCode:    "01100",
 			Type:        "その他のデータセット",
 			TypeEn:      "ex",
-			Description: "説明2",
-			URL:         "https://example.com/01100_sapporo-shi_2020_mvt_4_op_ex-port-hogehoge-hoge_lod1/{z}/{x}/{y}.mvt",
-			Layers:      []string{"layer1"},
+			Description: "説明4",
+			URL:         "https://example.com/01100_sapporo-shi_2020_3dtiles_4_op_ex-port-hogehoge-hoge_no_texture/tileset.json",
 			OpenDataURL: "https://example.com",
 			Year:        2020,
-			Format:      "mvt",
+			Format:      "3dtiles",
 			Config: DataCatalogItemConfig{
 				Data: []DataCatalogItemConfigItem{
+					{
+						Name: "その他のデータセット1（テクスチャなし）",
+						URL:  "https://example.com/01100_sapporo-shi_2020_3dtiles_4_op_ex-port-hogehoge-hoge_no_texture/tileset.json",
+						Type: "3dtiles",
+					},
 					{
 						Name:   "LOD1",
 						URL:    "https://example.com/01100_sapporo-shi_2020_mvt_4_op_ex-port-hogehoge-hoge_lod1/{z}/{x}/{y}.mvt",
@@ -1313,8 +1322,8 @@ func TestExtra(t *testing.T) {
 						Layers: []string{"layer1"},
 					},
 					{
-						Name:   "LOD2",
-						URL:    "https://example.com/01100_sapporo-shi_2020_mvt_4_op_ex-port-hogehoge-hoge_lod2/{z}/{x}/{y}.mvt",
+						Name:   "LOD2（テクスチャなし）",
+						URL:    "https://example.com/01100_sapporo-shi_2020_mvt_4_op_ex-port-hogehoge-hoge_lod2_no_texture/{z}/{x}/{y}.mvt",
 						Type:   "mvt",
 						Layers: []string{"layer1", "layer2"},
 					},
