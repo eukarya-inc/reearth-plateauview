@@ -53,8 +53,7 @@ reearth.on("pluginmessage", (pluginMessage: PluginMessage) => {
         action: "fillData",
         payload: {
           properties: reearth.layers.selectedFeature.properties,
-          template: pluginMessage.data.payload,
-          fldInfo: pluginMessage.data.payload?.fldInfo,
+          ...pluginMessage.data.payload,
         },
       });
     } else {

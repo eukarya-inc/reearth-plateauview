@@ -9,7 +9,7 @@ import {
 import { getActiveFieldIDs, processDatasetToAdd } from "@web/extensions/sidebar/utils/dataset";
 import { useCallback, useEffect, useRef, useState } from "react";
 
-import { BuildingSearch, Data, DataCatalogItem, FldInfo, Template } from "../../../types";
+import { BuildingSearch, Data, DataCatalogItem, Template } from "../../../types";
 import {
   StoryItem,
   Story as FieldStory,
@@ -287,12 +287,12 @@ export default ({
 
   const handleInfoboxFieldsFetch = useCallback(
     (dataID: string) => {
-      let fields: (Template & { fldInfo?: FldInfo }) | undefined;
+      let template: Template | undefined;
       const catalogItem = project.datasets?.find(d => d.dataID === dataID);
       if (catalogItem) {
         const name = catalogItem.type;
         const dataType = catalogItem.type_en;
-        fields = infoboxTemplates?.find(
+        template = infoboxTemplates?.find(
           ft => ft.type === "infobox" && ft.dataType === dataType,
         ) ?? {
           id: "",
@@ -301,16 +301,18 @@ export default ({
           dataType,
           fields: [],
         };
-
-        fields.fldInfo = {
-          name: catalogItem.name,
-          datasetName: catalogItem.selectedDataset?.name,
-        };
       }
 
       postMsg({
         action: "infoboxFieldsFetch",
-        payload: fields,
+        payload: {
+          template,
+          fldInfo: {
+            name: catalogItem?.name,
+            datasetName: catalogItem?.selectedDataset?.name,
+          },
+          displayTypeName: catalogItem?.type,
+        },
       });
     },
     [project.datasets, infoboxTemplates],
