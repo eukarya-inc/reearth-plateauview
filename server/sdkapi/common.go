@@ -1,7 +1,9 @@
 package sdkapi
 
 import (
+	"encoding/csv"
 	"fmt"
+	"io"
 	"net/url"
 	"path"
 	"regexp"
@@ -13,6 +15,7 @@ import (
 	"github.com/mitchellh/mapstructure"
 	cms "github.com/reearth/reearth-cms-api/go"
 	"github.com/reearth/reearthx/log"
+	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
 	"golang.org/x/exp/slices"
 )
@@ -289,8 +292,8 @@ type MaxLODColumn struct {
 type MaxLODMap map[string]map[string]MaxLODMapItem
 
 type MaxLODMapItem struct {
-	MaxLOD float64 `json:"maxLod"`
-	File   string  `json:"file"`
+	MaxLOD float64
+	Files  []string
 }
 
 func (mc MaxLODColumns) Map() MaxLODMap {
@@ -301,9 +304,16 @@ func (mc MaxLODColumns) Map() MaxLODMap {
 			m[c.Type] = map[string]MaxLODMapItem{}
 		}
 		t := m[c.Type]
-		t[c.Code] = MaxLODMapItem{
-			MaxLOD: c.MaxLOD,
-			File:   c.File,
+		if _, ok := t[c.Code]; !ok {
+			t[c.Code] = MaxLODMapItem{
+				MaxLOD: c.MaxLOD,
+				Files:  []string{c.File},
+			}
+		} else {
+			t[c.Code] = MaxLODMapItem{
+				MaxLOD: c.MaxLOD,
+				Files:  append(t[c.Code].Files, c.File),
+			}
 		}
 	}
 
@@ -319,20 +329,23 @@ func (mm MaxLODMap) Files(urls []*url.URL) (r FilesResponse) {
 
 		for code, item := range m {
 			prefix := fmt.Sprintf("%s_%s_", code, ty)
-			u, ok := lo.Find(urls, func(u *url.URL) bool {
-				if item.File != "" {
-					return strings.HasSuffix(u.Path, item.File)
-				}
-				// prefix_xxx.gml
-				return strings.HasPrefix(path.Base(u.Path), prefix) && path.Ext(u.Path) == ".gml"
-			})
-			if ok {
-				r[ty] = append(r[ty], File{
-					Code:   code,
-					URL:    u.String(),
-					MaxLOD: item.MaxLOD,
+
+			for _, f := range item.Files {
+				u, ok := lo.Find(urls, func(u *url.URL) bool {
+					if f != "" {
+						return strings.HasSuffix(u.Path, f)
+					}
+					return strings.HasPrefix(path.Base(u.Path), prefix) && path.Ext(u.Path) == ".gml" // prefix_xxx.gml
 				})
+				if ok {
+					r[ty] = append(r[ty], File{
+						Code:   code,
+						URL:    u.String(),
+						MaxLOD: item.MaxLOD,
+					})
+				}
 			}
+
 		}
 		slices.SortFunc(r[ty], func(i, j File) bool {
 			return i.Code < j.Code
@@ -459,4 +472,66 @@ func integrationAssetToAsset(a any) *cms.Asset {
 		return nil
 	}
 	return pa
+}
+
+func ReadMaxLODCSV(b io.Reader) (MaxLODColumns, error) {
+	r := csv.NewReader(b)
+	r.ReuseRecord = true
+	var results MaxLODColumns
+	for {
+		c, err := r.Read()
+		if err == io.EOF {
+			break
+		}
+
+		if err != nil {
+			return nil, fmt.Errorf("failed to read csv: %w", err)
+		}
+
+		if len(c) < 3 || !isInt(c[0]) {
+			continue
+		}
+
+		m, err := strconv.ParseFloat(c[2], 64)
+		if err != nil {
+			continue
+		}
+
+		f := ""
+		if len(c) > 3 {
+			f = c[3]
+		}
+
+		results = append(results, MaxLODColumn{
+			Code:   c[0],
+			Type:   c[1],
+			MaxLOD: m,
+			File:   f,
+		})
+	}
+
+	return results, nil
+}
+
+func MaxLODFiles(maxLOD MaxLODColumns, assetPaths []string, assetBase *url.URL) FilesResponse {
+	files := lo.FilterMap(assetPaths, func(u string, _ int) (*url.URL, bool) {
+		if path.Ext(u) != ".gml" {
+			return nil, false
+		}
+
+		u2, err := url.Parse(u)
+		if err != nil {
+			return nil, false
+		}
+
+		if assetBase == nil {
+			return u2, true
+		}
+
+		fu := util.CloneRef(assetBase)
+		fu.Path = path.Join(fu.Path, u)
+		return fu, true
+	})
+
+	return maxLOD.Map().Files(files)
 }

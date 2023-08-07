@@ -2,17 +2,13 @@ package sdkapi
 
 import (
 	"context"
-	"encoding/csv"
 	"fmt"
-	"io"
 	"net/url"
 	"path"
-	"strconv"
 
 	cms "github.com/reearth/reearth-cms-api/go"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/util"
-	"github.com/samber/lo"
 )
 
 const limit = 10
@@ -120,66 +116,4 @@ func (c *CMS) FilesWithIntegrationAPI(ctx context.Context, model, id string) (Fi
 	}
 
 	return MaxLODFiles(maxlod, asset.File.Paths(), assetBase), nil
-}
-
-func ReadMaxLODCSV(b io.Reader) (MaxLODColumns, error) {
-	r := csv.NewReader(b)
-	r.ReuseRecord = true
-	var results MaxLODColumns
-	for {
-		c, err := r.Read()
-		if err == io.EOF {
-			break
-		}
-
-		if err != nil {
-			return nil, fmt.Errorf("failed to read csv: %w", err)
-		}
-
-		if len(c) < 3 || !isInt(c[0]) {
-			continue
-		}
-
-		m, err := strconv.ParseFloat(c[2], 64)
-		if err != nil {
-			continue
-		}
-
-		f := ""
-		if len(c) > 3 {
-			f = c[3]
-		}
-
-		results = append(results, MaxLODColumn{
-			Code:   c[0],
-			Type:   c[1],
-			MaxLOD: m,
-			File:   f,
-		})
-	}
-
-	return results, nil
-}
-
-func MaxLODFiles(maxLOD MaxLODColumns, assetPaths []string, assetBase *url.URL) FilesResponse {
-	files := lo.FilterMap(assetPaths, func(u string, _ int) (*url.URL, bool) {
-		if path.Ext(u) != ".gml" {
-			return nil, false
-		}
-
-		u2, err := url.Parse(u)
-		if err != nil {
-			return nil, false
-		}
-
-		if assetBase == nil {
-			return u2, true
-		}
-
-		fu := util.CloneRef(assetBase)
-		fu.Path = path.Join(fu.Path, u)
-		return fu, true
-	})
-
-	return maxLOD.Map().Files(files)
 }

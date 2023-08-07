@@ -2,6 +2,7 @@ package sdkapi
 
 import (
 	"context"
+	"encoding/json"
 	"testing"
 
 	cms "github.com/reearth/reearth-cms-api/go"
@@ -9,21 +10,23 @@ import (
 )
 
 func TestCMS(t *testing.T) {
-	cmsbase := ""
-	cmstoken := ""
-	cmsproject := ""
+	const base = ""
+	const token = ""
+	const project = ""
+	const cityid = ""
 
-	if cmsbase == "" || cmstoken == "" || cmsproject == "" {
+	if base == "" || token == "" || project == "" {
 		t.SkipNow()
+		return
 	}
 
 	ctx := context.Background()
-	cms := lo.Must(cms.New(cmsbase, cmstoken))
+	cms := lo.Must(cms.New(base, token))
 	c := &CMS{
-		Project:              cmsproject,
+		Project:              project,
 		IntegrationAPIClient: cms,
 	}
-	_ = lo.Must(c.Datasets(ctx, modelKey))
-	// res := lo.Must(cms.GetItemsByKey(ctx, "", modelKey, true))
-	// t.Log(string(lo.Must(json.MarshalIndent(res, "", "  "))))
+
+	res := lo.Must(c.Files(ctx, modelKey, cityid))
+	t.Log(string(lo.Must(json.MarshalIndent(res, "", "  "))))
 }

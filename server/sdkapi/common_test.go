@@ -52,20 +52,32 @@ func TestItems_DatasetResponse(t *testing.T) {
 func TestMaxLODColumns_Map(t *testing.T) {
 	assert.Equal(t, MaxLODMap{
 		"bldg": map[string]MaxLODMapItem{
-			"1": {MaxLOD: 1, File: ""},
-			"2": {MaxLOD: 1, File: "2_bldg_xxx_op.gml"},
+			"1": {MaxLOD: 1, Files: []string{""}},
+			"2": {MaxLOD: 1, Files: []string{"2_bldg_xxx_op.gml"}},
 		},
 		"veg": map[string]MaxLODMapItem{
-			"1": {MaxLOD: 2, File: ""},
+			"1": {MaxLOD: 2, Files: []string{""}},
 		},
 		"frn": map[string]MaxLODMapItem{
-			"2": {MaxLOD: 2, File: ""},
+			"2": {MaxLOD: 2, Files: []string{""}},
+		},
+		"dem": map[string]MaxLODMapItem{
+			"3": {MaxLOD: 1, Files: []string{
+				"533914_dem_6697_00_op.gml",
+				"533914_dem_6697_05_op.gml",
+				"533914_dem_6697_50_op.gml",
+				"533914_dem_6697_55_op.gml",
+			}},
 		},
 	}, MaxLODColumns{
 		{Code: "1", Type: "bldg", MaxLOD: 1},
 		{Code: "2", Type: "bldg", MaxLOD: 1, File: "2_bldg_xxx_op.gml"},
 		{Code: "1", Type: "veg", MaxLOD: 2},
 		{Code: "2", Type: "frn", MaxLOD: 2},
+		{Code: "3", Type: "dem", MaxLOD: 1, File: "533914_dem_6697_00_op.gml"},
+		{Code: "3", Type: "dem", MaxLOD: 1, File: "533914_dem_6697_05_op.gml"},
+		{Code: "3", Type: "dem", MaxLOD: 1, File: "533914_dem_6697_50_op.gml"},
+		{Code: "3", Type: "dem", MaxLOD: 1, File: "533914_dem_6697_55_op.gml"},
 	}.Map())
 }
 
@@ -82,25 +94,43 @@ func TestMaxLODMap_Files(t *testing.T) {
 		"fld": []File{
 			{Code: "3", URL: "https://example.com/aaa.gml", MaxLOD: 1},
 		},
+		"dem": []File{
+			{Code: "1111", URL: "https://example.com/00000_dem_1111_00_op.gml", MaxLOD: 1},
+			{Code: "1111", URL: "https://example.com/00000_dem_1111_05_op.gml", MaxLOD: 1},
+			{Code: "1111", URL: "https://example.com/00000_dem_1111_50_op.gml", MaxLOD: 1},
+			{Code: "1111", URL: "https://example.com/00000_dem_1111_55_op.gml", MaxLOD: 1},
+		},
 	}, MaxLODMap{
 		"bldg": map[string]MaxLODMapItem{
-			"2": {MaxLOD: 1, File: ""},
-			"1": {MaxLOD: 1, File: ""},
+			"2": {MaxLOD: 1, Files: []string{""}},
+			"1": {MaxLOD: 1, Files: []string{""}},
 		},
 		"veg": map[string]MaxLODMapItem{
-			"1": {MaxLOD: 2, File: ""},
+			"1": {MaxLOD: 2, Files: []string{""}},
 		},
 		"frn": map[string]MaxLODMapItem{
-			"2": {MaxLOD: 2, File: ""},
+			"2": {MaxLOD: 2, Files: []string{""}},
 		},
 		"fld": map[string]MaxLODMapItem{
-			"3": {MaxLOD: 1, File: "aaa.gml"},
+			"3": {MaxLOD: 1, Files: []string{"aaa.gml"}},
+		},
+		"dem": map[string]MaxLODMapItem{
+			"1111": {MaxLOD: 1, Files: []string{
+				"00000_dem_1111_00_op.gml",
+				"00000_dem_1111_05_op.gml",
+				"00000_dem_1111_50_op.gml",
+				"00000_dem_1111_55_op.gml",
+			}},
 		},
 	}.Files([]*url.URL{
 		lo.Must(url.Parse("https://example.com/1_bldg_xxx.gml")),
 		lo.Must(url.Parse("https://example.com/2_bldg_yyy.gml")),
 		lo.Must(url.Parse("https://example.com/1_veg_zzz.gml")),
 		lo.Must(url.Parse("https://example.com/aaa.gml")),
+		lo.Must(url.Parse("https://example.com/00000_dem_1111_00_op.gml")),
+		lo.Must(url.Parse("https://example.com/00000_dem_1111_05_op.gml")),
+		lo.Must(url.Parse("https://example.com/00000_dem_1111_50_op.gml")),
+		lo.Must(url.Parse("https://example.com/00000_dem_1111_55_op.gml")),
 	}))
 }
 
