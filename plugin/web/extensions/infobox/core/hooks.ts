@@ -11,6 +11,7 @@ export default () => {
   const [template, setTemplate] = useState<InfoboxTemplate | undefined>();
   const [fldInfo, setFldInfo] = useState<FldInfo | undefined>();
   const [properties, setProperties] = useState<Properties>();
+  const [displayTypeName, setDisplayTypeName] = useState<string>("");
 
   const [fields, setFields] = useState<Field[]>([]);
   const [editorTab, setEditorTab] = useState<EditorTab>("view");
@@ -114,7 +115,7 @@ export default () => {
         setTemplate(e.data.payload.template);
         setFldInfo(e.data.payload.fldInfo);
         setProperties(e.data.payload.properties);
-        setFldInfo(e.data.payload.fldInfo);
+        setDisplayTypeName(e.data.payload.displayTypeName ?? e.data.payload.template?.name ?? "");
         setDataState("ready");
         setEditorTab("view");
         break;
@@ -125,6 +126,7 @@ export default () => {
         setDataState("empty");
         setTemplate(undefined);
         setProperties({});
+        setDisplayTypeName("");
         break;
       case "saveFinish":
         setIsSaving(false);
@@ -189,6 +191,7 @@ export default () => {
     properties: actualProperties,
     fields,
     template,
+    displayTypeName,
     wrapperRef,
     isSaving,
     editorTab,

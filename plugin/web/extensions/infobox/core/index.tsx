@@ -12,6 +12,7 @@ const Infobox: React.FC = () => {
     properties,
     fields,
     template,
+    displayTypeName,
     wrapperRef,
     isSaving,
     editorTab,
@@ -32,6 +33,7 @@ const Infobox: React.FC = () => {
           {template &&
             (inEditor ? (
               <EditPanel
+                name={displayTypeName}
                 template={template}
                 fields={fields}
                 properties={properties}
@@ -48,7 +50,7 @@ const Infobox: React.FC = () => {
               />
             ) : (
               <ViewPanel
-                name={template.name}
+                name={displayTypeName}
                 fields={fields}
                 properties={properties}
                 commonProperties={commonProperties}

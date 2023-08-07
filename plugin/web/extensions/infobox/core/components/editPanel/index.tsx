@@ -9,6 +9,7 @@ import PropertyBrowser from "../common/PropertyBrowser";
 import FieldsEditor from "./FieldsEditor";
 
 type Props = {
+  name: string;
   properties?: Properties;
   fields: Field[];
   template: InfoboxTemplate;
@@ -25,7 +26,7 @@ type Props = {
 };
 
 const EditPanel: React.FC<Props> = ({
-  template,
+  name,
   fields,
   properties,
   isSaving,
@@ -50,7 +51,7 @@ const EditPanel: React.FC<Props> = ({
     <>
       <Header>
         <Tab active={editorTab === "view"} onClick={onTabView}>
-          {template.name}
+          {name}
         </Tab>
         <Tab active={editorTab === "edit"} onClick={onTabEdit}>
           <Icon icon="gearWheel" size={16} />
