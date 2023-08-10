@@ -37,26 +37,32 @@ func descFromAsset(an AssetName, descs []string, single bool) Description {
 func DescriptionFrom(d string) Description {
 	tags, rest := extractTags(strings.TrimSpace(d))
 
-	var orderr *int
+	var orderr, dorderr *int
 	order, _ := strconv.Atoi(tags["order"])
 	if order > 0 {
 		orderr = &order
 	}
 
+	dorder, _ := strconv.Atoi(tags["datasetOrder"])
+	if dorder != 0 {
+		dorderr = &dorder
+	}
+
 	return Description{
 		Override: Override{
-			Name:     tags["name"],
-			SubName:  tags["subname"],
-			Type:     tags["type"],
-			TypeEn:   tags["type_en"],
-			Type2:    tags["type2"],
-			Type2En:  tags["type2_en"],
-			Area:     tags["area"],
-			ItemName: tags["item_name"],
-			Group:    tags["group"],
-			Layers:   multipleValues(tags["layer"]),
-			Root:     tags["root"] == "true",
-			Order:    orderr,
+			Name:         tags["name"],
+			SubName:      tags["subname"],
+			Type:         tags["type"],
+			TypeEn:       tags["type_en"],
+			Type2:        tags["type2"],
+			Type2En:      tags["type2_en"],
+			Area:         tags["area"],
+			ItemName:     tags["item_name"],
+			Group:        tags["group"],
+			Layers:       multipleValues(tags["layer"]),
+			Root:         tags["root"] == "true",
+			Order:        orderr,
+			DatasetOrder: dorderr,
 		},
 		Desc: rest,
 	}

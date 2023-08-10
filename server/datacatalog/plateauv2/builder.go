@@ -222,9 +222,14 @@ func (b DataCatalogItemBuilder) Build() []*DataCatalogItem {
 					URL:    a.AssetURL(),
 					Type:   a.Name.Format,
 					Layers: override.LayersIfSupported(a.Name.Format),
+					Order:  lo.FromPtr(description.Override.DatasetOrder),
 				}
 			})
 		}
+
+		sort.SliceStable(config, func(i, j int) bool {
+			return config[i].Order < config[j].Order
+		})
 
 		dci := b.dataCatalogItem(
 			defaultAsset,
@@ -402,6 +407,7 @@ type DataCatalogItemConfigItem struct {
 	URL    string   `json:"url"`
 	Type   string   `json:"type"`
 	Layers []string `json:"layer,omitempty"`
+	Order  int      `json:"-"`
 }
 
 func searchIndexURLFrom(assets []*cms.PublicAsset, wardCode string) string {
