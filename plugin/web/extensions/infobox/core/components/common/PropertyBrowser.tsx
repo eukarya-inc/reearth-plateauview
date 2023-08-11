@@ -1,8 +1,10 @@
 import { cesium3DTilesAppearanceKeys } from "@web/extensions/infobox/core/utils";
 import type { Properties, Field } from "@web/extensions/infobox/types";
 import { styled } from "@web/theme";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import ReactJson from "react-json-view";
+
+import { replaceUnknownDate } from "../../utils";
 
 type DisplayItem = {
   path: string;
@@ -77,6 +79,15 @@ const PropertyBrowser: React.FC<Props> = ({
     setDisplayList(items);
   }, [fields, properties, commonProperties, attributesKey]);
 
+  const processedRawAttributes: JSON | undefined = useMemo(() => {
+    if (!attributesKey || !properties?.[attributesKey]) return undefined;
+    try {
+      return replaceUnknownDate(properties[attributesKey]);
+    } catch (error) {
+      return properties[attributesKey];
+    }
+  }, [properties, attributesKey]);
+
   return (
     <Wrapper>
       {displayList.map(field => (
@@ -85,10 +96,10 @@ const PropertyBrowser: React.FC<Props> = ({
           <Value>{field.value}</Value>
         </PropertyItem>
       ))}
-      {attributesKey && (
+      {processedRawAttributes && (
         <AttributesWrapper>
           <ReactJson
-            src={properties?.[attributesKey]}
+            src={processedRawAttributes}
             displayDataTypes={false}
             enableClipboard={false}
             displayObjectSize={false}
