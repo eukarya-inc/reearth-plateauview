@@ -1,6 +1,7 @@
 import { ActionType } from "../../types";
 
 export { getAttributes, getRootFields, commonPropertiesMap } from "./attributes";
+export { replaceUnknownDate } from "./clearfyDate";
 
 export function postMsg(action: ActionType, payload?: any) {
   if (parent === window) return;
