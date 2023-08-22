@@ -3,6 +3,7 @@ package plateauv2
 import (
 	"testing"
 
+	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -80,13 +81,24 @@ func TestDescFromAsset(t *testing.T) {
 	}, desc)
 }
 
+func TestDescriptionFrom(t *testing.T) {
+	assert.Equal(t, Description{
+		Desc: "aaa",
+		Override: Override{
+			Name:         "bbb",
+			DatasetOrder: lo.ToPtr(12),
+		},
+	}, DescriptionFrom("@name: bbb\n@datasetOrder: 12\n\naaa"))
+}
+
 func TestExtractTags(t *testing.T) {
-	tags, rest := extractTags("\n\n@name: CCC\n@aaa: bbb\n\n@type: DDD\n\n@layer: aaa,bbb,ccc\n\naaaa\nbbbb")
+	tags, rest := extractTags("\n\n@name: CCC\n@aaa: bbb\n\n@type: DDD\n\n@layer: aaa,bbb,ccc\n@order: 1\n\naaaa\nbbbb")
 	assert.Equal(t, map[string]string{
 		"name":  "CCC",
 		"aaa":   "bbb",
 		"type":  "DDD",
 		"layer": "aaa,bbb,ccc",
+		"order": "1",
 	}, tags)
 	assert.Equal(t, "aaaa\nbbbb", rest)
 

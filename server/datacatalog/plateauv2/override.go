@@ -3,21 +3,23 @@ package plateauv2
 import (
 	"github.com/eukarya-inc/reearth-plateauview/server/datacatalog/datacatalogutil"
 	"github.com/reearth/reearthx/util"
+	"github.com/samber/lo"
 )
 
 type Override struct {
-	Name     string
-	SubName  string
-	Type     string
-	TypeEn   string
-	Type2    string
-	Type2En  string
-	Area     string
-	ItemName string
-	Group    string
-	Layers   []string
-	Root     bool
-	Order    *int
+	Name         string
+	SubName      string
+	Type         string
+	TypeEn       string
+	Type2        string
+	Type2En      string
+	Area         string
+	ItemName     string
+	Group        string
+	Layers       []string
+	Root         bool
+	Order        *int
+	DatasetOrder *int
 }
 
 func (o Override) Merge(p Override) Override {
@@ -57,6 +59,9 @@ func (o Override) Merge(p Override) Override {
 	if o.Order == nil {
 		o.Order = util.CloneRef(p.Order)
 	}
+	if o.DatasetOrder == nil {
+		o.DatasetOrder = util.CloneRef(p.DatasetOrder)
+	}
 	return o
 }
 
@@ -71,12 +76,14 @@ func (o Override) Item() ItemOverride {
 	return ItemOverride{
 		Name:   o.ItemName,
 		Layers: o.Layers,
+		Order:  lo.FromPtr(o.DatasetOrder),
 	}
 }
 
 type ItemOverride struct {
 	Name   string
 	Layers []string
+	Order  int
 }
 
 func (o ItemOverride) Merge(p ItemOverride) ItemOverride {
