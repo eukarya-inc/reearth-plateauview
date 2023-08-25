@@ -882,7 +882,7 @@ function createLayer(dataset: DataCatalogItem, overrides?: any) {
       url,
       layers,
       ...(format === "wms" ? { parameters: { transparent: "true", format: "image/png" } } : {}),
-      ...(["luse", "lsld", "urf", "rail"].includes(dataset.type_en) ||
+      ...(["luse", "lsld", "urf", "rail", "wwy", "area"].includes(dataset.type_en) ||
       (["tran", "usecase"].includes(dataset.type_en) && format === "mvt")
         ? { jsonProperties: ["attributes"] }
         : {}),
@@ -905,6 +905,9 @@ function createLayer(dataset: DataCatalogItem, overrides?: any) {
         "ifld",
         "rail",
         "brid",
+        "cons",
+        "wwy",
+        "area",
       ].includes(dataset.type_en)
         ? {
             blocks: [
