@@ -311,4 +311,10 @@ export const commonPropertiesMap: { [key: string]: string[] } = {
   rail: ["gml_id"],
   // 橋梁モデル
   brid: ["gml_id"],
+  // その他の構造物モデル
+  cons: ["gml_id"],
+  // 交通（航路）モデル
+  wwy: ["gml_id"],
+  // 区域モデル
+  area: ["gml_id"],
 };
