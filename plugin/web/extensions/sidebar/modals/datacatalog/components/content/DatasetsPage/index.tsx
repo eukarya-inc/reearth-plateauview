@@ -94,6 +94,7 @@ const DatasetsPage: React.FC<Props> = ({
           dataset={selectedDataset}
           inEditor={inEditor}
           editable={editable}
+          dataSource={dataSource}
           addDisabled={addDisabled}
           onTagSelect={handleTagSelect}
           onDatasetAdd={onDatasetAdd}

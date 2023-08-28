@@ -314,6 +314,7 @@ const Catalog: React.FC<Props> = ({
           <DatasetDetails
             dataset={selectedDataset}
             isMobile={isMobile}
+            dataSource={selectedDataset?.dataSource ?? "plateau"}
             addDisabled={addDisabled}
             onDatasetAdd={onDatasetAdd}
           />
