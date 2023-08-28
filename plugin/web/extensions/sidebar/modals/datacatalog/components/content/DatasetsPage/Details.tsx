@@ -3,6 +3,7 @@ import DetailsComponent from "@web/extensions/sidebar/modals/datacatalog/compone
 import { Icon } from "@web/sharedComponents";
 import { styled } from "@web/theme";
 
+import { DataSource } from "../../../api/api";
 import { UserDataItem } from "../../../types";
 
 import { Tag as TagType } from "./Tags";
@@ -15,6 +16,7 @@ export type Props = {
   isMobile?: boolean;
   inEditor?: boolean;
   editable?: boolean;
+  dataSource: DataSource;
   addDisabled: (dataID: string) => boolean;
   onTagSelect?: (tag: TagType) => void;
   onDatasetAdd: (dataset: DataCatalogItem | UserDataItem, keepModalOpen?: boolean) => void;
@@ -27,6 +29,7 @@ const DatasetDetails: React.FC<Props> = ({
   inEditor,
   addDisabled,
   editable,
+  dataSource,
   // onTagSelect,
   onDatasetAdd,
   onDatasetPublish,
@@ -77,13 +80,15 @@ const DatasetDetails: React.FC<Props> = ({
         <br />
         <StyledP>データセットを選択してください</StyledP>
       </NoDataMain>
-      <NoDataFooter
-        onClick={() =>
-          window.open("https://www.geospatial.jp/ckan/dataset/plateau-tokyo23ku", "_blank")
-        }>
-        <Icon icon="newPage" size={16} />
-        <StyledP> オープンデータ・ダウンロード(G空間情報センターへのリンク)</StyledP>
-      </NoDataFooter>
+      {dataSource === "plateau" && (
+        <NoDataFooter
+          onClick={() =>
+            window.open("https://www.geospatial.jp/ckan/dataset/plateau-tokyo23ku", "_blank")
+          }>
+          <Icon icon="newPage" size={16} />
+          <StyledP> オープンデータ・ダウンロード(G空間情報センターへのリンク)</StyledP>
+        </NoDataFooter>
+      )}
     </NoData>
   );
 };
