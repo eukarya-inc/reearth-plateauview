@@ -24,6 +24,8 @@ var urfFeatureTypesData []byte
 var urfFeatureTypeMap map[string]string
 var urfFeatureTypes []string
 
+const category = "_plateau"
+
 func init() {
 	r := csv.NewReader(bom.NewReader(bytes.NewReader(urfFeatureTypesData)))
 	d := lo.Must(r.ReadAll())
@@ -380,6 +382,7 @@ func (b *DataCatalogItemBuilder) dataCatalogItem(a asset, g assetGroup, desc str
 		Root:        override.Root,
 		Order:       override.Order,
 		Group:       override.Group,
+		Category:    category,
 	}
 }
 

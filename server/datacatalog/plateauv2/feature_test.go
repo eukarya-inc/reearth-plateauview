@@ -79,6 +79,7 @@ func TestBldg(t *testing.T) {
 					},
 				},
 			},
+			Category: "_plateau",
 		},
 		{
 			ID:          "01100_sapporo-shi_01102_kita-ku_bldg",
@@ -113,6 +114,7 @@ func TestBldg(t *testing.T) {
 					},
 				},
 			},
+			Category: "_plateau",
 		},
 	}, i.DataCatalogItems(i.IntermediateItem(), "bldg"))
 
@@ -173,6 +175,7 @@ func TestBldg(t *testing.T) {
 					},
 				},
 			},
+			Category: "_plateau",
 		},
 	}, i.DataCatalogItems(i.IntermediateItem(), "bldg"))
 }
@@ -237,6 +240,7 @@ func TestTran(t *testing.T) {
 					},
 				},
 			},
+			Category: "_plateau",
 		},
 	}, i.DataCatalogItems(i.IntermediateItem(), "tran"))
 
@@ -283,6 +287,7 @@ func TestTran(t *testing.T) {
 					},
 				},
 			},
+			Category: "_plateau",
 		},
 	}, i.DataCatalogItems(i.IntermediateItem(), "tran"))
 }
@@ -338,6 +343,7 @@ func TestFrn(t *testing.T) {
 					},
 				},
 			},
+			Category: "_plateau",
 		},
 	}, i.DataCatalogItems(i.IntermediateItem(), "frn"))
 
@@ -383,6 +389,7 @@ func TestFrn(t *testing.T) {
 					},
 				},
 			},
+			Category: "_plateau",
 		},
 	}, i.DataCatalogItems(i.IntermediateItem(), "frn"))
 }
@@ -438,6 +445,7 @@ func TestVeg(t *testing.T) {
 					},
 				},
 			},
+			Category: "_plateau",
 		},
 	}, i.DataCatalogItems(i.IntermediateItem(), "veg"))
 
@@ -483,6 +491,7 @@ func TestVeg(t *testing.T) {
 					},
 				},
 			},
+			Category: "_plateau",
 		},
 	}, i.DataCatalogItems(i.IntermediateItem(), "veg"))
 }
@@ -521,6 +530,7 @@ func TestLuse(t *testing.T) {
 			Year:        2020,
 			Format:      "mvt",
 			Layers:      []string{"luse"},
+			Category:    "_plateau",
 		},
 	}, i.DataCatalogItems(i.IntermediateItem(), "luse"))
 }
@@ -559,6 +569,7 @@ func TestLsld(t *testing.T) {
 			Year:        2020,
 			Format:      "mvt",
 			Layers:      []string{"lsld"},
+			Category:    "_plateau",
 		},
 	}, i.DataCatalogItems(i.IntermediateItem(), "lsld"))
 }
@@ -611,6 +622,7 @@ func TestUrf(t *testing.T) {
 			Year:        2020,
 			Format:      "mvt",
 			Layers:      []string{"QuasiUrbanPlanningArea"},
+			Category:    "_plateau",
 		},
 		{
 			ID:          "01100_sapporo-shi_urf_AreaClassification",
@@ -630,6 +642,7 @@ func TestUrf(t *testing.T) {
 			Year:        2020,
 			Format:      "mvt",
 			Layers:      []string{"AreaClassification"},
+			Category:    "_plateau",
 		},
 		{
 			ID:          "01100_sapporo-shi_urf_DistrictsAndZones",
@@ -648,6 +661,7 @@ func TestUrf(t *testing.T) {
 			Year:        2020,
 			Format:      "mvt",
 			Layers:      []string{"DistrictsAndZones"},
+			Category:    "_plateau",
 		},
 		{
 			ID:          "01100_sapporo-shi_urf_XXX",
@@ -666,6 +680,7 @@ func TestUrf(t *testing.T) {
 			Year:        2020,
 			Format:      "mvt",
 			Layers:      []string{"XXX"},
+			Category:    "_plateau",
 		},
 	}, i.DataCatalogItems(i.IntermediateItem(), "urf"))
 }
@@ -747,6 +762,7 @@ func TestFld(t *testing.T) {
 					},
 				},
 			},
+			Category: "_plateau",
 		},
 		{
 			ID:          "01100_sapporo-shi_fld_natl_shinkawa_shinkawa_l1",
@@ -776,6 +792,7 @@ func TestFld(t *testing.T) {
 					},
 				},
 			},
+			Category: "_plateau",
 		},
 		{
 			ID:          "01100_sapporo-shi_fld_pref_shinkawa_shinkawa_l1",
@@ -806,6 +823,7 @@ func TestFld(t *testing.T) {
 					},
 				},
 			},
+			Category: "_plateau",
 		},
 		{
 			ID:          "01100_sapporo-shi_fld_pref_zfoobar_l2",
@@ -830,6 +848,7 @@ func TestFld(t *testing.T) {
 					},
 				},
 			},
+			Category: "_plateau",
 		},
 	}, i.DataCatalogItems(i.IntermediateItem(), "fld"))
 }
@@ -879,6 +898,7 @@ func TestTnm(t *testing.T) {
 			OpenDataURL: "https://example.com",
 			Year:        2020,
 			Format:      "3dtiles",
+			Category:    "_plateau",
 		},
 		{
 			ID:          "01100_sapporo-shi_tnm_02_1",
@@ -894,6 +914,7 @@ func TestTnm(t *testing.T) {
 			OpenDataURL: "https://example.com",
 			Year:        2020,
 			Format:      "3dtiles",
+			Category:    "_plateau",
 		},
 		{
 			ID:          "01100_sapporo-shi_tnm_03_1",
@@ -909,6 +930,7 @@ func TestTnm(t *testing.T) {
 			OpenDataURL: "https://example.com",
 			Year:        2020,
 			Format:      "3dtiles",
+			Category:    "_plateau",
 		},
 	}, i.DataCatalogItems(i.IntermediateItem(), "tnm"))
 }
@@ -954,6 +976,7 @@ func TestHtd(t *testing.T) {
 			OpenDataURL: "https://example.com",
 			Year:        2020,
 			Format:      "3dtiles",
+			Category:    "_plateau",
 		},
 		{
 			ID:          "01100_sapporo-shi_htd_02_1",
@@ -969,6 +992,7 @@ func TestHtd(t *testing.T) {
 			OpenDataURL: "https://example.com",
 			Year:        2020,
 			Format:      "3dtiles",
+			Category:    "_plateau",
 		},
 	}, i.DataCatalogItems(i.IntermediateItem(), "htd"))
 }
@@ -1014,6 +1038,7 @@ func TestIfld(t *testing.T) {
 			OpenDataURL: "https://example.com",
 			Year:        2020,
 			Format:      "3dtiles",
+			Category:    "_plateau",
 		},
 		{
 			ID:          "01100_sapporo-shi_ifld_02_1",
@@ -1029,6 +1054,7 @@ func TestIfld(t *testing.T) {
 			OpenDataURL: "https://example.com",
 			Year:        2020,
 			Format:      "3dtiles",
+			Category:    "_plateau",
 		},
 	}, i.DataCatalogItems(i.IntermediateItem(), "ifld"))
 }
@@ -1083,8 +1109,9 @@ func TestGen(t *testing.T) {
 					},
 				},
 			},
-			Root:  true,
-			Order: lo.ToPtr(100),
+			Root:     true,
+			Order:    lo.ToPtr(100),
+			Category: "_plateau",
 		},
 		{
 			ID:          "01100_sapporo-shi_gen_BBB_BBB",
@@ -1110,6 +1137,7 @@ func TestGen(t *testing.T) {
 					},
 				},
 			},
+			Category: "_plateau",
 		},
 	}, i.DataCatalogItems(i.IntermediateItem(), "gen"))
 }
@@ -1166,6 +1194,7 @@ func TestBrid(t *testing.T) {
 					},
 				},
 			},
+			Category: "_plateau",
 		},
 	}, i.DataCatalogItems(i.IntermediateItem(), "brid"))
 }
@@ -1222,6 +1251,7 @@ func TestRail(t *testing.T) {
 					},
 				},
 			},
+			Category: "_plateau",
 		},
 	}, i.DataCatalogItems(i.IntermediateItem(), "rail"))
 }
@@ -1293,6 +1323,7 @@ func TestExtra(t *testing.T) {
 					},
 				},
 			},
+			Category: "_plateau",
 		},
 		{
 			ID:          "01100_sapporo-shi_ex_port-hogehoge-hoge",
@@ -1331,6 +1362,7 @@ func TestExtra(t *testing.T) {
 					},
 				},
 			},
+			Category: "_plateau",
 		},
 	}, i.DataCatalogItems(i.IntermediateItem(), "extra"))
 }

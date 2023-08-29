@@ -27,4 +27,5 @@ type DataCatalogItem struct {
 	Order       *int     `json:"order,omitempty"`
 	Root        bool     `json:"root,omitempty"`
 	Group       string   `json:"group,omitempty"`
+	Category    string   `json:"category,omitempty"`
 }
