@@ -1271,28 +1271,34 @@ func TestExtra(t *testing.T) {
 @type_en: type
 @area: 地域
 説明1`,
+			`01100_sapporo-shi_2020_mvt_4_op_ex-port-hogehoge-hoge_lod2.zip
+@layer: layer2
+説明2`,
 			`01100_sapporo-shi_2020_mvt_4_op_ex-port-hogehoge-hoge_lod1.zip
 @layer: layer1
-説明2`,
+説明3`,
 			`01100_sapporo-shi_2020_mvt_4_op_ex-port-hogehoge-hoge_lod2_no_texture.zip
 @layer: layer1, layer2
 @datasetOrder: -1
-説明3`,
-			`01100_sapporo-shi_2020_3dtiles_4_op_ex-port-hogehoge-hoge_no_texture.zip
 説明4`,
+			`01100_sapporo-shi_2020_3dtiles_4_op_ex-port-hogehoge-hoge_no_texture.zip
+説明5`,
 		},
 		OpenDataURL: "https://example.com",
 		Extra: []*cms.PublicAsset{
-			{
+			{ // asset 1
 				URL: "https://example.com/01100_sapporo-shi_2020_3dtiles_4_op_ex-port-hogehoge-bldg_lod1.zip",
 			},
-			{
+			{ // asset 2
+				URL: "https://example.com/01100_sapporo-shi_2020_mvt_4_op_ex-port-hogehoge-hoge_lod2.zip",
+			},
+			{ // asset 3
 				URL: "https://example.com/01100_sapporo-shi_2020_mvt_4_op_ex-port-hogehoge-hoge_lod1.zip",
 			},
-			{
+			{ // asset 4
 				URL: "https://example.com/01100_sapporo-shi_2020_mvt_4_op_ex-port-hogehoge-hoge_lod2_no_texture.zip",
 			},
-			{
+			{ // asset 5
 				URL: "https://example.com/01100_sapporo-shi_2020_3dtiles_4_op_ex-port-hogehoge-hoge_no_texture.zip",
 			},
 		},
@@ -1316,7 +1322,7 @@ func TestExtra(t *testing.T) {
 			Format:      "3dtiles",
 			Config: DataCatalogItemConfig{
 				Data: []DataCatalogItemConfigItem{
-					{
+					{ // asset 1
 						Name: "LOD1",
 						URL:  "https://example.com/01100_sapporo-shi_2020_3dtiles_4_op_ex-port-hogehoge-bldg_lod1/tileset.json",
 						Type: "3dtiles",
@@ -1335,30 +1341,36 @@ func TestExtra(t *testing.T) {
 			CityCode:    "01100",
 			Type:        "その他のデータセット",
 			TypeEn:      "ex",
-			Description: "説明4",
-			URL:         "https://example.com/01100_sapporo-shi_2020_3dtiles_4_op_ex-port-hogehoge-hoge_no_texture/tileset.json",
 			OpenDataURL: "https://example.com",
 			Year:        2020,
-			Format:      "3dtiles",
+			Description: "説明4",
+			URL:         "https://example.com/01100_sapporo-shi_2020_mvt_4_op_ex-port-hogehoge-hoge_lod2_no_texture/{z}/{x}/{y}.mvt",
+			Format:      "mvt",
+			Layers:      []string{"layer1", "layer2"},
 			Config: DataCatalogItemConfig{
 				Data: []DataCatalogItemConfigItem{
-					{
+					{ // asset 4
 						Name:   "LOD2（テクスチャなし）",
 						URL:    "https://example.com/01100_sapporo-shi_2020_mvt_4_op_ex-port-hogehoge-hoge_lod2_no_texture/{z}/{x}/{y}.mvt",
 						Type:   "mvt",
 						Layers: []string{"layer1", "layer2"},
-						Order:  -1,
 					},
-					{
-						Name: "その他のデータセット1（テクスチャなし）",
-						URL:  "https://example.com/01100_sapporo-shi_2020_3dtiles_4_op_ex-port-hogehoge-hoge_no_texture/tileset.json",
-						Type: "3dtiles",
+					{ // asset 2
+						Name:   "LOD2",
+						URL:    "https://example.com/01100_sapporo-shi_2020_mvt_4_op_ex-port-hogehoge-hoge_lod2/{z}/{x}/{y}.mvt",
+						Type:   "mvt",
+						Layers: []string{"layer2"},
 					},
-					{
+					{ // asset 3
 						Name:   "LOD1",
 						URL:    "https://example.com/01100_sapporo-shi_2020_mvt_4_op_ex-port-hogehoge-hoge_lod1/{z}/{x}/{y}.mvt",
 						Type:   "mvt",
 						Layers: []string{"layer1"},
+					},
+					{ // asset 5
+						Name: "その他のデータセット4（テクスチャなし）",
+						URL:  "https://example.com/01100_sapporo-shi_2020_3dtiles_4_op_ex-port-hogehoge-hoge_no_texture/tileset.json",
+						Type: "3dtiles",
 					},
 				},
 			},

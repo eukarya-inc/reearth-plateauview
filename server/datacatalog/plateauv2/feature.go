@@ -32,6 +32,7 @@ var FeatureOptions = map[string]DataCatalogItemBuilderOption{
 		Type:               "建築物モデル",
 		TypeEn:             "bldg",
 		LOD:                true,
+		SortByLOD:          true,
 		UseMaxLODAsDefault: true,
 		ItemID:             true,
 		GroupBy: func(an AssetName, assets []AssetName) string {
@@ -47,6 +48,7 @@ var FeatureOptions = map[string]DataCatalogItemBuilderOption{
 		Type:               "道路モデル",
 		TypeEn:             "tran",
 		LOD:                true,
+		SortByLOD:          true,
 		UseMaxLODAsDefault: true,
 		Group: func(ctx ItemContext) Override {
 			return Override{
@@ -60,14 +62,16 @@ var FeatureOptions = map[string]DataCatalogItemBuilderOption{
 		},
 	},
 	"frn": {
-		Type:   "都市設備モデル",
-		TypeEn: "frn",
-		LOD:    true,
+		Type:      "都市設備モデル",
+		TypeEn:    "frn",
+		LOD:       true,
+		SortByLOD: true,
 	},
 	"veg": {
-		Type:   "植生モデル",
-		TypeEn: "veg",
-		LOD:    true,
+		Type:      "植生モデル",
+		TypeEn:    "veg",
+		LOD:       true,
+		SortByLOD: true,
 	},
 	"luse": {
 		Type:   "土地利用モデル",
@@ -213,22 +217,25 @@ var FeatureOptions = map[string]DataCatalogItemBuilderOption{
 		},
 	},
 	"brid": {
-		Type:   "橋梁モデル",
-		TypeEn: "brid",
-		Layers: []string{"brid"},
-		LOD:    true,
+		Type:      "橋梁モデル",
+		TypeEn:    "brid",
+		Layers:    []string{"brid"},
+		LOD:       true,
+		SortByLOD: true,
 	},
 	"rail": {
-		Type:   "鉄道モデル",
-		TypeEn: "rail",
-		Layers: []string{"rail"},
-		LOD:    true,
+		Type:      "鉄道モデル",
+		TypeEn:    "rail",
+		Layers:    []string{"rail"},
+		LOD:       true,
+		SortByLOD: true,
 	},
 	"gen": {
 		Type:         "汎用都市オブジェクトモデル",
 		TypeEn:       "gen",
 		MultipleDesc: true,
 		LOD:          true,
+		SortByLOD:    true,
 		Group: func(ctx ItemContext) Override {
 			return Override{
 				Name:   ctx.GroupName,
@@ -254,6 +261,7 @@ var FeatureOptions = map[string]DataCatalogItemBuilderOption{
 		TypeEn:       "ex",
 		MultipleDesc: true,
 		LOD:          true,
+		SortByLOD:    false, // reflect orignal order
 		GroupBy: func(n AssetName, assets []AssetName) string {
 			return strings.Join(n.FeatureEx, "-")
 		},

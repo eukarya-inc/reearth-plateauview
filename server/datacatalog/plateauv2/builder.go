@@ -64,6 +64,7 @@ type DataCatalogItemBuilderOption struct {
 	MultipleDesc        bool
 	ItemID              bool
 	LOD                 bool
+	SortByLOD           bool
 	UseMaxLODAsDefault  bool
 	GroupBy             func(AssetName, []AssetName) string
 	SortGroupBy         func(AssetName, AssetName) bool
@@ -119,9 +120,11 @@ func (b DataCatalogItemBuilder) itemOverride(g assetGroup, a asset, desc Descrip
 }
 
 type asset struct {
-	Index int
-	URL   string
-	Name  AssetName
+	Index       int
+	URL         string
+	Name        AssetName
+	Description Description
+	Dic         *DicEntry
 }
 
 func (a asset) AssetURL() string {
@@ -148,10 +151,16 @@ func (b DataCatalogItemBuilder) Build() []*DataCatalogItem {
 	}
 
 	assets := lo.Map(b.Assets, func(a *cms.PublicAsset, i int) asset {
+		name := AssetNameFrom(a.URL)
+		description := descFromAsset(name, b.Descriptions, !b.Options.MultipleDesc)
+		dic := b.IntermediateItem.Dic.FindByAsset(name)
+
 		return asset{
-			Index: i,
-			URL:   a.URL,
-			Name:  AssetNameFrom(a.URL),
+			Index:       i,
+			URL:         a.URL,
+			Name:        name,
+			Description: description,
+			Dic:         dic,
 		}
 	})
 
@@ -181,18 +190,24 @@ func (b DataCatalogItemBuilder) Build() []*DataCatalogItem {
 	}
 
 	// sort assets in groups
-	if b.Options.SortAssetBy != nil {
-		for _, g := range groups {
-			sort.SliceStable(g.Assets, func(i, j int) bool {
-				return b.Options.SortAssetBy(g.Assets[i].Name, g.Assets[j].Name)
-			})
-		}
-	} else if b.Options.LOD {
-		for _, g := range groups {
-			sort.SliceStable(g.Assets, func(i, j int) bool {
-				return g.Assets[i].Name.LODInt() < g.Assets[j].Name.LODInt()
-			})
-		}
+	sortBy := b.Options.SortAssetBy
+	sortByLOD := b.Options.LOD && b.Options.SortByLOD
+	for _, g := range groups {
+		sort.SliceStable(g.Assets, func(i, j int) (s bool) {
+			a, b := g.Assets[i], g.Assets[j]
+
+			if sortBy != nil {
+				return sortBy(a.Name, b.Name)
+			}
+
+			if sortByLOD && a.Name.LODInt() < b.Name.LODInt() {
+				return true
+			}
+
+			ao := lo.FromPtr(a.Description.Override.DatasetOrder)
+			bo := lo.FromPtr(b.Description.Override.DatasetOrder)
+			return ao < bo
+		})
 	}
 
 	overrideBase := Override{
@@ -205,7 +220,6 @@ func (b DataCatalogItemBuilder) Build() []*DataCatalogItem {
 	results := make([]*DataCatalogItem, 0, len(groups))
 
 	for i, g := range groups {
-		itemID := b.Options.ItemID && i == 0
 		defaultAsset := g.DefaultAsset(b.Options.UseMaxLODAsDefault)
 		defaultDescription := descFromAsset(defaultAsset.Name, b.Descriptions, !b.Options.MultipleDesc)
 		defaultDic := b.IntermediateItem.Dic.FindByAsset(defaultAsset.Name)
@@ -215,24 +229,20 @@ func (b DataCatalogItemBuilder) Build() []*DataCatalogItem {
 		var config []DataCatalogItemConfigItem
 		if b.Options.LOD || b.Options.Item != nil {
 			config = lo.Map(g.Assets, func(a asset, i int) DataCatalogItemConfigItem {
-				description := descFromAsset(a.Name, b.Descriptions, !b.Options.MultipleDesc)
-				dic := b.IntermediateItem.Dic.FindByAsset(a.Name)
-				override := description.Override.Item().Merge(b.itemOverride(g, a, description, dic, i, g.Assets).Merge(overrideBase.Item()))
+				override := a.Description.Override.Item().Merge(
+					b.itemOverride(g, a, a.Description, a.Dic, i, g.Assets).Merge(
+						overrideBase.Item()))
 
 				return DataCatalogItemConfigItem{
 					Name:   override.Name,
 					URL:    a.AssetURL(),
 					Type:   a.Name.Format,
 					Layers: override.LayersIfSupported(a.Name.Format),
-					Order:  lo.FromPtr(description.Override.DatasetOrder),
 				}
 			})
 		}
 
-		sort.SliceStable(config, func(i, j int) bool {
-			return config[i].Order < config[j].Order
-		})
-
+		itemID := b.Options.ItemID && i == 0
 		dci := b.dataCatalogItem(
 			defaultAsset,
 			g,
@@ -410,7 +420,6 @@ type DataCatalogItemConfigItem struct {
 	URL    string   `json:"url"`
 	Type   string   `json:"type"`
 	Layers []string `json:"layer,omitempty"`
-	Order  int      `json:"-"`
 }
 
 func searchIndexURLFrom(assets []*cms.PublicAsset, wardCode string) string {
