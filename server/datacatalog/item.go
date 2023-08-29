@@ -81,6 +81,9 @@ func items[T ItemCommon](data []T, omitOldItems bool) []DataCatalogItem {
 	}
 
 	m := map[string]int{}
+	for _, i := range items {
+		m[i.CityCode] = i.Year
+	}
 	return lo.Filter(items, func(i DataCatalogItem, _ int) bool {
 		y, ok := m[i.CityCode]
 		return ok && y == i.Year

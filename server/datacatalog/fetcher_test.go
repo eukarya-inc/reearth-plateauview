@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"os"
+	"sort"
 	"testing"
 
 	"github.com/jarcoal/httpmock"
@@ -13,25 +14,47 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+// snapshot test
 func TestFetcher(t *testing.T) {
-	const base, prj = "", ""
+	const base = ""
+	const project = ""
+	const currentAPI = ""
 
-	if base == "" || prj == "" {
+	if base == "" || project == "" {
 		t.SkipNow()
 	}
-	f := lo.Must(NewFetcher(base))
-	cmsres := lo.Must(f.Do(context.Background(), prj, FetcherDoOptions{}))
-	res := cmsres.All()
-	removeCategory(res)
-	// item, _ := lo.Find(cmsres.Plateau, func(i PlateauItem) bool { return i.CityName == "" })
-	// res := item.AllDataCatalogItems(item.IntermediateItem())
-	// t.Log(string(lo.Must(json.MarshalIndent(res, "", "  "))))
-	lo.Must0(os.WriteFile("datacatalog.json", lo.Must(json.MarshalIndent(res, "", "  ")), 0644))
-}
 
-func removeCategory(items []DataCatalogItem) {
-	for i := range items {
-		items[i].Category = ""
+	// save the current implementation result
+	f := lo.Must(NewFetcher(base))
+	cmsres := lo.Must(f.Do(context.Background(), project, FetcherDoOptions{}))
+	res := cmsres.All()
+	lo.Must0(os.WriteFile("datacatalog.json", lo.Must(json.MarshalIndent(res, "", "  ")), 0644))
+
+	if currentAPI != "" {
+		// save the current result
+		res2 := lo.Must(http.Get(currentAPI))
+		defer res2.Body.Close()
+		var r []DataCatalogItem
+		lo.Must0(json.NewDecoder(res2.Body).Decode(&r))
+		lo.Must0(os.WriteFile("datacatalog-current.json", lo.Must(json.MarshalIndent(r, "", "  ")), 0644))
+
+		// extract and sort ID list from res
+		var ids []string
+		for _, v := range res {
+			ids = append(ids, v.ID)
+		}
+		sort.Strings(ids)
+
+		// extract and sort ID list from r
+		var currentIDs []string
+		for _, v := range r {
+			currentIDs = append(currentIDs, v.ID)
+		}
+		sort.Strings(currentIDs)
+
+		// compare IDs
+		t.Logf("items: current %d items <-> now %d items", len(currentIDs), len(ids))
+		assert.Equal(t, ids, currentIDs)
 	}
 }
 
