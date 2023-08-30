@@ -1,10 +1,13 @@
 package datacatalog
 
 import (
-	"github.com/eukarya-inc/reearth-plateauview/server/datacatalog/plateauv2"
-	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
 )
+
+type ItemCommon interface {
+	GetCityName() string
+	DataCatalogs() []DataCatalogItem
+}
 
 type DataCatalogItem struct {
 	ID          string   `json:"id,omitempty"`
@@ -32,6 +35,7 @@ type DataCatalogItem struct {
 	Config      any      `json:"config,omitempty"`
 	Order       *int     `json:"order,omitempty"`
 	Root        bool     `json:"root,omitempty"`
+	RootType    bool     `json:"root_type,omitempty"`
 	Group       string   `json:"group,omitempty"`
 }
 
@@ -46,39 +50,42 @@ type DataCatalogGroup struct {
 }
 
 type ResponseAll struct {
-	Plateau []plateauv2.CMSItem
+	Plateau []PlateauItem
+	Dataset []DatasetItem
 	Usecase []UsecaseItem
 }
 
 func (d ResponseAll) All() []DataCatalogItem {
-	return append(d.plateau(), d.usecase()...)
+	return append(append(d.plateau(), d.dataset()...), d.usecase()...)
 }
 
 func (d ResponseAll) plateau() []DataCatalogItem {
-	m := map[string]int{}
+	return items(d.Plateau, true)
+}
 
-	return lo.Filter(lo.FlatMap(d.Plateau, func(i plateauv2.CMSItem, _ int) []DataCatalogItem {
-		c := i.IntermediateItem()
-		if c.Year == 0 {
-			return nil
-		}
-		if y, ok := m[c.CityCode]; ok && y >= c.Year {
-			return nil
-		}
-		m[c.CityCode] = c.Year
-		return util.Map(i.AllDataCatalogItems(c), DataCatalogItemFromPlateauV2)
-	}), func(i DataCatalogItem, _ int) bool {
-		y, ok := m[i.CityCode]
-		return ok && y == i.Year
-	})
+func (d ResponseAll) dataset() []DataCatalogItem {
+	return items(d.Dataset, false)
 }
 
 func (d ResponseAll) usecase() []DataCatalogItem {
-	return lo.FlatMap(d.Usecase, func(i UsecaseItem, _ int) []DataCatalogItem {
-		return i.DataCatalogs()
-	})
+	return items(d.Usecase, false)
 }
 
-func DataCatalogItemFromPlateauV2(i plateauv2.DataCatalogItem) DataCatalogItem {
-	return DataCatalogItem(i)
+func items[T ItemCommon](data []T, omitOldItems bool) []DataCatalogItem {
+	items := lo.FlatMap(data, func(i T, _ int) []DataCatalogItem {
+		return i.DataCatalogs()
+	})
+
+	if !omitOldItems {
+		return items
+	}
+
+	m := map[string]int{}
+	for _, i := range items {
+		m[i.CityCode] = i.Year
+	}
+	return lo.Filter(items, func(i DataCatalogItem, _ int) bool {
+		y, ok := m[i.CityCode]
+		return ok && y == i.Year
+	})
 }

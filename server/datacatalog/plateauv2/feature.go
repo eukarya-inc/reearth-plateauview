@@ -32,6 +32,7 @@ var FeatureOptions = map[string]DataCatalogItemBuilderOption{
 		Type:               "建築物モデル",
 		TypeEn:             "bldg",
 		LOD:                true,
+		SortByLOD:          true,
 		UseMaxLODAsDefault: true,
 		ItemID:             true,
 		GroupBy: func(an AssetName, assets []AssetName) string {
@@ -47,6 +48,7 @@ var FeatureOptions = map[string]DataCatalogItemBuilderOption{
 		Type:               "道路モデル",
 		TypeEn:             "tran",
 		LOD:                true,
+		SortByLOD:          true,
 		UseMaxLODAsDefault: true,
 		Group: func(ctx ItemContext) Override {
 			return Override{
@@ -60,14 +62,16 @@ var FeatureOptions = map[string]DataCatalogItemBuilderOption{
 		},
 	},
 	"frn": {
-		Type:   "都市設備モデル",
-		TypeEn: "frn",
-		LOD:    true,
+		Type:      "都市設備モデル",
+		TypeEn:    "frn",
+		LOD:       true,
+		SortByLOD: true,
 	},
 	"veg": {
-		Type:   "植生モデル",
-		TypeEn: "veg",
-		LOD:    true,
+		Type:      "植生モデル",
+		TypeEn:    "veg",
+		LOD:       true,
+		SortByLOD: true,
 	},
 	"luse": {
 		Type:   "土地利用モデル",
@@ -80,8 +84,9 @@ var FeatureOptions = map[string]DataCatalogItemBuilderOption{
 		Layers: []string{"lsld"},
 	},
 	"urf": {
-		Type:   "都市計画決定情報モデル",
-		TypeEn: "urf",
+		Type:     "都市計画決定情報モデル",
+		TypeEn:   "urf",
+		RootType: true,
 		Group: func(ctx ItemContext) Override {
 			var name, t2 string
 			ft := normalizeUrfFeatureType(ctx.AssetName.UrfFeatureType)
@@ -116,8 +121,9 @@ var FeatureOptions = map[string]DataCatalogItemBuilderOption{
 		},
 	},
 	"fld": {
-		Type:   "洪水浸水想定区域モデル",
-		TypeEn: "fld",
+		Type:     "洪水浸水想定区域モデル",
+		TypeEn:   "fld",
+		RootType: true,
 		Group: func(ctx ItemContext) Override {
 			subname := ""
 			if ctx.DicEntry != nil {
@@ -162,8 +168,9 @@ var FeatureOptions = map[string]DataCatalogItemBuilderOption{
 		},
 	},
 	"tnm": {
-		Type:   "津波浸水想定区域モデル",
-		TypeEn: "tnm",
+		Type:     "津波浸水想定区域モデル",
+		TypeEn:   "tnm",
+		RootType: true,
 		Group: func(ctx ItemContext) Override {
 			subname := ctx.AssetName.FldName
 			if ctx.DicEntry != nil {
@@ -179,8 +186,9 @@ var FeatureOptions = map[string]DataCatalogItemBuilderOption{
 		},
 	},
 	"htd": {
-		Type:   "高潮浸水想定区域モデル",
-		TypeEn: "htd",
+		Type:     "高潮浸水想定区域モデル",
+		TypeEn:   "htd",
+		RootType: true,
 		Group: func(ctx ItemContext) Override {
 			subname := ctx.AssetName.FldName
 			if ctx.DicEntry != nil {
@@ -196,8 +204,9 @@ var FeatureOptions = map[string]DataCatalogItemBuilderOption{
 		},
 	},
 	"ifld": {
-		Type:   "内水浸水想定区域モデル",
-		TypeEn: "ifld",
+		Type:     "内水浸水想定区域モデル",
+		TypeEn:   "ifld",
+		RootType: true,
 		Group: func(ctx ItemContext) Override {
 			subname := ctx.AssetName.FldName
 			if ctx.DicEntry != nil {
@@ -213,22 +222,26 @@ var FeatureOptions = map[string]DataCatalogItemBuilderOption{
 		},
 	},
 	"brid": {
-		Type:   "橋梁モデル",
-		TypeEn: "brid",
-		Layers: []string{"brid"},
-		LOD:    true,
+		Type:      "橋梁モデル",
+		TypeEn:    "brid",
+		Layers:    []string{"brid"},
+		LOD:       true,
+		SortByLOD: true,
 	},
 	"rail": {
-		Type:   "鉄道モデル",
-		TypeEn: "rail",
-		Layers: []string{"rail"},
-		LOD:    true,
+		Type:      "鉄道モデル",
+		TypeEn:    "rail",
+		Layers:    []string{"rail"},
+		LOD:       true,
+		SortByLOD: true,
 	},
 	"gen": {
 		Type:         "汎用都市オブジェクトモデル",
 		TypeEn:       "gen",
+		RootType:     true,
 		MultipleDesc: true,
 		LOD:          true,
+		SortByLOD:    true,
 		Group: func(ctx ItemContext) Override {
 			return Override{
 				Name:   ctx.GroupName,
@@ -254,6 +267,7 @@ var FeatureOptions = map[string]DataCatalogItemBuilderOption{
 		TypeEn:       "ex",
 		MultipleDesc: true,
 		LOD:          true,
+		SortByLOD:    false, // reflect orignal order
 		GroupBy: func(n AssetName, assets []AssetName) string {
 			return strings.Join(n.FeatureEx, "-")
 		},

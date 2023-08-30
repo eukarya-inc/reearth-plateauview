@@ -7,7 +7,6 @@ import (
 	"path"
 	"time"
 
-	"github.com/eukarya-inc/reearth-plateauview/server/datacatalog/plateauv2"
 	cms "github.com/reearth/reearth-cms-api/go"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/util"
@@ -16,11 +15,12 @@ import (
 
 const timeoutSecond int64 = 20
 const ModelPlateau = "plateau"
-const ModelUsecase = "usecase"
 const ModelDataset = "dataset"
+const ModelUsecase = "usecase"
 
 type Fetcher struct {
-	cmsp *cms.PublicAPIClient[plateauv2.CMSItem]
+	cmsp *cms.PublicAPIClient[PlateauItem]
+	cmsd *cms.PublicAPIClient[DatasetItem]
 	cmsu *cms.PublicAPIClient[UsecaseItem]
 	base *url.URL
 }
@@ -46,7 +46,8 @@ func NewFetcher(cmsbase string) (*Fetcher, error) {
 	cmsp = cmsp.WithTimeout(time.Duration(timeoutSecond) * time.Second)
 
 	return &Fetcher{
-		cmsp: cms.ChangePublicAPIClientType[any, plateauv2.CMSItem](cmsp),
+		cmsp: cms.ChangePublicAPIClientType[any, PlateauItem](cmsp),
+		cmsd: cms.ChangePublicAPIClientType[any, DatasetItem](cmsp),
 		cmsu: cms.ChangePublicAPIClientType[any, UsecaseItem](cmsp),
 		base: u,
 	}, nil
@@ -59,6 +60,7 @@ func (f *Fetcher) Clone() *Fetcher {
 
 	return &Fetcher{
 		cmsp: f.cmsp.Clone(),
+		cmsd: f.cmsd.Clone(),
 		cmsu: f.cmsu.Clone(),
 		base: util.CloneRef(f.base),
 	}
@@ -67,26 +69,26 @@ func (f *Fetcher) Clone() *Fetcher {
 func (f *Fetcher) Do(ctx context.Context, project string, opts FetcherDoOptions) (ResponseAll, error) {
 	f1, f2, f3, f4, f5 := f.Clone(), f.Clone(), f.Clone(), f.Clone(), f.Clone()
 
-	res1 := lo.Async2(func() ([]plateauv2.CMSItem, error) {
-		return f1.plateau(ctx, project, ModelPlateau)
+	res1 := lo.Async2(func() ([]PlateauItem, error) {
+		return f1.plateau(ctx, project)
 	})
 	res2 := lo.Async2(func() ([]UsecaseItem, error) {
-		return f2.usecase(ctx, project, ModelUsecase)
+		return f2.usecase(ctx, project)
 	})
-	res3 := lo.Async2(func() ([]UsecaseItem, error) {
-		return f3.usecase(ctx, project, ModelDataset)
+	res3 := lo.Async2(func() ([]DatasetItem, error) {
+		return f3.dataset(ctx, project)
 	})
-	res4 := lo.Async2(func() ([]plateauv2.CMSItem, error) {
+	res4 := lo.Async2(func() ([]PlateauItem, error) {
 		if opts.CityName == "" || opts.Subproject == "" {
 			return nil, nil
 		}
-		return f4.plateau(ctx, opts.Subproject, ModelPlateau)
+		return f4.plateau(ctx, opts.Subproject)
 	})
-	res5 := lo.Async2(func() ([]UsecaseItem, error) {
+	res5 := lo.Async2(func() ([]DatasetItem, error) {
 		if opts.CityName == "" || opts.Subproject == "" {
 			return nil, nil
 		}
-		return f5.usecase(ctx, opts.Subproject, ModelDataset)
+		return f5.dataset(ctx, opts.Subproject)
 	})
 
 	notFound := 0
@@ -119,7 +121,7 @@ func (f *Fetcher) Do(ctx context.Context, project string, opts FetcherDoOptions)
 			return ResponseAll{}, res.B
 		}
 	} else {
-		r.Usecase = append(r.Usecase, res.A...)
+		r.Dataset = append(r.Dataset, res.A...)
 	}
 
 	if res := <-res4; res.B != nil {
@@ -129,7 +131,7 @@ func (f *Fetcher) Do(ctx context.Context, project string, opts FetcherDoOptions)
 			return ResponseAll{}, res.B
 		}
 	} else {
-		r.Plateau = append(r.Plateau, filterPlateau(res.A, opts.CityName)...)
+		r.Plateau = append(r.Plateau, filterItemsByCityName(res.A, opts.CityName)...)
 	}
 
 	if res := <-res5; res.B != nil {
@@ -139,7 +141,7 @@ func (f *Fetcher) Do(ctx context.Context, project string, opts FetcherDoOptions)
 			return ResponseAll{}, res.B
 		}
 	} else {
-		r.Usecase = append(r.Usecase, filterUsecase(res.A, opts.CityName)...)
+		r.Dataset = append(r.Dataset, filterItemsByCityName(res.A, opts.CityName)...)
 	}
 
 	if notFound == 3 {
@@ -148,45 +150,24 @@ func (f *Fetcher) Do(ctx context.Context, project string, opts FetcherDoOptions)
 	return r, nil
 }
 
-func (f *Fetcher) plateau(ctx context.Context, project, model string) (resp []plateauv2.CMSItem, err error) {
-	r, err := f.cmsp.GetAllItemsInParallel(ctx, project, model, 10)
-	if err != nil {
-		return
-	}
-	return r, nil
+func (f *Fetcher) plateau(ctx context.Context, project string) ([]PlateauItem, error) {
+	return f.cmsp.GetAllItemsInParallel(ctx, project, ModelPlateau, 10)
 }
 
-func (f *Fetcher) usecase(ctx context.Context, project, model string) (resp []UsecaseItem, err error) {
-	r, err := f.cmsu.GetAllItemsInParallel(ctx, project, model, 10)
-	if err != nil {
-		return
-	}
-
-	if model == ModelUsecase {
-		for i := range r {
-			r[i].Type = "ユースケース"
-		}
-	}
-
-	return r, nil
+func (f *Fetcher) dataset(ctx context.Context, project string) ([]DatasetItem, error) {
+	return f.cmsd.GetAllItemsInParallel(ctx, project, ModelDataset, 10)
 }
 
-func filterPlateau(data []plateauv2.CMSItem, cityName string) []plateauv2.CMSItem {
+func (f *Fetcher) usecase(ctx context.Context, project string) ([]UsecaseItem, error) {
+	return f.cmsu.GetAllItemsInParallel(ctx, project, ModelUsecase, 10)
+}
+
+func filterItemsByCityName[T ItemCommon](items []T, cityName string) []T {
 	if cityName == "" {
 		return nil
 	}
 
-	return lo.Filter(data, func(v plateauv2.CMSItem, _ int) bool {
-		return v.CityName == cityName
-	})
-}
-
-func filterUsecase(data []UsecaseItem, cityName string) []UsecaseItem {
-	if cityName == "" {
-		return nil
-	}
-
-	return lo.Filter(data, func(v UsecaseItem, _ int) bool {
-		return v.CityName == cityName
+	return lo.Filter(items, func(v T, _ int) bool {
+		return v.GetCityName() == cityName
 	})
 }

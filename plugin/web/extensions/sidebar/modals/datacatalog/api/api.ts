@@ -5,12 +5,16 @@ import type {
 } from "@web/extensions/sidebar/core/types";
 import { omit } from "lodash-es";
 
+import path, { GroupBy } from "./path";
+import sortBy from "./sort";
 import { makeTree, mapTree } from "./utils";
 
 // TODO: REFACTOR: CONFUSING REEXPORT
 export type { DataCatalogItem, DataCatalogGroup, DataCatalogTreeItem };
 
 export type RawDataCatalogTreeItem = RawDataCatalogGroup | RawDataCatalogItem;
+
+export type { GroupBy } from "./path";
 
 export type RawDataCatalogGroup = {
   id: string;
@@ -56,10 +60,15 @@ type RawRawDataCatalogItem = {
     }[];
   };
   order?: number;
-  root?: boolean;
   group?: string;
+  /** force to disable making a folder even if type2 is present */
+  root?: boolean;
+  /** force to make a folder even if type is not special (included in typesWithFolders) */
+  root_type?: boolean;
+
   // bldg only fields
   search_index?: string;
+
   // internal
   path?: string[];
   code: number;
@@ -78,8 +87,6 @@ export type RawDataCatalogItem = Omit<RawRawDataCatalogItem, "layers" | "layer" 
     }[];
   };
 };
-
-export type GroupBy = "city" | "type" | "tag"; // Tag not implemented yet
 
 export async function getDataCatalog(
   base: string,
@@ -187,64 +194,10 @@ function sortInternal(
     .map(
       (i): InternalDataCatalogItem => ({
         ...i,
-        path: path(i, groupBy, customDataset),
+        path: path(i, customDataset, groupBy),
       }),
     )
     .sort((a, b) => sortBy(a, b, groupBy));
-}
-
-function path(i: RawDataCatalogItem, groupBy: GroupBy, customDataset: boolean): string[] {
-  return groupBy === "type"
-    ? [
-        ...(!customDataset ? [i.type] : []),
-        i.pref,
-        ...((i.ward || i.type2) && i.city ? [i.city] : []),
-        ...(i.group?.split("/") ?? []),
-        ...(i.name || "（名称未決定）").split("/"),
-      ]
-    : [
-        i.pref,
-        ...(i.city ? [i.city] : []),
-        ...(i.ward ? [i.ward] : []),
-        ...(i.group?.split("/") ?? []),
-        ...(!customDataset &&
-        (i.type2 || (!i.root && typesWithFolders.includes(i.type_en) && i.pref !== zenkyu))
-          ? [i.type]
-          : []),
-        ...(i.name || "（名称未決定）").split("/"),
-      ];
-}
-
-function sortBy(a: InternalDataCatalogItem, b: InternalDataCatalogItem, sort: GroupBy): number {
-  return sort === "type"
-    ? sortByType(a, b) || sortByCity(a, b) || sortByOrder(a.order, b.order)
-    : sortByCity(a, b) || sortByType(a, b) || sortByOrder(a.order, b.order);
-}
-
-function sortByCity(a: InternalDataCatalogItem, b: InternalDataCatalogItem): number {
-  return clamp(
-    (a.pref === zenkyu ? 0 : 1) - (b.pref === zenkyu ? 0 : 1) || // items whose prefecture is zenkyu is upper
-      (a.pref === tokyo ? 0 : 1) - (b.pref === tokyo ? 0 : 1) || // items whose prefecture is tokyo is upper
-      a.pref_code_i - b.pref_code_i ||
-      (a.ward ? 0 : 1) - (b.ward ? 0 : 1) || // items that have a ward is upper
-      (a.city ? 0 : 1) - (b.city ? 0 : 1) || // items that have a city is upper
-      (b.group ? 0 : 1) - (a.group ? 0 : 1) || // items that have no groups is upper
-      a.code - b.code ||
-      typeIndexOf(a.type_en) - typeIndexOf(b.type_en),
-  );
-}
-
-function sortByType(a: RawDataCatalogItem, b: RawDataCatalogItem): number {
-  return clamp(typeIndexOf(a.type_en) - typeIndexOf(b.type_en));
-}
-
-function typeIndexOf(type_en: string): number {
-  const i = types.indexOf(type_en);
-  return i === -1 ? 99999 : i;
-}
-
-function sortByOrder(a: number | undefined, b: number | undefined): number {
-  return clamp(Math.min(0, a ?? 0) - Math.min(0, b ?? 0));
 }
 
 function filter(q: string | undefined, items: RawDataCatalogItem[]): RawDataCatalogItem[] {
@@ -259,40 +212,8 @@ function filter(q: string | undefined, items: RawDataCatalogItem[]): RawDataCata
   );
 }
 
-function clamp(n: number): number {
-  return Math.max(-1, Math.min(1, n));
-}
-
 function getLayers(layers?: string[] | string): string[] {
   return layers ? (typeof layers === "string" ? layers.split(/, */).filter(Boolean) : layers) : [];
 }
 
 const zenkyu = "全球データ";
-const tokyo = "東京都";
-const types = [
-  "bldg",
-  "tran",
-  "brid",
-  "rail",
-  "veg",
-  "frn",
-  "luse",
-  "lsld",
-  "urf",
-  "fld",
-  "tnm",
-  "htd",
-  "ifld",
-  "gen",
-  "ex",
-  "shelter",
-  "landmark",
-  "station",
-  "emergency_route",
-  "railway",
-  "park",
-  "border",
-  "usecase",
-];
-
-const typesWithFolders = ["usecase", "gen", "fld", "htd", "tnm", "ifld", "urf", "ex"];

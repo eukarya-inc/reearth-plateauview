@@ -1,7 +1,8 @@
-package datacatalog
+package plateauv2
 
 import (
 	"encoding/json"
+	"fmt"
 	"strings"
 
 	"github.com/eukarya-inc/jpareacode"
@@ -11,10 +12,17 @@ import (
 	"github.com/samber/lo"
 )
 
-const folder = "フォルダ"
-const folderEn = "folder"
+var datasetTypes = map[string]string{
+	"公園":     "park",
+	"避難施設":   "shelter",
+	"鉄道":     "railway",
+	"鉄道駅":    "station",
+	"行政界":    "border",
+	"ランドマーク": "landmark",
+	"緊急輸送道路": "emergency_route",
+}
 
-type UsecaseItem struct {
+type DatasetItem struct {
 	ID          string           `json:"id,omitempty"`
 	Name        string           `json:"name,omitempty"`
 	Type        string           `json:"type,omitempty"`
@@ -30,15 +38,14 @@ type UsecaseItem struct {
 	DataLayers  string           `json:"data_layer,omitempty"`
 	Config      string           `json:"config,omitempty"`
 	Order       *int             `json:"order,omitempty"`
-	Category    string           `json:"category,omitempty"`
 }
 
-func (i UsecaseItem) GetCityName() string {
+func (i DatasetItem) GetCityName() string {
 	return i.CityName
 }
 
-func (i UsecaseItem) DataCatalogs() []DataCatalogItem {
-	pref, prefCodeInt := normalizePref(i.Prefecture)
+func (i DatasetItem) DataCatalogs() []DataCatalogItem {
+	pref, prefCodeInt := datacatalogutil.NormalizePref(i.Prefecture)
 	prefCode := jpareacode.FormatPrefectureCode(prefCodeInt)
 
 	var city, ward string
@@ -52,22 +59,6 @@ func (i UsecaseItem) DataCatalogs() []DataCatalogItem {
 	cCode := datacatalogutil.CityCode("", city, prefCodeInt)
 	wCode := datacatalogutil.CityCode("", ward, prefCodeInt)
 
-	if i.DataFormat == folder {
-		return []DataCatalogItem{{
-			ID:          i.ID,
-			Name:        i.Name,
-			Type:        folder,
-			TypeEn:      folderEn,
-			Pref:        pref,
-			PrefCode:    prefCode,
-			City:        city,
-			CityCode:    cCode,
-			Ward:        ward,
-			WardCode:    wCode,
-			Description: i.Description,
-		}}
-	}
-
 	var c any
 	_ = json.Unmarshal([]byte(i.Config), &c)
 
@@ -79,24 +70,32 @@ func (i UsecaseItem) DataCatalogs() []DataCatalogItem {
 		u = i.DataURL
 	}
 
-	f := formatTypeEn(i.DataFormat)
+	f := datacatalogutil.FormatTypeEn(i.DataFormat)
+
+	t := i.Type
+	if t != "" && !strings.HasSuffix(t, "情報") {
+		t += "情報"
+	}
 
 	var layers []string
 	if i.DataLayers != "" {
 		layers = lo.Filter(util.Map(strings.Split(i.DataLayers, ","), strings.TrimSpace), func(s string, _ int) bool { return s != "" })
 	}
 
-	ty, tye := i.Category, i.Category
-	if ty == "" {
-		ty = "ユースケース"
-		tye = "usecase"
+	name := i.Name
+	if t != "" {
+		cityOrWard := city
+		if ward != "" {
+			cityOrWard = ward
+		}
+		name = fmt.Sprintf("%s（%s）", t, cityOrWard)
 	}
 
 	return []DataCatalogItem{{
 		ID:          i.ID,
-		Name:        i.Name,
-		Type:        ty,
-		TypeEn:      tye,
+		Name:        name,
+		Type:        t,
+		TypeEn:      datasetTypes[i.Type],
 		Pref:        pref,
 		PrefCode:    prefCode,
 		City:        city,
@@ -108,9 +107,8 @@ func (i UsecaseItem) DataCatalogs() []DataCatalogItem {
 		Description: i.Description,
 		Config:      c,
 		Layers:      layers,
-		Year:        yearInt(i.Year),
+		Year:        datacatalogutil.YearInt(i.Year),
 		OpenDataURL: i.OpenDataURL,
 		Order:       i.Order,
-		RootType:    pref != zenkyu,
 	}}
 }
