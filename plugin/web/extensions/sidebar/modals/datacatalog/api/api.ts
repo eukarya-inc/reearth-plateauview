@@ -6,6 +6,7 @@ import type {
 import { omit } from "lodash-es";
 
 import path, { GroupBy } from "./path";
+import sortBy from "./sort";
 import { makeTree, mapTree } from "./utils";
 
 // TODO: REFACTOR: CONFUSING REEXPORT
@@ -197,38 +198,6 @@ function sortInternal(
     .sort((a, b) => sortBy(a, b, groupBy));
 }
 
-function sortBy(a: InternalDataCatalogItem, b: InternalDataCatalogItem, sort: GroupBy): number {
-  return sort === "type"
-    ? sortByType(a, b) || sortByCity(a, b) || sortByOrder(a.order, b.order)
-    : sortByCity(a, b) || sortByType(a, b) || sortByOrder(a.order, b.order);
-}
-
-function sortByCity(a: InternalDataCatalogItem, b: InternalDataCatalogItem): number {
-  return clamp(
-    (a.pref === zenkyu ? 0 : 1) - (b.pref === zenkyu ? 0 : 1) || // items whose prefecture is zenkyu is upper
-      (a.pref === tokyo ? 0 : 1) - (b.pref === tokyo ? 0 : 1) || // items whose prefecture is tokyo is upper
-      a.pref_code_i - b.pref_code_i ||
-      (a.ward ? 0 : 1) - (b.ward ? 0 : 1) || // items that have a ward is upper
-      (a.city ? 0 : 1) - (b.city ? 0 : 1) || // items that have a city is upper
-      (b.group ? 0 : 1) - (a.group ? 0 : 1) || // items that have no groups is upper
-      a.code - b.code ||
-      typeIndexOf(a.type_en) - typeIndexOf(b.type_en),
-  );
-}
-
-function sortByType(a: RawDataCatalogItem, b: RawDataCatalogItem): number {
-  return clamp(typeIndexOf(a.type_en) - typeIndexOf(b.type_en));
-}
-
-function typeIndexOf(type_en: string): number {
-  const i = types.indexOf(type_en);
-  return i === -1 ? 99999 : i;
-}
-
-function sortByOrder(a: number | undefined, b: number | undefined): number {
-  return clamp(Math.min(0, a ?? 0) - Math.min(0, b ?? 0));
-}
-
 function filter(q: string | undefined, items: RawDataCatalogItem[]): RawDataCatalogItem[] {
   if (!q) return items;
   return items.filter(
@@ -241,38 +210,8 @@ function filter(q: string | undefined, items: RawDataCatalogItem[]): RawDataCata
   );
 }
 
-function clamp(n: number): number {
-  return Math.max(-1, Math.min(1, n));
-}
-
 function getLayers(layers?: string[] | string): string[] {
   return layers ? (typeof layers === "string" ? layers.split(/, */).filter(Boolean) : layers) : [];
 }
 
 const zenkyu = "全球データ";
-const tokyo = "東京都";
-const types = [
-  "bldg",
-  "tran",
-  "brid",
-  "rail",
-  "veg",
-  "frn",
-  "luse",
-  "lsld",
-  "urf",
-  "fld",
-  "tnm",
-  "htd",
-  "ifld",
-  "gen",
-  "ex",
-  "shelter",
-  "landmark",
-  "station",
-  "emergency_route",
-  "railway",
-  "park",
-  "border",
-  "usecase",
-];
