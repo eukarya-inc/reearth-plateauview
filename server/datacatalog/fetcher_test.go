@@ -16,12 +16,12 @@ import (
 
 // snapshot test
 func TestFetcher(t *testing.T) {
-	const base = ""
-	const project = ""
-	const currentAPI = ""
+	base, _ := os.LookupEnv("REEARTH_PLATEAUVIEW_TEST_BASE")
+	project, _ := os.LookupEnv("REEARTH_PLATEAUVIEW_TEST_PROJECT_PLATEAU")
+	currentAPI, _ := os.LookupEnv("REEARTH_PLATEAUVIEW_TEST_DATACATALOG_API")
 
 	if base == "" || project == "" {
-		t.SkipNow()
+		t.Skip("no base and project")
 	}
 
 	// save the current implementation result
@@ -54,7 +54,7 @@ func TestFetcher(t *testing.T) {
 
 		// compare IDs
 		t.Logf("items: current %d items <-> now %d items", len(currentIDs), len(ids))
-		assert.Equal(t, ids, currentIDs)
+		assert.Equal(t, currentIDs, ids)
 	}
 }
 
