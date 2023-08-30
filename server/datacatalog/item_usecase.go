@@ -87,7 +87,7 @@ func (i UsecaseItem) DataCatalogs() []DataCatalogItem {
 	}
 
 	ty, tye := i.Category, i.Category
-	if ty == "" {
+	if ty == "" || ty == "ユースケース" {
 		ty = "ユースケース"
 		tye = "usecase"
 	}
