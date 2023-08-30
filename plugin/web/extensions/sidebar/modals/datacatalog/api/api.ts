@@ -5,6 +5,7 @@ import type {
 } from "@web/extensions/sidebar/core/types";
 import { omit } from "lodash-es";
 
+import path, { GroupBy } from "./path";
 import { makeTree, mapTree } from "./utils";
 
 // TODO: REFACTOR: CONFUSING REEXPORT
@@ -56,10 +57,15 @@ type RawRawDataCatalogItem = {
     }[];
   };
   order?: number;
-  root?: boolean;
   group?: string;
+  /** force to disable making a folder even if type2 is present */
+  root?: boolean;
+  /** force to make a folder even if type is not special (included in typesWithFolders) */
+  root_type?: boolean;
+
   // bldg only fields
   search_index?: string;
+
   // internal
   path?: string[];
   code: number;
@@ -78,8 +84,6 @@ export type RawDataCatalogItem = Omit<RawRawDataCatalogItem, "layers" | "layer" 
     }[];
   };
 };
-
-export type GroupBy = "city" | "type" | "tag"; // Tag not implemented yet
 
 export async function getDataCatalog(
   base: string,
@@ -187,32 +191,10 @@ function sortInternal(
     .map(
       (i): InternalDataCatalogItem => ({
         ...i,
-        path: path(i, groupBy, customDataset),
+        path: path(i, customDataset, groupBy),
       }),
     )
     .sort((a, b) => sortBy(a, b, groupBy));
-}
-
-function path(i: RawDataCatalogItem, groupBy: GroupBy, customDataset: boolean): string[] {
-  return groupBy === "type"
-    ? [
-        ...(!customDataset ? [i.type] : []),
-        i.pref,
-        ...((i.ward || i.type2) && i.city ? [i.city] : []),
-        ...(i.group?.split("/") ?? []),
-        ...(i.name || "（名称未決定）").split("/"),
-      ]
-    : [
-        i.pref,
-        ...(i.city ? [i.city] : []),
-        ...(i.ward ? [i.ward] : []),
-        ...(i.group?.split("/") ?? []),
-        ...(!customDataset &&
-        (i.type2 || (!i.root && typesWithFolders.includes(i.type_en) && i.pref !== zenkyu))
-          ? [i.type]
-          : []),
-        ...(i.name || "（名称未決定）").split("/"),
-      ];
 }
 
 function sortBy(a: InternalDataCatalogItem, b: InternalDataCatalogItem, sort: GroupBy): number {
@@ -294,5 +276,3 @@ const types = [
   "border",
   "usecase",
 ];
-
-const typesWithFolders = ["usecase", "gen", "fld", "htd", "tnm", "ifld", "urf", "ex"];
