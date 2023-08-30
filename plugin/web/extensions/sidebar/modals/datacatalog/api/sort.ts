@@ -11,7 +11,8 @@ export type CatalogItemLike = {
   order?: number;
 };
 
-export type SortBy = "city" | "type";
+// tag is not used for sorting, but it is refered from data catalog components
+export type SortBy = "city" | "type" | "tag";
 
 export default function sortBy(a: CatalogItemLike, b: CatalogItemLike, sort: SortBy): number {
   return sort === "type"
