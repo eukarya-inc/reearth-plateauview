@@ -298,9 +298,9 @@ test("constructionYear", () => {
   expect(constructionYear(2001)).toBe(2001);
   expect(constructionYear("2001")).toBe("2001");
   expect(constructionYear(2)).toBe(2);
-  expect(constructionYear("", "bldg")).toBe("不明");
-  expect(constructionYear(null, "bldg")).toBe("不明");
-  expect(constructionYear(undefined, "bldg")).toBe("不明");
+  expect(constructionYear("", "bldg")).toBe(undefined);
+  expect(constructionYear(null, "bldg")).toBe(undefined);
+  expect(constructionYear(undefined, "bldg")).toBe(undefined);
   expect(constructionYear(-1, "bldg")).toBe("不明");
   expect(constructionYear(0, "bldg")).toBe("不明");
   expect(constructionYear(1, "bldg")).toBe("不明");

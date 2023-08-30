@@ -148,18 +148,16 @@ export function constructionYear(
   y: number | string | undefined | null,
   dataType?: string,
 ): string | number | undefined {
-  if (dataType !== "bldg") {
-    if (y === "" || typeof y === "undefined" || y === null) return undefined;
-    return y;
-  }
+  if (y === "" || typeof y === "undefined" || y === null) return undefined;
 
   if (
-    !y ||
-    (typeof y === "number" && y <= 1) ||
-    y == "0" ||
-    y === "1" ||
-    y === "0000" ||
-    y === "0001"
+    dataType === "bldg" &&
+    (!y ||
+      (typeof y === "number" && y <= 1) ||
+      y == "0" ||
+      y === "1" ||
+      y === "0000" ||
+      y === "0001")
   ) {
     return "不明";
   }
