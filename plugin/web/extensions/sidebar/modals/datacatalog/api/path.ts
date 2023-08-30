@@ -50,5 +50,6 @@ function pathByType(i: CatalogItemLike, customDataset: boolean): string[] {
   ];
 }
 
+// TODO: when root_type is available, these are no longer needed
 const zenkyu = "全球データ";
 const typesWithFolders = ["usecase", "gen", "fld", "htd", "tnm", "ifld", "urf", "ex"];

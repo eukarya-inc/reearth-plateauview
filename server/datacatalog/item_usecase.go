@@ -111,6 +111,6 @@ func (i UsecaseItem) DataCatalogs() []DataCatalogItem {
 		Year:        yearInt(i.Year),
 		OpenDataURL: i.OpenDataURL,
 		Order:       i.Order,
-		RootType:    true,
+		RootType:    pref != zenkyu,
 	}}
 }

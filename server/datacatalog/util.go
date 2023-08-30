@@ -29,13 +29,15 @@ func formatTypeEn(f string) string {
 	return strings.ToLower(f)
 }
 
+const zenkyu = "全球データ"
+
 func normalizePref(pref string) (string, int) {
 	if pref == "全球" || pref == "全国" {
-		pref = "全球データ"
+		pref = zenkyu
 	}
 
 	var prefCode int
-	if pref == "全球データ" {
+	if pref == zenkyu {
 		prefCode = 0
 	} else {
 		prefCode = jpareacode.PrefectureCodeInt(pref)
