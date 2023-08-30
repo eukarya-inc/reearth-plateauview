@@ -12,8 +12,6 @@ import (
 	"github.com/samber/lo"
 )
 
-const datasetCategory = "_dataset"
-
 var datasetTypes = map[string]string{
 	"公園":     "park",
 	"避難施設":   "shelter",
@@ -115,6 +113,5 @@ func (i DatasetItem) DataCatalogs() []DataCatalogItem {
 		Year:        yearInt(i.Year),
 		OpenDataURL: i.OpenDataURL,
 		Order:       i.Order,
-		Category:    datasetCategory,
 	}}
 }

@@ -79,7 +79,6 @@ func TestBldg(t *testing.T) {
 					},
 				},
 			},
-			Category: "_plateau",
 		},
 		{
 			ID:          "01100_sapporo-shi_01102_kita-ku_bldg",
@@ -114,7 +113,6 @@ func TestBldg(t *testing.T) {
 					},
 				},
 			},
-			Category: "_plateau",
 		},
 	}, i.DataCatalogItems(i.IntermediateItem(), "bldg"))
 
@@ -175,7 +173,6 @@ func TestBldg(t *testing.T) {
 					},
 				},
 			},
-			Category: "_plateau",
 		},
 	}, i.DataCatalogItems(i.IntermediateItem(), "bldg"))
 }
@@ -240,7 +237,6 @@ func TestTran(t *testing.T) {
 					},
 				},
 			},
-			Category: "_plateau",
 		},
 	}, i.DataCatalogItems(i.IntermediateItem(), "tran"))
 
@@ -287,7 +283,6 @@ func TestTran(t *testing.T) {
 					},
 				},
 			},
-			Category: "_plateau",
 		},
 	}, i.DataCatalogItems(i.IntermediateItem(), "tran"))
 }
@@ -343,7 +338,6 @@ func TestFrn(t *testing.T) {
 					},
 				},
 			},
-			Category: "_plateau",
 		},
 	}, i.DataCatalogItems(i.IntermediateItem(), "frn"))
 
@@ -389,7 +383,6 @@ func TestFrn(t *testing.T) {
 					},
 				},
 			},
-			Category: "_plateau",
 		},
 	}, i.DataCatalogItems(i.IntermediateItem(), "frn"))
 }
@@ -445,7 +438,6 @@ func TestVeg(t *testing.T) {
 					},
 				},
 			},
-			Category: "_plateau",
 		},
 	}, i.DataCatalogItems(i.IntermediateItem(), "veg"))
 
@@ -491,7 +483,6 @@ func TestVeg(t *testing.T) {
 					},
 				},
 			},
-			Category: "_plateau",
 		},
 	}, i.DataCatalogItems(i.IntermediateItem(), "veg"))
 }
@@ -530,7 +521,6 @@ func TestLuse(t *testing.T) {
 			Year:        2020,
 			Format:      "mvt",
 			Layers:      []string{"luse"},
-			Category:    "_plateau",
 		},
 	}, i.DataCatalogItems(i.IntermediateItem(), "luse"))
 }
@@ -569,7 +559,6 @@ func TestLsld(t *testing.T) {
 			Year:        2020,
 			Format:      "mvt",
 			Layers:      []string{"lsld"},
-			Category:    "_plateau",
 		},
 	}, i.DataCatalogItems(i.IntermediateItem(), "lsld"))
 }
@@ -622,7 +611,7 @@ func TestUrf(t *testing.T) {
 			Year:        2020,
 			Format:      "mvt",
 			Layers:      []string{"QuasiUrbanPlanningArea"},
-			Category:    "_plateau",
+			RootType:    true,
 		},
 		{
 			ID:          "01100_sapporo-shi_urf_AreaClassification",
@@ -642,7 +631,7 @@ func TestUrf(t *testing.T) {
 			Year:        2020,
 			Format:      "mvt",
 			Layers:      []string{"AreaClassification"},
-			Category:    "_plateau",
+			RootType:    true,
 		},
 		{
 			ID:          "01100_sapporo-shi_urf_DistrictsAndZones",
@@ -661,7 +650,7 @@ func TestUrf(t *testing.T) {
 			Year:        2020,
 			Format:      "mvt",
 			Layers:      []string{"DistrictsAndZones"},
-			Category:    "_plateau",
+			RootType:    true,
 		},
 		{
 			ID:          "01100_sapporo-shi_urf_XXX",
@@ -680,7 +669,7 @@ func TestUrf(t *testing.T) {
 			Year:        2020,
 			Format:      "mvt",
 			Layers:      []string{"XXX"},
-			Category:    "_plateau",
+			RootType:    true,
 		},
 	}, i.DataCatalogItems(i.IntermediateItem(), "urf"))
 }
@@ -743,6 +732,7 @@ func TestFld(t *testing.T) {
 			CityCode:    "01100",
 			Type:        "洪水浸水想定区域モデル",
 			TypeEn:      "fld",
+			RootType:    true,
 			Description: "説明1",
 			URL:         "https://example.com/01100_sapporo-shi_2020_3dtiles_op_fld_natl_shikarigawa_toyohiragawa_l1/tileset.json",
 			OpenDataURL: "https://example.com",
@@ -762,7 +752,6 @@ func TestFld(t *testing.T) {
 					},
 				},
 			},
-			Category: "_plateau",
 		},
 		{
 			ID:          "01100_sapporo-shi_fld_natl_shinkawa_shinkawa_l1",
@@ -774,6 +763,7 @@ func TestFld(t *testing.T) {
 			CityCode:    "01100",
 			Type:        "洪水浸水想定区域モデル",
 			TypeEn:      "fld",
+			RootType:    true,
 			URL:         "https://example.com/01100_sapporo-shi_2020_3dtiles_op_fld_natl_shinkawa_shinkawa_l1/tileset.json",
 			OpenDataURL: "https://example.com",
 			Year:        2020,
@@ -792,7 +782,6 @@ func TestFld(t *testing.T) {
 					},
 				},
 			},
-			Category: "_plateau",
 		},
 		{
 			ID:          "01100_sapporo-shi_fld_pref_shinkawa_shinkawa_l1",
@@ -804,6 +793,7 @@ func TestFld(t *testing.T) {
 			CityCode:    "01100",
 			Type:        "洪水浸水想定区域モデル",
 			TypeEn:      "fld",
+			RootType:    true,
 			Description: "説明2",
 			URL:         "https://example.com/01100_sapporo-shi_2020_3dtiles_op_fld_pref_shinkawa_shinkawa_l1/tileset.json",
 			OpenDataURL: "https://example.com",
@@ -823,7 +813,6 @@ func TestFld(t *testing.T) {
 					},
 				},
 			},
-			Category: "_plateau",
 		},
 		{
 			ID:          "01100_sapporo-shi_fld_pref_zfoobar_l2",
@@ -835,6 +824,7 @@ func TestFld(t *testing.T) {
 			CityCode:    "01100",
 			Type:        "洪水浸水想定区域モデル",
 			TypeEn:      "fld",
+			RootType:    true,
 			URL:         "https://example.com/01100_sapporo-shi_2020_3dtiles_op_fld_pref_zfoobar_l2/tileset.json",
 			OpenDataURL: "https://example.com",
 			Year:        2020,
@@ -848,7 +838,6 @@ func TestFld(t *testing.T) {
 					},
 				},
 			},
-			Category: "_plateau",
 		},
 	}, i.DataCatalogItems(i.IntermediateItem(), "fld"))
 }
@@ -893,12 +882,12 @@ func TestTnm(t *testing.T) {
 			CityCode:    "01100",
 			Type:        "津波浸水想定区域モデル",
 			TypeEn:      "tnm",
+			RootType:    true,
 			Description: "説明1",
 			URL:         "https://example.com/01100_sapporo-shi_2020_3dtiles_4_op_tnm_01_1/tileset.json",
 			OpenDataURL: "https://example.com",
 			Year:        2020,
 			Format:      "3dtiles",
-			Category:    "_plateau",
 		},
 		{
 			ID:          "01100_sapporo-shi_tnm_02_1",
@@ -910,11 +899,11 @@ func TestTnm(t *testing.T) {
 			CityCode:    "01100",
 			Type:        "津波浸水想定区域モデル",
 			TypeEn:      "tnm",
+			RootType:    true,
 			URL:         "https://example.com/01100_sapporo-shi_2020_3dtiles_4_op_tnm_02_1/tileset.json",
 			OpenDataURL: "https://example.com",
 			Year:        2020,
 			Format:      "3dtiles",
-			Category:    "_plateau",
 		},
 		{
 			ID:          "01100_sapporo-shi_tnm_03_1",
@@ -926,11 +915,11 @@ func TestTnm(t *testing.T) {
 			CityCode:    "01100",
 			Type:        "津波浸水想定区域モデル",
 			TypeEn:      "tnm",
+			RootType:    true,
 			URL:         "https://example.com/01100_sapporo-shi_2020_3dtiles_4_op_tnm_03_1/tileset.json",
 			OpenDataURL: "https://example.com",
 			Year:        2020,
 			Format:      "3dtiles",
-			Category:    "_plateau",
 		},
 	}, i.DataCatalogItems(i.IntermediateItem(), "tnm"))
 }
@@ -971,12 +960,12 @@ func TestHtd(t *testing.T) {
 			CityCode:    "01100",
 			Type:        "高潮浸水想定区域モデル",
 			TypeEn:      "htd",
+			RootType:    true,
 			Description: "説明",
 			URL:         "https://example.com/01100_sapporo-shi_2020_3dtiles_4_op_htd_01_1/tileset.json",
 			OpenDataURL: "https://example.com",
 			Year:        2020,
 			Format:      "3dtiles",
-			Category:    "_plateau",
 		},
 		{
 			ID:          "01100_sapporo-shi_htd_02_1",
@@ -988,11 +977,11 @@ func TestHtd(t *testing.T) {
 			CityCode:    "01100",
 			Type:        "高潮浸水想定区域モデル",
 			TypeEn:      "htd",
+			RootType:    true,
 			URL:         "https://example.com/01100_sapporo-shi_2020_3dtiles_4_op_htd_02_1/tileset.json",
 			OpenDataURL: "https://example.com",
 			Year:        2020,
 			Format:      "3dtiles",
-			Category:    "_plateau",
 		},
 	}, i.DataCatalogItems(i.IntermediateItem(), "htd"))
 }
@@ -1033,12 +1022,12 @@ func TestIfld(t *testing.T) {
 			CityCode:    "01100",
 			Type:        "内水浸水想定区域モデル",
 			TypeEn:      "ifld",
+			RootType:    true,
 			Description: "説明",
 			URL:         "https://example.com/01100_sapporo-shi_2020_3dtiles_4_op_ifld_01_1/tileset.json",
 			OpenDataURL: "https://example.com",
 			Year:        2020,
 			Format:      "3dtiles",
-			Category:    "_plateau",
 		},
 		{
 			ID:          "01100_sapporo-shi_ifld_02_1",
@@ -1050,11 +1039,11 @@ func TestIfld(t *testing.T) {
 			CityCode:    "01100",
 			Type:        "内水浸水想定区域モデル",
 			TypeEn:      "ifld",
+			RootType:    true,
 			URL:         "https://example.com/01100_sapporo-shi_2020_3dtiles_4_op_ifld_02_1/tileset.json",
 			OpenDataURL: "https://example.com",
 			Year:        2020,
 			Format:      "3dtiles",
-			Category:    "_plateau",
 		},
 	}, i.DataCatalogItems(i.IntermediateItem(), "ifld"))
 }
@@ -1093,6 +1082,7 @@ func TestGen(t *testing.T) {
 			CityCode:    "01100",
 			Type:        "汎用都市オブジェクトモデル",
 			TypeEn:      "gen",
+			RootType:    true,
 			Description: "説明1",
 			URL:         "https://example.com/01100_sapporo-shi_2020_mvt_4_op_gen_AAA_AAA/{z}/{x}/{y}.mvt",
 			OpenDataURL: "https://example.com",
@@ -1109,9 +1099,8 @@ func TestGen(t *testing.T) {
 					},
 				},
 			},
-			Root:     true,
-			Order:    lo.ToPtr(100),
-			Category: "_plateau",
+			Root:  true,
+			Order: lo.ToPtr(100),
 		},
 		{
 			ID:          "01100_sapporo-shi_gen_BBB_BBB",
@@ -1123,6 +1112,7 @@ func TestGen(t *testing.T) {
 			CityCode:    "01100",
 			Type:        "汎用都市オブジェクトモデル",
 			TypeEn:      "gen",
+			RootType:    true,
 			Description: "説明2",
 			URL:         "https://example.com/01100_sapporo-shi_2020_3dtiles_4_op_gen_BBB_BBB/tileset.json",
 			OpenDataURL: "https://example.com",
@@ -1137,7 +1127,6 @@ func TestGen(t *testing.T) {
 					},
 				},
 			},
-			Category: "_plateau",
 		},
 	}, i.DataCatalogItems(i.IntermediateItem(), "gen"))
 }
@@ -1194,7 +1183,6 @@ func TestBrid(t *testing.T) {
 					},
 				},
 			},
-			Category: "_plateau",
 		},
 	}, i.DataCatalogItems(i.IntermediateItem(), "brid"))
 }
@@ -1251,7 +1239,6 @@ func TestRail(t *testing.T) {
 					},
 				},
 			},
-			Category: "_plateau",
 		},
 	}, i.DataCatalogItems(i.IntermediateItem(), "rail"))
 }
@@ -1329,7 +1316,6 @@ func TestExtra(t *testing.T) {
 					},
 				},
 			},
-			Category: "_plateau",
 		},
 		{
 			ID:          "01100_sapporo-shi_ex_port-hogehoge-hoge",
@@ -1374,7 +1360,6 @@ func TestExtra(t *testing.T) {
 					},
 				},
 			},
-			Category: "_plateau",
 		},
 	}, i.DataCatalogItems(i.IntermediateItem(), "extra"))
 }

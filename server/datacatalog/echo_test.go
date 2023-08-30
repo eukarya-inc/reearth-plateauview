@@ -133,16 +133,17 @@ func TestEchoMerge(t *testing.T) {
 			"year": 2022
 		},
 		{
-			"id": "y",
-			"type": "ユースケース",
-			"type_en": "usecase"
-		},
-		{
 			"id": "z"
 		},
 		{
 			"id": "c",
 			"city": "xxx市"
+		},
+		{
+			"id": "y",
+			"type": "ユースケース",
+			"type_en": "usecase",
+			"root_type": true
 		}
 	]`, rec.Body.String())
 }

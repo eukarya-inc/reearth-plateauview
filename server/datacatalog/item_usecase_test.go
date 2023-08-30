@@ -16,7 +16,7 @@ func TestUsecaseItem_DataCatalogs(t *testing.T) {
 		City:     "city",
 		Ward:     "ward",
 		Year:     2023,
-		Category: "ユースケース",
+		RootType: true,
 	}}, UsecaseItem{
 		ID:       "id",
 		DataURL:  "url2",
@@ -30,6 +30,27 @@ func TestUsecaseItem_DataCatalogs(t *testing.T) {
 
 	assert.Equal(t, []DataCatalogItem{{
 		ID:       "id",
+		Type:     "あああ",
+		TypeEn:   "あああ",
+		URL:      "url",
+		City:     "city",
+		Ward:     "ward",
+		Year:     2023,
+		RootType: true,
+	}}, UsecaseItem{
+		ID:       "id",
+		DataURL:  "url2",
+		CityName: "city",
+		WardName: "ward",
+		Data: &cms.PublicAsset{
+			URL: "url",
+		},
+		Year:     "2023年度",
+		Category: "あああ",
+	}.DataCatalogs())
+
+	assert.Equal(t, []DataCatalogItem{{
+		ID:       "id",
 		Type:     "フォルダ",
 		TypeEn:   "folder",
 		Name:     "name",
@@ -39,7 +60,6 @@ func TestUsecaseItem_DataCatalogs(t *testing.T) {
 		CityCode: "27100",
 		Ward:     "北区",
 		WardCode: "27146",
-		Category: "ユースケース",
 	}}, UsecaseItem{
 		ID:         "id",
 		Name:       "name",

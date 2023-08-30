@@ -38,11 +38,6 @@ func (i UsecaseItem) GetCityName() string {
 }
 
 func (i UsecaseItem) DataCatalogs() []DataCatalogItem {
-	cat := i.Category
-	if cat == "" {
-		cat = "ユースケース"
-	}
-
 	pref, prefCodeInt := normalizePref(i.Prefecture)
 	prefCode := jpareacode.FormatPrefectureCode(prefCodeInt)
 
@@ -70,7 +65,6 @@ func (i UsecaseItem) DataCatalogs() []DataCatalogItem {
 			Ward:        ward,
 			WardCode:    wCode,
 			Description: i.Description,
-			Category:    cat,
 		}}
 	}
 
@@ -92,11 +86,17 @@ func (i UsecaseItem) DataCatalogs() []DataCatalogItem {
 		layers = lo.Filter(util.Map(strings.Split(i.DataLayers, ","), strings.TrimSpace), func(s string, _ int) bool { return s != "" })
 	}
 
+	ty, tye := i.Category, i.Category
+	if ty == "" {
+		ty = "ユースケース"
+		tye = "usecase"
+	}
+
 	return []DataCatalogItem{{
 		ID:          i.ID,
 		Name:        i.Name,
-		Type:        "ユースケース",
-		TypeEn:      "usecase",
+		Type:        ty,
+		TypeEn:      tye,
 		Pref:        pref,
 		PrefCode:    prefCode,
 		City:        city,
@@ -111,6 +111,6 @@ func (i UsecaseItem) DataCatalogs() []DataCatalogItem {
 		Year:        yearInt(i.Year),
 		OpenDataURL: i.OpenDataURL,
 		Order:       i.Order,
-		Category:    cat,
+		RootType:    true,
 	}}
 }

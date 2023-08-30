@@ -28,7 +28,6 @@ func TestDatasetItem_DataCatalogs(t *testing.T) {
 		Config:      map[string]any{"a": "b"},
 		OpenDataURL: "https://example.com",
 		Order:       lo.ToPtr(100),
-		Category:    "_plateau_misc",
 	}}, DatasetItem{
 		ID:          "id",
 		Name:        "name",
@@ -46,12 +45,11 @@ func TestDatasetItem_DataCatalogs(t *testing.T) {
 	}.DataCatalogs())
 
 	assert.Equal(t, []DataCatalogItem{{
-		ID:       "id",
-		URL:      "url",
-		City:     "city",
-		Ward:     "ward",
-		Year:     2023,
-		Category: "_plateau_misc",
+		ID:   "id",
+		URL:  "url",
+		City: "city",
+		Ward: "ward",
+		Year: 2023,
 	}}, DatasetItem{
 		ID:       "id",
 		DataURL:  "url2",

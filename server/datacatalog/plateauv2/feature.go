@@ -84,8 +84,9 @@ var FeatureOptions = map[string]DataCatalogItemBuilderOption{
 		Layers: []string{"lsld"},
 	},
 	"urf": {
-		Type:   "都市計画決定情報モデル",
-		TypeEn: "urf",
+		Type:     "都市計画決定情報モデル",
+		TypeEn:   "urf",
+		RootType: true,
 		Group: func(ctx ItemContext) Override {
 			var name, t2 string
 			ft := normalizeUrfFeatureType(ctx.AssetName.UrfFeatureType)
@@ -120,8 +121,9 @@ var FeatureOptions = map[string]DataCatalogItemBuilderOption{
 		},
 	},
 	"fld": {
-		Type:   "洪水浸水想定区域モデル",
-		TypeEn: "fld",
+		Type:     "洪水浸水想定区域モデル",
+		TypeEn:   "fld",
+		RootType: true,
 		Group: func(ctx ItemContext) Override {
 			subname := ""
 			if ctx.DicEntry != nil {
@@ -166,8 +168,9 @@ var FeatureOptions = map[string]DataCatalogItemBuilderOption{
 		},
 	},
 	"tnm": {
-		Type:   "津波浸水想定区域モデル",
-		TypeEn: "tnm",
+		Type:     "津波浸水想定区域モデル",
+		TypeEn:   "tnm",
+		RootType: true,
 		Group: func(ctx ItemContext) Override {
 			subname := ctx.AssetName.FldName
 			if ctx.DicEntry != nil {
@@ -183,8 +186,9 @@ var FeatureOptions = map[string]DataCatalogItemBuilderOption{
 		},
 	},
 	"htd": {
-		Type:   "高潮浸水想定区域モデル",
-		TypeEn: "htd",
+		Type:     "高潮浸水想定区域モデル",
+		TypeEn:   "htd",
+		RootType: true,
 		Group: func(ctx ItemContext) Override {
 			subname := ctx.AssetName.FldName
 			if ctx.DicEntry != nil {
@@ -200,8 +204,9 @@ var FeatureOptions = map[string]DataCatalogItemBuilderOption{
 		},
 	},
 	"ifld": {
-		Type:   "内水浸水想定区域モデル",
-		TypeEn: "ifld",
+		Type:     "内水浸水想定区域モデル",
+		TypeEn:   "ifld",
+		RootType: true,
 		Group: func(ctx ItemContext) Override {
 			subname := ctx.AssetName.FldName
 			if ctx.DicEntry != nil {
@@ -233,6 +238,7 @@ var FeatureOptions = map[string]DataCatalogItemBuilderOption{
 	"gen": {
 		Type:         "汎用都市オブジェクトモデル",
 		TypeEn:       "gen",
+		RootType:     true,
 		MultipleDesc: true,
 		LOD:          true,
 		SortByLOD:    true,
