@@ -2,7 +2,7 @@
 
 name: ⭐️ Deploy reearth dev
 on:
-  pull_request:
+  workflow_dispatch:
 env:
   GCS_DEST: gs://plateau-dev-reearth-app-bucket
   # TODO: allow to specify version of reearth
