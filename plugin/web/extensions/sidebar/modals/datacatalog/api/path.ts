@@ -14,7 +14,8 @@ export type CatalogItemLike = {
   root_type?: boolean;
 };
 
-export type GroupBy = "city" | "type";
+// tag is not used for grouping, but it is refered from data catalog components
+export type GroupBy = "city" | "type" | "tag";
 
 export default function path(
   i: CatalogItemLike,
