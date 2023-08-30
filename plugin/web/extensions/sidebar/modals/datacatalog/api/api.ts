@@ -14,6 +14,8 @@ export type { DataCatalogItem, DataCatalogGroup, DataCatalogTreeItem };
 
 export type RawDataCatalogTreeItem = RawDataCatalogGroup | RawDataCatalogItem;
 
+export type { GroupBy } from "./path";
+
 export type RawDataCatalogGroup = {
   id: string;
   name: string;
