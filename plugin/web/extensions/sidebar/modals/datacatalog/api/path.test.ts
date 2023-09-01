@@ -63,35 +63,6 @@ const tests: [CatalogItemLike, boolean, GroupBy, string[]][] = [
     ["pref", "city", "a", "b", "c", "city_group"],
   ],
   [
-    // type2
-    {
-      id: "id",
-      pref: "pref",
-      city: "city",
-      type: "type",
-      type_en: "type_en",
-      type2: "type2",
-      name: "city_type2",
-    },
-    false,
-    "city",
-    ["pref", "city", "type", "city_type2"],
-  ],
-  [
-    // special type
-    {
-      id: "id",
-      pref: "pref",
-      city: "city",
-      type: "gen!",
-      type_en: "gen", // gen is included in typesWithFolders
-      name: "city_special_type",
-    },
-    false,
-    "city",
-    ["pref", "city", "gen!", "city_special_type"],
-  ],
-  [
     // root
     {
       id: "id",
@@ -130,6 +101,7 @@ const tests: [CatalogItemLike, boolean, GroupBy, string[]][] = [
       type: "ユースケース",
       type_en: "usecase",
       name: "city_usecase",
+      root_type: true, // normal usecase data has root_type
     },
     false,
     "city",
@@ -206,21 +178,6 @@ const tests: [CatalogItemLike, boolean, GroupBy, string[]][] = [
     false,
     "type",
     ["タイプ", "pref", "a", "b", "c", "type_group"],
-  ],
-  [
-    // type2
-    {
-      id: "id",
-      pref: "pref",
-      city: "city",
-      type: "type",
-      type_en: "type_en",
-      type2: "type2",
-      name: "type_type2",
-    },
-    false,
-    "type",
-    ["type", "pref", "city", "type_type2"],
   ],
   [
     // usecase

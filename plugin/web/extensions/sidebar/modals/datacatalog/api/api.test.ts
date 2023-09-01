@@ -49,6 +49,7 @@ test("modifyDataCatalog", () => {
     ward_code: "11112",
     city_en: "city",
     year: 2022,
+    root_type: true,
   };
   expect(modifyDataCatalog(d)).toEqual({
     ...d,
@@ -191,6 +192,7 @@ test("getRawDataCatalogTree by cities as custom dataset", () => {
           url: "",
           desc: "",
           year: 2021,
+          root_type: true,
         },
       ],
     },
@@ -226,6 +228,7 @@ test("getRawDataCatalogTree by cities as custom dataset", () => {
               url: "",
               desc: "",
               year: 2022,
+              root_type: true,
             },
           ],
         },
@@ -606,6 +609,7 @@ const tokyoUsecase: RawDataCatalogItem = {
   url: "",
   desc: "",
   year: 2021,
+  root_type: true,
 };
 
 const tokyoUsecaseByType = {
@@ -660,6 +664,7 @@ const utsunomiyashiUseDictrict: RawDataCatalogItem = {
   url: "",
   desc: "",
   year: 2022,
+  root_type: true,
 };
 
 const utsunomiyashiUseDictrictByType = {
