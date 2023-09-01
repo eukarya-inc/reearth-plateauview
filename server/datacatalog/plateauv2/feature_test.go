@@ -65,6 +65,7 @@ func TestBldg(t *testing.T) {
 			SearchIndex: "https://example.com/01100_sapporo-shi_2020_3dtiles_op_bldg_01101_chuo-ku_index/indexRoot.json",
 			Year:        2020,
 			OpenDataURL: "https://example.com",
+			Infobox:     true,
 			Config: DataCatalogItemConfig{
 				Data: []DataCatalogItemConfigItem{
 					{
@@ -99,6 +100,7 @@ func TestBldg(t *testing.T) {
 			SearchIndex: "https://example.com/01100_sapporo-shi_2020_3dtiles_op_bldg_01102_kita-ku_index/indexRoot.json",
 			Year:        2020,
 			OpenDataURL: "https://example.com",
+			Infobox:     true,
 			Config: DataCatalogItemConfig{
 				Data: []DataCatalogItemConfigItem{
 					{
@@ -159,6 +161,7 @@ func TestBldg(t *testing.T) {
 			SearchIndex: "https://example.com/01100_sapporo-shi_2020_3dtiles_op_bldg_index/indexRoot.json",
 			Year:        2020,
 			OpenDataURL: "https://example.com",
+			Infobox:     true,
 			Config: DataCatalogItemConfig{
 				Data: []DataCatalogItemConfigItem{
 					{
@@ -216,6 +219,7 @@ func TestTran(t *testing.T) {
 			OpenDataURL: "https://example.com",
 			Year:        2020,
 			Format:      "3dtiles",
+			Infobox:     true,
 			Config: DataCatalogItemConfig{
 				Data: []DataCatalogItemConfigItem{
 					{
@@ -273,6 +277,7 @@ func TestTran(t *testing.T) {
 			Format:      "mvt",
 			Layers:      []string{"Road"},
 			Year:        2020,
+			Infobox:     true,
 			Config: DataCatalogItemConfig{
 				Data: []DataCatalogItemConfigItem{
 					{
@@ -324,6 +329,7 @@ func TestFrn(t *testing.T) {
 			OpenDataURL: "https://example.com",
 			Year:        2020,
 			Format:      "3dtiles",
+			Infobox:     true,
 			Config: DataCatalogItemConfig{
 				Data: []DataCatalogItemConfigItem{
 					{
@@ -374,6 +380,7 @@ func TestFrn(t *testing.T) {
 			OpenDataURL: "https://example.com",
 			Year:        2020,
 			Format:      "3dtiles",
+			Infobox:     true,
 			Config: DataCatalogItemConfig{
 				Data: []DataCatalogItemConfigItem{
 					{
@@ -424,6 +431,7 @@ func TestVeg(t *testing.T) {
 			OpenDataURL: "https://example.com",
 			Year:        2020,
 			Format:      "3dtiles",
+			Infobox:     true,
 			Config: DataCatalogItemConfig{
 				Data: []DataCatalogItemConfigItem{
 					{
@@ -474,6 +482,7 @@ func TestVeg(t *testing.T) {
 			OpenDataURL: "https://example.com",
 			Year:        2020,
 			Format:      "3dtiles",
+			Infobox:     true,
 			Config: DataCatalogItemConfig{
 				Data: []DataCatalogItemConfigItem{
 					{
@@ -521,6 +530,7 @@ func TestLuse(t *testing.T) {
 			Year:        2020,
 			Format:      "mvt",
 			Layers:      []string{"luse"},
+			Infobox:     true,
 		},
 	}, i.DataCatalogItems(i.IntermediateItem(), "luse"))
 }
@@ -559,6 +569,7 @@ func TestLsld(t *testing.T) {
 			Year:        2020,
 			Format:      "mvt",
 			Layers:      []string{"lsld"},
+			Infobox:     true,
 		},
 	}, i.DataCatalogItems(i.IntermediateItem(), "lsld"))
 }
@@ -612,6 +623,7 @@ func TestUrf(t *testing.T) {
 			Format:      "mvt",
 			Layers:      []string{"QuasiUrbanPlanningArea"},
 			RootType:    true,
+			Infobox:     true,
 		},
 		{
 			ID:          "01100_sapporo-shi_urf_AreaClassification",
@@ -632,6 +644,7 @@ func TestUrf(t *testing.T) {
 			Format:      "mvt",
 			Layers:      []string{"AreaClassification"},
 			RootType:    true,
+			Infobox:     true,
 		},
 		{
 			ID:          "01100_sapporo-shi_urf_DistrictsAndZones",
@@ -651,6 +664,7 @@ func TestUrf(t *testing.T) {
 			Format:      "mvt",
 			Layers:      []string{"DistrictsAndZones"},
 			RootType:    true,
+			Infobox:     true,
 		},
 		{
 			ID:          "01100_sapporo-shi_urf_XXX",
@@ -670,6 +684,7 @@ func TestUrf(t *testing.T) {
 			Format:      "mvt",
 			Layers:      []string{"XXX"},
 			RootType:    true,
+			Infobox:     true,
 		},
 	}, i.DataCatalogItems(i.IntermediateItem(), "urf"))
 }
@@ -738,6 +753,7 @@ func TestFld(t *testing.T) {
 			OpenDataURL: "https://example.com",
 			Year:        2020,
 			Format:      "3dtiles",
+			Infobox:     true,
 			Config: DataCatalogItemConfig{
 				Data: []DataCatalogItemConfigItem{
 					{
@@ -768,6 +784,7 @@ func TestFld(t *testing.T) {
 			OpenDataURL: "https://example.com",
 			Year:        2020,
 			Format:      "3dtiles",
+			Infobox:     true,
 			Config: DataCatalogItemConfig{
 				Data: []DataCatalogItemConfigItem{
 					{
@@ -799,6 +816,7 @@ func TestFld(t *testing.T) {
 			OpenDataURL: "https://example.com",
 			Year:        2020,
 			Format:      "3dtiles",
+			Infobox:     true,
 			Config: DataCatalogItemConfig{
 				Data: []DataCatalogItemConfigItem{
 					{
@@ -829,6 +847,7 @@ func TestFld(t *testing.T) {
 			OpenDataURL: "https://example.com",
 			Year:        2020,
 			Format:      "3dtiles",
+			Infobox:     true,
 			Config: DataCatalogItemConfig{
 				Data: []DataCatalogItemConfigItem{
 					{
@@ -888,6 +907,7 @@ func TestTnm(t *testing.T) {
 			OpenDataURL: "https://example.com",
 			Year:        2020,
 			Format:      "3dtiles",
+			Infobox:     true,
 		},
 		{
 			ID:          "01100_sapporo-shi_tnm_02_1",
@@ -904,6 +924,7 @@ func TestTnm(t *testing.T) {
 			OpenDataURL: "https://example.com",
 			Year:        2020,
 			Format:      "3dtiles",
+			Infobox:     true,
 		},
 		{
 			ID:          "01100_sapporo-shi_tnm_03_1",
@@ -920,6 +941,7 @@ func TestTnm(t *testing.T) {
 			OpenDataURL: "https://example.com",
 			Year:        2020,
 			Format:      "3dtiles",
+			Infobox:     true,
 		},
 	}, i.DataCatalogItems(i.IntermediateItem(), "tnm"))
 }
@@ -966,6 +988,7 @@ func TestHtd(t *testing.T) {
 			OpenDataURL: "https://example.com",
 			Year:        2020,
 			Format:      "3dtiles",
+			Infobox:     true,
 		},
 		{
 			ID:          "01100_sapporo-shi_htd_02_1",
@@ -982,6 +1005,7 @@ func TestHtd(t *testing.T) {
 			OpenDataURL: "https://example.com",
 			Year:        2020,
 			Format:      "3dtiles",
+			Infobox:     true,
 		},
 	}, i.DataCatalogItems(i.IntermediateItem(), "htd"))
 }
@@ -1028,6 +1052,7 @@ func TestIfld(t *testing.T) {
 			OpenDataURL: "https://example.com",
 			Year:        2020,
 			Format:      "3dtiles",
+			Infobox:     true,
 		},
 		{
 			ID:          "01100_sapporo-shi_ifld_02_1",
@@ -1044,6 +1069,7 @@ func TestIfld(t *testing.T) {
 			OpenDataURL: "https://example.com",
 			Year:        2020,
 			Format:      "3dtiles",
+			Infobox:     true,
 		},
 	}, i.DataCatalogItems(i.IntermediateItem(), "ifld"))
 }
@@ -1099,8 +1125,9 @@ func TestGen(t *testing.T) {
 					},
 				},
 			},
-			Root:  true,
-			Order: lo.ToPtr(100),
+			Root:    true,
+			Order:   lo.ToPtr(100),
+			Infobox: true,
 		},
 		{
 			ID:          "01100_sapporo-shi_gen_BBB_BBB",
@@ -1118,6 +1145,7 @@ func TestGen(t *testing.T) {
 			OpenDataURL: "https://example.com",
 			Year:        2020,
 			Format:      "3dtiles",
+			Infobox:     true,
 			Config: DataCatalogItemConfig{
 				Data: []DataCatalogItemConfigItem{
 					{
@@ -1168,6 +1196,7 @@ func TestBrid(t *testing.T) {
 			Year:        2020,
 			Format:      "mvt",
 			Layers:      []string{"brid"},
+			Infobox:     true,
 			Config: DataCatalogItemConfig{
 				Data: []DataCatalogItemConfigItem{
 					{
@@ -1224,6 +1253,7 @@ func TestRail(t *testing.T) {
 			Year:        2020,
 			Format:      "mvt",
 			Layers:      []string{"rail"},
+			Infobox:     true,
 			Config: DataCatalogItemConfig{
 				Data: []DataCatalogItemConfigItem{
 					{
@@ -1266,7 +1296,7 @@ func TestExtra(t *testing.T) {
 説明3`,
 			`01100_sapporo-shi_2020_mvt_4_op_ex-port-hogehoge-hoge_lod2_no_texture.zip
 @layer: layer1, layer2
-@datasetOrder: -1
+@dataset_order: -1
 説明4`,
 			`01100_sapporo-shi_2020_3dtiles_4_op_ex-port-hogehoge-hoge_no_texture.zip
 説明5`,
@@ -1307,6 +1337,7 @@ func TestExtra(t *testing.T) {
 			OpenDataURL: "https://example.com",
 			Year:        2020,
 			Format:      "3dtiles",
+			Infobox:     true,
 			Config: DataCatalogItemConfig{
 				Data: []DataCatalogItemConfigItem{
 					{ // asset 1
@@ -1333,6 +1364,7 @@ func TestExtra(t *testing.T) {
 			URL:         "https://example.com/01100_sapporo-shi_2020_mvt_4_op_ex-port-hogehoge-hoge_lod2_no_texture/{z}/{x}/{y}.mvt",
 			Format:      "mvt",
 			Layers:      []string{"layer1", "layer2"},
+			Infobox:     true,
 			Config: DataCatalogItemConfig{
 				Data: []DataCatalogItemConfigItem{
 					{ // asset 4

@@ -17,7 +17,6 @@ const folderEn = "folder"
 type UsecaseItem struct {
 	ID          string           `json:"id,omitempty"`
 	Name        string           `json:"name,omitempty"`
-	Type        string           `json:"type,omitempty"`
 	Prefecture  string           `json:"prefecture,omitempty"`
 	CityName    string           `json:"city_name,omitempty"`
 	WardName    string           `json:"ward_name,omitempty"`
@@ -31,6 +30,9 @@ type UsecaseItem struct {
 	Config      string           `json:"config,omitempty"`
 	Order       *int             `json:"order,omitempty"`
 	Category    string           `json:"category,omitempty"`
+	Type        string           `json:"type,omitempty"`
+	TypeEn      string           `json:"type_en,omitempty"`
+	Infobox     bool             `json:"infobox,omitempty"`
 }
 
 func (i UsecaseItem) GetCityName() string {
@@ -86,17 +88,25 @@ func (i UsecaseItem) DataCatalogs() []DataCatalogItem {
 		layers = lo.Filter(util.Map(strings.Split(i.DataLayers, ","), strings.TrimSpace), func(s string, _ int) bool { return s != "" })
 	}
 
-	ty, tye := i.Category, i.Category
-	if ty == "" || ty == "ユースケース" {
+	ty, tyen := i.Type, i.TypeEn
+	if ty != "" && tyen == "" {
+		tyen = ty
+	}
+	if ty == "" || ty == "ユースケース" || tyen == "usecase" {
 		ty = "ユースケース"
-		tye = "usecase"
+		tyen = "usecase"
+	}
+
+	cat := i.Category
+	if cat == "" && ty != "ユースケース" {
+		cat = "ユースケース"
 	}
 
 	return []DataCatalogItem{{
 		ID:          i.ID,
 		Name:        i.Name,
 		Type:        ty,
-		TypeEn:      tye,
+		TypeEn:      tyen,
 		Pref:        pref,
 		PrefCode:    prefCode,
 		City:        city,
@@ -112,5 +122,7 @@ func (i UsecaseItem) DataCatalogs() []DataCatalogItem {
 		OpenDataURL: i.OpenDataURL,
 		Order:       i.Order,
 		RootType:    pref != zenkyu,
+		Category:    cat,
+		Infobox:     i.Infobox,
 	}}
 }

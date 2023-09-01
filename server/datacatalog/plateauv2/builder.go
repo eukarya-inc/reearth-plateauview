@@ -392,6 +392,7 @@ func (b *DataCatalogItemBuilder) dataCatalogItem(a asset, g assetGroup, desc str
 		Root:        override.Root,
 		Order:       override.Order,
 		Group:       override.Group,
+		Infobox:     true,
 	}
 }
 

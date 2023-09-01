@@ -891,24 +891,7 @@ function createLayer(dataset: DataCatalogItem, overrides?: any) {
     },
     visible: true,
     infobox: lodashMerge(
-      [
-        "bldg",
-        "tran",
-        "frn",
-        "veg",
-        "luse",
-        "lsld",
-        "urf",
-        "fld",
-        "htd",
-        "tnm",
-        "ifld",
-        "rail",
-        "brid",
-        "cons",
-        "wwy",
-        "area",
-      ].includes(dataset.type_en)
+      extendedInfoboxNeeded(dataset)
         ? {
             blocks: [
               {
@@ -952,6 +935,30 @@ function createLayer(dataset: DataCatalogItem, overrides?: any) {
         }
       : { ...(omit(overrides, ["data", "infobox"]) ?? {}) }),
   };
+}
+
+function extendedInfoboxNeeded(dataset: DataCatalogItem): boolean {
+  return (
+    !!dataset.infobox ||
+    [
+      "bldg",
+      "tran",
+      "frn",
+      "veg",
+      "luse",
+      "lsld",
+      "urf",
+      "fld",
+      "htd",
+      "tnm",
+      "ifld",
+      "rail",
+      "brid",
+      "cons",
+      "wwy",
+      "area",
+    ].includes(dataset.type_en)
+  );
 }
 
 const infoboxGlobal = {

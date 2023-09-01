@@ -1,25 +1,35 @@
 package plateauv2
 
 import (
+	"path"
+	"strings"
+
 	"github.com/eukarya-inc/reearth-plateauview/server/datacatalog/datacatalogutil"
+	"github.com/mitchellh/mapstructure"
 	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
 )
 
+type Description struct {
+	Desc     string
+	Override Override
+}
+
 type Override struct {
-	Name         string
-	SubName      string
-	Type         string
-	TypeEn       string
-	Type2        string
-	Type2En      string
-	Area         string
-	ItemName     string
-	Group        string
-	Layers       []string
-	Root         bool
-	Order        *int
-	DatasetOrder *int
+	Name         string   `mapstructure:"name"`
+	SubName      string   `mapstructure:"subname"`
+	Type         string   `mapstructure:"type"`
+	TypeEn       string   `mapstructure:"type_en"`
+	Type2        string   `mapstructure:"type2"`
+	Type2En      string   `mapstructure:"type2_en"`
+	Area         string   `mapstructure:"area"`
+	ItemName     string   `mapstructure:"item_name"`
+	Group        string   `mapstructure:"group"`
+	Layer        string   `mapstructure:"layer"`
+	Layers       []string `mapstructure:"-"`
+	Root         bool     `mapstructure:"root"`
+	Order        *int     `mapstructure:"order"`
+	DatasetOrder *int     `mapstructure:"dataset_order"`
 }
 
 func (o Override) Merge(p Override) Override {
@@ -101,4 +111,51 @@ func (o ItemOverride) LayersIfSupported(ty string) []string {
 		return o.Layers
 	}
 	return nil
+}
+
+func OverrideFromTags(tags map[string]string) (o Override) {
+	d, _ := mapstructure.NewDecoder(&mapstructure.DecoderConfig{
+		WeaklyTypedInput: true,
+		Result:           &o,
+	})
+	_ = d.Decode(tags)
+	o.Layers = multipleValues(o.Layer)
+	return o
+}
+
+func DescriptionFrom(d string) Description {
+	desc := datacatalogutil.DescriptionFrom(d)
+	return Description{
+		Desc:     desc.Desc,
+		Override: OverrideFromTags(desc.Tags),
+	}
+}
+
+func descFromAsset(an AssetName, descs []string, single bool) Description {
+	if single && len(descs) > 0 {
+		return DescriptionFrom(descs[0])
+	}
+
+	if len(descs) == 0 {
+		return Description{}
+	}
+
+	assetName := an.String()
+	fn := strings.TrimSuffix(assetName, path.Ext(assetName))
+	for _, desc := range descs {
+		b, a, ok := strings.Cut(desc, "\n")
+		if ok && strings.Contains(b, fn) {
+			return DescriptionFrom(a)
+		}
+	}
+
+	return Description{}
+}
+
+func multipleValues(v string) []string {
+	vv := strings.Split(v, ",")
+	if len(vv) == 0 || len(vv) == 1 && vv[0] == "" {
+		return nil
+	}
+	return util.Map(vv, strings.TrimSpace)
 }

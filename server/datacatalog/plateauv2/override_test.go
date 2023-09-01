@@ -60,12 +60,16 @@ func TestDescFromAsset(t *testing.T) {
 	}, desc)
 
 	desc = descFromAsset(a, []string{
-		"000000_hoge-shi_2020_mvt_op_urf_urf.zip\n@name:CCC\n@group:aaaa",
+		"000000_hoge-shi_2020_mvt_op_urf_urf.zip\n@name:CCC\n@group:aaaa\n@layer: ccc, ddd\n@root: true\n@dataset_order: -1",
 	}, false)
 	assert.Equal(t, Description{
 		Override: Override{
-			Name:  "CCC",
-			Group: "aaaa",
+			Name:         "CCC",
+			Group:        "aaaa",
+			Layer:        "ccc, ddd",
+			Layers:       []string{"ccc", "ddd"},
+			Root:         true,
+			DatasetOrder: lo.ToPtr(-1),
 		},
 	}, desc)
 
@@ -79,30 +83,4 @@ func TestDescFromAsset(t *testing.T) {
 			Name: "bbb",
 		},
 	}, desc)
-}
-
-func TestDescriptionFrom(t *testing.T) {
-	assert.Equal(t, Description{
-		Desc: "aaa",
-		Override: Override{
-			Name:         "bbb",
-			DatasetOrder: lo.ToPtr(12),
-		},
-	}, DescriptionFrom("@name: bbb\n@datasetOrder: 12\n\naaa"))
-}
-
-func TestExtractTags(t *testing.T) {
-	tags, rest := extractTags("\n\n@name: CCC\n@aaa: bbb\n\n@type: DDD\n\n@layer: aaa,bbb,ccc\n@order: 1\n\naaaa\nbbbb")
-	assert.Equal(t, map[string]string{
-		"name":  "CCC",
-		"aaa":   "bbb",
-		"type":  "DDD",
-		"layer": "aaa,bbb,ccc",
-		"order": "1",
-	}, tags)
-	assert.Equal(t, "aaaa\nbbbb", rest)
-
-	tags, rest = extractTags("aaaa\nbbbb")
-	assert.Equal(t, map[string]string{}, tags)
-	assert.Equal(t, "aaaa\nbbbb", rest)
 }

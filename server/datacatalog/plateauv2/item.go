@@ -25,7 +25,12 @@ type DataCatalogItem struct {
 	OpenDataURL string   `json:"openDataUrl,omitempty"`
 	Config      any      `json:"config,omitempty"`
 	Order       *int     `json:"order,omitempty"`
-	Root        bool     `json:"root,omitempty"`
-	RootType    bool     `json:"root_type,omitempty"`
-	Group       string   `json:"group,omitempty"`
+	// force not creating a type folder
+	Root bool `json:"root,omitempty"`
+	// force creating a type folder on root
+	RootType bool   `json:"root_type,omitempty"`
+	Group    string `json:"group,omitempty"`
+	Infobox  bool   `json:"infobox,omitempty"`
+	// alias of type that is used as a folder name
+	Category string `json:"category,omitempty"`
 }

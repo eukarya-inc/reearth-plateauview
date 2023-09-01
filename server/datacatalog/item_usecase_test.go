@@ -17,26 +17,7 @@ func TestUsecaseItem_DataCatalogs(t *testing.T) {
 		Ward:     "ward",
 		Year:     2023,
 		RootType: true,
-	}}, UsecaseItem{
-		ID:       "id",
-		DataURL:  "url2",
-		CityName: "city",
-		WardName: "ward",
-		Data: &cms.PublicAsset{
-			URL: "url",
-		},
-		Year: "2023年度",
-	}.DataCatalogs())
-
-	assert.Equal(t, []DataCatalogItem{{
-		ID:       "id",
-		Type:     "あああ",
-		TypeEn:   "あああ",
-		URL:      "url",
-		City:     "city",
-		Ward:     "ward",
-		Year:     2023,
-		RootType: true,
+		Category: "aaa",
 	}}, UsecaseItem{
 		ID:       "id",
 		DataURL:  "url2",
@@ -46,7 +27,35 @@ func TestUsecaseItem_DataCatalogs(t *testing.T) {
 			URL: "url",
 		},
 		Year:     "2023年度",
-		Category: "あああ",
+		Category: "aaa",
+	}.DataCatalogs())
+
+	assert.Equal(t, []DataCatalogItem{{
+		ID:       "id",
+		Type:     "あああ",
+		TypeEn:   "あああ",
+		City:     "city",
+		RootType: true,
+		Category: "ユースケース",
+	}}, UsecaseItem{
+		ID:       "id",
+		Type:     "あああ",
+		CityName: "city",
+	}.DataCatalogs())
+
+	assert.Equal(t, []DataCatalogItem{{
+		ID:       "id",
+		Type:     "あああ",
+		TypeEn:   "aaa",
+		City:     "city",
+		RootType: true,
+		Category: "cat",
+	}}, UsecaseItem{
+		ID:       "id",
+		Type:     "あああ",
+		TypeEn:   "aaa",
+		CityName: "city",
+		Category: "cat",
 	}.DataCatalogs())
 
 	assert.Equal(t, []DataCatalogItem{{

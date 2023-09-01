@@ -65,6 +65,9 @@ type RawRawDataCatalogItem = {
   root?: boolean;
   /** force to make a folder even if type is not special (included in typesWithFolders) */
   root_type?: boolean;
+  /** alias of type that is used as a folder name */
+  category?: string;
+  infobox?: boolean;
 
   // bldg only fields
   search_index?: string;

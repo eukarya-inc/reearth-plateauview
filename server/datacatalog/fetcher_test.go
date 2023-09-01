@@ -14,8 +14,8 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-// snapshot test
 func TestFetcher(t *testing.T) {
+	// snapshot-like test
 	base, _ := os.LookupEnv("REEARTH_PLATEAUVIEW_TEST_BASE")
 	project, _ := os.LookupEnv("REEARTH_PLATEAUVIEW_TEST_PROJECT_PLATEAU")
 	currentAPI, _ := os.LookupEnv("REEARTH_PLATEAUVIEW_TEST_DATACATALOG_API")
