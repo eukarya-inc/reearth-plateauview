@@ -1,4 +1,4 @@
-package datacatalog
+package datacatalogv2
 
 import (
 	"github.com/eukarya-inc/reearth-plateauview/server/datacatalog/plateauv2"

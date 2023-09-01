@@ -6,7 +6,7 @@ import (
 	"os"
 
 	"github.com/eukarya-inc/reearth-plateauview/server/cmsintegration"
-	"github.com/eukarya-inc/reearth-plateauview/server/datacatalog"
+	"github.com/eukarya-inc/reearth-plateauview/server/datacatalog/datacatalogv2"
 	"github.com/eukarya-inc/reearth-plateauview/server/dataconv"
 	"github.com/eukarya-inc/reearth-plateauview/server/geospatialjp"
 	"github.com/eukarya-inc/reearth-plateauview/server/opinion"
@@ -179,8 +179,8 @@ func (c *Config) Sidebar() sidebar.Config {
 	}
 }
 
-func (c *Config) DataCatalog() datacatalog.Config {
-	return datacatalog.Config{
+func (c *Config) DataCatalog() datacatalogv2.Config {
+	return datacatalogv2.Config{
 		Config:       c.PLATEAUCMS(),
 		CMSBase:      c.CMS_BaseURL,
 		DisableCache: c.DataCatalog_DisableCache,

@@ -1,0 +1,209 @@
+# Base
+
+interface Node {
+  id: ID!
+}
+
+# Area
+
+interface Area implements Node {
+  id: ID!
+  code: String!
+  name: String!
+  parents: [Area!]!
+  type: AreaType!
+}
+
+enum AreaType {
+  Municipality
+  Prefecture
+}
+
+input DatasetForAreaQuery {
+  excludeTypes: [DatasetType!]
+  includeTypes: [DatasetType!]
+  searchTokens: [String!]
+}
+
+type Country implements Area & Node {
+  id: ID!
+  code: String!
+  name: String!
+  parents: [Area!]!
+  type: AreaType!
+
+  prefectures: [Prefecture!]!
+  datasets(input: DatasetForAreaQuery!): [Dataset!]!
+}
+
+type Municipality implements Area & Node {
+  id: ID!
+  code: String!
+  name: String!
+  parents: [Area!]!
+  type: AreaType!
+
+  prefecture: Prefecture!
+  datasets(input: DatasetForAreaQuery!): [Dataset!]!
+}
+
+type Prefecture implements Area & Node {
+  id: ID!
+  code: String!
+  name: String!
+  parents: [Area!]!
+  type: AreaType!
+
+  municipalities: [Municipality!]!
+  datasets(input: DatasetForAreaQuery!): [Dataset!]!
+}
+
+# Dataset
+
+interface Dataset implements Node {
+  id: ID!
+  name: String!
+  description: String
+  year: Int!
+  groups: [String!]
+  data: [DatasetDatum!]!
+  area: Area
+}
+
+interface DatasetDatum implements Node {
+  id: ID!
+  format: DatasetFormat!
+  name: String!
+  url: String!
+  layers: [String!]
+}
+
+enum DatasetFormat {
+  CSV
+  CZML
+  Cesium3DTiles
+  GLTF
+  GTFSRelatime
+  GeoJSON
+  MVT
+  TMS
+  Tiles
+  WMS
+}
+
+# PLATEAU dataset
+
+type PlateauDataset implements Dataset & Node {
+  id: ID!
+  name: String!
+  description: String
+  year: Int!
+  groups: [String!]
+  area: Area
+
+  data: [PlateauDatasetDatum!]!
+  type: DatasetType!
+}
+
+# TODO: river data
+type PlateauDatasetDatum implements DatasetDatum & Node {
+  id: ID!
+  format: DatasetFormat!
+  name: String!
+  url: String!
+  layers: [String!]
+
+  lod: Float!
+  textured: Boolean!
+  version: String!
+}
+
+# TODO: customizable dataset type
+enum DatasetType {
+  Bridge
+  Building
+  CityFurniture
+  GenericCityObject
+  HighTideRisk
+  InlandFloodingRisk
+  LandSlideRisk
+  LandUse
+  RiverFloodingRisk
+  Road
+  TsunamiRisk
+  UrbanPlanning
+  Vegetation
+}
+
+# PLATEAU auxiliary dataset
+
+type PlateauAuxiliaryDataset implements Dataset & Node {
+  id: ID!
+  name: String!
+  description: String
+  year: Int!
+  groups: [String!]
+  area: Area
+
+  data: [PlateauAuxiliaryDatasetDatum!]!
+  type: DatasetType!
+  typeName: String!
+}
+
+type PlateauAuxiliaryDatasetDatum implements DatasetDatum & Node {
+  id: ID!
+  format: DatasetFormat!
+  name: String!
+  url: String!
+  layers: [String!]
+}
+
+enum PlateauAuxiliaryDatasetType {
+  Border
+  EmergencyRoute
+  Landmark
+  Park
+  Railway
+  Shelter
+  Station
+}
+
+# Generic
+
+type GenericDataset implements Dataset & Node {
+  id: ID!
+  name: String!
+  description: String
+  year: Int!
+  groups: [String!]
+  area: Area
+
+  data: [GenericDatasetDatum!]!
+  typeName: String!
+}
+
+type GenericDatasetDatum implements DatasetDatum & Node {
+  id: ID!
+  format: DatasetFormat!
+  name: String!
+  url: String!
+  layers: [String!]
+}
+
+# Queries
+
+input DatasetQuery {
+  excludeTypes: [DatasetType!]
+  includeTypes: [DatasetType!]
+  areaCodes: [String!]
+  searchTokens: [String!]
+}
+
+type Query {
+  prefecture(code: String!): Prefecture
+  prefectures(datasetType: DatasetType): [Prefecture!]!
+  municipality(code: String!): Municipality
+  municipalities(datasetType: DatasetType, prefectureCode: String): [Municipality!]!
+  dataset(datasetId: String!): Dataset
+  datasets(input: DatasetQuery!): [Dataset!]!
+}

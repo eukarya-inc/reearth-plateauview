@@ -1,4 +1,4 @@
-package datacatalog
+package datacatalogv2
 
 import (
 	"net/http"
