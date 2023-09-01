@@ -56,6 +56,20 @@ const tests: [string, CatalogItemLike, CatalogItemLike, SortBy, boolean][] = [
     false,
   ],
   [
+    "category",
+    {
+      ...base,
+      type_en: "bldg",
+      category: "category",
+    },
+    {
+      ...base,
+      type_en: "usecase",
+    },
+    "city",
+    true,
+  ],
+  [
     "two unknown types",
     {
       ...base,
