@@ -56,7 +56,8 @@ func TestEcho(t *testing.T) {
 			"type": "建築物モデル",
 			"type_en": "bldg",
 			"url": "https://example.com/00000_xxx-shi_2022_3dtiles_1_op_bldg/tileset.json",
-			"year": 2022
+			"year": 2022,
+			"infobox": true
 		},
 		{
 			"city": "yyy市",
@@ -79,7 +80,8 @@ func TestEcho(t *testing.T) {
 			"type": "建築物モデル",
 			"type_en": "bldg",
 			"url": "https://example.com/11111_yyy-shi_2022_3dtiles_1_op_bldg/tileset.json",
-			"year": 2022
+			"year": 2022,
+			"infobox": true
 		},
 		{
 			"id": "c",
@@ -130,7 +132,8 @@ func TestEchoMerge(t *testing.T) {
 			"type": "建築物モデル",
 			"type_en": "bldg",
 			"url": "https://example.com/00000_xxx-shi_2022_3dtiles_1_op_bldg/tileset.json",
-			"year": 2022
+			"year": 2022,
+			"infobox": true
 		},
 		{
 			"id": "z"
