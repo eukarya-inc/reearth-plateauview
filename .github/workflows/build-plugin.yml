@@ -40,8 +40,9 @@ jobs:
       - uses: actions/download-artifact@v2
         with:
           name: plateau-plugin
-      - name: Rename artifact
-        run: mv plateau-plugin.zip $ARTIFACT
+          path: plateau-plugin/
+      - name: Zip
+        run: zip -r $ARTIFACT plateau-plugin/
       - name: Release
         uses: ncipollo/release-action@v1
         with:
