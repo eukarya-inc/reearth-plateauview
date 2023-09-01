@@ -11,17 +11,11 @@ interface Area implements Node {
   code: String!
   name: String!
   parents: [Area!]!
-  type: AreaType!
-}
-
-enum AreaType {
-  Municipality
-  Prefecture
 }
 
 input DatasetForAreaQuery {
-  excludeTypes: [DatasetType!]
-  includeTypes: [DatasetType!]
+  excludeTypes: [String!]
+  includeTypes: [String!]
   searchTokens: [String!]
 }
 
@@ -30,7 +24,6 @@ type Country implements Area & Node {
   code: String!
   name: String!
   parents: [Area!]!
-  type: AreaType!
 
   prefectures: [Prefecture!]!
   datasets(input: DatasetForAreaQuery!): [Dataset!]!
@@ -41,7 +34,6 @@ type Municipality implements Area & Node {
   code: String!
   name: String!
   parents: [Area!]!
-  type: AreaType!
 
   prefecture: Prefecture!
   datasets(input: DatasetForAreaQuery!): [Dataset!]!
@@ -52,7 +44,6 @@ type Prefecture implements Area & Node {
   code: String!
   name: String!
   parents: [Area!]!
-  type: AreaType!
 
   municipalities: [Municipality!]!
   datasets(input: DatasetForAreaQuery!): [Dataset!]!
@@ -76,6 +67,8 @@ interface DatasetDatum implements Node {
   name: String!
   url: String!
   layers: [String!]
+  parent_id: ID!
+  parent: Dataset
 }
 
 enum DatasetFormat {
@@ -91,48 +84,58 @@ enum DatasetFormat {
   WMS
 }
 
+interface DatasetType implements Node {
+  id: ID!
+  code: String!
+  name: String!
+  englishName: String!
+  category: DatasetTypeCategory!
+}
+
+enum DatasetTypeCategory {
+  Plateau
+  PlateauAuxiliary
+  Generic
+}
+
 # PLATEAU dataset
 
+# TODO: river data
 type PlateauDataset implements Dataset & Node {
   id: ID!
   name: String!
   description: String
   year: Int!
   groups: [String!]
+  area_id: ID!
   area: Area
-
+  type_id: ID!
+  type: PlateauDatasetType!
   data: [PlateauDatasetDatum!]!
-  type: DatasetType!
 }
 
-# TODO: river data
 type PlateauDatasetDatum implements DatasetDatum & Node {
   id: ID!
   format: DatasetFormat!
   name: String!
   url: String!
   layers: [String!]
+  parent_id: ID!
+  parent: PlateauDataset
 
   lod: Float!
   textured: Boolean!
-  version: String!
 }
 
-# TODO: customizable dataset type
-enum DatasetType {
-  Bridge
-  Building
-  CityFurniture
-  GenericCityObject
-  HighTideRisk
-  InlandFloodingRisk
-  LandSlideRisk
-  LandUse
-  RiverFloodingRisk
-  Road
-  TsunamiRisk
-  UrbanPlanning
-  Vegetation
+type PlateauDatasetType implements DatasetType & Node {
+  id: ID!
+  code: String!
+  name: String!
+  englishName: String!
+  category: DatasetTypeCategory!
+
+  plateauVersion: String!
+  year: Int!
 }
 
 # PLATEAU auxiliary dataset
@@ -143,11 +146,11 @@ type PlateauAuxiliaryDataset implements Dataset & Node {
   description: String
   year: Int!
   groups: [String!]
+  area_id: ID!
   area: Area
-
+  type_id: ID!
+  type: PlateauAuxiliaryDatasetType
   data: [PlateauAuxiliaryDatasetDatum!]!
-  type: DatasetType!
-  typeName: String!
 }
 
 type PlateauAuxiliaryDatasetDatum implements DatasetDatum & Node {
@@ -156,16 +159,16 @@ type PlateauAuxiliaryDatasetDatum implements DatasetDatum & Node {
   name: String!
   url: String!
   layers: [String!]
+  parent_id: ID!
+  parent: PlateauAuxiliaryDataset
 }
 
-enum PlateauAuxiliaryDatasetType {
-  Border
-  EmergencyRoute
-  Landmark
-  Park
-  Railway
-  Shelter
-  Station
+type PlateauAuxiliaryDatasetType implements DatasetType & Node {
+  id: ID!
+  code: String!
+  name: String!
+  englishName: String!
+  category: DatasetTypeCategory!
 }
 
 # Generic
@@ -176,10 +179,11 @@ type GenericDataset implements Dataset & Node {
   description: String
   year: Int!
   groups: [String!]
+  area_id: ID!
   area: Area
-
+  type_id: ID!
+  type: GenericDatasetType
   data: [GenericDatasetDatum!]!
-  typeName: String!
 }
 
 type GenericDatasetDatum implements DatasetDatum & Node {
@@ -188,22 +192,72 @@ type GenericDatasetDatum implements DatasetDatum & Node {
   name: String!
   url: String!
   layers: [String!]
+  parent_id: ID!
+  parent: GenericDataset
+}
+
+type GenericDatasetType implements DatasetType & Node {
+  id: ID!
+  code: String!
+  name: String!
+  englishName: String!
+  category: DatasetTypeCategory!
 }
 
 # Queries
 
+input AreaQuery {
+  parentCode: String!
+  datasetTypes: [String!]
+  searchTokens: [String!]
+}
+
+input DatasetTypeQuery {
+  category: DatasetTypeCategory
+  plateauVersion: String
+  year: Int
+}
+
 input DatasetQuery {
-  excludeTypes: [DatasetType!]
-  includeTypes: [DatasetType!]
   areaCodes: [String!]
+  excludeTypes: [String!]
+  includeTypes: [String!]
   searchTokens: [String!]
 }
 
 type Query {
-  prefecture(code: String!): Prefecture
-  prefectures(datasetType: DatasetType): [Prefecture!]!
-  municipality(code: String!): Municipality
-  municipalities(datasetType: DatasetType, prefectureCode: String): [Municipality!]!
-  dataset(datasetId: String!): Dataset
+  node(id: ID!): Node
+  nodes(ids: [ID!]!): [Node!]!
+  area(code: String!): Area
+  areas(input: AreaQuery!): [Area!]!
+  datasetTypes(input: DatasetTypeQuery!): [DatasetType!]!
   datasets(input: DatasetQuery!): [Dataset!]!
+  plateauVersions: [String!]!
+  years: [Int!]!
 }
+
+# enum PlateauDatasetType {
+#   Bridge
+#   Building
+#   CityFurniture
+#   GenericCityObject
+#   HighTideRisk
+#   InlandFloodingRisk
+#   LandSlideRisk
+#   LandUse
+#   RiverFloodingRisk
+#   Road
+#   TsunamiRisk
+#   UrbanPlanning
+#   Vegetation
+# }
+
+# enum PlateauAuxiliaryDatasetType {
+#   Border
+#   EmergencyRoute
+#   Landmark
+#   Park
+#   Railway
+#   Shelter
+#   Station
+# }

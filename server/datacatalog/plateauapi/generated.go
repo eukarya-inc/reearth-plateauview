@@ -38,9 +38,12 @@ type Config struct {
 type ResolverRoot interface {
 	Country() CountryResolver
 	GenericDataset() GenericDatasetResolver
+	GenericDatasetDatum() GenericDatasetDatumResolver
 	Municipality() MunicipalityResolver
 	PlateauAuxiliaryDataset() PlateauAuxiliaryDatasetResolver
+	PlateauAuxiliaryDatasetDatum() PlateauAuxiliaryDatasetDatumResolver
 	PlateauDataset() PlateauDatasetResolver
+	PlateauDatasetDatum() PlateauDatasetDatumResolver
 	Prefecture() PrefectureResolver
 	Query() QueryResolver
 }
@@ -56,26 +59,37 @@ type ComplexityRoot struct {
 		Name        func(childComplexity int) int
 		Parents     func(childComplexity int) int
 		Prefectures func(childComplexity int) int
-		Type        func(childComplexity int) int
 	}
 
 	GenericDataset struct {
 		Area        func(childComplexity int) int
+		AreaID      func(childComplexity int) int
 		Data        func(childComplexity int) int
 		Description func(childComplexity int) int
 		Groups      func(childComplexity int) int
 		ID          func(childComplexity int) int
 		Name        func(childComplexity int) int
-		TypeName    func(childComplexity int) int
+		Type        func(childComplexity int) int
+		TypeID      func(childComplexity int) int
 		Year        func(childComplexity int) int
 	}
 
 	GenericDatasetDatum struct {
-		Format func(childComplexity int) int
-		ID     func(childComplexity int) int
-		Layers func(childComplexity int) int
-		Name   func(childComplexity int) int
-		URL    func(childComplexity int) int
+		Format   func(childComplexity int) int
+		ID       func(childComplexity int) int
+		Layers   func(childComplexity int) int
+		Name     func(childComplexity int) int
+		Parent   func(childComplexity int) int
+		ParentID func(childComplexity int) int
+		URL      func(childComplexity int) int
+	}
+
+	GenericDatasetType struct {
+		Category    func(childComplexity int) int
+		Code        func(childComplexity int) int
+		EnglishName func(childComplexity int) int
+		ID          func(childComplexity int) int
+		Name        func(childComplexity int) int
 	}
 
 	Municipality struct {
@@ -85,37 +99,49 @@ type ComplexityRoot struct {
 		Name       func(childComplexity int) int
 		Parents    func(childComplexity int) int
 		Prefecture func(childComplexity int) int
-		Type       func(childComplexity int) int
 	}
 
 	PlateauAuxiliaryDataset struct {
 		Area        func(childComplexity int) int
+		AreaID      func(childComplexity int) int
 		Data        func(childComplexity int) int
 		Description func(childComplexity int) int
 		Groups      func(childComplexity int) int
 		ID          func(childComplexity int) int
 		Name        func(childComplexity int) int
 		Type        func(childComplexity int) int
-		TypeName    func(childComplexity int) int
+		TypeID      func(childComplexity int) int
 		Year        func(childComplexity int) int
 	}
 
 	PlateauAuxiliaryDatasetDatum struct {
-		Format func(childComplexity int) int
-		ID     func(childComplexity int) int
-		Layers func(childComplexity int) int
-		Name   func(childComplexity int) int
-		URL    func(childComplexity int) int
+		Format   func(childComplexity int) int
+		ID       func(childComplexity int) int
+		Layers   func(childComplexity int) int
+		Name     func(childComplexity int) int
+		Parent   func(childComplexity int) int
+		ParentID func(childComplexity int) int
+		URL      func(childComplexity int) int
+	}
+
+	PlateauAuxiliaryDatasetType struct {
+		Category    func(childComplexity int) int
+		Code        func(childComplexity int) int
+		EnglishName func(childComplexity int) int
+		ID          func(childComplexity int) int
+		Name        func(childComplexity int) int
 	}
 
 	PlateauDataset struct {
 		Area        func(childComplexity int) int
+		AreaID      func(childComplexity int) int
 		Data        func(childComplexity int) int
 		Description func(childComplexity int) int
 		Groups      func(childComplexity int) int
 		ID          func(childComplexity int) int
 		Name        func(childComplexity int) int
 		Type        func(childComplexity int) int
+		TypeID      func(childComplexity int) int
 		Year        func(childComplexity int) int
 	}
 
@@ -125,9 +151,20 @@ type ComplexityRoot struct {
 		Layers   func(childComplexity int) int
 		Lod      func(childComplexity int) int
 		Name     func(childComplexity int) int
+		Parent   func(childComplexity int) int
+		ParentID func(childComplexity int) int
 		Textured func(childComplexity int) int
 		URL      func(childComplexity int) int
-		Version  func(childComplexity int) int
+	}
+
+	PlateauDatasetType struct {
+		Category       func(childComplexity int) int
+		Code           func(childComplexity int) int
+		EnglishName    func(childComplexity int) int
+		ID             func(childComplexity int) int
+		Name           func(childComplexity int) int
+		PlateauVersion func(childComplexity int) int
+		Year           func(childComplexity int) int
 	}
 
 	Prefecture struct {
@@ -137,16 +174,17 @@ type ComplexityRoot struct {
 		Municipalities func(childComplexity int) int
 		Name           func(childComplexity int) int
 		Parents        func(childComplexity int) int
-		Type           func(childComplexity int) int
 	}
 
 	Query struct {
-		Dataset        func(childComplexity int, datasetID string) int
-		Datasets       func(childComplexity int, input DatasetQuery) int
-		Municipalities func(childComplexity int, datasetType *DatasetType, prefectureCode *string) int
-		Municipality   func(childComplexity int, code string) int
-		Prefecture     func(childComplexity int, code string) int
-		Prefectures    func(childComplexity int, datasetType *DatasetType) int
+		Area            func(childComplexity int, code string) int
+		Areas           func(childComplexity int, input AreaQuery) int
+		DatasetTypes    func(childComplexity int, input DatasetTypeQuery) int
+		Datasets        func(childComplexity int, input DatasetQuery) int
+		Node            func(childComplexity int, id string) int
+		Nodes           func(childComplexity int, ids []string) int
+		PlateauVersions func(childComplexity int) int
+		Years           func(childComplexity int) int
 	}
 }
 
@@ -155,26 +193,43 @@ type CountryResolver interface {
 }
 type GenericDatasetResolver interface {
 	Area(ctx context.Context, obj *GenericDataset) (Area, error)
+
+	Type(ctx context.Context, obj *GenericDataset) (*GenericDatasetType, error)
+}
+type GenericDatasetDatumResolver interface {
+	Parent(ctx context.Context, obj *GenericDatasetDatum) (*GenericDataset, error)
 }
 type MunicipalityResolver interface {
 	Datasets(ctx context.Context, obj *Municipality, input DatasetForAreaQuery) ([]Dataset, error)
 }
 type PlateauAuxiliaryDatasetResolver interface {
 	Area(ctx context.Context, obj *PlateauAuxiliaryDataset) (Area, error)
+
+	Type(ctx context.Context, obj *PlateauAuxiliaryDataset) (*PlateauAuxiliaryDatasetType, error)
+}
+type PlateauAuxiliaryDatasetDatumResolver interface {
+	Parent(ctx context.Context, obj *PlateauAuxiliaryDatasetDatum) (*PlateauAuxiliaryDataset, error)
 }
 type PlateauDatasetResolver interface {
 	Area(ctx context.Context, obj *PlateauDataset) (Area, error)
+
+	Type(ctx context.Context, obj *PlateauDataset) (*PlateauDatasetType, error)
+}
+type PlateauDatasetDatumResolver interface {
+	Parent(ctx context.Context, obj *PlateauDatasetDatum) (*PlateauDataset, error)
 }
 type PrefectureResolver interface {
 	Datasets(ctx context.Context, obj *Prefecture, input DatasetForAreaQuery) ([]Dataset, error)
 }
 type QueryResolver interface {
-	Prefecture(ctx context.Context, code string) (*Prefecture, error)
-	Prefectures(ctx context.Context, datasetType *DatasetType) ([]*Prefecture, error)
-	Municipality(ctx context.Context, code string) (*Municipality, error)
-	Municipalities(ctx context.Context, datasetType *DatasetType, prefectureCode *string) ([]*Municipality, error)
-	Dataset(ctx context.Context, datasetID string) (Dataset, error)
+	Node(ctx context.Context, id string) (Node, error)
+	Nodes(ctx context.Context, ids []string) ([]Node, error)
+	Area(ctx context.Context, code string) (Area, error)
+	Areas(ctx context.Context, input AreaQuery) ([]Area, error)
+	DatasetTypes(ctx context.Context, input DatasetTypeQuery) ([]DatasetType, error)
 	Datasets(ctx context.Context, input DatasetQuery) ([]Dataset, error)
+	PlateauVersions(ctx context.Context) ([]string, error)
+	Years(ctx context.Context) ([]int, error)
 }
 
 type executableSchema struct {
@@ -239,19 +294,19 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Country.Prefectures(childComplexity), true
 
-	case "Country.type":
-		if e.complexity.Country.Type == nil {
-			break
-		}
-
-		return e.complexity.Country.Type(childComplexity), true
-
 	case "GenericDataset.area":
 		if e.complexity.GenericDataset.Area == nil {
 			break
 		}
 
 		return e.complexity.GenericDataset.Area(childComplexity), true
+
+	case "GenericDataset.area_id":
+		if e.complexity.GenericDataset.AreaID == nil {
+			break
+		}
+
+		return e.complexity.GenericDataset.AreaID(childComplexity), true
 
 	case "GenericDataset.data":
 		if e.complexity.GenericDataset.Data == nil {
@@ -288,12 +343,19 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.GenericDataset.Name(childComplexity), true
 
-	case "GenericDataset.typeName":
-		if e.complexity.GenericDataset.TypeName == nil {
+	case "GenericDataset.type":
+		if e.complexity.GenericDataset.Type == nil {
 			break
 		}
 
-		return e.complexity.GenericDataset.TypeName(childComplexity), true
+		return e.complexity.GenericDataset.Type(childComplexity), true
+
+	case "GenericDataset.type_id":
+		if e.complexity.GenericDataset.TypeID == nil {
+			break
+		}
+
+		return e.complexity.GenericDataset.TypeID(childComplexity), true
 
 	case "GenericDataset.year":
 		if e.complexity.GenericDataset.Year == nil {
@@ -330,12 +392,61 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.GenericDatasetDatum.Name(childComplexity), true
 
+	case "GenericDatasetDatum.parent":
+		if e.complexity.GenericDatasetDatum.Parent == nil {
+			break
+		}
+
+		return e.complexity.GenericDatasetDatum.Parent(childComplexity), true
+
+	case "GenericDatasetDatum.parent_id":
+		if e.complexity.GenericDatasetDatum.ParentID == nil {
+			break
+		}
+
+		return e.complexity.GenericDatasetDatum.ParentID(childComplexity), true
+
 	case "GenericDatasetDatum.url":
 		if e.complexity.GenericDatasetDatum.URL == nil {
 			break
 		}
 
 		return e.complexity.GenericDatasetDatum.URL(childComplexity), true
+
+	case "GenericDatasetType.category":
+		if e.complexity.GenericDatasetType.Category == nil {
+			break
+		}
+
+		return e.complexity.GenericDatasetType.Category(childComplexity), true
+
+	case "GenericDatasetType.code":
+		if e.complexity.GenericDatasetType.Code == nil {
+			break
+		}
+
+		return e.complexity.GenericDatasetType.Code(childComplexity), true
+
+	case "GenericDatasetType.englishName":
+		if e.complexity.GenericDatasetType.EnglishName == nil {
+			break
+		}
+
+		return e.complexity.GenericDatasetType.EnglishName(childComplexity), true
+
+	case "GenericDatasetType.id":
+		if e.complexity.GenericDatasetType.ID == nil {
+			break
+		}
+
+		return e.complexity.GenericDatasetType.ID(childComplexity), true
+
+	case "GenericDatasetType.name":
+		if e.complexity.GenericDatasetType.Name == nil {
+			break
+		}
+
+		return e.complexity.GenericDatasetType.Name(childComplexity), true
 
 	case "Municipality.code":
 		if e.complexity.Municipality.Code == nil {
@@ -384,19 +495,19 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Municipality.Prefecture(childComplexity), true
 
-	case "Municipality.type":
-		if e.complexity.Municipality.Type == nil {
-			break
-		}
-
-		return e.complexity.Municipality.Type(childComplexity), true
-
 	case "PlateauAuxiliaryDataset.area":
 		if e.complexity.PlateauAuxiliaryDataset.Area == nil {
 			break
 		}
 
 		return e.complexity.PlateauAuxiliaryDataset.Area(childComplexity), true
+
+	case "PlateauAuxiliaryDataset.area_id":
+		if e.complexity.PlateauAuxiliaryDataset.AreaID == nil {
+			break
+		}
+
+		return e.complexity.PlateauAuxiliaryDataset.AreaID(childComplexity), true
 
 	case "PlateauAuxiliaryDataset.data":
 		if e.complexity.PlateauAuxiliaryDataset.Data == nil {
@@ -440,12 +551,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.PlateauAuxiliaryDataset.Type(childComplexity), true
 
-	case "PlateauAuxiliaryDataset.typeName":
-		if e.complexity.PlateauAuxiliaryDataset.TypeName == nil {
+	case "PlateauAuxiliaryDataset.type_id":
+		if e.complexity.PlateauAuxiliaryDataset.TypeID == nil {
 			break
 		}
 
-		return e.complexity.PlateauAuxiliaryDataset.TypeName(childComplexity), true
+		return e.complexity.PlateauAuxiliaryDataset.TypeID(childComplexity), true
 
 	case "PlateauAuxiliaryDataset.year":
 		if e.complexity.PlateauAuxiliaryDataset.Year == nil {
@@ -482,6 +593,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.PlateauAuxiliaryDatasetDatum.Name(childComplexity), true
 
+	case "PlateauAuxiliaryDatasetDatum.parent":
+		if e.complexity.PlateauAuxiliaryDatasetDatum.Parent == nil {
+			break
+		}
+
+		return e.complexity.PlateauAuxiliaryDatasetDatum.Parent(childComplexity), true
+
+	case "PlateauAuxiliaryDatasetDatum.parent_id":
+		if e.complexity.PlateauAuxiliaryDatasetDatum.ParentID == nil {
+			break
+		}
+
+		return e.complexity.PlateauAuxiliaryDatasetDatum.ParentID(childComplexity), true
+
 	case "PlateauAuxiliaryDatasetDatum.url":
 		if e.complexity.PlateauAuxiliaryDatasetDatum.URL == nil {
 			break
@@ -489,12 +614,54 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.PlateauAuxiliaryDatasetDatum.URL(childComplexity), true
 
+	case "PlateauAuxiliaryDatasetType.category":
+		if e.complexity.PlateauAuxiliaryDatasetType.Category == nil {
+			break
+		}
+
+		return e.complexity.PlateauAuxiliaryDatasetType.Category(childComplexity), true
+
+	case "PlateauAuxiliaryDatasetType.code":
+		if e.complexity.PlateauAuxiliaryDatasetType.Code == nil {
+			break
+		}
+
+		return e.complexity.PlateauAuxiliaryDatasetType.Code(childComplexity), true
+
+	case "PlateauAuxiliaryDatasetType.englishName":
+		if e.complexity.PlateauAuxiliaryDatasetType.EnglishName == nil {
+			break
+		}
+
+		return e.complexity.PlateauAuxiliaryDatasetType.EnglishName(childComplexity), true
+
+	case "PlateauAuxiliaryDatasetType.id":
+		if e.complexity.PlateauAuxiliaryDatasetType.ID == nil {
+			break
+		}
+
+		return e.complexity.PlateauAuxiliaryDatasetType.ID(childComplexity), true
+
+	case "PlateauAuxiliaryDatasetType.name":
+		if e.complexity.PlateauAuxiliaryDatasetType.Name == nil {
+			break
+		}
+
+		return e.complexity.PlateauAuxiliaryDatasetType.Name(childComplexity), true
+
 	case "PlateauDataset.area":
 		if e.complexity.PlateauDataset.Area == nil {
 			break
 		}
 
 		return e.complexity.PlateauDataset.Area(childComplexity), true
+
+	case "PlateauDataset.area_id":
+		if e.complexity.PlateauDataset.AreaID == nil {
+			break
+		}
+
+		return e.complexity.PlateauDataset.AreaID(childComplexity), true
 
 	case "PlateauDataset.data":
 		if e.complexity.PlateauDataset.Data == nil {
@@ -538,6 +705,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.PlateauDataset.Type(childComplexity), true
 
+	case "PlateauDataset.type_id":
+		if e.complexity.PlateauDataset.TypeID == nil {
+			break
+		}
+
+		return e.complexity.PlateauDataset.TypeID(childComplexity), true
+
 	case "PlateauDataset.year":
 		if e.complexity.PlateauDataset.Year == nil {
 			break
@@ -580,6 +754,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.PlateauDatasetDatum.Name(childComplexity), true
 
+	case "PlateauDatasetDatum.parent":
+		if e.complexity.PlateauDatasetDatum.Parent == nil {
+			break
+		}
+
+		return e.complexity.PlateauDatasetDatum.Parent(childComplexity), true
+
+	case "PlateauDatasetDatum.parent_id":
+		if e.complexity.PlateauDatasetDatum.ParentID == nil {
+			break
+		}
+
+		return e.complexity.PlateauDatasetDatum.ParentID(childComplexity), true
+
 	case "PlateauDatasetDatum.textured":
 		if e.complexity.PlateauDatasetDatum.Textured == nil {
 			break
@@ -594,12 +782,54 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.PlateauDatasetDatum.URL(childComplexity), true
 
-	case "PlateauDatasetDatum.version":
-		if e.complexity.PlateauDatasetDatum.Version == nil {
+	case "PlateauDatasetType.category":
+		if e.complexity.PlateauDatasetType.Category == nil {
 			break
 		}
 
-		return e.complexity.PlateauDatasetDatum.Version(childComplexity), true
+		return e.complexity.PlateauDatasetType.Category(childComplexity), true
+
+	case "PlateauDatasetType.code":
+		if e.complexity.PlateauDatasetType.Code == nil {
+			break
+		}
+
+		return e.complexity.PlateauDatasetType.Code(childComplexity), true
+
+	case "PlateauDatasetType.englishName":
+		if e.complexity.PlateauDatasetType.EnglishName == nil {
+			break
+		}
+
+		return e.complexity.PlateauDatasetType.EnglishName(childComplexity), true
+
+	case "PlateauDatasetType.id":
+		if e.complexity.PlateauDatasetType.ID == nil {
+			break
+		}
+
+		return e.complexity.PlateauDatasetType.ID(childComplexity), true
+
+	case "PlateauDatasetType.name":
+		if e.complexity.PlateauDatasetType.Name == nil {
+			break
+		}
+
+		return e.complexity.PlateauDatasetType.Name(childComplexity), true
+
+	case "PlateauDatasetType.plateauVersion":
+		if e.complexity.PlateauDatasetType.PlateauVersion == nil {
+			break
+		}
+
+		return e.complexity.PlateauDatasetType.PlateauVersion(childComplexity), true
+
+	case "PlateauDatasetType.year":
+		if e.complexity.PlateauDatasetType.Year == nil {
+			break
+		}
+
+		return e.complexity.PlateauDatasetType.Year(childComplexity), true
 
 	case "Prefecture.code":
 		if e.complexity.Prefecture.Code == nil {
@@ -648,24 +878,41 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Prefecture.Parents(childComplexity), true
 
-	case "Prefecture.type":
-		if e.complexity.Prefecture.Type == nil {
+	case "Query.area":
+		if e.complexity.Query.Area == nil {
 			break
 		}
 
-		return e.complexity.Prefecture.Type(childComplexity), true
-
-	case "Query.dataset":
-		if e.complexity.Query.Dataset == nil {
-			break
-		}
-
-		args, err := ec.field_Query_dataset_args(context.TODO(), rawArgs)
+		args, err := ec.field_Query_area_args(context.TODO(), rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
-		return e.complexity.Query.Dataset(childComplexity, args["datasetId"].(string)), true
+		return e.complexity.Query.Area(childComplexity, args["code"].(string)), true
+
+	case "Query.areas":
+		if e.complexity.Query.Areas == nil {
+			break
+		}
+
+		args, err := ec.field_Query_areas_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.Areas(childComplexity, args["input"].(AreaQuery)), true
+
+	case "Query.datasetTypes":
+		if e.complexity.Query.DatasetTypes == nil {
+			break
+		}
+
+		args, err := ec.field_Query_datasetTypes_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.DatasetTypes(childComplexity, args["input"].(DatasetTypeQuery)), true
 
 	case "Query.datasets":
 		if e.complexity.Query.Datasets == nil {
@@ -679,53 +926,43 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.Datasets(childComplexity, args["input"].(DatasetQuery)), true
 
-	case "Query.municipalities":
-		if e.complexity.Query.Municipalities == nil {
+	case "Query.node":
+		if e.complexity.Query.Node == nil {
 			break
 		}
 
-		args, err := ec.field_Query_municipalities_args(context.TODO(), rawArgs)
+		args, err := ec.field_Query_node_args(context.TODO(), rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
-		return e.complexity.Query.Municipalities(childComplexity, args["datasetType"].(*DatasetType), args["prefectureCode"].(*string)), true
+		return e.complexity.Query.Node(childComplexity, args["id"].(string)), true
 
-	case "Query.municipality":
-		if e.complexity.Query.Municipality == nil {
+	case "Query.nodes":
+		if e.complexity.Query.Nodes == nil {
 			break
 		}
 
-		args, err := ec.field_Query_municipality_args(context.TODO(), rawArgs)
+		args, err := ec.field_Query_nodes_args(context.TODO(), rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
-		return e.complexity.Query.Municipality(childComplexity, args["code"].(string)), true
+		return e.complexity.Query.Nodes(childComplexity, args["ids"].([]string)), true
 
-	case "Query.prefecture":
-		if e.complexity.Query.Prefecture == nil {
+	case "Query.plateauVersions":
+		if e.complexity.Query.PlateauVersions == nil {
 			break
 		}
 
-		args, err := ec.field_Query_prefecture_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
+		return e.complexity.Query.PlateauVersions(childComplexity), true
 
-		return e.complexity.Query.Prefecture(childComplexity, args["code"].(string)), true
-
-	case "Query.prefectures":
-		if e.complexity.Query.Prefectures == nil {
+	case "Query.years":
+		if e.complexity.Query.Years == nil {
 			break
 		}
 
-		args, err := ec.field_Query_prefectures_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Query.Prefectures(childComplexity, args["datasetType"].(*DatasetType)), true
+		return e.complexity.Query.Years(childComplexity), true
 
 	}
 	return 0, false
@@ -735,8 +972,10 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 	rc := graphql.GetOperationContext(ctx)
 	ec := executionContext{rc, e}
 	inputUnmarshalMap := graphql.BuildUnmarshalerMap(
+		ec.unmarshalInputAreaQuery,
 		ec.unmarshalInputDatasetForAreaQuery,
 		ec.unmarshalInputDatasetQuery,
+		ec.unmarshalInputDatasetTypeQuery,
 	)
 	first := true
 
@@ -861,18 +1100,48 @@ func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs
 	return args, nil
 }
 
-func (ec *executionContext) field_Query_dataset_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Query_area_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
 	var arg0 string
-	if tmp, ok := rawArgs["datasetId"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("datasetId"))
+	if tmp, ok := rawArgs["code"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("code"))
 		arg0, err = ec.unmarshalNString2string(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["datasetId"] = arg0
+	args["code"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_areas_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 AreaQuery
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNAreaQuery2githubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐAreaQuery(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_datasetTypes_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 DatasetTypeQuery
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNDatasetTypeQuery2githubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐDatasetTypeQuery(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
 	return args, nil
 }
 
@@ -891,72 +1160,33 @@ func (ec *executionContext) field_Query_datasets_args(ctx context.Context, rawAr
 	return args, nil
 }
 
-func (ec *executionContext) field_Query_municipalities_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	var arg0 *DatasetType
-	if tmp, ok := rawArgs["datasetType"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("datasetType"))
-		arg0, err = ec.unmarshalODatasetType2ᚖgithubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐDatasetType(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["datasetType"] = arg0
-	var arg1 *string
-	if tmp, ok := rawArgs["prefectureCode"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("prefectureCode"))
-		arg1, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["prefectureCode"] = arg1
-	return args, nil
-}
-
-func (ec *executionContext) field_Query_municipality_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Query_node_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
 	var arg0 string
-	if tmp, ok := rawArgs["code"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("code"))
-		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+	if tmp, ok := rawArgs["id"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+		arg0, err = ec.unmarshalNID2string(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["code"] = arg0
+	args["id"] = arg0
 	return args, nil
 }
 
-func (ec *executionContext) field_Query_prefecture_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Query_nodes_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 string
-	if tmp, ok := rawArgs["code"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("code"))
-		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+	var arg0 []string
+	if tmp, ok := rawArgs["ids"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("ids"))
+		arg0, err = ec.unmarshalNID2ᚕstringᚄ(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["code"] = arg0
-	return args, nil
-}
-
-func (ec *executionContext) field_Query_prefectures_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	var arg0 *DatasetType
-	if tmp, ok := rawArgs["datasetType"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("datasetType"))
-		arg0, err = ec.unmarshalODatasetType2ᚖgithubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐDatasetType(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["datasetType"] = arg0
+	args["ids"] = arg0
 	return args, nil
 }
 
@@ -1174,50 +1404,6 @@ func (ec *executionContext) fieldContext_Country_parents(ctx context.Context, fi
 	return fc, nil
 }
 
-func (ec *executionContext) _Country_type(ctx context.Context, field graphql.CollectedField, obj *Country) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Country_type(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Type, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(AreaType)
-	fc.Result = res
-	return ec.marshalNAreaType2githubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐAreaType(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Country_type(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Country",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type AreaType does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _Country_prefectures(ctx context.Context, field graphql.CollectedField, obj *Country) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Country_prefectures(ctx, field)
 	if err != nil {
@@ -1265,8 +1451,6 @@ func (ec *executionContext) fieldContext_Country_prefectures(ctx context.Context
 				return ec.fieldContext_Prefecture_name(ctx, field)
 			case "parents":
 				return ec.fieldContext_Prefecture_parents(ctx, field)
-			case "type":
-				return ec.fieldContext_Prefecture_type(ctx, field)
 			case "municipalities":
 				return ec.fieldContext_Prefecture_municipalities(ctx, field)
 			case "datasets":
@@ -1547,6 +1731,50 @@ func (ec *executionContext) fieldContext_GenericDataset_groups(ctx context.Conte
 	return fc, nil
 }
 
+func (ec *executionContext) _GenericDataset_area_id(ctx context.Context, field graphql.CollectedField, obj *GenericDataset) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_GenericDataset_area_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.AreaID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNID2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_GenericDataset_area_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "GenericDataset",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _GenericDataset_area(ctx context.Context, field graphql.CollectedField, obj *GenericDataset) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_GenericDataset_area(ctx, field)
 	if err != nil {
@@ -1583,6 +1811,103 @@ func (ec *executionContext) fieldContext_GenericDataset_area(ctx context.Context
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("FieldContext.Child cannot be called on type INTERFACE")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _GenericDataset_type_id(ctx context.Context, field graphql.CollectedField, obj *GenericDataset) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_GenericDataset_type_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.TypeID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNID2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_GenericDataset_type_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "GenericDataset",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _GenericDataset_type(ctx context.Context, field graphql.CollectedField, obj *GenericDataset) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_GenericDataset_type(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.GenericDataset().Type(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*GenericDatasetType)
+	fc.Result = res
+	return ec.marshalOGenericDatasetType2ᚖgithubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐGenericDatasetType(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_GenericDataset_type(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "GenericDataset",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_GenericDatasetType_id(ctx, field)
+			case "code":
+				return ec.fieldContext_GenericDatasetType_code(ctx, field)
+			case "name":
+				return ec.fieldContext_GenericDatasetType_name(ctx, field)
+			case "englishName":
+				return ec.fieldContext_GenericDatasetType_englishName(ctx, field)
+			case "category":
+				return ec.fieldContext_GenericDatasetType_category(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type GenericDatasetType", field.Name)
 		},
 	}
 	return fc, nil
@@ -1637,52 +1962,12 @@ func (ec *executionContext) fieldContext_GenericDataset_data(ctx context.Context
 				return ec.fieldContext_GenericDatasetDatum_url(ctx, field)
 			case "layers":
 				return ec.fieldContext_GenericDatasetDatum_layers(ctx, field)
+			case "parent_id":
+				return ec.fieldContext_GenericDatasetDatum_parent_id(ctx, field)
+			case "parent":
+				return ec.fieldContext_GenericDatasetDatum_parent(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type GenericDatasetDatum", field.Name)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _GenericDataset_typeName(ctx context.Context, field graphql.CollectedField, obj *GenericDataset) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_GenericDataset_typeName(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.TypeName, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_GenericDataset_typeName(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "GenericDataset",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
 		},
 	}
 	return fc, nil
@@ -1905,6 +2190,333 @@ func (ec *executionContext) fieldContext_GenericDatasetDatum_layers(ctx context.
 	return fc, nil
 }
 
+func (ec *executionContext) _GenericDatasetDatum_parent_id(ctx context.Context, field graphql.CollectedField, obj *GenericDatasetDatum) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_GenericDatasetDatum_parent_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ParentID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNID2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_GenericDatasetDatum_parent_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "GenericDatasetDatum",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _GenericDatasetDatum_parent(ctx context.Context, field graphql.CollectedField, obj *GenericDatasetDatum) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_GenericDatasetDatum_parent(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.GenericDatasetDatum().Parent(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*GenericDataset)
+	fc.Result = res
+	return ec.marshalOGenericDataset2ᚖgithubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐGenericDataset(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_GenericDatasetDatum_parent(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "GenericDatasetDatum",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_GenericDataset_id(ctx, field)
+			case "name":
+				return ec.fieldContext_GenericDataset_name(ctx, field)
+			case "description":
+				return ec.fieldContext_GenericDataset_description(ctx, field)
+			case "year":
+				return ec.fieldContext_GenericDataset_year(ctx, field)
+			case "groups":
+				return ec.fieldContext_GenericDataset_groups(ctx, field)
+			case "area_id":
+				return ec.fieldContext_GenericDataset_area_id(ctx, field)
+			case "area":
+				return ec.fieldContext_GenericDataset_area(ctx, field)
+			case "type_id":
+				return ec.fieldContext_GenericDataset_type_id(ctx, field)
+			case "type":
+				return ec.fieldContext_GenericDataset_type(ctx, field)
+			case "data":
+				return ec.fieldContext_GenericDataset_data(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type GenericDataset", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _GenericDatasetType_id(ctx context.Context, field graphql.CollectedField, obj *GenericDatasetType) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_GenericDatasetType_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNID2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_GenericDatasetType_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "GenericDatasetType",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _GenericDatasetType_code(ctx context.Context, field graphql.CollectedField, obj *GenericDatasetType) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_GenericDatasetType_code(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Code, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_GenericDatasetType_code(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "GenericDatasetType",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _GenericDatasetType_name(ctx context.Context, field graphql.CollectedField, obj *GenericDatasetType) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_GenericDatasetType_name(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Name, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_GenericDatasetType_name(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "GenericDatasetType",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _GenericDatasetType_englishName(ctx context.Context, field graphql.CollectedField, obj *GenericDatasetType) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_GenericDatasetType_englishName(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.EnglishName, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_GenericDatasetType_englishName(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "GenericDatasetType",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _GenericDatasetType_category(ctx context.Context, field graphql.CollectedField, obj *GenericDatasetType) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_GenericDatasetType_category(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Category, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(DatasetTypeCategory)
+	fc.Result = res
+	return ec.marshalNDatasetTypeCategory2githubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐDatasetTypeCategory(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_GenericDatasetType_category(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "GenericDatasetType",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type DatasetTypeCategory does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Municipality_id(ctx context.Context, field graphql.CollectedField, obj *Municipality) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Municipality_id(ctx, field)
 	if err != nil {
@@ -2081,50 +2693,6 @@ func (ec *executionContext) fieldContext_Municipality_parents(ctx context.Contex
 	return fc, nil
 }
 
-func (ec *executionContext) _Municipality_type(ctx context.Context, field graphql.CollectedField, obj *Municipality) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Municipality_type(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Type, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(AreaType)
-	fc.Result = res
-	return ec.marshalNAreaType2githubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐAreaType(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Municipality_type(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Municipality",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type AreaType does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _Municipality_prefecture(ctx context.Context, field graphql.CollectedField, obj *Municipality) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Municipality_prefecture(ctx, field)
 	if err != nil {
@@ -2172,8 +2740,6 @@ func (ec *executionContext) fieldContext_Municipality_prefecture(ctx context.Con
 				return ec.fieldContext_Prefecture_name(ctx, field)
 			case "parents":
 				return ec.fieldContext_Prefecture_parents(ctx, field)
-			case "type":
-				return ec.fieldContext_Prefecture_type(ctx, field)
 			case "municipalities":
 				return ec.fieldContext_Prefecture_municipalities(ctx, field)
 			case "datasets":
@@ -2454,6 +3020,50 @@ func (ec *executionContext) fieldContext_PlateauAuxiliaryDataset_groups(ctx cont
 	return fc, nil
 }
 
+func (ec *executionContext) _PlateauAuxiliaryDataset_area_id(ctx context.Context, field graphql.CollectedField, obj *PlateauAuxiliaryDataset) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_PlateauAuxiliaryDataset_area_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.AreaID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNID2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_PlateauAuxiliaryDataset_area_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PlateauAuxiliaryDataset",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _PlateauAuxiliaryDataset_area(ctx context.Context, field graphql.CollectedField, obj *PlateauAuxiliaryDataset) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_PlateauAuxiliaryDataset_area(ctx, field)
 	if err != nil {
@@ -2490,6 +3100,103 @@ func (ec *executionContext) fieldContext_PlateauAuxiliaryDataset_area(ctx contex
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("FieldContext.Child cannot be called on type INTERFACE")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PlateauAuxiliaryDataset_type_id(ctx context.Context, field graphql.CollectedField, obj *PlateauAuxiliaryDataset) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_PlateauAuxiliaryDataset_type_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.TypeID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNID2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_PlateauAuxiliaryDataset_type_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PlateauAuxiliaryDataset",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PlateauAuxiliaryDataset_type(ctx context.Context, field graphql.CollectedField, obj *PlateauAuxiliaryDataset) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_PlateauAuxiliaryDataset_type(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.PlateauAuxiliaryDataset().Type(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*PlateauAuxiliaryDatasetType)
+	fc.Result = res
+	return ec.marshalOPlateauAuxiliaryDatasetType2ᚖgithubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐPlateauAuxiliaryDatasetType(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_PlateauAuxiliaryDataset_type(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PlateauAuxiliaryDataset",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_PlateauAuxiliaryDatasetType_id(ctx, field)
+			case "code":
+				return ec.fieldContext_PlateauAuxiliaryDatasetType_code(ctx, field)
+			case "name":
+				return ec.fieldContext_PlateauAuxiliaryDatasetType_name(ctx, field)
+			case "englishName":
+				return ec.fieldContext_PlateauAuxiliaryDatasetType_englishName(ctx, field)
+			case "category":
+				return ec.fieldContext_PlateauAuxiliaryDatasetType_category(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type PlateauAuxiliaryDatasetType", field.Name)
 		},
 	}
 	return fc, nil
@@ -2544,96 +3251,12 @@ func (ec *executionContext) fieldContext_PlateauAuxiliaryDataset_data(ctx contex
 				return ec.fieldContext_PlateauAuxiliaryDatasetDatum_url(ctx, field)
 			case "layers":
 				return ec.fieldContext_PlateauAuxiliaryDatasetDatum_layers(ctx, field)
+			case "parent_id":
+				return ec.fieldContext_PlateauAuxiliaryDatasetDatum_parent_id(ctx, field)
+			case "parent":
+				return ec.fieldContext_PlateauAuxiliaryDatasetDatum_parent(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type PlateauAuxiliaryDatasetDatum", field.Name)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _PlateauAuxiliaryDataset_type(ctx context.Context, field graphql.CollectedField, obj *PlateauAuxiliaryDataset) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_PlateauAuxiliaryDataset_type(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Type, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(DatasetType)
-	fc.Result = res
-	return ec.marshalNDatasetType2githubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐDatasetType(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_PlateauAuxiliaryDataset_type(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "PlateauAuxiliaryDataset",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type DatasetType does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _PlateauAuxiliaryDataset_typeName(ctx context.Context, field graphql.CollectedField, obj *PlateauAuxiliaryDataset) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_PlateauAuxiliaryDataset_typeName(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.TypeName, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_PlateauAuxiliaryDataset_typeName(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "PlateauAuxiliaryDataset",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
 		},
 	}
 	return fc, nil
@@ -2856,6 +3479,333 @@ func (ec *executionContext) fieldContext_PlateauAuxiliaryDatasetDatum_layers(ctx
 	return fc, nil
 }
 
+func (ec *executionContext) _PlateauAuxiliaryDatasetDatum_parent_id(ctx context.Context, field graphql.CollectedField, obj *PlateauAuxiliaryDatasetDatum) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_PlateauAuxiliaryDatasetDatum_parent_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ParentID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNID2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_PlateauAuxiliaryDatasetDatum_parent_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PlateauAuxiliaryDatasetDatum",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PlateauAuxiliaryDatasetDatum_parent(ctx context.Context, field graphql.CollectedField, obj *PlateauAuxiliaryDatasetDatum) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_PlateauAuxiliaryDatasetDatum_parent(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.PlateauAuxiliaryDatasetDatum().Parent(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*PlateauAuxiliaryDataset)
+	fc.Result = res
+	return ec.marshalOPlateauAuxiliaryDataset2ᚖgithubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐPlateauAuxiliaryDataset(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_PlateauAuxiliaryDatasetDatum_parent(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PlateauAuxiliaryDatasetDatum",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_PlateauAuxiliaryDataset_id(ctx, field)
+			case "name":
+				return ec.fieldContext_PlateauAuxiliaryDataset_name(ctx, field)
+			case "description":
+				return ec.fieldContext_PlateauAuxiliaryDataset_description(ctx, field)
+			case "year":
+				return ec.fieldContext_PlateauAuxiliaryDataset_year(ctx, field)
+			case "groups":
+				return ec.fieldContext_PlateauAuxiliaryDataset_groups(ctx, field)
+			case "area_id":
+				return ec.fieldContext_PlateauAuxiliaryDataset_area_id(ctx, field)
+			case "area":
+				return ec.fieldContext_PlateauAuxiliaryDataset_area(ctx, field)
+			case "type_id":
+				return ec.fieldContext_PlateauAuxiliaryDataset_type_id(ctx, field)
+			case "type":
+				return ec.fieldContext_PlateauAuxiliaryDataset_type(ctx, field)
+			case "data":
+				return ec.fieldContext_PlateauAuxiliaryDataset_data(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type PlateauAuxiliaryDataset", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PlateauAuxiliaryDatasetType_id(ctx context.Context, field graphql.CollectedField, obj *PlateauAuxiliaryDatasetType) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_PlateauAuxiliaryDatasetType_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNID2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_PlateauAuxiliaryDatasetType_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PlateauAuxiliaryDatasetType",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PlateauAuxiliaryDatasetType_code(ctx context.Context, field graphql.CollectedField, obj *PlateauAuxiliaryDatasetType) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_PlateauAuxiliaryDatasetType_code(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Code, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_PlateauAuxiliaryDatasetType_code(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PlateauAuxiliaryDatasetType",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PlateauAuxiliaryDatasetType_name(ctx context.Context, field graphql.CollectedField, obj *PlateauAuxiliaryDatasetType) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_PlateauAuxiliaryDatasetType_name(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Name, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_PlateauAuxiliaryDatasetType_name(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PlateauAuxiliaryDatasetType",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PlateauAuxiliaryDatasetType_englishName(ctx context.Context, field graphql.CollectedField, obj *PlateauAuxiliaryDatasetType) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_PlateauAuxiliaryDatasetType_englishName(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.EnglishName, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_PlateauAuxiliaryDatasetType_englishName(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PlateauAuxiliaryDatasetType",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PlateauAuxiliaryDatasetType_category(ctx context.Context, field graphql.CollectedField, obj *PlateauAuxiliaryDatasetType) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_PlateauAuxiliaryDatasetType_category(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Category, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(DatasetTypeCategory)
+	fc.Result = res
+	return ec.marshalNDatasetTypeCategory2githubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐDatasetTypeCategory(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_PlateauAuxiliaryDatasetType_category(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PlateauAuxiliaryDatasetType",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type DatasetTypeCategory does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _PlateauDataset_id(ctx context.Context, field graphql.CollectedField, obj *PlateauDataset) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_PlateauDataset_id(ctx, field)
 	if err != nil {
@@ -3070,6 +4020,50 @@ func (ec *executionContext) fieldContext_PlateauDataset_groups(ctx context.Conte
 	return fc, nil
 }
 
+func (ec *executionContext) _PlateauDataset_area_id(ctx context.Context, field graphql.CollectedField, obj *PlateauDataset) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_PlateauDataset_area_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.AreaID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNID2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_PlateauDataset_area_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PlateauDataset",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _PlateauDataset_area(ctx context.Context, field graphql.CollectedField, obj *PlateauDataset) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_PlateauDataset_area(ctx, field)
 	if err != nil {
@@ -3106,6 +4100,110 @@ func (ec *executionContext) fieldContext_PlateauDataset_area(ctx context.Context
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("FieldContext.Child cannot be called on type INTERFACE")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PlateauDataset_type_id(ctx context.Context, field graphql.CollectedField, obj *PlateauDataset) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_PlateauDataset_type_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.TypeID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNID2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_PlateauDataset_type_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PlateauDataset",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PlateauDataset_type(ctx context.Context, field graphql.CollectedField, obj *PlateauDataset) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_PlateauDataset_type(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.PlateauDataset().Type(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*PlateauDatasetType)
+	fc.Result = res
+	return ec.marshalNPlateauDatasetType2ᚖgithubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐPlateauDatasetType(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_PlateauDataset_type(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PlateauDataset",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_PlateauDatasetType_id(ctx, field)
+			case "code":
+				return ec.fieldContext_PlateauDatasetType_code(ctx, field)
+			case "name":
+				return ec.fieldContext_PlateauDatasetType_name(ctx, field)
+			case "englishName":
+				return ec.fieldContext_PlateauDatasetType_englishName(ctx, field)
+			case "category":
+				return ec.fieldContext_PlateauDatasetType_category(ctx, field)
+			case "plateauVersion":
+				return ec.fieldContext_PlateauDatasetType_plateauVersion(ctx, field)
+			case "year":
+				return ec.fieldContext_PlateauDatasetType_year(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type PlateauDatasetType", field.Name)
 		},
 	}
 	return fc, nil
@@ -3160,58 +4258,16 @@ func (ec *executionContext) fieldContext_PlateauDataset_data(ctx context.Context
 				return ec.fieldContext_PlateauDatasetDatum_url(ctx, field)
 			case "layers":
 				return ec.fieldContext_PlateauDatasetDatum_layers(ctx, field)
+			case "parent_id":
+				return ec.fieldContext_PlateauDatasetDatum_parent_id(ctx, field)
+			case "parent":
+				return ec.fieldContext_PlateauDatasetDatum_parent(ctx, field)
 			case "lod":
 				return ec.fieldContext_PlateauDatasetDatum_lod(ctx, field)
 			case "textured":
 				return ec.fieldContext_PlateauDatasetDatum_textured(ctx, field)
-			case "version":
-				return ec.fieldContext_PlateauDatasetDatum_version(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type PlateauDatasetDatum", field.Name)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _PlateauDataset_type(ctx context.Context, field graphql.CollectedField, obj *PlateauDataset) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_PlateauDataset_type(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Type, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(DatasetType)
-	fc.Result = res
-	return ec.marshalNDatasetType2githubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐDatasetType(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_PlateauDataset_type(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "PlateauDataset",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type DatasetType does not have child fields")
 		},
 	}
 	return fc, nil
@@ -3434,6 +4490,113 @@ func (ec *executionContext) fieldContext_PlateauDatasetDatum_layers(ctx context.
 	return fc, nil
 }
 
+func (ec *executionContext) _PlateauDatasetDatum_parent_id(ctx context.Context, field graphql.CollectedField, obj *PlateauDatasetDatum) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_PlateauDatasetDatum_parent_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ParentID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNID2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_PlateauDatasetDatum_parent_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PlateauDatasetDatum",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PlateauDatasetDatum_parent(ctx context.Context, field graphql.CollectedField, obj *PlateauDatasetDatum) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_PlateauDatasetDatum_parent(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.PlateauDatasetDatum().Parent(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*PlateauDataset)
+	fc.Result = res
+	return ec.marshalOPlateauDataset2ᚖgithubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐPlateauDataset(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_PlateauDatasetDatum_parent(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PlateauDatasetDatum",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_PlateauDataset_id(ctx, field)
+			case "name":
+				return ec.fieldContext_PlateauDataset_name(ctx, field)
+			case "description":
+				return ec.fieldContext_PlateauDataset_description(ctx, field)
+			case "year":
+				return ec.fieldContext_PlateauDataset_year(ctx, field)
+			case "groups":
+				return ec.fieldContext_PlateauDataset_groups(ctx, field)
+			case "area_id":
+				return ec.fieldContext_PlateauDataset_area_id(ctx, field)
+			case "area":
+				return ec.fieldContext_PlateauDataset_area(ctx, field)
+			case "type_id":
+				return ec.fieldContext_PlateauDataset_type_id(ctx, field)
+			case "type":
+				return ec.fieldContext_PlateauDataset_type(ctx, field)
+			case "data":
+				return ec.fieldContext_PlateauDataset_data(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type PlateauDataset", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _PlateauDatasetDatum_lod(ctx context.Context, field graphql.CollectedField, obj *PlateauDatasetDatum) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_PlateauDatasetDatum_lod(ctx, field)
 	if err != nil {
@@ -3522,8 +4685,8 @@ func (ec *executionContext) fieldContext_PlateauDatasetDatum_textured(ctx contex
 	return fc, nil
 }
 
-func (ec *executionContext) _PlateauDatasetDatum_version(ctx context.Context, field graphql.CollectedField, obj *PlateauDatasetDatum) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_PlateauDatasetDatum_version(ctx, field)
+func (ec *executionContext) _PlateauDatasetType_id(ctx context.Context, field graphql.CollectedField, obj *PlateauDatasetType) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_PlateauDatasetType_id(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -3536,7 +4699,51 @@ func (ec *executionContext) _PlateauDatasetDatum_version(ctx context.Context, fi
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Version, nil
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNID2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_PlateauDatasetType_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PlateauDatasetType",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PlateauDatasetType_code(ctx context.Context, field graphql.CollectedField, obj *PlateauDatasetType) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_PlateauDatasetType_code(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Code, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -3553,14 +4760,234 @@ func (ec *executionContext) _PlateauDatasetDatum_version(ctx context.Context, fi
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_PlateauDatasetDatum_version(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_PlateauDatasetType_code(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "PlateauDatasetDatum",
+		Object:     "PlateauDatasetType",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PlateauDatasetType_name(ctx context.Context, field graphql.CollectedField, obj *PlateauDatasetType) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_PlateauDatasetType_name(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Name, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_PlateauDatasetType_name(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PlateauDatasetType",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PlateauDatasetType_englishName(ctx context.Context, field graphql.CollectedField, obj *PlateauDatasetType) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_PlateauDatasetType_englishName(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.EnglishName, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_PlateauDatasetType_englishName(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PlateauDatasetType",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PlateauDatasetType_category(ctx context.Context, field graphql.CollectedField, obj *PlateauDatasetType) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_PlateauDatasetType_category(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Category, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(DatasetTypeCategory)
+	fc.Result = res
+	return ec.marshalNDatasetTypeCategory2githubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐDatasetTypeCategory(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_PlateauDatasetType_category(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PlateauDatasetType",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type DatasetTypeCategory does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PlateauDatasetType_plateauVersion(ctx context.Context, field graphql.CollectedField, obj *PlateauDatasetType) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_PlateauDatasetType_plateauVersion(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.PlateauVersion, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_PlateauDatasetType_plateauVersion(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PlateauDatasetType",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PlateauDatasetType_year(ctx context.Context, field graphql.CollectedField, obj *PlateauDatasetType) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_PlateauDatasetType_year(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Year, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_PlateauDatasetType_year(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PlateauDatasetType",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
 		},
 	}
 	return fc, nil
@@ -3742,50 +5169,6 @@ func (ec *executionContext) fieldContext_Prefecture_parents(ctx context.Context,
 	return fc, nil
 }
 
-func (ec *executionContext) _Prefecture_type(ctx context.Context, field graphql.CollectedField, obj *Prefecture) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Prefecture_type(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Type, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(AreaType)
-	fc.Result = res
-	return ec.marshalNAreaType2githubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐAreaType(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Prefecture_type(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Prefecture",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type AreaType does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _Prefecture_municipalities(ctx context.Context, field graphql.CollectedField, obj *Prefecture) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Prefecture_municipalities(ctx, field)
 	if err != nil {
@@ -3833,8 +5216,6 @@ func (ec *executionContext) fieldContext_Prefecture_municipalities(ctx context.C
 				return ec.fieldContext_Municipality_name(ctx, field)
 			case "parents":
 				return ec.fieldContext_Municipality_parents(ctx, field)
-			case "type":
-				return ec.fieldContext_Municipality_type(ctx, field)
 			case "prefecture":
 				return ec.fieldContext_Municipality_prefecture(ctx, field)
 			case "datasets":
@@ -3901,8 +5282,8 @@ func (ec *executionContext) fieldContext_Prefecture_datasets(ctx context.Context
 	return fc, nil
 }
 
-func (ec *executionContext) _Query_prefecture(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Query_prefecture(ctx, field)
+func (ec *executionContext) _Query_node(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_node(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -3915,7 +5296,7 @@ func (ec *executionContext) _Query_prefecture(ctx context.Context, field graphql
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Prefecture(rctx, fc.Args["code"].(string))
+		return ec.resolvers.Query().Node(rctx, fc.Args["id"].(string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -3924,290 +5305,12 @@ func (ec *executionContext) _Query_prefecture(ctx context.Context, field graphql
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*Prefecture)
+	res := resTmp.(Node)
 	fc.Result = res
-	return ec.marshalOPrefecture2ᚖgithubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐPrefecture(ctx, field.Selections, res)
+	return ec.marshalONode2githubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐNode(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Query_prefecture(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Query",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_Prefecture_id(ctx, field)
-			case "code":
-				return ec.fieldContext_Prefecture_code(ctx, field)
-			case "name":
-				return ec.fieldContext_Prefecture_name(ctx, field)
-			case "parents":
-				return ec.fieldContext_Prefecture_parents(ctx, field)
-			case "type":
-				return ec.fieldContext_Prefecture_type(ctx, field)
-			case "municipalities":
-				return ec.fieldContext_Prefecture_municipalities(ctx, field)
-			case "datasets":
-				return ec.fieldContext_Prefecture_datasets(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Prefecture", field.Name)
-		},
-	}
-	defer func() {
-		if r := recover(); r != nil {
-			err = ec.Recover(ctx, r)
-			ec.Error(ctx, err)
-		}
-	}()
-	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Query_prefecture_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
-		ec.Error(ctx, err)
-		return
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Query_prefectures(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Query_prefectures(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Prefectures(rctx, fc.Args["datasetType"].(*DatasetType))
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.([]*Prefecture)
-	fc.Result = res
-	return ec.marshalNPrefecture2ᚕᚖgithubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐPrefectureᚄ(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Query_prefectures(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Query",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_Prefecture_id(ctx, field)
-			case "code":
-				return ec.fieldContext_Prefecture_code(ctx, field)
-			case "name":
-				return ec.fieldContext_Prefecture_name(ctx, field)
-			case "parents":
-				return ec.fieldContext_Prefecture_parents(ctx, field)
-			case "type":
-				return ec.fieldContext_Prefecture_type(ctx, field)
-			case "municipalities":
-				return ec.fieldContext_Prefecture_municipalities(ctx, field)
-			case "datasets":
-				return ec.fieldContext_Prefecture_datasets(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Prefecture", field.Name)
-		},
-	}
-	defer func() {
-		if r := recover(); r != nil {
-			err = ec.Recover(ctx, r)
-			ec.Error(ctx, err)
-		}
-	}()
-	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Query_prefectures_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
-		ec.Error(ctx, err)
-		return
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Query_municipality(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Query_municipality(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Municipality(rctx, fc.Args["code"].(string))
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*Municipality)
-	fc.Result = res
-	return ec.marshalOMunicipality2ᚖgithubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐMunicipality(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Query_municipality(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Query",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_Municipality_id(ctx, field)
-			case "code":
-				return ec.fieldContext_Municipality_code(ctx, field)
-			case "name":
-				return ec.fieldContext_Municipality_name(ctx, field)
-			case "parents":
-				return ec.fieldContext_Municipality_parents(ctx, field)
-			case "type":
-				return ec.fieldContext_Municipality_type(ctx, field)
-			case "prefecture":
-				return ec.fieldContext_Municipality_prefecture(ctx, field)
-			case "datasets":
-				return ec.fieldContext_Municipality_datasets(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Municipality", field.Name)
-		},
-	}
-	defer func() {
-		if r := recover(); r != nil {
-			err = ec.Recover(ctx, r)
-			ec.Error(ctx, err)
-		}
-	}()
-	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Query_municipality_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
-		ec.Error(ctx, err)
-		return
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Query_municipalities(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Query_municipalities(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Municipalities(rctx, fc.Args["datasetType"].(*DatasetType), fc.Args["prefectureCode"].(*string))
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.([]*Municipality)
-	fc.Result = res
-	return ec.marshalNMunicipality2ᚕᚖgithubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐMunicipalityᚄ(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Query_municipalities(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Query",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_Municipality_id(ctx, field)
-			case "code":
-				return ec.fieldContext_Municipality_code(ctx, field)
-			case "name":
-				return ec.fieldContext_Municipality_name(ctx, field)
-			case "parents":
-				return ec.fieldContext_Municipality_parents(ctx, field)
-			case "type":
-				return ec.fieldContext_Municipality_type(ctx, field)
-			case "prefecture":
-				return ec.fieldContext_Municipality_prefecture(ctx, field)
-			case "datasets":
-				return ec.fieldContext_Municipality_datasets(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Municipality", field.Name)
-		},
-	}
-	defer func() {
-		if r := recover(); r != nil {
-			err = ec.Recover(ctx, r)
-			ec.Error(ctx, err)
-		}
-	}()
-	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Query_municipalities_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
-		ec.Error(ctx, err)
-		return
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Query_dataset(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Query_dataset(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Dataset(rctx, fc.Args["datasetId"].(string))
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(Dataset)
-	fc.Result = res
-	return ec.marshalODataset2githubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐDataset(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Query_dataset(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Query_node(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Query",
 		Field:      field,
@@ -4224,7 +5327,224 @@ func (ec *executionContext) fieldContext_Query_dataset(ctx context.Context, fiel
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Query_dataset_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = ec.field_Query_node_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_nodes(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_nodes(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().Nodes(rctx, fc.Args["ids"].([]string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]Node)
+	fc.Result = res
+	return ec.marshalNNode2ᚕgithubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐNodeᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_nodes(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("FieldContext.Child cannot be called on type INTERFACE")
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_nodes_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_area(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_area(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().Area(rctx, fc.Args["code"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(Area)
+	fc.Result = res
+	return ec.marshalOArea2githubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐArea(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_area(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("FieldContext.Child cannot be called on type INTERFACE")
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_area_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_areas(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_areas(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().Areas(rctx, fc.Args["input"].(AreaQuery))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]Area)
+	fc.Result = res
+	return ec.marshalNArea2ᚕgithubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐAreaᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_areas(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("FieldContext.Child cannot be called on type INTERFACE")
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_areas_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_datasetTypes(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_datasetTypes(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().DatasetTypes(rctx, fc.Args["input"].(DatasetTypeQuery))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]DatasetType)
+	fc.Result = res
+	return ec.marshalNDatasetType2ᚕgithubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐDatasetTypeᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_datasetTypes(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("FieldContext.Child cannot be called on type INTERFACE")
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_datasetTypes_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return
 	}
@@ -4282,6 +5602,94 @@ func (ec *executionContext) fieldContext_Query_datasets(ctx context.Context, fie
 	if fc.Args, err = ec.field_Query_datasets_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_plateauVersions(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_plateauVersions(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().PlateauVersions(rctx)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]string)
+	fc.Result = res
+	return ec.marshalNString2ᚕstringᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_plateauVersions(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_years(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_years(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().Years(rctx)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]int)
+	fc.Result = res
+	return ec.marshalNInt2ᚕintᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_years(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
 	}
 	return fc, nil
 }
@@ -6188,6 +7596,50 @@ func (ec *executionContext) fieldContext___Type_specifiedByURL(ctx context.Conte
 
 // region    **************************** input.gotpl *****************************
 
+func (ec *executionContext) unmarshalInputAreaQuery(ctx context.Context, obj interface{}) (AreaQuery, error) {
+	var it AreaQuery
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"parentCode", "datasetTypes", "searchTokens"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "parentCode":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("parentCode"))
+			it.ParentCode, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "datasetTypes":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("datasetTypes"))
+			it.DatasetTypes, err = ec.unmarshalOString2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "searchTokens":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("searchTokens"))
+			it.SearchTokens, err = ec.unmarshalOString2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputDatasetForAreaQuery(ctx context.Context, obj interface{}) (DatasetForAreaQuery, error) {
 	var it DatasetForAreaQuery
 	asMap := map[string]interface{}{}
@@ -6206,7 +7658,7 @@ func (ec *executionContext) unmarshalInputDatasetForAreaQuery(ctx context.Contex
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("excludeTypes"))
-			it.ExcludeTypes, err = ec.unmarshalODatasetType2ᚕgithubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐDatasetTypeᚄ(ctx, v)
+			it.ExcludeTypes, err = ec.unmarshalOString2ᚕstringᚄ(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -6214,7 +7666,7 @@ func (ec *executionContext) unmarshalInputDatasetForAreaQuery(ctx context.Contex
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("includeTypes"))
-			it.IncludeTypes, err = ec.unmarshalODatasetType2ᚕgithubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐDatasetTypeᚄ(ctx, v)
+			it.IncludeTypes, err = ec.unmarshalOString2ᚕstringᚄ(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -6239,29 +7691,13 @@ func (ec *executionContext) unmarshalInputDatasetQuery(ctx context.Context, obj 
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"excludeTypes", "includeTypes", "areaCodes", "searchTokens"}
+	fieldsInOrder := [...]string{"areaCodes", "excludeTypes", "includeTypes", "searchTokens"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
 			continue
 		}
 		switch k {
-		case "excludeTypes":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("excludeTypes"))
-			it.ExcludeTypes, err = ec.unmarshalODatasetType2ᚕgithubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐDatasetTypeᚄ(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "includeTypes":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("includeTypes"))
-			it.IncludeTypes, err = ec.unmarshalODatasetType2ᚕgithubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐDatasetTypeᚄ(ctx, v)
-			if err != nil {
-				return it, err
-			}
 		case "areaCodes":
 			var err error
 
@@ -6270,11 +7706,71 @@ func (ec *executionContext) unmarshalInputDatasetQuery(ctx context.Context, obj 
 			if err != nil {
 				return it, err
 			}
+		case "excludeTypes":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("excludeTypes"))
+			it.ExcludeTypes, err = ec.unmarshalOString2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "includeTypes":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("includeTypes"))
+			it.IncludeTypes, err = ec.unmarshalOString2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
 		case "searchTokens":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("searchTokens"))
 			it.SearchTokens, err = ec.unmarshalOString2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputDatasetTypeQuery(ctx context.Context, obj interface{}) (DatasetTypeQuery, error) {
+	var it DatasetTypeQuery
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"category", "plateauVersion", "year"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "category":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("category"))
+			it.Category, err = ec.unmarshalODatasetTypeCategory2ᚖgithubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐDatasetTypeCategory(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "plateauVersion":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("plateauVersion"))
+			it.PlateauVersion, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "year":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("year"))
+			it.Year, err = ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -6378,6 +7874,36 @@ func (ec *executionContext) _DatasetDatum(ctx context.Context, sel ast.Selection
 	}
 }
 
+func (ec *executionContext) _DatasetType(ctx context.Context, sel ast.SelectionSet, obj DatasetType) graphql.Marshaler {
+	switch obj := (obj).(type) {
+	case nil:
+		return graphql.Null
+	case PlateauDatasetType:
+		return ec._PlateauDatasetType(ctx, sel, &obj)
+	case *PlateauDatasetType:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._PlateauDatasetType(ctx, sel, obj)
+	case PlateauAuxiliaryDatasetType:
+		return ec._PlateauAuxiliaryDatasetType(ctx, sel, &obj)
+	case *PlateauAuxiliaryDatasetType:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._PlateauAuxiliaryDatasetType(ctx, sel, obj)
+	case GenericDatasetType:
+		return ec._GenericDatasetType(ctx, sel, &obj)
+	case *GenericDatasetType:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._GenericDatasetType(ctx, sel, obj)
+	default:
+		panic(fmt.Errorf("unexpected type %T", obj))
+	}
+}
+
 func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj Node) graphql.Marshaler {
 	switch obj := (obj).(type) {
 	case nil:
@@ -6418,6 +7944,11 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._DatasetDatum(ctx, sel, obj)
+	case DatasetType:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._DatasetType(ctx, sel, obj)
 	case PlateauDataset:
 		return ec._PlateauDataset(ctx, sel, &obj)
 	case *PlateauDataset:
@@ -6432,6 +7963,13 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._PlateauDatasetDatum(ctx, sel, obj)
+	case PlateauDatasetType:
+		return ec._PlateauDatasetType(ctx, sel, &obj)
+	case *PlateauDatasetType:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._PlateauDatasetType(ctx, sel, obj)
 	case PlateauAuxiliaryDataset:
 		return ec._PlateauAuxiliaryDataset(ctx, sel, &obj)
 	case *PlateauAuxiliaryDataset:
@@ -6446,6 +7984,13 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._PlateauAuxiliaryDatasetDatum(ctx, sel, obj)
+	case PlateauAuxiliaryDatasetType:
+		return ec._PlateauAuxiliaryDatasetType(ctx, sel, &obj)
+	case *PlateauAuxiliaryDatasetType:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._PlateauAuxiliaryDatasetType(ctx, sel, obj)
 	case GenericDataset:
 		return ec._GenericDataset(ctx, sel, &obj)
 	case *GenericDataset:
@@ -6460,6 +8005,13 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._GenericDatasetDatum(ctx, sel, obj)
+	case GenericDatasetType:
+		return ec._GenericDatasetType(ctx, sel, &obj)
+	case *GenericDatasetType:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._GenericDatasetType(ctx, sel, obj)
 	default:
 		panic(fmt.Errorf("unexpected type %T", obj))
 	}
@@ -6503,13 +8055,6 @@ func (ec *executionContext) _Country(ctx context.Context, sel ast.SelectionSet, 
 		case "parents":
 
 			out.Values[i] = ec._Country_parents(ctx, field, obj)
-
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&invalids, 1)
-			}
-		case "type":
-
-			out.Values[i] = ec._Country_type(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&invalids, 1)
@@ -6591,6 +8136,13 @@ func (ec *executionContext) _GenericDataset(ctx context.Context, sel ast.Selecti
 
 			out.Values[i] = ec._GenericDataset_groups(ctx, field, obj)
 
+		case "area_id":
+
+			out.Values[i] = ec._GenericDataset_area_id(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
 		case "area":
 			field := field
 
@@ -6608,16 +8160,33 @@ func (ec *executionContext) _GenericDataset(ctx context.Context, sel ast.Selecti
 				return innerFunc(ctx)
 
 			})
-		case "data":
+		case "type_id":
 
-			out.Values[i] = ec._GenericDataset_data(ctx, field, obj)
+			out.Values[i] = ec._GenericDataset_type_id(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&invalids, 1)
 			}
-		case "typeName":
+		case "type":
+			field := field
 
-			out.Values[i] = ec._GenericDataset_typeName(ctx, field, obj)
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._GenericDataset_type(ctx, field, obj)
+				return res
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
+		case "data":
+
+			out.Values[i] = ec._GenericDataset_data(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&invalids, 1)
@@ -6648,33 +8217,113 @@ func (ec *executionContext) _GenericDatasetDatum(ctx context.Context, sel ast.Se
 			out.Values[i] = ec._GenericDatasetDatum_id(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "format":
 
 			out.Values[i] = ec._GenericDatasetDatum_format(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "name":
 
 			out.Values[i] = ec._GenericDatasetDatum_name(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "url":
 
 			out.Values[i] = ec._GenericDatasetDatum_url(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "layers":
 
 			out.Values[i] = ec._GenericDatasetDatum_layers(ctx, field, obj)
 
+		case "parent_id":
+
+			out.Values[i] = ec._GenericDatasetDatum_parent_id(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		case "parent":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._GenericDatasetDatum_parent(ctx, field, obj)
+				return res
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var genericDatasetTypeImplementors = []string{"GenericDatasetType", "DatasetType", "Node"}
+
+func (ec *executionContext) _GenericDatasetType(ctx context.Context, sel ast.SelectionSet, obj *GenericDatasetType) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, genericDatasetTypeImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("GenericDatasetType")
+		case "id":
+
+			out.Values[i] = ec._GenericDatasetType_id(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "code":
+
+			out.Values[i] = ec._GenericDatasetType_code(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "name":
+
+			out.Values[i] = ec._GenericDatasetType_name(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "englishName":
+
+			out.Values[i] = ec._GenericDatasetType_englishName(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "category":
+
+			out.Values[i] = ec._GenericDatasetType_category(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -6720,13 +8369,6 @@ func (ec *executionContext) _Municipality(ctx context.Context, sel ast.Selection
 		case "parents":
 
 			out.Values[i] = ec._Municipality_parents(ctx, field, obj)
-
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&invalids, 1)
-			}
-		case "type":
-
-			out.Values[i] = ec._Municipality_type(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&invalids, 1)
@@ -6808,6 +8450,13 @@ func (ec *executionContext) _PlateauAuxiliaryDataset(ctx context.Context, sel as
 
 			out.Values[i] = ec._PlateauAuxiliaryDataset_groups(ctx, field, obj)
 
+		case "area_id":
+
+			out.Values[i] = ec._PlateauAuxiliaryDataset_area_id(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
 		case "area":
 			field := field
 
@@ -6825,23 +8474,33 @@ func (ec *executionContext) _PlateauAuxiliaryDataset(ctx context.Context, sel as
 				return innerFunc(ctx)
 
 			})
-		case "data":
+		case "type_id":
 
-			out.Values[i] = ec._PlateauAuxiliaryDataset_data(ctx, field, obj)
+			out.Values[i] = ec._PlateauAuxiliaryDataset_type_id(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&invalids, 1)
 			}
 		case "type":
+			field := field
 
-			out.Values[i] = ec._PlateauAuxiliaryDataset_type(ctx, field, obj)
-
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&invalids, 1)
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._PlateauAuxiliaryDataset_type(ctx, field, obj)
+				return res
 			}
-		case "typeName":
 
-			out.Values[i] = ec._PlateauAuxiliaryDataset_typeName(ctx, field, obj)
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
+		case "data":
+
+			out.Values[i] = ec._PlateauAuxiliaryDataset_data(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&invalids, 1)
@@ -6872,33 +8531,113 @@ func (ec *executionContext) _PlateauAuxiliaryDatasetDatum(ctx context.Context, s
 			out.Values[i] = ec._PlateauAuxiliaryDatasetDatum_id(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "format":
 
 			out.Values[i] = ec._PlateauAuxiliaryDatasetDatum_format(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "name":
 
 			out.Values[i] = ec._PlateauAuxiliaryDatasetDatum_name(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "url":
 
 			out.Values[i] = ec._PlateauAuxiliaryDatasetDatum_url(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "layers":
 
 			out.Values[i] = ec._PlateauAuxiliaryDatasetDatum_layers(ctx, field, obj)
 
+		case "parent_id":
+
+			out.Values[i] = ec._PlateauAuxiliaryDatasetDatum_parent_id(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		case "parent":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._PlateauAuxiliaryDatasetDatum_parent(ctx, field, obj)
+				return res
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var plateauAuxiliaryDatasetTypeImplementors = []string{"PlateauAuxiliaryDatasetType", "DatasetType", "Node"}
+
+func (ec *executionContext) _PlateauAuxiliaryDatasetType(ctx context.Context, sel ast.SelectionSet, obj *PlateauAuxiliaryDatasetType) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, plateauAuxiliaryDatasetTypeImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("PlateauAuxiliaryDatasetType")
+		case "id":
+
+			out.Values[i] = ec._PlateauAuxiliaryDatasetType_id(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "code":
+
+			out.Values[i] = ec._PlateauAuxiliaryDatasetType_code(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "name":
+
+			out.Values[i] = ec._PlateauAuxiliaryDatasetType_name(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "englishName":
+
+			out.Values[i] = ec._PlateauAuxiliaryDatasetType_englishName(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "category":
+
+			out.Values[i] = ec._PlateauAuxiliaryDatasetType_category(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -6949,6 +8688,13 @@ func (ec *executionContext) _PlateauDataset(ctx context.Context, sel ast.Selecti
 
 			out.Values[i] = ec._PlateauDataset_groups(ctx, field, obj)
 
+		case "area_id":
+
+			out.Values[i] = ec._PlateauDataset_area_id(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
 		case "area":
 			field := field
 
@@ -6966,16 +8712,36 @@ func (ec *executionContext) _PlateauDataset(ctx context.Context, sel ast.Selecti
 				return innerFunc(ctx)
 
 			})
-		case "data":
+		case "type_id":
 
-			out.Values[i] = ec._PlateauDataset_data(ctx, field, obj)
+			out.Values[i] = ec._PlateauDataset_type_id(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&invalids, 1)
 			}
 		case "type":
+			field := field
 
-			out.Values[i] = ec._PlateauDataset_type(ctx, field, obj)
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._PlateauDataset_type(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
+		case "data":
+
+			out.Values[i] = ec._PlateauDataset_data(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&invalids, 1)
@@ -7006,50 +8772,137 @@ func (ec *executionContext) _PlateauDatasetDatum(ctx context.Context, sel ast.Se
 			out.Values[i] = ec._PlateauDatasetDatum_id(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "format":
 
 			out.Values[i] = ec._PlateauDatasetDatum_format(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "name":
 
 			out.Values[i] = ec._PlateauDatasetDatum_name(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "url":
 
 			out.Values[i] = ec._PlateauDatasetDatum_url(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "layers":
 
 			out.Values[i] = ec._PlateauDatasetDatum_layers(ctx, field, obj)
 
+		case "parent_id":
+
+			out.Values[i] = ec._PlateauDatasetDatum_parent_id(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		case "parent":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._PlateauDatasetDatum_parent(ctx, field, obj)
+				return res
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
 		case "lod":
 
 			out.Values[i] = ec._PlateauDatasetDatum_lod(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "textured":
 
 			out.Values[i] = ec._PlateauDatasetDatum_textured(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var plateauDatasetTypeImplementors = []string{"PlateauDatasetType", "DatasetType", "Node"}
+
+func (ec *executionContext) _PlateauDatasetType(ctx context.Context, sel ast.SelectionSet, obj *PlateauDatasetType) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, plateauDatasetTypeImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("PlateauDatasetType")
+		case "id":
+
+			out.Values[i] = ec._PlateauDatasetType_id(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "version":
+		case "code":
 
-			out.Values[i] = ec._PlateauDatasetDatum_version(ctx, field, obj)
+			out.Values[i] = ec._PlateauDatasetType_code(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "name":
+
+			out.Values[i] = ec._PlateauDatasetType_name(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "englishName":
+
+			out.Values[i] = ec._PlateauDatasetType_englishName(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "category":
+
+			out.Values[i] = ec._PlateauDatasetType_category(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "plateauVersion":
+
+			out.Values[i] = ec._PlateauDatasetType_plateauVersion(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "year":
+
+			out.Values[i] = ec._PlateauDatasetType_year(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				invalids++
@@ -7099,13 +8952,6 @@ func (ec *executionContext) _Prefecture(ctx context.Context, sel ast.SelectionSe
 		case "parents":
 
 			out.Values[i] = ec._Prefecture_parents(ctx, field, obj)
-
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&invalids, 1)
-			}
-		case "type":
-
-			out.Values[i] = ec._Prefecture_type(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&invalids, 1)
@@ -7167,7 +9013,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Query")
-		case "prefecture":
+		case "node":
 			field := field
 
 			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
@@ -7176,7 +9022,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Query_prefecture(ctx, field)
+				res = ec._Query_node(ctx, field)
 				return res
 			}
 
@@ -7187,7 +9033,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			out.Concurrently(i, func() graphql.Marshaler {
 				return rrm(innerCtx)
 			})
-		case "prefectures":
+		case "nodes":
 			field := field
 
 			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
@@ -7196,7 +9042,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Query_prefectures(ctx, field)
+				res = ec._Query_nodes(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&invalids, 1)
 				}
@@ -7210,7 +9056,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			out.Concurrently(i, func() graphql.Marshaler {
 				return rrm(innerCtx)
 			})
-		case "municipality":
+		case "area":
 			field := field
 
 			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
@@ -7219,7 +9065,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Query_municipality(ctx, field)
+				res = ec._Query_area(ctx, field)
 				return res
 			}
 
@@ -7230,7 +9076,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			out.Concurrently(i, func() graphql.Marshaler {
 				return rrm(innerCtx)
 			})
-		case "municipalities":
+		case "areas":
 			field := field
 
 			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
@@ -7239,7 +9085,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Query_municipalities(ctx, field)
+				res = ec._Query_areas(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&invalids, 1)
 				}
@@ -7253,7 +9099,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			out.Concurrently(i, func() graphql.Marshaler {
 				return rrm(innerCtx)
 			})
-		case "dataset":
+		case "datasetTypes":
 			field := field
 
 			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
@@ -7262,7 +9108,10 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Query_dataset(ctx, field)
+				res = ec._Query_datasetTypes(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
 				return res
 			}
 
@@ -7283,6 +9132,52 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_datasets(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return rrm(innerCtx)
+			})
+		case "plateauVersions":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_plateauVersions(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return rrm(innerCtx)
+			})
+		case "years":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_years(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&invalids, 1)
 				}
@@ -7691,14 +9586,9 @@ func (ec *executionContext) marshalNArea2ᚕgithubᚗcomᚋeukaryaᚑincᚋreear
 	return ret
 }
 
-func (ec *executionContext) unmarshalNAreaType2githubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐAreaType(ctx context.Context, v interface{}) (AreaType, error) {
-	var res AreaType
-	err := res.UnmarshalGQL(v)
+func (ec *executionContext) unmarshalNAreaQuery2githubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐAreaQuery(ctx context.Context, v interface{}) (AreaQuery, error) {
+	res, err := ec.unmarshalInputAreaQuery(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalNAreaType2githubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐAreaType(ctx context.Context, sel ast.SelectionSet, v AreaType) graphql.Marshaler {
-	return v
 }
 
 func (ec *executionContext) unmarshalNBoolean2bool(ctx context.Context, v interface{}) (bool, error) {
@@ -7790,14 +9680,73 @@ func (ec *executionContext) unmarshalNDatasetQuery2githubᚗcomᚋeukaryaᚑinc�
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalNDatasetType2githubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐDatasetType(ctx context.Context, v interface{}) (DatasetType, error) {
-	var res DatasetType
+func (ec *executionContext) marshalNDatasetType2githubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐDatasetType(ctx context.Context, sel ast.SelectionSet, v DatasetType) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._DatasetType(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNDatasetType2ᚕgithubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐDatasetTypeᚄ(ctx context.Context, sel ast.SelectionSet, v []DatasetType) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNDatasetType2githubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐDatasetType(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) unmarshalNDatasetTypeCategory2githubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐDatasetTypeCategory(ctx context.Context, v interface{}) (DatasetTypeCategory, error) {
+	var res DatasetTypeCategory
 	err := res.UnmarshalGQL(v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNDatasetType2githubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐDatasetType(ctx context.Context, sel ast.SelectionSet, v DatasetType) graphql.Marshaler {
+func (ec *executionContext) marshalNDatasetTypeCategory2githubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐDatasetTypeCategory(ctx context.Context, sel ast.SelectionSet, v DatasetTypeCategory) graphql.Marshaler {
 	return v
+}
+
+func (ec *executionContext) unmarshalNDatasetTypeQuery2githubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐDatasetTypeQuery(ctx context.Context, v interface{}) (DatasetTypeQuery, error) {
+	res, err := ec.unmarshalInputDatasetTypeQuery(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalNFloat2float64(ctx context.Context, v interface{}) (float64, error) {
@@ -7884,6 +9833,38 @@ func (ec *executionContext) marshalNID2string(ctx context.Context, sel ast.Selec
 	return res
 }
 
+func (ec *executionContext) unmarshalNID2ᚕstringᚄ(ctx context.Context, v interface{}) ([]string, error) {
+	var vSlice []interface{}
+	if v != nil {
+		vSlice = graphql.CoerceList(v)
+	}
+	var err error
+	res := make([]string, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalNID2string(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) marshalNID2ᚕstringᚄ(ctx context.Context, sel ast.SelectionSet, v []string) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	for i := range v {
+		ret[i] = ec.marshalNID2string(ctx, sel, v[i])
+	}
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
 func (ec *executionContext) unmarshalNInt2int(ctx context.Context, v interface{}) (int, error) {
 	res, err := graphql.UnmarshalInt(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -7897,6 +9878,38 @@ func (ec *executionContext) marshalNInt2int(ctx context.Context, sel ast.Selecti
 		}
 	}
 	return res
+}
+
+func (ec *executionContext) unmarshalNInt2ᚕintᚄ(ctx context.Context, v interface{}) ([]int, error) {
+	var vSlice []interface{}
+	if v != nil {
+		vSlice = graphql.CoerceList(v)
+	}
+	var err error
+	res := make([]int, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalNInt2int(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) marshalNInt2ᚕintᚄ(ctx context.Context, sel ast.SelectionSet, v []int) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	for i := range v {
+		ret[i] = ec.marshalNInt2int(ctx, sel, v[i])
+	}
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
 }
 
 func (ec *executionContext) marshalNMunicipality2ᚕᚖgithubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐMunicipalityᚄ(ctx context.Context, sel ast.SelectionSet, v []*Municipality) graphql.Marshaler {
@@ -7951,6 +9964,60 @@ func (ec *executionContext) marshalNMunicipality2ᚖgithubᚗcomᚋeukaryaᚑinc
 		return graphql.Null
 	}
 	return ec._Municipality(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNNode2githubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐNode(ctx context.Context, sel ast.SelectionSet, v Node) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._Node(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNNode2ᚕgithubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐNodeᚄ(ctx context.Context, sel ast.SelectionSet, v []Node) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNNode2githubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐNode(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
 }
 
 func (ec *executionContext) marshalNPlateauAuxiliaryDatasetDatum2ᚕᚖgithubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐPlateauAuxiliaryDatasetDatumᚄ(ctx context.Context, sel ast.SelectionSet, v []*PlateauAuxiliaryDatasetDatum) graphql.Marshaler {
@@ -8061,6 +10128,20 @@ func (ec *executionContext) marshalNPlateauDatasetDatum2ᚖgithubᚗcomᚋeukary
 	return ec._PlateauDatasetDatum(ctx, sel, v)
 }
 
+func (ec *executionContext) marshalNPlateauDatasetType2githubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐPlateauDatasetType(ctx context.Context, sel ast.SelectionSet, v PlateauDatasetType) graphql.Marshaler {
+	return ec._PlateauDatasetType(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNPlateauDatasetType2ᚖgithubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐPlateauDatasetType(ctx context.Context, sel ast.SelectionSet, v *PlateauDatasetType) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._PlateauDatasetType(ctx, sel, v)
+}
+
 func (ec *executionContext) marshalNPrefecture2ᚕᚖgithubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐPrefectureᚄ(ctx context.Context, sel ast.SelectionSet, v []*Prefecture) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
@@ -8128,6 +10209,38 @@ func (ec *executionContext) marshalNString2string(ctx context.Context, sel ast.S
 		}
 	}
 	return res
+}
+
+func (ec *executionContext) unmarshalNString2ᚕstringᚄ(ctx context.Context, v interface{}) ([]string, error) {
+	var vSlice []interface{}
+	if v != nil {
+		vSlice = graphql.CoerceList(v)
+	}
+	var err error
+	res := make([]string, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalNString2string(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) marshalNString2ᚕstringᚄ(ctx context.Context, sel ast.SelectionSet, v []string) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	for i := range v {
+		ret[i] = ec.marshalNString2string(ctx, sel, v[i])
+	}
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
 }
 
 func (ec *executionContext) marshalN__Directive2githubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐDirective(ctx context.Context, sel ast.SelectionSet, v introspection.Directive) graphql.Marshaler {
@@ -8416,108 +10529,78 @@ func (ec *executionContext) marshalOBoolean2ᚖbool(ctx context.Context, sel ast
 	return res
 }
 
-func (ec *executionContext) marshalODataset2githubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐDataset(ctx context.Context, sel ast.SelectionSet, v Dataset) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	return ec._Dataset(ctx, sel, v)
-}
-
-func (ec *executionContext) unmarshalODatasetType2ᚕgithubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐDatasetTypeᚄ(ctx context.Context, v interface{}) ([]DatasetType, error) {
+func (ec *executionContext) unmarshalODatasetTypeCategory2ᚖgithubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐDatasetTypeCategory(ctx context.Context, v interface{}) (*DatasetTypeCategory, error) {
 	if v == nil {
 		return nil, nil
 	}
-	var vSlice []interface{}
-	if v != nil {
-		vSlice = graphql.CoerceList(v)
-	}
-	var err error
-	res := make([]DatasetType, len(vSlice))
-	for i := range vSlice {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
-		res[i], err = ec.unmarshalNDatasetType2githubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐDatasetType(ctx, vSlice[i])
-		if err != nil {
-			return nil, err
-		}
-	}
-	return res, nil
-}
-
-func (ec *executionContext) marshalODatasetType2ᚕgithubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐDatasetTypeᚄ(ctx context.Context, sel ast.SelectionSet, v []DatasetType) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNDatasetType2githubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐDatasetType(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
-
-	for _, e := range ret {
-		if e == graphql.Null {
-			return graphql.Null
-		}
-	}
-
-	return ret
-}
-
-func (ec *executionContext) unmarshalODatasetType2ᚖgithubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐDatasetType(ctx context.Context, v interface{}) (*DatasetType, error) {
-	if v == nil {
-		return nil, nil
-	}
-	var res = new(DatasetType)
+	var res = new(DatasetTypeCategory)
 	err := res.UnmarshalGQL(v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalODatasetType2ᚖgithubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐDatasetType(ctx context.Context, sel ast.SelectionSet, v *DatasetType) graphql.Marshaler {
+func (ec *executionContext) marshalODatasetTypeCategory2ᚖgithubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐDatasetTypeCategory(ctx context.Context, sel ast.SelectionSet, v *DatasetTypeCategory) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
 	return v
 }
 
-func (ec *executionContext) marshalOMunicipality2ᚖgithubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐMunicipality(ctx context.Context, sel ast.SelectionSet, v *Municipality) graphql.Marshaler {
+func (ec *executionContext) marshalOGenericDataset2ᚖgithubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐGenericDataset(ctx context.Context, sel ast.SelectionSet, v *GenericDataset) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
-	return ec._Municipality(ctx, sel, v)
+	return ec._GenericDataset(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalOPrefecture2ᚖgithubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐPrefecture(ctx context.Context, sel ast.SelectionSet, v *Prefecture) graphql.Marshaler {
+func (ec *executionContext) marshalOGenericDatasetType2ᚖgithubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐGenericDatasetType(ctx context.Context, sel ast.SelectionSet, v *GenericDatasetType) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
-	return ec._Prefecture(ctx, sel, v)
+	return ec._GenericDatasetType(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalOInt2ᚖint(ctx context.Context, v interface{}) (*int, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := graphql.UnmarshalInt(v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOInt2ᚖint(ctx context.Context, sel ast.SelectionSet, v *int) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	res := graphql.MarshalInt(*v)
+	return res
+}
+
+func (ec *executionContext) marshalONode2githubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐNode(ctx context.Context, sel ast.SelectionSet, v Node) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._Node(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalOPlateauAuxiliaryDataset2ᚖgithubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐPlateauAuxiliaryDataset(ctx context.Context, sel ast.SelectionSet, v *PlateauAuxiliaryDataset) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._PlateauAuxiliaryDataset(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalOPlateauAuxiliaryDatasetType2ᚖgithubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐPlateauAuxiliaryDatasetType(ctx context.Context, sel ast.SelectionSet, v *PlateauAuxiliaryDatasetType) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._PlateauAuxiliaryDatasetType(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalOPlateauDataset2ᚖgithubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐPlateauDataset(ctx context.Context, sel ast.SelectionSet, v *PlateauDataset) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._PlateauDataset(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalOString2ᚕstringᚄ(ctx context.Context, v interface{}) ([]string, error) {
