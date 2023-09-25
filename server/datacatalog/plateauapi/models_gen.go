@@ -18,9 +18,9 @@ type Dataset interface {
 	IsDataset()
 }
 
-type DatasetDatum interface {
+type DatasetItem interface {
 	Node
-	IsDatasetDatum()
+	IsDatasetItem()
 }
 
 type DatasetType interface {
@@ -70,22 +70,22 @@ type DatasetTypeQuery struct {
 }
 
 type GenericDataset struct {
-	ID          string                 `json:"id"`
-	Name        string                 `json:"name"`
-	Description *string                `json:"description"`
-	Year        int                    `json:"year"`
-	Groups      []string               `json:"groups"`
-	AreaID      string                 `json:"area_id"`
-	Area        Area                   `json:"area"`
-	TypeID      string                 `json:"type_id"`
-	Type        *GenericDatasetType    `json:"type"`
-	Data        []*GenericDatasetDatum `json:"data"`
+	ID          string                `json:"id"`
+	Name        string                `json:"name"`
+	Description *string               `json:"description"`
+	Year        int                   `json:"year"`
+	Groups      []string              `json:"groups"`
+	AreaID      string                `json:"area_id"`
+	Area        Area                  `json:"area"`
+	TypeID      string                `json:"type_id"`
+	Type        *GenericDatasetType   `json:"type"`
+	Data        []*GenericDatasetItem `json:"data"`
 }
 
 func (GenericDataset) IsDataset() {}
 func (GenericDataset) IsNode()    {}
 
-type GenericDatasetDatum struct {
+type GenericDatasetItem struct {
 	ID       string          `json:"id"`
 	Format   DatasetFormat   `json:"format"`
 	Name     string          `json:"name"`
@@ -95,8 +95,8 @@ type GenericDatasetDatum struct {
 	Parent   *GenericDataset `json:"parent"`
 }
 
-func (GenericDatasetDatum) IsDatasetDatum() {}
-func (GenericDatasetDatum) IsNode()         {}
+func (GenericDatasetItem) IsDatasetItem() {}
+func (GenericDatasetItem) IsNode()        {}
 
 type GenericDatasetType struct {
 	ID          string              `json:"id"`
@@ -121,63 +121,23 @@ type Municipality struct {
 func (Municipality) IsArea() {}
 func (Municipality) IsNode() {}
 
-type PlateauAuxiliaryDataset struct {
-	ID          string                          `json:"id"`
-	Name        string                          `json:"name"`
-	Description *string                         `json:"description"`
-	Year        int                             `json:"year"`
-	Groups      []string                        `json:"groups"`
-	AreaID      string                          `json:"area_id"`
-	Area        Area                            `json:"area"`
-	TypeID      string                          `json:"type_id"`
-	Type        *PlateauAuxiliaryDatasetType    `json:"type"`
-	Data        []*PlateauAuxiliaryDatasetDatum `json:"data"`
-}
-
-func (PlateauAuxiliaryDataset) IsDataset() {}
-func (PlateauAuxiliaryDataset) IsNode()    {}
-
-type PlateauAuxiliaryDatasetDatum struct {
-	ID       string                   `json:"id"`
-	Format   DatasetFormat            `json:"format"`
-	Name     string                   `json:"name"`
-	URL      string                   `json:"url"`
-	Layers   []string                 `json:"layers"`
-	ParentID string                   `json:"parent_id"`
-	Parent   *PlateauAuxiliaryDataset `json:"parent"`
-}
-
-func (PlateauAuxiliaryDatasetDatum) IsDatasetDatum() {}
-func (PlateauAuxiliaryDatasetDatum) IsNode()         {}
-
-type PlateauAuxiliaryDatasetType struct {
-	ID          string              `json:"id"`
-	Code        string              `json:"code"`
-	Name        string              `json:"name"`
-	EnglishName string              `json:"englishName"`
-	Category    DatasetTypeCategory `json:"category"`
-}
-
-func (PlateauAuxiliaryDatasetType) IsDatasetType() {}
-func (PlateauAuxiliaryDatasetType) IsNode()        {}
-
 type PlateauDataset struct {
-	ID          string                 `json:"id"`
-	Name        string                 `json:"name"`
-	Description *string                `json:"description"`
-	Year        int                    `json:"year"`
-	Groups      []string               `json:"groups"`
-	AreaID      string                 `json:"area_id"`
-	Area        Area                   `json:"area"`
-	TypeID      string                 `json:"type_id"`
-	Type        *PlateauDatasetType    `json:"type"`
-	Data        []*PlateauDatasetDatum `json:"data"`
+	ID          string                `json:"id"`
+	Name        string                `json:"name"`
+	Description *string               `json:"description"`
+	Year        int                   `json:"year"`
+	Groups      []string              `json:"groups"`
+	AreaID      string                `json:"area_id"`
+	Area        Area                  `json:"area"`
+	TypeID      string                `json:"type_id"`
+	Type        *PlateauDatasetType   `json:"type"`
+	Data        []*PlateauDatasetItem `json:"data"`
 }
 
 func (PlateauDataset) IsDataset() {}
 func (PlateauDataset) IsNode()    {}
 
-type PlateauDatasetDatum struct {
+type PlateauDatasetItem struct {
 	ID       string          `json:"id"`
 	Format   DatasetFormat   `json:"format"`
 	Name     string          `json:"name"`
@@ -189,8 +149,8 @@ type PlateauDatasetDatum struct {
 	Textured bool            `json:"textured"`
 }
 
-func (PlateauDatasetDatum) IsDatasetDatum() {}
-func (PlateauDatasetDatum) IsNode()         {}
+func (PlateauDatasetItem) IsDatasetItem() {}
+func (PlateauDatasetItem) IsNode()        {}
 
 type PlateauDatasetType struct {
 	ID             string              `json:"id"`
@@ -216,6 +176,46 @@ type Prefecture struct {
 
 func (Prefecture) IsArea() {}
 func (Prefecture) IsNode() {}
+
+type RelatedDataset struct {
+	ID          string                `json:"id"`
+	Name        string                `json:"name"`
+	Description *string               `json:"description"`
+	Year        int                   `json:"year"`
+	Groups      []string              `json:"groups"`
+	AreaID      string                `json:"area_id"`
+	Area        Area                  `json:"area"`
+	TypeID      string                `json:"type_id"`
+	Type        *RelatedDatasetType   `json:"type"`
+	Data        []*RelatedDatasetItem `json:"data"`
+}
+
+func (RelatedDataset) IsDataset() {}
+func (RelatedDataset) IsNode()    {}
+
+type RelatedDatasetItem struct {
+	ID       string          `json:"id"`
+	Format   DatasetFormat   `json:"format"`
+	Name     string          `json:"name"`
+	URL      string          `json:"url"`
+	Layers   []string        `json:"layers"`
+	ParentID string          `json:"parent_id"`
+	Parent   *RelatedDataset `json:"parent"`
+}
+
+func (RelatedDatasetItem) IsDatasetItem() {}
+func (RelatedDatasetItem) IsNode()        {}
+
+type RelatedDatasetType struct {
+	ID          string              `json:"id"`
+	Code        string              `json:"code"`
+	Name        string              `json:"name"`
+	EnglishName string              `json:"englishName"`
+	Category    DatasetTypeCategory `json:"category"`
+}
+
+func (RelatedDatasetType) IsDatasetType() {}
+func (RelatedDatasetType) IsNode()        {}
 
 type DatasetFormat string
 
@@ -277,20 +277,20 @@ func (e DatasetFormat) MarshalGQL(w io.Writer) {
 type DatasetTypeCategory string
 
 const (
-	DatasetTypeCategoryPlateau          DatasetTypeCategory = "Plateau"
-	DatasetTypeCategoryPlateauAuxiliary DatasetTypeCategory = "PlateauAuxiliary"
-	DatasetTypeCategoryGeneric          DatasetTypeCategory = "Generic"
+	DatasetTypeCategoryPlateau DatasetTypeCategory = "Plateau"
+	DatasetTypeCategoryRelated DatasetTypeCategory = "Related"
+	DatasetTypeCategoryGeneric DatasetTypeCategory = "Generic"
 )
 
 var AllDatasetTypeCategory = []DatasetTypeCategory{
 	DatasetTypeCategoryPlateau,
-	DatasetTypeCategoryPlateauAuxiliary,
+	DatasetTypeCategoryRelated,
 	DatasetTypeCategoryGeneric,
 }
 
 func (e DatasetTypeCategory) IsValid() bool {
 	switch e {
-	case DatasetTypeCategoryPlateau, DatasetTypeCategoryPlateauAuxiliary, DatasetTypeCategoryGeneric:
+	case DatasetTypeCategoryPlateau, DatasetTypeCategoryRelated, DatasetTypeCategoryGeneric:
 		return true
 	}
 	return false

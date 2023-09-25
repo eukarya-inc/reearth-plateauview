@@ -76,17 +76,17 @@ models:
         resolver: true
       type:
         resolver: true
-  PlateauDatasetDatum:
+  PlateauDatasetItem:
     fields:
       parent:
         resolver: true
-  PlateauAuxiliaryDataset:
+  RelatedDataset:
     fields:
       area:
         resolver: true
       type:
         resolver: true
-  PlateauAuxiliaryDatasetDatum:
+  RelatedDatasetItem:
     fields:
       parent:
         resolver: true
@@ -96,7 +96,7 @@ models:
         resolver: true
       type:
         resolver: true
-  GenericDatasetDatum:
+  GenericDatasetItem:
     fields:
       parent:
         resolver: true

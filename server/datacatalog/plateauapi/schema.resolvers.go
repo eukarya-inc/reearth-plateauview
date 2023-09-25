@@ -24,27 +24,12 @@ func (r *genericDatasetResolver) Type(ctx context.Context, obj *GenericDataset) 
 }
 
 // Parent is the resolver for the parent field.
-func (r *genericDatasetDatumResolver) Parent(ctx context.Context, obj *GenericDatasetDatum) (*GenericDataset, error) {
+func (r *genericDatasetItemResolver) Parent(ctx context.Context, obj *GenericDatasetItem) (*GenericDataset, error) {
 	panic(fmt.Errorf("not implemented"))
 }
 
 // Datasets is the resolver for the datasets field.
 func (r *municipalityResolver) Datasets(ctx context.Context, obj *Municipality, input DatasetForAreaQuery) ([]Dataset, error) {
-	panic(fmt.Errorf("not implemented"))
-}
-
-// Area is the resolver for the area field.
-func (r *plateauAuxiliaryDatasetResolver) Area(ctx context.Context, obj *PlateauAuxiliaryDataset) (Area, error) {
-	panic(fmt.Errorf("not implemented"))
-}
-
-// Type is the resolver for the type field.
-func (r *plateauAuxiliaryDatasetResolver) Type(ctx context.Context, obj *PlateauAuxiliaryDataset) (*PlateauAuxiliaryDatasetType, error) {
-	panic(fmt.Errorf("not implemented"))
-}
-
-// Parent is the resolver for the parent field.
-func (r *plateauAuxiliaryDatasetDatumResolver) Parent(ctx context.Context, obj *PlateauAuxiliaryDatasetDatum) (*PlateauAuxiliaryDataset, error) {
 	panic(fmt.Errorf("not implemented"))
 }
 
@@ -59,7 +44,7 @@ func (r *plateauDatasetResolver) Type(ctx context.Context, obj *PlateauDataset) 
 }
 
 // Parent is the resolver for the parent field.
-func (r *plateauDatasetDatumResolver) Parent(ctx context.Context, obj *PlateauDatasetDatum) (*PlateauDataset, error) {
+func (r *plateauDatasetItemResolver) Parent(ctx context.Context, obj *PlateauDatasetItem) (*PlateauDataset, error) {
 	panic(fmt.Errorf("not implemented"))
 }
 
@@ -108,36 +93,41 @@ func (r *queryResolver) Years(ctx context.Context) ([]int, error) {
 	panic(fmt.Errorf("not implemented"))
 }
 
+// Area is the resolver for the area field.
+func (r *relatedDatasetResolver) Area(ctx context.Context, obj *RelatedDataset) (Area, error) {
+	panic(fmt.Errorf("not implemented"))
+}
+
+// Type is the resolver for the type field.
+func (r *relatedDatasetResolver) Type(ctx context.Context, obj *RelatedDataset) (*RelatedDatasetType, error) {
+	panic(fmt.Errorf("not implemented"))
+}
+
+// Parent is the resolver for the parent field.
+func (r *relatedDatasetItemResolver) Parent(ctx context.Context, obj *RelatedDatasetItem) (*RelatedDataset, error) {
+	panic(fmt.Errorf("not implemented"))
+}
+
 // Country returns CountryResolver implementation.
 func (r *Resolver) Country() CountryResolver { return &countryResolver{r} }
 
 // GenericDataset returns GenericDatasetResolver implementation.
 func (r *Resolver) GenericDataset() GenericDatasetResolver { return &genericDatasetResolver{r} }
 
-// GenericDatasetDatum returns GenericDatasetDatumResolver implementation.
-func (r *Resolver) GenericDatasetDatum() GenericDatasetDatumResolver {
-	return &genericDatasetDatumResolver{r}
+// GenericDatasetItem returns GenericDatasetItemResolver implementation.
+func (r *Resolver) GenericDatasetItem() GenericDatasetItemResolver {
+	return &genericDatasetItemResolver{r}
 }
 
 // Municipality returns MunicipalityResolver implementation.
 func (r *Resolver) Municipality() MunicipalityResolver { return &municipalityResolver{r} }
 
-// PlateauAuxiliaryDataset returns PlateauAuxiliaryDatasetResolver implementation.
-func (r *Resolver) PlateauAuxiliaryDataset() PlateauAuxiliaryDatasetResolver {
-	return &plateauAuxiliaryDatasetResolver{r}
-}
-
-// PlateauAuxiliaryDatasetDatum returns PlateauAuxiliaryDatasetDatumResolver implementation.
-func (r *Resolver) PlateauAuxiliaryDatasetDatum() PlateauAuxiliaryDatasetDatumResolver {
-	return &plateauAuxiliaryDatasetDatumResolver{r}
-}
-
 // PlateauDataset returns PlateauDatasetResolver implementation.
 func (r *Resolver) PlateauDataset() PlateauDatasetResolver { return &plateauDatasetResolver{r} }
 
-// PlateauDatasetDatum returns PlateauDatasetDatumResolver implementation.
-func (r *Resolver) PlateauDatasetDatum() PlateauDatasetDatumResolver {
-	return &plateauDatasetDatumResolver{r}
+// PlateauDatasetItem returns PlateauDatasetItemResolver implementation.
+func (r *Resolver) PlateauDatasetItem() PlateauDatasetItemResolver {
+	return &plateauDatasetItemResolver{r}
 }
 
 // Prefecture returns PrefectureResolver implementation.
@@ -146,13 +136,21 @@ func (r *Resolver) Prefecture() PrefectureResolver { return &prefectureResolver{
 // Query returns QueryResolver implementation.
 func (r *Resolver) Query() QueryResolver { return &queryResolver{r} }
 
+// RelatedDataset returns RelatedDatasetResolver implementation.
+func (r *Resolver) RelatedDataset() RelatedDatasetResolver { return &relatedDatasetResolver{r} }
+
+// RelatedDatasetItem returns RelatedDatasetItemResolver implementation.
+func (r *Resolver) RelatedDatasetItem() RelatedDatasetItemResolver {
+	return &relatedDatasetItemResolver{r}
+}
+
 type countryResolver struct{ *Resolver }
 type genericDatasetResolver struct{ *Resolver }
-type genericDatasetDatumResolver struct{ *Resolver }
+type genericDatasetItemResolver struct{ *Resolver }
 type municipalityResolver struct{ *Resolver }
-type plateauAuxiliaryDatasetResolver struct{ *Resolver }
-type plateauAuxiliaryDatasetDatumResolver struct{ *Resolver }
 type plateauDatasetResolver struct{ *Resolver }
-type plateauDatasetDatumResolver struct{ *Resolver }
+type plateauDatasetItemResolver struct{ *Resolver }
 type prefectureResolver struct{ *Resolver }
 type queryResolver struct{ *Resolver }
+type relatedDatasetResolver struct{ *Resolver }
+type relatedDatasetItemResolver struct{ *Resolver }

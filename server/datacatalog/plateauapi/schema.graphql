@@ -57,11 +57,11 @@ interface Dataset implements Node {
   description: String
   year: Int!
   groups: [String!]
-  data: [DatasetDatum!]!
+  data: [DatasetItem!]!
   area: Area
 }
 
-interface DatasetDatum implements Node {
+interface DatasetItem implements Node {
   id: ID!
   format: DatasetFormat!
   name: String!
@@ -94,7 +94,7 @@ interface DatasetType implements Node {
 
 enum DatasetTypeCategory {
   Plateau
-  PlateauAuxiliary
+  Related
   Generic
 }
 
@@ -111,10 +111,10 @@ type PlateauDataset implements Dataset & Node {
   area: Area
   type_id: ID!
   type: PlateauDatasetType!
-  data: [PlateauDatasetDatum!]!
+  data: [PlateauDatasetItem!]!
 }
 
-type PlateauDatasetDatum implements DatasetDatum & Node {
+type PlateauDatasetItem implements DatasetItem & Node {
   id: ID!
   format: DatasetFormat!
   name: String!
@@ -138,9 +138,9 @@ type PlateauDatasetType implements DatasetType & Node {
   year: Int!
 }
 
-# PLATEAU auxiliary dataset
+# related dataset
 
-type PlateauAuxiliaryDataset implements Dataset & Node {
+type RelatedDataset implements Dataset & Node {
   id: ID!
   name: String!
   description: String
@@ -149,21 +149,21 @@ type PlateauAuxiliaryDataset implements Dataset & Node {
   area_id: ID!
   area: Area
   type_id: ID!
-  type: PlateauAuxiliaryDatasetType
-  data: [PlateauAuxiliaryDatasetDatum!]!
+  type: RelatedDatasetType
+  data: [RelatedDatasetItem!]!
 }
 
-type PlateauAuxiliaryDatasetDatum implements DatasetDatum & Node {
+type RelatedDatasetItem implements DatasetItem & Node {
   id: ID!
   format: DatasetFormat!
   name: String!
   url: String!
   layers: [String!]
   parent_id: ID!
-  parent: PlateauAuxiliaryDataset
+  parent: RelatedDataset
 }
 
-type PlateauAuxiliaryDatasetType implements DatasetType & Node {
+type RelatedDatasetType implements DatasetType & Node {
   id: ID!
   code: String!
   name: String!
@@ -183,10 +183,10 @@ type GenericDataset implements Dataset & Node {
   area: Area
   type_id: ID!
   type: GenericDatasetType
-  data: [GenericDatasetDatum!]!
+  data: [GenericDatasetItem!]!
 }
 
-type GenericDatasetDatum implements DatasetDatum & Node {
+type GenericDatasetItem implements DatasetItem & Node {
   id: ID!
   format: DatasetFormat!
   name: String!
@@ -252,7 +252,7 @@ type Query {
 #   Vegetation
 # }
 
-# enum PlateauAuxiliaryDatasetType {
+# enum RelatedDatasetType {
 #   Border
 #   EmergencyRoute
 #   Landmark
