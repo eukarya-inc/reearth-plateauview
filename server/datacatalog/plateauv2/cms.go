@@ -121,7 +121,7 @@ func (i CMSItem) FeatureDescription(ty string) []string {
 }
 
 func (i CMSItem) AllDataCatalogItems(c PlateauIntermediateItem) []DataCatalogItem {
-	if c.ID == "" {
+	if c.ID == "" || c.Year == 0 {
 		return nil
 	}
 
@@ -129,8 +129,8 @@ func (i CMSItem) AllDataCatalogItems(c PlateauIntermediateItem) []DataCatalogIte
 		lo.FlatMap(FeatureTypes, func(ty string, _ int) []*DataCatalogItem {
 			return i.DataCatalogItems(c, ty)
 		}),
-		func(i *DataCatalogItem, _ int) bool {
-			return i != nil
+		func(dci *DataCatalogItem, _ int) bool {
+			return dci != nil
 		},
 	))
 }

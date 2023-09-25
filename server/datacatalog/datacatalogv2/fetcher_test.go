@@ -19,6 +19,9 @@ func TestFetcher(t *testing.T) {
 	base, _ := os.LookupEnv("REEARTH_PLATEAUVIEW_TEST_BASE")
 	project, _ := os.LookupEnv("REEARTH_PLATEAUVIEW_TEST_PROJECT_PLATEAU")
 	currentAPI, _ := os.LookupEnv("REEARTH_PLATEAUVIEW_TEST_DATACATALOG_API")
+	// currentAPI := ""
+	save := false
+	// save := true
 
 	if base == "" || project == "" {
 		t.Skip("no base and project")
@@ -27,8 +30,11 @@ func TestFetcher(t *testing.T) {
 	// save the current implementation result
 	f := lo.Must(NewFetcher(base))
 	cmsres := lo.Must(f.Do(context.Background(), project, FetcherDoOptions{}))
+
 	res := cmsres.All()
-	lo.Must0(os.WriteFile("datacatalog.json", lo.Must(json.MarshalIndent(res, "", "  ")), 0644))
+	if save {
+		lo.Must0(os.WriteFile("datacatalog.json", lo.Must(json.MarshalIndent(res, "", "  ")), 0644))
+	}
 
 	if currentAPI != "" {
 		// save the current result
@@ -36,7 +42,9 @@ func TestFetcher(t *testing.T) {
 		defer res2.Body.Close()
 		var r []DataCatalogItem
 		lo.Must0(json.NewDecoder(res2.Body).Decode(&r))
-		lo.Must0(os.WriteFile("datacatalog-current.json", lo.Must(json.MarshalIndent(r, "", "  ")), 0644))
+		if save {
+			lo.Must0(os.WriteFile("datacatalog-current.json", lo.Must(json.MarshalIndent(r, "", "  ")), 0644))
+		}
 
 		// extract and sort ID list from res
 		var ids []string

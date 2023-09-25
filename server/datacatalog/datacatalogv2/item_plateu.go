@@ -15,9 +15,6 @@ func (i PlateauItem) GetCityName() string {
 
 func (i PlateauItem) DataCatalogs() []DataCatalogItem {
 	c := plateauv2.CMSItem(i).IntermediateItem()
-	if c.Year == 0 {
-		return nil
-	}
 	return lo.Map(plateauv2.CMSItem(i).AllDataCatalogItems(c), dataCatalogItemFromPlateauV2)
 }
 
