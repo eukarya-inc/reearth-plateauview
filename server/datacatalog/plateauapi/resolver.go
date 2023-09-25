@@ -2,13 +2,38 @@
 
 package plateauapi
 
-import "github.com/99designs/gqlgen/graphql"
+import (
+	"github.com/99designs/gqlgen/graphql"
+	"github.com/99designs/gqlgen/graphql/handler"
+)
+
+// Example
+
+// func main() {
+// 	port := os.Getenv("PORT")
+// 	if port == "" {
+// 		port = "8080"
+// 	}
+
+// 	srv := plateauapi.NewSchema()
+
+// 	http.Handle("/", playground.Handler("GraphQL playground", "/query"))
+// 	http.Handle("/query", srv)
+
+// 	log.Printf("connect to http://localhost:%s/ for GraphQL playground", port)
+// 	log.Fatal(http.ListenAndServe(":"+port, nil))
+// }
 
 // This file will not be regenerated automatically.
 //
 // It serves as dependency injection for your app, add any dependencies you require here.
 
 type Resolver struct{}
+
+func NewService() *handler.Server {
+	srv := handler.NewDefaultServer(NewSchema())
+	return srv
+}
 
 func NewSchema() graphql.ExecutableSchema {
 	return NewExecutableSchema(Config{Resolvers: &Resolver{}})
