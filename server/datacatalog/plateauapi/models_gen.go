@@ -64,14 +64,15 @@ type DatasetQuery struct {
 }
 
 type DatasetTypeQuery struct {
-	Category       *DatasetTypeCategory `json:"category"`
-	PlateauVersion *string              `json:"plateauVersion"`
-	Year           *int                 `json:"year"`
+	Category    *DatasetTypeCategory `json:"category"`
+	PlateauSpec *string              `json:"plateauSpec"`
+	Year        *int                 `json:"year"`
 }
 
 type GenericDataset struct {
 	ID          string                `json:"id"`
 	Name        string                `json:"name"`
+	Subname     *string               `json:"subname"`
 	Description *string               `json:"description"`
 	Year        int                   `json:"year"`
 	Groups      []string              `json:"groups"`
@@ -124,6 +125,7 @@ func (Municipality) IsNode() {}
 type PlateauDataset struct {
 	ID          string                `json:"id"`
 	Name        string                `json:"name"`
+	Subname     *string               `json:"subname"`
 	Description *string               `json:"description"`
 	Year        int                   `json:"year"`
 	Groups      []string              `json:"groups"`
@@ -145,25 +147,65 @@ type PlateauDatasetItem struct {
 	Layers   []string        `json:"layers"`
 	ParentID string          `json:"parent_id"`
 	Parent   *PlateauDataset `json:"parent"`
-	Lod      float64         `json:"lod"`
-	Textured bool            `json:"textured"`
+	Lod      *float64        `json:"lod"`
+	Texture  *Texture        `json:"texture"`
 }
 
 func (PlateauDatasetItem) IsDatasetItem() {}
 func (PlateauDatasetItem) IsNode()        {}
 
 type PlateauDatasetType struct {
-	ID             string              `json:"id"`
-	Code           string              `json:"code"`
-	Name           string              `json:"name"`
-	EnglishName    string              `json:"englishName"`
-	Category       DatasetTypeCategory `json:"category"`
-	PlateauVersion string              `json:"plateauVersion"`
-	Year           int                 `json:"year"`
+	ID          string              `json:"id"`
+	Code        string              `json:"code"`
+	Name        string              `json:"name"`
+	EnglishName string              `json:"englishName"`
+	Category    DatasetTypeCategory `json:"category"`
+	PlateauSpec *PlateauSpec        `json:"plateauSpec"`
+	Year        int                 `json:"year"`
 }
 
 func (PlateauDatasetType) IsDatasetType() {}
 func (PlateauDatasetType) IsNode()        {}
+
+type PlateauFloodingDataset struct {
+	ID          string                        `json:"id"`
+	Name        string                        `json:"name"`
+	Subname     *string                       `json:"subname"`
+	Description *string                       `json:"description"`
+	Year        int                           `json:"year"`
+	Groups      []string                      `json:"groups"`
+	AreaID      string                        `json:"area_id"`
+	Area        Area                          `json:"area"`
+	TypeID      string                        `json:"type_id"`
+	Type        *PlateauDatasetType           `json:"type"`
+	Data        []*PlateauFloodingDatasetItem `json:"data"`
+	River       *River                        `json:"river"`
+}
+
+func (PlateauFloodingDataset) IsDataset() {}
+func (PlateauFloodingDataset) IsNode()    {}
+
+type PlateauFloodingDatasetItem struct {
+	ID            string          `json:"id"`
+	Format        DatasetFormat   `json:"format"`
+	Name          string          `json:"name"`
+	URL           string          `json:"url"`
+	Layers        []string        `json:"layers"`
+	ParentID      string          `json:"parent_id"`
+	Parent        *PlateauDataset `json:"parent"`
+	FloodingScale FloodingScale   `json:"floodingScale"`
+}
+
+func (PlateauFloodingDatasetItem) IsDatasetItem() {}
+func (PlateauFloodingDatasetItem) IsNode()        {}
+
+type PlateauSpec struct {
+	ID   string `json:"id"`
+	Name string `json:"name"`
+	Year int    `json:"year"`
+}
+
+func (PlateauSpec) IsNode() {}
 
 type Prefecture struct {
 	ID             string          `json:"id"`
@@ -180,6 +222,7 @@ func (Prefecture) IsNode() {}
 type RelatedDataset struct {
 	ID          string                `json:"id"`
 	Name        string                `json:"name"`
+	Subname     *string               `json:"subname"`
 	Description *string               `json:"description"`
 	Year        int                   `json:"year"`
 	Groups      []string              `json:"groups"`
@@ -216,6 +259,11 @@ type RelatedDatasetType struct {
 
 func (RelatedDatasetType) IsDatasetType() {}
 func (RelatedDatasetType) IsNode()        {}
+
+type River struct {
+	Name  string     `json:"name"`
+	Admin RiverAdmin `json:"admin"`
+}
 
 type DatasetFormat string
 
@@ -314,5 +362,130 @@ func (e *DatasetTypeCategory) UnmarshalGQL(v interface{}) error {
 }
 
 func (e DatasetTypeCategory) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+type FloodingScale string
+
+const (
+	FloodingScalePlanned         FloodingScale = "PLANNED"
+	FloodingScaleExpectedMaximum FloodingScale = "EXPECTED_MAXIMUM"
+)
+
+var AllFloodingScale = []FloodingScale{
+	FloodingScalePlanned,
+	FloodingScaleExpectedMaximum,
+}
+
+func (e FloodingScale) IsValid() bool {
+	switch e {
+	case FloodingScalePlanned, FloodingScaleExpectedMaximum:
+		return true
+	}
+	return false
+}
+
+func (e FloodingScale) String() string {
+	return string(e)
+}
+
+func (e *FloodingScale) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = FloodingScale(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid FloodingScale", str)
+	}
+	return nil
+}
+
+func (e FloodingScale) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+type RiverAdmin string
+
+const (
+	RiverAdminNation     RiverAdmin = "NATION"
+	RiverAdminPrefecture RiverAdmin = "PREFECTURE"
+)
+
+var AllRiverAdmin = []RiverAdmin{
+	RiverAdminNation,
+	RiverAdminPrefecture,
+}
+
+func (e RiverAdmin) IsValid() bool {
+	switch e {
+	case RiverAdminNation, RiverAdminPrefecture:
+		return true
+	}
+	return false
+}
+
+func (e RiverAdmin) String() string {
+	return string(e)
+}
+
+func (e *RiverAdmin) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = RiverAdmin(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid RiverAdmin", str)
+	}
+	return nil
+}
+
+func (e RiverAdmin) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+type Texture string
+
+const (
+	TextureNone           Texture = "NONE"
+	TextureLowResolution  Texture = "LOW_RESOLUTION"
+	TextureHighResolution Texture = "HIGH_RESOLUTION"
+)
+
+var AllTexture = []Texture{
+	TextureNone,
+	TextureLowResolution,
+	TextureHighResolution,
+}
+
+func (e Texture) IsValid() bool {
+	switch e {
+	case TextureNone, TextureLowResolution, TextureHighResolution:
+		return true
+	}
+	return false
+}
+
+func (e Texture) String() string {
+	return string(e)
+}
+
+func (e *Texture) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = Texture(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid Texture", str)
+	}
+	return nil
+}
+
+func (e Texture) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }

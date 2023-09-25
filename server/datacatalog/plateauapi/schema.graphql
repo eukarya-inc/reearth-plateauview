@@ -49,11 +49,20 @@ type Prefecture implements Area & Node {
   datasets(input: DatasetForAreaQuery!): [Dataset!]!
 }
 
+# Spec
+
+type PlateauSpec implements Node {
+  id: ID!
+  name: String!
+  year: Int!
+}
+
 # Dataset
 
 interface Dataset implements Node {
   id: ID!
   name: String!
+  subname: String
   description: String
   year: Int!
   groups: [String!]
@@ -100,10 +109,11 @@ enum DatasetTypeCategory {
 
 # PLATEAU dataset
 
-# TODO: river data
+# PLATEAU都市モデルの通常のデータセット。例えば、地物型が建築物モデル（bldg）などのデータセットです。
 type PlateauDataset implements Dataset & Node {
   id: ID!
   name: String!
+  subname: String
   description: String
   year: Int!
   groups: [String!]
@@ -123,8 +133,69 @@ type PlateauDatasetItem implements DatasetItem & Node {
   parent_id: ID!
   parent: PlateauDataset
 
-  lod: Float!
-  textured: Boolean!
+  lod: Float
+  texture: Texture
+}
+
+enum Texture {
+  NONE
+  LOW_RESOLUTION
+  HIGH_RESOLUTION
+}
+
+# PLATEAU都市モデルのデータセットのうち、地物型が洪水・高潮・津波・内水浸水想定区域モデル（fld, htd, tnm, ifld のいずれか）のデータセットです。
+type PlateauFloodingDataset implements Dataset & Node {
+  id: ID!
+  name: String!
+  subname: String
+  description: String
+  year: Int!
+  groups: [String!]
+  area_id: ID!
+  area: Area
+  type_id: ID!
+  type: PlateauDatasetType!
+  data: [PlateauFloodingDatasetItem!]!
+
+  # 河川。地物型が洪水浸水想定区域（fld）の場合のみ存在します。
+  river: River
+}
+
+type PlateauFloodingDatasetItem implements DatasetItem & Node {
+  id: ID!
+  format: DatasetFormat!
+  name: String!
+  url: String!
+  layers: [String!]
+  parent_id: ID!
+  parent: PlateauDataset
+
+  # 浸水規模
+  floodingScale: FloodingScale!
+}
+
+# 河川
+type River {
+  # 河川名。「〜〜水系〜〜川」という形式になります。
+  name: String!
+  # 管理区間
+  admin: RiverAdmin!
+}
+
+# 河川の管理区間
+enum RiverAdmin {
+  # 国管理区間
+  NATION
+  # 都道府県管理区間
+  PREFECTURE
+}
+
+# 浸水規模
+enum FloodingScale {
+  # 計画規模
+  PLANNED
+  # 想定最大規模
+  EXPECTED_MAXIMUM
 }
 
 type PlateauDatasetType implements DatasetType & Node {
@@ -134,7 +205,7 @@ type PlateauDatasetType implements DatasetType & Node {
   englishName: String!
   category: DatasetTypeCategory!
 
-  plateauVersion: String!
+  plateauSpec: PlateauSpec!
   year: Int!
 }
 
@@ -143,6 +214,7 @@ type PlateauDatasetType implements DatasetType & Node {
 type RelatedDataset implements Dataset & Node {
   id: ID!
   name: String!
+  subname: String
   description: String
   year: Int!
   groups: [String!]
@@ -176,6 +248,7 @@ type RelatedDatasetType implements DatasetType & Node {
 type GenericDataset implements Dataset & Node {
   id: ID!
   name: String!
+  subname: String
   description: String
   year: Int!
   groups: [String!]
@@ -214,7 +287,7 @@ input AreaQuery {
 
 input DatasetTypeQuery {
   category: DatasetTypeCategory
-  plateauVersion: String
+  plateauSpec: String
   year: Int
 }
 
@@ -232,7 +305,7 @@ type Query {
   areas(input: AreaQuery!): [Area!]!
   datasetTypes(input: DatasetTypeQuery!): [DatasetType!]!
   datasets(input: DatasetQuery!): [Dataset!]!
-  plateauVersions: [String!]!
+  plateauSpecs: [PlateauSpec!]!
   years: [Int!]!
 }
 

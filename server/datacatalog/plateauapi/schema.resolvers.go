@@ -83,8 +83,8 @@ func (r *queryResolver) Datasets(ctx context.Context, input DatasetQuery) ([]Dat
 	panic("implement me")
 }
 
-// PlateauVersions is the resolver for the plateauVersions field.
-func (r *queryResolver) PlateauVersions(ctx context.Context) ([]string, error) {
+// PlateauSpecs is the resolver for the plateauSpecs field.
+func (r *queryResolver) PlateauSpecs(ctx context.Context) ([]*PlateauSpec, error) {
 	panic(fmt.Errorf("not implemented"))
 }
 
