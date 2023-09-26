@@ -42,6 +42,8 @@ type DataCatalogItem struct {
 	Infobox  bool   `json:"infobox,omitempty"`
 	// alias of type that is used as a folder name
 	Category string `json:"category,omitempty"`
+	// internal
+	Spec string `json:"-"`
 }
 
 type DataCatalogGroup struct {
@@ -61,18 +63,18 @@ type ResponseAll struct {
 }
 
 func (d ResponseAll) All() []DataCatalogItem {
-	return append(append(d.plateau(), d.dataset()...), d.usecase()...)
+	return append(append(d.PlateauItems(), d.DatasetItems()...), d.UsecaseItems()...)
 }
 
-func (d ResponseAll) plateau() []DataCatalogItem {
+func (d ResponseAll) PlateauItems() []DataCatalogItem {
 	return items(d.Plateau, true)
 }
 
-func (d ResponseAll) dataset() []DataCatalogItem {
+func (d ResponseAll) DatasetItems() []DataCatalogItem {
 	return items(d.Dataset, false)
 }
 
-func (d ResponseAll) usecase() []DataCatalogItem {
+func (d ResponseAll) UsecaseItems() []DataCatalogItem {
 	return items(d.Usecase, false)
 }
 

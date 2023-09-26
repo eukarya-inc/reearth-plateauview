@@ -33,4 +33,6 @@ type DataCatalogItem struct {
 	Infobox  bool   `json:"infobox,omitempty"`
 	// alias of type that is used as a folder name
 	Category string `json:"category,omitempty"`
+	// internal
+	Spec string `json:"-"`
 }

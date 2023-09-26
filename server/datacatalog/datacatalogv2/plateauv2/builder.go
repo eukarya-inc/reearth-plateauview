@@ -266,6 +266,7 @@ type PlateauIntermediateItem struct {
 	Dic         Dic
 	OpenDataURL string
 	Year        int
+	Spec        string
 }
 
 func (i CMSItem) IntermediateItem() PlateauIntermediateItem {
@@ -294,6 +295,7 @@ func (i CMSItem) IntermediateItem() PlateauIntermediateItem {
 		Dic:         dic,
 		OpenDataURL: i.OpenDataURL,
 		Year:        y,
+		Spec:        i.Specification,
 	}
 }
 
@@ -393,6 +395,7 @@ func (b *DataCatalogItemBuilder) dataCatalogItem(a asset, g assetGroup, desc str
 		Order:       override.Order,
 		Group:       override.Group,
 		Infobox:     true,
+		Spec:        b.IntermediateItem.Spec,
 	}
 }
 

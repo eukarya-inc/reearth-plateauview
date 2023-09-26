@@ -23,13 +23,18 @@ func (i ID) String() string {
 }
 
 func (i ID) ID() string {
-	_, t, _ := strings.Cut(string(i), ":")
+	_, t := i.Unwrap()
 	return t
 }
 
 func (i ID) Type() string {
-	t, _, _ := strings.Cut(string(i), ":")
+	t, _ := i.Unwrap()
 	return t
+}
+
+func (i ID) Unwrap() (string, string) {
+	t, ty, _ := strings.Cut(string(i), ":")
+	return t, ty
 }
 
 type AreaCode string
