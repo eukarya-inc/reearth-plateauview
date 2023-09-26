@@ -5,6 +5,17 @@ import (
 	"strings"
 )
 
+type Type string
+
+const (
+	TypeDataset      Type = "dataset"
+	TypeDatasetItem  Type = "datasetitem"
+	TypeDatasetType  Type = "datasettype"
+	TypePrefecture   Type = "prefecture"
+	TypeMunicipality Type = "municipality"
+	TypePlateauSpec  Type = "plateauspec"
+)
+
 func to[T Node](n Node, err error) (t T, _ error) {
 	if err != nil {
 		return t, err
@@ -14,8 +25,8 @@ func to[T Node](n Node, err error) (t T, _ error) {
 
 type ID string
 
-func NewID(id string, ty string) ID {
-	return ID(id + ":" + ty)
+func NewID(id string, ty Type) ID {
+	return ID(string(ty) + ":" + id)
 }
 
 func (i ID) String() string {
@@ -23,18 +34,18 @@ func (i ID) String() string {
 }
 
 func (i ID) ID() string {
+	id, _ := i.Unwrap()
+	return id
+}
+
+func (i ID) Type() Type {
 	_, t := i.Unwrap()
 	return t
 }
 
-func (i ID) Type() string {
-	t, _ := i.Unwrap()
-	return t
-}
-
-func (i ID) Unwrap() (string, string) {
-	t, ty, _ := strings.Cut(string(i), ":")
-	return t, ty
+func (i ID) Unwrap() (string, Type) {
+	ty, id, _ := strings.Cut(string(i), ":")
+	return id, Type(ty)
 }
 
 type AreaCode string

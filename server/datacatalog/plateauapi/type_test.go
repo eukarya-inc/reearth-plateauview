@@ -7,9 +7,9 @@ import (
 )
 
 func TestID(t *testing.T) {
-	assert.Equal(t, ID("aaa:bbb"), NewID("aaa", "bbb"))
+	assert.Equal(t, ID("aaa:bbb"), NewID("bbb", "aaa"))
 	assert.Equal(t, "aaa:bbb", ID("aaa:bbb").String())
-	assert.Equal(t, "aaa", ID("aaa:bbb").Type())
+	assert.Equal(t, Type("aaa"), ID("aaa:bbb").Type())
 	assert.Equal(t, "bbb", ID("aaa:bbb").ID())
 }
 
