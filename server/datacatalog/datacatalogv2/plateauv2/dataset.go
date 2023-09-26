@@ -59,7 +59,7 @@ func (i DatasetItem) DataCatalogs() []DataCatalogItem {
 	cCode := datacatalogutil.CityCode("", city, prefCodeInt)
 	wCode := datacatalogutil.CityCode("", ward, prefCodeInt)
 
-	var c any
+	var c *datacatalogutil.DataCatalogItemConfig
 	_ = json.Unmarshal([]byte(i.Config), &c)
 
 	u := ""

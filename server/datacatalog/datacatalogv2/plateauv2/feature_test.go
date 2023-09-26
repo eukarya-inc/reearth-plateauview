@@ -3,6 +3,7 @@ package plateauv2
 import (
 	"testing"
 
+	"github.com/eukarya-inc/reearth-plateauview/server/datacatalog/datacatalogv2/datacatalogutil"
 	cms "github.com/reearth/reearth-cms-api/go"
 	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
@@ -66,8 +67,8 @@ func TestBldg(t *testing.T) {
 			Year:        2020,
 			OpenDataURL: "https://example.com",
 			Infobox:     true,
-			Config: DataCatalogItemConfig{
-				Data: []DataCatalogItemConfigItem{
+			Config: &datacatalogutil.DataCatalogItemConfig{
+				Data: []datacatalogutil.DataCatalogItemConfigItem{
 					{
 						Name: "LOD1",
 						URL:  "https://example.com/01100_sapporo-shi_2020_3dtiles_op_bldg_01101_chuo-ku_lod1/tileset.json",
@@ -101,8 +102,8 @@ func TestBldg(t *testing.T) {
 			Year:        2020,
 			OpenDataURL: "https://example.com",
 			Infobox:     true,
-			Config: DataCatalogItemConfig{
-				Data: []DataCatalogItemConfigItem{
+			Config: &datacatalogutil.DataCatalogItemConfig{
+				Data: []datacatalogutil.DataCatalogItemConfigItem{
 					{
 						Name: "LOD1",
 						URL:  "https://example.com/01100_sapporo-shi_2020_3dtiles_op_bldg_01102_kita-ku_lod1/tileset.json",
@@ -162,8 +163,8 @@ func TestBldg(t *testing.T) {
 			Year:        2020,
 			OpenDataURL: "https://example.com",
 			Infobox:     true,
-			Config: DataCatalogItemConfig{
-				Data: []DataCatalogItemConfigItem{
+			Config: &datacatalogutil.DataCatalogItemConfig{
+				Data: []datacatalogutil.DataCatalogItemConfigItem{
 					{
 						Name: "LOD1",
 						URL:  "https://example.com/01100_sapporo-shi_2020_3dtiles_op_bldg_lod1/tileset.json",
@@ -220,8 +221,8 @@ func TestTran(t *testing.T) {
 			Year:        2020,
 			Format:      "3dtiles",
 			Infobox:     true,
-			Config: DataCatalogItemConfig{
-				Data: []DataCatalogItemConfigItem{
+			Config: &datacatalogutil.DataCatalogItemConfig{
+				Data: []datacatalogutil.DataCatalogItemConfigItem{
 					{
 						Name:   "LOD1",
 						URL:    "https://example.com/01100_sapporo-shi_2020_mvt_op_tran_lod1/{z}/{x}/{y}.mvt",
@@ -278,8 +279,8 @@ func TestTran(t *testing.T) {
 			Layers:      []string{"Road"},
 			Year:        2020,
 			Infobox:     true,
-			Config: DataCatalogItemConfig{
-				Data: []DataCatalogItemConfigItem{
+			Config: &datacatalogutil.DataCatalogItemConfig{
+				Data: []datacatalogutil.DataCatalogItemConfigItem{
 					{
 						Name:   "LOD1",
 						URL:    "https://example.com/01100_sapporo-shi_2020_mvt_op_tran_lod1/{z}/{x}/{y}.mvt",
@@ -330,8 +331,8 @@ func TestFrn(t *testing.T) {
 			Year:        2020,
 			Format:      "3dtiles",
 			Infobox:     true,
-			Config: DataCatalogItemConfig{
-				Data: []DataCatalogItemConfigItem{
+			Config: &datacatalogutil.DataCatalogItemConfig{
+				Data: []datacatalogutil.DataCatalogItemConfigItem{
 					{
 						Name: "LOD1",
 						URL:  "https://example.com/01100_sapporo-shi_2020_3dtiles_op_frn_lod1/tileset.json",
@@ -381,8 +382,8 @@ func TestFrn(t *testing.T) {
 			Year:        2020,
 			Format:      "3dtiles",
 			Infobox:     true,
-			Config: DataCatalogItemConfig{
-				Data: []DataCatalogItemConfigItem{
+			Config: &datacatalogutil.DataCatalogItemConfig{
+				Data: []datacatalogutil.DataCatalogItemConfigItem{
 					{
 						Name: "都市設備モデル",
 						URL:  "https://example.com/01100_sapporo-shi_2020_3dtiles_op_frn/tileset.json",
@@ -432,8 +433,8 @@ func TestVeg(t *testing.T) {
 			Year:        2020,
 			Format:      "3dtiles",
 			Infobox:     true,
-			Config: DataCatalogItemConfig{
-				Data: []DataCatalogItemConfigItem{
+			Config: &datacatalogutil.DataCatalogItemConfig{
+				Data: []datacatalogutil.DataCatalogItemConfigItem{
 					{
 						Name: "LOD1",
 						URL:  "https://example.com/01100_sapporo-shi_2020_3dtiles_op_veg_lod1/tileset.json",
@@ -483,8 +484,8 @@ func TestVeg(t *testing.T) {
 			Year:        2020,
 			Format:      "3dtiles",
 			Infobox:     true,
-			Config: DataCatalogItemConfig{
-				Data: []DataCatalogItemConfigItem{
+			Config: &datacatalogutil.DataCatalogItemConfig{
+				Data: []datacatalogutil.DataCatalogItemConfigItem{
 					{
 						Name: "植生モデル",
 						URL:  "https://example.com/01100_sapporo-shi_2020_3dtiles_op_veg/tileset.json",
@@ -754,8 +755,8 @@ func TestFld(t *testing.T) {
 			Year:        2020,
 			Format:      "3dtiles",
 			Infobox:     true,
-			Config: DataCatalogItemConfig{
-				Data: []DataCatalogItemConfigItem{
+			Config: &datacatalogutil.DataCatalogItemConfig{
+				Data: []datacatalogutil.DataCatalogItemConfigItem{
 					{
 						Name: "計画規模",
 						URL:  "https://example.com/01100_sapporo-shi_2020_3dtiles_op_fld_natl_shikarigawa_toyohiragawa_l1/tileset.json",
@@ -785,8 +786,8 @@ func TestFld(t *testing.T) {
 			Year:        2020,
 			Format:      "3dtiles",
 			Infobox:     true,
-			Config: DataCatalogItemConfig{
-				Data: []DataCatalogItemConfigItem{
+			Config: &datacatalogutil.DataCatalogItemConfig{
+				Data: []datacatalogutil.DataCatalogItemConfigItem{
 					{
 						Name: "計画規模",
 						URL:  "https://example.com/01100_sapporo-shi_2020_3dtiles_op_fld_natl_shinkawa_shinkawa_l1/tileset.json",
@@ -817,8 +818,8 @@ func TestFld(t *testing.T) {
 			Year:        2020,
 			Format:      "3dtiles",
 			Infobox:     true,
-			Config: DataCatalogItemConfig{
-				Data: []DataCatalogItemConfigItem{
+			Config: &datacatalogutil.DataCatalogItemConfig{
+				Data: []datacatalogutil.DataCatalogItemConfigItem{
 					{
 						Name: "計画規模",
 						URL:  "https://example.com/01100_sapporo-shi_2020_3dtiles_op_fld_pref_shinkawa_shinkawa_l1/tileset.json",
@@ -848,8 +849,8 @@ func TestFld(t *testing.T) {
 			Year:        2020,
 			Format:      "3dtiles",
 			Infobox:     true,
-			Config: DataCatalogItemConfig{
-				Data: []DataCatalogItemConfigItem{
+			Config: &datacatalogutil.DataCatalogItemConfig{
+				Data: []datacatalogutil.DataCatalogItemConfigItem{
 					{
 						Name: "想定最大規模",
 						URL:  "https://example.com/01100_sapporo-shi_2020_3dtiles_op_fld_pref_zfoobar_l2/tileset.json",
@@ -1115,8 +1116,8 @@ func TestGen(t *testing.T) {
 			Year:        2020,
 			Format:      "mvt",
 			Layers:      []string{"AAA_AAA"},
-			Config: DataCatalogItemConfig{
-				Data: []DataCatalogItemConfigItem{
+			Config: &datacatalogutil.DataCatalogItemConfig{
+				Data: []datacatalogutil.DataCatalogItemConfigItem{
 					{
 						Name:   "名称",
 						URL:    "https://example.com/01100_sapporo-shi_2020_mvt_4_op_gen_AAA_AAA/{z}/{x}/{y}.mvt",
@@ -1146,8 +1147,8 @@ func TestGen(t *testing.T) {
 			Year:        2020,
 			Format:      "3dtiles",
 			Infobox:     true,
-			Config: DataCatalogItemConfig{
-				Data: []DataCatalogItemConfigItem{
+			Config: &datacatalogutil.DataCatalogItemConfig{
+				Data: []datacatalogutil.DataCatalogItemConfigItem{
 					{
 						Name: "BBB_BBB",
 						URL:  "https://example.com/01100_sapporo-shi_2020_3dtiles_4_op_gen_BBB_BBB/tileset.json",
@@ -1197,8 +1198,8 @@ func TestBrid(t *testing.T) {
 			Format:      "mvt",
 			Layers:      []string{"brid"},
 			Infobox:     true,
-			Config: DataCatalogItemConfig{
-				Data: []DataCatalogItemConfigItem{
+			Config: &datacatalogutil.DataCatalogItemConfig{
+				Data: []datacatalogutil.DataCatalogItemConfigItem{
 					{
 						Name:   "LOD1",
 						URL:    "https://example.com/01100_sapporo-shi_2020_mvt_4_op_brid_lod1/{z}/{x}/{y}.mvt",
@@ -1254,8 +1255,8 @@ func TestRail(t *testing.T) {
 			Format:      "mvt",
 			Layers:      []string{"rail"},
 			Infobox:     true,
-			Config: DataCatalogItemConfig{
-				Data: []DataCatalogItemConfigItem{
+			Config: &datacatalogutil.DataCatalogItemConfig{
+				Data: []datacatalogutil.DataCatalogItemConfigItem{
 					{
 						Name:   "鉄道モデル1",
 						URL:    "https://example.com/01100_sapporo-shi_2020_mvt_4_op_rail/{z}/{x}/{y}.mvt",
@@ -1338,8 +1339,8 @@ func TestExtra(t *testing.T) {
 			Year:        2020,
 			Format:      "3dtiles",
 			Infobox:     true,
-			Config: DataCatalogItemConfig{
-				Data: []DataCatalogItemConfigItem{
+			Config: &datacatalogutil.DataCatalogItemConfig{
+				Data: []datacatalogutil.DataCatalogItemConfigItem{
 					{ // asset 1
 						Name: "LOD1",
 						URL:  "https://example.com/01100_sapporo-shi_2020_3dtiles_4_op_ex-port-hogehoge-bldg_lod1/tileset.json",
@@ -1365,8 +1366,8 @@ func TestExtra(t *testing.T) {
 			Format:      "mvt",
 			Layers:      []string{"layer1", "layer2"},
 			Infobox:     true,
-			Config: DataCatalogItemConfig{
-				Data: []DataCatalogItemConfigItem{
+			Config: &datacatalogutil.DataCatalogItemConfig{
+				Data: []datacatalogutil.DataCatalogItemConfigItem{
 					{ // asset 4
 						Name:   "LOD2（テクスチャなし）",
 						URL:    "https://example.com/01100_sapporo-shi_2020_mvt_4_op_ex-port-hogehoge-hoge_lod2_no_texture/{z}/{x}/{y}.mvt",

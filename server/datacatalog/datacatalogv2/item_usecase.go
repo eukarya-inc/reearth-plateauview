@@ -70,7 +70,7 @@ func (i UsecaseItem) DataCatalogs() []DataCatalogItem {
 		}}
 	}
 
-	var c any
+	var c *datacatalogutil.DataCatalogItemConfig
 	_ = json.Unmarshal([]byte(i.Config), &c)
 
 	u := ""

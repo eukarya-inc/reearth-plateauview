@@ -3,6 +3,7 @@ package plateauv2
 import (
 	"testing"
 
+	"github.com/eukarya-inc/reearth-plateauview/server/datacatalog/datacatalogv2/datacatalogutil"
 	cms "github.com/reearth/reearth-cms-api/go"
 	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
@@ -25,7 +26,13 @@ func TestDatasetItem_DataCatalogs(t *testing.T) {
 		URL:         "https://example.com/aaaaa/tileset.json",
 		Description: "desc",
 		Year:        2021,
-		Config:      map[string]any{"a": "b"},
+		Config: &datacatalogutil.DataCatalogItemConfig{
+			Data: []datacatalogutil.DataCatalogItemConfigItem{{
+				Name: "name",
+				URL:  "url",
+				Type: "type",
+			}},
+		},
 		OpenDataURL: "https://example.com",
 		Order:       lo.ToPtr(100),
 	}}, DatasetItem{
@@ -40,7 +47,7 @@ func TestDatasetItem_DataCatalogs(t *testing.T) {
 		DataFormat:  "3D Tiles",
 		DataLayers:  "layers, layers2",
 		DataURL:     "https://example.com/aaaaa.zip",
-		Config:      `{"a":"b"}`,
+		Config:      `{"data":[{"name":"name","url":"url","type":"type"}]}`,
 		Order:       lo.ToPtr(100),
 	}.DataCatalogs())
 
