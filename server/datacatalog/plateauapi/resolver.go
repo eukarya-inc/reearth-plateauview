@@ -38,6 +38,9 @@ type Resolver struct {
 
 func NewService(repo Repo) *handler.Server {
 	srv := handler.NewDefaultServer(NewSchema(repo))
+
+	// TODO: rate limit
+
 	return srv
 }
 

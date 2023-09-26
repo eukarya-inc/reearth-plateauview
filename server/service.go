@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/eukarya-inc/reearth-plateauview/server/cmsintegration"
-	"github.com/eukarya-inc/reearth-plateauview/server/datacatalog/datacatalogv2"
+	"github.com/eukarya-inc/reearth-plateauview/server/datacatalog"
 	"github.com/eukarya-inc/reearth-plateauview/server/dataconv"
 	"github.com/eukarya-inc/reearth-plateauview/server/geospatialjp"
 	"github.com/eukarya-inc/reearth-plateauview/server/opinion"
@@ -208,7 +208,7 @@ func DataCatalog(conf *Config) (*Service, error) {
 	return &Service{
 		Name: "datacatalog",
 		Echo: func(g *echo.Group) error {
-			return datacatalogv2.Echo(c, g.Group("/datacatalog"))
+			return datacatalog.Echo(c, g.Group("/datacatalog"))
 		},
 		DisableNoCache: true,
 	}, nil
