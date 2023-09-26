@@ -1,10 +1,10 @@
 # Where are all the schema files located? globs are supported eg  src/**/*.graphqls
 schema:
-  - datacatalog/plateauapi/*.graphql
+  - '*.graphql'
 
 # Where should the generated server code go?
 exec:
-  filename: datacatalog/plateauapi/generated.go
+  filename: generated.go
 
 # Uncomment to enable federation
 # federation:
@@ -13,12 +13,11 @@ exec:
 
 # Where should any generated models go?
 model:
-  filename: datacatalog/plateauapi/models_gen.go
+  filename: models_gen.go
 
 # Where should the resolver implementations go?
 resolver:
   layout: follow-schema
-  dir: datacatalog/plateauapi
 
 # Optional: turn on use ` + "`" + `gqlgen:"fieldName"` + "`" + ` tags in your models
 # struct_tag: json
