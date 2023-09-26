@@ -249,37 +249,34 @@ export default ({
     [project.datasets, processOverrides],
   );
 
-  const handleStorySaveData = useCallback(
-    (story: StoryItem & { dataID?: string }) => {
-      if (story.id && story.dataID) {
-        // save database story
-        updateProject(project => {
-          const tarStory = (
-            project.datasets
-              .find(d => d.dataID === story.dataID)
-              ?.components?.find(c => c.type === "story") as FieldStory
-          )?.stories?.find((st: StoryItem) => st.id === story.id);
-          if (tarStory) {
-            tarStory.scenes = story.scenes;
-          }
-          return project;
-        });
-      }
-
-      // save user story
+  const handleStorySaveData = useCallback((story: StoryItem & { dataID?: string }) => {
+    if (story.id && story.dataID) {
+      // save database story
       updateProject(project => {
-        const updatedProject: Project = {
-          ...project,
-          userStory: {
-            scenes: story.scenes,
-          },
-        };
-        postMsg({ action: "updateProject", payload: updatedProject });
-        return updatedProject;
+        const tarStory = (
+          project.datasets
+            .find(d => d.dataID === story.dataID)
+            ?.components?.find(c => c.type === "story") as FieldStory
+        )?.stories?.find((st: StoryItem) => st.id === story.id);
+        if (tarStory) {
+          tarStory.scenes = story.scenes;
+        }
+        return project;
       });
-    },
-    [updateProject],
-  );
+    }
+
+    // save user story
+    updateProject(project => {
+      const updatedProject: Project = {
+        ...project,
+        userStory: {
+          scenes: story.scenes,
+        },
+      };
+      postMsg({ action: "updateProject", payload: updatedProject });
+      return updatedProject;
+    });
+  }, []);
 
   const handleInitUserStory = useCallback((story: StoryItem) => {
     postMsg({ action: "storyPlay", payload: story });
