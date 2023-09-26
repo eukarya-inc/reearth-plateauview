@@ -2,6 +2,7 @@ package datacatalogv2adapter
 
 import (
 	"context"
+	"strings"
 	"sync"
 
 	"github.com/eukarya-inc/reearth-plateauview/server/datacatalog/datacatalogv2"
@@ -41,8 +42,110 @@ func New(cmsbase, project string) (*Adapter, error) {
 var _ plateauapi.Repo = (*Adapter)(nil)
 
 func (a *Adapter) Node(ctx context.Context, id plateauapi.ID) (plateauapi.Node, error) {
-	// TODO
-	panic("implement me")
+	i, ty := id.Unwrap()
+	switch ty {
+	case plateauapi.TypePrefecture:
+		if p, ok := lo.Find(a.prefectures, func(p plateauapi.Prefecture) bool {
+			return p.ID == id
+		}); ok {
+			return p, nil
+		}
+	case plateauapi.TypeMunicipality:
+		if p, ok := lo.Find(a.municipalities, func(p plateauapi.Municipality) bool {
+			return p.ID == id
+		}); ok {
+			return p, nil
+		}
+	case plateauapi.TypeDatasetType:
+		if p, ok := lo.Find(a.plateauDatasetTypes, func(p plateauapi.PlateauDatasetType) bool {
+			return p.ID == id
+		}); ok {
+			return p, nil
+		}
+
+		if p, ok := lo.Find(a.relatedDatasetTypes, func(p plateauapi.RelatedDatasetType) bool {
+			return p.ID == id
+		}); ok {
+			return p, nil
+		}
+
+		if p, ok := lo.Find(a.genericDatasetTypes, func(p plateauapi.GenericDatasetType) bool {
+			return p.ID == id
+		}); ok {
+			return p, nil
+		}
+	case plateauapi.TypeDataset:
+		if p, ok := lo.Find(a.plateauDatasets, func(p plateauapi.PlateauDataset) bool {
+			return p.ID == id
+		}); ok {
+			return p, nil
+		}
+
+		if p, ok := lo.Find(a.plateauFloodingDatasets, func(p plateauapi.PlateauFloodingDataset) bool {
+			return p.ID == id
+		}); ok {
+			return p, nil
+		}
+
+		if p, ok := lo.Find(a.relatedDatasets, func(p plateauapi.RelatedDataset) bool {
+			return p.ID == id
+		}); ok {
+			return p, nil
+		}
+
+		if p, ok := lo.Find(a.genericDatasets, func(p plateauapi.GenericDataset) bool {
+			return p.ID == id
+		}); ok {
+			return p, nil
+		}
+	case plateauapi.TypeDatasetItem:
+		parent, _, _ := strings.Cut(i, ":")
+		parentID := newDatasetID(parent)
+
+		if p, ok := lo.Find(a.plateauDatasets, func(p plateauapi.PlateauDataset) bool {
+			return p.ID == parentID
+		}); ok {
+			item, _ := lo.Find(p.Data, func(i *plateauapi.PlateauDatasetItem) bool {
+				return i.ID == id
+			})
+			return item, nil
+		}
+
+		if p, ok := lo.Find(a.plateauFloodingDatasets, func(p plateauapi.PlateauFloodingDataset) bool {
+			return p.ID == parentID
+		}); ok {
+			item, _ := lo.Find(p.Data, func(i *plateauapi.PlateauFloodingDatasetItem) bool {
+				return i.ID == id
+			})
+			return item, nil
+		}
+
+		if p, ok := lo.Find(a.relatedDatasets, func(p plateauapi.RelatedDataset) bool {
+			return p.ID == parentID
+		}); ok {
+			item, _ := lo.Find(p.Data, func(i *plateauapi.RelatedDatasetItem) bool {
+				return i.ID == id
+			})
+			return item, nil
+		}
+
+		if p, ok := lo.Find(a.genericDatasets, func(p plateauapi.GenericDataset) bool {
+			return p.ID == id
+		}); ok {
+			item, _ := lo.Find(p.Data, func(i *plateauapi.GenericDatasetItem) bool {
+				return i.ID == id
+			})
+			return item, nil
+		}
+	case plateauapi.TypePlateauSpec:
+		if p, ok := lo.Find(a.specs, func(p plateauapi.PlateauSpec) bool {
+			return p.ID == id
+		}); ok {
+			return p, nil
+		}
+	}
+
+	return nil, nil
 }
 
 func (a *Adapter) Nodes(ctx context.Context, ids []plateauapi.ID) ([]plateauapi.Node, error) {

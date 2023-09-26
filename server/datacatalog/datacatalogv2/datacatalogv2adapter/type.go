@@ -244,7 +244,11 @@ func wardIDFrom(d datacatalogv2.DataCatalogItem) plateauapi.ID {
 }
 
 func datasetIDFrom(d datacatalogv2.DataCatalogItem) plateauapi.ID {
-	return plateauapi.NewID(d.ID, plateauapi.TypeDataset)
+	return newDatasetID(d.ID)
+}
+
+func newDatasetID(id string) plateauapi.ID {
+	return plateauapi.NewID(id, plateauapi.TypeDataset)
 }
 
 func datasetTypeIDFrom(d datacatalogv2.DataCatalogItem) plateauapi.ID {
