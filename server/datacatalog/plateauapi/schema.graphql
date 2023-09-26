@@ -1,5 +1,12 @@
 # Base
 
+"""
+行政コードを表す文字列。
+都道府県の場合は、2桁の数字で構成された文字列です。
+自治体の場合は、先頭に2桁の都道府県コードを含む、6桁の数字で構成された文字列です。
+"""
+scalar AreaCode
+
 interface Node {
   id: ID!
 }
@@ -8,7 +15,7 @@ interface Node {
 
 interface Area implements Node {
   id: ID!
-  code: String!
+  code: AreaCode!
   name: String!
   parents: [Area!]!
 }
@@ -19,19 +26,9 @@ input DatasetForAreaQuery {
   searchTokens: [String!]
 }
 
-type Country implements Area & Node {
-  id: ID!
-  code: String!
-  name: String!
-  parents: [Area!]!
-
-  prefectures: [Prefecture!]!
-  datasets(input: DatasetForAreaQuery!): [Dataset!]!
-}
-
 type Municipality implements Area & Node {
   id: ID!
-  code: String!
+  code: AreaCode!
   name: String!
   parents: [Area!]!
 
@@ -41,7 +38,7 @@ type Municipality implements Area & Node {
 
 type Prefecture implements Area & Node {
   id: ID!
-  code: String!
+  code: AreaCode!
   name: String!
   parents: [Area!]!
 
@@ -109,7 +106,9 @@ enum DatasetTypeCategory {
 
 # PLATEAU dataset
 
-# PLATEAU都市モデルの通常のデータセット。例えば、地物型が建築物モデル（bldg）などのデータセットです。
+"""
+PLATEAU都市モデルの通常のデータセット。例えば、地物型が建築物モデル（bldg）などのデータセットです。
+"""
 type PlateauDataset implements Dataset & Node {
   id: ID!
   name: String!
@@ -143,7 +142,9 @@ enum Texture {
   HIGH_RESOLUTION
 }
 
-# PLATEAU都市モデルのデータセットのうち、地物型が洪水・高潮・津波・内水浸水想定区域モデル（fld, htd, tnm, ifld のいずれか）のデータセットです。
+"""
+PLATEAU都市モデルのデータセットのうち、地物型が洪水・高潮・津波・内水浸水想定区域モデル（fld, htd, tnm, ifld のいずれか）のデータセットです。
+"""
 type PlateauFloodingDataset implements Dataset & Node {
   id: ID!
   name: String!
@@ -157,7 +158,9 @@ type PlateauFloodingDataset implements Dataset & Node {
   type: PlateauDatasetType!
   data: [PlateauFloodingDatasetItem!]!
 
-  # 河川。地物型が洪水浸水想定区域（fld）の場合のみ存在します。
+  """
+  河川。地物型が洪水浸水想定区域（fld）の場合のみ存在します。
+  """
   river: River
 }
 
@@ -170,31 +173,51 @@ type PlateauFloodingDatasetItem implements DatasetItem & Node {
   parent_id: ID!
   parent: PlateauDataset
 
-  # 浸水規模
+  """
+  浸水規模
+  """
   floodingScale: FloodingScale!
 }
 
-# 河川
+"""
+河川
+"""
 type River {
-  # 河川名。「〜〜水系〜〜川」という形式になります。
+  """
+  河川名。通常「〜水系〜川」という形式になります。
+  """
   name: String!
-  # 管理区間
+  """
+  管理区間
+  """
   admin: RiverAdmin!
 }
 
-# 河川の管理区間
+"""
+河川の管理区間
+"""
 enum RiverAdmin {
-  # 国管理区間
+  """
+  国管理区間
+  """
   GOVERNMENT
-  # 都道府県管理区間
+  """
+  都道府県管理区間
+  """
   PREFECTURE
 }
 
-# 浸水規模
+"""
+浸水規模
+"""
 enum FloodingScale {
-  # 計画規模
+  """
+  計画規模
+  """
   PLANNED
-  # 想定最大規模
+  """
+  想定最大規模
+  """
   EXPECTED_MAXIMUM
 }
 
@@ -280,7 +303,7 @@ type GenericDatasetType implements DatasetType & Node {
 # Queries
 
 input AreaQuery {
-  parentCode: String!
+  parentCode: AreaCode!
   datasetTypes: [String!]
   searchTokens: [String!]
 }
@@ -292,7 +315,7 @@ input DatasetTypeQuery {
 }
 
 input DatasetQuery {
-  areaCodes: [String!]
+  areaCodes: [AreaCode!]
   excludeTypes: [String!]
   includeTypes: [String!]
   searchTokens: [String!]
@@ -301,7 +324,7 @@ input DatasetQuery {
 type Query {
   node(id: ID!): Node
   nodes(ids: [ID!]!): [Node!]!
-  area(code: String!): Area
+  area(code: AreaCode!): Area
   areas(input: AreaQuery!): [Area!]!
   datasetTypes(input: DatasetTypeQuery!): [DatasetType!]!
   datasets(input: DatasetQuery!): [Dataset!]!

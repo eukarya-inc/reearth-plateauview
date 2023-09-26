@@ -33,22 +33,10 @@ type Node interface {
 }
 
 type AreaQuery struct {
-	ParentCode   string   `json:"parentCode"`
+	ParentCode   AreaCode `json:"parentCode"`
 	DatasetTypes []string `json:"datasetTypes"`
 	SearchTokens []string `json:"searchTokens"`
 }
-
-type Country struct {
-	ID          string        `json:"id"`
-	Code        string        `json:"code"`
-	Name        string        `json:"name"`
-	Parents     []Area        `json:"parents"`
-	Prefectures []*Prefecture `json:"prefectures"`
-	Datasets    []Dataset     `json:"datasets"`
-}
-
-func (Country) IsArea() {}
-func (Country) IsNode() {}
 
 type DatasetForAreaQuery struct {
 	ExcludeTypes []string `json:"excludeTypes"`
@@ -57,10 +45,10 @@ type DatasetForAreaQuery struct {
 }
 
 type DatasetQuery struct {
-	AreaCodes    []string `json:"areaCodes"`
-	ExcludeTypes []string `json:"excludeTypes"`
-	IncludeTypes []string `json:"includeTypes"`
-	SearchTokens []string `json:"searchTokens"`
+	AreaCodes    []AreaCode `json:"areaCodes"`
+	ExcludeTypes []string   `json:"excludeTypes"`
+	IncludeTypes []string   `json:"includeTypes"`
+	SearchTokens []string   `json:"searchTokens"`
 }
 
 type DatasetTypeQuery struct {
@@ -70,15 +58,15 @@ type DatasetTypeQuery struct {
 }
 
 type GenericDataset struct {
-	ID          string                `json:"id"`
+	ID          ID                    `json:"id"`
 	Name        string                `json:"name"`
 	Subname     *string               `json:"subname"`
 	Description *string               `json:"description"`
 	Year        int                   `json:"year"`
 	Groups      []string              `json:"groups"`
-	AreaID      string                `json:"area_id"`
+	AreaID      ID                    `json:"area_id"`
 	Area        Area                  `json:"area"`
-	TypeID      string                `json:"type_id"`
+	TypeID      ID                    `json:"type_id"`
 	Type        *GenericDatasetType   `json:"type"`
 	Data        []*GenericDatasetItem `json:"data"`
 }
@@ -87,12 +75,12 @@ func (GenericDataset) IsDataset() {}
 func (GenericDataset) IsNode()    {}
 
 type GenericDatasetItem struct {
-	ID       string          `json:"id"`
+	ID       ID              `json:"id"`
 	Format   DatasetFormat   `json:"format"`
 	Name     string          `json:"name"`
 	URL      string          `json:"url"`
 	Layers   []string        `json:"layers"`
-	ParentID string          `json:"parent_id"`
+	ParentID ID              `json:"parent_id"`
 	Parent   *GenericDataset `json:"parent"`
 }
 
@@ -100,7 +88,7 @@ func (GenericDatasetItem) IsDatasetItem() {}
 func (GenericDatasetItem) IsNode()        {}
 
 type GenericDatasetType struct {
-	ID          string              `json:"id"`
+	ID          ID                  `json:"id"`
 	Code        string              `json:"code"`
 	Name        string              `json:"name"`
 	EnglishName string              `json:"englishName"`
@@ -111,8 +99,8 @@ func (GenericDatasetType) IsDatasetType() {}
 func (GenericDatasetType) IsNode()        {}
 
 type Municipality struct {
-	ID         string      `json:"id"`
-	Code       string      `json:"code"`
+	ID         ID          `json:"id"`
+	Code       AreaCode    `json:"code"`
 	Name       string      `json:"name"`
 	Parents    []Area      `json:"parents"`
 	Prefecture *Prefecture `json:"prefecture"`
@@ -122,16 +110,17 @@ type Municipality struct {
 func (Municipality) IsArea() {}
 func (Municipality) IsNode() {}
 
+// PLATEAU都市モデルの通常のデータセット。例えば、地物型が建築物モデル（bldg）などのデータセットです。
 type PlateauDataset struct {
-	ID          string                `json:"id"`
+	ID          ID                    `json:"id"`
 	Name        string                `json:"name"`
 	Subname     *string               `json:"subname"`
 	Description *string               `json:"description"`
 	Year        int                   `json:"year"`
 	Groups      []string              `json:"groups"`
-	AreaID      string                `json:"area_id"`
+	AreaID      ID                    `json:"area_id"`
 	Area        Area                  `json:"area"`
-	TypeID      string                `json:"type_id"`
+	TypeID      ID                    `json:"type_id"`
 	Type        *PlateauDatasetType   `json:"type"`
 	Data        []*PlateauDatasetItem `json:"data"`
 }
@@ -140,12 +129,12 @@ func (PlateauDataset) IsDataset() {}
 func (PlateauDataset) IsNode()    {}
 
 type PlateauDatasetItem struct {
-	ID       string          `json:"id"`
+	ID       ID              `json:"id"`
 	Format   DatasetFormat   `json:"format"`
 	Name     string          `json:"name"`
 	URL      string          `json:"url"`
 	Layers   []string        `json:"layers"`
-	ParentID string          `json:"parent_id"`
+	ParentID ID              `json:"parent_id"`
 	Parent   *PlateauDataset `json:"parent"`
 	Lod      *float64        `json:"lod"`
 	Texture  *Texture        `json:"texture"`
@@ -155,7 +144,7 @@ func (PlateauDatasetItem) IsDatasetItem() {}
 func (PlateauDatasetItem) IsNode()        {}
 
 type PlateauDatasetType struct {
-	ID          string              `json:"id"`
+	ID          ID                  `json:"id"`
 	Code        string              `json:"code"`
 	Name        string              `json:"name"`
 	EnglishName string              `json:"englishName"`
@@ -167,40 +156,43 @@ type PlateauDatasetType struct {
 func (PlateauDatasetType) IsDatasetType() {}
 func (PlateauDatasetType) IsNode()        {}
 
+// PLATEAU都市モデルのデータセットのうち、地物型が洪水・高潮・津波・内水浸水想定区域モデル（fld, htd, tnm, ifld のいずれか）のデータセットです。
 type PlateauFloodingDataset struct {
-	ID          string                        `json:"id"`
+	ID          ID                            `json:"id"`
 	Name        string                        `json:"name"`
 	Subname     *string                       `json:"subname"`
 	Description *string                       `json:"description"`
 	Year        int                           `json:"year"`
 	Groups      []string                      `json:"groups"`
-	AreaID      string                        `json:"area_id"`
+	AreaID      ID                            `json:"area_id"`
 	Area        Area                          `json:"area"`
-	TypeID      string                        `json:"type_id"`
+	TypeID      ID                            `json:"type_id"`
 	Type        *PlateauDatasetType           `json:"type"`
 	Data        []*PlateauFloodingDatasetItem `json:"data"`
-	River       *River                        `json:"river"`
+	// 河川。地物型が洪水浸水想定区域（fld）の場合のみ存在します。
+	River *River `json:"river"`
 }
 
 func (PlateauFloodingDataset) IsDataset() {}
 func (PlateauFloodingDataset) IsNode()    {}
 
 type PlateauFloodingDatasetItem struct {
-	ID            string          `json:"id"`
-	Format        DatasetFormat   `json:"format"`
-	Name          string          `json:"name"`
-	URL           string          `json:"url"`
-	Layers        []string        `json:"layers"`
-	ParentID      string          `json:"parent_id"`
-	Parent        *PlateauDataset `json:"parent"`
-	FloodingScale FloodingScale   `json:"floodingScale"`
+	ID       ID              `json:"id"`
+	Format   DatasetFormat   `json:"format"`
+	Name     string          `json:"name"`
+	URL      string          `json:"url"`
+	Layers   []string        `json:"layers"`
+	ParentID ID              `json:"parent_id"`
+	Parent   *PlateauDataset `json:"parent"`
+	// 浸水規模
+	FloodingScale FloodingScale `json:"floodingScale"`
 }
 
 func (PlateauFloodingDatasetItem) IsDatasetItem() {}
 func (PlateauFloodingDatasetItem) IsNode()        {}
 
 type PlateauSpec struct {
-	ID   string `json:"id"`
+	ID   ID     `json:"id"`
 	Name string `json:"name"`
 	Year int    `json:"year"`
 }
@@ -208,8 +200,8 @@ type PlateauSpec struct {
 func (PlateauSpec) IsNode() {}
 
 type Prefecture struct {
-	ID             string          `json:"id"`
-	Code           string          `json:"code"`
+	ID             ID              `json:"id"`
+	Code           AreaCode        `json:"code"`
 	Name           string          `json:"name"`
 	Parents        []Area          `json:"parents"`
 	Municipalities []*Municipality `json:"municipalities"`
@@ -220,15 +212,15 @@ func (Prefecture) IsArea() {}
 func (Prefecture) IsNode() {}
 
 type RelatedDataset struct {
-	ID          string                `json:"id"`
+	ID          ID                    `json:"id"`
 	Name        string                `json:"name"`
 	Subname     *string               `json:"subname"`
 	Description *string               `json:"description"`
 	Year        int                   `json:"year"`
 	Groups      []string              `json:"groups"`
-	AreaID      string                `json:"area_id"`
+	AreaID      ID                    `json:"area_id"`
 	Area        Area                  `json:"area"`
-	TypeID      string                `json:"type_id"`
+	TypeID      ID                    `json:"type_id"`
 	Type        *RelatedDatasetType   `json:"type"`
 	Data        []*RelatedDatasetItem `json:"data"`
 }
@@ -237,12 +229,12 @@ func (RelatedDataset) IsDataset() {}
 func (RelatedDataset) IsNode()    {}
 
 type RelatedDatasetItem struct {
-	ID       string          `json:"id"`
+	ID       ID              `json:"id"`
 	Format   DatasetFormat   `json:"format"`
 	Name     string          `json:"name"`
 	URL      string          `json:"url"`
 	Layers   []string        `json:"layers"`
-	ParentID string          `json:"parent_id"`
+	ParentID ID              `json:"parent_id"`
 	Parent   *RelatedDataset `json:"parent"`
 }
 
@@ -250,7 +242,7 @@ func (RelatedDatasetItem) IsDatasetItem() {}
 func (RelatedDatasetItem) IsNode()        {}
 
 type RelatedDatasetType struct {
-	ID          string              `json:"id"`
+	ID          ID                  `json:"id"`
 	Code        string              `json:"code"`
 	Name        string              `json:"name"`
 	EnglishName string              `json:"englishName"`
@@ -260,8 +252,11 @@ type RelatedDatasetType struct {
 func (RelatedDatasetType) IsDatasetType() {}
 func (RelatedDatasetType) IsNode()        {}
 
+// 河川
 type River struct {
-	Name  string     `json:"name"`
+	// 河川名。通常「〜水系〜川」という形式になります。
+	Name string `json:"name"`
+	// 管理区間
 	Admin RiverAdmin `json:"admin"`
 }
 
@@ -365,10 +360,13 @@ func (e DatasetTypeCategory) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
+// 浸水規模
 type FloodingScale string
 
 const (
-	FloodingScalePlanned         FloodingScale = "PLANNED"
+	// 計画規模
+	FloodingScalePlanned FloodingScale = "PLANNED"
+	// 想定最大規模
 	FloodingScaleExpectedMaximum FloodingScale = "EXPECTED_MAXIMUM"
 )
 
@@ -406,10 +404,13 @@ func (e FloodingScale) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
+// 河川の管理区間
 type RiverAdmin string
 
 const (
+	// 国管理区間
 	RiverAdminGovernment RiverAdmin = "GOVERNMENT"
+	// 都道府県管理区間
 	RiverAdminPrefecture RiverAdmin = "PREFECTURE"
 )
 

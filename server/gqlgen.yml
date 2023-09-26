@@ -49,19 +49,15 @@ autobind:
 models:
   ID:
     model:
-      - github.com/99designs/gqlgen/graphql.ID
-      - github.com/99designs/gqlgen/graphql.Int
-      - github.com/99designs/gqlgen/graphql.Int64
-      - github.com/99designs/gqlgen/graphql.Int32
+      - github.com/eukarya-inc/reearth-plateauview/server/datacatalog/plateauapi.ID
+  AreaCode:
+    model:
+      - github.com/eukarya-inc/reearth-plateauview/server/datacatalog/plateauapi.AreaCode
   Int:
     model:
       - github.com/99designs/gqlgen/graphql.Int
       - github.com/99designs/gqlgen/graphql.Int64
       - github.com/99designs/gqlgen/graphql.Int32
-  Country:
-    fields:
-      datasets:
-        resolver: true
   Prefecture:
     fields:
       datasets:

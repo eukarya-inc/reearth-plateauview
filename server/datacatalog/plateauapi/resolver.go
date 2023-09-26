@@ -28,13 +28,19 @@ import (
 //
 // It serves as dependency injection for your app, add any dependencies you require here.
 
-type Resolver struct{}
+type Repo interface {
+	QueryResolver
+}
 
-func NewService() *handler.Server {
-	srv := handler.NewDefaultServer(NewSchema())
+type Resolver struct {
+	Repo Repo
+}
+
+func NewService(repo Repo) *handler.Server {
+	srv := handler.NewDefaultServer(NewSchema(repo))
 	return srv
 }
 
-func NewSchema() graphql.ExecutableSchema {
-	return NewExecutableSchema(Config{Resolvers: &Resolver{}})
+func NewSchema(repo Repo) graphql.ExecutableSchema {
+	return NewExecutableSchema(Config{Resolvers: &Resolver{Repo: repo}})
 }

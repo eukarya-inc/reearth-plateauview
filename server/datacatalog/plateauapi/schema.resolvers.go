@@ -5,111 +5,112 @@ package plateauapi
 
 import (
 	"context"
-	"fmt"
 )
-
-// Datasets is the resolver for the datasets field.
-func (r *countryResolver) Datasets(ctx context.Context, obj *Country, input DatasetForAreaQuery) ([]Dataset, error) {
-	panic(fmt.Errorf("not implemented"))
-}
 
 // Area is the resolver for the area field.
 func (r *genericDatasetResolver) Area(ctx context.Context, obj *GenericDataset) (Area, error) {
-	panic(fmt.Errorf("not implemented"))
+	return to[Area](r.Repo.Node(ctx, obj.AreaID))
 }
 
 // Type is the resolver for the type field.
 func (r *genericDatasetResolver) Type(ctx context.Context, obj *GenericDataset) (*GenericDatasetType, error) {
-	panic(fmt.Errorf("not implemented"))
+	return to[*GenericDatasetType](r.Repo.Node(ctx, obj.TypeID))
 }
 
 // Parent is the resolver for the parent field.
 func (r *genericDatasetItemResolver) Parent(ctx context.Context, obj *GenericDatasetItem) (*GenericDataset, error) {
-	panic(fmt.Errorf("not implemented"))
+	return to[*GenericDataset](r.Repo.Node(ctx, obj.ParentID))
 }
 
 // Datasets is the resolver for the datasets field.
 func (r *municipalityResolver) Datasets(ctx context.Context, obj *Municipality, input DatasetForAreaQuery) ([]Dataset, error) {
-	panic(fmt.Errorf("not implemented"))
+	return r.Repo.Datasets(ctx, DatasetQuery{
+		AreaCodes:    []AreaCode{obj.Code},
+		ExcludeTypes: input.ExcludeTypes,
+		IncludeTypes: input.IncludeTypes,
+		SearchTokens: input.SearchTokens,
+	})
 }
 
 // Area is the resolver for the area field.
 func (r *plateauDatasetResolver) Area(ctx context.Context, obj *PlateauDataset) (Area, error) {
-	panic(fmt.Errorf("not implemented"))
+	return to[Area](r.Repo.Node(ctx, obj.AreaID))
 }
 
 // Type is the resolver for the type field.
 func (r *plateauDatasetResolver) Type(ctx context.Context, obj *PlateauDataset) (*PlateauDatasetType, error) {
-	panic(fmt.Errorf("not implemented"))
+	return to[*PlateauDatasetType](r.Repo.Node(ctx, obj.TypeID))
 }
 
 // Parent is the resolver for the parent field.
 func (r *plateauDatasetItemResolver) Parent(ctx context.Context, obj *PlateauDatasetItem) (*PlateauDataset, error) {
-	panic(fmt.Errorf("not implemented"))
+	return to[*PlateauDataset](r.Repo.Node(ctx, obj.ParentID))
 }
 
 // Datasets is the resolver for the datasets field.
 func (r *prefectureResolver) Datasets(ctx context.Context, obj *Prefecture, input DatasetForAreaQuery) ([]Dataset, error) {
-	panic(fmt.Errorf("not implemented"))
+	return r.Repo.Datasets(ctx, DatasetQuery{
+		AreaCodes:    []AreaCode{obj.Code},
+		ExcludeTypes: input.ExcludeTypes,
+		IncludeTypes: input.IncludeTypes,
+		SearchTokens: input.SearchTokens,
+	})
 }
 
 // Node is the resolver for the node field.
-func (r *queryResolver) Node(ctx context.Context, id string) (Node, error) {
-	panic("implement me")
+func (r *queryResolver) Node(ctx context.Context, id ID) (Node, error) {
+	return r.Repo.Node(ctx, id)
 }
 
 // Nodes is the resolver for the nodes field.
-func (r *queryResolver) Nodes(ctx context.Context, ids []string) ([]Node, error) {
-	panic("implement me")
+func (r *queryResolver) Nodes(ctx context.Context, ids []ID) ([]Node, error) {
+	return r.Repo.Nodes(ctx, ids)
 }
 
 // Area is the resolver for the area field.
-func (r *queryResolver) Area(ctx context.Context, code string) (Area, error) {
-	panic("implement me")
+func (r *queryResolver) Area(ctx context.Context, code AreaCode) (Area, error) {
+	return r.Repo.Area(ctx, code)
 }
 
 // Areas is the resolver for the areas field.
 func (r *queryResolver) Areas(ctx context.Context, input AreaQuery) ([]Area, error) {
-	panic("implement me")
+	return r.Repo.Areas(ctx, input)
 }
 
 // DatasetTypes is the resolver for the datasetTypes field.
 func (r *queryResolver) DatasetTypes(ctx context.Context, input DatasetTypeQuery) ([]DatasetType, error) {
-	panic(fmt.Errorf("not implemented"))
+	return r.Repo.DatasetTypes(ctx, input)
 }
 
 // Datasets is the resolver for the datasets field.
 func (r *queryResolver) Datasets(ctx context.Context, input DatasetQuery) ([]Dataset, error) {
-	panic("implement me")
+	return r.Repo.Datasets(ctx, input)
 }
 
 // PlateauSpecs is the resolver for the plateauSpecs field.
 func (r *queryResolver) PlateauSpecs(ctx context.Context) ([]*PlateauSpec, error) {
-	panic(fmt.Errorf("not implemented"))
+	return r.Repo.PlateauSpecs(ctx)
 }
 
 // Years is the resolver for the years field.
 func (r *queryResolver) Years(ctx context.Context) ([]int, error) {
-	panic(fmt.Errorf("not implemented"))
+	return r.Repo.Years(ctx)
 }
 
 // Area is the resolver for the area field.
 func (r *relatedDatasetResolver) Area(ctx context.Context, obj *RelatedDataset) (Area, error) {
-	panic(fmt.Errorf("not implemented"))
+	return to[Area](r.Repo.Node(ctx, obj.AreaID))
 }
 
 // Type is the resolver for the type field.
 func (r *relatedDatasetResolver) Type(ctx context.Context, obj *RelatedDataset) (*RelatedDatasetType, error) {
-	panic(fmt.Errorf("not implemented"))
+	return to[*RelatedDatasetType](r.Repo.Node(ctx, obj.TypeID))
 }
 
 // Parent is the resolver for the parent field.
 func (r *relatedDatasetItemResolver) Parent(ctx context.Context, obj *RelatedDatasetItem) (*RelatedDataset, error) {
-	panic(fmt.Errorf("not implemented"))
+	return to[*RelatedDataset](r.Repo.Node(ctx, obj.ParentID))
 }
-
-// Country returns CountryResolver implementation.
-func (r *Resolver) Country() CountryResolver { return &countryResolver{r} }
 
 // GenericDataset returns GenericDatasetResolver implementation.
 func (r *Resolver) GenericDataset() GenericDatasetResolver { return &genericDatasetResolver{r} }
@@ -144,7 +145,6 @@ func (r *Resolver) RelatedDatasetItem() RelatedDatasetItemResolver {
 	return &relatedDatasetItemResolver{r}
 }
 
-type countryResolver struct{ *Resolver }
 type genericDatasetResolver struct{ *Resolver }
 type genericDatasetItemResolver struct{ *Resolver }
 type municipalityResolver struct{ *Resolver }
