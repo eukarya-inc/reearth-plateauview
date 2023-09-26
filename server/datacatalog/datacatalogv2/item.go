@@ -47,6 +47,13 @@ type DataCatalogItem struct {
 	Spec string `json:"-"`
 }
 
+func (i DataCatalogItem) ConfigItems() []datacatalogutil.DataCatalogItemConfigItem {
+	if i.Config == nil {
+		return nil
+	}
+	return i.Config.Data
+}
+
 type DataCatalogGroup struct {
 	ID         string `json:"id,omitempty"`
 	Name       string `json:"name,omitempty"`
