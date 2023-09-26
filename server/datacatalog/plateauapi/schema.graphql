@@ -185,7 +185,7 @@ type River {
 # 河川の管理区間
 enum RiverAdmin {
   # 国管理区間
-  NATION
+  GOVERNMENT
   # 都道府県管理区間
   PREFECTURE
 }

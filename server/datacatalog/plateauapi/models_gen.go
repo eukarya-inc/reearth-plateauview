@@ -409,18 +409,18 @@ func (e FloodingScale) MarshalGQL(w io.Writer) {
 type RiverAdmin string
 
 const (
-	RiverAdminNation     RiverAdmin = "NATION"
+	RiverAdminGovernment RiverAdmin = "GOVERNMENT"
 	RiverAdminPrefecture RiverAdmin = "PREFECTURE"
 )
 
 var AllRiverAdmin = []RiverAdmin{
-	RiverAdminNation,
+	RiverAdminGovernment,
 	RiverAdminPrefecture,
 }
 
 func (e RiverAdmin) IsValid() bool {
 	switch e {
-	case RiverAdminNation, RiverAdminPrefecture:
+	case RiverAdminGovernment, RiverAdminPrefecture:
 		return true
 	}
 	return false
