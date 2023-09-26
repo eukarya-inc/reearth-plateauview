@@ -10,7 +10,6 @@ import (
 	"github.com/eukarya-inc/reearth-plateauview/server/opinion"
 	"github.com/eukarya-inc/reearth-plateauview/server/sdk"
 	"github.com/eukarya-inc/reearth-plateauview/server/sdkapi"
-	"github.com/eukarya-inc/reearth-plateauview/server/searchindex"
 	"github.com/eukarya-inc/reearth-plateauview/server/sidebar"
 	"github.com/labstack/echo/v4"
 	"github.com/reearth/reearth-cms-api/go/cmswebhook"
@@ -29,7 +28,7 @@ var services = [](func(*Config) (*Service, error)){
 	Geospatialjp,
 	SDK,
 	SDKAPI,
-	SearchIndex,
+	// SearchIndex,
 	Opinion,
 	Sidebar,
 	DataCatalog,
@@ -105,22 +104,22 @@ func Geospatialjp(conf *Config) (*Service, error) {
 	}, nil
 }
 
-func SearchIndex(conf *Config) (*Service, error) {
-	c := conf.SearchIndex()
-	if c.CMSBase == "" || c.CMSToken == "" || c.CMSStorageProject == "" {
-		return nil, nil
-	}
+// func SearchIndex(conf *Config) (*Service, error) {
+// 	c := conf.SearchIndex()
+// 	if c.CMSBase == "" || c.CMSToken == "" || c.CMSStorageProject == "" {
+// 		return nil, nil
+// 	}
 
-	w, err := searchindex.WebhookHandler(c)
-	if err != nil {
-		return nil, err
-	}
+// 	w, err := searchindex.WebhookHandler(c)
+// 	if err != nil {
+// 		return nil, err
+// 	}
 
-	return &Service{
-		Name:    "searchindex",
-		Webhook: w,
-	}, nil
-}
+// 	return &Service{
+// 		Name:    "searchindex",
+// 		Webhook: w,
+// 	}, nil
+// }
 
 func SDK(conf *Config) (*Service, error) {
 	c := conf.SDK()

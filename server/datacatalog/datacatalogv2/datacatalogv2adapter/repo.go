@@ -273,7 +273,7 @@ func (a *Adapter) PlateauSpecs(ctx context.Context) ([]*plateauapi.PlateauSpec, 
 }
 
 func (a *Adapter) Years(ctx context.Context) ([]int, error) {
-	return lo.Map(a.specs, func(s plateauapi.PlateauSpec, _ int) int {
+	return lo.Uniq(lo.Map(a.specs, func(s plateauapi.PlateauSpec, _ int) int {
 		return s.Year
-	}), nil
+	})), nil
 }

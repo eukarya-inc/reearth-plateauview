@@ -67,6 +67,8 @@ func TestBldg(t *testing.T) {
 			Year:        2020,
 			OpenDataURL: "https://example.com",
 			Infobox:     true,
+			Family:      "plateau",
+			Edition:     "2022",
 			Config: &datacatalogutil.DataCatalogItemConfig{
 				Data: []datacatalogutil.DataCatalogItemConfigItem{
 					{
@@ -102,6 +104,8 @@ func TestBldg(t *testing.T) {
 			Year:        2020,
 			OpenDataURL: "https://example.com",
 			Infobox:     true,
+			Family:      "plateau",
+			Edition:     "2022",
 			Config: &datacatalogutil.DataCatalogItemConfig{
 				Data: []datacatalogutil.DataCatalogItemConfigItem{
 					{
@@ -163,6 +167,8 @@ func TestBldg(t *testing.T) {
 			Year:        2020,
 			OpenDataURL: "https://example.com",
 			Infobox:     true,
+			Family:      "plateau",
+			Edition:     "2022",
 			Config: &datacatalogutil.DataCatalogItemConfig{
 				Data: []datacatalogutil.DataCatalogItemConfigItem{
 					{
@@ -221,6 +227,8 @@ func TestTran(t *testing.T) {
 			Year:        2020,
 			Format:      "3dtiles",
 			Infobox:     true,
+			Family:      "plateau",
+			Edition:     "2022",
 			Config: &datacatalogutil.DataCatalogItemConfig{
 				Data: []datacatalogutil.DataCatalogItemConfigItem{
 					{
@@ -279,6 +287,8 @@ func TestTran(t *testing.T) {
 			Layers:      []string{"Road"},
 			Year:        2020,
 			Infobox:     true,
+			Family:      "plateau",
+			Edition:     "2022",
 			Config: &datacatalogutil.DataCatalogItemConfig{
 				Data: []datacatalogutil.DataCatalogItemConfigItem{
 					{
@@ -331,6 +341,8 @@ func TestFrn(t *testing.T) {
 			Year:        2020,
 			Format:      "3dtiles",
 			Infobox:     true,
+			Family:      "plateau",
+			Edition:     "2022",
 			Config: &datacatalogutil.DataCatalogItemConfig{
 				Data: []datacatalogutil.DataCatalogItemConfigItem{
 					{
@@ -382,6 +394,8 @@ func TestFrn(t *testing.T) {
 			Year:        2020,
 			Format:      "3dtiles",
 			Infobox:     true,
+			Family:      "plateau",
+			Edition:     "2022",
 			Config: &datacatalogutil.DataCatalogItemConfig{
 				Data: []datacatalogutil.DataCatalogItemConfigItem{
 					{
@@ -433,6 +447,8 @@ func TestVeg(t *testing.T) {
 			Year:        2020,
 			Format:      "3dtiles",
 			Infobox:     true,
+			Family:      "plateau",
+			Edition:     "2022",
 			Config: &datacatalogutil.DataCatalogItemConfig{
 				Data: []datacatalogutil.DataCatalogItemConfigItem{
 					{
@@ -484,6 +500,8 @@ func TestVeg(t *testing.T) {
 			Year:        2020,
 			Format:      "3dtiles",
 			Infobox:     true,
+			Family:      "plateau",
+			Edition:     "2022",
 			Config: &datacatalogutil.DataCatalogItemConfig{
 				Data: []datacatalogutil.DataCatalogItemConfigItem{
 					{
@@ -532,6 +550,8 @@ func TestLuse(t *testing.T) {
 			Format:      "mvt",
 			Layers:      []string{"luse"},
 			Infobox:     true,
+			Family:      "plateau",
+			Edition:     "2022",
 		},
 	}, i.DataCatalogItems(i.IntermediateItem(), "luse"))
 }
@@ -571,6 +591,8 @@ func TestLsld(t *testing.T) {
 			Format:      "mvt",
 			Layers:      []string{"lsld"},
 			Infobox:     true,
+			Family:      "plateau",
+			Edition:     "2022",
 		},
 	}, i.DataCatalogItems(i.IntermediateItem(), "lsld"))
 }
@@ -625,6 +647,8 @@ func TestUrf(t *testing.T) {
 			Layers:      []string{"QuasiUrbanPlanningArea"},
 			RootType:    true,
 			Infobox:     true,
+			Family:      "plateau",
+			Edition:     "2022",
 		},
 		{
 			ID:          "01100_sapporo-shi_urf_AreaClassification",
@@ -646,6 +670,8 @@ func TestUrf(t *testing.T) {
 			Layers:      []string{"AreaClassification"},
 			RootType:    true,
 			Infobox:     true,
+			Family:      "plateau",
+			Edition:     "2022",
 		},
 		{
 			ID:          "01100_sapporo-shi_urf_DistrictsAndZones",
@@ -666,6 +692,8 @@ func TestUrf(t *testing.T) {
 			Layers:      []string{"DistrictsAndZones"},
 			RootType:    true,
 			Infobox:     true,
+			Family:      "plateau",
+			Edition:     "2022",
 		},
 		{
 			ID:          "01100_sapporo-shi_urf_XXX",
@@ -686,6 +714,8 @@ func TestUrf(t *testing.T) {
 			Layers:      []string{"XXX"},
 			RootType:    true,
 			Infobox:     true,
+			Family:      "plateau",
+			Edition:     "2022",
 		},
 	}, i.DataCatalogItems(i.IntermediateItem(), "urf"))
 }
@@ -755,6 +785,8 @@ func TestFld(t *testing.T) {
 			Year:        2020,
 			Format:      "3dtiles",
 			Infobox:     true,
+			Family:      "plateau",
+			Edition:     "2022",
 			Config: &datacatalogutil.DataCatalogItemConfig{
 				Data: []datacatalogutil.DataCatalogItemConfigItem{
 					{
@@ -786,6 +818,8 @@ func TestFld(t *testing.T) {
 			Year:        2020,
 			Format:      "3dtiles",
 			Infobox:     true,
+			Family:      "plateau",
+			Edition:     "2022",
 			Config: &datacatalogutil.DataCatalogItemConfig{
 				Data: []datacatalogutil.DataCatalogItemConfigItem{
 					{
@@ -818,6 +852,8 @@ func TestFld(t *testing.T) {
 			Year:        2020,
 			Format:      "3dtiles",
 			Infobox:     true,
+			Family:      "plateau",
+			Edition:     "2022",
 			Config: &datacatalogutil.DataCatalogItemConfig{
 				Data: []datacatalogutil.DataCatalogItemConfigItem{
 					{
@@ -849,6 +885,8 @@ func TestFld(t *testing.T) {
 			Year:        2020,
 			Format:      "3dtiles",
 			Infobox:     true,
+			Family:      "plateau",
+			Edition:     "2022",
 			Config: &datacatalogutil.DataCatalogItemConfig{
 				Data: []datacatalogutil.DataCatalogItemConfigItem{
 					{
@@ -909,6 +947,8 @@ func TestTnm(t *testing.T) {
 			Year:        2020,
 			Format:      "3dtiles",
 			Infobox:     true,
+			Family:      "plateau",
+			Edition:     "2022",
 		},
 		{
 			ID:          "01100_sapporo-shi_tnm_02_1",
@@ -926,6 +966,8 @@ func TestTnm(t *testing.T) {
 			Year:        2020,
 			Format:      "3dtiles",
 			Infobox:     true,
+			Family:      "plateau",
+			Edition:     "2022",
 		},
 		{
 			ID:          "01100_sapporo-shi_tnm_03_1",
@@ -943,6 +985,8 @@ func TestTnm(t *testing.T) {
 			Year:        2020,
 			Format:      "3dtiles",
 			Infobox:     true,
+			Family:      "plateau",
+			Edition:     "2022",
 		},
 	}, i.DataCatalogItems(i.IntermediateItem(), "tnm"))
 }
@@ -990,6 +1034,8 @@ func TestHtd(t *testing.T) {
 			Year:        2020,
 			Format:      "3dtiles",
 			Infobox:     true,
+			Family:      "plateau",
+			Edition:     "2022",
 		},
 		{
 			ID:          "01100_sapporo-shi_htd_02_1",
@@ -1007,6 +1053,8 @@ func TestHtd(t *testing.T) {
 			Year:        2020,
 			Format:      "3dtiles",
 			Infobox:     true,
+			Family:      "plateau",
+			Edition:     "2022",
 		},
 	}, i.DataCatalogItems(i.IntermediateItem(), "htd"))
 }
@@ -1054,6 +1102,8 @@ func TestIfld(t *testing.T) {
 			Year:        2020,
 			Format:      "3dtiles",
 			Infobox:     true,
+			Family:      "plateau",
+			Edition:     "2022",
 		},
 		{
 			ID:          "01100_sapporo-shi_ifld_02_1",
@@ -1071,6 +1121,8 @@ func TestIfld(t *testing.T) {
 			Year:        2020,
 			Format:      "3dtiles",
 			Infobox:     true,
+			Family:      "plateau",
+			Edition:     "2022",
 		},
 	}, i.DataCatalogItems(i.IntermediateItem(), "ifld"))
 }
@@ -1129,6 +1181,8 @@ func TestGen(t *testing.T) {
 			Root:    true,
 			Order:   lo.ToPtr(100),
 			Infobox: true,
+			Family:  "plateau",
+			Edition: "2022",
 		},
 		{
 			ID:          "01100_sapporo-shi_gen_BBB_BBB",
@@ -1147,6 +1201,8 @@ func TestGen(t *testing.T) {
 			Year:        2020,
 			Format:      "3dtiles",
 			Infobox:     true,
+			Family:      "plateau",
+			Edition:     "2022",
 			Config: &datacatalogutil.DataCatalogItemConfig{
 				Data: []datacatalogutil.DataCatalogItemConfigItem{
 					{
@@ -1198,6 +1254,8 @@ func TestBrid(t *testing.T) {
 			Format:      "mvt",
 			Layers:      []string{"brid"},
 			Infobox:     true,
+			Family:      "plateau",
+			Edition:     "2022",
 			Config: &datacatalogutil.DataCatalogItemConfig{
 				Data: []datacatalogutil.DataCatalogItemConfigItem{
 					{
@@ -1255,6 +1313,8 @@ func TestRail(t *testing.T) {
 			Format:      "mvt",
 			Layers:      []string{"rail"},
 			Infobox:     true,
+			Family:      "plateau",
+			Edition:     "2022",
 			Config: &datacatalogutil.DataCatalogItemConfig{
 				Data: []datacatalogutil.DataCatalogItemConfigItem{
 					{
@@ -1339,6 +1399,8 @@ func TestExtra(t *testing.T) {
 			Year:        2020,
 			Format:      "3dtiles",
 			Infobox:     true,
+			Family:      "plateau",
+			Edition:     "2022",
 			Config: &datacatalogutil.DataCatalogItemConfig{
 				Data: []datacatalogutil.DataCatalogItemConfigItem{
 					{ // asset 1
@@ -1366,6 +1428,8 @@ func TestExtra(t *testing.T) {
 			Format:      "mvt",
 			Layers:      []string{"layer1", "layer2"},
 			Infobox:     true,
+			Family:      "plateau",
+			Edition:     "2022",
 			Config: &datacatalogutil.DataCatalogItemConfig{
 				Data: []datacatalogutil.DataCatalogItemConfigItem{
 					{ // asset 4

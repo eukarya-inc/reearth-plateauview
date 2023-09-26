@@ -110,5 +110,7 @@ func (i DatasetItem) DataCatalogs() []DataCatalogItem {
 		Year:        datacatalogutil.YearInt(i.Year),
 		OpenDataURL: i.OpenDataURL,
 		Order:       i.Order,
+		Family:      "related",
+		Edition:     "2022",
 	}}
 }

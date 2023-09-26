@@ -26,6 +26,8 @@ func TestDatasetItem_DataCatalogs(t *testing.T) {
 		URL:         "https://example.com/aaaaa/tileset.json",
 		Description: "desc",
 		Year:        2021,
+		Family:      "related",
+		Edition:     "2022",
 		Config: &datacatalogutil.DataCatalogItemConfig{
 			Data: []datacatalogutil.DataCatalogItemConfigItem{{
 				Name: "name",
@@ -52,11 +54,13 @@ func TestDatasetItem_DataCatalogs(t *testing.T) {
 	}.DataCatalogs())
 
 	assert.Equal(t, []DataCatalogItem{{
-		ID:   "id",
-		URL:  "url",
-		City: "city",
-		Ward: "ward",
-		Year: 2023,
+		ID:      "id",
+		URL:     "url",
+		City:    "city",
+		Ward:    "ward",
+		Year:    2023,
+		Family:  "related",
+		Edition: "2022",
 	}}, DatasetItem{
 		ID:       "id",
 		DataURL:  "url2",

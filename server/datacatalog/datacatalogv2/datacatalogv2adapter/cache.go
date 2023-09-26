@@ -31,6 +31,7 @@ func (a *Adapter) UpdateCache(ctx context.Context, opts datacatalogv2.FetcherDoO
 
 	items := r.All()
 	a.cache = items
+	a.areasForDataTypes = make(map[string]map[plateauapi.AreaCode]struct{})
 
 	for _, d := range items {
 		ty := d.TypeEn
@@ -40,55 +41,49 @@ func (a *Adapter) UpdateCache(ctx context.Context, opts datacatalogv2.FetcherDoO
 			a.areasForDataTypes[ty] = areas
 		}
 
-		if d.Pref != "" && !lo.ContainsBy(a.prefectures, func(p plateauapi.Prefecture) bool {
-			return p.Code == plateauapi.AreaCode(d.PrefCode)
-		}) {
+		if _, found := areas[plateauapi.AreaCode(d.PrefCode)]; !found {
 			a.prefectures = append(a.prefectures, prefectureFrom(d))
 			areas[plateauapi.AreaCode(d.PrefCode)] = struct{}{}
 		}
 
-		if d.City != "" && !lo.ContainsBy(a.cities, func(p plateauapi.City) bool {
-			return p.Code == plateauapi.AreaCode(d.CityCode)
-		}) {
-			a.cities = append(a.cities, cityFrom(d))
-			areas[plateauapi.AreaCode(d.CityCode)] = struct{}{}
+		if d.City != "" {
+			if _, found := areas[plateauapi.AreaCode(d.CityCode)]; !found {
+				a.cities = append(a.cities, cityFrom(d))
+				areas[plateauapi.AreaCode(d.CityCode)] = struct{}{}
+			}
 		}
 
-		if d.Ward != "" && !lo.ContainsBy(a.wards, func(p plateauapi.Ward) bool {
-			return p.Code == plateauapi.AreaCode(d.WardCode)
-		}) {
-			a.wards = append(a.wards, wardFrom(d))
-			areas[plateauapi.AreaCode(d.WardCode)] = struct{}{}
+		if d.Ward != "" {
+			if _, found := areas[plateauapi.AreaCode(d.WardCode)]; !found {
+				a.wards = append(a.wards, wardFrom(d))
+				areas[plateauapi.AreaCode(d.WardCode)] = struct{}{}
+			}
 		}
 
-		if !lo.ContainsBy(a.plateauDatasetTypes, func(a plateauapi.PlateauDatasetType) bool {
-			return a.Name == d.TypeEn
-		}) {
-			if ty := plateauTypeFrom(d); lo.IsNotEmpty(ty) {
+		if ty := plateauTypeFrom(d); lo.IsNotEmpty(ty) {
+			if !lo.Contains(a.plateauDatasetTypes, ty) {
 				a.plateauDatasetTypes = append(a.plateauDatasetTypes, ty)
 			}
 		}
 
-		if !lo.ContainsBy(a.relatedDatasetTypes, func(a plateauapi.RelatedDatasetType) bool {
-			return a.Name == d.TypeEn
-		}) {
-			if ty := relatedTypeFrom(d); lo.IsNotEmpty(ty) {
+		if ty := relatedTypeFrom(d); lo.IsNotEmpty(ty) {
+			if !lo.Contains(a.relatedDatasetTypes, ty) {
 				a.relatedDatasetTypes = append(a.relatedDatasetTypes, ty)
 			}
 		}
 
-		if !lo.ContainsBy(a.genericDatasetTypes, func(a plateauapi.GenericDatasetType) bool {
-			return a.Name == d.TypeEn
-		}) {
-			if ty := genericTypeFrom(d); lo.IsNotEmpty(ty) {
+		if ty := genericTypeFrom(d); lo.IsNotEmpty(ty) {
+			if !lo.Contains(a.genericDatasetTypes, ty) {
 				a.genericDatasetTypes = append(a.genericDatasetTypes, ty)
 			}
 		}
 
 		if !lo.ContainsBy(a.specs, func(a plateauapi.PlateauSpec) bool {
-			return a.Name == d.Name
+			return a.Name == d.Spec
 		}) {
-			a.specs = append(a.specs, specFrom(d))
+			if s := specFrom(d); lo.IsNotEmpty(s) {
+				a.specs = append(a.specs, s)
+			}
 		}
 
 		if d, ok := plateauDatasetFrom(d); ok {

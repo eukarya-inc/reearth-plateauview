@@ -18,6 +18,8 @@ func TestUsecaseItem_DataCatalogs(t *testing.T) {
 		Year:     2023,
 		RootType: true,
 		Category: "aaa",
+		Family:   "generic",
+		Edition:  "2022",
 	}}, UsecaseItem{
 		ID:       "id",
 		DataURL:  "url2",
@@ -37,6 +39,8 @@ func TestUsecaseItem_DataCatalogs(t *testing.T) {
 		City:     "city",
 		RootType: true,
 		Category: "ユースケース",
+		Family:   "generic",
+		Edition:  "2022",
 	}}, UsecaseItem{
 		ID:       "id",
 		Type:     "あああ",
@@ -50,6 +54,8 @@ func TestUsecaseItem_DataCatalogs(t *testing.T) {
 		City:     "city",
 		RootType: true,
 		Category: "cat",
+		Family:   "generic",
+		Edition:  "2022",
 	}}, UsecaseItem{
 		ID:       "id",
 		Type:     "あああ",
@@ -69,6 +75,8 @@ func TestUsecaseItem_DataCatalogs(t *testing.T) {
 		CityCode: "27100",
 		Ward:     "北区",
 		WardCode: "27146",
+		Family:   "generic",
+		Edition:  "2022",
 	}}, UsecaseItem{
 		ID:         "id",
 		Name:       "name",

@@ -67,6 +67,8 @@ func (i UsecaseItem) DataCatalogs() []DataCatalogItem {
 			Ward:        ward,
 			WardCode:    wCode,
 			Description: i.Description,
+			Family:      "generic",
+			Edition:     "2022",
 		}}
 	}
 
@@ -124,5 +126,7 @@ func (i UsecaseItem) DataCatalogs() []DataCatalogItem {
 		RootType:    pref != zenkyu,
 		Category:    cat,
 		Infobox:     i.Infobox,
+		Family:      "generic",
+		Edition:     "2022",
 	}}
 }

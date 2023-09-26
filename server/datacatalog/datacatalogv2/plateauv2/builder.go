@@ -396,6 +396,8 @@ func (b *DataCatalogItemBuilder) dataCatalogItem(a asset, g assetGroup, desc str
 		Group:       override.Group,
 		Infobox:     true,
 		Spec:        b.IntermediateItem.Spec,
+		Family:      "plateau",
+		Edition:     "2022",
 	}
 }
 

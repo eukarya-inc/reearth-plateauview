@@ -36,5 +36,7 @@ type DataCatalogItem struct {
 	// alias of type that is used as a folder name
 	Category string `json:"category,omitempty"`
 	// internal
-	Spec string `json:"-"`
+	Spec    string `json:"-"`
+	Family  string `json:"-"`
+	Edition string `json:"-"`
 }

@@ -35,7 +35,7 @@ func Echo(conf Config, g *echo.Group) error {
 	)
 
 	srv := plateauapi.NewService(repo)
-	plateauapig.GET("/graphql", echo.WrapHandler(playground.Handler("PLATEAU GraphQL API Playground", "/graphql")))
+	plateauapig.GET("/graphql", echo.WrapHandler(playground.Handler("PLATEAU GraphQL API Playground", "/datacatalog/graphql")))
 	plateauapig.POST("/graphql", echo.WrapHandler(srv))
 
 	// PLATEAU VIEW 2.0 API

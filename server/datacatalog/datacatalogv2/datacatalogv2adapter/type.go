@@ -266,11 +266,15 @@ func newDatasetID(id string) plateauapi.ID {
 }
 
 func datasetTypeIDFrom(d datacatalogv2.DataCatalogItem) plateauapi.ID {
-	return plateauapi.NewID(d.TypeEn, plateauapi.TypeDatasetType)
+	return plateauapi.NewID(fmt.Sprintf("%s:%s", d.Edition, d.TypeEn), plateauapi.TypeDatasetType)
 }
 
 func specIDFrom(d datacatalogv2.DataCatalogItem) plateauapi.ID {
-	return plateauapi.NewID(d.Spec, plateauapi.TypePlateauSpec)
+	return plateauapi.NewID(specNumber(d.Spec), plateauapi.TypePlateauSpec)
+}
+
+func specNumber(spec string) string {
+	return strings.TrimSuffix(strings.TrimPrefix(spec, "第"), "版")
 }
 
 func prefectureFrom(d datacatalogv2.DataCatalogItem) plateauapi.Prefecture {
@@ -323,7 +327,7 @@ func wardFrom(d datacatalogv2.DataCatalogItem) plateauapi.Ward {
 }
 
 func plateauTypeFrom(d datacatalogv2.DataCatalogItem) plateauapi.PlateauDatasetType {
-	if d.Category != "plateau" {
+	if d.Family != "plateau" {
 		return plateauapi.PlateauDatasetType{}
 	}
 
@@ -340,6 +344,10 @@ func plateauTypeFrom(d datacatalogv2.DataCatalogItem) plateauapi.PlateauDatasetT
 }
 
 func relatedTypeFrom(d datacatalogv2.DataCatalogItem) plateauapi.RelatedDatasetType {
+	if d.Family != "related" {
+		return plateauapi.RelatedDatasetType{}
+	}
+
 	return plateauapi.RelatedDatasetType{
 		ID:          datasetTypeIDFrom(d),
 		Name:        d.Type,
@@ -350,6 +358,10 @@ func relatedTypeFrom(d datacatalogv2.DataCatalogItem) plateauapi.RelatedDatasetT
 }
 
 func genericTypeFrom(d datacatalogv2.DataCatalogItem) plateauapi.GenericDatasetType {
+	if d.Family != "generic" {
+		return plateauapi.GenericDatasetType{}
+	}
+
 	return plateauapi.GenericDatasetType{
 		ID:          datasetTypeIDFrom(d),
 		Name:        d.Type,
@@ -360,6 +372,9 @@ func genericTypeFrom(d datacatalogv2.DataCatalogItem) plateauapi.GenericDatasetT
 }
 
 func specFrom(d datacatalogv2.DataCatalogItem) plateauapi.PlateauSpec {
+	if d.Spec == "" {
+		return plateauapi.PlateauSpec{}
+	}
 	return plateauapi.PlateauSpec{
 		ID:   plateauapi.NewID(d.Spec, plateauapi.TypePlateauSpec),
 		Name: d.Spec,
@@ -368,7 +383,7 @@ func specFrom(d datacatalogv2.DataCatalogItem) plateauapi.PlateauSpec {
 }
 
 func categoryFrom(d datacatalogv2.DataCatalogItem) plateauapi.DatasetTypeCategory {
-	switch d.Category {
+	switch d.Family {
 	case "plateau":
 		return plateauapi.DatasetTypeCategoryPlateau
 	case "related":
