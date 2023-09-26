@@ -168,6 +168,7 @@ export default () => {
 
         if (e.data.payload.draftProject) {
           updateProject(e.data.payload.draftProject);
+          postMsg({ action: "updateProject", payload: e.data.payload.draftProject });
         }
       } else if (e.data.action === "triggerCatalogOpen") {
         handleModalOpen();
