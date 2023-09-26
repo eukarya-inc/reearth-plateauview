@@ -18,6 +18,7 @@ model:
 # Where should the resolver implementations go?
 resolver:
   layout: follow-schema
+  dir: .
 
 # Optional: turn on use ` + "`" + `gqlgen:"fieldName"` + "`" + ` tags in your models
 # struct_tag: json
@@ -59,15 +60,33 @@ models:
       - github.com/99designs/gqlgen/graphql.Int32
   Prefecture:
     fields:
+      cities:
+        resolver: true
       datasets:
         resolver: true
-  Municipality:
+  City:
     fields:
+      prefecture:
+        resolver: true
+      wards:
+        resolver: true
+      datasets:
+        resolver: true
+  Ward:
+    fields:
+      prefecture:
+        resolver: true
+      city:
+        resolver: true
       datasets:
         resolver: true
   PlateauDataset:
     fields:
-      area:
+      prefecture:
+        resolver: true
+      city:
+        resolver: true
+      ward:
         resolver: true
       type:
         resolver: true
@@ -75,9 +94,27 @@ models:
     fields:
       parent:
         resolver: true
+  PlateauFloodingDataset:
+    fields:
+      prefecture:
+        resolver: true
+      city:
+        resolver: true
+      ward:
+        resolver: true
+      type:
+        resolver: true
+  PlateauFloodingDatasetItem:
+    fields:
+      parent:
+        resolver: true
   RelatedDataset:
     fields:
-      area:
+      prefecture:
+        resolver: true
+      city:
+        resolver: true
+      ward:
         resolver: true
       type:
         resolver: true
@@ -87,11 +124,19 @@ models:
         resolver: true
   GenericDataset:
     fields:
-      area:
+      prefecture:
+        resolver: true
+      city:
+        resolver: true
+      ward:
         resolver: true
       type:
         resolver: true
   GenericDatasetItem:
     fields:
       parent:
+        resolver: true
+  PlateauDatasetType:
+    fields:
+      plateauSpec:
         resolver: true

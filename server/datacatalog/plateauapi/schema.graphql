@@ -17,7 +17,6 @@ interface Area implements Node {
   id: ID!
   code: AreaCode!
   name: String!
-  parents: [Area!]!
 }
 
 input DatasetForAreaQuery {
@@ -26,23 +25,38 @@ input DatasetForAreaQuery {
   searchTokens: [String!]
 }
 
-type Municipality implements Area & Node {
-  id: ID!
-  code: AreaCode!
-  name: String!
-  parents: [Area!]!
-
-  prefecture: Prefecture!
-  datasets(input: DatasetForAreaQuery!): [Dataset!]!
-}
-
 type Prefecture implements Area & Node {
   id: ID!
   code: AreaCode!
   name: String!
-  parents: [Area!]!
 
-  municipalities: [Municipality!]!
+  cities: [City!]!
+  datasets(input: DatasetForAreaQuery!): [Dataset!]!
+}
+
+type City implements Area & Node {
+  id: ID!
+  code: AreaCode!
+  name: String!
+
+  prefecture_id: ID!
+  prefecture_code: AreaCode!
+  prefecture: Prefecture
+  wards: [Ward!]!
+  datasets(input: DatasetForAreaQuery!): [Dataset!]!
+}
+
+type Ward implements Area & Node {
+  id: ID!
+  code: AreaCode!
+  name: String!
+
+  prefecture_id: ID!
+  prefecture_code: AreaCode!
+  city_id: ID!
+  city_code: AreaCode!
+  prefecture: Prefecture
+  city: City
   datasets(input: DatasetForAreaQuery!): [Dataset!]!
 }
 
@@ -64,7 +78,15 @@ interface Dataset implements Node {
   year: Int!
   groups: [String!]
   data: [DatasetItem!]!
-  area: Area
+  prefecture_id: ID!
+  prefecture_code: AreaCode!
+  city_id: ID
+  city_code: AreaCode
+  ward_id: ID
+  ward_code: AreaCode
+  prefecture: Prefecture
+  city: City
+  ward: Ward
 }
 
 interface DatasetItem implements Node {
@@ -116,8 +138,15 @@ type PlateauDataset implements Dataset & Node {
   description: String
   year: Int!
   groups: [String!]
-  area_id: ID!
-  area: Area
+  prefecture_id: ID!
+  prefecture_code: AreaCode!
+  city_id: ID
+  city_code: AreaCode
+  ward_id: ID
+  ward_code: AreaCode
+  prefecture: Prefecture
+  city: City
+  ward: Ward
   type_id: ID!
   type: PlateauDatasetType!
   data: [PlateauDatasetItem!]!
@@ -143,7 +172,7 @@ enum Texture {
 }
 
 """
-PLATEAU都市モデルのデータセットのうち、地物型が洪水・高潮・津波・内水浸水想定区域モデル（fld, htd, tnm, ifld のいずれか）のデータセットです。
+PLATEAU都市モデルのデータセットのうち、地物型が洪水・高潮・津波・内水浸水想定区域モデル（fld, htd, tnm, ifld）のデータセットです。
 """
 type PlateauFloodingDataset implements Dataset & Node {
   id: ID!
@@ -152,8 +181,15 @@ type PlateauFloodingDataset implements Dataset & Node {
   description: String
   year: Int!
   groups: [String!]
-  area_id: ID!
-  area: Area
+  prefecture_id: ID!
+  prefecture_code: AreaCode!
+  city_id: ID
+  city_code: AreaCode
+  ward_id: ID
+  ward_code: AreaCode
+  prefecture: Prefecture
+  city: City
+  ward: Ward
   type_id: ID!
   type: PlateauDatasetType!
   data: [PlateauFloodingDatasetItem!]!
@@ -200,7 +236,7 @@ enum RiverAdmin {
   """
   国管理区間
   """
-  GOVERNMENT
+  NATIONAL
   """
   都道府県管理区間
   """
@@ -229,7 +265,9 @@ type PlateauDatasetType implements DatasetType & Node {
   category: DatasetTypeCategory!
 
   plateauSpec: PlateauSpec!
+  plateauSpecId: ID!
   year: Int!
+  flood: Boolean!
 }
 
 # related dataset
@@ -241,8 +279,15 @@ type RelatedDataset implements Dataset & Node {
   description: String
   year: Int!
   groups: [String!]
-  area_id: ID!
-  area: Area
+  prefecture_id: ID!
+  prefecture_code: AreaCode!
+  city_id: ID
+  city_code: AreaCode
+  ward_id: ID
+  ward_code: AreaCode
+  prefecture: Prefecture
+  city: City
+  ward: Ward
   type_id: ID!
   type: RelatedDatasetType
   data: [RelatedDatasetItem!]!
@@ -275,8 +320,15 @@ type GenericDataset implements Dataset & Node {
   description: String
   year: Int!
   groups: [String!]
-  area_id: ID!
-  area: Area
+  prefecture_id: ID!
+  prefecture_code: AreaCode!
+  city_id: ID
+  city_code: AreaCode
+  ward_id: ID
+  ward_code: AreaCode
+  prefecture: Prefecture
+  city: City
+  ward: Ward
   type_id: ID!
   type: GenericDatasetType
   data: [GenericDatasetItem!]!
@@ -303,7 +355,7 @@ type GenericDatasetType implements DatasetType & Node {
 # Queries
 
 input AreaQuery {
-  parentCode: AreaCode!
+  parentCode: AreaCode
   datasetTypes: [String!]
   searchTokens: [String!]
 }

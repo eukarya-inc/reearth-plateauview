@@ -9,6 +9,7 @@ import (
 	"github.com/eukarya-inc/reearth-plateauview/server/datacatalog/plateauapi"
 	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
+	"golang.org/x/exp/maps"
 )
 
 type Adapter struct {
@@ -20,7 +21,9 @@ type Adapter struct {
 	updatingCache           bool
 	cache                   []datacatalogv2.DataCatalogItem
 	prefectures             []plateauapi.Prefecture
-	municipalities          []plateauapi.Municipality
+	cities                  []plateauapi.City
+	wards                   []plateauapi.Ward
+	areasForDataTypes       map[string]map[plateauapi.AreaCode]struct{}
 	plateauDatasetTypes     []plateauapi.PlateauDatasetType
 	relatedDatasetTypes     []plateauapi.RelatedDatasetType
 	genericDatasetTypes     []plateauapi.GenericDatasetType
@@ -44,14 +47,20 @@ var _ plateauapi.Repo = (*Adapter)(nil)
 func (a *Adapter) Node(ctx context.Context, id plateauapi.ID) (plateauapi.Node, error) {
 	i, ty := id.Unwrap()
 	switch ty {
-	case plateauapi.TypePrefecture:
+	case plateauapi.TypeArea:
 		if p, ok := lo.Find(a.prefectures, func(p plateauapi.Prefecture) bool {
 			return p.ID == id
 		}); ok {
 			return p, nil
 		}
-	case plateauapi.TypeMunicipality:
-		if p, ok := lo.Find(a.municipalities, func(p plateauapi.Municipality) bool {
+
+		if p, ok := lo.Find(a.cities, func(p plateauapi.City) bool {
+			return p.ID == id
+		}); ok {
+			return p, nil
+		}
+
+		if p, ok := lo.Find(a.wards, func(p plateauapi.Ward) bool {
 			return p.ID == id
 		}); ok {
 			return p, nil
@@ -162,24 +171,46 @@ func (a *Adapter) Area(ctx context.Context, code plateauapi.AreaCode) (plateauap
 		return area, nil
 	}
 
-	area, _ := lo.Find(a.municipalities, func(p plateauapi.Municipality) bool {
+	if area, ok := lo.Find(a.cities, func(p plateauapi.City) bool {
 		return p.Code == code
-	})
-	return area, nil
+	}); ok {
+		return area, nil
+	}
+
+	if area, ok := lo.Find(a.wards, func(p plateauapi.Ward) bool {
+		return p.Code == code
+	}); ok {
+		return area, nil
+	}
+
+	return nil, nil
 }
 
 func (a *Adapter) Areas(ctx context.Context, input plateauapi.AreaQuery) (res []plateauapi.Area, _ error) {
+	var codes []plateauapi.AreaCode
+	if input.DatasetTypes != nil {
+		for _, t := range input.DatasetTypes {
+			codes = append(codes, maps.Keys(a.areasForDataTypes[t])...)
+		}
+	}
+
 	prefs := lo.Filter(a.prefectures, func(t plateauapi.Prefecture, _ int) bool {
-		return filterArea(t, input)
+		return filterArea(t, input) && (len(codes) == 0 || lo.Contains(codes, t.Code))
 	})
-	municipalities := lo.Filter(a.municipalities, func(t plateauapi.Municipality, _ int) bool {
-		return filterArea(t, input)
+	cities := lo.Filter(a.cities, func(t plateauapi.City, _ int) bool {
+		return filterArea(t, input) && (len(codes) == 0 || lo.Contains(codes, t.Code))
+	})
+	wards := lo.Filter(a.wards, func(t plateauapi.Ward, _ int) bool {
+		return filterArea(t, input) && (len(codes) == 0 || lo.Contains(codes, t.Code))
 	})
 
 	for _, t := range prefs {
 		res = append(res, t)
 	}
-	for _, t := range municipalities {
+	for _, t := range cities {
+		res = append(res, t)
+	}
+	for _, t := range wards {
 		res = append(res, t)
 	}
 	return

@@ -33,22 +33,32 @@ func (a *Adapter) UpdateCache(ctx context.Context, opts datacatalogv2.FetcherDoO
 	a.cache = items
 
 	for _, d := range items {
+		ty := d.TypeEn
+		areas := a.areasForDataTypes[ty]
+		if areas == nil {
+			areas = make(map[plateauapi.AreaCode]struct{})
+			a.areasForDataTypes[ty] = areas
+		}
+
 		if d.Pref != "" && !lo.ContainsBy(a.prefectures, func(p plateauapi.Prefecture) bool {
 			return p.Code == plateauapi.AreaCode(d.PrefCode)
 		}) {
 			a.prefectures = append(a.prefectures, prefectureFrom(d))
+			areas[plateauapi.AreaCode(d.PrefCode)] = struct{}{}
 		}
 
-		if d.City != "" && !lo.ContainsBy(a.municipalities, func(p plateauapi.Municipality) bool {
+		if d.City != "" && !lo.ContainsBy(a.cities, func(p plateauapi.City) bool {
 			return p.Code == plateauapi.AreaCode(d.CityCode)
 		}) {
-			a.municipalities = append(a.municipalities, municipalityFrom(d))
+			a.cities = append(a.cities, cityFrom(d))
+			areas[plateauapi.AreaCode(d.CityCode)] = struct{}{}
 		}
 
-		if d.Ward != "" && !lo.ContainsBy(a.municipalities, func(p plateauapi.Municipality) bool {
+		if d.Ward != "" && !lo.ContainsBy(a.wards, func(p plateauapi.Ward) bool {
 			return p.Code == plateauapi.AreaCode(d.WardCode)
 		}) {
-			a.municipalities = append(a.municipalities, wardMunicipalityFrom(d))
+			a.wards = append(a.wards, wardFrom(d))
+			areas[plateauapi.AreaCode(d.WardCode)] = struct{}{}
 		}
 
 		if !lo.ContainsBy(a.plateauDatasetTypes, func(a plateauapi.PlateauDatasetType) bool {
@@ -98,7 +108,10 @@ func (a *Adapter) UpdateCache(ctx context.Context, opts datacatalogv2.FetcherDoO
 	slices.SortStableFunc(a.prefectures, func(a, b plateauapi.Prefecture) bool {
 		return a.Code < b.Code
 	})
-	slices.SortStableFunc(a.municipalities, func(a, b plateauapi.Municipality) bool {
+	slices.SortStableFunc(a.cities, func(a, b plateauapi.City) bool {
+		return a.Code < b.Code
+	})
+	slices.SortStableFunc(a.wards, func(a, b plateauapi.Ward) bool {
 		return a.Code < b.Code
 	})
 	slices.SortStableFunc(a.plateauDatasetTypes, func(a, b plateauapi.PlateauDatasetType) bool {

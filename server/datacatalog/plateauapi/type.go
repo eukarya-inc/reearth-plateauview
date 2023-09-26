@@ -8,12 +8,11 @@ import (
 type Type string
 
 const (
-	TypeDataset      Type = "dataset"
-	TypeDatasetItem  Type = "datasetitem"
-	TypeDatasetType  Type = "datasettype"
-	TypePrefecture   Type = "prefecture"
-	TypeMunicipality Type = "municipality"
-	TypePlateauSpec  Type = "plateauspec"
+	TypeDataset     Type = "dataset"
+	TypeDatasetItem Type = "datasetitem"
+	TypeDatasetType Type = "datasettype"
+	TypeArea        Type = "area"
+	TypePlateauSpec Type = "plateauspec"
 )
 
 func to[T Node](n Node, err error) (t T, _ error) {

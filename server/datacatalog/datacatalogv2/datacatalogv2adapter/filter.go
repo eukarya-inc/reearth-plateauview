@@ -2,6 +2,7 @@ package datacatalogv2adapter
 
 import (
 	"github.com/eukarya-inc/reearth-plateauview/server/datacatalog/plateauapi"
+	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
 	"golang.org/x/exp/slices"
 )
@@ -13,7 +14,7 @@ func filterDataset(d plateauapi.Dataset, input plateauapi.DatasetQuery) bool {
 
 	switch d2 := d.(type) {
 	case plateauapi.PlateauDataset:
-		areaCodes = areaCodesFromAreaID(d2.AreaID)
+		areaCodes = areaCodesFrom(d2)
 		dataType = dataTypeCodeFromDataTypeID(d2.TypeID)
 		text = []string{
 			d2.Name,
@@ -21,7 +22,7 @@ func filterDataset(d plateauapi.Dataset, input plateauapi.DatasetQuery) bool {
 			lo.FromPtr(d2.Subname),
 		}
 	case plateauapi.PlateauFloodingDataset:
-		areaCodes = areaCodesFromAreaID(d2.AreaID)
+		areaCodes = areaCodesFrom(d2)
 		dataType = dataTypeCodeFromDataTypeID(d2.TypeID)
 		text = []string{
 			d2.Name,
@@ -29,7 +30,7 @@ func filterDataset(d plateauapi.Dataset, input plateauapi.DatasetQuery) bool {
 			lo.FromPtr(d2.Subname),
 		}
 	case plateauapi.RelatedDataset:
-		areaCodes = areaCodesFromAreaID(d2.AreaID)
+		areaCodes = areaCodesFrom(d2)
 		dataType = dataTypeCodeFromDataTypeID(d2.TypeID)
 		text = []string{
 			d2.Name,
@@ -37,7 +38,7 @@ func filterDataset(d plateauapi.Dataset, input plateauapi.DatasetQuery) bool {
 			lo.FromPtr(d2.Subname),
 		}
 	case plateauapi.GenericDataset:
-		areaCodes = areaCodesFromAreaID(d2.AreaID)
+		areaCodes = areaCodesFrom(d2)
 		dataType = dataTypeCodeFromDataTypeID(d2.TypeID)
 		text = []string{
 			d2.Name,
@@ -83,29 +84,34 @@ func filterDataset(d plateauapi.Dataset, input plateauapi.DatasetQuery) bool {
 	return true
 }
 
-func areaCodesFromAreaID(id plateauapi.ID) []plateauapi.AreaCode {
-	i, ty := id.Unwrap()
-	if ty != plateauapi.TypePrefecture && ty != plateauapi.TypeMunicipality {
-		return nil
+func areaCodesFrom(d plateauapi.Dataset) []plateauapi.AreaCode {
+	switch d2 := d.(type) {
+	case plateauapi.PlateauDataset:
+		return util.DerefSlice([]*plateauapi.AreaCode{
+			lo.ToPtr(d2.PrefectureCode),
+			d2.CityCode,
+			d2.WardCode,
+		})
+	case plateauapi.PlateauFloodingDataset:
+		return util.DerefSlice([]*plateauapi.AreaCode{
+			lo.ToPtr(d2.PrefectureCode),
+			d2.CityCode,
+			d2.WardCode,
+		})
+	case plateauapi.RelatedDataset:
+		return util.DerefSlice([]*plateauapi.AreaCode{
+			lo.ToPtr(d2.PrefectureCode),
+			d2.CityCode,
+			d2.WardCode,
+		})
+	case plateauapi.GenericDataset:
+		return util.DerefSlice([]*plateauapi.AreaCode{
+			lo.ToPtr(d2.PrefectureCode),
+			d2.CityCode,
+			d2.WardCode,
+		})
 	}
-
-	var pref, city, ward string
-	switch ty {
-	case plateauapi.TypePrefecture:
-		pref = i
-	case plateauapi.TypeMunicipality:
-		city = i
-		// ward = i
-		// pref = i
-	}
-
-	return lo.Filter([]plateauapi.AreaCode{
-		plateauapi.AreaCode(pref),
-		plateauapi.AreaCode(city),
-		plateauapi.AreaCode(ward),
-	}, func(code plateauapi.AreaCode, _ int) bool {
-		return code != ""
-	})
+	return nil
 }
 
 func dataTypeCodeFromDataTypeID(id plateauapi.ID) string {
@@ -120,25 +126,30 @@ func dataTypeCodeFromDataTypeID(id plateauapi.ID) string {
 func filterArea(area plateauapi.Area, input plateauapi.AreaQuery) bool {
 	switch area2 := area.(type) {
 	case plateauapi.Prefecture:
-		// TODO: datasetType
-
 		if len(input.SearchTokens) > 0 {
 			if !slices.Contains(input.SearchTokens, area2.Name) {
 				return false
 			}
 		}
-	case plateauapi.Municipality:
-		// TODO: parentCode
-		// if input.ParentCode != nil && area2.ParentCode != *input.PrefectureCode {
-		// 	return false
-		// }
-
-		// TODO: datasetType
-
+	case plateauapi.City:
 		if len(input.SearchTokens) > 0 {
 			if !slices.Contains(input.SearchTokens, area2.Name) {
 				return false
 			}
+		}
+
+		if input.ParentCode != nil && area2.PrefectureCode != *input.ParentCode {
+			return false
+		}
+	case plateauapi.Ward:
+		if len(input.SearchTokens) > 0 {
+			if !slices.Contains(input.SearchTokens, area2.Name) {
+				return false
+			}
+		}
+
+		if input.ParentCode != nil && (area2.PrefectureCode != *input.ParentCode || area2.CityCode != *input.ParentCode) {
+			return false
 		}
 	}
 
