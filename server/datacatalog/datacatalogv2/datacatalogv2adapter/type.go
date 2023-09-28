@@ -266,7 +266,10 @@ func newDatasetID(id string) plateauapi.ID {
 }
 
 func datasetTypeIDFrom(d datacatalogv2.DataCatalogItem) plateauapi.ID {
-	return plateauapi.NewID(fmt.Sprintf("%s:%s", d.Edition, d.TypeEn), plateauapi.TypeDatasetType)
+	if d.Family == "generic" && d.Category != "" {
+		return plateauapi.NewID(fmt.Sprintf("%s:%s", d.Edition, d.Category), plateauapi.TypeDatasetType)
+	}
+	return plateauapi.NewID(fmt.Sprintf("%s:usecase", d.Edition), plateauapi.TypeDatasetType)
 }
 
 func specIDFrom(d datacatalogv2.DataCatalogItem) plateauapi.ID {
@@ -331,11 +334,12 @@ func plateauTypeFrom(d datacatalogv2.DataCatalogItem) plateauapi.PlateauDatasetT
 		return plateauapi.PlateauDatasetType{}
 	}
 
+	year, _ := strconv.Atoi(d.Edition)
 	return plateauapi.PlateauDatasetType{
 		ID:            datasetTypeIDFrom(d),
 		Name:          d.Type,
 		Code:          d.TypeEn,
-		Year:          d.Year,
+		Year:          year,
 		EnglishName:   d.TypeEn,
 		Category:      plateauapi.DatasetTypeCategoryPlateau,
 		PlateauSpecID: specIDFrom(d),
@@ -362,11 +366,20 @@ func genericTypeFrom(d datacatalogv2.DataCatalogItem) plateauapi.GenericDatasetT
 		return plateauapi.GenericDatasetType{}
 	}
 
+	if d.Category != "" {
+		return plateauapi.GenericDatasetType{
+			ID:       datasetTypeIDFrom(d),
+			Name:     d.Category,
+			Code:     d.Category,
+			Category: plateauapi.DatasetTypeCategoryGeneric,
+		}
+	}
+
 	return plateauapi.GenericDatasetType{
 		ID:          datasetTypeIDFrom(d),
-		Name:        d.Type,
-		Code:        d.TypeEn,
-		EnglishName: d.TypeEn,
+		Name:        "ユースケース",
+		Code:        "usecase",
+		EnglishName: "usecase",
 		Category:    plateauapi.DatasetTypeCategoryGeneric,
 	}
 }
@@ -376,7 +389,7 @@ func specFrom(d datacatalogv2.DataCatalogItem) plateauapi.PlateauSpec {
 		return plateauapi.PlateauSpec{}
 	}
 	return plateauapi.PlateauSpec{
-		ID:   plateauapi.NewID(d.Spec, plateauapi.TypePlateauSpec),
+		ID:   specIDFrom(d),
 		Name: d.Spec,
 		Year: d.Year,
 	}

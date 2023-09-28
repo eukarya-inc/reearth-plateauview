@@ -264,7 +264,7 @@ type PlateauDatasetType implements DatasetType & Node {
   englishName: String!
   category: DatasetTypeCategory!
 
-  plateauSpec: PlateauSpec!
+  plateauSpec: PlateauSpec
   plateauSpecId: ID!
   year: Int!
   flood: Boolean!

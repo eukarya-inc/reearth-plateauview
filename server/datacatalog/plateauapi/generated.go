@@ -5081,14 +5081,11 @@ func (ec *executionContext) _PlateauDatasetType_plateauSpec(ctx context.Context,
 		return graphql.Null
 	}
 	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
 		return graphql.Null
 	}
 	res := resTmp.(*PlateauSpec)
 	fc.Result = res
-	return ec.marshalNPlateauSpec2ᚖgithubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐPlateauSpec(ctx, field.Selections, res)
+	return ec.marshalOPlateauSpec2ᚖgithubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐPlateauSpec(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_PlateauDatasetType_plateauSpec(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -12373,9 +12370,6 @@ func (ec *executionContext) _PlateauDatasetType(ctx context.Context, sel ast.Sel
 					}
 				}()
 				res = ec._PlateauDatasetType_plateauSpec(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&invalids, 1)
-				}
 				return res
 			}
 
@@ -14414,10 +14408,6 @@ func (ec *executionContext) marshalNPlateauFloodingDatasetItem2ᚖgithubᚗcom�
 	return ec._PlateauFloodingDatasetItem(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNPlateauSpec2githubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐPlateauSpec(ctx context.Context, sel ast.SelectionSet, v PlateauSpec) graphql.Marshaler {
-	return ec._PlateauSpec(ctx, sel, &v)
-}
-
 func (ec *executionContext) marshalNPlateauSpec2ᚕᚖgithubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐPlateauSpecᚄ(ctx context.Context, sel ast.SelectionSet, v []*PlateauSpec) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
@@ -15044,6 +15034,13 @@ func (ec *executionContext) marshalOPlateauDataset2ᚖgithubᚗcomᚋeukaryaᚑi
 		return graphql.Null
 	}
 	return ec._PlateauDataset(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalOPlateauSpec2ᚖgithubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐPlateauSpec(ctx context.Context, sel ast.SelectionSet, v *PlateauSpec) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._PlateauSpec(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalOPrefecture2ᚖgithubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐPrefecture(ctx context.Context, sel ast.SelectionSet, v *Prefecture) graphql.Marshaler {

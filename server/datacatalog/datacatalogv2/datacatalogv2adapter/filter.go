@@ -8,13 +8,11 @@ import (
 )
 
 func filterDataset(d plateauapi.Dataset, input plateauapi.DatasetQuery) bool {
-	var areaCodes []plateauapi.AreaCode
 	var dataType string
 	var text []string
 
 	switch d2 := d.(type) {
 	case plateauapi.PlateauDataset:
-		areaCodes = areaCodesFrom(d2)
 		dataType = dataTypeCodeFromDataTypeID(d2.TypeID)
 		text = []string{
 			d2.Name,
@@ -22,7 +20,6 @@ func filterDataset(d plateauapi.Dataset, input plateauapi.DatasetQuery) bool {
 			lo.FromPtr(d2.Subname),
 		}
 	case plateauapi.PlateauFloodingDataset:
-		areaCodes = areaCodesFrom(d2)
 		dataType = dataTypeCodeFromDataTypeID(d2.TypeID)
 		text = []string{
 			d2.Name,
@@ -30,7 +27,6 @@ func filterDataset(d plateauapi.Dataset, input plateauapi.DatasetQuery) bool {
 			lo.FromPtr(d2.Subname),
 		}
 	case plateauapi.RelatedDataset:
-		areaCodes = areaCodesFrom(d2)
 		dataType = dataTypeCodeFromDataTypeID(d2.TypeID)
 		text = []string{
 			d2.Name,
@@ -38,7 +34,6 @@ func filterDataset(d plateauapi.Dataset, input plateauapi.DatasetQuery) bool {
 			lo.FromPtr(d2.Subname),
 		}
 	case plateauapi.GenericDataset:
-		areaCodes = areaCodesFrom(d2)
 		dataType = dataTypeCodeFromDataTypeID(d2.TypeID)
 		text = []string{
 			d2.Name,
@@ -50,6 +45,7 @@ func filterDataset(d plateauapi.Dataset, input plateauapi.DatasetQuery) bool {
 	}
 
 	if len(input.AreaCodes) > 0 {
+		areaCodes := areaCodesFrom(d)
 		if lo.EveryBy(input.AreaCodes, func(code plateauapi.AreaCode) bool {
 			return !slices.Contains(areaCodes, code)
 		}) {
@@ -167,15 +163,23 @@ func filterDataType(ty plateauapi.DatasetType, input plateauapi.DatasetTypeQuery
 			return false
 		}
 
-		if input.PlateauSpec != nil && ty2.PlateauSpec.Name != *input.PlateauSpec {
+		if input.PlateauSpec != nil && "2.2" != *input.PlateauSpec {
 			return false
 		}
 	case plateauapi.RelatedDatasetType:
 		if input.Category != nil && ty2.Category != *input.Category {
 			return false
 		}
+
+		if input.Year != nil || input.PlateauSpec != nil {
+			return false
+		}
 	case plateauapi.GenericDatasetType:
 		if input.Category != nil && ty2.Category != *input.Category {
+			return false
+		}
+
+		if input.Year != nil || input.PlateauSpec != nil {
 			return false
 		}
 	default:
