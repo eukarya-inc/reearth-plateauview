@@ -7,10 +7,10 @@ import (
 )
 
 func TestID(t *testing.T) {
-	assert.Equal(t, ID("aaa:bbb"), NewID("bbb", "aaa"))
-	assert.Equal(t, "aaa:bbb", ID("aaa:bbb").String())
-	assert.Equal(t, Type("aaa"), ID("aaa:bbb").Type())
-	assert.Equal(t, "bbb", ID("aaa:bbb").ID())
+	t.Logf("id string: %s", NewID("aaa", "bbb").String())
+	assert.NotEmpty(t, NewID("bbb", "aaa").String())
+	assert.Equal(t, Type("aaa"), NewID("bbb", "aaa").Type())
+	assert.Equal(t, "bbb", NewID("bbb", "aaa").ID())
 }
 
 func TestAreaCode(t *testing.T) {

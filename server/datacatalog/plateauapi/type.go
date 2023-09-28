@@ -1,6 +1,7 @@
 package plateauapi
 
 import (
+	"encoding/base64"
 	"strconv"
 	"strings"
 )
@@ -19,13 +20,24 @@ func to[T Node](n Node, err error) (t T, _ error) {
 	if err != nil {
 		return t, err
 	}
-	return n.(T), nil
+	u, ok := n.(T)
+	if !ok {
+		return t, nil
+	}
+	return u, nil
 }
 
 type ID string
 
+const useBase64 = true
+
 func NewID(id string, ty Type) ID {
-	return ID(string(ty) + ":" + id)
+	idstr := string(ty) + ":" + id
+	if !useBase64 {
+		return ID(idstr)
+	}
+
+	return ID(base64.StdEncoding.EncodeToString([]byte(idstr)))
 }
 
 func (i ID) String() string {
@@ -43,7 +55,17 @@ func (i ID) Type() Type {
 }
 
 func (i ID) Unwrap() (string, Type) {
-	ty, id, _ := strings.Cut(string(i), ":")
+	idstr := string(i)
+	if useBase64 {
+		di, err := base64.StdEncoding.DecodeString(string(i))
+		if err != nil {
+			return "", ""
+		}
+
+		idstr = string(di)
+	}
+
+	ty, id, _ := strings.Cut(idstr, ":")
 	return id, Type(ty)
 }
 
