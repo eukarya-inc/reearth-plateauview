@@ -1,7 +1,7 @@
 import { BaseFieldProps } from "../../types";
 
 export const MAX_HEIGHT = 200;
-export const MAX_ABOVEGROUND_FLOOR = 50;
+export const MAX_ABOVEGROUND_FLOOR = 70;
 export const MAX_BASEMENT_FLOOR = 5;
 export const MAX_BUILDING_AGE = new Date().getFullYear();
 
