@@ -78,7 +78,6 @@ const useHooks = ({
   const fetchedUrlRef = useRef<string>();
   useEffect(() => {
     const handleFilteringFields = (data: any) => {
-      console.log("data", data);
       const tempOptions: typeof options = {};
       Object.entries(data?.properties || {}).forEach(([propertyKey, propertyValue]) => {
         Object.entries(FILTERING_FIELD_DEFINITION).forEach(([k_, type]) => {
