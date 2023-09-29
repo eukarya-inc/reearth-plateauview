@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { BaseFieldProps } from "../../types";
 import { useObservingDataURL } from "../hooks";
 
-import { FILTERING_FIELD_DEFINITION, OptionsState, USE_MIN_FIELD_PROPERTIES } from "./constants";
+import { FILTERING_FIELD_DEFINITION, OptionsState } from "./constants";
 import { useBuildingFilter } from "./useBuildingFilter";
 
 const useHooks = ({
@@ -78,6 +78,7 @@ const useHooks = ({
   const fetchedUrlRef = useRef<string>();
   useEffect(() => {
     const handleFilteringFields = (data: any) => {
+      console.log("data", data);
       const tempOptions: typeof options = {};
       Object.entries(data?.properties || {}).forEach(([propertyKey, propertyValue]) => {
         Object.entries(FILTERING_FIELD_DEFINITION).forEach(([k_, type]) => {
@@ -90,13 +91,13 @@ const useHooks = ({
           ) {
             const customType = (() => {
               const min =
-                USE_MIN_FIELD_PROPERTIES.includes(k) &&
-                "minimum" in propertyValue &&
-                type.min &&
-                Number(propertyValue.minimum) >= type.min
+                "minimum" in propertyValue && isValidRangeValue(propertyValue.minimum)
                   ? Number(propertyValue.minimum)
                   : type.min;
-              const max = type.max;
+              const max =
+                "maximum" in propertyValue && isValidRangeValue(propertyValue.maximum)
+                  ? Number(propertyValue.maximum)
+                  : type.max;
               const shouldChangeMin =
                 options[k]?.min !== min && options[k]?.value[0] === options[k]?.min;
               const shouldChangeMax =
@@ -108,6 +109,7 @@ const useHooks = ({
                   (shouldChangeMax ? max : options[k]?.value[1]) ?? type.value[1],
                 ].filter(v => v !== undefined) as typeof type.value,
                 min,
+                max,
               };
             })();
             tempOptions[k] = customType;
@@ -142,3 +144,8 @@ const useHooks = ({
 };
 
 export default useHooks;
+
+function isValidRangeValue(value: unknown) {
+  if (value === undefined) return false;
+  return Number(value) !== -1 && Number(value) !== 9999;
+}
