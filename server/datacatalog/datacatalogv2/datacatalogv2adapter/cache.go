@@ -32,31 +32,43 @@ func (a *Adapter) UpdateCache(ctx context.Context, opts datacatalogv2.FetcherDoO
 	items := r.All()
 	a.cache = items
 	a.areasForDataTypes = make(map[string]map[plateauapi.AreaCode]struct{})
+	areas := make(map[plateauapi.AreaCode]struct{})
 
 	for _, d := range items {
 		ty := d.TypeEn
-		areas := a.areasForDataTypes[ty]
-		if areas == nil {
-			areas = make(map[plateauapi.AreaCode]struct{})
-			a.areasForDataTypes[ty] = areas
+		areasForType := a.areasForDataTypes[ty]
+		if areasForType == nil {
+			areasForType = make(map[plateauapi.AreaCode]struct{})
 		}
 
-		if _, found := areas[plateauapi.AreaCode(d.PrefCode)]; !found {
-			a.prefectures = append(a.prefectures, prefectureFrom(d))
-			areas[plateauapi.AreaCode(d.PrefCode)] = struct{}{}
+		prefCode := plateauapi.AreaCode(d.PrefCode)
+		areasForType[prefCode] = struct{}{}
+		if _, found := areas[prefCode]; !found {
+			if p := prefectureFrom(d); p != nil {
+				a.prefectures = append(a.prefectures, *p)
+				areas[prefCode] = struct{}{}
+			}
 		}
 
 		if d.City != "" {
-			if _, found := areas[plateauapi.AreaCode(d.CityCode)]; !found {
-				a.cities = append(a.cities, cityFrom(d))
-				areas[plateauapi.AreaCode(d.CityCode)] = struct{}{}
+			areaCode := plateauapi.AreaCode(d.CityCode)
+			areasForType[areaCode] = struct{}{}
+			if _, found := areas[areaCode]; !found {
+				if c := cityFrom(d); c != nil {
+					a.cities = append(a.cities, *c)
+					areas[areaCode] = struct{}{}
+				}
 			}
 		}
 
 		if d.Ward != "" {
-			if _, found := areas[plateauapi.AreaCode(d.WardCode)]; !found {
-				a.wards = append(a.wards, wardFrom(d))
-				areas[plateauapi.AreaCode(d.WardCode)] = struct{}{}
+			areaCode := plateauapi.AreaCode(d.WardCode)
+			areasForType[areaCode] = struct{}{}
+			if _, found := areas[areaCode]; !found {
+				if w := wardFrom(d); w != nil {
+					a.wards = append(a.wards, *w)
+					areas[areaCode] = struct{}{}
+				}
 			}
 		}
 
@@ -98,6 +110,8 @@ func (a *Adapter) UpdateCache(ctx context.Context, opts datacatalogv2.FetcherDoO
 		if d, ok := genericDatasetFrom(d); ok {
 			a.genericDatasets = append(a.genericDatasets, d)
 		}
+
+		a.areasForDataTypes[ty] = areasForType
 	}
 
 	slices.SortStableFunc(a.prefectures, func(a, b plateauapi.Prefecture) bool {

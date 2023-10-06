@@ -49,11 +49,38 @@ type DataCatalogItem struct {
 	Edition string `json:"-"`
 }
 
+func (i DataCatalogItem) MainConfigItem() *datacatalogutil.DataCatalogItemConfigItem {
+	if i.URL == "" {
+		return nil
+	}
+
+	name := i.Type2
+	if name == "" {
+		name = i.Type
+	}
+	return &datacatalogutil.DataCatalogItemConfigItem{
+		Name:   name,
+		URL:    i.URL,
+		Type:   i.Format,
+		Layers: i.Layers,
+	}
+}
+
 func (i DataCatalogItem) ConfigItems() []datacatalogutil.DataCatalogItemConfigItem {
 	if i.Config == nil {
 		return nil
 	}
 	return i.Config.Data
+}
+
+func (i DataCatalogItem) MainOrConfigItems() []datacatalogutil.DataCatalogItemConfigItem {
+	configItems := i.ConfigItems()
+	if len(configItems) == 0 {
+		if main := i.MainConfigItem(); main != nil {
+			return []datacatalogutil.DataCatalogItemConfigItem{*main}
+		}
+	}
+	return configItems
 }
 
 type DataCatalogGroup struct {

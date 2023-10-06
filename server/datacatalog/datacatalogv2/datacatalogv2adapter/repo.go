@@ -193,20 +193,21 @@ func (a *Adapter) Area(ctx context.Context, code plateauapi.AreaCode) (plateauap
 	return nil, nil
 }
 
-func (a *Adapter) Areas(ctx context.Context, input plateauapi.AreaQuery) (res []plateauapi.Area, _ error) {
+func (a *Adapter) Areas(ctx context.Context, input *plateauapi.AreaQuery) (res []plateauapi.Area, _ error) {
+	inp := lo.FromPtr(input)
 	var codes []plateauapi.AreaCode
-	if input.DatasetTypes != nil {
-		for _, t := range input.DatasetTypes {
+	if inp.DatasetTypes != nil {
+		for _, t := range inp.DatasetTypes {
 			codes = append(codes, maps.Keys(a.areasForDataTypes[t])...)
 		}
 	}
 
 	prefs := lo.Filter(a.prefectures, func(t plateauapi.Prefecture, _ int) bool {
-		return filterArea(t, input) && input.ParentCode == nil && (len(codes) == 0 || lo.Contains(codes, t.Code))
+		return filterArea(t, inp) && inp.ParentCode == nil && (len(codes) == 0 || lo.Contains(codes, t.Code))
 	})
 
 	cities := lo.Filter(a.cities, func(t plateauapi.City, _ int) bool {
-		if !filterArea(t, input) {
+		if !filterArea(t, inp) {
 			return false
 		}
 
@@ -214,7 +215,7 @@ func (a *Adapter) Areas(ctx context.Context, input plateauapi.AreaQuery) (res []
 			return false
 		}
 
-		if input.ParentCode != nil && t.PrefectureCode != *input.ParentCode {
+		if inp.ParentCode != nil && t.PrefectureCode != *inp.ParentCode {
 			return false
 		}
 
@@ -222,7 +223,7 @@ func (a *Adapter) Areas(ctx context.Context, input plateauapi.AreaQuery) (res []
 	})
 
 	wards := lo.Filter(a.wards, func(t plateauapi.Ward, _ int) bool {
-		if !filterArea(t, input) {
+		if !filterArea(t, inp) {
 			return false
 		}
 
@@ -230,7 +231,7 @@ func (a *Adapter) Areas(ctx context.Context, input plateauapi.AreaQuery) (res []
 			return false
 		}
 
-		if input.ParentCode != nil && t.CityCode != *input.ParentCode {
+		if inp.ParentCode != nil && t.CityCode != *input.ParentCode {
 			return false
 		}
 
@@ -252,15 +253,16 @@ func (a *Adapter) Areas(ctx context.Context, input plateauapi.AreaQuery) (res []
 	return
 }
 
-func (a *Adapter) DatasetTypes(ctx context.Context, input plateauapi.DatasetTypeQuery) (res []plateauapi.DatasetType, _ error) {
+func (a *Adapter) DatasetTypes(ctx context.Context, input *plateauapi.DatasetTypeQuery) (res []plateauapi.DatasetType, _ error) {
+	inp := lo.FromPtr(input)
 	plateau := lo.Filter(a.plateauDatasetTypes, func(t plateauapi.PlateauDatasetType, _ int) bool {
-		return filterDataType(t, input)
+		return filterDataType(t, inp)
 	})
 	related := lo.Filter(a.relatedDatasetTypes, func(t plateauapi.RelatedDatasetType, _ int) bool {
-		return filterDataType(t, input)
+		return filterDataType(t, inp)
 	})
 	generic := lo.Filter(a.genericDatasetTypes, func(t plateauapi.GenericDatasetType, _ int) bool {
-		return filterDataType(t, input)
+		return filterDataType(t, inp)
 	})
 
 	for _, t := range plateau {
@@ -278,18 +280,19 @@ func (a *Adapter) DatasetTypes(ctx context.Context, input plateauapi.DatasetType
 	return
 }
 
-func (a *Adapter) Datasets(ctx context.Context, input plateauapi.DatasetQuery) (res []plateauapi.Dataset, _ error) {
+func (a *Adapter) Datasets(ctx context.Context, input *plateauapi.DatasetQuery) (res []plateauapi.Dataset, _ error) {
+	inp := lo.FromPtr(input)
 	plateau := lo.Filter(a.plateauDatasets, func(t plateauapi.PlateauDataset, _ int) bool {
-		return filterDataset(t, input)
+		return filterDataset(t, inp)
 	})
 	flooding := lo.Filter(a.plateauFloodingDatasets, func(t plateauapi.PlateauFloodingDataset, _ int) bool {
-		return filterDataset(t, input)
+		return filterDataset(t, inp)
 	})
 	related := lo.Filter(a.relatedDatasets, func(t plateauapi.RelatedDataset, _ int) bool {
-		return filterDataset(t, input)
+		return filterDataset(t, inp)
 	})
 	generic := lo.Filter(a.genericDatasets, func(t plateauapi.GenericDataset, _ int) bool {
-		return filterDataset(t, input)
+		return filterDataset(t, inp)
 	})
 
 	for _, t := range plateau {

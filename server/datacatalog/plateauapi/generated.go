@@ -57,7 +57,7 @@ type DirectiveRoot struct {
 type ComplexityRoot struct {
 	City struct {
 		Code           func(childComplexity int) int
-		Datasets       func(childComplexity int, input DatasetForAreaQuery) int
+		Datasets       func(childComplexity int, input *DatasetForAreaQuery) int
 		ID             func(childComplexity int) int
 		Name           func(childComplexity int) int
 		Prefecture     func(childComplexity int) int
@@ -192,16 +192,16 @@ type ComplexityRoot struct {
 	Prefecture struct {
 		Cities   func(childComplexity int) int
 		Code     func(childComplexity int) int
-		Datasets func(childComplexity int, input DatasetForAreaQuery) int
+		Datasets func(childComplexity int, input *DatasetForAreaQuery) int
 		ID       func(childComplexity int) int
 		Name     func(childComplexity int) int
 	}
 
 	Query struct {
 		Area         func(childComplexity int, code AreaCode) int
-		Areas        func(childComplexity int, input AreaQuery) int
-		DatasetTypes func(childComplexity int, input DatasetTypeQuery) int
-		Datasets     func(childComplexity int, input DatasetQuery) int
+		Areas        func(childComplexity int, input *AreaQuery) int
+		DatasetTypes func(childComplexity int, input *DatasetTypeQuery) int
+		Datasets     func(childComplexity int, input *DatasetQuery) int
 		Node         func(childComplexity int, id ID) int
 		Nodes        func(childComplexity int, ids []ID) int
 		PlateauSpecs func(childComplexity int) int
@@ -257,7 +257,7 @@ type ComplexityRoot struct {
 		CityCode       func(childComplexity int) int
 		CityID         func(childComplexity int) int
 		Code           func(childComplexity int) int
-		Datasets       func(childComplexity int, input DatasetForAreaQuery) int
+		Datasets       func(childComplexity int, input *DatasetForAreaQuery) int
 		ID             func(childComplexity int) int
 		Name           func(childComplexity int) int
 		Prefecture     func(childComplexity int) int
@@ -269,7 +269,7 @@ type ComplexityRoot struct {
 type CityResolver interface {
 	Prefecture(ctx context.Context, obj *City) (*Prefecture, error)
 	Wards(ctx context.Context, obj *City) ([]*Ward, error)
-	Datasets(ctx context.Context, obj *City, input DatasetForAreaQuery) ([]Dataset, error)
+	Datasets(ctx context.Context, obj *City, input *DatasetForAreaQuery) ([]Dataset, error)
 }
 type GenericDatasetResolver interface {
 	Prefecture(ctx context.Context, obj *GenericDataset) (*Prefecture, error)
@@ -306,15 +306,15 @@ type PlateauFloodingDatasetItemResolver interface {
 }
 type PrefectureResolver interface {
 	Cities(ctx context.Context, obj *Prefecture) ([]*City, error)
-	Datasets(ctx context.Context, obj *Prefecture, input DatasetForAreaQuery) ([]Dataset, error)
+	Datasets(ctx context.Context, obj *Prefecture, input *DatasetForAreaQuery) ([]Dataset, error)
 }
 type QueryResolver interface {
 	Node(ctx context.Context, id ID) (Node, error)
 	Nodes(ctx context.Context, ids []ID) ([]Node, error)
 	Area(ctx context.Context, code AreaCode) (Area, error)
-	Areas(ctx context.Context, input AreaQuery) ([]Area, error)
-	DatasetTypes(ctx context.Context, input DatasetTypeQuery) ([]DatasetType, error)
-	Datasets(ctx context.Context, input DatasetQuery) ([]Dataset, error)
+	Areas(ctx context.Context, input *AreaQuery) ([]Area, error)
+	DatasetTypes(ctx context.Context, input *DatasetTypeQuery) ([]DatasetType, error)
+	Datasets(ctx context.Context, input *DatasetQuery) ([]Dataset, error)
 	PlateauSpecs(ctx context.Context) ([]*PlateauSpec, error)
 	Years(ctx context.Context) ([]int, error)
 }
@@ -331,7 +331,7 @@ type RelatedDatasetItemResolver interface {
 type WardResolver interface {
 	Prefecture(ctx context.Context, obj *Ward) (*Prefecture, error)
 	City(ctx context.Context, obj *Ward) (*City, error)
-	Datasets(ctx context.Context, obj *Ward, input DatasetForAreaQuery) ([]Dataset, error)
+	Datasets(ctx context.Context, obj *Ward, input *DatasetForAreaQuery) ([]Dataset, error)
 }
 
 type executableSchema struct {
@@ -366,7 +366,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.City.Datasets(childComplexity, args["input"].(DatasetForAreaQuery)), true
+		return e.complexity.City.Datasets(childComplexity, args["input"].(*DatasetForAreaQuery)), true
 
 	case "City.id":
 		if e.complexity.City.ID == nil {
@@ -1106,7 +1106,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Prefecture.Datasets(childComplexity, args["input"].(DatasetForAreaQuery)), true
+		return e.complexity.Prefecture.Datasets(childComplexity, args["input"].(*DatasetForAreaQuery)), true
 
 	case "Prefecture.id":
 		if e.complexity.Prefecture.ID == nil {
@@ -1144,7 +1144,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.Areas(childComplexity, args["input"].(AreaQuery)), true
+		return e.complexity.Query.Areas(childComplexity, args["input"].(*AreaQuery)), true
 
 	case "Query.datasetTypes":
 		if e.complexity.Query.DatasetTypes == nil {
@@ -1156,7 +1156,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.DatasetTypes(childComplexity, args["input"].(DatasetTypeQuery)), true
+		return e.complexity.Query.DatasetTypes(childComplexity, args["input"].(*DatasetTypeQuery)), true
 
 	case "Query.datasets":
 		if e.complexity.Query.Datasets == nil {
@@ -1168,7 +1168,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.Datasets(childComplexity, args["input"].(DatasetQuery)), true
+		return e.complexity.Query.Datasets(childComplexity, args["input"].(*DatasetQuery)), true
 
 	case "Query.node":
 		if e.complexity.Query.Node == nil {
@@ -1470,7 +1470,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Ward.Datasets(childComplexity, args["input"].(DatasetForAreaQuery)), true
+		return e.complexity.Ward.Datasets(childComplexity, args["input"].(*DatasetForAreaQuery)), true
 
 	case "Ward.id":
 		if e.complexity.Ward.ID == nil {
@@ -1586,10 +1586,10 @@ var parsedSchema = gqlparser.MustLoadSchema(sources...)
 func (ec *executionContext) field_City_datasets_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 DatasetForAreaQuery
+	var arg0 *DatasetForAreaQuery
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNDatasetForAreaQuery2githubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐDatasetForAreaQuery(ctx, tmp)
+		arg0, err = ec.unmarshalODatasetForAreaQuery2ᚖgithubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐDatasetForAreaQuery(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -1601,10 +1601,10 @@ func (ec *executionContext) field_City_datasets_args(ctx context.Context, rawArg
 func (ec *executionContext) field_Prefecture_datasets_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 DatasetForAreaQuery
+	var arg0 *DatasetForAreaQuery
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNDatasetForAreaQuery2githubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐDatasetForAreaQuery(ctx, tmp)
+		arg0, err = ec.unmarshalODatasetForAreaQuery2ᚖgithubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐDatasetForAreaQuery(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -1646,10 +1646,10 @@ func (ec *executionContext) field_Query_area_args(ctx context.Context, rawArgs m
 func (ec *executionContext) field_Query_areas_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 AreaQuery
+	var arg0 *AreaQuery
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNAreaQuery2githubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐAreaQuery(ctx, tmp)
+		arg0, err = ec.unmarshalOAreaQuery2ᚖgithubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐAreaQuery(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -1661,10 +1661,10 @@ func (ec *executionContext) field_Query_areas_args(ctx context.Context, rawArgs 
 func (ec *executionContext) field_Query_datasetTypes_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 DatasetTypeQuery
+	var arg0 *DatasetTypeQuery
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNDatasetTypeQuery2githubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐDatasetTypeQuery(ctx, tmp)
+		arg0, err = ec.unmarshalODatasetTypeQuery2ᚖgithubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐDatasetTypeQuery(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -1676,10 +1676,10 @@ func (ec *executionContext) field_Query_datasetTypes_args(ctx context.Context, r
 func (ec *executionContext) field_Query_datasets_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 DatasetQuery
+	var arg0 *DatasetQuery
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNDatasetQuery2githubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐDatasetQuery(ctx, tmp)
+		arg0, err = ec.unmarshalODatasetQuery2ᚖgithubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐDatasetQuery(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -1721,10 +1721,10 @@ func (ec *executionContext) field_Query_nodes_args(ctx context.Context, rawArgs 
 func (ec *executionContext) field_Ward_datasets_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 DatasetForAreaQuery
+	var arg0 *DatasetForAreaQuery
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNDatasetForAreaQuery2githubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐDatasetForAreaQuery(ctx, tmp)
+		arg0, err = ec.unmarshalODatasetForAreaQuery2ᚖgithubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐDatasetForAreaQuery(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -2124,7 +2124,7 @@ func (ec *executionContext) _City_datasets(ctx context.Context, field graphql.Co
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.City().Datasets(rctx, obj, fc.Args["input"].(DatasetForAreaQuery))
+		return ec.resolvers.City().Datasets(rctx, obj, fc.Args["input"].(*DatasetForAreaQuery))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2912,11 +2912,14 @@ func (ec *executionContext) _GenericDataset_type(ctx context.Context, field grap
 		return graphql.Null
 	}
 	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
 		return graphql.Null
 	}
 	res := resTmp.(*GenericDatasetType)
 	fc.Result = res
-	return ec.marshalOGenericDatasetType2ᚖgithubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐGenericDatasetType(ctx, field.Selections, res)
+	return ec.marshalNGenericDatasetType2ᚖgithubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐGenericDatasetType(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_GenericDataset_type(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -6864,7 +6867,7 @@ func (ec *executionContext) _Prefecture_datasets(ctx context.Context, field grap
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Prefecture().Datasets(rctx, obj, fc.Args["input"].(DatasetForAreaQuery))
+		return ec.resolvers.Prefecture().Datasets(rctx, obj, fc.Args["input"].(*DatasetForAreaQuery))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -7078,7 +7081,7 @@ func (ec *executionContext) _Query_areas(ctx context.Context, field graphql.Coll
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Areas(rctx, fc.Args["input"].(AreaQuery))
+		return ec.resolvers.Query().Areas(rctx, fc.Args["input"].(*AreaQuery))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -7133,7 +7136,7 @@ func (ec *executionContext) _Query_datasetTypes(ctx context.Context, field graph
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().DatasetTypes(rctx, fc.Args["input"].(DatasetTypeQuery))
+		return ec.resolvers.Query().DatasetTypes(rctx, fc.Args["input"].(*DatasetTypeQuery))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -7188,7 +7191,7 @@ func (ec *executionContext) _Query_datasets(ctx context.Context, field graphql.C
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Datasets(rctx, fc.Args["input"].(DatasetQuery))
+		return ec.resolvers.Query().Datasets(rctx, fc.Args["input"].(*DatasetQuery))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -8201,11 +8204,14 @@ func (ec *executionContext) _RelatedDataset_type(ctx context.Context, field grap
 		return graphql.Null
 	}
 	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
 		return graphql.Null
 	}
 	res := resTmp.(*RelatedDatasetType)
 	fc.Result = res
-	return ec.marshalORelatedDatasetType2ᚖgithubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐRelatedDatasetType(ctx, field.Selections, res)
+	return ec.marshalNRelatedDatasetType2ᚖgithubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐRelatedDatasetType(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_RelatedDataset_type(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -9375,7 +9381,7 @@ func (ec *executionContext) _Ward_datasets(ctx context.Context, field graphql.Co
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Ward().Datasets(rctx, obj, fc.Args["input"].(DatasetForAreaQuery))
+		return ec.resolvers.Ward().Datasets(rctx, obj, fc.Args["input"].(*DatasetForAreaQuery))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -11903,6 +11909,9 @@ func (ec *executionContext) _GenericDataset(ctx context.Context, sel ast.Selecti
 					}
 				}()
 				res = ec._GenericDataset_type(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
 				return res
 			}
 
@@ -13151,6 +13160,9 @@ func (ec *executionContext) _RelatedDataset(ctx context.Context, sel ast.Selecti
 					}
 				}()
 				res = ec._RelatedDataset_type(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
 				return res
 			}
 
@@ -13856,11 +13868,6 @@ func (ec *executionContext) marshalNAreaCode2githubᚗcomᚋeukaryaᚑincᚋreea
 	return res
 }
 
-func (ec *executionContext) unmarshalNAreaQuery2githubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐAreaQuery(ctx context.Context, v interface{}) (AreaQuery, error) {
-	res, err := ec.unmarshalInputAreaQuery(ctx, v)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
 func (ec *executionContext) unmarshalNBoolean2bool(ctx context.Context, v interface{}) (bool, error) {
 	res, err := graphql.UnmarshalBoolean(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -13984,11 +13991,6 @@ func (ec *executionContext) marshalNDataset2ᚕgithubᚗcomᚋeukaryaᚑincᚋre
 	return ret
 }
 
-func (ec *executionContext) unmarshalNDatasetForAreaQuery2githubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐDatasetForAreaQuery(ctx context.Context, v interface{}) (DatasetForAreaQuery, error) {
-	res, err := ec.unmarshalInputDatasetForAreaQuery(ctx, v)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
 func (ec *executionContext) unmarshalNDatasetFormat2githubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐDatasetFormat(ctx context.Context, v interface{}) (DatasetFormat, error) {
 	var res DatasetFormat
 	err := res.UnmarshalGQL(v)
@@ -13997,11 +13999,6 @@ func (ec *executionContext) unmarshalNDatasetFormat2githubᚗcomᚋeukaryaᚑinc
 
 func (ec *executionContext) marshalNDatasetFormat2githubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐDatasetFormat(ctx context.Context, sel ast.SelectionSet, v DatasetFormat) graphql.Marshaler {
 	return v
-}
-
-func (ec *executionContext) unmarshalNDatasetQuery2githubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐDatasetQuery(ctx context.Context, v interface{}) (DatasetQuery, error) {
-	res, err := ec.unmarshalInputDatasetQuery(ctx, v)
-	return res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) marshalNDatasetType2githubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐDatasetType(ctx context.Context, sel ast.SelectionSet, v DatasetType) graphql.Marshaler {
@@ -14068,11 +14065,6 @@ func (ec *executionContext) marshalNDatasetTypeCategory2githubᚗcomᚋeukarya�
 	return v
 }
 
-func (ec *executionContext) unmarshalNDatasetTypeQuery2githubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐDatasetTypeQuery(ctx context.Context, v interface{}) (DatasetTypeQuery, error) {
-	res, err := ec.unmarshalInputDatasetTypeQuery(ctx, v)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
 func (ec *executionContext) unmarshalNFloodingScale2githubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐFloodingScale(ctx context.Context, v interface{}) (FloodingScale, error) {
 	var res FloodingScale
 	err := res.UnmarshalGQL(v)
@@ -14135,6 +14127,20 @@ func (ec *executionContext) marshalNGenericDatasetItem2ᚖgithubᚗcomᚋeukarya
 		return graphql.Null
 	}
 	return ec._GenericDatasetItem(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNGenericDatasetType2githubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐGenericDatasetType(ctx context.Context, sel ast.SelectionSet, v GenericDatasetType) graphql.Marshaler {
+	return ec._GenericDatasetType(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNGenericDatasetType2ᚖgithubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐGenericDatasetType(ctx context.Context, sel ast.SelectionSet, v *GenericDatasetType) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._GenericDatasetType(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNID2githubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐID(ctx context.Context, v interface{}) (ID, error) {
@@ -14514,6 +14520,20 @@ func (ec *executionContext) marshalNRelatedDatasetItem2ᚖgithubᚗcomᚋeukarya
 		return graphql.Null
 	}
 	return ec._RelatedDatasetItem(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNRelatedDatasetType2githubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐRelatedDatasetType(ctx context.Context, sel ast.SelectionSet, v RelatedDatasetType) graphql.Marshaler {
+	return ec._RelatedDatasetType(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNRelatedDatasetType2ᚖgithubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐRelatedDatasetType(ctx context.Context, sel ast.SelectionSet, v *RelatedDatasetType) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._RelatedDatasetType(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNRiverAdmin2githubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐRiverAdmin(ctx context.Context, v interface{}) (RiverAdmin, error) {
@@ -14910,6 +14930,14 @@ func (ec *executionContext) marshalOAreaCode2ᚖgithubᚗcomᚋeukaryaᚑincᚋr
 	return res
 }
 
+func (ec *executionContext) unmarshalOAreaQuery2ᚖgithubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐAreaQuery(ctx context.Context, v interface{}) (*AreaQuery, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputAreaQuery(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) unmarshalOBoolean2bool(ctx context.Context, v interface{}) (bool, error) {
 	res, err := graphql.UnmarshalBoolean(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -14943,6 +14971,22 @@ func (ec *executionContext) marshalOCity2ᚖgithubᚗcomᚋeukaryaᚑincᚋreear
 	return ec._City(ctx, sel, v)
 }
 
+func (ec *executionContext) unmarshalODatasetForAreaQuery2ᚖgithubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐDatasetForAreaQuery(ctx context.Context, v interface{}) (*DatasetForAreaQuery, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputDatasetForAreaQuery(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalODatasetQuery2ᚖgithubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐDatasetQuery(ctx context.Context, v interface{}) (*DatasetQuery, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputDatasetQuery(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) unmarshalODatasetTypeCategory2ᚖgithubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐDatasetTypeCategory(ctx context.Context, v interface{}) (*DatasetTypeCategory, error) {
 	if v == nil {
 		return nil, nil
@@ -14957,6 +15001,14 @@ func (ec *executionContext) marshalODatasetTypeCategory2ᚖgithubᚗcomᚋeukary
 		return graphql.Null
 	}
 	return v
+}
+
+func (ec *executionContext) unmarshalODatasetTypeQuery2ᚖgithubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐDatasetTypeQuery(ctx context.Context, v interface{}) (*DatasetTypeQuery, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputDatasetTypeQuery(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalOFloat2ᚖfloat64(ctx context.Context, v interface{}) (*float64, error) {
@@ -14980,13 +15032,6 @@ func (ec *executionContext) marshalOGenericDataset2ᚖgithubᚗcomᚋeukaryaᚑi
 		return graphql.Null
 	}
 	return ec._GenericDataset(ctx, sel, v)
-}
-
-func (ec *executionContext) marshalOGenericDatasetType2ᚖgithubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐGenericDatasetType(ctx context.Context, sel ast.SelectionSet, v *GenericDatasetType) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	return ec._GenericDatasetType(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalOID2ᚖgithubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐID(ctx context.Context, v interface{}) (*ID, error) {
@@ -15055,13 +15100,6 @@ func (ec *executionContext) marshalORelatedDataset2ᚖgithubᚗcomᚋeukaryaᚑi
 		return graphql.Null
 	}
 	return ec._RelatedDataset(ctx, sel, v)
-}
-
-func (ec *executionContext) marshalORelatedDatasetType2ᚖgithubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐRelatedDatasetType(ctx context.Context, sel ast.SelectionSet, v *RelatedDatasetType) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	return ec._RelatedDatasetType(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalORiver2ᚖgithubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐRiver(ctx context.Context, sel ast.SelectionSet, v *River) graphql.Marshaler {

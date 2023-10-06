@@ -31,7 +31,7 @@ type Prefecture implements Area & Node {
   name: String!
 
   cities: [City!]!
-  datasets(input: DatasetForAreaQuery!): [Dataset!]!
+  datasets(input: DatasetForAreaQuery): [Dataset!]!
 }
 
 type City implements Area & Node {
@@ -43,7 +43,7 @@ type City implements Area & Node {
   prefecture_code: AreaCode!
   prefecture: Prefecture
   wards: [Ward!]!
-  datasets(input: DatasetForAreaQuery!): [Dataset!]!
+  datasets(input: DatasetForAreaQuery): [Dataset!]!
 }
 
 type Ward implements Area & Node {
@@ -57,7 +57,7 @@ type Ward implements Area & Node {
   city_code: AreaCode!
   prefecture: Prefecture
   city: City
-  datasets(input: DatasetForAreaQuery!): [Dataset!]!
+  datasets(input: DatasetForAreaQuery): [Dataset!]!
 }
 
 # Spec
@@ -87,6 +87,8 @@ interface Dataset implements Node {
   prefecture: Prefecture
   city: City
   ward: Ward
+  type_id: ID!
+  type: DatasetType!
 }
 
 interface DatasetItem implements Node {
@@ -289,7 +291,7 @@ type RelatedDataset implements Dataset & Node {
   city: City
   ward: Ward
   type_id: ID!
-  type: RelatedDatasetType
+  type: RelatedDatasetType!
   data: [RelatedDatasetItem!]!
 }
 
@@ -330,7 +332,7 @@ type GenericDataset implements Dataset & Node {
   city: City
   ward: Ward
   type_id: ID!
-  type: GenericDatasetType
+  type: GenericDatasetType!
   data: [GenericDatasetItem!]!
 }
 
@@ -377,9 +379,9 @@ type Query {
   node(id: ID!): Node
   nodes(ids: [ID!]!): [Node!]!
   area(code: AreaCode!): Area
-  areas(input: AreaQuery!): [Area!]!
-  datasetTypes(input: DatasetTypeQuery!): [DatasetType!]!
-  datasets(input: DatasetQuery!): [Dataset!]!
+  areas(input: AreaQuery): [Area!]!
+  datasetTypes(input: DatasetTypeQuery): [DatasetType!]!
+  datasets(input: DatasetQuery): [Dataset!]!
   plateauSpecs: [PlateauSpec!]!
   years: [Int!]!
 }
