@@ -39,6 +39,7 @@ func main2(conf *Config) {
 	logger := log.NewEcho()
 	e := echo.New()
 	e.HideBanner = true
+	e.HidePort = true
 	e.Logger = logger
 	e.HTTPErrorHandler = errorHandler(e.DefaultHTTPErrorHandler)
 	e.Validator = &customValidator{validator: validator.New()}
@@ -81,6 +82,7 @@ func main2(conf *Config) {
 
 	log.Infof("enabled services: %v", serviceNames)
 	addr := fmt.Sprintf("[::]:%d", conf.Port)
+	log.Infof("http server started on %s", addr)
 	log.Fatalf("%v", e.StartH2CServer(addr, &http2.Server{}))
 }
 
