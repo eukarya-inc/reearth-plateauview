@@ -1,11 +1,15 @@
 package datacatalogv2adapter
 
 import (
+	"strings"
+
 	"github.com/eukarya-inc/reearth-plateauview/server/datacatalog/plateauapi"
 	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
 	"golang.org/x/exp/slices"
 )
+
+const SpecVersion = "2.3"
 
 func filterDataset(d plateauapi.Dataset, input plateauapi.DatasetQuery) bool {
 	var dataType string
@@ -70,8 +74,11 @@ func filterDataset(d plateauapi.Dataset, input plateauapi.DatasetQuery) bool {
 	}
 
 	if len(input.SearchTokens) > 0 {
-		if lo.EveryBy(input.SearchTokens, func(t string) bool {
-			return !lo.Contains(text, t)
+		// all tokens must be included in at least one of the text
+		if lo.SomeBy(input.SearchTokens, func(t string) bool {
+			return lo.EveryBy(text, func(t2 string) bool {
+				return !strings.Contains(t2, t)
+			})
 		}) {
 			return false
 		}
@@ -120,31 +127,31 @@ func dataTypeCodeFromDataTypeID(id plateauapi.ID) string {
 }
 
 func filterArea(area plateauapi.Area, input plateauapi.AreaQuery) bool {
+	testName := func(name string) bool {
+		return len(input.SearchTokens) == 0 || lo.SomeBy(input.SearchTokens, func(t string) bool {
+			return strings.Contains(name, t)
+		})
+	}
+
 	switch area2 := area.(type) {
 	case plateauapi.Prefecture:
-		if len(input.SearchTokens) > 0 {
-			if !slices.Contains(input.SearchTokens, area2.Name) {
-				return false
-			}
+		if !testName(area2.Name) {
+			return false
 		}
 	case plateauapi.City:
-		if len(input.SearchTokens) > 0 {
-			if !slices.Contains(input.SearchTokens, area2.Name) {
-				return false
-			}
+		if !testName(area2.Name) {
+			return false
 		}
 
 		if input.ParentCode != nil && area2.PrefectureCode != *input.ParentCode {
 			return false
 		}
 	case plateauapi.Ward:
-		if len(input.SearchTokens) > 0 {
-			if !slices.Contains(input.SearchTokens, area2.Name) {
-				return false
-			}
+		if !testName(area2.Name) {
+			return false
 		}
 
-		if input.ParentCode != nil && (area2.PrefectureCode != *input.ParentCode || area2.CityCode != *input.ParentCode) {
+		if input.ParentCode != nil && area2.CityCode != *input.ParentCode {
 			return false
 		}
 	}
@@ -155,7 +162,7 @@ func filterArea(area plateauapi.Area, input plateauapi.AreaQuery) bool {
 func filterDataType(ty plateauapi.DatasetType, input plateauapi.DatasetTypeQuery) bool {
 	switch ty2 := ty.(type) {
 	case plateauapi.PlateauDatasetType:
-		if input.Category != nil && ty2.Category != *input.Category {
+		if input.Category != nil && *input.Category != plateauapi.DatasetTypeCategoryPlateau {
 			return false
 		}
 
@@ -163,11 +170,11 @@ func filterDataType(ty plateauapi.DatasetType, input plateauapi.DatasetTypeQuery
 			return false
 		}
 
-		if input.PlateauSpec != nil && "2.2" != *input.PlateauSpec {
+		if input.PlateauSpec != nil && SpecVersion != *input.PlateauSpec {
 			return false
 		}
 	case plateauapi.RelatedDatasetType:
-		if input.Category != nil && ty2.Category != *input.Category {
+		if input.Category != nil && *input.Category != plateauapi.DatasetTypeCategoryRelated {
 			return false
 		}
 
@@ -175,7 +182,7 @@ func filterDataType(ty plateauapi.DatasetType, input plateauapi.DatasetTypeQuery
 			return false
 		}
 	case plateauapi.GenericDatasetType:
-		if input.Category != nil && ty2.Category != *input.Category {
+		if input.Category != nil && *input.Category != plateauapi.DatasetTypeCategoryGeneric {
 			return false
 		}
 

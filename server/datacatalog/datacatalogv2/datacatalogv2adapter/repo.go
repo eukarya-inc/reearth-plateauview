@@ -58,61 +58,61 @@ func (a *Adapter) Node(ctx context.Context, id plateauapi.ID) (plateauapi.Node, 
 		if p, ok := lo.Find(a.prefectures, func(p plateauapi.Prefecture) bool {
 			return p.ID == id
 		}); ok {
-			return p, nil
+			return &p, nil
 		}
 
 		if p, ok := lo.Find(a.cities, func(p plateauapi.City) bool {
 			return p.ID == id
 		}); ok {
-			return p, nil
+			return &p, nil
 		}
 
 		if p, ok := lo.Find(a.wards, func(p plateauapi.Ward) bool {
 			return p.ID == id
 		}); ok {
-			return p, nil
+			return &p, nil
 		}
 	case plateauapi.TypeDatasetType:
 		if p, ok := lo.Find(a.plateauDatasetTypes, func(p plateauapi.PlateauDatasetType) bool {
 			return p.ID == id
 		}); ok {
-			return p, nil
+			return &p, nil
 		}
 
 		if p, ok := lo.Find(a.relatedDatasetTypes, func(p plateauapi.RelatedDatasetType) bool {
 			return p.ID == id
 		}); ok {
-			return p, nil
+			return &p, nil
 		}
 
 		if p, ok := lo.Find(a.genericDatasetTypes, func(p plateauapi.GenericDatasetType) bool {
 			return p.ID == id
 		}); ok {
-			return p, nil
+			return &p, nil
 		}
 	case plateauapi.TypeDataset:
 		if p, ok := lo.Find(a.plateauDatasets, func(p plateauapi.PlateauDataset) bool {
 			return p.ID == id
 		}); ok {
-			return p, nil
+			return &p, nil
 		}
 
 		if p, ok := lo.Find(a.plateauFloodingDatasets, func(p plateauapi.PlateauFloodingDataset) bool {
 			return p.ID == id
 		}); ok {
-			return p, nil
+			return &p, nil
 		}
 
 		if p, ok := lo.Find(a.relatedDatasets, func(p plateauapi.RelatedDataset) bool {
 			return p.ID == id
 		}); ok {
-			return p, nil
+			return &p, nil
 		}
 
 		if p, ok := lo.Find(a.genericDatasets, func(p plateauapi.GenericDataset) bool {
 			return p.ID == id
 		}); ok {
-			return p, nil
+			return &p, nil
 		}
 	case plateauapi.TypeDatasetItem:
 		parent, _, _ := strings.Cut(i, ":")
@@ -157,7 +157,7 @@ func (a *Adapter) Node(ctx context.Context, id plateauapi.ID) (plateauapi.Node, 
 		if p, ok := lo.Find(a.specs, func(p plateauapi.PlateauSpec) bool {
 			return p.ID == id
 		}); ok {
-			return p, nil
+			return &p, nil
 		}
 	}
 
@@ -175,19 +175,19 @@ func (a *Adapter) Area(ctx context.Context, code plateauapi.AreaCode) (plateauap
 		area, _ := lo.Find(a.prefectures, func(p plateauapi.Prefecture) bool {
 			return p.Code == code
 		})
-		return area, nil
+		return &area, nil
 	}
 
 	if area, ok := lo.Find(a.cities, func(p plateauapi.City) bool {
 		return p.Code == code
 	}); ok {
-		return area, nil
+		return &area, nil
 	}
 
 	if area, ok := lo.Find(a.wards, func(p plateauapi.Ward) bool {
 		return p.Code == code
 	}); ok {
-		return area, nil
+		return &area, nil
 	}
 
 	return nil, nil
@@ -202,23 +202,52 @@ func (a *Adapter) Areas(ctx context.Context, input plateauapi.AreaQuery) (res []
 	}
 
 	prefs := lo.Filter(a.prefectures, func(t plateauapi.Prefecture, _ int) bool {
-		return filterArea(t, input) && (len(codes) == 0 || lo.Contains(codes, t.Code))
+		return filterArea(t, input) && input.ParentCode == nil && (len(codes) == 0 || lo.Contains(codes, t.Code))
 	})
+
 	cities := lo.Filter(a.cities, func(t plateauapi.City, _ int) bool {
-		return filterArea(t, input) && (len(codes) == 0 || lo.Contains(codes, t.Code))
+		if !filterArea(t, input) {
+			return false
+		}
+
+		if len(codes) > 0 && !lo.Contains(codes, t.Code) {
+			return false
+		}
+
+		if input.ParentCode != nil && t.PrefectureCode != *input.ParentCode {
+			return false
+		}
+
+		return true
 	})
+
 	wards := lo.Filter(a.wards, func(t plateauapi.Ward, _ int) bool {
-		return filterArea(t, input) && (len(codes) == 0 || lo.Contains(codes, t.Code))
+		if !filterArea(t, input) {
+			return false
+		}
+
+		if len(codes) > 0 && !lo.Contains(codes, t.Code) {
+			return false
+		}
+
+		if input.ParentCode != nil && t.CityCode != *input.ParentCode {
+			return false
+		}
+
+		return true
 	})
 
 	for _, t := range prefs {
-		res = append(res, t)
+		t := t
+		res = append(res, &t)
 	}
 	for _, t := range cities {
-		res = append(res, t)
+		t := t
+		res = append(res, &t)
 	}
 	for _, t := range wards {
-		res = append(res, t)
+		t := t
+		res = append(res, &t)
 	}
 	return
 }
@@ -235,13 +264,16 @@ func (a *Adapter) DatasetTypes(ctx context.Context, input plateauapi.DatasetType
 	})
 
 	for _, t := range plateau {
-		res = append(res, t)
+		t := t
+		res = append(res, &t)
 	}
 	for _, t := range related {
-		res = append(res, t)
+		t := t
+		res = append(res, &t)
 	}
 	for _, t := range generic {
-		res = append(res, t)
+		t := t
+		res = append(res, &t)
 	}
 	return
 }
@@ -261,16 +293,20 @@ func (a *Adapter) Datasets(ctx context.Context, input plateauapi.DatasetQuery) (
 	})
 
 	for _, t := range plateau {
-		res = append(res, t)
+		t := t
+		res = append(res, &t)
 	}
 	for _, t := range flooding {
-		res = append(res, t)
+		t := t
+		res = append(res, &t)
 	}
 	for _, t := range related {
-		res = append(res, t)
+		t := t
+		res = append(res, &t)
 	}
 	for _, t := range generic {
-		res = append(res, t)
+		t := t
+		res = append(res, &t)
 	}
 	return
 }
