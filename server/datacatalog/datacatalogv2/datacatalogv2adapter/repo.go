@@ -13,7 +13,7 @@ import (
 )
 
 type Adapter struct {
-	fetcher *datacatalogv2.Fetcher
+	fetcher datacatalogv2.Fetchable
 	project string
 
 	// cache
@@ -40,6 +40,13 @@ func New(cmsbase, project string) (*Adapter, error) {
 		fetcher: f,
 		project: project,
 	}, err
+}
+
+func From(proejct string, fetcher datacatalogv2.Fetchable) *Adapter {
+	return &Adapter{
+		fetcher: fetcher,
+		project: proejct,
+	}
 }
 
 var _ plateauapi.Repo = (*Adapter)(nil)
