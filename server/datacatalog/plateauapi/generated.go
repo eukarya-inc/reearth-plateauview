@@ -11246,7 +11246,7 @@ func (ec *executionContext) unmarshalInputDatasetForAreaQuery(ctx context.Contex
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"excludeTypes", "includeTypes", "searchTokens"}
+	fieldsInOrder := [...]string{"excludeTypes", "includeTypes", "searchTokens", "deep"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -11277,6 +11277,14 @@ func (ec *executionContext) unmarshalInputDatasetForAreaQuery(ctx context.Contex
 			if err != nil {
 				return it, err
 			}
+		case "deep":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("deep"))
+			it.Deep, err = ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
 		}
 	}
 
@@ -11290,7 +11298,7 @@ func (ec *executionContext) unmarshalInputDatasetQuery(ctx context.Context, obj 
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"areaCodes", "excludeTypes", "includeTypes", "searchTokens"}
+	fieldsInOrder := [...]string{"areaCodes", "excludeTypes", "includeTypes", "searchTokens", "deep"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -11326,6 +11334,14 @@ func (ec *executionContext) unmarshalInputDatasetQuery(ctx context.Context, obj 
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("searchTokens"))
 			it.SearchTokens, err = ec.unmarshalOString2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "deep":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("deep"))
+			it.Deep, err = ec.unmarshalOBoolean2ᚖbool(ctx, v)
 			if err != nil {
 				return it, err
 			}

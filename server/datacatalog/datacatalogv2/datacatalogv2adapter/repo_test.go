@@ -303,12 +303,12 @@ func TestAdapter_Years(t *testing.T) {
 func TestAdapter_Datasets(t *testing.T) {
 	a := &Adapter{
 		plateauDatasets: []plateauapi.PlateauDataset{
-			{ID: "1", Name: "Plateau Dataset 1", Year: 2022, CityCode: lo.ToPtr(plateauapi.AreaCode("01101"))},
+			{ID: "1", Name: "Plateau Dataset 1", Year: 2022, CityCode: lo.ToPtr(plateauapi.AreaCode("01100"))},
 			{ID: "2", Name: "Plateau Dataset 2", Year: 2022, TypeID: plateauapi.NewID("bldg", plateauapi.TypeDatasetType)},
 			{ID: "3", Name: "Plateau Dataset 3", Year: 2023},
 		},
 		plateauFloodingDatasets: []plateauapi.PlateauFloodingDataset{
-			{ID: "4", Name: "Plateau Flooding Dataset 1", Year: 2022, CityCode: lo.ToPtr(plateauapi.AreaCode("01102"))},
+			{ID: "4", Name: "Plateau Flooding Dataset 1", Year: 2022},
 			{ID: "5", Name: "Plateau Flooding Dataset 2", Year: 2022},
 			{ID: "6", Name: "Plateau Flooding Dataset 3", Year: 2023},
 		},
@@ -320,7 +320,7 @@ func TestAdapter_Datasets(t *testing.T) {
 		genericDatasets: []plateauapi.GenericDataset{
 			{ID: "10", Name: "Generic Dataset 1", Year: 2022},
 			{ID: "11", Name: "Generic Dataset 2", Year: 2022},
-			{ID: "12", Name: "Generic Dataset 3", Year: 2023},
+			{ID: "12", Name: "Generic Dataset 3", Year: 2023, CityCode: lo.ToPtr(plateauapi.AreaCode("01100")), WardCode: lo.ToPtr(plateauapi.AreaCode("01101"))},
 		},
 	}
 
@@ -333,10 +333,10 @@ func TestAdapter_Datasets(t *testing.T) {
 			name:  "no filter",
 			input: nil,
 			want: []plateauapi.Dataset{
-				&plateauapi.PlateauDataset{ID: "1", Name: "Plateau Dataset 1", Year: 2022, CityCode: lo.ToPtr(plateauapi.AreaCode("01101"))},
+				&plateauapi.PlateauDataset{ID: "1", Name: "Plateau Dataset 1", Year: 2022, CityCode: lo.ToPtr(plateauapi.AreaCode("01100"))},
 				&plateauapi.PlateauDataset{ID: "2", Name: "Plateau Dataset 2", Year: 2022, TypeID: plateauapi.NewID("bldg", plateauapi.TypeDatasetType)},
 				&plateauapi.PlateauDataset{ID: "3", Name: "Plateau Dataset 3", Year: 2023},
-				&plateauapi.PlateauFloodingDataset{ID: "4", Name: "Plateau Flooding Dataset 1", Year: 2022, CityCode: lo.ToPtr(plateauapi.AreaCode("01102"))},
+				&plateauapi.PlateauFloodingDataset{ID: "4", Name: "Plateau Flooding Dataset 1", Year: 2022},
 				&plateauapi.PlateauFloodingDataset{ID: "5", Name: "Plateau Flooding Dataset 2", Year: 2022},
 				&plateauapi.PlateauFloodingDataset{ID: "6", Name: "Plateau Flooding Dataset 3", Year: 2023},
 				&plateauapi.RelatedDataset{ID: "7", Name: "Related Dataset 1", Year: 2022, Description: lo.ToPtr("desc!")},
@@ -344,17 +344,37 @@ func TestAdapter_Datasets(t *testing.T) {
 				&plateauapi.RelatedDataset{ID: "9", Name: "Related Dataset 3", Year: 2023},
 				&plateauapi.GenericDataset{ID: "10", Name: "Generic Dataset 1", Year: 2022},
 				&plateauapi.GenericDataset{ID: "11", Name: "Generic Dataset 2", Year: 2022},
-				&plateauapi.GenericDataset{ID: "12", Name: "Generic Dataset 3", Year: 2023},
+				&plateauapi.GenericDataset{ID: "12", Name: "Generic Dataset 3", Year: 2023, CityCode: lo.ToPtr(plateauapi.AreaCode("01100")), WardCode: lo.ToPtr(plateauapi.AreaCode("01101"))},
 			},
 		},
 		{
-			name: "filter by area codes",
+			name: "filter by an area code",
 			input: &plateauapi.DatasetQuery{
-				AreaCodes: []plateauapi.AreaCode{"01101", "01102"},
+				AreaCodes: []plateauapi.AreaCode{"01100"},
 			},
 			want: []plateauapi.Dataset{
-				&plateauapi.PlateauDataset{ID: "1", Name: "Plateau Dataset 1", Year: 2022, CityCode: lo.ToPtr(plateauapi.AreaCode("01101"))},
-				&plateauapi.PlateauFloodingDataset{ID: "4", Name: "Plateau Flooding Dataset 1", Year: 2022, CityCode: lo.ToPtr(plateauapi.AreaCode("01102"))},
+				&plateauapi.PlateauDataset{ID: "1", Name: "Plateau Dataset 1", Year: 2022, CityCode: lo.ToPtr(plateauapi.AreaCode("01100"))},
+			},
+		},
+		{
+			name: "filter by multiple area codes",
+			input: &plateauapi.DatasetQuery{
+				AreaCodes: []plateauapi.AreaCode{"01100", "01101"},
+			},
+			want: []plateauapi.Dataset{
+				&plateauapi.PlateauDataset{ID: "1", Name: "Plateau Dataset 1", Year: 2022, CityCode: lo.ToPtr(plateauapi.AreaCode("01100"))},
+				&plateauapi.GenericDataset{ID: "12", Name: "Generic Dataset 3", Year: 2023, CityCode: lo.ToPtr(plateauapi.AreaCode("01100")), WardCode: lo.ToPtr(plateauapi.AreaCode("01101"))},
+			},
+		},
+		{
+			name: "filter by an area code depply",
+			input: &plateauapi.DatasetQuery{
+				AreaCodes: []plateauapi.AreaCode{"01100"},
+				Deep:      lo.ToPtr(true),
+			},
+			want: []plateauapi.Dataset{
+				&plateauapi.PlateauDataset{ID: "1", Name: "Plateau Dataset 1", Year: 2022, CityCode: lo.ToPtr(plateauapi.AreaCode("01100"))},
+				&plateauapi.GenericDataset{ID: "12", Name: "Generic Dataset 3", Year: 2023, CityCode: lo.ToPtr(plateauapi.AreaCode("01100")), WardCode: lo.ToPtr(plateauapi.AreaCode("01101"))},
 			},
 		},
 		{
@@ -372,9 +392,9 @@ func TestAdapter_Datasets(t *testing.T) {
 				ExcludeTypes: []string{"bldg"},
 			},
 			want: []plateauapi.Dataset{
-				&plateauapi.PlateauDataset{ID: "1", Name: "Plateau Dataset 1", Year: 2022, CityCode: lo.ToPtr(plateauapi.AreaCode("01101"))},
+				&plateauapi.PlateauDataset{ID: "1", Name: "Plateau Dataset 1", Year: 2022, CityCode: lo.ToPtr(plateauapi.AreaCode("01100"))},
 				&plateauapi.PlateauDataset{ID: "3", Name: "Plateau Dataset 3", Year: 2023},
-				&plateauapi.PlateauFloodingDataset{ID: "4", Name: "Plateau Flooding Dataset 1", Year: 2022, CityCode: lo.ToPtr(plateauapi.AreaCode("01102"))},
+				&plateauapi.PlateauFloodingDataset{ID: "4", Name: "Plateau Flooding Dataset 1", Year: 2022},
 				&plateauapi.PlateauFloodingDataset{ID: "5", Name: "Plateau Flooding Dataset 2", Year: 2022},
 				&plateauapi.PlateauFloodingDataset{ID: "6", Name: "Plateau Flooding Dataset 3", Year: 2023},
 				&plateauapi.RelatedDataset{ID: "7", Name: "Related Dataset 1", Year: 2022, Description: lo.ToPtr("desc!")},
@@ -382,7 +402,7 @@ func TestAdapter_Datasets(t *testing.T) {
 				&plateauapi.RelatedDataset{ID: "9", Name: "Related Dataset 3", Year: 2023},
 				&plateauapi.GenericDataset{ID: "10", Name: "Generic Dataset 1", Year: 2022},
 				&plateauapi.GenericDataset{ID: "11", Name: "Generic Dataset 2", Year: 2022},
-				&plateauapi.GenericDataset{ID: "12", Name: "Generic Dataset 3", Year: 2023},
+				&plateauapi.GenericDataset{ID: "12", Name: "Generic Dataset 3", Year: 2023, CityCode: lo.ToPtr(plateauapi.AreaCode("01100")), WardCode: lo.ToPtr(plateauapi.AreaCode("01101"))},
 			},
 		},
 		{

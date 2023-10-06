@@ -56,6 +56,9 @@ type DatasetForAreaQuery struct {
 	ExcludeTypes []string `json:"excludeTypes"`
 	IncludeTypes []string `json:"includeTypes"`
 	SearchTokens []string `json:"searchTokens"`
+	// この地域の配下にある全ての自治体のデータセットを含めるかどうか。
+	// 例えば、札幌市の場合、札幌市自体のデータだけでなく、札幌市の配下の全ての区（例えば中央区や北区）のデータセットも含めるかどうか。
+	Deep *bool `json:"deep"`
 }
 
 type DatasetQuery struct {
@@ -63,6 +66,9 @@ type DatasetQuery struct {
 	ExcludeTypes []string   `json:"excludeTypes"`
 	IncludeTypes []string   `json:"includeTypes"`
 	SearchTokens []string   `json:"searchTokens"`
+	// areaCodesで指定された地域の配下にある全ての自治体のデータセットを含めるかどうか。
+	// 例えば、札幌市を指定した場合、札幌市自体のデータだけでなく、札幌市の配下の全ての区（例えば中央区や北区）のデータセットも含めるかどうか。
+	Deep *bool `json:"deep"`
 }
 
 type DatasetTypeQuery struct {

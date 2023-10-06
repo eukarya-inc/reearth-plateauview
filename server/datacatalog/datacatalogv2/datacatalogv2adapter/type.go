@@ -34,7 +34,7 @@ func plateauDatasetFrom(d datacatalogv2.DataCatalogItem) (plateauapi.PlateauData
 		WardCode:       wardCodeFrom(d),
 		Year:           d.Year,
 		TypeID:         datasetTypeIDFrom(d),
-		Groups:         strings.Split(d.Group, "/"),
+		Groups:         groupsFrom(d),
 		Data: lo.Map(d.MainOrConfigItems(), func(c datacatalogutil.DataCatalogItemConfigItem, _ int) *plateauapi.PlateauDatasetItem {
 			return plateauDatasetItemFrom(c, d.ID, id)
 		}),
@@ -120,7 +120,7 @@ func plateauFloodingDatasetFrom(d datacatalogv2.DataCatalogItem) (plateauapi.Pla
 		WardCode:       wardCodeFrom(d),
 		Year:           d.Year,
 		TypeID:         datasetTypeIDFrom(d),
-		Groups:         strings.Split(d.Group, "/"),
+		Groups:         groupsFrom(d),
 		River:          river,
 		Data: lo.Map(d.MainOrConfigItems(), func(c datacatalogutil.DataCatalogItemConfigItem, _ int) *plateauapi.PlateauFloodingDatasetItem {
 			return plateauFloodingDatasetItemFrom(c, d.ID, id)
@@ -166,7 +166,7 @@ func relatedDatasetFrom(d datacatalogv2.DataCatalogItem) (plateauapi.RelatedData
 		WardCode:       wardCodeFrom(d),
 		Year:           d.Year,
 		TypeID:         datasetTypeIDFrom(d),
-		Groups:         strings.Split(d.Group, "/"),
+		Groups:         groupsFrom(d),
 		Data: lo.Map(d.MainOrConfigItems(), func(c datacatalogutil.DataCatalogItemConfigItem, _ int) *plateauapi.RelatedDatasetItem {
 			return &plateauapi.RelatedDatasetItem{
 				ID:       plateauapi.NewID(fmt.Sprintf("%s:%s", d.ID, c.Name), plateauapi.TypeDatasetItem),
@@ -196,7 +196,7 @@ func genericDatasetFrom(d datacatalogv2.DataCatalogItem) (plateauapi.GenericData
 		WardID:       wardIDFrom(d),
 		Year:         d.Year,
 		TypeID:       datasetTypeIDFrom(d),
-		Groups:       strings.Split(d.Group, "/"),
+		Groups:       groupsFrom(d),
 		Data: lo.Map(d.MainOrConfigItems(), func(c datacatalogutil.DataCatalogItemConfigItem, _ int) *plateauapi.GenericDatasetItem {
 			return &plateauapi.GenericDatasetItem{
 				ID:       plateauapi.NewID(fmt.Sprintf("%s:%s", d.ID, c.Name), plateauapi.TypeDatasetItem),
@@ -415,4 +415,11 @@ func specFrom(d datacatalogv2.DataCatalogItem) plateauapi.PlateauSpec {
 		Name: d.Spec,
 		Year: d.Year,
 	}
+}
+
+func groupsFrom(d datacatalogv2.DataCatalogItem) []string {
+	if d.Group == "" {
+		return nil
+	}
+	return strings.Split(d.Group, "/")
 }

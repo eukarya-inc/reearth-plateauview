@@ -49,7 +49,13 @@ func filterDataset(d plateauapi.Dataset, input plateauapi.DatasetQuery) bool {
 	}
 
 	if len(input.AreaCodes) > 0 {
-		areaCodes := areaCodesFrom(d)
+		var areaCodes []plateauapi.AreaCode
+		if lo.FromPtr(input.Deep) {
+			areaCodes = areaCodesFrom(d)
+		} else {
+			areaCodes = util.DerefSlice([]*plateauapi.AreaCode{areaCodeFrom(d)})
+		}
+
 		if lo.EveryBy(input.AreaCodes, func(code plateauapi.AreaCode) bool {
 			return !slices.Contains(areaCodes, code)
 		}) {
@@ -77,7 +83,7 @@ func filterDataset(d plateauapi.Dataset, input plateauapi.DatasetQuery) bool {
 		// all tokens must be included in at least one of the text
 		if lo.SomeBy(input.SearchTokens, func(t string) bool {
 			return lo.EveryBy(text, func(t2 string) bool {
-				return !strings.Contains(t2, t)
+				return t2 == "" || !strings.Contains(t2, t)
 			})
 		}) {
 			return false
@@ -85,6 +91,44 @@ func filterDataset(d plateauapi.Dataset, input plateauapi.DatasetQuery) bool {
 	}
 
 	return true
+}
+
+func areaCodeFrom(d plateauapi.Dataset) *plateauapi.AreaCode {
+	switch d2 := d.(type) {
+	case plateauapi.PlateauDataset:
+		if d2.WardCode != nil {
+			return d2.WardCode
+		}
+		if d2.CityCode != nil {
+			return d2.CityCode
+		}
+		return &d2.PrefectureCode
+	case plateauapi.PlateauFloodingDataset:
+		if d2.WardCode != nil {
+			return d2.WardCode
+		}
+		if d2.CityCode != nil {
+			return d2.CityCode
+		}
+		return &d2.PrefectureCode
+	case plateauapi.RelatedDataset:
+		if d2.WardCode != nil {
+			return d2.WardCode
+		}
+		if d2.CityCode != nil {
+			return d2.CityCode
+		}
+		return &d2.PrefectureCode
+	case plateauapi.GenericDataset:
+		if d2.WardCode != nil {
+			return d2.WardCode
+		}
+		if d2.CityCode != nil {
+			return d2.CityCode
+		}
+		return &d2.PrefectureCode
+	}
+	return nil
 }
 
 func areaCodesFrom(d plateauapi.Dataset) []plateauapi.AreaCode {

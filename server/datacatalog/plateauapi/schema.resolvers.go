@@ -41,6 +41,7 @@ func (r *cityResolver) Datasets(ctx context.Context, obj *City, input *DatasetFo
 		ExcludeTypes: input.ExcludeTypes,
 		IncludeTypes: input.IncludeTypes,
 		SearchTokens: input.SearchTokens,
+		Deep:         input.Deep,
 	})
 }
 
@@ -169,6 +170,7 @@ func (r *prefectureResolver) Datasets(ctx context.Context, obj *Prefecture, inpu
 		ExcludeTypes: input.ExcludeTypes,
 		IncludeTypes: input.IncludeTypes,
 		SearchTokens: input.SearchTokens,
+		Deep:         input.Deep,
 	})
 }
 
@@ -263,6 +265,7 @@ func (r *wardResolver) Datasets(ctx context.Context, obj *Ward, input *DatasetFo
 		ExcludeTypes: input.ExcludeTypes,
 		IncludeTypes: input.IncludeTypes,
 		SearchTokens: input.SearchTokens,
+		Deep:         input.Deep,
 	})
 }
 
