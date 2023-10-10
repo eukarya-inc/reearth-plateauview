@@ -144,7 +144,7 @@ type GenericDataset struct {
 	// データセットの種類。
 	Type *GenericDatasetType `json:"type"`
 	// データセットのアイテム。
-	Data []*GenericDatasetItem `json:"data"`
+	Items []*GenericDatasetItem `json:"items"`
 }
 
 func (GenericDataset) IsDataset() {}
@@ -223,7 +223,7 @@ type PlateauDataset struct {
 	// データセットの種類。
 	Type *PlateauDatasetType `json:"type"`
 	// データセットのアイテム。
-	Data []*PlateauDatasetItem `json:"data"`
+	Items []*PlateauDatasetItem `json:"items"`
 }
 
 func (PlateauDataset) IsDataset() {}
@@ -314,7 +314,7 @@ type PlateauFloodingDataset struct {
 	// データセットの種類。
 	Type *PlateauDatasetType `json:"type"`
 	// データセットのアイテム。
-	Data []*PlateauFloodingDatasetItem `json:"data"`
+	Items []*PlateauFloodingDatasetItem `json:"items"`
 	// 河川。地物型が洪水浸水想定区域（fld）の場合のみ存在します。
 	River *River `json:"river"`
 }
@@ -365,7 +365,7 @@ type Prefecture struct {
 	Code AreaCode `json:"code"`
 	// 都道府県名
 	Name string `json:"name"`
-	// 都道府県に属する市町村
+	// 都道府県に属する市区町村
 	Cities []*City `json:"cities"`
 	// 都道府県に属するデータセット。
 	Datasets []Dataset `json:"datasets"`
@@ -411,7 +411,7 @@ type RelatedDataset struct {
 	// データセットの種類。
 	Type *RelatedDatasetType `json:"type"`
 	// データセットのアイテム。
-	Data []*RelatedDatasetItem `json:"data"`
+	Items []*RelatedDatasetItem `json:"items"`
 }
 
 func (RelatedDataset) IsDataset() {}

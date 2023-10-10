@@ -35,7 +35,7 @@ func plateauDatasetFrom(d datacatalogv2.DataCatalogItem) (plateauapi.PlateauData
 		Year:           d.Year,
 		TypeID:         datasetTypeIDFrom(d),
 		Groups:         groupsFrom(d),
-		Data: lo.Map(d.MainOrConfigItems(), func(c datacatalogutil.DataCatalogItemConfigItem, _ int) *plateauapi.PlateauDatasetItem {
+		Items: lo.Map(d.MainOrConfigItems(), func(c datacatalogutil.DataCatalogItemConfigItem, _ int) *plateauapi.PlateauDatasetItem {
 			return plateauDatasetItemFrom(c, id)
 		}),
 	}, true
@@ -122,7 +122,7 @@ func plateauFloodingDatasetFrom(d datacatalogv2.DataCatalogItem) (plateauapi.Pla
 		TypeID:         datasetTypeIDFrom(d),
 		Groups:         groupsFrom(d),
 		River:          river,
-		Data: lo.Map(d.MainOrConfigItems(), func(c datacatalogutil.DataCatalogItemConfigItem, _ int) *plateauapi.PlateauFloodingDatasetItem {
+		Items: lo.Map(d.MainOrConfigItems(), func(c datacatalogutil.DataCatalogItemConfigItem, _ int) *plateauapi.PlateauFloodingDatasetItem {
 			return plateauFloodingDatasetItemFrom(c, id)
 		}),
 	}, true
@@ -170,7 +170,7 @@ func relatedDatasetFrom(d datacatalogv2.DataCatalogItem) (plateauapi.RelatedData
 		Year:           d.Year,
 		TypeID:         datasetTypeIDFrom(d),
 		Groups:         groupsFrom(d),
-		Data: lo.Map(d.MainOrConfigItems(), func(c datacatalogutil.DataCatalogItemConfigItem, _ int) *plateauapi.RelatedDatasetItem {
+		Items: lo.Map(d.MainOrConfigItems(), func(c datacatalogutil.DataCatalogItemConfigItem, _ int) *plateauapi.RelatedDatasetItem {
 			return &plateauapi.RelatedDatasetItem{
 				ID:       plateauapi.NewID(id.ID(), plateauapi.TypeDatasetItem), // RelatedDatasetItem should be single
 				Name:     c.Name,
@@ -200,7 +200,7 @@ func genericDatasetFrom(d datacatalogv2.DataCatalogItem) (plateauapi.GenericData
 		Year:         d.Year,
 		TypeID:       datasetTypeIDFrom(d),
 		Groups:       groupsFrom(d),
-		Data: lo.Map(d.MainOrConfigItems(), func(c datacatalogutil.DataCatalogItemConfigItem, _ int) *plateauapi.GenericDatasetItem {
+		Items: lo.Map(d.MainOrConfigItems(), func(c datacatalogutil.DataCatalogItemConfigItem, _ int) *plateauapi.GenericDatasetItem {
 			return &plateauapi.GenericDatasetItem{
 				ID:       plateauapi.NewID(fmt.Sprintf("%s:%s", d.ID, c.Name), plateauapi.TypeDatasetItem),
 				Name:     c.Name,

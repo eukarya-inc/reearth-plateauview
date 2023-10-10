@@ -52,7 +52,7 @@ type Prefecture implements Area & Node {
   name: String!
 
   """
-  都道府県に属する市町村
+  都道府県に属する市区町村
   """
   cities: [City!]!
   """
@@ -236,7 +236,7 @@ interface Dataset implements Node {
   """
   データセットのアイテム。
   """
-  data: [DatasetItem!]!
+  items: [DatasetItem!]!
 }
 
 """
@@ -432,7 +432,7 @@ type PlateauDataset implements Dataset & Node {
   """
   データセットのアイテム。
   """
-  data: [PlateauDatasetItem!]!
+  items: [PlateauDatasetItem!]!
 }
 
 """
@@ -562,7 +562,7 @@ type PlateauFloodingDataset implements Dataset & Node {
   """
   データセットのアイテム。
   """
-  data: [PlateauFloodingDatasetItem!]!
+  items: [PlateauFloodingDatasetItem!]!
 
   """
   河川。地物型が洪水浸水想定区域（fld）の場合のみ存在します。
@@ -764,7 +764,7 @@ type RelatedDataset implements Dataset & Node {
   """
   データセットのアイテム。
   """
-  data: [RelatedDatasetItem!]!
+  items: [RelatedDatasetItem!]!
 }
 
 """
@@ -896,7 +896,7 @@ type GenericDataset implements Dataset & Node {
   """
   データセットのアイテム。
   """
-  data: [GenericDatasetItem!]!
+  items: [GenericDatasetItem!]!
 }
 
 """

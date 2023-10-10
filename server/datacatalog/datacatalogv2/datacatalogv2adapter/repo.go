@@ -120,7 +120,7 @@ func (a *Adapter) Node(ctx context.Context, id plateauapi.ID) (plateauapi.Node, 
 		if p, ok := lo.Find(a.plateauDatasets, func(p plateauapi.PlateauDataset) bool {
 			return p.ID == parentID
 		}); ok {
-			item, _ := lo.Find(p.Data, func(i *plateauapi.PlateauDatasetItem) bool {
+			item, _ := lo.Find(p.Items, func(i *plateauapi.PlateauDatasetItem) bool {
 				return i.ID == id
 			})
 			return item, nil
@@ -129,7 +129,7 @@ func (a *Adapter) Node(ctx context.Context, id plateauapi.ID) (plateauapi.Node, 
 		if p, ok := lo.Find(a.plateauFloodingDatasets, func(p plateauapi.PlateauFloodingDataset) bool {
 			return p.ID == parentID
 		}); ok {
-			item, _ := lo.Find(p.Data, func(i *plateauapi.PlateauFloodingDatasetItem) bool {
+			item, _ := lo.Find(p.Items, func(i *plateauapi.PlateauFloodingDatasetItem) bool {
 				return i.ID == id
 			})
 			return item, nil
@@ -138,7 +138,7 @@ func (a *Adapter) Node(ctx context.Context, id plateauapi.ID) (plateauapi.Node, 
 		if p, ok := lo.Find(a.relatedDatasets, func(p plateauapi.RelatedDataset) bool {
 			return p.ID == parentID
 		}); ok {
-			item, _ := lo.Find(p.Data, func(i *plateauapi.RelatedDatasetItem) bool {
+			item, _ := lo.Find(p.Items, func(i *plateauapi.RelatedDatasetItem) bool {
 				return i.ID == id
 			})
 			return item, nil
@@ -147,7 +147,7 @@ func (a *Adapter) Node(ctx context.Context, id plateauapi.ID) (plateauapi.Node, 
 		if p, ok := lo.Find(a.genericDatasets, func(p plateauapi.GenericDataset) bool {
 			return p.ID == id
 		}); ok {
-			item, _ := lo.Find(p.Data, func(i *plateauapi.GenericDatasetItem) bool {
+			item, _ := lo.Find(p.Items, func(i *plateauapi.GenericDatasetItem) bool {
 				return i.ID == id
 			})
 			return item, nil
