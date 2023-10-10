@@ -2,7 +2,6 @@ package datacatalogv2adapter
 
 import (
 	"context"
-	"strings"
 	"sync"
 
 	"github.com/eukarya-inc/reearth-plateauview/server/datacatalog/datacatalogv2"
@@ -115,7 +114,7 @@ func (a *Adapter) Node(ctx context.Context, id plateauapi.ID) (plateauapi.Node, 
 			return &p, nil
 		}
 	case plateauapi.TypeDatasetItem:
-		parent, _, _ := strings.Cut(i, ":")
+		parent, _, _ := cutRight(i, "_")
 		parentID := newDatasetID(parent)
 
 		if p, ok := lo.Find(a.plateauDatasets, func(p plateauapi.PlateauDataset) bool {

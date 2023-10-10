@@ -36,12 +36,12 @@ func plateauDatasetFrom(d datacatalogv2.DataCatalogItem) (plateauapi.PlateauData
 		TypeID:         datasetTypeIDFrom(d),
 		Groups:         groupsFrom(d),
 		Data: lo.Map(d.MainOrConfigItems(), func(c datacatalogutil.DataCatalogItemConfigItem, _ int) *plateauapi.PlateauDatasetItem {
-			return plateauDatasetItemFrom(c, d.ID, id)
+			return plateauDatasetItemFrom(c, id)
 		}),
 	}, true
 }
 
-func plateauDatasetItemFrom(c datacatalogutil.DataCatalogItemConfigItem, parent string, parentID plateauapi.ID) *plateauapi.PlateauDatasetItem {
+func plateauDatasetItemFrom(c datacatalogutil.DataCatalogItemConfigItem, parentID plateauapi.ID) *plateauapi.PlateauDatasetItem {
 	var lod *int
 	if strings.HasPrefix(c.Name, "LOD") {
 		l, _, _ := strings.Cut(c.Name[3:], "（")
@@ -61,7 +61,7 @@ func plateauDatasetItemFrom(c datacatalogutil.DataCatalogItemConfigItem, parent 
 	}
 
 	return &plateauapi.PlateauDatasetItem{
-		ID:       plateauapi.NewID(fmt.Sprintf("%s:%s", parent, c.Name), plateauapi.TypeDatasetItem),
+		ID:       plateauapi.NewID(fmt.Sprintf("%s_%s", parentID.ID(), c.Name), plateauapi.TypeDatasetItem),
 		Name:     c.Name,
 		URL:      c.URL,
 		Format:   format,
@@ -123,21 +123,24 @@ func plateauFloodingDatasetFrom(d datacatalogv2.DataCatalogItem) (plateauapi.Pla
 		Groups:         groupsFrom(d),
 		River:          river,
 		Data: lo.Map(d.MainOrConfigItems(), func(c datacatalogutil.DataCatalogItemConfigItem, _ int) *plateauapi.PlateauFloodingDatasetItem {
-			return plateauFloodingDatasetItemFrom(c, d.ID, id)
+			return plateauFloodingDatasetItemFrom(c, id)
 		}),
 	}, true
 }
 
-func plateauFloodingDatasetItemFrom(c datacatalogutil.DataCatalogItemConfigItem, parent string, parentID plateauapi.ID) *plateauapi.PlateauFloodingDatasetItem {
+func plateauFloodingDatasetItemFrom(c datacatalogutil.DataCatalogItemConfigItem, parentID plateauapi.ID) *plateauapi.PlateauFloodingDatasetItem {
+	var id string
 	var floodingScale plateauapi.FloodingScale
-	if strings.Contains(c.Name, "想定最大規模") {
+	if strings.Contains(c.Name, "想定最大規模") || strings.Contains(c.Name, "L2") {
 		floodingScale = plateauapi.FloodingScaleExpectedMaximum
-	} else if strings.Contains(c.Name, "計画規模") {
+		id = "l2"
+	} else if strings.Contains(c.Name, "計画規模") || strings.Contains(c.Name, "L1") {
 		floodingScale = plateauapi.FloodingScalePlanned
+		id = "l1"
 	}
 
 	return &plateauapi.PlateauFloodingDatasetItem{
-		ID:            plateauapi.NewID(fmt.Sprintf("%s:%s", parent, c.Name), plateauapi.TypeDatasetItem),
+		ID:            plateauapi.NewID(fmt.Sprintf("%s_%s", parentID.ID(), id), plateauapi.TypeDatasetItem),
 		Name:          c.Name,
 		URL:           c.URL,
 		Format:        datasetFormatFrom(c.Type),
@@ -169,7 +172,7 @@ func relatedDatasetFrom(d datacatalogv2.DataCatalogItem) (plateauapi.RelatedData
 		Groups:         groupsFrom(d),
 		Data: lo.Map(d.MainOrConfigItems(), func(c datacatalogutil.DataCatalogItemConfigItem, _ int) *plateauapi.RelatedDatasetItem {
 			return &plateauapi.RelatedDatasetItem{
-				ID:       plateauapi.NewID(fmt.Sprintf("%s:%s", d.ID, c.Name), plateauapi.TypeDatasetItem),
+				ID:       plateauapi.NewID(id.ID(), plateauapi.TypeDatasetItem), // RelatedDatasetItem should be single
 				Name:     c.Name,
 				URL:      c.URL,
 				Format:   datasetFormatFrom(c.Type),
@@ -274,6 +277,18 @@ func wardCodeFrom(d datacatalogv2.DataCatalogItem) *plateauapi.AreaCode {
 }
 
 func datasetIDFrom(d datacatalogv2.DataCatalogItem) plateauapi.ID {
+	if d.Family == "plateau" || d.Family == "related" {
+		code := d.WardCode
+		if code == "" {
+			code = d.CityCode
+		}
+		if code == "" {
+			code = d.PrefCode
+		}
+
+		return newDatasetID(fmt.Sprintf("%s_%s", code, d.TypeEn))
+	}
+
 	return newDatasetID(d.ID)
 }
 
@@ -422,4 +437,13 @@ func groupsFrom(d datacatalogv2.DataCatalogItem) []string {
 		return nil
 	}
 	return strings.Split(d.Group, "/")
+}
+
+// cut string with sep from right
+func cutRight(s, sep string) (string, string, bool) {
+	i := strings.LastIndex(s, sep)
+	if i < 0 {
+		return s, "", false
+	}
+	return s[:i], s[i+len(sep):], true
 }
