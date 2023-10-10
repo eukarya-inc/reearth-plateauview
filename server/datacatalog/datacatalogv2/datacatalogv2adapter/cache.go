@@ -93,8 +93,8 @@ func (a *Adapter) UpdateCache(ctx context.Context, opts datacatalogv2.FetcherDoO
 		if !lo.ContainsBy(a.specs, func(a plateauapi.PlateauSpec) bool {
 			return a.Name == d.Spec
 		}) {
-			if s := specFrom(d); lo.IsNotEmpty(s) {
-				a.specs = append(a.specs, s)
+			if s := specFrom(d); s != nil {
+				a.specs = append(a.specs, *s)
 			}
 		}
 

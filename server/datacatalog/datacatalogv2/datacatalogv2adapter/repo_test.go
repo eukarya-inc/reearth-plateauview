@@ -93,7 +93,7 @@ func TestAdapter_Areas(t *testing.T) {
 
 	tests := []struct {
 		name  string
-		input *plateauapi.AreaQuery
+		input *plateauapi.AreaInput
 		want  []plateauapi.Area
 	}{
 		{
@@ -114,7 +114,7 @@ func TestAdapter_Areas(t *testing.T) {
 		},
 		{
 			name: "filter by dataset types",
-			input: &plateauapi.AreaQuery{
+			input: &plateauapi.AreaInput{
 				DatasetTypes: []string{"bldg"},
 				ParentCode:   nil,
 				SearchTokens: nil,
@@ -125,7 +125,7 @@ func TestAdapter_Areas(t *testing.T) {
 		},
 		{
 			name: "filter by prefectures",
-			input: &plateauapi.AreaQuery{
+			input: &plateauapi.AreaInput{
 				ParentCode:   lo.ToPtr(plateauapi.AreaCode("01")),
 				DatasetTypes: nil,
 				SearchTokens: nil,
@@ -136,7 +136,7 @@ func TestAdapter_Areas(t *testing.T) {
 		},
 		{
 			name: "filter by cities",
-			input: &plateauapi.AreaQuery{
+			input: &plateauapi.AreaInput{
 				ParentCode:   lo.ToPtr(plateauapi.AreaCode("01100")),
 				DatasetTypes: nil,
 				SearchTokens: nil,
@@ -148,7 +148,7 @@ func TestAdapter_Areas(t *testing.T) {
 		},
 		{
 			name: "filter by search tokens",
-			input: &plateauapi.AreaQuery{
+			input: &plateauapi.AreaInput{
 				ParentCode:   nil,
 				DatasetTypes: nil,
 				SearchTokens: []string{"弘前"},
@@ -159,7 +159,7 @@ func TestAdapter_Areas(t *testing.T) {
 		},
 		{
 			name: "filter by search tokens and dataset types",
-			input: &plateauapi.AreaQuery{
+			input: &plateauapi.AreaInput{
 				ParentCode:   nil,
 				DatasetTypes: []string{"bldg"},
 				SearchTokens: []string{"弘前"},
@@ -199,7 +199,7 @@ func TestAdapter_DatasetTypes(t *testing.T) {
 
 	tests := []struct {
 		name     string
-		input    *plateauapi.DatasetTypeQuery
+		input    *plateauapi.DatasetTypeInput
 		expected []plateauapi.DatasetType
 	}{
 		{
@@ -219,7 +219,7 @@ func TestAdapter_DatasetTypes(t *testing.T) {
 		},
 		{
 			name: "filter by year",
-			input: &plateauapi.DatasetTypeQuery{
+			input: &plateauapi.DatasetTypeInput{
 				Year: lo.ToPtr(2022),
 			},
 			expected: []plateauapi.DatasetType{
@@ -229,7 +229,7 @@ func TestAdapter_DatasetTypes(t *testing.T) {
 		},
 		{
 			name: "filter by spec",
-			input: &plateauapi.DatasetTypeQuery{
+			input: &plateauapi.DatasetTypeInput{
 				PlateauSpec: lo.ToPtr("2.3"),
 			},
 			expected: []plateauapi.DatasetType{
@@ -240,7 +240,7 @@ func TestAdapter_DatasetTypes(t *testing.T) {
 		},
 		{
 			name: "filter by category",
-			input: &plateauapi.DatasetTypeQuery{
+			input: &plateauapi.DatasetTypeInput{
 				Category: lo.ToPtr(plateauapi.DatasetTypeCategoryGeneric),
 			},
 			expected: []plateauapi.DatasetType{
@@ -326,7 +326,7 @@ func TestAdapter_Datasets(t *testing.T) {
 
 	tests := []struct {
 		name  string
-		input *plateauapi.DatasetQuery
+		input *plateauapi.DatasetInput
 		want  []plateauapi.Dataset
 	}{
 		{
@@ -349,7 +349,7 @@ func TestAdapter_Datasets(t *testing.T) {
 		},
 		{
 			name: "filter by an area code",
-			input: &plateauapi.DatasetQuery{
+			input: &plateauapi.DatasetInput{
 				AreaCodes: []plateauapi.AreaCode{"01100"},
 			},
 			want: []plateauapi.Dataset{
@@ -358,7 +358,7 @@ func TestAdapter_Datasets(t *testing.T) {
 		},
 		{
 			name: "filter by multiple area codes",
-			input: &plateauapi.DatasetQuery{
+			input: &plateauapi.DatasetInput{
 				AreaCodes: []plateauapi.AreaCode{"01100", "01101"},
 			},
 			want: []plateauapi.Dataset{
@@ -368,7 +368,7 @@ func TestAdapter_Datasets(t *testing.T) {
 		},
 		{
 			name: "filter by an area code depply",
-			input: &plateauapi.DatasetQuery{
+			input: &plateauapi.DatasetInput{
 				AreaCodes: []plateauapi.AreaCode{"01100"},
 				Deep:      lo.ToPtr(true),
 			},
@@ -379,7 +379,7 @@ func TestAdapter_Datasets(t *testing.T) {
 		},
 		{
 			name: "filter by included types",
-			input: &plateauapi.DatasetQuery{
+			input: &plateauapi.DatasetInput{
 				IncludeTypes: []string{"bldg"},
 			},
 			want: []plateauapi.Dataset{
@@ -388,7 +388,7 @@ func TestAdapter_Datasets(t *testing.T) {
 		},
 		{
 			name: "filter by excluded types",
-			input: &plateauapi.DatasetQuery{
+			input: &plateauapi.DatasetInput{
 				ExcludeTypes: []string{"bldg"},
 			},
 			want: []plateauapi.Dataset{
@@ -407,7 +407,7 @@ func TestAdapter_Datasets(t *testing.T) {
 		},
 		{
 			name: "filter by search tokens",
-			input: &plateauapi.DatasetQuery{
+			input: &plateauapi.DatasetInput{
 				SearchTokens: []string{"desc"},
 			},
 			want: []plateauapi.Dataset{
@@ -416,7 +416,7 @@ func TestAdapter_Datasets(t *testing.T) {
 		},
 		{
 			name: "filter by multiple search tokens",
-			input: &plateauapi.DatasetQuery{
+			input: &plateauapi.DatasetInput{
 				SearchTokens: []string{"desc", "Related"},
 			},
 			want: []plateauapi.Dataset{
@@ -425,7 +425,7 @@ func TestAdapter_Datasets(t *testing.T) {
 		},
 		{
 			name: "filter by non-matched multiple search tokens",
-			input: &plateauapi.DatasetQuery{
+			input: &plateauapi.DatasetInput{
 				SearchTokens: []string{"desc", "Related_"},
 			},
 			want: nil,

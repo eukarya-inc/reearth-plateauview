@@ -140,3 +140,7 @@ models:
     fields:
       plateauSpec:
         resolver: true
+  PlateauSpec:
+    fields:
+      datasetTypes:
+        resolver: true

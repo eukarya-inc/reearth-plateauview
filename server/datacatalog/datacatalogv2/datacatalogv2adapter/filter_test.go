@@ -12,13 +12,13 @@ func TestFilterArea(t *testing.T) {
 	testCases := []struct {
 		name     string
 		area     plateauapi.Area
-		input    plateauapi.AreaQuery
+		input    plateauapi.AreaInput
 		expected bool
 	}{
 		{
 			name: "Prefecture with search tokens",
 			area: plateauapi.Prefecture{Name: "Tokyo"},
-			input: plateauapi.AreaQuery{
+			input: plateauapi.AreaInput{
 				SearchTokens: []string{"Tokyo"},
 			},
 			expected: true,
@@ -26,7 +26,7 @@ func TestFilterArea(t *testing.T) {
 		{
 			name: "Prefecture without search tokens",
 			area: plateauapi.Prefecture{Name: "Tokyo"},
-			input: plateauapi.AreaQuery{
+			input: plateauapi.AreaInput{
 				SearchTokens: []string{},
 			},
 			expected: true,
@@ -34,7 +34,7 @@ func TestFilterArea(t *testing.T) {
 		{
 			name: "Prefecture without non-matching search tokens",
 			area: plateauapi.Prefecture{Name: "Tokyo"},
-			input: plateauapi.AreaQuery{
+			input: plateauapi.AreaInput{
 				SearchTokens: []string{"Kanagawa"},
 			},
 			expected: false,
@@ -42,7 +42,7 @@ func TestFilterArea(t *testing.T) {
 		{
 			name: "City with search tokens and matching parent code",
 			area: plateauapi.City{Name: "Shinjuku", PrefectureCode: "13"},
-			input: plateauapi.AreaQuery{
+			input: plateauapi.AreaInput{
 				SearchTokens: []string{"Shinjuku"},
 				ParentCode:   lo.ToPtr(plateauapi.AreaCode("13")),
 			},
@@ -51,7 +51,7 @@ func TestFilterArea(t *testing.T) {
 		{
 			name: "City with search tokens and non-matching parent code",
 			area: plateauapi.City{Name: "Shinjuku", PrefectureCode: "13"},
-			input: plateauapi.AreaQuery{
+			input: plateauapi.AreaInput{
 				SearchTokens: []string{"Shinjuku"},
 				ParentCode:   lo.ToPtr(plateauapi.AreaCode("14")),
 			},
@@ -60,7 +60,7 @@ func TestFilterArea(t *testing.T) {
 		{
 			name: "Ward with search tokens and matching parent code",
 			area: plateauapi.Ward{Name: "Shinjuku", PrefectureCode: "13", CityCode: "13104"},
-			input: plateauapi.AreaQuery{
+			input: plateauapi.AreaInput{
 				SearchTokens: []string{"Shinjuku"},
 				ParentCode:   lo.ToPtr(plateauapi.AreaCode("13104")),
 			},
@@ -69,7 +69,7 @@ func TestFilterArea(t *testing.T) {
 		{
 			name: "Ward with search tokens and non-matching parent code",
 			area: plateauapi.Ward{Name: "Shinjuku", PrefectureCode: "13", CityCode: "13104"},
-			input: plateauapi.AreaQuery{
+			input: plateauapi.AreaInput{
 				SearchTokens: []string{"Shinjuku"},
 				ParentCode:   lo.ToPtr(plateauapi.AreaCode("13105")),
 			},
@@ -78,7 +78,7 @@ func TestFilterArea(t *testing.T) {
 		{
 			name: "Ward without search tokens",
 			area: plateauapi.Ward{Name: "Shinjuku", PrefectureCode: "13", CityCode: "13104"},
-			input: plateauapi.AreaQuery{
+			input: plateauapi.AreaInput{
 				SearchTokens: []string{},
 			},
 			expected: true,

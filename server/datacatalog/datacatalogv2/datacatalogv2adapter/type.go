@@ -42,10 +42,10 @@ func plateauDatasetFrom(d datacatalogv2.DataCatalogItem) (plateauapi.PlateauData
 }
 
 func plateauDatasetItemFrom(c datacatalogutil.DataCatalogItemConfigItem, parent string, parentID plateauapi.ID) *plateauapi.PlateauDatasetItem {
-	var lod *float64
+	var lod *int
 	if strings.HasPrefix(c.Name, "LOD") {
 		l, _, _ := strings.Cut(c.Name[3:], "（")
-		lodf, err := strconv.ParseFloat(l, 64)
+		lodf, err := strconv.Atoi(l)
 		if err == nil {
 			lod = &lodf
 		}
@@ -57,7 +57,7 @@ func plateauDatasetItemFrom(c datacatalogutil.DataCatalogItemConfigItem, parent 
 	if strings.Contains(c.Name, "（テクスチャなし）") {
 		texture = lo.ToPtr(plateauapi.TextureNone)
 	} else if format == plateauapi.DatasetFormatCesium3DTiles {
-		texture = lo.ToPtr(plateauapi.TextureHighResolution)
+		texture = lo.ToPtr(plateauapi.TextureTexture)
 	}
 
 	return &plateauapi.PlateauDatasetItem{
@@ -406,11 +406,11 @@ func genericTypeFrom(d datacatalogv2.DataCatalogItem) plateauapi.GenericDatasetT
 	}
 }
 
-func specFrom(d datacatalogv2.DataCatalogItem) plateauapi.PlateauSpec {
+func specFrom(d datacatalogv2.DataCatalogItem) *plateauapi.PlateauSpec {
 	if d.Spec == "" {
-		return plateauapi.PlateauSpec{}
+		return nil
 	}
-	return plateauapi.PlateauSpec{
+	return &plateauapi.PlateauSpec{
 		ID:   specIDFrom(d),
 		Name: d.Spec,
 		Year: d.Year,

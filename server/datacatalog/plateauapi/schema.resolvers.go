@@ -16,7 +16,7 @@ func (r *cityResolver) Prefecture(ctx context.Context, obj *City) (*Prefecture, 
 
 // Wards is the resolver for the wards field.
 func (r *cityResolver) Wards(ctx context.Context, obj *City) ([]*Ward, error) {
-	areas, err := r.Repo.Areas(ctx, &AreaQuery{
+	areas, err := r.Repo.Areas(ctx, &AreaInput{
 		ParentCode: lo.ToPtr(obj.Code),
 	})
 	if err != nil {
@@ -32,11 +32,11 @@ func (r *cityResolver) Wards(ctx context.Context, obj *City) ([]*Ward, error) {
 }
 
 // Datasets is the resolver for the datasets field.
-func (r *cityResolver) Datasets(ctx context.Context, obj *City, input *DatasetForAreaQuery) ([]Dataset, error) {
+func (r *cityResolver) Datasets(ctx context.Context, obj *City, input *DatasetForAreaInput) ([]Dataset, error) {
 	if input == nil {
-		input = &DatasetForAreaQuery{}
+		input = &DatasetForAreaInput{}
 	}
-	return r.Repo.Datasets(ctx, &DatasetQuery{
+	return r.Repo.Datasets(ctx, &DatasetInput{
 		AreaCodes:    []AreaCode{obj.Code},
 		ExcludeTypes: input.ExcludeTypes,
 		IncludeTypes: input.IncludeTypes,
@@ -143,9 +143,26 @@ func (r *plateauFloodingDatasetItemResolver) Parent(ctx context.Context, obj *Pl
 	return to[*PlateauDataset](r.Repo.Node(ctx, obj.ParentID))
 }
 
+// DatasetTypes is the resolver for the datasetTypes field.
+func (r *plateauSpecResolver) DatasetTypes(ctx context.Context, obj *PlateauSpec) ([]*PlateauDatasetType, error) {
+	types, err := r.Repo.DatasetTypes(ctx, &DatasetTypeInput{
+		PlateauSpec: &obj.Name,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return lo.FilterMap(types, func(d DatasetType, _ int) (*PlateauDatasetType, bool) {
+		if m, ok := d.(*PlateauDatasetType); ok {
+			return m, ok
+		}
+		return nil, false
+	}), nil
+}
+
 // Cities is the resolver for the cities field.
 func (r *prefectureResolver) Cities(ctx context.Context, obj *Prefecture) ([]*City, error) {
-	areas, err := r.Repo.Areas(ctx, &AreaQuery{
+	areas, err := r.Repo.Areas(ctx, &AreaInput{
 		ParentCode: lo.ToPtr(obj.Code),
 	})
 	if err != nil {
@@ -161,11 +178,11 @@ func (r *prefectureResolver) Cities(ctx context.Context, obj *Prefecture) ([]*Ci
 }
 
 // Datasets is the resolver for the datasets field.
-func (r *prefectureResolver) Datasets(ctx context.Context, obj *Prefecture, input *DatasetForAreaQuery) ([]Dataset, error) {
+func (r *prefectureResolver) Datasets(ctx context.Context, obj *Prefecture, input *DatasetForAreaInput) ([]Dataset, error) {
 	if input == nil {
-		input = &DatasetForAreaQuery{}
+		input = &DatasetForAreaInput{}
 	}
-	return r.Repo.Datasets(ctx, &DatasetQuery{
+	return r.Repo.Datasets(ctx, &DatasetInput{
 		AreaCodes:    []AreaCode{obj.Code},
 		ExcludeTypes: input.ExcludeTypes,
 		IncludeTypes: input.IncludeTypes,
@@ -190,17 +207,17 @@ func (r *queryResolver) Area(ctx context.Context, code AreaCode) (Area, error) {
 }
 
 // Areas is the resolver for the areas field.
-func (r *queryResolver) Areas(ctx context.Context, input *AreaQuery) ([]Area, error) {
+func (r *queryResolver) Areas(ctx context.Context, input *AreaInput) ([]Area, error) {
 	return r.Repo.Areas(ctx, input)
 }
 
 // DatasetTypes is the resolver for the datasetTypes field.
-func (r *queryResolver) DatasetTypes(ctx context.Context, input *DatasetTypeQuery) ([]DatasetType, error) {
+func (r *queryResolver) DatasetTypes(ctx context.Context, input *DatasetTypeInput) ([]DatasetType, error) {
 	return r.Repo.DatasetTypes(ctx, input)
 }
 
 // Datasets is the resolver for the datasets field.
-func (r *queryResolver) Datasets(ctx context.Context, input *DatasetQuery) ([]Dataset, error) {
+func (r *queryResolver) Datasets(ctx context.Context, input *DatasetInput) ([]Dataset, error) {
 	return r.Repo.Datasets(ctx, input)
 }
 
@@ -256,11 +273,11 @@ func (r *wardResolver) City(ctx context.Context, obj *Ward) (*City, error) {
 }
 
 // Datasets is the resolver for the datasets field.
-func (r *wardResolver) Datasets(ctx context.Context, obj *Ward, input *DatasetForAreaQuery) ([]Dataset, error) {
+func (r *wardResolver) Datasets(ctx context.Context, obj *Ward, input *DatasetForAreaInput) ([]Dataset, error) {
 	if input == nil {
-		input = &DatasetForAreaQuery{}
+		input = &DatasetForAreaInput{}
 	}
-	return r.Repo.Datasets(ctx, &DatasetQuery{
+	return r.Repo.Datasets(ctx, &DatasetInput{
 		AreaCodes:    []AreaCode{obj.Code},
 		ExcludeTypes: input.ExcludeTypes,
 		IncludeTypes: input.IncludeTypes,
@@ -303,6 +320,9 @@ func (r *Resolver) PlateauFloodingDatasetItem() PlateauFloodingDatasetItemResolv
 	return &plateauFloodingDatasetItemResolver{r}
 }
 
+// PlateauSpec returns PlateauSpecResolver implementation.
+func (r *Resolver) PlateauSpec() PlateauSpecResolver { return &plateauSpecResolver{r} }
+
 // Prefecture returns PrefectureResolver implementation.
 func (r *Resolver) Prefecture() PrefectureResolver { return &prefectureResolver{r} }
 
@@ -328,6 +348,7 @@ type plateauDatasetItemResolver struct{ *Resolver }
 type plateauDatasetTypeResolver struct{ *Resolver }
 type plateauFloodingDatasetResolver struct{ *Resolver }
 type plateauFloodingDatasetItemResolver struct{ *Resolver }
+type plateauSpecResolver struct{ *Resolver }
 type prefectureResolver struct{ *Resolver }
 type queryResolver struct{ *Resolver }
 type relatedDatasetResolver struct{ *Resolver }
