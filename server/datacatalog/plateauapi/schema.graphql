@@ -218,6 +218,10 @@ interface Dataset implements Node {
   """
   type_id: ID!
   """
+  データセットの種類コード。
+  """
+  type_code: String!
+  """
   データセットが属する都道府県。
   """
   prefecture: Prefecture
@@ -414,6 +418,10 @@ type PlateauDataset implements Dataset & Node {
   """
   type_id: ID!
   """
+  データセットの種類コード。
+  """
+  type_code: String!
+  """
   データセットが属する都道府県。
   """
   prefecture: Prefecture
@@ -543,6 +551,10 @@ type PlateauFloodingDataset implements Dataset & Node {
   データセットの種類のID。
   """
   type_id: ID!
+  """
+  データセットの種類コード。
+  """
+  type_code: String!
   """
   データセットが属する都道府県。
   """
@@ -746,6 +758,10 @@ type RelatedDataset implements Dataset & Node {
   """
   type_id: ID!
   """
+  データセットの種類コード。
+  """
+  type_code: String!
+  """
   データセットが属する都道府県。
   """
   prefecture: Prefecture
@@ -877,6 +893,10 @@ type GenericDataset implements Dataset & Node {
   データセットの種類のID。
   """
   type_id: ID!
+  """
+  データセットの種類コード。
+  """
+  type_code: String!
   """
   データセットが属する都道府県。
   """

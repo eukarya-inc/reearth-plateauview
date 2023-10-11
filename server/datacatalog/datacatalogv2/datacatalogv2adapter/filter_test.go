@@ -93,3 +93,13 @@ func TestFilterArea(t *testing.T) {
 		})
 	}
 }
+
+func TestFilterByCode(t *testing.T) {
+	assert.True(t, filterByCode("a", []string{"a"}, nil))
+	assert.True(t, filterByCode("a", []string{"a", "b"}, nil))
+	assert.True(t, filterByCode("b", []string{"a", "b"}, nil))
+	assert.False(t, filterByCode("b", []string{"a"}, nil))
+	assert.False(t, filterByCode("a", nil, []string{"a"}))
+	assert.False(t, filterByCode("a", nil, []string{"a", "b"}))
+	assert.False(t, filterByCode("a", []string{"a"}, []string{"a", "b"}))
+}

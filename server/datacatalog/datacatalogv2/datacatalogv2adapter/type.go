@@ -13,6 +13,8 @@ import (
 	"golang.org/x/exp/slices"
 )
 
+const usecaseID = "usecase"
+
 var floodingTypes = []string{"fld", "htd", "tnm", "ifld"}
 
 func plateauDatasetFrom(d datacatalogv2.DataCatalogItem) (plateauapi.PlateauDataset, bool) {
@@ -20,7 +22,7 @@ func plateauDatasetFrom(d datacatalogv2.DataCatalogItem) (plateauapi.PlateauData
 		return plateauapi.PlateauDataset{}, false
 	}
 
-	id := datasetIDFrom(d)
+	id := datasetIDFrom(d, nil)
 	return plateauapi.PlateauDataset{
 		ID:             id,
 		Name:           d.Name,
@@ -34,6 +36,7 @@ func plateauDatasetFrom(d datacatalogv2.DataCatalogItem) (plateauapi.PlateauData
 		WardCode:       wardCodeFrom(d),
 		Year:           d.Year,
 		TypeID:         datasetTypeIDFrom(d),
+		TypeCode:       datasetTypeCodeFrom(d),
 		Groups:         groupsFrom(d),
 		Items: lo.Map(d.MainOrConfigItems(), func(c datacatalogutil.DataCatalogItemConfigItem, _ int) *plateauapi.PlateauDatasetItem {
 			return plateauDatasetItemFrom(c, id)
@@ -106,7 +109,7 @@ func plateauFloodingDatasetFrom(d datacatalogv2.DataCatalogItem) (plateauapi.Pla
 		}
 	}
 
-	id := datasetIDFrom(d)
+	id := datasetIDFrom(d, subname)
 	return plateauapi.PlateauFloodingDataset{
 		ID:             id,
 		Name:           d.Name,
@@ -120,6 +123,7 @@ func plateauFloodingDatasetFrom(d datacatalogv2.DataCatalogItem) (plateauapi.Pla
 		WardCode:       wardCodeFrom(d),
 		Year:           d.Year,
 		TypeID:         datasetTypeIDFrom(d),
+		TypeCode:       datasetTypeCodeFrom(d),
 		Groups:         groupsFrom(d),
 		River:          river,
 		Items: lo.Map(d.MainOrConfigItems(), func(c datacatalogutil.DataCatalogItemConfigItem, _ int) *plateauapi.PlateauFloodingDatasetItem {
@@ -155,7 +159,7 @@ func relatedDatasetFrom(d datacatalogv2.DataCatalogItem) (plateauapi.RelatedData
 		return plateauapi.RelatedDataset{}, false
 	}
 
-	id := datasetIDFrom(d)
+	id := datasetIDFrom(d, nil)
 	return plateauapi.RelatedDataset{
 		ID:             id,
 		Name:           d.Name,
@@ -169,6 +173,7 @@ func relatedDatasetFrom(d datacatalogv2.DataCatalogItem) (plateauapi.RelatedData
 		WardCode:       wardCodeFrom(d),
 		Year:           d.Year,
 		TypeID:         datasetTypeIDFrom(d),
+		TypeCode:       datasetTypeCodeFrom(d),
 		Groups:         groupsFrom(d),
 		Items: lo.Map(d.MainOrConfigItems(), func(c datacatalogutil.DataCatalogItemConfigItem, _ int) *plateauapi.RelatedDatasetItem {
 			return &plateauapi.RelatedDatasetItem{
@@ -188,9 +193,9 @@ func genericDatasetFrom(d datacatalogv2.DataCatalogItem) (plateauapi.GenericData
 		return plateauapi.GenericDataset{}, false
 	}
 
-	id := datasetIDFrom(d)
+	id := datasetIDFrom(d, nil)
 	return plateauapi.GenericDataset{
-		ID:           datasetIDFrom(d),
+		ID:           id,
 		Name:         d.Name,
 		Subname:      nil,
 		Description:  lo.ToPtr(d.Description),
@@ -199,6 +204,7 @@ func genericDatasetFrom(d datacatalogv2.DataCatalogItem) (plateauapi.GenericData
 		WardID:       wardIDFrom(d),
 		Year:         d.Year,
 		TypeID:       datasetTypeIDFrom(d),
+		TypeCode:     datasetTypeCodeFrom(d),
 		Groups:       groupsFrom(d),
 		Items: lo.Map(d.MainOrConfigItems(), func(c datacatalogutil.DataCatalogItemConfigItem, _ int) *plateauapi.GenericDatasetItem {
 			return &plateauapi.GenericDatasetItem{
@@ -276,17 +282,43 @@ func wardCodeFrom(d datacatalogv2.DataCatalogItem) *plateauapi.AreaCode {
 	return lo.ToPtr(plateauapi.AreaCode(d.WardCode))
 }
 
-func datasetIDFrom(d datacatalogv2.DataCatalogItem) plateauapi.ID {
+func datasetIDFrom(d datacatalogv2.DataCatalogItem, subname *string) plateauapi.ID {
 	if d.Family == "plateau" || d.Family == "related" {
-		code := d.WardCode
-		if code == "" {
-			code = d.CityCode
+		invalid := false
+		areaCode := d.WardCode
+		if areaCode == "" {
+			areaCode = d.CityCode
 		}
-		if code == "" {
-			code = d.PrefCode
+		if areaCode == "" {
+			areaCode = d.PrefCode
 		}
 
-		return newDatasetID(fmt.Sprintf("%s_%s", code, d.TypeEn))
+		sub := ""
+		typeCode := datasetTypeCodeFrom(d)
+		isFlood := slices.Contains(floodingTypes, d.TypeEn)
+		isEx := strings.Contains(d.ID, "_ex_")
+
+		if isFlood || d.TypeEn == "gen" || isEx {
+			if isEx {
+				typeCode = "ex"
+			}
+
+			if _, after, found := strings.Cut(d.ID, "_"+typeCode+"_"); found {
+				if isFlood {
+					after = strings.TrimSuffix(after, "_l1")
+					after = strings.TrimSuffix(after, "_l2")
+				}
+				sub = fmt.Sprintf("_%s", after)
+			} else {
+				invalid = true
+			}
+		} else if d.TypeEn == "urf" {
+			sub = fmt.Sprintf("_%s", d.Type2En)
+		}
+
+		if !invalid {
+			return newDatasetID(fmt.Sprintf("%s_%s%s", areaCode, typeCode, sub))
+		}
 	}
 
 	return newDatasetID(d.ID)
@@ -297,16 +329,25 @@ func newDatasetID(id string) plateauapi.ID {
 }
 
 func datasetTypeIDFrom(d datacatalogv2.DataCatalogItem) plateauapi.ID {
+	code := datasetTypeCodeFrom(d)
 	if d.Family == "plateau" {
-		return plateauapi.NewID(d.TypeEn, plateauapi.TypeDatasetType)
+		// TODO: refer to a major version of the plateau spec
+		return plateauapi.NewID(fmt.Sprintf("%s_%s", code, d.Spec), plateauapi.TypeDatasetType)
+	}
+	return plateauapi.NewID(code, plateauapi.TypeDatasetType)
+}
+
+func datasetTypeCodeFrom(d datacatalogv2.DataCatalogItem) string {
+	if d.Family == "plateau" {
+		return d.TypeEn
 	}
 	if d.Family == "related" {
-		return plateauapi.NewID(fmt.Sprintf("%s:%s", d.Edition, d.TypeEn), plateauapi.TypeDatasetType)
+		return d.TypeEn
 	}
 	if d.Family == "generic" && d.Category != "" {
-		return plateauapi.NewID(fmt.Sprintf("%s:%s", d.Edition, d.Category), plateauapi.TypeDatasetType)
+		return d.Category
 	}
-	return plateauapi.NewID(fmt.Sprintf("%s:usecase", d.Edition), plateauapi.TypeDatasetType)
+	return usecaseID
 }
 
 func specIDFrom(d datacatalogv2.DataCatalogItem) plateauapi.ID {
@@ -375,7 +416,7 @@ func plateauTypeFrom(d datacatalogv2.DataCatalogItem) plateauapi.PlateauDatasetT
 	return plateauapi.PlateauDatasetType{
 		ID:            datasetTypeIDFrom(d),
 		Name:          d.Type,
-		Code:          d.TypeEn,
+		Code:          datasetTypeCodeFrom(d),
 		Year:          year,
 		EnglishName:   d.TypeEn,
 		Category:      plateauapi.DatasetTypeCategoryPlateau,
@@ -392,7 +433,7 @@ func relatedTypeFrom(d datacatalogv2.DataCatalogItem) plateauapi.RelatedDatasetT
 	return plateauapi.RelatedDatasetType{
 		ID:          datasetTypeIDFrom(d),
 		Name:        d.Type,
-		Code:        d.TypeEn,
+		Code:        datasetTypeCodeFrom(d),
 		EnglishName: d.TypeEn,
 		Category:    plateauapi.DatasetTypeCategoryRelated,
 	}
@@ -407,7 +448,7 @@ func genericTypeFrom(d datacatalogv2.DataCatalogItem) plateauapi.GenericDatasetT
 		return plateauapi.GenericDatasetType{
 			ID:       datasetTypeIDFrom(d),
 			Name:     d.Category,
-			Code:     d.Category,
+			Code:     datasetTypeCodeFrom(d),
 			Category: plateauapi.DatasetTypeCategoryGeneric,
 		}
 	}

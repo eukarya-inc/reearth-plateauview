@@ -135,6 +135,8 @@ type GenericDataset struct {
 	WardCode *AreaCode `json:"ward_code"`
 	// データセットの種類のID。
 	TypeID ID `json:"type_id"`
+	// データセットの種類コード。
+	TypeCode string `json:"type_code"`
 	// データセットが属する都道府県。
 	Prefecture *Prefecture `json:"prefecture"`
 	// データセットが属する市。
@@ -214,6 +216,8 @@ type PlateauDataset struct {
 	WardCode *AreaCode `json:"ward_code"`
 	// データセットの種類のID。
 	TypeID ID `json:"type_id"`
+	// データセットの種類コード。
+	TypeCode string `json:"type_code"`
 	// データセットが属する都道府県。
 	Prefecture *Prefecture `json:"prefecture"`
 	// データセットが属する市。
@@ -305,6 +309,8 @@ type PlateauFloodingDataset struct {
 	WardCode *AreaCode `json:"ward_code"`
 	// データセットの種類のID。
 	TypeID ID `json:"type_id"`
+	// データセットの種類コード。
+	TypeCode string `json:"type_code"`
 	// データセットが属する都道府県。
 	Prefecture *Prefecture `json:"prefecture"`
 	// データセットが属する市。
@@ -402,6 +408,8 @@ type RelatedDataset struct {
 	WardCode *AreaCode `json:"ward_code"`
 	// データセットの種類のID。
 	TypeID ID `json:"type_id"`
+	// データセットの種類コード。
+	TypeCode string `json:"type_code"`
 	// データセットが属する都道府県。
 	Prefecture *Prefecture `json:"prefecture"`
 	// データセットが属する市。

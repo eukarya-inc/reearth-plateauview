@@ -17,28 +17,28 @@ func filterDataset(d plateauapi.Dataset, input plateauapi.DatasetInput) bool {
 
 	switch d2 := d.(type) {
 	case plateauapi.PlateauDataset:
-		dataType = dataTypeCodeFromDataTypeID(d2.TypeID)
+		dataType = d2.TypeCode
 		text = []string{
 			d2.Name,
 			lo.FromPtr(d2.Description),
 			lo.FromPtr(d2.Subname),
 		}
 	case plateauapi.PlateauFloodingDataset:
-		dataType = dataTypeCodeFromDataTypeID(d2.TypeID)
+		dataType = d2.TypeCode
 		text = []string{
 			d2.Name,
 			lo.FromPtr(d2.Description),
 			lo.FromPtr(d2.Subname),
 		}
 	case plateauapi.RelatedDataset:
-		dataType = dataTypeCodeFromDataTypeID(d2.TypeID)
+		dataType = d2.TypeCode
 		text = []string{
 			d2.Name,
 			lo.FromPtr(d2.Description),
 			lo.FromPtr(d2.Subname),
 		}
 	case plateauapi.GenericDataset:
-		dataType = dataTypeCodeFromDataTypeID(d2.TypeID)
+		dataType = d2.TypeCode
 		text = []string{
 			d2.Name,
 			lo.FromPtr(d2.Description),
@@ -63,20 +63,8 @@ func filterDataset(d plateauapi.Dataset, input plateauapi.DatasetInput) bool {
 		}
 	}
 
-	if len(input.ExcludeTypes) > 0 {
-		if lo.SomeBy(input.ExcludeTypes, func(t string) bool {
-			return t == dataType
-		}) {
-			return false
-		}
-	}
-
-	if len(input.IncludeTypes) > 0 {
-		if lo.EveryBy(input.IncludeTypes, func(t string) bool {
-			return t != dataType
-		}) {
-			return false
-		}
+	if !filterByCode(dataType, input.IncludeTypes, input.ExcludeTypes) {
+		return false
 	}
 
 	if len(input.SearchTokens) > 0 {
@@ -84,6 +72,32 @@ func filterDataset(d plateauapi.Dataset, input plateauapi.DatasetInput) bool {
 		if lo.SomeBy(input.SearchTokens, func(t string) bool {
 			return lo.EveryBy(text, func(t2 string) bool {
 				return t2 == "" || !strings.Contains(t2, t)
+			})
+		}) {
+			return false
+		}
+	}
+
+	return true
+}
+
+func filterByCode(code string, includes []string, excludes []string) bool {
+	code = strings.ToLower(code)
+
+	if len(excludes) > 0 {
+		if lo.SomeBy(excludes, func(t string) bool {
+			return lo.SomeBy(strings.Split(t, "_"), func(c string) bool {
+				return strings.ToLower(c) == code
+			})
+		}) {
+			return false
+		}
+	}
+
+	if len(includes) > 0 {
+		if lo.EveryBy(includes, func(t string) bool {
+			return lo.EveryBy(strings.Split(t, "_"), func(c string) bool {
+				return strings.ToLower(c) != code
 			})
 		}) {
 			return false
