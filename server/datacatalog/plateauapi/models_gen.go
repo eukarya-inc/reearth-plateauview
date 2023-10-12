@@ -217,12 +217,14 @@ type PlateauDataset struct {
 	Type *PlateauDatasetType `json:"type"`
 	// データセットのアイテム。
 	Items []*PlateauDatasetItem `json:"items"`
-	// データセットが準拠する仕様のID。
+	// データセットが準拠するPLATEAU都市モデルの仕様のID。
 	PlateauSpecID ID `json:"plateauSpecId"`
-	// データセットが準拠する仕様の名称。
+	// データセットが準拠するPLATEAU都市モデルの仕様の名称。
 	PlateauSpecName string `json:"plateauSpecName"`
-	// データセットが準拠する仕様。
+	// データセットが準拠するPLATEAU都市モデルの仕様。
 	PlateauSpec *PlateauSpecMinor `json:"plateauSpec"`
+	// 河川。地物型が洪水浸水想定区域モデル（fld）の場合のみ存在します。
+	River *River `json:"river"`
 }
 
 func (PlateauDataset) IsDataset() {}
@@ -248,6 +250,8 @@ type PlateauDatasetItem struct {
 	Lod *int `json:"lod"`
 	// データセットのアイテムのテクスチャの種類。
 	Texture *Texture `json:"texture"`
+	// 浸水規模。地物型が洪水・高潮・津波・内水浸水想定区域モデル（fld・htd・tnm・ifld）の場合のみ存在します。
+	FloodingScale *FloodingScale `json:"floodingScale"`
 }
 
 func (PlateauDatasetItem) IsDatasetItem() {}
@@ -264,6 +268,8 @@ type PlateauDatasetType struct {
 	Category DatasetTypeCategory `json:"category"`
 	// データセットの種類が属するPLATEAU都市モデルの仕様のID。
 	PlateauSpecID ID `json:"plateauSpecId"`
+	// データセットの種類が属するPLATEAU都市モデルの仕様の名称。
+	PlateauSpecName string `json:"plateauSpecName"`
 	// データセットの種類が属するPLATEAU都市モデルの仕様。
 	PlateauSpec *PlateauSpec `json:"plateauSpec"`
 	// データセットの種類が属するPLATEAU都市モデルの仕様の公開年度（西暦）。
@@ -274,81 +280,6 @@ type PlateauDatasetType struct {
 
 func (PlateauDatasetType) IsDatasetType() {}
 func (PlateauDatasetType) IsNode()        {}
-
-// PLATEAU都市モデルのデータセットのうち、地物型が洪水・高潮・津波・内水浸水想定区域モデル（fld, htd, tnm, ifld）のデータセット。
-type PlateauFloodingDataset struct {
-	ID ID `json:"id"`
-	// データセット名
-	Name string `json:"name"`
-	// データセットのサブ名
-	Subname *string `json:"subname"`
-	// データセットの説明
-	Description *string `json:"description"`
-	// データセットの公開年度（西暦）
-	Year int `json:"year"`
-	// データセットを分類するグループ。グループが階層構造になっている場合は、親から子の順番で複数のグループ名が存在することがあります。
-	Groups []string `json:"groups"`
-	// データセットが属する都道府県のID。
-	PrefectureID ID `json:"prefecture_id"`
-	// データセットが属する都道府県コード。2桁の数字から成る文字列です。
-	PrefectureCode AreaCode `json:"prefecture_code"`
-	// データセットが属する市のID。
-	CityID *ID `json:"city_id"`
-	// データセットが属する市コード。先頭に都道府県コードを含む6桁の数字から成る文字列です。
-	CityCode *AreaCode `json:"city_code"`
-	// データセットが属する区のID。
-	WardID *ID `json:"ward_id"`
-	// データセットが属する区コード。先頭に都道府県コードを含む6桁の数字から成る文字列です。
-	WardCode *AreaCode `json:"ward_code"`
-	// データセットの種類のID。
-	TypeID ID `json:"type_id"`
-	// データセットの種類コード。
-	TypeCode string `json:"type_code"`
-	// データセットが属する都道府県。
-	Prefecture *Prefecture `json:"prefecture"`
-	// データセットが属する市。
-	City *City `json:"city"`
-	// データセットが属する区。
-	Ward *Ward `json:"ward"`
-	// データセットの種類。
-	Type *PlateauDatasetType `json:"type"`
-	// データセットのアイテム。
-	Items []*PlateauFloodingDatasetItem `json:"items"`
-	// データセットが準拠する仕様のID。
-	PlateauSpecID ID `json:"plateauSpecId"`
-	// データセットが準拠する仕様の名称。
-	PlateauSpecName string `json:"plateauSpecName"`
-	// データセットが準拠する仕様。
-	PlateauSpec *PlateauSpecMinor `json:"plateauSpec"`
-	// 河川。地物型が洪水浸水想定区域（fld）の場合のみ存在します。
-	River *River `json:"river"`
-}
-
-func (PlateauFloodingDataset) IsDataset() {}
-func (PlateauFloodingDataset) IsNode()    {}
-
-// PLATEAU都市モデルの洪水・高潮・津波・内水浸水想定区域モデル（fld, htd, tnm, ifld）のデータセットのアイテム。
-type PlateauFloodingDatasetItem struct {
-	ID ID `json:"id"`
-	// データセットのアイテムのフォーマット。
-	Format DatasetFormat `json:"format"`
-	// データセットのアイテム名。
-	Name string `json:"name"`
-	// データセットのアイテムのURL。
-	URL string `json:"url"`
-	// データセットのアイテムのレイヤー名。MVTやWMSなどのフォーマットの場合のみ存在。
-	// レイヤー名が複数存在する場合は、同時に複数のレイヤーを表示可能であることを意味します。
-	Layers []string `json:"layers"`
-	// データセットのアイテムが属するデータセットのID。
-	ParentID ID `json:"parent_id"`
-	// データセットのアイテムが属するデータセット。
-	Parent *PlateauDataset `json:"parent"`
-	// 浸水規模
-	FloodingScale FloodingScale `json:"floodingScale"`
-}
-
-func (PlateauFloodingDatasetItem) IsDatasetItem() {}
-func (PlateauFloodingDatasetItem) IsNode()        {}
 
 // PLATEAU都市モデルの仕様のメジャーバージョン。
 type PlateauSpec struct {
@@ -482,7 +413,7 @@ type RelatedDatasetType struct {
 func (RelatedDatasetType) IsDatasetType() {}
 func (RelatedDatasetType) IsNode()        {}
 
-// 河川
+// 洪水浸水想定区域モデルにおける河川。
 type River struct {
 	// 河川名。通常、「〜水系〜川」という形式になります。
 	Name string `json:"name"`
@@ -631,7 +562,7 @@ func (e DatasetTypeCategory) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
-// 浸水規模
+// 浸水想定区域モデルにおける浸水規模。
 type FloodingScale string
 
 const (

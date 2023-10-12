@@ -113,42 +113,6 @@ func (r *plateauDatasetTypeResolver) PlateauSpec(ctx context.Context, obj *Plate
 	return to[*PlateauSpec](r.Repo.Node(ctx, obj.PlateauSpecID))
 }
 
-// Prefecture is the resolver for the prefecture field.
-func (r *plateauFloodingDatasetResolver) Prefecture(ctx context.Context, obj *PlateauFloodingDataset) (*Prefecture, error) {
-	return to[*Prefecture](r.Repo.Node(ctx, obj.PrefectureID))
-}
-
-// City is the resolver for the city field.
-func (r *plateauFloodingDatasetResolver) City(ctx context.Context, obj *PlateauFloodingDataset) (*City, error) {
-	if obj.CityID == nil {
-		return nil, nil
-	}
-	return to[*City](r.Repo.Node(ctx, *obj.CityID))
-}
-
-// Ward is the resolver for the ward field.
-func (r *plateauFloodingDatasetResolver) Ward(ctx context.Context, obj *PlateauFloodingDataset) (*Ward, error) {
-	if obj.WardID == nil {
-		return nil, nil
-	}
-	return to[*Ward](r.Repo.Node(ctx, *obj.WardID))
-}
-
-// Type is the resolver for the type field.
-func (r *plateauFloodingDatasetResolver) Type(ctx context.Context, obj *PlateauFloodingDataset) (*PlateauDatasetType, error) {
-	return to[*PlateauDatasetType](r.Repo.Node(ctx, obj.TypeID))
-}
-
-// PlateauSpec is the resolver for the plateauSpec field.
-func (r *plateauFloodingDatasetResolver) PlateauSpec(ctx context.Context, obj *PlateauFloodingDataset) (*PlateauSpecMinor, error) {
-	panic(fmt.Errorf("not implemented"))
-}
-
-// Parent is the resolver for the parent field.
-func (r *plateauFloodingDatasetItemResolver) Parent(ctx context.Context, obj *PlateauFloodingDatasetItem) (*PlateauDataset, error) {
-	return to[*PlateauDataset](r.Repo.Node(ctx, obj.ParentID))
-}
-
 // DatasetTypes is the resolver for the datasetTypes field.
 func (r *plateauSpecResolver) DatasetTypes(ctx context.Context, obj *PlateauSpec) ([]*PlateauDatasetType, error) {
 	types, err := r.Repo.DatasetTypes(ctx, &DatasetTypeInput{
@@ -320,16 +284,6 @@ func (r *Resolver) PlateauDatasetType() PlateauDatasetTypeResolver {
 	return &plateauDatasetTypeResolver{r}
 }
 
-// PlateauFloodingDataset returns PlateauFloodingDatasetResolver implementation.
-func (r *Resolver) PlateauFloodingDataset() PlateauFloodingDatasetResolver {
-	return &plateauFloodingDatasetResolver{r}
-}
-
-// PlateauFloodingDatasetItem returns PlateauFloodingDatasetItemResolver implementation.
-func (r *Resolver) PlateauFloodingDatasetItem() PlateauFloodingDatasetItemResolver {
-	return &plateauFloodingDatasetItemResolver{r}
-}
-
 // PlateauSpec returns PlateauSpecResolver implementation.
 func (r *Resolver) PlateauSpec() PlateauSpecResolver { return &plateauSpecResolver{r} }
 
@@ -359,8 +313,6 @@ type genericDatasetItemResolver struct{ *Resolver }
 type plateauDatasetResolver struct{ *Resolver }
 type plateauDatasetItemResolver struct{ *Resolver }
 type plateauDatasetTypeResolver struct{ *Resolver }
-type plateauFloodingDatasetResolver struct{ *Resolver }
-type plateauFloodingDatasetItemResolver struct{ *Resolver }
 type plateauSpecResolver struct{ *Resolver }
 type plateauSpecMinorResolver struct{ *Resolver }
 type prefectureResolver struct{ *Resolver }

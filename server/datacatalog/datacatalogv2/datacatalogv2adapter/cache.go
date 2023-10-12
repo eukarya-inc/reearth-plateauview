@@ -93,9 +93,6 @@ func (a *Adapter) UpdateCache(ctx context.Context, opts datacatalogv2.FetcherDoO
 		if d, ok := plateauDatasetFrom(d); ok {
 			a.plateauDatasets = append(a.plateauDatasets, d)
 		}
-		if d, ok := plateauFloodingDatasetFrom(d); ok {
-			a.plateauFloodingDatasets = append(a.plateauFloodingDatasets, d)
-		}
 		if d, ok := relatedDatasetFrom(d); ok {
 			a.relatedDatasets = append(a.relatedDatasets, d)
 		}

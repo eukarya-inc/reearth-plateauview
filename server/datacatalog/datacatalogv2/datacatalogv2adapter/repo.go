@@ -17,21 +17,20 @@ type Adapter struct {
 	project string
 
 	// cache
-	lock                    sync.Mutex
-	updatingCache           bool
-	cache                   []datacatalogv2.DataCatalogItem
-	prefectures             []plateauapi.Prefecture
-	cities                  []plateauapi.City
-	wards                   []plateauapi.Ward
-	areasForDataTypes       map[string]map[plateauapi.AreaCode]struct{}
-	plateauDatasetTypes     []plateauapi.PlateauDatasetType
-	relatedDatasetTypes     []plateauapi.RelatedDatasetType
-	genericDatasetTypes     []plateauapi.GenericDatasetType
-	plateauDatasets         []plateauapi.PlateauDataset
-	plateauFloodingDatasets []plateauapi.PlateauFloodingDataset
-	relatedDatasets         []plateauapi.RelatedDataset
-	genericDatasets         []plateauapi.GenericDataset
-	years                   []int
+	lock                sync.Mutex
+	updatingCache       bool
+	cache               []datacatalogv2.DataCatalogItem
+	prefectures         []plateauapi.Prefecture
+	cities              []plateauapi.City
+	wards               []plateauapi.Ward
+	areasForDataTypes   map[string]map[plateauapi.AreaCode]struct{}
+	plateauDatasetTypes []plateauapi.PlateauDatasetType
+	relatedDatasetTypes []plateauapi.RelatedDatasetType
+	genericDatasetTypes []plateauapi.GenericDatasetType
+	plateauDatasets     []plateauapi.PlateauDataset
+	relatedDatasets     []plateauapi.RelatedDataset
+	genericDatasets     []plateauapi.GenericDataset
+	years               []int
 }
 
 func New(cmsbase, project string) (*Adapter, error) {
@@ -97,12 +96,6 @@ func (a *Adapter) Node(ctx context.Context, id plateauapi.ID) (plateauapi.Node, 
 			return &p, nil
 		}
 
-		if p, ok := lo.Find(a.plateauFloodingDatasets, func(p plateauapi.PlateauFloodingDataset) bool {
-			return p.ID == id
-		}); ok {
-			return &p, nil
-		}
-
 		if p, ok := lo.Find(a.relatedDatasets, func(p plateauapi.RelatedDataset) bool {
 			return p.ID == id
 		}); ok {
@@ -122,15 +115,6 @@ func (a *Adapter) Node(ctx context.Context, id plateauapi.ID) (plateauapi.Node, 
 			return p.ID == parentID
 		}); ok {
 			item, _ := lo.Find(p.Items, func(i *plateauapi.PlateauDatasetItem) bool {
-				return i.ID == id
-			})
-			return item, nil
-		}
-
-		if p, ok := lo.Find(a.plateauFloodingDatasets, func(p plateauapi.PlateauFloodingDataset) bool {
-			return p.ID == parentID
-		}); ok {
-			item, _ := lo.Find(p.Items, func(i *plateauapi.PlateauFloodingDatasetItem) bool {
 				return i.ID == id
 			})
 			return item, nil
@@ -293,9 +277,6 @@ func (a *Adapter) Datasets(ctx context.Context, input *plateauapi.DatasetInput) 
 	plateau := lo.Filter(a.plateauDatasets, func(t plateauapi.PlateauDataset, _ int) bool {
 		return filterDataset(t, inp)
 	})
-	flooding := lo.Filter(a.plateauFloodingDatasets, func(t plateauapi.PlateauFloodingDataset, _ int) bool {
-		return filterDataset(t, inp)
-	})
 	related := lo.Filter(a.relatedDatasets, func(t plateauapi.RelatedDataset, _ int) bool {
 		return filterDataset(t, inp)
 	})
@@ -304,10 +285,6 @@ func (a *Adapter) Datasets(ctx context.Context, input *plateauapi.DatasetInput) 
 	})
 
 	for _, t := range plateau {
-		t := t
-		res = append(res, &t)
-	}
-	for _, t := range flooding {
 		t := t
 		res = append(res, &t)
 	}

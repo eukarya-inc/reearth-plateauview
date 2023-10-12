@@ -280,11 +280,6 @@ func TestAdapter_Datasets(t *testing.T) {
 			{ID: "2", Name: "Plateau Dataset 2", Year: 2022, TypeCode: "bldg"},
 			{ID: "3", Name: "Plateau Dataset 3", Year: 2023},
 		},
-		plateauFloodingDatasets: []plateauapi.PlateauFloodingDataset{
-			{ID: "4", Name: "Plateau Flooding Dataset 1", Year: 2022},
-			{ID: "5", Name: "Plateau Flooding Dataset 2", Year: 2022},
-			{ID: "6", Name: "Plateau Flooding Dataset 3", Year: 2023},
-		},
 		relatedDatasets: []plateauapi.RelatedDataset{
 			{ID: "7", Name: "Related Dataset 1", Year: 2022, Description: lo.ToPtr("desc!")},
 			{ID: "8", Name: "Related Dataset 2", Year: 2022},
@@ -309,9 +304,6 @@ func TestAdapter_Datasets(t *testing.T) {
 				&plateauapi.PlateauDataset{ID: "1", Name: "Plateau Dataset 1", Year: 2022, CityCode: lo.ToPtr(plateauapi.AreaCode("01100"))},
 				&plateauapi.PlateauDataset{ID: "2", Name: "Plateau Dataset 2", Year: 2022, TypeCode: "bldg"},
 				&plateauapi.PlateauDataset{ID: "3", Name: "Plateau Dataset 3", Year: 2023},
-				&plateauapi.PlateauFloodingDataset{ID: "4", Name: "Plateau Flooding Dataset 1", Year: 2022},
-				&plateauapi.PlateauFloodingDataset{ID: "5", Name: "Plateau Flooding Dataset 2", Year: 2022},
-				&plateauapi.PlateauFloodingDataset{ID: "6", Name: "Plateau Flooding Dataset 3", Year: 2023},
 				&plateauapi.RelatedDataset{ID: "7", Name: "Related Dataset 1", Year: 2022, Description: lo.ToPtr("desc!")},
 				&plateauapi.RelatedDataset{ID: "8", Name: "Related Dataset 2", Year: 2022},
 				&plateauapi.RelatedDataset{ID: "9", Name: "Related Dataset 3", Year: 2023},
@@ -367,9 +359,6 @@ func TestAdapter_Datasets(t *testing.T) {
 			want: []plateauapi.Dataset{
 				&plateauapi.PlateauDataset{ID: "1", Name: "Plateau Dataset 1", Year: 2022, CityCode: lo.ToPtr(plateauapi.AreaCode("01100"))},
 				&plateauapi.PlateauDataset{ID: "3", Name: "Plateau Dataset 3", Year: 2023},
-				&plateauapi.PlateauFloodingDataset{ID: "4", Name: "Plateau Flooding Dataset 1", Year: 2022},
-				&plateauapi.PlateauFloodingDataset{ID: "5", Name: "Plateau Flooding Dataset 2", Year: 2022},
-				&plateauapi.PlateauFloodingDataset{ID: "6", Name: "Plateau Flooding Dataset 3", Year: 2023},
 				&plateauapi.RelatedDataset{ID: "7", Name: "Related Dataset 1", Year: 2022, Description: lo.ToPtr("desc!")},
 				&plateauapi.RelatedDataset{ID: "8", Name: "Related Dataset 2", Year: 2022},
 				&plateauapi.RelatedDataset{ID: "9", Name: "Related Dataset 3", Year: 2023},
@@ -439,9 +428,6 @@ func TestAdapter_Node(t *testing.T) {
 		plateauDatasets: []plateauapi.PlateauDataset{
 			{ID: plateauapi.NewID("1", plateauapi.TypeDataset), Name: "Plateau Dataset 1"},
 		},
-		plateauFloodingDatasets: []plateauapi.PlateauFloodingDataset{
-			{ID: plateauapi.NewID("2", plateauapi.TypeDataset), Name: "Plateau Flooding Dataset 1"},
-		},
 		relatedDatasets: []plateauapi.RelatedDataset{
 			{ID: plateauapi.NewID("3", plateauapi.TypeDataset), Name: "Related Dataset 1"},
 		},
@@ -494,11 +480,6 @@ func TestAdapter_Node(t *testing.T) {
 			name:     "plateau dataset",
 			id:       plateauapi.NewID("1", plateauapi.TypeDataset),
 			expected: &plateauapi.PlateauDataset{ID: plateauapi.NewID("1", plateauapi.TypeDataset), Name: "Plateau Dataset 1"},
-		},
-		{
-			name:     "plateau flooding dataset",
-			id:       plateauapi.NewID("2", plateauapi.TypeDataset),
-			expected: &plateauapi.PlateauFloodingDataset{ID: plateauapi.NewID("2", plateauapi.TypeDataset), Name: "Plateau Flooding Dataset 1"},
 		},
 		{
 			name:     "related dataset",

@@ -27,14 +27,6 @@ func filterDataset(d plateauapi.Dataset, input plateauapi.DatasetInput) bool {
 		}
 		year = d2.Year
 		spec = d2.PlateauSpecName
-	case plateauapi.PlateauFloodingDataset:
-		dataType = d2.TypeCode
-		text = []string{
-			d2.Name,
-			lo.FromPtr(d2.Description),
-			lo.FromPtr(d2.Subname),
-		}
-		year = d2.Year
 	case plateauapi.RelatedDataset:
 		dataType = d2.TypeCode
 		text = []string{
@@ -145,14 +137,6 @@ func areaCodeFrom(d plateauapi.Dataset) *plateauapi.AreaCode {
 			return d2.CityCode
 		}
 		return &d2.PrefectureCode
-	case plateauapi.PlateauFloodingDataset:
-		if d2.WardCode != nil {
-			return d2.WardCode
-		}
-		if d2.CityCode != nil {
-			return d2.CityCode
-		}
-		return &d2.PrefectureCode
 	case plateauapi.RelatedDataset:
 		if d2.WardCode != nil {
 			return d2.WardCode
@@ -176,12 +160,6 @@ func areaCodeFrom(d plateauapi.Dataset) *plateauapi.AreaCode {
 func areaCodesFrom(d plateauapi.Dataset) []plateauapi.AreaCode {
 	switch d2 := d.(type) {
 	case plateauapi.PlateauDataset:
-		return util.DerefSlice([]*plateauapi.AreaCode{
-			lo.ToPtr(d2.PrefectureCode),
-			d2.CityCode,
-			d2.WardCode,
-		})
-	case plateauapi.PlateauFloodingDataset:
 		return util.DerefSlice([]*plateauapi.AreaCode{
 			lo.ToPtr(d2.PrefectureCode),
 			d2.CityCode,

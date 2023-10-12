@@ -51,7 +51,7 @@ var plateauSpecs = []*plateauapi.PlateauSpec{
 }
 
 func plateauDatasetFrom(d datacatalogv2.DataCatalogItem) (plateauapi.PlateauDataset, bool) {
-	if d.Family != "plateau" || slices.Contains(floodingTypes, d.TypeEn) {
+	if d.Family != "plateau" {
 		return plateauapi.PlateauDataset{}, false
 	}
 
@@ -60,11 +60,39 @@ func plateauDatasetFrom(d datacatalogv2.DataCatalogItem) (plateauapi.PlateauData
 		plateauSpecVersion = "3.0"
 	}
 
+	var subname *string
+	var river *plateauapi.River
+	if slices.Contains(floodingTypes, d.TypeEn) {
+		if d.TypeEn == "fld" {
+			var admin plateauapi.RiverAdmin
+			if strings.Contains(d.Name, "（国管理区間）") {
+				admin = plateauapi.RiverAdminNational
+			} else if strings.Contains(d.Name, "（都道府県管理区間）") {
+				admin = plateauapi.RiverAdminPrefecture
+			}
+
+			names := strings.Split(reBrackets.ReplaceAllString(d.Name, ""), " ")
+			name, _ := lo.Find(names, func(s string) bool {
+				return strings.HasSuffix(s, "川")
+			})
+
+			river = &plateauapi.River{
+				Name:  name,
+				Admin: admin,
+			}
+		} else {
+			names := strings.Split(d.Name, " ")
+			if len(names) > 1 {
+				subname = lo.ToPtr(names[1])
+			}
+		}
+	}
+
 	id := datasetIDFrom(d, nil)
 	return plateauapi.PlateauDataset{
 		ID:              id,
 		Name:            d.Name,
-		Subname:         nil,
+		Subname:         subname,
 		Description:     lo.ToPtr(d.Description),
 		PrefectureID:    prefectureIDFrom(d),
 		PrefectureCode:  prefectureCodeFrom(d),
@@ -78,6 +106,7 @@ func plateauDatasetFrom(d datacatalogv2.DataCatalogItem) (plateauapi.PlateauData
 		Groups:          groupsFrom(d),
 		PlateauSpecID:   plateauSpecIDFrom(plateauSpecVersion),
 		PlateauSpecName: plateauSpecVersion,
+		River:           river,
 		Items: lo.Map(d.MainOrConfigItems(), func(c datacatalogutil.DataCatalogItemConfigItem, _ int) *plateauapi.PlateauDatasetItem {
 			return plateauDatasetItemFrom(c, id)
 		}),
@@ -103,98 +132,30 @@ func plateauDatasetItemFrom(c datacatalogutil.DataCatalogItemConfigItem, parentI
 		texture = lo.ToPtr(plateauapi.TextureTexture)
 	}
 
+	id := c.Name
+	var floodingScale *plateauapi.FloodingScale
+	if strings.Contains(c.Name, "想定最大規模") || strings.Contains(c.Name, "L2") {
+		floodingScale = lo.ToPtr(plateauapi.FloodingScaleExpectedMaximum)
+		id = "l2"
+	} else if strings.Contains(c.Name, "計画規模") || strings.Contains(c.Name, "L1") {
+		floodingScale = lo.ToPtr(plateauapi.FloodingScalePlanned)
+		id = "l1"
+	}
+
 	return &plateauapi.PlateauDatasetItem{
-		ID:       plateauapi.NewID(fmt.Sprintf("%s_%s", parentID.ID(), c.Name), plateauapi.TypeDatasetItem),
-		Name:     c.Name,
-		URL:      c.URL,
-		Format:   format,
-		Layers:   c.Layers,
-		ParentID: parentID,
-		Lod:      lod,
-		Texture:  texture,
+		ID:            plateauapi.NewID(fmt.Sprintf("%s_%s", parentID.ID(), id), plateauapi.TypeDatasetItem),
+		Name:          c.Name,
+		URL:           c.URL,
+		Format:        format,
+		Layers:        c.Layers,
+		ParentID:      parentID,
+		Lod:           lod,
+		Texture:       texture,
+		FloodingScale: floodingScale,
 	}
 }
 
 var reBrackets = regexp.MustCompile(`（[^（]*）`)
-
-func plateauFloodingDatasetFrom(d datacatalogv2.DataCatalogItem) (plateauapi.PlateauFloodingDataset, bool) {
-	if d.Family != "plateau" || !slices.Contains(floodingTypes, d.TypeEn) {
-		return plateauapi.PlateauFloodingDataset{}, false
-	}
-
-	var subname *string
-	var river *plateauapi.River
-
-	if d.TypeEn == "fld" {
-		var admin plateauapi.RiverAdmin
-		if strings.Contains(d.Name, "（国管理区間）") {
-			admin = plateauapi.RiverAdminNational
-		} else if strings.Contains(d.Name, "（都道府県管理区間）") {
-			admin = plateauapi.RiverAdminPrefecture
-		}
-
-		names := strings.Split(reBrackets.ReplaceAllString(d.Name, ""), " ")
-		name, _ := lo.Find(names, func(s string) bool {
-			return strings.HasSuffix(s, "川")
-		})
-
-		river = &plateauapi.River{
-			Name:  name,
-			Admin: admin,
-		}
-	} else {
-		names := strings.Split(d.Name, " ")
-		if len(names) > 1 {
-			subname = lo.ToPtr(names[1])
-		}
-	}
-
-	id := datasetIDFrom(d, subname)
-	return plateauapi.PlateauFloodingDataset{
-		ID:              id,
-		Name:            d.Name,
-		Subname:         subname,
-		Description:     lo.ToPtr(d.Description),
-		PrefectureID:    prefectureIDFrom(d),
-		PrefectureCode:  prefectureCodeFrom(d),
-		CityID:          cityIDFrom(d),
-		CityCode:        cityCodeFrom(d),
-		WardID:          wardIDFrom(d),
-		WardCode:        wardCodeFrom(d),
-		Year:            d.Year,
-		TypeID:          datasetTypeIDFrom(d),
-		TypeCode:        datasetTypeCodeFrom(d),
-		Groups:          groupsFrom(d),
-		PlateauSpecID:   plateauSpecIDFrom(d.Spec),
-		PlateauSpecName: d.Spec,
-		River:           river,
-		Items: lo.Map(d.MainOrConfigItems(), func(c datacatalogutil.DataCatalogItemConfigItem, _ int) *plateauapi.PlateauFloodingDatasetItem {
-			return plateauFloodingDatasetItemFrom(c, id)
-		}),
-	}, true
-}
-
-func plateauFloodingDatasetItemFrom(c datacatalogutil.DataCatalogItemConfigItem, parentID plateauapi.ID) *plateauapi.PlateauFloodingDatasetItem {
-	var id string
-	var floodingScale plateauapi.FloodingScale
-	if strings.Contains(c.Name, "想定最大規模") || strings.Contains(c.Name, "L2") {
-		floodingScale = plateauapi.FloodingScaleExpectedMaximum
-		id = "l2"
-	} else if strings.Contains(c.Name, "計画規模") || strings.Contains(c.Name, "L1") {
-		floodingScale = plateauapi.FloodingScalePlanned
-		id = "l1"
-	}
-
-	return &plateauapi.PlateauFloodingDatasetItem{
-		ID:            plateauapi.NewID(fmt.Sprintf("%s_%s", parentID.ID(), id), plateauapi.TypeDatasetItem),
-		Name:          c.Name,
-		URL:           c.URL,
-		Format:        datasetFormatFrom(c.Type),
-		Layers:        c.Layers,
-		ParentID:      parentID,
-		FloodingScale: floodingScale,
-	}
-}
 
 func relatedDatasetFrom(d datacatalogv2.DataCatalogItem) (plateauapi.RelatedDataset, bool) {
 	if d.Family != "related" {
@@ -338,9 +299,8 @@ func datasetIDFrom(d datacatalogv2.DataCatalogItem, subname *string) plateauapi.
 		sub := ""
 		typeCode := datasetTypeCodeFrom(d)
 		isFlood := slices.Contains(floodingTypes, d.TypeEn)
-		isEx := isEx(d)
 
-		if isFlood || d.TypeEn == "gen" || isEx {
+		if isFlood || d.TypeEn == "gen" || isEx(d) {
 			if _, after, found := strings.Cut(d.ID, "_"+typeCode+"_"); found {
 				if isFlood {
 					after = strings.TrimSuffix(after, "_l1")
@@ -469,18 +429,19 @@ func plateauDatasetTypeFrom(d datacatalogv2.DataCatalogItem) plateauapi.PlateauD
 	}
 	spec := d.Spec
 	if isEx(d) {
-		spec = "3"
+		spec = "第3.0版"
 	}
 
 	year, _ := strconv.Atoi(d.Edition)
 	return plateauapi.PlateauDatasetType{
-		ID:            datasetTypeIDFrom(d),
-		Name:          name,
-		Code:          datasetTypeCodeFrom(d),
-		Year:          year,
-		Category:      plateauapi.DatasetTypeCategoryPlateau,
-		PlateauSpecID: plateauSpecMajorIDFrom(spec),
-		Flood:         slices.Contains(floodingTypes, d.TypeEn),
+		ID:              datasetTypeIDFrom(d),
+		Name:            name,
+		Code:            datasetTypeCodeFrom(d),
+		Year:            year,
+		Category:        plateauapi.DatasetTypeCategoryPlateau,
+		PlateauSpecID:   plateauSpecMajorIDFrom(spec),
+		PlateauSpecName: spec,
+		Flood:           slices.Contains(floodingTypes, d.TypeEn),
 	}
 }
 

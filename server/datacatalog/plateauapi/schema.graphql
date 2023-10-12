@@ -477,17 +477,21 @@ type PlateauDataset implements Dataset & Node {
   """
   items: [PlateauDatasetItem!]!
   """
-  データセットが準拠する仕様のID。
+  データセットが準拠するPLATEAU都市モデルの仕様のID。
   """
   plateauSpecId: ID!
   """
-  データセットが準拠する仕様の名称。
+  データセットが準拠するPLATEAU都市モデルの仕様の名称。
   """
   plateauSpecName: String!
   """
-  データセットが準拠する仕様。
+  データセットが準拠するPLATEAU都市モデルの仕様。
   """
   plateauSpec: PlateauSpecMinor!
+  """
+  河川。地物型が洪水浸水想定区域モデル（fld）の場合のみ存在します。
+  """
+  river: River
 }
 
 """
@@ -520,7 +524,6 @@ type PlateauDatasetItem implements DatasetItem & Node {
   データセットのアイテムが属するデータセット。
   """
   parent: PlateauDataset
-
   """
   データセットのアイテムのLOD（詳細度・Level of Detail）。1、2、3、4などの整数値です。
   """
@@ -529,6 +532,10 @@ type PlateauDatasetItem implements DatasetItem & Node {
   データセットのアイテムのテクスチャの種類。
   """
   texture: Texture
+  """
+  浸水規模。地物型が洪水・高潮・津波・内水浸水想定区域モデル（fld・htd・tnm・ifld）の場合のみ存在します。
+  """
+  floodingScale: FloodingScale
 }
 
 """
@@ -546,138 +553,7 @@ enum Texture {
 }
 
 """
-PLATEAU都市モデルのデータセットのうち、地物型が洪水・高潮・津波・内水浸水想定区域モデル（fld, htd, tnm, ifld）のデータセット。
-"""
-type PlateauFloodingDataset implements Dataset & Node {
-  id: ID!
-  """
-  データセット名
-  """
-  name: String!
-  """
-  データセットのサブ名
-  """
-  subname: String
-  """
-  データセットの説明
-  """
-  description: String
-  """
-  データセットの公開年度（西暦）
-  """
-  year: Int!
-  """
-  データセットを分類するグループ。グループが階層構造になっている場合は、親から子の順番で複数のグループ名が存在することがあります。
-  """
-  groups: [String!]
-  """
-  データセットが属する都道府県のID。
-  """
-  prefecture_id: ID!
-  """
-  データセットが属する都道府県コード。2桁の数字から成る文字列です。
-  """
-  prefecture_code: AreaCode!
-  """
-  データセットが属する市のID。
-  """
-  city_id: ID
-  """
-  データセットが属する市コード。先頭に都道府県コードを含む6桁の数字から成る文字列です。
-  """
-  city_code: AreaCode
-  """
-  データセットが属する区のID。
-  """
-  ward_id: ID
-  """
-  データセットが属する区コード。先頭に都道府県コードを含む6桁の数字から成る文字列です。
-  """
-  ward_code: AreaCode
-  """
-  データセットの種類のID。
-  """
-  type_id: ID!
-  """
-  データセットの種類コード。
-  """
-  type_code: String!
-  """
-  データセットが属する都道府県。
-  """
-  prefecture: Prefecture
-  """
-  データセットが属する市。
-  """
-  city: City
-  """
-  データセットが属する区。
-  """
-  ward: Ward
-  """
-  データセットの種類。
-  """
-  type: PlateauDatasetType!
-  """
-  データセットのアイテム。
-  """
-  items: [PlateauFloodingDatasetItem!]!
-  """
-  データセットが準拠する仕様のID。
-  """
-  plateauSpecId: ID!
-  """
-  データセットが準拠する仕様の名称。
-  """
-  plateauSpecName: String!
-  """
-  データセットが準拠する仕様。
-  """
-  plateauSpec: PlateauSpecMinor!
-  """
-  河川。地物型が洪水浸水想定区域（fld）の場合のみ存在します。
-  """
-  river: River
-}
-
-"""
-PLATEAU都市モデルの洪水・高潮・津波・内水浸水想定区域モデル（fld, htd, tnm, ifld）のデータセットのアイテム。
-"""
-type PlateauFloodingDatasetItem implements DatasetItem & Node {
-  id: ID!
-  """
-  データセットのアイテムのフォーマット。
-  """
-  format: DatasetFormat!
-  """
-  データセットのアイテム名。
-  """
-  name: String!
-  """
-  データセットのアイテムのURL。
-  """
-  url: String!
-  """
-  データセットのアイテムのレイヤー名。MVTやWMSなどのフォーマットの場合のみ存在。
-  レイヤー名が複数存在する場合は、同時に複数のレイヤーを表示可能であることを意味します。
-  """
-  layers: [String!]
-  """
-  データセットのアイテムが属するデータセットのID。
-  """
-  parent_id: ID!
-  """
-  データセットのアイテムが属するデータセット。
-  """
-  parent: PlateauDataset
-  """
-  浸水規模
-  """
-  floodingScale: FloodingScale!
-}
-
-"""
-河川
+洪水浸水想定区域モデルにおける河川。
 """
 type River {
   """
@@ -705,7 +581,7 @@ enum RiverAdmin {
 }
 
 """
-浸水規模
+浸水想定区域モデルにおける浸水規模。
 """
 enum FloodingScale {
   """
@@ -735,11 +611,14 @@ type PlateauDatasetType implements DatasetType & Node {
   データセットの種類のカテゴリ。
   """
   category: DatasetTypeCategory!
-
   """
   データセットの種類が属するPLATEAU都市モデルの仕様のID。
   """
   plateauSpecId: ID!
+  """
+  データセットの種類が属するPLATEAU都市モデルの仕様の名称。
+  """
+  plateauSpecName: String!
   """
   データセットの種類が属するPLATEAU都市モデルの仕様。
   """
