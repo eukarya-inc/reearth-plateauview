@@ -3,8 +3,8 @@ package datacatalog
 import (
 	"context"
 	"fmt"
+	"path"
 
-	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/eukarya-inc/reearth-plateauview/server/datacatalog/datacatalogv2"
 	"github.com/eukarya-inc/reearth-plateauview/server/datacatalog/datacatalogv2/datacatalogv2adapter"
 	"github.com/eukarya-inc/reearth-plateauview/server/datacatalog/plateauapi"
@@ -16,10 +16,11 @@ import (
 
 type Config struct {
 	plateaucms.Config
-	CMSBase        string
-	DisableCache   bool
-	CacheTTL       int
-	CacheUpdateKey string
+	CMSBase            string
+	DisableCache       bool
+	CacheTTL           int
+	CacheUpdateKey     string
+	PlaygroundEndpoint string
 }
 
 func Echo(conf Config, g *echo.Group) error {
@@ -37,7 +38,10 @@ func Echo(conf Config, g *echo.Group) error {
 	)
 
 	srv := plateauapi.NewService(repo)
-	plateauapig.GET("/graphql", echo.WrapHandler(playground.Handler("PLATEAU GraphQL API Playground", "/datacatalog/graphql")))
+	plateauapig.GET("/graphql", echo.WrapHandler(plateauapi.PlaygroundHandler(
+		"PLATEAU GraphQL API Playground",
+		path.Join(conf.PlaygroundEndpoint, "graphql"),
+	)))
 	plateauapig.POST("/graphql", echo.WrapHandler(srv))
 
 	// compat: PLATEAU VIEW 2.0 API
