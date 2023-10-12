@@ -6,6 +6,7 @@ export type CatalogItemLike = {
   type_en: string;
   code: number;
   group?: string;
+  category?: string;
   // internal
   pref_code_i: number;
   order?: number;
@@ -33,13 +34,13 @@ function sortByCity(a: CatalogItemLike, b: CatalogItemLike): number {
 }
 
 function sortByType(a: CatalogItemLike, b: CatalogItemLike): number {
-  const ai = types.indexOf(a.type_en);
-  const bi = types.indexOf(b.type_en);
+  const ai = a.category ? -1 : types.indexOf(a.type_en);
+  const bi = b.category ? -1 : types.indexOf(b.type_en);
 
   if (ai === -1 && bi !== -1) return 1;
   if (ai !== -1 && bi === -1) return -1;
   if (ai === -1 && bi === -1) {
-    return a.type_en.localeCompare(b.type_en);
+    return (a.category || a.type_en).localeCompare(b.category || b.type_en);
   }
 
   return clamp(ai - bi);
