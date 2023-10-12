@@ -14,7 +14,6 @@ func (a *Adapter) UpdateCache(ctx context.Context, opts datacatalogv2.FetcherDoO
 	updating := a.updatingCache
 	a.lock.Lock()
 	defer a.lock.Unlock()
-
 	if updating {
 		return nil
 	}

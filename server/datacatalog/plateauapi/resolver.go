@@ -5,6 +5,7 @@ package plateauapi
 import (
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/handler"
+	"github.com/99designs/gqlgen/graphql/handler/extension"
 )
 
 // Example
@@ -39,7 +40,7 @@ type Resolver struct {
 func NewService(repo Repo) *handler.Server {
 	srv := handler.NewDefaultServer(NewSchema(repo))
 
-	// srv.Use(extension.FixedComplexityLimit(30))
+	srv.Use(extension.FixedComplexityLimit(1000))
 
 	return srv
 }

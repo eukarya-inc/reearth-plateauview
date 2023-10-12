@@ -57,6 +57,7 @@ type Config struct {
 	DataConv_Disable                  bool
 	Indexer_Delegate                  bool
 	DataCatalog_DisableCache          bool
+	DataCatalog_CacheUpdateKey        string
 	DataCatalog_CacheTTL              int
 	SDKAPI_DisableCache               bool
 	SDKAPI_CacheTTL                   int
@@ -180,10 +181,11 @@ func (c *Config) Sidebar() sidebar.Config {
 
 func (c *Config) DataCatalog() datacatalog.Config {
 	return datacatalog.Config{
-		Config:       c.PLATEAUCMS(),
-		CMSBase:      c.CMS_BaseURL,
-		DisableCache: c.DataCatalog_DisableCache,
-		CacheTTL:     c.DataCatalog_CacheTTL,
+		Config:         c.PLATEAUCMS(),
+		CMSBase:        c.CMS_BaseURL,
+		DisableCache:   c.DataCatalog_DisableCache,
+		CacheTTL:       c.DataCatalog_CacheTTL,
+		CacheUpdateKey: c.DataCatalog_CacheUpdateKey,
 	}
 }
 
