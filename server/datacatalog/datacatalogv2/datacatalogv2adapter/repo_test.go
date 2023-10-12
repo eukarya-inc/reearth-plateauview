@@ -181,9 +181,9 @@ func TestAdapter_Areas(t *testing.T) {
 func TestAdapter_DatasetTypes(t *testing.T) {
 	a := &Adapter{
 		plateauDatasetTypes: []plateauapi.PlateauDatasetType{
-			{ID: "1", Name: "Plateau Dataset 1", Year: 2022},
-			{ID: "2", Name: "Plateau Dataset 2", Year: 2022},
-			{ID: "3", Name: "Plateau Dataset 3", Year: 2023},
+			{ID: "1", Name: "Plateau Dataset 1", Year: 2022, PlateauSpecName: "第2.3版"},
+			{ID: "2", Name: "Plateau Dataset 2", Year: 2022, PlateauSpecName: "第2.3版"},
+			{ID: "3", Name: "Plateau Dataset 3", Year: 2023, PlateauSpecName: "第3.0版"},
 		},
 		relatedDatasetTypes: []plateauapi.RelatedDatasetType{
 			{ID: "4", Name: "Related Dataset 1"},
@@ -206,9 +206,9 @@ func TestAdapter_DatasetTypes(t *testing.T) {
 			name:  "no filter",
 			input: nil,
 			expected: []plateauapi.DatasetType{
-				&plateauapi.PlateauDatasetType{ID: "1", Name: "Plateau Dataset 1", Year: 2022},
-				&plateauapi.PlateauDatasetType{ID: "2", Name: "Plateau Dataset 2", Year: 2022},
-				&plateauapi.PlateauDatasetType{ID: "3", Name: "Plateau Dataset 3", Year: 2023},
+				&plateauapi.PlateauDatasetType{ID: "1", Name: "Plateau Dataset 1", Year: 2022, PlateauSpecName: "第2.3版"},
+				&plateauapi.PlateauDatasetType{ID: "2", Name: "Plateau Dataset 2", Year: 2022, PlateauSpecName: "第2.3版"},
+				&plateauapi.PlateauDatasetType{ID: "3", Name: "Plateau Dataset 3", Year: 2023, PlateauSpecName: "第3.0版"},
 				&plateauapi.RelatedDatasetType{ID: "4", Name: "Related Dataset 1"},
 				&plateauapi.RelatedDatasetType{ID: "5", Name: "Related Dataset 2"},
 				&plateauapi.RelatedDatasetType{ID: "6", Name: "Related Dataset 3"},
@@ -223,8 +223,8 @@ func TestAdapter_DatasetTypes(t *testing.T) {
 				Year: lo.ToPtr(2022),
 			},
 			expected: []plateauapi.DatasetType{
-				&plateauapi.PlateauDatasetType{ID: "1", Name: "Plateau Dataset 1", Year: 2022},
-				&plateauapi.PlateauDatasetType{ID: "2", Name: "Plateau Dataset 2", Year: 2022},
+				&plateauapi.PlateauDatasetType{ID: "1", Name: "Plateau Dataset 1", Year: 2022, PlateauSpecName: "第2.3版"},
+				&plateauapi.PlateauDatasetType{ID: "2", Name: "Plateau Dataset 2", Year: 2022, PlateauSpecName: "第2.3版"},
 			},
 		},
 		{
@@ -233,9 +233,8 @@ func TestAdapter_DatasetTypes(t *testing.T) {
 				PlateauSpec: lo.ToPtr("2.3"),
 			},
 			expected: []plateauapi.DatasetType{
-				&plateauapi.PlateauDatasetType{ID: "1", Name: "Plateau Dataset 1", Year: 2022},
-				&plateauapi.PlateauDatasetType{ID: "2", Name: "Plateau Dataset 2", Year: 2022},
-				&plateauapi.PlateauDatasetType{ID: "3", Name: "Plateau Dataset 3", Year: 2023},
+				&plateauapi.PlateauDatasetType{ID: "1", Name: "Plateau Dataset 1", Year: 2022, PlateauSpecName: "第2.3版"},
+				&plateauapi.PlateauDatasetType{ID: "2", Name: "Plateau Dataset 2", Year: 2022, PlateauSpecName: "第2.3版"},
 			},
 		},
 		{
