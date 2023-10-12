@@ -319,6 +319,7 @@ func TestAdapter_Datasets(t *testing.T) {
 			},
 			want: []plateauapi.Dataset{
 				&plateauapi.PlateauDataset{ID: "1", Name: "Plateau Dataset 1", Year: 2022, CityCode: lo.ToPtr(plateauapi.AreaCode("01100"))},
+				&plateauapi.GenericDataset{ID: "12", Name: "Generic Dataset 3", Year: 2023, CityCode: lo.ToPtr(plateauapi.AreaCode("01100")), WardCode: lo.ToPtr(plateauapi.AreaCode("01101"))},
 			},
 		},
 		{
@@ -335,11 +336,10 @@ func TestAdapter_Datasets(t *testing.T) {
 			name: "filter by an area code depply",
 			input: &plateauapi.DatasetInput{
 				AreaCodes: []plateauapi.AreaCode{"01100"},
-				Deep:      lo.ToPtr(true),
+				Shallow:   lo.ToPtr(true),
 			},
 			want: []plateauapi.Dataset{
 				&plateauapi.PlateauDataset{ID: "1", Name: "Plateau Dataset 1", Year: 2022, CityCode: lo.ToPtr(plateauapi.AreaCode("01100"))},
-				&plateauapi.GenericDataset{ID: "12", Name: "Generic Dataset 3", Year: 2023, CityCode: lo.ToPtr(plateauapi.AreaCode("01100")), WardCode: lo.ToPtr(plateauapi.AreaCode("01101"))},
 			},
 		},
 		{

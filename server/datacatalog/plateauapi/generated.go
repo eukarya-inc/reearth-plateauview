@@ -10690,7 +10690,7 @@ func (ec *executionContext) unmarshalInputDatasetInput(ctx context.Context, obj 
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"areaCodes", "plateauSpec", "year", "excludeTypes", "includeTypes", "searchTokens", "deep"}
+	fieldsInOrder := [...]string{"areaCodes", "plateauSpec", "year", "excludeTypes", "includeTypes", "searchTokens", "shallow"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -10745,11 +10745,11 @@ func (ec *executionContext) unmarshalInputDatasetInput(ctx context.Context, obj 
 			if err != nil {
 				return it, err
 			}
-		case "deep":
+		case "shallow":
 			var err error
 
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("deep"))
-			it.Deep, err = ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("shallow"))
+			it.Shallow, err = ec.unmarshalOBoolean2ᚖbool(ctx, v)
 			if err != nil {
 				return it, err
 			}

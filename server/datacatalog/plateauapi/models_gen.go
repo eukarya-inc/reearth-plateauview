@@ -84,9 +84,10 @@ type DatasetInput struct {
 	IncludeTypes []string `json:"includeTypes"`
 	// 検索文字列。複数指定するとAND条件で絞り込み検索が行えます。
 	SearchTokens []string `json:"searchTokens"`
-	// areaCodesで指定された地域の配下にある全ての自治体のデータセットを含めるかどうか。
-	// 例えば、札幌市を指定した場合、札幌市自体のデータだけでなく、札幌市の配下の全ての区（例えば中央区や北区）のデータセットも含めるかどうか。
-	Deep *bool `json:"deep"`
+	// areaCodesで指定された地域に直接属しているデータセットのみを検索対象にするかどうか。
+	// デフォルトはfalseで、指定された地域に間接的に属するデータセットも全て検索します。
+	// 例えば、札幌市を対象にした場合、札幌市には中央区や北区といった区のデータセットも存在しますが、trueにすると札幌市のデータセットのみを返します。
+	Shallow *bool `json:"shallow"`
 }
 
 // データセットの種類を検索するためのクエリ。

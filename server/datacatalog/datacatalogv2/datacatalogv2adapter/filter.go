@@ -49,10 +49,10 @@ func filterDataset(d plateauapi.Dataset, input plateauapi.DatasetInput) bool {
 
 	if len(input.AreaCodes) > 0 {
 		var areaCodes []plateauapi.AreaCode
-		if lo.FromPtr(input.Deep) {
-			areaCodes = areaCodesFrom(d)
-		} else {
+		if lo.FromPtr(input.Shallow) {
 			areaCodes = util.DerefSlice([]*plateauapi.AreaCode{areaCodeFrom(d)})
+		} else {
+			areaCodes = areaCodesFrom(d)
 		}
 
 		if lo.EveryBy(input.AreaCodes, func(code plateauapi.AreaCode) bool {
