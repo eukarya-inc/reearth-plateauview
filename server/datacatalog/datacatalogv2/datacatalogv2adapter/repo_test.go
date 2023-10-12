@@ -261,36 +261,9 @@ func TestAdapter_DatasetTypes(t *testing.T) {
 	}
 }
 
-func TestAdapter_Specs(t *testing.T) {
-	a := &Adapter{
-		specs: []plateauapi.PlateauSpec{
-			{Year: 2020},
-			{Year: 2021},
-			{Year: 2022},
-			{Year: 2022},
-		},
-	}
-
-	expected := []*plateauapi.PlateauSpec{
-		{Year: 2020},
-		{Year: 2021},
-		{Year: 2022},
-		{Year: 2022},
-	}
-
-	specs, err := a.PlateauSpecs(context.Background())
-	assert.NoError(t, err)
-	assert.Equal(t, expected, specs)
-}
-
 func TestAdapter_Years(t *testing.T) {
 	a := &Adapter{
-		specs: []plateauapi.PlateauSpec{
-			{Year: 2020},
-			{Year: 2021},
-			{Year: 2022},
-			{Year: 2023},
-		},
+		years: []int{2020, 2021, 2022, 2023},
 	}
 
 	expected := []int{2020, 2021, 2022, 2023}
@@ -304,7 +277,7 @@ func TestAdapter_Datasets(t *testing.T) {
 	a := &Adapter{
 		plateauDatasets: []plateauapi.PlateauDataset{
 			{ID: "1", Name: "Plateau Dataset 1", Year: 2022, CityCode: lo.ToPtr(plateauapi.AreaCode("01100"))},
-			{ID: "2", Name: "Plateau Dataset 2", Year: 2022, TypeID: plateauapi.NewID("bldg", plateauapi.TypeDatasetType)},
+			{ID: "2", Name: "Plateau Dataset 2", Year: 2022, TypeCode: "bldg"},
 			{ID: "3", Name: "Plateau Dataset 3", Year: 2023},
 		},
 		plateauFloodingDatasets: []plateauapi.PlateauFloodingDataset{
@@ -334,7 +307,7 @@ func TestAdapter_Datasets(t *testing.T) {
 			input: nil,
 			want: []plateauapi.Dataset{
 				&plateauapi.PlateauDataset{ID: "1", Name: "Plateau Dataset 1", Year: 2022, CityCode: lo.ToPtr(plateauapi.AreaCode("01100"))},
-				&plateauapi.PlateauDataset{ID: "2", Name: "Plateau Dataset 2", Year: 2022, TypeID: plateauapi.NewID("bldg", plateauapi.TypeDatasetType)},
+				&plateauapi.PlateauDataset{ID: "2", Name: "Plateau Dataset 2", Year: 2022, TypeCode: "bldg"},
 				&plateauapi.PlateauDataset{ID: "3", Name: "Plateau Dataset 3", Year: 2023},
 				&plateauapi.PlateauFloodingDataset{ID: "4", Name: "Plateau Flooding Dataset 1", Year: 2022},
 				&plateauapi.PlateauFloodingDataset{ID: "5", Name: "Plateau Flooding Dataset 2", Year: 2022},
@@ -383,7 +356,7 @@ func TestAdapter_Datasets(t *testing.T) {
 				IncludeTypes: []string{"bldg"},
 			},
 			want: []plateauapi.Dataset{
-				&plateauapi.PlateauDataset{ID: "2", Name: "Plateau Dataset 2", Year: 2022, TypeID: plateauapi.NewID("bldg", plateauapi.TypeDatasetType)},
+				&plateauapi.PlateauDataset{ID: "2", Name: "Plateau Dataset 2", Year: 2022, TypeCode: "bldg"},
 			},
 		},
 		{
@@ -475,9 +448,6 @@ func TestAdapter_Node(t *testing.T) {
 		genericDatasets: []plateauapi.GenericDataset{
 			{ID: plateauapi.NewID("4", plateauapi.TypeDataset), Name: "Generic Dataset 1"},
 		},
-		specs: []plateauapi.PlateauSpec{
-			{ID: plateauapi.NewID("2.2", plateauapi.TypePlateauSpec), Year: 2022},
-		},
 	}
 
 	tests := []struct {
@@ -542,8 +512,13 @@ func TestAdapter_Node(t *testing.T) {
 		},
 		{
 			name:     "spec",
-			id:       plateauapi.NewID("2.2", plateauapi.TypePlateauSpec),
-			expected: &plateauapi.PlateauSpec{ID: plateauapi.NewID("2.2", plateauapi.TypePlateauSpec), Year: 2022},
+			id:       plateauapi.NewID("2", plateauapi.TypePlateauSpec),
+			expected: plateauSpecs[0],
+		},
+		{
+			name:     "spec minor",
+			id:       plateauapi.NewID("2.3", plateauapi.TypePlateauSpec),
+			expected: plateauSpecs[0].MinorVersions[0],
 		},
 	}
 

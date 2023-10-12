@@ -14,6 +14,8 @@ const SpecVersion = "2.3"
 func filterDataset(d plateauapi.Dataset, input plateauapi.DatasetInput) bool {
 	var dataType string
 	var text []string
+	var year int
+	var spec string
 
 	switch d2 := d.(type) {
 	case plateauapi.PlateauDataset:
@@ -23,6 +25,8 @@ func filterDataset(d plateauapi.Dataset, input plateauapi.DatasetInput) bool {
 			lo.FromPtr(d2.Description),
 			lo.FromPtr(d2.Subname),
 		}
+		year = d2.Year
+		spec = d2.PlateauSpecName
 	case plateauapi.PlateauFloodingDataset:
 		dataType = d2.TypeCode
 		text = []string{
@@ -30,6 +34,7 @@ func filterDataset(d plateauapi.Dataset, input plateauapi.DatasetInput) bool {
 			lo.FromPtr(d2.Description),
 			lo.FromPtr(d2.Subname),
 		}
+		year = d2.Year
 	case plateauapi.RelatedDataset:
 		dataType = d2.TypeCode
 		text = []string{
@@ -37,6 +42,7 @@ func filterDataset(d plateauapi.Dataset, input plateauapi.DatasetInput) bool {
 			lo.FromPtr(d2.Description),
 			lo.FromPtr(d2.Subname),
 		}
+		year = d2.Year
 	case plateauapi.GenericDataset:
 		dataType = d2.TypeCode
 		text = []string{
@@ -44,6 +50,7 @@ func filterDataset(d plateauapi.Dataset, input plateauapi.DatasetInput) bool {
 			lo.FromPtr(d2.Description),
 			lo.FromPtr(d2.Subname),
 		}
+		year = d2.Year
 	default:
 		return false
 	}
@@ -63,6 +70,14 @@ func filterDataset(d plateauapi.Dataset, input plateauapi.DatasetInput) bool {
 		}
 	}
 
+	if input.Year != nil && *input.Year != year {
+		return false
+	}
+
+	if !filterByPlateauSpec(input.PlateauSpec, spec) {
+		return false
+	}
+
 	if !filterByCode(dataType, input.IncludeTypes, input.ExcludeTypes) {
 		return false
 	}
@@ -79,6 +94,19 @@ func filterDataset(d plateauapi.Dataset, input plateauapi.DatasetInput) bool {
 	}
 
 	return true
+}
+
+func filterByPlateauSpec(querySpec *string, datasetSpec string) bool {
+	if querySpec == nil || *querySpec == "" {
+		return true
+	}
+
+	if datasetSpec == "" {
+		return false
+	}
+
+	s1, s2 := specNumber(*querySpec), specNumber(datasetSpec)
+	return s1 == s2 || s1 == majorVersion(s2)
 }
 
 func filterByCode(code string, includes []string, excludes []string) bool {
@@ -175,15 +203,6 @@ func areaCodesFrom(d plateauapi.Dataset) []plateauapi.AreaCode {
 	return nil
 }
 
-func dataTypeCodeFromDataTypeID(id plateauapi.ID) string {
-	i, ty := id.Unwrap()
-	if ty != plateauapi.TypeDatasetType {
-		return ""
-	}
-
-	return i
-}
-
 func filterArea(area plateauapi.Area, input plateauapi.AreaInput) bool {
 	testName := func(name string) bool {
 		return len(input.SearchTokens) == 0 || lo.SomeBy(input.SearchTokens, func(t string) bool {
@@ -228,8 +247,11 @@ func filterDataType(ty plateauapi.DatasetType, input plateauapi.DatasetTypeInput
 			return false
 		}
 
-		if input.PlateauSpec != nil && SpecVersion != *input.PlateauSpec {
-			return false
+		if input.PlateauSpec != nil {
+			s1, s2 := specNumber(*input.PlateauSpec), specNumber(ty2.PlateauSpecName)
+			if s1 != s2 && s1 != majorVersion(s2) {
+				return false
+			}
 		}
 	case plateauapi.RelatedDatasetType:
 		if input.Category != nil && *input.Category != plateauapi.DatasetTypeCategoryRelated {

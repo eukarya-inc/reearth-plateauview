@@ -45,6 +45,7 @@ type ResolverRoot interface {
 	PlateauFloodingDataset() PlateauFloodingDatasetResolver
 	PlateauFloodingDatasetItem() PlateauFloodingDatasetItemResolver
 	PlateauSpec() PlateauSpecResolver
+	PlateauSpecMinor() PlateauSpecMinorResolver
 	Prefecture() PrefectureResolver
 	Query() QueryResolver
 	RelatedDataset() RelatedDatasetResolver
@@ -58,7 +59,7 @@ type DirectiveRoot struct {
 type ComplexityRoot struct {
 	City struct {
 		Code           func(childComplexity int) int
-		Datasets       func(childComplexity int, input *DatasetForAreaInput) int
+		Datasets       func(childComplexity int, input *DatasetInput) int
 		ID             func(childComplexity int) int
 		Name           func(childComplexity int) int
 		Prefecture     func(childComplexity int) int
@@ -100,33 +101,35 @@ type ComplexityRoot struct {
 	}
 
 	GenericDatasetType struct {
-		Category    func(childComplexity int) int
-		Code        func(childComplexity int) int
-		EnglishName func(childComplexity int) int
-		ID          func(childComplexity int) int
-		Name        func(childComplexity int) int
+		Category func(childComplexity int) int
+		Code     func(childComplexity int) int
+		ID       func(childComplexity int) int
+		Name     func(childComplexity int) int
 	}
 
 	PlateauDataset struct {
-		City           func(childComplexity int) int
-		CityCode       func(childComplexity int) int
-		CityID         func(childComplexity int) int
-		Description    func(childComplexity int) int
-		Groups         func(childComplexity int) int
-		ID             func(childComplexity int) int
-		Items          func(childComplexity int) int
-		Name           func(childComplexity int) int
-		Prefecture     func(childComplexity int) int
-		PrefectureCode func(childComplexity int) int
-		PrefectureID   func(childComplexity int) int
-		Subname        func(childComplexity int) int
-		Type           func(childComplexity int) int
-		TypeCode       func(childComplexity int) int
-		TypeID         func(childComplexity int) int
-		Ward           func(childComplexity int) int
-		WardCode       func(childComplexity int) int
-		WardID         func(childComplexity int) int
-		Year           func(childComplexity int) int
+		City            func(childComplexity int) int
+		CityCode        func(childComplexity int) int
+		CityID          func(childComplexity int) int
+		Description     func(childComplexity int) int
+		Groups          func(childComplexity int) int
+		ID              func(childComplexity int) int
+		Items           func(childComplexity int) int
+		Name            func(childComplexity int) int
+		PlateauSpec     func(childComplexity int) int
+		PlateauSpecID   func(childComplexity int) int
+		PlateauSpecName func(childComplexity int) int
+		Prefecture      func(childComplexity int) int
+		PrefectureCode  func(childComplexity int) int
+		PrefectureID    func(childComplexity int) int
+		Subname         func(childComplexity int) int
+		Type            func(childComplexity int) int
+		TypeCode        func(childComplexity int) int
+		TypeID          func(childComplexity int) int
+		Ward            func(childComplexity int) int
+		WardCode        func(childComplexity int) int
+		WardID          func(childComplexity int) int
+		Year            func(childComplexity int) int
 	}
 
 	PlateauDatasetItem struct {
@@ -144,7 +147,6 @@ type ComplexityRoot struct {
 	PlateauDatasetType struct {
 		Category      func(childComplexity int) int
 		Code          func(childComplexity int) int
-		EnglishName   func(childComplexity int) int
 		Flood         func(childComplexity int) int
 		ID            func(childComplexity int) int
 		Name          func(childComplexity int) int
@@ -154,26 +156,29 @@ type ComplexityRoot struct {
 	}
 
 	PlateauFloodingDataset struct {
-		City           func(childComplexity int) int
-		CityCode       func(childComplexity int) int
-		CityID         func(childComplexity int) int
-		Description    func(childComplexity int) int
-		Groups         func(childComplexity int) int
-		ID             func(childComplexity int) int
-		Items          func(childComplexity int) int
-		Name           func(childComplexity int) int
-		Prefecture     func(childComplexity int) int
-		PrefectureCode func(childComplexity int) int
-		PrefectureID   func(childComplexity int) int
-		River          func(childComplexity int) int
-		Subname        func(childComplexity int) int
-		Type           func(childComplexity int) int
-		TypeCode       func(childComplexity int) int
-		TypeID         func(childComplexity int) int
-		Ward           func(childComplexity int) int
-		WardCode       func(childComplexity int) int
-		WardID         func(childComplexity int) int
-		Year           func(childComplexity int) int
+		City            func(childComplexity int) int
+		CityCode        func(childComplexity int) int
+		CityID          func(childComplexity int) int
+		Description     func(childComplexity int) int
+		Groups          func(childComplexity int) int
+		ID              func(childComplexity int) int
+		Items           func(childComplexity int) int
+		Name            func(childComplexity int) int
+		PlateauSpec     func(childComplexity int) int
+		PlateauSpecID   func(childComplexity int) int
+		PlateauSpecName func(childComplexity int) int
+		Prefecture      func(childComplexity int) int
+		PrefectureCode  func(childComplexity int) int
+		PrefectureID    func(childComplexity int) int
+		River           func(childComplexity int) int
+		Subname         func(childComplexity int) int
+		Type            func(childComplexity int) int
+		TypeCode        func(childComplexity int) int
+		TypeID          func(childComplexity int) int
+		Ward            func(childComplexity int) int
+		WardCode        func(childComplexity int) int
+		WardID          func(childComplexity int) int
+		Year            func(childComplexity int) int
 	}
 
 	PlateauFloodingDatasetItem struct {
@@ -188,16 +193,28 @@ type ComplexityRoot struct {
 	}
 
 	PlateauSpec struct {
-		DatasetTypes func(childComplexity int) int
+		DatasetTypes  func(childComplexity int) int
+		ID            func(childComplexity int) int
+		MajorVersion  func(childComplexity int) int
+		MinorVersions func(childComplexity int) int
+		Year          func(childComplexity int) int
+	}
+
+	PlateauSpecMinor struct {
+		Datasets     func(childComplexity int, input *DatasetInput) int
 		ID           func(childComplexity int) int
+		MajorVersion func(childComplexity int) int
 		Name         func(childComplexity int) int
+		Parent       func(childComplexity int) int
+		ParentID     func(childComplexity int) int
+		Version      func(childComplexity int) int
 		Year         func(childComplexity int) int
 	}
 
 	Prefecture struct {
 		Cities   func(childComplexity int) int
 		Code     func(childComplexity int) int
-		Datasets func(childComplexity int, input *DatasetForAreaInput) int
+		Datasets func(childComplexity int, input *DatasetInput) int
 		ID       func(childComplexity int) int
 		Name     func(childComplexity int) int
 	}
@@ -246,11 +263,10 @@ type ComplexityRoot struct {
 	}
 
 	RelatedDatasetType struct {
-		Category    func(childComplexity int) int
-		Code        func(childComplexity int) int
-		EnglishName func(childComplexity int) int
-		ID          func(childComplexity int) int
-		Name        func(childComplexity int) int
+		Category func(childComplexity int) int
+		Code     func(childComplexity int) int
+		ID       func(childComplexity int) int
+		Name     func(childComplexity int) int
 	}
 
 	River struct {
@@ -263,7 +279,7 @@ type ComplexityRoot struct {
 		CityCode       func(childComplexity int) int
 		CityID         func(childComplexity int) int
 		Code           func(childComplexity int) int
-		Datasets       func(childComplexity int, input *DatasetForAreaInput) int
+		Datasets       func(childComplexity int, input *DatasetInput) int
 		ID             func(childComplexity int) int
 		Name           func(childComplexity int) int
 		Prefecture     func(childComplexity int) int
@@ -275,7 +291,7 @@ type ComplexityRoot struct {
 type CityResolver interface {
 	Prefecture(ctx context.Context, obj *City) (*Prefecture, error)
 	Wards(ctx context.Context, obj *City) ([]*Ward, error)
-	Datasets(ctx context.Context, obj *City, input *DatasetForAreaInput) ([]Dataset, error)
+	Datasets(ctx context.Context, obj *City, input *DatasetInput) ([]Dataset, error)
 }
 type GenericDatasetResolver interface {
 	Prefecture(ctx context.Context, obj *GenericDataset) (*Prefecture, error)
@@ -291,6 +307,8 @@ type PlateauDatasetResolver interface {
 	City(ctx context.Context, obj *PlateauDataset) (*City, error)
 	Ward(ctx context.Context, obj *PlateauDataset) (*Ward, error)
 	Type(ctx context.Context, obj *PlateauDataset) (*PlateauDatasetType, error)
+
+	PlateauSpec(ctx context.Context, obj *PlateauDataset) (*PlateauSpecMinor, error)
 }
 type PlateauDatasetItemResolver interface {
 	Parent(ctx context.Context, obj *PlateauDatasetItem) (*PlateauDataset, error)
@@ -303,6 +321,8 @@ type PlateauFloodingDatasetResolver interface {
 	City(ctx context.Context, obj *PlateauFloodingDataset) (*City, error)
 	Ward(ctx context.Context, obj *PlateauFloodingDataset) (*Ward, error)
 	Type(ctx context.Context, obj *PlateauFloodingDataset) (*PlateauDatasetType, error)
+
+	PlateauSpec(ctx context.Context, obj *PlateauFloodingDataset) (*PlateauSpecMinor, error)
 }
 type PlateauFloodingDatasetItemResolver interface {
 	Parent(ctx context.Context, obj *PlateauFloodingDatasetItem) (*PlateauDataset, error)
@@ -310,9 +330,13 @@ type PlateauFloodingDatasetItemResolver interface {
 type PlateauSpecResolver interface {
 	DatasetTypes(ctx context.Context, obj *PlateauSpec) ([]*PlateauDatasetType, error)
 }
+type PlateauSpecMinorResolver interface {
+	Parent(ctx context.Context, obj *PlateauSpecMinor) (*PlateauSpec, error)
+	Datasets(ctx context.Context, obj *PlateauSpecMinor, input *DatasetInput) ([]Dataset, error)
+}
 type PrefectureResolver interface {
 	Cities(ctx context.Context, obj *Prefecture) ([]*City, error)
-	Datasets(ctx context.Context, obj *Prefecture, input *DatasetForAreaInput) ([]Dataset, error)
+	Datasets(ctx context.Context, obj *Prefecture, input *DatasetInput) ([]Dataset, error)
 }
 type QueryResolver interface {
 	Node(ctx context.Context, id ID) (Node, error)
@@ -336,7 +360,7 @@ type RelatedDatasetItemResolver interface {
 type WardResolver interface {
 	Prefecture(ctx context.Context, obj *Ward) (*Prefecture, error)
 	City(ctx context.Context, obj *Ward) (*City, error)
-	Datasets(ctx context.Context, obj *Ward, input *DatasetForAreaInput) ([]Dataset, error)
+	Datasets(ctx context.Context, obj *Ward, input *DatasetInput) ([]Dataset, error)
 }
 
 type executableSchema struct {
@@ -371,7 +395,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.City.Datasets(childComplexity, args["input"].(*DatasetForAreaInput)), true
+		return e.complexity.City.Datasets(childComplexity, args["input"].(*DatasetInput)), true
 
 	case "City.id":
 		if e.complexity.City.ID == nil {
@@ -611,13 +635,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.GenericDatasetType.Code(childComplexity), true
 
-	case "GenericDatasetType.englishName":
-		if e.complexity.GenericDatasetType.EnglishName == nil {
-			break
-		}
-
-		return e.complexity.GenericDatasetType.EnglishName(childComplexity), true
-
 	case "GenericDatasetType.id":
 		if e.complexity.GenericDatasetType.ID == nil {
 			break
@@ -687,6 +704,27 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.PlateauDataset.Name(childComplexity), true
+
+	case "PlateauDataset.plateauSpec":
+		if e.complexity.PlateauDataset.PlateauSpec == nil {
+			break
+		}
+
+		return e.complexity.PlateauDataset.PlateauSpec(childComplexity), true
+
+	case "PlateauDataset.plateauSpecId":
+		if e.complexity.PlateauDataset.PlateauSpecID == nil {
+			break
+		}
+
+		return e.complexity.PlateauDataset.PlateauSpecID(childComplexity), true
+
+	case "PlateauDataset.plateauSpecName":
+		if e.complexity.PlateauDataset.PlateauSpecName == nil {
+			break
+		}
+
+		return e.complexity.PlateauDataset.PlateauSpecName(childComplexity), true
 
 	case "PlateauDataset.prefecture":
 		if e.complexity.PlateauDataset.Prefecture == nil {
@@ -842,13 +880,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.PlateauDatasetType.Code(childComplexity), true
 
-	case "PlateauDatasetType.englishName":
-		if e.complexity.PlateauDatasetType.EnglishName == nil {
-			break
-		}
-
-		return e.complexity.PlateauDatasetType.EnglishName(childComplexity), true
-
 	case "PlateauDatasetType.flood":
 		if e.complexity.PlateauDatasetType.Flood == nil {
 			break
@@ -946,6 +977,27 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.PlateauFloodingDataset.Name(childComplexity), true
+
+	case "PlateauFloodingDataset.plateauSpec":
+		if e.complexity.PlateauFloodingDataset.PlateauSpec == nil {
+			break
+		}
+
+		return e.complexity.PlateauFloodingDataset.PlateauSpec(childComplexity), true
+
+	case "PlateauFloodingDataset.plateauSpecId":
+		if e.complexity.PlateauFloodingDataset.PlateauSpecID == nil {
+			break
+		}
+
+		return e.complexity.PlateauFloodingDataset.PlateauSpecID(childComplexity), true
+
+	case "PlateauFloodingDataset.plateauSpecName":
+		if e.complexity.PlateauFloodingDataset.PlateauSpecName == nil {
+			break
+		}
+
+		return e.complexity.PlateauFloodingDataset.PlateauSpecName(childComplexity), true
 
 	case "PlateauFloodingDataset.prefecture":
 		if e.complexity.PlateauFloodingDataset.Prefecture == nil {
@@ -1101,12 +1153,19 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.PlateauSpec.ID(childComplexity), true
 
-	case "PlateauSpec.name":
-		if e.complexity.PlateauSpec.Name == nil {
+	case "PlateauSpec.majorVersion":
+		if e.complexity.PlateauSpec.MajorVersion == nil {
 			break
 		}
 
-		return e.complexity.PlateauSpec.Name(childComplexity), true
+		return e.complexity.PlateauSpec.MajorVersion(childComplexity), true
+
+	case "PlateauSpec.minorVersions":
+		if e.complexity.PlateauSpec.MinorVersions == nil {
+			break
+		}
+
+		return e.complexity.PlateauSpec.MinorVersions(childComplexity), true
 
 	case "PlateauSpec.year":
 		if e.complexity.PlateauSpec.Year == nil {
@@ -1114,6 +1173,67 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.PlateauSpec.Year(childComplexity), true
+
+	case "PlateauSpecMinor.datasets":
+		if e.complexity.PlateauSpecMinor.Datasets == nil {
+			break
+		}
+
+		args, err := ec.field_PlateauSpecMinor_datasets_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.PlateauSpecMinor.Datasets(childComplexity, args["input"].(*DatasetInput)), true
+
+	case "PlateauSpecMinor.id":
+		if e.complexity.PlateauSpecMinor.ID == nil {
+			break
+		}
+
+		return e.complexity.PlateauSpecMinor.ID(childComplexity), true
+
+	case "PlateauSpecMinor.majorVersion":
+		if e.complexity.PlateauSpecMinor.MajorVersion == nil {
+			break
+		}
+
+		return e.complexity.PlateauSpecMinor.MajorVersion(childComplexity), true
+
+	case "PlateauSpecMinor.name":
+		if e.complexity.PlateauSpecMinor.Name == nil {
+			break
+		}
+
+		return e.complexity.PlateauSpecMinor.Name(childComplexity), true
+
+	case "PlateauSpecMinor.parent":
+		if e.complexity.PlateauSpecMinor.Parent == nil {
+			break
+		}
+
+		return e.complexity.PlateauSpecMinor.Parent(childComplexity), true
+
+	case "PlateauSpecMinor.parentId":
+		if e.complexity.PlateauSpecMinor.ParentID == nil {
+			break
+		}
+
+		return e.complexity.PlateauSpecMinor.ParentID(childComplexity), true
+
+	case "PlateauSpecMinor.version":
+		if e.complexity.PlateauSpecMinor.Version == nil {
+			break
+		}
+
+		return e.complexity.PlateauSpecMinor.Version(childComplexity), true
+
+	case "PlateauSpecMinor.year":
+		if e.complexity.PlateauSpecMinor.Year == nil {
+			break
+		}
+
+		return e.complexity.PlateauSpecMinor.Year(childComplexity), true
 
 	case "Prefecture.cities":
 		if e.complexity.Prefecture.Cities == nil {
@@ -1139,7 +1259,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Prefecture.Datasets(childComplexity, args["input"].(*DatasetForAreaInput)), true
+		return e.complexity.Prefecture.Datasets(childComplexity, args["input"].(*DatasetInput)), true
 
 	case "Prefecture.id":
 		if e.complexity.Prefecture.ID == nil {
@@ -1437,13 +1557,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.RelatedDatasetType.Code(childComplexity), true
 
-	case "RelatedDatasetType.englishName":
-		if e.complexity.RelatedDatasetType.EnglishName == nil {
-			break
-		}
-
-		return e.complexity.RelatedDatasetType.EnglishName(childComplexity), true
-
 	case "RelatedDatasetType.id":
 		if e.complexity.RelatedDatasetType.ID == nil {
 			break
@@ -1510,7 +1623,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Ward.Datasets(childComplexity, args["input"].(*DatasetForAreaInput)), true
+		return e.complexity.Ward.Datasets(childComplexity, args["input"].(*DatasetInput)), true
 
 	case "Ward.id":
 		if e.complexity.Ward.ID == nil {
@@ -1556,7 +1669,6 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 	ec := executionContext{rc, e}
 	inputUnmarshalMap := graphql.BuildUnmarshalerMap(
 		ec.unmarshalInputAreaInput,
-		ec.unmarshalInputDatasetForAreaInput,
 		ec.unmarshalInputDatasetInput,
 		ec.unmarshalInputDatasetTypeInput,
 	)
@@ -1626,10 +1738,25 @@ var parsedSchema = gqlparser.MustLoadSchema(sources...)
 func (ec *executionContext) field_City_datasets_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 *DatasetForAreaInput
+	var arg0 *DatasetInput
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalODatasetForAreaInput2ᚖgithubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐDatasetForAreaInput(ctx, tmp)
+		arg0, err = ec.unmarshalODatasetInput2ᚖgithubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐDatasetInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_PlateauSpecMinor_datasets_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *DatasetInput
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalODatasetInput2ᚖgithubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐDatasetInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -1641,10 +1768,10 @@ func (ec *executionContext) field_City_datasets_args(ctx context.Context, rawArg
 func (ec *executionContext) field_Prefecture_datasets_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 *DatasetForAreaInput
+	var arg0 *DatasetInput
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalODatasetForAreaInput2ᚖgithubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐDatasetForAreaInput(ctx, tmp)
+		arg0, err = ec.unmarshalODatasetInput2ᚖgithubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐDatasetInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -1761,10 +1888,10 @@ func (ec *executionContext) field_Query_nodes_args(ctx context.Context, rawArgs 
 func (ec *executionContext) field_Ward_datasets_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 *DatasetForAreaInput
+	var arg0 *DatasetInput
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalODatasetForAreaInput2ᚖgithubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐDatasetForAreaInput(ctx, tmp)
+		arg0, err = ec.unmarshalODatasetInput2ᚖgithubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐDatasetInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -2164,7 +2291,7 @@ func (ec *executionContext) _City_datasets(ctx context.Context, field graphql.Co
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.City().Datasets(rctx, obj, fc.Args["input"].(*DatasetForAreaInput))
+		return ec.resolvers.City().Datasets(rctx, obj, fc.Args["input"].(*DatasetInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -3020,8 +3147,6 @@ func (ec *executionContext) fieldContext_GenericDataset_type(ctx context.Context
 				return ec.fieldContext_GenericDatasetType_code(ctx, field)
 			case "name":
 				return ec.fieldContext_GenericDatasetType_name(ctx, field)
-			case "englishName":
-				return ec.fieldContext_GenericDatasetType_englishName(ctx, field)
 			case "category":
 				return ec.fieldContext_GenericDatasetType_category(ctx, field)
 			}
@@ -3553,50 +3678,6 @@ func (ec *executionContext) _GenericDatasetType_name(ctx context.Context, field 
 }
 
 func (ec *executionContext) fieldContext_GenericDatasetType_name(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "GenericDatasetType",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _GenericDatasetType_englishName(ctx context.Context, field graphql.CollectedField, obj *GenericDatasetType) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_GenericDatasetType_englishName(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.EnglishName, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_GenericDatasetType_englishName(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "GenericDatasetType",
 		Field:      field,
@@ -4468,8 +4549,6 @@ func (ec *executionContext) fieldContext_PlateauDataset_type(ctx context.Context
 				return ec.fieldContext_PlateauDatasetType_code(ctx, field)
 			case "name":
 				return ec.fieldContext_PlateauDatasetType_name(ctx, field)
-			case "englishName":
-				return ec.fieldContext_PlateauDatasetType_englishName(ctx, field)
 			case "category":
 				return ec.fieldContext_PlateauDatasetType_category(ctx, field)
 			case "plateauSpecId":
@@ -4546,6 +4625,156 @@ func (ec *executionContext) fieldContext_PlateauDataset_items(ctx context.Contex
 				return ec.fieldContext_PlateauDatasetItem_texture(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type PlateauDatasetItem", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PlateauDataset_plateauSpecId(ctx context.Context, field graphql.CollectedField, obj *PlateauDataset) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_PlateauDataset_plateauSpecId(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.PlateauSpecID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(ID)
+	fc.Result = res
+	return ec.marshalNID2githubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐID(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_PlateauDataset_plateauSpecId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PlateauDataset",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PlateauDataset_plateauSpecName(ctx context.Context, field graphql.CollectedField, obj *PlateauDataset) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_PlateauDataset_plateauSpecName(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.PlateauSpecName, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_PlateauDataset_plateauSpecName(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PlateauDataset",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PlateauDataset_plateauSpec(ctx context.Context, field graphql.CollectedField, obj *PlateauDataset) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_PlateauDataset_plateauSpec(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.PlateauDataset().PlateauSpec(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*PlateauSpecMinor)
+	fc.Result = res
+	return ec.marshalNPlateauSpecMinor2ᚖgithubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐPlateauSpecMinor(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_PlateauDataset_plateauSpec(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PlateauDataset",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_PlateauSpecMinor_id(ctx, field)
+			case "name":
+				return ec.fieldContext_PlateauSpecMinor_name(ctx, field)
+			case "version":
+				return ec.fieldContext_PlateauSpecMinor_version(ctx, field)
+			case "majorVersion":
+				return ec.fieldContext_PlateauSpecMinor_majorVersion(ctx, field)
+			case "year":
+				return ec.fieldContext_PlateauSpecMinor_year(ctx, field)
+			case "parentId":
+				return ec.fieldContext_PlateauSpecMinor_parentId(ctx, field)
+			case "parent":
+				return ec.fieldContext_PlateauSpecMinor_parent(ctx, field)
+			case "datasets":
+				return ec.fieldContext_PlateauSpecMinor_datasets(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type PlateauSpecMinor", field.Name)
 		},
 	}
 	return fc, nil
@@ -4886,6 +5115,12 @@ func (ec *executionContext) fieldContext_PlateauDatasetItem_parent(ctx context.C
 				return ec.fieldContext_PlateauDataset_type(ctx, field)
 			case "items":
 				return ec.fieldContext_PlateauDataset_items(ctx, field)
+			case "plateauSpecId":
+				return ec.fieldContext_PlateauDataset_plateauSpecId(ctx, field)
+			case "plateauSpecName":
+				return ec.fieldContext_PlateauDataset_plateauSpecName(ctx, field)
+			case "plateauSpec":
+				return ec.fieldContext_PlateauDataset_plateauSpec(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type PlateauDataset", field.Name)
 		},
@@ -5107,50 +5342,6 @@ func (ec *executionContext) fieldContext_PlateauDatasetType_name(ctx context.Con
 	return fc, nil
 }
 
-func (ec *executionContext) _PlateauDatasetType_englishName(ctx context.Context, field graphql.CollectedField, obj *PlateauDatasetType) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_PlateauDatasetType_englishName(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.EnglishName, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_PlateauDatasetType_englishName(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "PlateauDatasetType",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _PlateauDatasetType_category(ctx context.Context, field graphql.CollectedField, obj *PlateauDatasetType) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_PlateauDatasetType_category(ctx, field)
 	if err != nil {
@@ -5277,12 +5468,14 @@ func (ec *executionContext) fieldContext_PlateauDatasetType_plateauSpec(ctx cont
 			switch field.Name {
 			case "id":
 				return ec.fieldContext_PlateauSpec_id(ctx, field)
-			case "name":
-				return ec.fieldContext_PlateauSpec_name(ctx, field)
+			case "majorVersion":
+				return ec.fieldContext_PlateauSpec_majorVersion(ctx, field)
 			case "year":
 				return ec.fieldContext_PlateauSpec_year(ctx, field)
 			case "datasetTypes":
 				return ec.fieldContext_PlateauSpec_datasetTypes(ctx, field)
+			case "minorVersions":
+				return ec.fieldContext_PlateauSpec_minorVersions(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type PlateauSpec", field.Name)
 		},
@@ -6193,8 +6386,6 @@ func (ec *executionContext) fieldContext_PlateauFloodingDataset_type(ctx context
 				return ec.fieldContext_PlateauDatasetType_code(ctx, field)
 			case "name":
 				return ec.fieldContext_PlateauDatasetType_name(ctx, field)
-			case "englishName":
-				return ec.fieldContext_PlateauDatasetType_englishName(ctx, field)
 			case "category":
 				return ec.fieldContext_PlateauDatasetType_category(ctx, field)
 			case "plateauSpecId":
@@ -6269,6 +6460,156 @@ func (ec *executionContext) fieldContext_PlateauFloodingDataset_items(ctx contex
 				return ec.fieldContext_PlateauFloodingDatasetItem_floodingScale(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type PlateauFloodingDatasetItem", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PlateauFloodingDataset_plateauSpecId(ctx context.Context, field graphql.CollectedField, obj *PlateauFloodingDataset) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_PlateauFloodingDataset_plateauSpecId(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.PlateauSpecID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(ID)
+	fc.Result = res
+	return ec.marshalNID2githubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐID(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_PlateauFloodingDataset_plateauSpecId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PlateauFloodingDataset",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PlateauFloodingDataset_plateauSpecName(ctx context.Context, field graphql.CollectedField, obj *PlateauFloodingDataset) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_PlateauFloodingDataset_plateauSpecName(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.PlateauSpecName, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_PlateauFloodingDataset_plateauSpecName(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PlateauFloodingDataset",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PlateauFloodingDataset_plateauSpec(ctx context.Context, field graphql.CollectedField, obj *PlateauFloodingDataset) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_PlateauFloodingDataset_plateauSpec(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.PlateauFloodingDataset().PlateauSpec(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*PlateauSpecMinor)
+	fc.Result = res
+	return ec.marshalNPlateauSpecMinor2ᚖgithubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐPlateauSpecMinor(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_PlateauFloodingDataset_plateauSpec(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PlateauFloodingDataset",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_PlateauSpecMinor_id(ctx, field)
+			case "name":
+				return ec.fieldContext_PlateauSpecMinor_name(ctx, field)
+			case "version":
+				return ec.fieldContext_PlateauSpecMinor_version(ctx, field)
+			case "majorVersion":
+				return ec.fieldContext_PlateauSpecMinor_majorVersion(ctx, field)
+			case "year":
+				return ec.fieldContext_PlateauSpecMinor_year(ctx, field)
+			case "parentId":
+				return ec.fieldContext_PlateauSpecMinor_parentId(ctx, field)
+			case "parent":
+				return ec.fieldContext_PlateauSpecMinor_parent(ctx, field)
+			case "datasets":
+				return ec.fieldContext_PlateauSpecMinor_datasets(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type PlateauSpecMinor", field.Name)
 		},
 	}
 	return fc, nil
@@ -6656,6 +6997,12 @@ func (ec *executionContext) fieldContext_PlateauFloodingDatasetItem_parent(ctx c
 				return ec.fieldContext_PlateauDataset_type(ctx, field)
 			case "items":
 				return ec.fieldContext_PlateauDataset_items(ctx, field)
+			case "plateauSpecId":
+				return ec.fieldContext_PlateauDataset_plateauSpecId(ctx, field)
+			case "plateauSpecName":
+				return ec.fieldContext_PlateauDataset_plateauSpecName(ctx, field)
+			case "plateauSpec":
+				return ec.fieldContext_PlateauDataset_plateauSpec(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type PlateauDataset", field.Name)
 		},
@@ -6751,8 +7098,8 @@ func (ec *executionContext) fieldContext_PlateauSpec_id(ctx context.Context, fie
 	return fc, nil
 }
 
-func (ec *executionContext) _PlateauSpec_name(ctx context.Context, field graphql.CollectedField, obj *PlateauSpec) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_PlateauSpec_name(ctx, field)
+func (ec *executionContext) _PlateauSpec_majorVersion(ctx context.Context, field graphql.CollectedField, obj *PlateauSpec) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_PlateauSpec_majorVersion(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -6765,7 +7112,7 @@ func (ec *executionContext) _PlateauSpec_name(ctx context.Context, field graphql
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Name, nil
+		return obj.MajorVersion, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -6777,19 +7124,19 @@ func (ec *executionContext) _PlateauSpec_name(ctx context.Context, field graphql
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(int)
 	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
+	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_PlateauSpec_name(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_PlateauSpec_majorVersion(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "PlateauSpec",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
+			return nil, errors.New("field of type Int does not have child fields")
 		},
 	}
 	return fc, nil
@@ -6884,8 +7231,6 @@ func (ec *executionContext) fieldContext_PlateauSpec_datasetTypes(ctx context.Co
 				return ec.fieldContext_PlateauDatasetType_code(ctx, field)
 			case "name":
 				return ec.fieldContext_PlateauDatasetType_name(ctx, field)
-			case "englishName":
-				return ec.fieldContext_PlateauDatasetType_englishName(ctx, field)
 			case "category":
 				return ec.fieldContext_PlateauDatasetType_category(ctx, field)
 			case "plateauSpecId":
@@ -6899,6 +7244,443 @@ func (ec *executionContext) fieldContext_PlateauSpec_datasetTypes(ctx context.Co
 			}
 			return nil, fmt.Errorf("no field named %q was found under type PlateauDatasetType", field.Name)
 		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PlateauSpec_minorVersions(ctx context.Context, field graphql.CollectedField, obj *PlateauSpec) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_PlateauSpec_minorVersions(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.MinorVersions, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*PlateauSpecMinor)
+	fc.Result = res
+	return ec.marshalNPlateauSpecMinor2ᚕᚖgithubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐPlateauSpecMinorᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_PlateauSpec_minorVersions(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PlateauSpec",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_PlateauSpecMinor_id(ctx, field)
+			case "name":
+				return ec.fieldContext_PlateauSpecMinor_name(ctx, field)
+			case "version":
+				return ec.fieldContext_PlateauSpecMinor_version(ctx, field)
+			case "majorVersion":
+				return ec.fieldContext_PlateauSpecMinor_majorVersion(ctx, field)
+			case "year":
+				return ec.fieldContext_PlateauSpecMinor_year(ctx, field)
+			case "parentId":
+				return ec.fieldContext_PlateauSpecMinor_parentId(ctx, field)
+			case "parent":
+				return ec.fieldContext_PlateauSpecMinor_parent(ctx, field)
+			case "datasets":
+				return ec.fieldContext_PlateauSpecMinor_datasets(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type PlateauSpecMinor", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PlateauSpecMinor_id(ctx context.Context, field graphql.CollectedField, obj *PlateauSpecMinor) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_PlateauSpecMinor_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(ID)
+	fc.Result = res
+	return ec.marshalNID2githubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐID(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_PlateauSpecMinor_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PlateauSpecMinor",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PlateauSpecMinor_name(ctx context.Context, field graphql.CollectedField, obj *PlateauSpecMinor) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_PlateauSpecMinor_name(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Name, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_PlateauSpecMinor_name(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PlateauSpecMinor",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PlateauSpecMinor_version(ctx context.Context, field graphql.CollectedField, obj *PlateauSpecMinor) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_PlateauSpecMinor_version(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Version, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_PlateauSpecMinor_version(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PlateauSpecMinor",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PlateauSpecMinor_majorVersion(ctx context.Context, field graphql.CollectedField, obj *PlateauSpecMinor) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_PlateauSpecMinor_majorVersion(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.MajorVersion, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_PlateauSpecMinor_majorVersion(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PlateauSpecMinor",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PlateauSpecMinor_year(ctx context.Context, field graphql.CollectedField, obj *PlateauSpecMinor) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_PlateauSpecMinor_year(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Year, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_PlateauSpecMinor_year(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PlateauSpecMinor",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PlateauSpecMinor_parentId(ctx context.Context, field graphql.CollectedField, obj *PlateauSpecMinor) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_PlateauSpecMinor_parentId(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ParentID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(ID)
+	fc.Result = res
+	return ec.marshalNID2githubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐID(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_PlateauSpecMinor_parentId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PlateauSpecMinor",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PlateauSpecMinor_parent(ctx context.Context, field graphql.CollectedField, obj *PlateauSpecMinor) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_PlateauSpecMinor_parent(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.PlateauSpecMinor().Parent(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*PlateauSpec)
+	fc.Result = res
+	return ec.marshalNPlateauSpec2ᚖgithubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐPlateauSpec(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_PlateauSpecMinor_parent(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PlateauSpecMinor",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_PlateauSpec_id(ctx, field)
+			case "majorVersion":
+				return ec.fieldContext_PlateauSpec_majorVersion(ctx, field)
+			case "year":
+				return ec.fieldContext_PlateauSpec_year(ctx, field)
+			case "datasetTypes":
+				return ec.fieldContext_PlateauSpec_datasetTypes(ctx, field)
+			case "minorVersions":
+				return ec.fieldContext_PlateauSpec_minorVersions(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type PlateauSpec", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PlateauSpecMinor_datasets(ctx context.Context, field graphql.CollectedField, obj *PlateauSpecMinor) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_PlateauSpecMinor_datasets(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.PlateauSpecMinor().Datasets(rctx, obj, fc.Args["input"].(*DatasetInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]Dataset)
+	fc.Result = res
+	return ec.marshalNDataset2ᚕgithubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐDatasetᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_PlateauSpecMinor_datasets(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PlateauSpecMinor",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("FieldContext.Child cannot be called on type INTERFACE")
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_PlateauSpecMinor_datasets_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
 	}
 	return fc, nil
 }
@@ -7111,7 +7893,7 @@ func (ec *executionContext) _Prefecture_datasets(ctx context.Context, field grap
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Prefecture().Datasets(rctx, obj, fc.Args["input"].(*DatasetForAreaInput))
+		return ec.resolvers.Prefecture().Datasets(rctx, obj, fc.Args["input"].(*DatasetInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -7517,12 +8299,14 @@ func (ec *executionContext) fieldContext_Query_plateauSpecs(ctx context.Context,
 			switch field.Name {
 			case "id":
 				return ec.fieldContext_PlateauSpec_id(ctx, field)
-			case "name":
-				return ec.fieldContext_PlateauSpec_name(ctx, field)
+			case "majorVersion":
+				return ec.fieldContext_PlateauSpec_majorVersion(ctx, field)
 			case "year":
 				return ec.fieldContext_PlateauSpec_year(ctx, field)
 			case "datasetTypes":
 				return ec.fieldContext_PlateauSpec_datasetTypes(ctx, field)
+			case "minorVersions":
+				return ec.fieldContext_PlateauSpec_minorVersions(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type PlateauSpec", field.Name)
 		},
@@ -8518,8 +9302,6 @@ func (ec *executionContext) fieldContext_RelatedDataset_type(ctx context.Context
 				return ec.fieldContext_RelatedDatasetType_code(ctx, field)
 			case "name":
 				return ec.fieldContext_RelatedDatasetType_name(ctx, field)
-			case "englishName":
-				return ec.fieldContext_RelatedDatasetType_englishName(ctx, field)
 			case "category":
 				return ec.fieldContext_RelatedDatasetType_category(ctx, field)
 			}
@@ -9051,50 +9833,6 @@ func (ec *executionContext) _RelatedDatasetType_name(ctx context.Context, field 
 }
 
 func (ec *executionContext) fieldContext_RelatedDatasetType_name(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "RelatedDatasetType",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _RelatedDatasetType_englishName(ctx context.Context, field graphql.CollectedField, obj *RelatedDatasetType) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_RelatedDatasetType_englishName(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.EnglishName, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_RelatedDatasetType_englishName(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "RelatedDatasetType",
 		Field:      field,
@@ -9673,7 +10411,7 @@ func (ec *executionContext) _Ward_datasets(ctx context.Context, field graphql.Co
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Ward().Datasets(rctx, obj, fc.Args["input"].(*DatasetForAreaInput))
+		return ec.resolvers.Ward().Datasets(rctx, obj, fc.Args["input"].(*DatasetInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -11531,58 +12269,6 @@ func (ec *executionContext) unmarshalInputAreaInput(ctx context.Context, obj int
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputDatasetForAreaInput(ctx context.Context, obj interface{}) (DatasetForAreaInput, error) {
-	var it DatasetForAreaInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
-		asMap[k] = v
-	}
-
-	fieldsInOrder := [...]string{"excludeTypes", "includeTypes", "searchTokens", "deep"}
-	for _, k := range fieldsInOrder {
-		v, ok := asMap[k]
-		if !ok {
-			continue
-		}
-		switch k {
-		case "excludeTypes":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("excludeTypes"))
-			it.ExcludeTypes, err = ec.unmarshalOString2ᚕstringᚄ(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "includeTypes":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("includeTypes"))
-			it.IncludeTypes, err = ec.unmarshalOString2ᚕstringᚄ(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "searchTokens":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("searchTokens"))
-			it.SearchTokens, err = ec.unmarshalOString2ᚕstringᚄ(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "deep":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("deep"))
-			it.Deep, err = ec.unmarshalOBoolean2ᚖbool(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		}
-	}
-
-	return it, nil
-}
-
 func (ec *executionContext) unmarshalInputDatasetInput(ctx context.Context, obj interface{}) (DatasetInput, error) {
 	var it DatasetInput
 	asMap := map[string]interface{}{}
@@ -11590,7 +12276,7 @@ func (ec *executionContext) unmarshalInputDatasetInput(ctx context.Context, obj 
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"areaCodes", "excludeTypes", "includeTypes", "searchTokens", "deep"}
+	fieldsInOrder := [...]string{"areaCodes", "plateauSpec", "year", "excludeTypes", "includeTypes", "searchTokens", "deep"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -11602,6 +12288,22 @@ func (ec *executionContext) unmarshalInputDatasetInput(ctx context.Context, obj 
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("areaCodes"))
 			it.AreaCodes, err = ec.unmarshalOAreaCode2ᚕgithubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐAreaCodeᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "plateauSpec":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("plateauSpec"))
+			it.PlateauSpec, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "year":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("year"))
+			it.Year, err = ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -11862,6 +12564,13 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._PlateauSpec(ctx, sel, obj)
+	case PlateauSpecMinor:
+		return ec._PlateauSpecMinor(ctx, sel, &obj)
+	case *PlateauSpecMinor:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._PlateauSpecMinor(ctx, sel, obj)
 	case Dataset:
 		if obj == nil {
 			return graphql.Null
@@ -12360,13 +13069,6 @@ func (ec *executionContext) _GenericDatasetType(ctx context.Context, sel ast.Sel
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "englishName":
-
-			out.Values[i] = ec._GenericDatasetType_englishName(ctx, field, obj)
-
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
 		case "category":
 
 			out.Values[i] = ec._GenericDatasetType_category(ctx, field, obj)
@@ -12550,6 +13252,40 @@ func (ec *executionContext) _PlateauDataset(ctx context.Context, sel ast.Selecti
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&invalids, 1)
 			}
+		case "plateauSpecId":
+
+			out.Values[i] = ec._PlateauDataset_plateauSpecId(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		case "plateauSpecName":
+
+			out.Values[i] = ec._PlateauDataset_plateauSpecName(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		case "plateauSpec":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._PlateauDataset_plateauSpec(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -12673,13 +13409,6 @@ func (ec *executionContext) _PlateauDatasetType(ctx context.Context, sel ast.Sel
 		case "name":
 
 			out.Values[i] = ec._PlateauDatasetType_name(ctx, field, obj)
-
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&invalids, 1)
-			}
-		case "englishName":
-
-			out.Values[i] = ec._PlateauDatasetType_englishName(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&invalids, 1)
@@ -12905,6 +13634,40 @@ func (ec *executionContext) _PlateauFloodingDataset(ctx context.Context, sel ast
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&invalids, 1)
 			}
+		case "plateauSpecId":
+
+			out.Values[i] = ec._PlateauFloodingDataset_plateauSpecId(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		case "plateauSpecName":
+
+			out.Values[i] = ec._PlateauFloodingDataset_plateauSpecName(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		case "plateauSpec":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._PlateauFloodingDataset_plateauSpec(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
 		case "river":
 
 			out.Values[i] = ec._PlateauFloodingDataset_river(ctx, field, obj)
@@ -13021,9 +13784,9 @@ func (ec *executionContext) _PlateauSpec(ctx context.Context, sel ast.SelectionS
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&invalids, 1)
 			}
-		case "name":
+		case "majorVersion":
 
-			out.Values[i] = ec._PlateauSpec_name(ctx, field, obj)
+			out.Values[i] = ec._PlateauSpec_majorVersion(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&invalids, 1)
@@ -13045,6 +13808,116 @@ func (ec *executionContext) _PlateauSpec(ctx context.Context, sel ast.SelectionS
 					}
 				}()
 				res = ec._PlateauSpec_datasetTypes(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
+		case "minorVersions":
+
+			out.Values[i] = ec._PlateauSpec_minorVersions(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var plateauSpecMinorImplementors = []string{"PlateauSpecMinor", "Node"}
+
+func (ec *executionContext) _PlateauSpecMinor(ctx context.Context, sel ast.SelectionSet, obj *PlateauSpecMinor) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, plateauSpecMinorImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("PlateauSpecMinor")
+		case "id":
+
+			out.Values[i] = ec._PlateauSpecMinor_id(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		case "name":
+
+			out.Values[i] = ec._PlateauSpecMinor_name(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		case "version":
+
+			out.Values[i] = ec._PlateauSpecMinor_version(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		case "majorVersion":
+
+			out.Values[i] = ec._PlateauSpecMinor_majorVersion(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		case "year":
+
+			out.Values[i] = ec._PlateauSpecMinor_year(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		case "parentId":
+
+			out.Values[i] = ec._PlateauSpecMinor_parentId(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		case "parent":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._PlateauSpecMinor_parent(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
+		case "datasets":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._PlateauSpecMinor_datasets(ctx, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&invalids, 1)
 				}
@@ -13648,13 +14521,6 @@ func (ec *executionContext) _RelatedDatasetType(ctx context.Context, sel ast.Sel
 		case "name":
 
 			out.Values[i] = ec._RelatedDatasetType_name(ctx, field, obj)
-
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		case "englishName":
-
-			out.Values[i] = ec._RelatedDatasetType_englishName(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				invalids++
@@ -14798,6 +15664,10 @@ func (ec *executionContext) marshalNPlateauFloodingDatasetItem2ᚖgithubᚗcom�
 	return ec._PlateauFloodingDatasetItem(ctx, sel, v)
 }
 
+func (ec *executionContext) marshalNPlateauSpec2githubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐPlateauSpec(ctx context.Context, sel ast.SelectionSet, v PlateauSpec) graphql.Marshaler {
+	return ec._PlateauSpec(ctx, sel, &v)
+}
+
 func (ec *executionContext) marshalNPlateauSpec2ᚕᚖgithubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐPlateauSpecᚄ(ctx context.Context, sel ast.SelectionSet, v []*PlateauSpec) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
@@ -14850,6 +15720,64 @@ func (ec *executionContext) marshalNPlateauSpec2ᚖgithubᚗcomᚋeukaryaᚑinc�
 		return graphql.Null
 	}
 	return ec._PlateauSpec(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNPlateauSpecMinor2githubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐPlateauSpecMinor(ctx context.Context, sel ast.SelectionSet, v PlateauSpecMinor) graphql.Marshaler {
+	return ec._PlateauSpecMinor(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNPlateauSpecMinor2ᚕᚖgithubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐPlateauSpecMinorᚄ(ctx context.Context, sel ast.SelectionSet, v []*PlateauSpecMinor) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNPlateauSpecMinor2ᚖgithubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐPlateauSpecMinor(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNPlateauSpecMinor2ᚖgithubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐPlateauSpecMinor(ctx context.Context, sel ast.SelectionSet, v *PlateauSpecMinor) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._PlateauSpecMinor(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNRelatedDatasetItem2ᚕᚖgithubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐRelatedDatasetItemᚄ(ctx context.Context, sel ast.SelectionSet, v []*RelatedDatasetItem) graphql.Marshaler {
@@ -15353,14 +16281,6 @@ func (ec *executionContext) marshalOCity2ᚖgithubᚗcomᚋeukaryaᚑincᚋreear
 		return graphql.Null
 	}
 	return ec._City(ctx, sel, v)
-}
-
-func (ec *executionContext) unmarshalODatasetForAreaInput2ᚖgithubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐDatasetForAreaInput(ctx context.Context, v interface{}) (*DatasetForAreaInput, error) {
-	if v == nil {
-		return nil, nil
-	}
-	res, err := ec.unmarshalInputDatasetForAreaInput(ctx, v)
-	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalODatasetInput2ᚖgithubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐDatasetInput(ctx context.Context, v interface{}) (*DatasetInput, error) {

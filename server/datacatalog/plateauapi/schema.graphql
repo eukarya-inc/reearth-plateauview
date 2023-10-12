@@ -56,9 +56,9 @@ type Prefecture implements Area & Node {
   """
   cities: [City!]!
   """
-  都道府県に属するデータセット。
+  都道府県に属するデータセット（DatasetInput内のareasCodeの指定は無視されます）。
   """
-  datasets(input: DatasetForAreaInput): [Dataset!]!
+  datasets(input: DatasetInput): [Dataset!]!
 }
 
 """
@@ -92,9 +92,9 @@ type City implements Area & Node {
   """
   wards: [Ward!]!
   """
-  市区町村に属するデータセット。
+  市区町村に属するデータセット（DatasetInput内のareasCodeの指定は無視されます）。
   """
-  datasets(input: DatasetForAreaInput): [Dataset!]!
+  datasets(input: DatasetInput): [Dataset!]!
 }
 
 """
@@ -136,22 +136,22 @@ type Ward implements Area & Node {
   """
   city: City
   """
-  区に属するデータセット。
+  区に属するデータセット（DatasetInput内のareasCodeの指定は無視されます）。
   """
-  datasets(input: DatasetForAreaInput): [Dataset!]!
+  datasets(input: DatasetInput): [Dataset!]!
 }
 
 # Spec
 
 """
-PLATEAU都市モデルの仕様。
+PLATEAU都市モデルの仕様のメジャーバージョン。
 """
 type PlateauSpec implements Node {
   id: ID!
   """
-  PLATEAU都市モデルの仕様の名前。「2.2」のようなバージョン番号を表す文字列です。
+  PLATEAU都市モデルの仕様のバージョン番号。
   """
-  name: String!
+  majorVersion: Int!
   """
   仕様の公開年度（西暦）。
   """
@@ -160,6 +160,45 @@ type PlateauSpec implements Node {
   その仕様に含まれるデータセットの種類。
   """
   datasetTypes: [PlateauDatasetType!]!
+  """
+  その仕様のマイナーバージョン。
+  """
+  minorVersions: [PlateauSpecMinor!]!
+}
+
+"""
+PLATEAU都市モデルの仕様のマイナーバージョン。
+"""
+type PlateauSpecMinor implements Node {
+  id: ID!
+  """
+  PLATEAU都市モデルの仕様の名前。 "第2.3版" のような文字列です。
+  """
+  name: String!
+  """
+  バージョンを表す文字列。 "2.3" のような文字列です。
+  """
+  version: String!
+  """
+  メジャーバージョン番号。 2のような整数です。
+  """
+  majorVersion: Int!
+  """
+  仕様の公開年度（西暦）。
+  """
+  year: Int!
+  """
+  その仕様が属する仕様のメジャーバージョンのID。
+  """
+  parentId: ID!
+  """
+  その仕様が属する仕様のメジャーバージョン。
+  """
+  parent: PlateauSpec!
+  """
+  その仕様に準拠して整備されたPLATEAU都市モデルデータセット（DatasetInput内のplateauSpecの指定は無視されます）。
+  """
+  datasets(input: DatasetInput): [Dataset!]!
 }
 
 # Dataset
@@ -335,10 +374,6 @@ interface DatasetType implements Node {
   """
   name: String!
   """
-  データセットの種類の英語名。
-  """
-  englishName: String!
-  """
   データセットの種類のカテゴリ。
   """
   category: DatasetTypeCategory!
@@ -441,6 +476,18 @@ type PlateauDataset implements Dataset & Node {
   データセットのアイテム。
   """
   items: [PlateauDatasetItem!]!
+  """
+  データセットが準拠する仕様のID。
+  """
+  plateauSpecId: ID!
+  """
+  データセットが準拠する仕様の名称。
+  """
+  plateauSpecName: String!
+  """
+  データセットが準拠する仕様。
+  """
+  plateauSpec: PlateauSpecMinor!
 }
 
 """
@@ -575,7 +622,18 @@ type PlateauFloodingDataset implements Dataset & Node {
   データセットのアイテム。
   """
   items: [PlateauFloodingDatasetItem!]!
-
+  """
+  データセットが準拠する仕様のID。
+  """
+  plateauSpecId: ID!
+  """
+  データセットが準拠する仕様の名称。
+  """
+  plateauSpecName: String!
+  """
+  データセットが準拠する仕様。
+  """
+  plateauSpec: PlateauSpecMinor!
   """
   河川。地物型が洪水浸水想定区域（fld）の場合のみ存在します。
   """
@@ -612,7 +670,6 @@ type PlateauFloodingDatasetItem implements DatasetItem & Node {
   データセットのアイテムが属するデータセット。
   """
   parent: PlateauDataset
-
   """
   浸水規模
   """
@@ -674,10 +731,6 @@ type PlateauDatasetType implements DatasetType & Node {
   データセットの種類名。
   """
   name: String!
-  """
-  データセットの種類の英語名。
-  """
-  englishName: String!
   """
   データセットの種類のカテゴリ。
   """
@@ -829,10 +882,6 @@ type RelatedDatasetType implements DatasetType & Node {
   """
   name: String!
   """
-  データセットの種類の英語名。
-  """
-  englishName: String!
-  """
   データセットの種類のカテゴリ。
   """
   category: DatasetTypeCategory!
@@ -965,10 +1014,6 @@ type GenericDatasetType implements DatasetType & Node {
   """
   name: String!
   """
-  データセットの種類の英語名。
-  """
-  englishName: String!
-  """
   データセットの種類のカテゴリ。
   """
   category: DatasetTypeCategory!
@@ -1021,6 +1066,14 @@ input DatasetInput {
   """
   areaCodes: [AreaCode!]
   """
+  仕様書のバージョン。「第2.3版」「2.3」「2」などの文字列が使用可能です。
+  """
+  plateauSpec: String
+  """
+  データの整備年度または公開年度（西暦）。
+  """
+  year: Int
+  """
   検索結果から除外するデータセットの種類コード。
   """
   excludeTypes: [String!]
@@ -1035,29 +1088,6 @@ input DatasetInput {
   """
   areaCodesで指定された地域の配下にある全ての自治体のデータセットを含めるかどうか。
   例えば、札幌市を指定した場合、札幌市自体のデータだけでなく、札幌市の配下の全ての区（例えば中央区や北区）のデータセットも含めるかどうか。
-  """
-  deep: Boolean
-}
-
-"""
-地域を固定してデータセットを検索するためのクエリ。
-"""
-input DatasetForAreaInput {
-  """
-  検索結果から除外するデータセットの種類コード。
-  """
-  excludeTypes: [String!]
-  """
-  検索結果に含めるデータセットの種類コード。未指定の場合、全てのデータセットの種類を対象に検索し、指定するとその種類で検索結果を絞り込みます。
-  """
-  includeTypes: [String!]
-  """
-  検索文字列。複数指定するとAND条件で絞り込み検索が行えます。
-  """
-  searchTokens: [String!]
-  """
-  この地域の配下にある全ての自治体のデータセットを含めるかどうか。
-  例えば、札幌市の場合、札幌市自体のデータだけでなく、札幌市の配下の全ての区（例えば中央区や北区）のデータセットも含めるかどうか。
   """
   deep: Boolean
 }

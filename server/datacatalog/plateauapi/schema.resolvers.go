@@ -5,6 +5,7 @@ package plateauapi
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/samber/lo"
 )
@@ -32,17 +33,12 @@ func (r *cityResolver) Wards(ctx context.Context, obj *City) ([]*Ward, error) {
 }
 
 // Datasets is the resolver for the datasets field.
-func (r *cityResolver) Datasets(ctx context.Context, obj *City, input *DatasetForAreaInput) ([]Dataset, error) {
+func (r *cityResolver) Datasets(ctx context.Context, obj *City, input *DatasetInput) ([]Dataset, error) {
 	if input == nil {
-		input = &DatasetForAreaInput{}
+		input = &DatasetInput{}
 	}
-	return r.Repo.Datasets(ctx, &DatasetInput{
-		AreaCodes:    []AreaCode{obj.Code},
-		ExcludeTypes: input.ExcludeTypes,
-		IncludeTypes: input.IncludeTypes,
-		SearchTokens: input.SearchTokens,
-		Deep:         input.Deep,
-	})
+	input.AreaCodes = []AreaCode{obj.Code}
+	return r.Repo.Datasets(ctx, input)
 }
 
 // Prefecture is the resolver for the prefecture field.
@@ -102,6 +98,11 @@ func (r *plateauDatasetResolver) Type(ctx context.Context, obj *PlateauDataset) 
 	return to[*PlateauDatasetType](r.Repo.Node(ctx, obj.TypeID))
 }
 
+// PlateauSpec is the resolver for the plateauSpec field.
+func (r *plateauDatasetResolver) PlateauSpec(ctx context.Context, obj *PlateauDataset) (*PlateauSpecMinor, error) {
+	return to[*PlateauSpecMinor](r.Repo.Node(ctx, obj.PlateauSpecID))
+}
+
 // Parent is the resolver for the parent field.
 func (r *plateauDatasetItemResolver) Parent(ctx context.Context, obj *PlateauDatasetItem) (*PlateauDataset, error) {
 	return to[*PlateauDataset](r.Repo.Node(ctx, obj.ParentID))
@@ -138,6 +139,11 @@ func (r *plateauFloodingDatasetResolver) Type(ctx context.Context, obj *PlateauF
 	return to[*PlateauDatasetType](r.Repo.Node(ctx, obj.TypeID))
 }
 
+// PlateauSpec is the resolver for the plateauSpec field.
+func (r *plateauFloodingDatasetResolver) PlateauSpec(ctx context.Context, obj *PlateauFloodingDataset) (*PlateauSpecMinor, error) {
+	panic(fmt.Errorf("not implemented"))
+}
+
 // Parent is the resolver for the parent field.
 func (r *plateauFloodingDatasetItemResolver) Parent(ctx context.Context, obj *PlateauFloodingDatasetItem) (*PlateauDataset, error) {
 	return to[*PlateauDataset](r.Repo.Node(ctx, obj.ParentID))
@@ -146,7 +152,7 @@ func (r *plateauFloodingDatasetItemResolver) Parent(ctx context.Context, obj *Pl
 // DatasetTypes is the resolver for the datasetTypes field.
 func (r *plateauSpecResolver) DatasetTypes(ctx context.Context, obj *PlateauSpec) ([]*PlateauDatasetType, error) {
 	types, err := r.Repo.DatasetTypes(ctx, &DatasetTypeInput{
-		PlateauSpec: &obj.Name,
+		PlateauSpec: lo.ToPtr(fmt.Sprintf("%d", obj.MajorVersion)),
 	})
 	if err != nil {
 		return nil, err
@@ -158,6 +164,20 @@ func (r *plateauSpecResolver) DatasetTypes(ctx context.Context, obj *PlateauSpec
 		}
 		return nil, false
 	}), nil
+}
+
+// Parent is the resolver for the parent field.
+func (r *plateauSpecMinorResolver) Parent(ctx context.Context, obj *PlateauSpecMinor) (*PlateauSpec, error) {
+	return to[*PlateauSpec](r.Repo.Node(ctx, obj.ParentID))
+}
+
+// Datasets is the resolver for the datasets field.
+func (r *plateauSpecMinorResolver) Datasets(ctx context.Context, obj *PlateauSpecMinor, input *DatasetInput) ([]Dataset, error) {
+	if input == nil {
+		input = &DatasetInput{}
+	}
+	input.PlateauSpec = lo.ToPtr(obj.Version)
+	return r.Repo.Datasets(ctx, input)
 }
 
 // Cities is the resolver for the cities field.
@@ -178,17 +198,12 @@ func (r *prefectureResolver) Cities(ctx context.Context, obj *Prefecture) ([]*Ci
 }
 
 // Datasets is the resolver for the datasets field.
-func (r *prefectureResolver) Datasets(ctx context.Context, obj *Prefecture, input *DatasetForAreaInput) ([]Dataset, error) {
+func (r *prefectureResolver) Datasets(ctx context.Context, obj *Prefecture, input *DatasetInput) ([]Dataset, error) {
 	if input == nil {
-		input = &DatasetForAreaInput{}
+		input = &DatasetInput{}
 	}
-	return r.Repo.Datasets(ctx, &DatasetInput{
-		AreaCodes:    []AreaCode{obj.Code},
-		ExcludeTypes: input.ExcludeTypes,
-		IncludeTypes: input.IncludeTypes,
-		SearchTokens: input.SearchTokens,
-		Deep:         input.Deep,
-	})
+	input.AreaCodes = []AreaCode{obj.Code}
+	return r.Repo.Datasets(ctx, input)
 }
 
 // Node is the resolver for the node field.
@@ -273,17 +288,12 @@ func (r *wardResolver) City(ctx context.Context, obj *Ward) (*City, error) {
 }
 
 // Datasets is the resolver for the datasets field.
-func (r *wardResolver) Datasets(ctx context.Context, obj *Ward, input *DatasetForAreaInput) ([]Dataset, error) {
+func (r *wardResolver) Datasets(ctx context.Context, obj *Ward, input *DatasetInput) ([]Dataset, error) {
 	if input == nil {
-		input = &DatasetForAreaInput{}
+		input = &DatasetInput{}
 	}
-	return r.Repo.Datasets(ctx, &DatasetInput{
-		AreaCodes:    []AreaCode{obj.Code},
-		ExcludeTypes: input.ExcludeTypes,
-		IncludeTypes: input.IncludeTypes,
-		SearchTokens: input.SearchTokens,
-		Deep:         input.Deep,
-	})
+	input.AreaCodes = []AreaCode{obj.Code}
+	return r.Repo.Datasets(ctx, input)
 }
 
 // City returns CityResolver implementation.
@@ -323,6 +333,9 @@ func (r *Resolver) PlateauFloodingDatasetItem() PlateauFloodingDatasetItemResolv
 // PlateauSpec returns PlateauSpecResolver implementation.
 func (r *Resolver) PlateauSpec() PlateauSpecResolver { return &plateauSpecResolver{r} }
 
+// PlateauSpecMinor returns PlateauSpecMinorResolver implementation.
+func (r *Resolver) PlateauSpecMinor() PlateauSpecMinorResolver { return &plateauSpecMinorResolver{r} }
+
 // Prefecture returns PrefectureResolver implementation.
 func (r *Resolver) Prefecture() PrefectureResolver { return &prefectureResolver{r} }
 
@@ -349,6 +362,7 @@ type plateauDatasetTypeResolver struct{ *Resolver }
 type plateauFloodingDatasetResolver struct{ *Resolver }
 type plateauFloodingDatasetItemResolver struct{ *Resolver }
 type plateauSpecResolver struct{ *Resolver }
+type plateauSpecMinorResolver struct{ *Resolver }
 type prefectureResolver struct{ *Resolver }
 type queryResolver struct{ *Resolver }
 type relatedDatasetResolver struct{ *Resolver }

@@ -90,6 +90,8 @@ models:
         resolver: true
       type:
         resolver: true
+      plateauSpec:
+        resolver: true
   PlateauDatasetItem:
     fields:
       parent:
@@ -103,6 +105,8 @@ models:
       ward:
         resolver: true
       type:
+        resolver: true
+      plateauSpec:
         resolver: true
   PlateauFloodingDatasetItem:
     fields:
@@ -143,4 +147,10 @@ models:
   PlateauSpec:
     fields:
       datasetTypes:
+        resolver: true
+  PlateauSpecMinor:
+    fields:
+      parent:
+        resolver: true
+      datasets:
         resolver: true

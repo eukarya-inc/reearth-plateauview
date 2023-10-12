@@ -17,27 +17,67 @@ const usecaseID = "usecase"
 
 var floodingTypes = []string{"fld", "htd", "tnm", "ifld"}
 
+var plateauSpecs = []*plateauapi.PlateauSpec{
+	{
+		ID:           plateauSpecIDFrom("2"),
+		MajorVersion: 2,
+		Year:         2022,
+		MinorVersions: []*plateauapi.PlateauSpecMinor{
+			{
+				ID:           plateauSpecIDFrom("2.3"),
+				Version:      "2.3",
+				Name:         "第2.3版",
+				MajorVersion: 2,
+				Year:         2022,
+				ParentID:     plateauSpecIDFrom("2"),
+			},
+		},
+	},
+	{
+		ID:           plateauSpecIDFrom("3"),
+		MajorVersion: 3,
+		Year:         2022,
+		MinorVersions: []*plateauapi.PlateauSpecMinor{
+			{
+				ID:           plateauSpecIDFrom("3.0"),
+				Version:      "3.0",
+				Name:         "第3.0版",
+				MajorVersion: 3,
+				Year:         2023,
+				ParentID:     plateauSpecIDFrom("3"),
+			},
+		},
+	},
+}
+
 func plateauDatasetFrom(d datacatalogv2.DataCatalogItem) (plateauapi.PlateauDataset, bool) {
 	if d.Family != "plateau" || slices.Contains(floodingTypes, d.TypeEn) {
 		return plateauapi.PlateauDataset{}, false
 	}
 
+	plateauSpecVersion := d.Spec
+	if isEx(d) {
+		plateauSpecVersion = "3.0"
+	}
+
 	id := datasetIDFrom(d, nil)
 	return plateauapi.PlateauDataset{
-		ID:             id,
-		Name:           d.Name,
-		Subname:        nil,
-		Description:    lo.ToPtr(d.Description),
-		PrefectureID:   prefectureIDFrom(d),
-		PrefectureCode: prefectureCodeFrom(d),
-		CityID:         cityIDFrom(d),
-		CityCode:       cityCodeFrom(d),
-		WardID:         wardIDFrom(d),
-		WardCode:       wardCodeFrom(d),
-		Year:           d.Year,
-		TypeID:         datasetTypeIDFrom(d),
-		TypeCode:       datasetTypeCodeFrom(d),
-		Groups:         groupsFrom(d),
+		ID:              id,
+		Name:            d.Name,
+		Subname:         nil,
+		Description:     lo.ToPtr(d.Description),
+		PrefectureID:    prefectureIDFrom(d),
+		PrefectureCode:  prefectureCodeFrom(d),
+		CityID:          cityIDFrom(d),
+		CityCode:        cityCodeFrom(d),
+		WardID:          wardIDFrom(d),
+		WardCode:        wardCodeFrom(d),
+		Year:            d.Year,
+		TypeID:          datasetTypeIDFrom(d),
+		TypeCode:        datasetTypeCodeFrom(d),
+		Groups:          groupsFrom(d),
+		PlateauSpecID:   plateauSpecIDFrom(plateauSpecVersion),
+		PlateauSpecName: plateauSpecVersion,
 		Items: lo.Map(d.MainOrConfigItems(), func(c datacatalogutil.DataCatalogItemConfigItem, _ int) *plateauapi.PlateauDatasetItem {
 			return plateauDatasetItemFrom(c, id)
 		}),
@@ -111,21 +151,23 @@ func plateauFloodingDatasetFrom(d datacatalogv2.DataCatalogItem) (plateauapi.Pla
 
 	id := datasetIDFrom(d, subname)
 	return plateauapi.PlateauFloodingDataset{
-		ID:             id,
-		Name:           d.Name,
-		Subname:        subname,
-		Description:    lo.ToPtr(d.Description),
-		PrefectureID:   prefectureIDFrom(d),
-		PrefectureCode: prefectureCodeFrom(d),
-		CityID:         cityIDFrom(d),
-		CityCode:       cityCodeFrom(d),
-		WardID:         wardIDFrom(d),
-		WardCode:       wardCodeFrom(d),
-		Year:           d.Year,
-		TypeID:         datasetTypeIDFrom(d),
-		TypeCode:       datasetTypeCodeFrom(d),
-		Groups:         groupsFrom(d),
-		River:          river,
+		ID:              id,
+		Name:            d.Name,
+		Subname:         subname,
+		Description:     lo.ToPtr(d.Description),
+		PrefectureID:    prefectureIDFrom(d),
+		PrefectureCode:  prefectureCodeFrom(d),
+		CityID:          cityIDFrom(d),
+		CityCode:        cityCodeFrom(d),
+		WardID:          wardIDFrom(d),
+		WardCode:        wardCodeFrom(d),
+		Year:            d.Year,
+		TypeID:          datasetTypeIDFrom(d),
+		TypeCode:        datasetTypeCodeFrom(d),
+		Groups:          groupsFrom(d),
+		PlateauSpecID:   plateauSpecIDFrom(d.Spec),
+		PlateauSpecName: d.Spec,
+		River:           river,
 		Items: lo.Map(d.MainOrConfigItems(), func(c datacatalogutil.DataCatalogItemConfigItem, _ int) *plateauapi.PlateauFloodingDatasetItem {
 			return plateauFloodingDatasetItemFrom(c, id)
 		}),
@@ -296,13 +338,9 @@ func datasetIDFrom(d datacatalogv2.DataCatalogItem, subname *string) plateauapi.
 		sub := ""
 		typeCode := datasetTypeCodeFrom(d)
 		isFlood := slices.Contains(floodingTypes, d.TypeEn)
-		isEx := strings.Contains(d.ID, "_ex_")
+		isEx := isEx(d)
 
 		if isFlood || d.TypeEn == "gen" || isEx {
-			if isEx {
-				typeCode = "ex"
-			}
-
 			if _, after, found := strings.Cut(d.ID, "_"+typeCode+"_"); found {
 				if isFlood {
 					after = strings.TrimSuffix(after, "_l1")
@@ -331,27 +369,40 @@ func newDatasetID(id string) plateauapi.ID {
 func datasetTypeIDFrom(d datacatalogv2.DataCatalogItem) plateauapi.ID {
 	code := datasetTypeCodeFrom(d)
 	if d.Family == "plateau" {
-		// TODO: refer to a major version of the plateau spec
-		return plateauapi.NewID(fmt.Sprintf("%s_%s", code, d.Spec), plateauapi.TypeDatasetType)
+		spec := d.Spec
+		if isEx(d) {
+			spec = "3.0"
+		}
+		return plateauapi.NewID(fmt.Sprintf("%s_%s", code, majorVersion(spec)), plateauapi.TypeDatasetType)
 	}
 	return plateauapi.NewID(code, plateauapi.TypeDatasetType)
 }
 
 func datasetTypeCodeFrom(d datacatalogv2.DataCatalogItem) string {
 	if d.Family == "plateau" {
+		if strings.HasPrefix(d.TypeEn, "urf_") {
+			return "urf"
+		}
 		return d.TypeEn
 	}
 	if d.Family == "related" {
 		return d.TypeEn
 	}
 	if d.Family == "generic" && d.Category != "" {
+		if d.Category == "サンプルデータ" {
+			return "sample"
+		}
 		return d.Category
 	}
 	return usecaseID
 }
 
-func specIDFrom(d datacatalogv2.DataCatalogItem) plateauapi.ID {
-	return plateauapi.NewID(specNumber(d.Spec), plateauapi.TypePlateauSpec)
+func plateauSpecIDFrom(version string) plateauapi.ID {
+	return plateauapi.NewID(specNumber(version), plateauapi.TypePlateauSpec)
+}
+
+func plateauSpecMajorIDFrom(version string) plateauapi.ID {
+	return plateauapi.NewID(majorVersion(version), plateauapi.TypePlateauSpec)
 }
 
 func specNumber(spec string) string {
@@ -407,39 +458,46 @@ func wardFrom(d datacatalogv2.DataCatalogItem) *plateauapi.Ward {
 	}
 }
 
-func plateauTypeFrom(d datacatalogv2.DataCatalogItem) plateauapi.PlateauDatasetType {
+func plateauDatasetTypeFrom(d datacatalogv2.DataCatalogItem) plateauapi.PlateauDatasetType {
 	if d.Family != "plateau" {
 		return plateauapi.PlateauDatasetType{}
+	}
+
+	name := d.Type
+	if strings.HasPrefix(d.TypeEn, "urf_") {
+		name = "都市計画決定情報モデル"
+	}
+	spec := d.Spec
+	if isEx(d) {
+		spec = "3"
 	}
 
 	year, _ := strconv.Atoi(d.Edition)
 	return plateauapi.PlateauDatasetType{
 		ID:            datasetTypeIDFrom(d),
-		Name:          d.Type,
+		Name:          name,
 		Code:          datasetTypeCodeFrom(d),
 		Year:          year,
-		EnglishName:   d.TypeEn,
 		Category:      plateauapi.DatasetTypeCategoryPlateau,
-		PlateauSpecID: specIDFrom(d),
+		PlateauSpecID: plateauSpecMajorIDFrom(spec),
 		Flood:         slices.Contains(floodingTypes, d.TypeEn),
 	}
 }
 
-func relatedTypeFrom(d datacatalogv2.DataCatalogItem) plateauapi.RelatedDatasetType {
+func relatedDatasetTypeFrom(d datacatalogv2.DataCatalogItem) plateauapi.RelatedDatasetType {
 	if d.Family != "related" {
 		return plateauapi.RelatedDatasetType{}
 	}
 
 	return plateauapi.RelatedDatasetType{
-		ID:          datasetTypeIDFrom(d),
-		Name:        d.Type,
-		Code:        datasetTypeCodeFrom(d),
-		EnglishName: d.TypeEn,
-		Category:    plateauapi.DatasetTypeCategoryRelated,
+		ID:       datasetTypeIDFrom(d),
+		Name:     d.Type,
+		Code:     datasetTypeCodeFrom(d),
+		Category: plateauapi.DatasetTypeCategoryRelated,
 	}
 }
 
-func genericTypeFrom(d datacatalogv2.DataCatalogItem) plateauapi.GenericDatasetType {
+func genericDatasetTypeFrom(d datacatalogv2.DataCatalogItem) plateauapi.GenericDatasetType {
 	if d.Family != "generic" {
 		return plateauapi.GenericDatasetType{}
 	}
@@ -454,22 +512,10 @@ func genericTypeFrom(d datacatalogv2.DataCatalogItem) plateauapi.GenericDatasetT
 	}
 
 	return plateauapi.GenericDatasetType{
-		ID:          datasetTypeIDFrom(d),
-		Name:        "ユースケース",
-		Code:        "usecase",
-		EnglishName: "usecase",
-		Category:    plateauapi.DatasetTypeCategoryGeneric,
-	}
-}
-
-func specFrom(d datacatalogv2.DataCatalogItem) *plateauapi.PlateauSpec {
-	if d.Spec == "" {
-		return nil
-	}
-	return &plateauapi.PlateauSpec{
-		ID:   specIDFrom(d),
-		Name: d.Spec,
-		Year: d.Year,
+		ID:       datasetTypeIDFrom(d),
+		Name:     "ユースケース",
+		Code:     "usecase",
+		Category: plateauapi.DatasetTypeCategoryGeneric,
 	}
 }
 
@@ -487,4 +533,17 @@ func cutRight(s, sep string) (string, string, bool) {
 		return s, "", false
 	}
 	return s[:i], s[i+len(sep):], true
+}
+
+func majorVersion(version string) string {
+	v := specNumber(version)
+	i := strings.Index(v, ".")
+	if i < 0 {
+		return version
+	}
+	return v[:i]
+}
+
+func isEx(d datacatalogv2.DataCatalogItem) bool {
+	return strings.Contains(d.ID, "_ex_")
 }

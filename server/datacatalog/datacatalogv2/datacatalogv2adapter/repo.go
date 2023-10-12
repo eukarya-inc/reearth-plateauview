@@ -9,6 +9,7 @@ import (
 	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
 	"golang.org/x/exp/maps"
+	"golang.org/x/exp/slices"
 )
 
 type Adapter struct {
@@ -30,7 +31,7 @@ type Adapter struct {
 	plateauFloodingDatasets []plateauapi.PlateauFloodingDataset
 	relatedDatasets         []plateauapi.RelatedDataset
 	genericDatasets         []plateauapi.GenericDataset
-	specs                   []plateauapi.PlateauSpec
+	years                   []int
 }
 
 func New(cmsbase, project string) (*Adapter, error) {
@@ -153,10 +154,18 @@ func (a *Adapter) Node(ctx context.Context, id plateauapi.ID) (plateauapi.Node, 
 			return item, nil
 		}
 	case plateauapi.TypePlateauSpec:
-		if p, ok := lo.Find(a.specs, func(p plateauapi.PlateauSpec) bool {
-			return p.ID == id
+		if p, ok := lo.Find(plateauSpecs, func(p *plateauapi.PlateauSpec) bool {
+			return p.ID == id || lo.SomeBy(p.MinorVersions, func(v *plateauapi.PlateauSpecMinor) bool {
+				return v.ID == id
+			})
 		}); ok {
-			return &p, nil
+			if p.ID != id {
+				m, _ := lo.Find(p.MinorVersions, func(v *plateauapi.PlateauSpecMinor) bool {
+					return v.ID == id
+				})
+				return m, nil
+			}
+			return util.CloneRef(p), nil
 		}
 	}
 
@@ -314,11 +323,11 @@ func (a *Adapter) Datasets(ctx context.Context, input *plateauapi.DatasetInput) 
 }
 
 func (a *Adapter) PlateauSpecs(ctx context.Context) ([]*plateauapi.PlateauSpec, error) {
-	return lo.ToSlicePtr(a.specs), nil
+	return lo.Map(plateauSpecs, func(p *plateauapi.PlateauSpec, _ int) *plateauapi.PlateauSpec {
+		return util.CloneRef(p)
+	}), nil
 }
 
 func (a *Adapter) Years(ctx context.Context) ([]int, error) {
-	return lo.Uniq(lo.Map(a.specs, func(s plateauapi.PlateauSpec, _ int) int {
-		return s.Year
-	})), nil
+	return slices.Clone(a.years), nil
 }

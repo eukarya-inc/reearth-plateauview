@@ -72,29 +72,21 @@ func (a *Adapter) UpdateCache(ctx context.Context, opts datacatalogv2.FetcherDoO
 			}
 		}
 
-		if ty := plateauTypeFrom(d); lo.IsNotEmpty(ty) {
+		if ty := plateauDatasetTypeFrom(d); lo.IsNotEmpty(ty) {
 			if !lo.Contains(a.plateauDatasetTypes, ty) {
 				a.plateauDatasetTypes = append(a.plateauDatasetTypes, ty)
 			}
 		}
 
-		if ty := relatedTypeFrom(d); lo.IsNotEmpty(ty) {
+		if ty := relatedDatasetTypeFrom(d); lo.IsNotEmpty(ty) {
 			if !lo.Contains(a.relatedDatasetTypes, ty) {
 				a.relatedDatasetTypes = append(a.relatedDatasetTypes, ty)
 			}
 		}
 
-		if ty := genericTypeFrom(d); lo.IsNotEmpty(ty) {
+		if ty := genericDatasetTypeFrom(d); lo.IsNotEmpty(ty) {
 			if !lo.Contains(a.genericDatasetTypes, ty) {
 				a.genericDatasetTypes = append(a.genericDatasetTypes, ty)
-			}
-		}
-
-		if !lo.ContainsBy(a.specs, func(a plateauapi.PlateauSpec) bool {
-			return a.Name == d.Spec
-		}) {
-			if s := specFrom(d); s != nil {
-				a.specs = append(a.specs, *s)
 			}
 		}
 
@@ -109,6 +101,9 @@ func (a *Adapter) UpdateCache(ctx context.Context, opts datacatalogv2.FetcherDoO
 		}
 		if d, ok := genericDatasetFrom(d); ok {
 			a.genericDatasets = append(a.genericDatasets, d)
+		}
+		if !slices.Contains(a.years, d.Year) {
+			a.years = append(a.years, d.Year)
 		}
 
 		a.areasForDataTypes[ty] = areasForType
@@ -132,8 +127,8 @@ func (a *Adapter) UpdateCache(ctx context.Context, opts datacatalogv2.FetcherDoO
 	slices.SortStableFunc(a.genericDatasetTypes, func(a, b plateauapi.GenericDatasetType) bool {
 		return a.Code < b.Code
 	})
-	slices.SortStableFunc(a.specs, func(a, b plateauapi.PlateauSpec) bool {
-		return a.Year < b.Year || a.Name < b.Name
+	slices.SortStableFunc(a.years, func(a, b int) bool {
+		return a < b
 	})
 
 	return nil
