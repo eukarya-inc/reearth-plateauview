@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"path"
 
+	"github.com/99designs/gqlgen/graphql/handler/extension"
 	"github.com/eukarya-inc/reearth-plateauview/server/datacatalog/datacatalogv2"
 	"github.com/eukarya-inc/reearth-plateauview/server/datacatalog/datacatalogv2/datacatalogv2adapter"
 	"github.com/eukarya-inc/reearth-plateauview/server/datacatalog/plateauapi"
@@ -16,11 +17,12 @@ import (
 
 type Config struct {
 	plateaucms.Config
-	CMSBase            string
-	DisableCache       bool
-	CacheTTL           int
-	CacheUpdateKey     string
-	PlaygroundEndpoint string
+	CMSBase              string
+	DisableCache         bool
+	CacheTTL             int
+	CacheUpdateKey       string
+	PlaygroundEndpoint   string
+	GraphqlMaxComplexity int
 }
 
 func Echo(conf Config, g *echo.Group) error {
@@ -28,6 +30,10 @@ func Echo(conf Config, g *echo.Group) error {
 	repo, err := datacatalogv2adapter.New(conf.Config.CMSBaseURL, "plateau-2022")
 	if err != nil {
 		return fmt.Errorf("failed to initialize datacatalog repository: %w", err)
+	}
+
+	if conf.GraphqlMaxComplexity <= 0 {
+		conf.GraphqlMaxComplexity = 1000
 	}
 
 	// PLATEAU API
@@ -38,6 +44,7 @@ func Echo(conf Config, g *echo.Group) error {
 	)
 
 	srv := plateauapi.NewService(repo)
+	srv.Use(extension.FixedComplexityLimit(conf.GraphqlMaxComplexity))
 	plateauapig.GET("/graphql", echo.WrapHandler(plateauapi.PlaygroundHandler(
 		"PLATEAU GraphQL API Playground",
 		path.Join(conf.PlaygroundEndpoint, "graphql"),
