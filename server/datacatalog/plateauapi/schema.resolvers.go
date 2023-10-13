@@ -17,7 +17,7 @@ func (r *cityResolver) Prefecture(ctx context.Context, obj *City) (*Prefecture, 
 
 // Wards is the resolver for the wards field.
 func (r *cityResolver) Wards(ctx context.Context, obj *City) ([]*Ward, error) {
-	areas, err := r.Repo.Areas(ctx, &AreaInput{
+	areas, err := r.Repo.Areas(ctx, &AreasInput{
 		ParentCode: lo.ToPtr(obj.Code),
 	})
 	if err != nil {
@@ -33,9 +33,9 @@ func (r *cityResolver) Wards(ctx context.Context, obj *City) ([]*Ward, error) {
 }
 
 // Datasets is the resolver for the datasets field.
-func (r *cityResolver) Datasets(ctx context.Context, obj *City, input *DatasetInput) ([]Dataset, error) {
+func (r *cityResolver) Datasets(ctx context.Context, obj *City, input *DatasetsInput) ([]Dataset, error) {
 	if input == nil {
-		input = &DatasetInput{}
+		input = &DatasetsInput{}
 	}
 	input.AreaCodes = []AreaCode{obj.Code}
 	return r.Repo.Datasets(ctx, input)
@@ -115,7 +115,7 @@ func (r *plateauDatasetTypeResolver) PlateauSpec(ctx context.Context, obj *Plate
 
 // DatasetTypes is the resolver for the datasetTypes field.
 func (r *plateauSpecResolver) DatasetTypes(ctx context.Context, obj *PlateauSpec) ([]*PlateauDatasetType, error) {
-	types, err := r.Repo.DatasetTypes(ctx, &DatasetTypeInput{
+	types, err := r.Repo.DatasetTypes(ctx, &DatasetTypesInput{
 		PlateauSpec: lo.ToPtr(fmt.Sprintf("%d", obj.MajorVersion)),
 	})
 	if err != nil {
@@ -136,9 +136,9 @@ func (r *plateauSpecMinorResolver) Parent(ctx context.Context, obj *PlateauSpecM
 }
 
 // Datasets is the resolver for the datasets field.
-func (r *plateauSpecMinorResolver) Datasets(ctx context.Context, obj *PlateauSpecMinor, input *DatasetInput) ([]Dataset, error) {
+func (r *plateauSpecMinorResolver) Datasets(ctx context.Context, obj *PlateauSpecMinor, input *DatasetsInput) ([]Dataset, error) {
 	if input == nil {
-		input = &DatasetInput{}
+		input = &DatasetsInput{}
 	}
 	input.PlateauSpec = lo.ToPtr(obj.Version)
 	return r.Repo.Datasets(ctx, input)
@@ -146,7 +146,7 @@ func (r *plateauSpecMinorResolver) Datasets(ctx context.Context, obj *PlateauSpe
 
 // Cities is the resolver for the cities field.
 func (r *prefectureResolver) Cities(ctx context.Context, obj *Prefecture) ([]*City, error) {
-	areas, err := r.Repo.Areas(ctx, &AreaInput{
+	areas, err := r.Repo.Areas(ctx, &AreasInput{
 		ParentCode: lo.ToPtr(obj.Code),
 	})
 	if err != nil {
@@ -162,9 +162,9 @@ func (r *prefectureResolver) Cities(ctx context.Context, obj *Prefecture) ([]*Ci
 }
 
 // Datasets is the resolver for the datasets field.
-func (r *prefectureResolver) Datasets(ctx context.Context, obj *Prefecture, input *DatasetInput) ([]Dataset, error) {
+func (r *prefectureResolver) Datasets(ctx context.Context, obj *Prefecture, input *DatasetsInput) ([]Dataset, error) {
 	if input == nil {
-		input = &DatasetInput{}
+		input = &DatasetsInput{}
 	}
 	input.AreaCodes = []AreaCode{obj.Code}
 	return r.Repo.Datasets(ctx, input)
@@ -186,17 +186,17 @@ func (r *queryResolver) Area(ctx context.Context, code AreaCode) (Area, error) {
 }
 
 // Areas is the resolver for the areas field.
-func (r *queryResolver) Areas(ctx context.Context, input *AreaInput) ([]Area, error) {
+func (r *queryResolver) Areas(ctx context.Context, input *AreasInput) ([]Area, error) {
 	return r.Repo.Areas(ctx, input)
 }
 
 // DatasetTypes is the resolver for the datasetTypes field.
-func (r *queryResolver) DatasetTypes(ctx context.Context, input *DatasetTypeInput) ([]DatasetType, error) {
+func (r *queryResolver) DatasetTypes(ctx context.Context, input *DatasetTypesInput) ([]DatasetType, error) {
 	return r.Repo.DatasetTypes(ctx, input)
 }
 
 // Datasets is the resolver for the datasets field.
-func (r *queryResolver) Datasets(ctx context.Context, input *DatasetInput) ([]Dataset, error) {
+func (r *queryResolver) Datasets(ctx context.Context, input *DatasetsInput) ([]Dataset, error) {
 	return r.Repo.Datasets(ctx, input)
 }
 
@@ -252,9 +252,9 @@ func (r *wardResolver) City(ctx context.Context, obj *Ward) (*City, error) {
 }
 
 // Datasets is the resolver for the datasets field.
-func (r *wardResolver) Datasets(ctx context.Context, obj *Ward, input *DatasetInput) ([]Dataset, error) {
+func (r *wardResolver) Datasets(ctx context.Context, obj *Ward, input *DatasetsInput) ([]Dataset, error) {
 	if input == nil {
-		input = &DatasetInput{}
+		input = &DatasetsInput{}
 	}
 	input.AreaCodes = []AreaCode{obj.Code}
 	return r.Repo.Datasets(ctx, input)

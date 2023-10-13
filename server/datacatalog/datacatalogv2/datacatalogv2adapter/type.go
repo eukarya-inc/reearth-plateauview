@@ -128,7 +128,7 @@ func plateauDatasetItemFrom(c datacatalogutil.DataCatalogItemConfigItem, parentI
 	var texture *plateauapi.Texture
 	if strings.Contains(c.Name, "（テクスチャなし）") {
 		texture = lo.ToPtr(plateauapi.TextureNone)
-	} else if format == plateauapi.DatasetFormatCesium3DTiles {
+	} else if format == plateauapi.DatasetFormatCesium3dtiles {
 		texture = lo.ToPtr(plateauapi.TextureTexture)
 	}
 
@@ -225,14 +225,14 @@ func genericDatasetFrom(d datacatalogv2.DataCatalogItem) (plateauapi.GenericData
 func datasetFormatFrom(f string) plateauapi.DatasetFormat {
 	switch f {
 	case "geojson":
-		return plateauapi.DatasetFormatGeoJSON
+		return plateauapi.DatasetFormatGeojson
 	case "3dtiles":
-		return plateauapi.DatasetFormatCesium3DTiles
+		return plateauapi.DatasetFormatCesium3dtiles
 	case "czml":
 		return plateauapi.DatasetFormatCzml
 	case "gtfs":
 	case "gtfs-realtime":
-		return plateauapi.DatasetFormatGTFSRelatime
+		return plateauapi.DatasetFormatGtfsRealtime
 	case "gltf":
 		return plateauapi.DatasetFormatGltf
 	case "mvt":

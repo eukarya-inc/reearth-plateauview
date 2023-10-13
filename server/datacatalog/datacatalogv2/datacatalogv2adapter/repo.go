@@ -84,21 +84,21 @@ func (a *Adapter) Area(ctx context.Context, code plateauapi.AreaCode) (plateauap
 	return a.getCache().Area(ctx, code)
 }
 
-func (a *Adapter) Areas(ctx context.Context, input *plateauapi.AreaInput) (res []plateauapi.Area, _ error) {
+func (a *Adapter) Areas(ctx context.Context, input *plateauapi.AreasInput) (res []plateauapi.Area, _ error) {
 	if !a.IsAvailable() {
 		return nil, plateauapi.ErrDatacatalogUnavailable
 	}
 	return a.getCache().Areas(ctx, input)
 }
 
-func (a *Adapter) DatasetTypes(ctx context.Context, input *plateauapi.DatasetTypeInput) (res []plateauapi.DatasetType, _ error) {
+func (a *Adapter) DatasetTypes(ctx context.Context, input *plateauapi.DatasetTypesInput) (res []plateauapi.DatasetType, _ error) {
 	if !a.IsAvailable() {
 		return nil, plateauapi.ErrDatacatalogUnavailable
 	}
 	return a.getCache().DatasetTypes(ctx, input)
 }
 
-func (a *Adapter) Datasets(ctx context.Context, input *plateauapi.DatasetInput) (res []plateauapi.Dataset, _ error) {
+func (a *Adapter) Datasets(ctx context.Context, input *plateauapi.DatasetsInput) (res []plateauapi.Dataset, _ error) {
 	if !a.IsAvailable() {
 		return nil, plateauapi.ErrDatacatalogUnavailable
 	}

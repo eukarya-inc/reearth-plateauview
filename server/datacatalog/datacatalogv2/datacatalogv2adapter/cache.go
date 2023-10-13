@@ -278,7 +278,7 @@ func (c *cache) Area(ctx context.Context, code plateauapi.AreaCode) (plateauapi.
 	return nil, nil
 }
 
-func (c *cache) Areas(ctx context.Context, input *plateauapi.AreaInput) (res []plateauapi.Area, _ error) {
+func (c *cache) Areas(ctx context.Context, input *plateauapi.AreasInput) (res []plateauapi.Area, _ error) {
 	inp := lo.FromPtr(input)
 	var codes []plateauapi.AreaCode
 	if inp.DatasetTypes != nil {
@@ -338,7 +338,7 @@ func (c *cache) Areas(ctx context.Context, input *plateauapi.AreaInput) (res []p
 	return
 }
 
-func (c *cache) DatasetTypes(ctx context.Context, input *plateauapi.DatasetTypeInput) (res []plateauapi.DatasetType, _ error) {
+func (c *cache) DatasetTypes(ctx context.Context, input *plateauapi.DatasetTypesInput) (res []plateauapi.DatasetType, _ error) {
 	inp := lo.FromPtr(input)
 	plateau := lo.Filter(c.plateauDatasetTypes, func(t plateauapi.PlateauDatasetType, _ int) bool {
 		return filterDataType(t, inp)
@@ -365,7 +365,7 @@ func (c *cache) DatasetTypes(ctx context.Context, input *plateauapi.DatasetTypeI
 	return
 }
 
-func (c *cache) Datasets(ctx context.Context, input *plateauapi.DatasetInput) (res []plateauapi.Dataset, _ error) {
+func (c *cache) Datasets(ctx context.Context, input *plateauapi.DatasetsInput) (res []plateauapi.Dataset, _ error) {
 	inp := lo.FromPtr(input)
 	plateau := lo.Filter(c.plateauDatasets, func(t plateauapi.PlateauDataset, _ int) bool {
 		return filterDataset(t, inp)

@@ -11,7 +11,7 @@ import (
 
 const SpecVersion = "2.3"
 
-func filterDataset(d plateauapi.Dataset, input plateauapi.DatasetInput) bool {
+func filterDataset(d plateauapi.Dataset, input plateauapi.DatasetsInput) bool {
 	var dataType string
 	var text []string
 	var year int
@@ -181,7 +181,7 @@ func areaCodesFrom(d plateauapi.Dataset) []plateauapi.AreaCode {
 	return nil
 }
 
-func filterArea(area plateauapi.Area, input plateauapi.AreaInput) bool {
+func filterArea(area plateauapi.Area, input plateauapi.AreasInput) bool {
 	testName := func(name string) bool {
 		return len(input.SearchTokens) == 0 || lo.SomeBy(input.SearchTokens, func(t string) bool {
 			return strings.Contains(name, t)
@@ -214,7 +214,7 @@ func filterArea(area plateauapi.Area, input plateauapi.AreaInput) bool {
 	return true
 }
 
-func filterDataType(ty plateauapi.DatasetType, input plateauapi.DatasetTypeInput) bool {
+func filterDataType(ty plateauapi.DatasetType, input plateauapi.DatasetTypesInput) bool {
 	switch ty2 := ty.(type) {
 	case plateauapi.PlateauDatasetType:
 		if input.Category != nil && *input.Category != plateauapi.DatasetTypeCategoryPlateau {
