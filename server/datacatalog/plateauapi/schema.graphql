@@ -35,6 +35,10 @@ interface Area implements Node {
   地域名
   """
   name: String!
+  """
+  地域に属するデータセット（DatasetInput内のareasCodeの指定は無視されます）。
+  """
+  datasets(input: DatasetsInput): [Dataset!]!
 }
 
 """
@@ -50,7 +54,6 @@ type Prefecture implements Area & Node {
   都道府県名
   """
   name: String!
-
   """
   都道府県に属する市区町村
   """
@@ -74,7 +77,6 @@ type City implements Area & Node {
   市区町村名
   """
   name: String!
-
   """
   市区町村が属する都道府県のID。
   """
@@ -110,7 +112,6 @@ type Ward implements Area & Node {
   区名
   """
   name: String!
-
   """
   区が属する都道府県のID。
   """
