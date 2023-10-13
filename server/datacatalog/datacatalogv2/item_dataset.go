@@ -1,7 +1,7 @@
-package datacatalog
+package datacatalogv2
 
 import (
-	"github.com/eukarya-inc/reearth-plateauview/server/datacatalog/plateauv2"
+	"github.com/eukarya-inc/reearth-plateauview/server/datacatalog/datacatalogv2/plateauv2"
 	"github.com/samber/lo"
 )
 

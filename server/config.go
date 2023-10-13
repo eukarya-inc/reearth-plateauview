@@ -13,7 +13,6 @@ import (
 	"github.com/eukarya-inc/reearth-plateauview/server/plateaucms"
 	"github.com/eukarya-inc/reearth-plateauview/server/sdk"
 	"github.com/eukarya-inc/reearth-plateauview/server/sdkapi"
-	"github.com/eukarya-inc/reearth-plateauview/server/searchindex"
 	"github.com/eukarya-inc/reearth-plateauview/server/sidebar"
 	"github.com/joho/godotenv"
 	"github.com/kelseyhightower/envconfig"
@@ -58,7 +57,10 @@ type Config struct {
 	DataConv_Disable                  bool
 	Indexer_Delegate                  bool
 	DataCatalog_DisableCache          bool
+	DataCatalog_CacheUpdateKey        string
+	DataCatalog_PlaygroundEndpoint    string
 	DataCatalog_CacheTTL              int
+	DataCatalog_GQL_MAXCOMPLEXITY     int
 	SDKAPI_DisableCache               bool
 	SDKAPI_CacheTTL                   int
 	GCParcent                         int
@@ -97,18 +99,18 @@ func (c *Config) CMSIntegration() cmsintegration.Config {
 	}
 }
 
-func (c *Config) SearchIndex() searchindex.Config {
-	return searchindex.Config{
-		CMSBase:           c.CMS_BaseURL,
-		CMSToken:          c.CMS_Token,
-		CMSStorageProject: c.CMS_SystemProject,
-		Delegate:          c.Indexer_Delegate,
-		DelegateURL:       c.Delegate_URL,
-		Debug:             c.Debug,
-		// CMSModel: c.CMS_Model,
-		// CMSStorageModel:   c.CMS_IndexerStorageModel,
-	}
-}
+// func (c *Config) SearchIndex() searchindex.Config {
+// 	return searchindex.Config{
+// 		CMSBase:           c.CMS_BaseURL,
+// 		CMSToken:          c.CMS_Token,
+// 		CMSStorageProject: c.CMS_SystemProject,
+// 		Delegate:          c.Indexer_Delegate,
+// 		DelegateURL:       c.Delegate_URL,
+// 		Debug:             c.Debug,
+// 		// CMSModel: c.CMS_Model,
+// 		// CMSStorageModel:   c.CMS_IndexerStorageModel,
+// 	}
+// }
 
 func (c *Config) SDK() sdk.Config {
 	return sdk.Config{
@@ -181,10 +183,13 @@ func (c *Config) Sidebar() sidebar.Config {
 
 func (c *Config) DataCatalog() datacatalog.Config {
 	return datacatalog.Config{
-		Config:       c.PLATEAUCMS(),
-		CMSBase:      c.CMS_BaseURL,
-		DisableCache: c.DataCatalog_DisableCache,
-		CacheTTL:     c.DataCatalog_CacheTTL,
+		Config:               c.PLATEAUCMS(),
+		CMSBase:              c.CMS_BaseURL,
+		DisableCache:         c.DataCatalog_DisableCache,
+		CacheTTL:             c.DataCatalog_CacheTTL,
+		CacheUpdateKey:       c.DataCatalog_CacheUpdateKey,
+		PlaygroundEndpoint:   c.DataCatalog_PlaygroundEndpoint,
+		GraphqlMaxComplexity: c.DataCatalog_GQL_MAXCOMPLEXITY,
 	}
 }
 

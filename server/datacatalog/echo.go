@@ -2,11 +2,14 @@ package datacatalog
 
 import (
 	"context"
-	"net/http"
-	"time"
+	"fmt"
+	"path"
 
+	"github.com/99designs/gqlgen/graphql/handler/extension"
+	"github.com/eukarya-inc/reearth-plateauview/server/datacatalog/datacatalogv2"
+	"github.com/eukarya-inc/reearth-plateauview/server/datacatalog/datacatalogv2/datacatalogv2adapter"
+	"github.com/eukarya-inc/reearth-plateauview/server/datacatalog/plateauapi"
 	"github.com/eukarya-inc/reearth-plateauview/server/plateaucms"
-	"github.com/eukarya-inc/reearth-plateauview/server/putil"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/reearth/reearthx/log"
@@ -14,55 +17,78 @@ import (
 
 type Config struct {
 	plateaucms.Config
-	CMSBase      string
-	DisableCache bool
-	CacheTTL     int
+	CMSBase              string
+	DisableCache         bool
+	CacheTTL             int
+	CacheUpdateKey       string
+	PlaygroundEndpoint   string
+	GraphqlMaxComplexity int
 }
 
 func Echo(conf Config, g *echo.Group) error {
-	pcms, err := plateaucms.New(conf.Config)
+	// TODO: merge 2022 and later 2023 projects
+	repo, err := datacatalogv2adapter.New(conf.Config.CMSBaseURL, "plateau-2022")
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to initialize datacatalog repository: %w", err)
 	}
 
-	f, err := NewFetcher(conf.CMSBase)
-	if err != nil {
-		return err
+	if conf.GraphqlMaxComplexity <= 0 {
+		conf.GraphqlMaxComplexity = 1000
 	}
 
-	g.Use(
+	// PLATEAU API
+	plateauapig := g.Group("")
+	plateauapig.Use(
 		middleware.CORS(),
 		middleware.Gzip(),
-		putil.NewCacheMiddleware(putil.CacheConfig{
-			Disabled:     conf.DisableCache,
-			TTL:          time.Duration(conf.CacheTTL) * time.Second,
-			CacheControl: true,
-		}).Middleware(),
-		pcms.AuthMiddleware(false),
 	)
 
-	g.GET("/:pid", func(c echo.Context) error {
-		ctx := c.Request().Context()
-		prj := c.Param("pid")
-		res, err := f.Do(ctx, prj, options(ctx, prj))
-		if err != nil {
-			log.Errorfc(ctx, "datacatalog: %v", err)
-			return c.JSON(http.StatusInternalServerError, "error")
+	srv := plateauapi.NewService(repo)
+	srv.Use(extension.FixedComplexityLimit(conf.GraphqlMaxComplexity))
+	plateauapig.GET("/graphql", echo.WrapHandler(plateauapi.PlaygroundHandler(
+		"PLATEAU GraphQL API Playground",
+		path.Join(conf.PlaygroundEndpoint, "graphql"),
+	)))
+	plateauapig.POST("/graphql", echo.WrapHandler(srv))
+
+	// compat: PLATEAU VIEW 2.0 API
+	v2apig := g.Group("")
+	err = datacatalogv2.Echo(datacatalogv2.Config{
+		Config:       conf.Config,
+		CMSBase:      conf.CMSBase,
+		DisableCache: conf.DisableCache,
+		CacheTTL:     conf.CacheTTL,
+	}, v2apig)
+	if err != nil {
+		return fmt.Errorf("failed to initialize datacatalog v2 API: %w", err)
+	}
+
+	// cache update API
+	g.POST("/update-cache", func(c echo.Context) error {
+		if conf.CacheUpdateKey != "" {
+			b := struct {
+				Key string `json:"key"`
+			}{}
+			if err := c.Bind(&b); err != nil {
+				return echo.ErrUnauthorized
+			}
+			if b.Key != conf.CacheUpdateKey {
+				return echo.ErrUnauthorized
+			}
 		}
-		return c.JSON(http.StatusOK, res.All())
+
+		if err := repo.UpdateCache(c.Request().Context()); err != nil {
+			log.Errorfc(c.Request().Context(), "datacatalog: failed to update cache: %w", err)
+			return echo.ErrInternalServerError
+		}
+
+		return nil
 	})
 
+	// first cache update
+	if err := repo.UpdateCache(context.Background()); err != nil {
+		log.Errorf("datacatalog: failed to update cache: %w", err)
+	}
+
 	return nil
-}
-
-func options(ctx context.Context, prj string) FetcherDoOptions {
-	md := plateaucms.GetCMSMetadataFromContext(ctx)
-	if md.Name == "" {
-		return FetcherDoOptions{}
-	}
-
-	return FetcherDoOptions{
-		Subproject: md.SubPorjectAlias,
-		CityName:   md.Name,
-	}
 }

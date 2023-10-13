@@ -13,7 +13,7 @@ import (
 	"strings"
 
 	"github.com/eukarya-inc/jpareacode"
-	"github.com/eukarya-inc/reearth-plateauview/server/datacatalog/datacatalogutil"
+	"github.com/eukarya-inc/reearth-plateauview/server/datacatalog/datacatalogv2/datacatalogutil"
 	cms "github.com/reearth/reearth-cms-api/go"
 	"github.com/samber/lo"
 	"github.com/spkg/bom"
@@ -225,14 +225,14 @@ func (b DataCatalogItemBuilder) Build() []*DataCatalogItem {
 		defaultOverride := defaultDescription.Override.Merge(b.groupOverride(defaultAsset, defaultDescription, defaultDic, g).Merge(overrideBase))
 
 		// config
-		var config []DataCatalogItemConfigItem
+		var config []datacatalogutil.DataCatalogItemConfigItem
 		if b.Options.LOD || b.Options.Item != nil {
-			config = lo.Map(g.Assets, func(a asset, i int) DataCatalogItemConfigItem {
+			config = lo.Map(g.Assets, func(a asset, i int) datacatalogutil.DataCatalogItemConfigItem {
 				override := a.Description.Override.Item().Merge(
 					b.itemOverride(g, a, a.Description, a.Dic, i, g.Assets).Merge(
 						overrideBase.Item()))
 
-				return DataCatalogItemConfigItem{
+				return datacatalogutil.DataCatalogItemConfigItem{
 					Name:   override.Name,
 					URL:    a.AssetURL(),
 					Type:   a.Name.Format,
@@ -266,6 +266,7 @@ type PlateauIntermediateItem struct {
 	Dic         Dic
 	OpenDataURL string
 	Year        int
+	Spec        string
 }
 
 func (i CMSItem) IntermediateItem() PlateauIntermediateItem {
@@ -294,10 +295,11 @@ func (i CMSItem) IntermediateItem() PlateauIntermediateItem {
 		Dic:         dic,
 		OpenDataURL: i.OpenDataURL,
 		Year:        y,
+		Spec:        i.Specification,
 	}
 }
 
-func (b *DataCatalogItemBuilder) dataCatalogItem(a asset, g assetGroup, desc string, addItemID bool, items []DataCatalogItemConfigItem, override Override) *DataCatalogItem {
+func (b *DataCatalogItemBuilder) dataCatalogItem(a asset, g assetGroup, desc string, addItemID bool, items []datacatalogutil.DataCatalogItemConfigItem, override Override) *DataCatalogItem {
 	if b == nil {
 		return nil
 	}
@@ -357,9 +359,9 @@ func (b *DataCatalogItemBuilder) dataCatalogItem(a asset, g assetGroup, desc str
 	}
 
 	// config
-	var config any
+	var config *datacatalogutil.DataCatalogItemConfig
 	if len(items) > 0 {
-		config = DataCatalogItemConfig{
+		config = &datacatalogutil.DataCatalogItemConfig{
 			Data: items,
 		}
 	}
@@ -393,6 +395,9 @@ func (b *DataCatalogItemBuilder) dataCatalogItem(a asset, g assetGroup, desc str
 		Order:       override.Order,
 		Group:       override.Group,
 		Infobox:     true,
+		Spec:        b.IntermediateItem.Spec,
+		Family:      "plateau",
+		Edition:     "2022",
 	}
 }
 
@@ -409,17 +414,6 @@ func (i *PlateauIntermediateItem) id(an AssetName, groupName string) string {
 
 func openDataURLFromAssetName(a AssetName) string {
 	return fmt.Sprintf("https://www.geospatial.jp/ckan/dataset/plateau-%s-%s-%s", a.CityCode, a.CityEn, a.Year)
-}
-
-type DataCatalogItemConfig struct {
-	Data []DataCatalogItemConfigItem `json:"data,omitempty"`
-}
-
-type DataCatalogItemConfigItem struct {
-	Name   string   `json:"name"`
-	URL    string   `json:"url"`
-	Type   string   `json:"type"`
-	Layers []string `json:"layer,omitempty"`
 }
 
 func searchIndexURLFrom(assets []*cms.PublicAsset, wardCode string) string {

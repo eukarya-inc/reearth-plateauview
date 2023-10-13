@@ -1,4 +1,4 @@
-package datacatalog
+package datacatalogv2
 
 import (
 	"context"
@@ -17,6 +17,10 @@ const timeoutSecond int64 = 20
 const ModelPlateau = "plateau"
 const ModelDataset = "dataset"
 const ModelUsecase = "usecase"
+
+type Fetchable interface {
+	Do(ctx context.Context, project string, opts FetcherDoOptions) (ResponseAll, error)
+}
 
 type Fetcher struct {
 	cmsp *cms.PublicAPIClient[PlateauItem]

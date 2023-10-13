@@ -1,11 +1,11 @@
-package datacatalog
+package datacatalogv2
 
 import (
 	"encoding/json"
 	"strings"
 
 	"github.com/eukarya-inc/jpareacode"
-	"github.com/eukarya-inc/reearth-plateauview/server/datacatalog/datacatalogutil"
+	"github.com/eukarya-inc/reearth-plateauview/server/datacatalog/datacatalogv2/datacatalogutil"
 	cms "github.com/reearth/reearth-cms-api/go"
 	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
@@ -67,10 +67,12 @@ func (i UsecaseItem) DataCatalogs() []DataCatalogItem {
 			Ward:        ward,
 			WardCode:    wCode,
 			Description: i.Description,
+			Family:      "generic",
+			Edition:     "2022",
 		}}
 	}
 
-	var c any
+	var c *datacatalogutil.DataCatalogItemConfig
 	_ = json.Unmarshal([]byte(i.Config), &c)
 
 	u := ""
@@ -124,5 +126,7 @@ func (i UsecaseItem) DataCatalogs() []DataCatalogItem {
 		RootType:    pref != zenkyu,
 		Category:    cat,
 		Infobox:     i.Infobox,
+		Family:      "generic",
+		Edition:     "2022",
 	}}
 }

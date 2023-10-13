@@ -11,6 +11,8 @@ import (
 	"github.com/eukarya-inc/jpareacode"
 )
 
+const tokyo23ku = "東京都23区"
+
 func AssetURLFromFormat(u, f string) string {
 	u2, err := url.Parse(u)
 	if err != nil {
@@ -72,7 +74,11 @@ func CityCode(code, name string, prefCode int) string {
 	if code == "" {
 		cityName := strings.Split(name, "/")
 		if len(cityName) > 0 {
-			if city := jpareacode.CityByName(prefCode, cityName[len(cityName)-1]); city != nil {
+			last := cityName[len(cityName)-1]
+			if last == tokyo23ku {
+				code = "13100"
+			}
+			if city := jpareacode.CityByName(prefCode, last); city != nil {
 				code = jpareacode.FormatCityCode(city.Code)
 			}
 		}

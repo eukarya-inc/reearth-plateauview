@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	"github.com/eukarya-inc/jpareacode"
-	"github.com/eukarya-inc/reearth-plateauview/server/datacatalog/datacatalogutil"
+	"github.com/eukarya-inc/reearth-plateauview/server/datacatalog/datacatalogv2/datacatalogutil"
 	cms "github.com/reearth/reearth-cms-api/go"
 	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
@@ -59,7 +59,7 @@ func (i DatasetItem) DataCatalogs() []DataCatalogItem {
 	cCode := datacatalogutil.CityCode("", city, prefCodeInt)
 	wCode := datacatalogutil.CityCode("", ward, prefCodeInt)
 
-	var c any
+	var c *datacatalogutil.DataCatalogItemConfig
 	_ = json.Unmarshal([]byte(i.Config), &c)
 
 	u := ""
@@ -110,5 +110,7 @@ func (i DatasetItem) DataCatalogs() []DataCatalogItem {
 		Year:        datacatalogutil.YearInt(i.Year),
 		OpenDataURL: i.OpenDataURL,
 		Order:       i.Order,
+		Family:      "related",
+		Edition:     "2022",
 	}}
 }
