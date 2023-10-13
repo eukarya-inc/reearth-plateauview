@@ -6,6 +6,7 @@ import (
 
 	"github.com/eukarya-inc/reearth-plateauview/server/datacatalog/datacatalogv2"
 	"github.com/eukarya-inc/reearth-plateauview/server/datacatalog/plateauapi"
+	"github.com/reearth/reearthx/log"
 )
 
 type Adapter struct {
@@ -50,6 +51,8 @@ func (a *Adapter) UpdateCache(ctx context.Context) error {
 	}
 
 	a.cache = c
+
+	log.Infofc(ctx, "datacatalog: cache updated")
 	return nil
 }
 
