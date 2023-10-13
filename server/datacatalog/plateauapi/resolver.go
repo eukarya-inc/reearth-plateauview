@@ -3,6 +3,8 @@
 package plateauapi
 
 import (
+	"errors"
+
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/handler/extension"
@@ -28,6 +30,8 @@ import (
 // This file will not be regenerated automatically.
 //
 // It serves as dependency injection for your app, add any dependencies you require here.
+
+var ErrDatacatalogUnavailable = errors.New("datacatalog is currently unavailable")
 
 type Repo interface {
 	QueryResolver

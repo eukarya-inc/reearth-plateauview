@@ -11,21 +11,23 @@ import (
 
 func TestAdapter_Area(t *testing.T) {
 	a := &Adapter{
-		prefectures: []plateauapi.Prefecture{
-			{Code: "01", Name: "北海道"},
-			{Code: "02", Name: "青森県"},
-			{Code: "03", Name: "岩手県"},
-		},
-		cities: []plateauapi.City{
-			{Code: "01100", Name: "札幌市", PrefectureCode: "01"},
-			{Code: "02100", Name: "青森市", PrefectureCode: "02"},
-			{Code: "02101", Name: "弘前市", PrefectureCode: "02"},
-			{Code: "03100", Name: "盛岡市", PrefectureCode: "03"},
-			{Code: "03101", Name: "花巻市", PrefectureCode: "03"},
-		},
-		wards: []plateauapi.Ward{
-			{Code: "01101", Name: "中央区", CityCode: "01100", PrefectureCode: "01"},
-			{Code: "01102", Name: "北区", CityCode: "01100", PrefectureCode: "01"},
+		cache: &cache{
+			prefectures: []plateauapi.Prefecture{
+				{Code: "01", Name: "北海道"},
+				{Code: "02", Name: "青森県"},
+				{Code: "03", Name: "岩手県"},
+			},
+			cities: []plateauapi.City{
+				{Code: "01100", Name: "札幌市", PrefectureCode: "01"},
+				{Code: "02100", Name: "青森市", PrefectureCode: "02"},
+				{Code: "02101", Name: "弘前市", PrefectureCode: "02"},
+				{Code: "03100", Name: "盛岡市", PrefectureCode: "03"},
+				{Code: "03101", Name: "花巻市", PrefectureCode: "03"},
+			},
+			wards: []plateauapi.Ward{
+				{Code: "01101", Name: "中央区", CityCode: "01100", PrefectureCode: "01"},
+				{Code: "01102", Name: "北区", CityCode: "01100", PrefectureCode: "01"},
+			},
 		},
 	}
 
@@ -68,25 +70,27 @@ func TestAdapter_Area(t *testing.T) {
 
 func TestAdapter_Areas(t *testing.T) {
 	a := &Adapter{
-		prefectures: []plateauapi.Prefecture{
-			{Code: "01", Name: "北海道"},
-			{Code: "02", Name: "青森県"},
-			{Code: "03", Name: "岩手県"},
-		},
-		cities: []plateauapi.City{
-			{Code: "01100", Name: "札幌市", PrefectureCode: "01"},
-			{Code: "02100", Name: "青森市", PrefectureCode: "02"},
-			{Code: "02101", Name: "弘前市", PrefectureCode: "02"},
-			{Code: "03100", Name: "盛岡市", PrefectureCode: "03"},
-			{Code: "03101", Name: "花巻市", PrefectureCode: "03"},
-		},
-		wards: []plateauapi.Ward{
-			{Code: "01101", Name: "中央区", CityCode: "01100", PrefectureCode: "01"},
-			{Code: "01102", Name: "北区", CityCode: "01100", PrefectureCode: "01"},
-		},
-		areasForDataTypes: map[string]map[plateauapi.AreaCode]struct{}{
-			"bldg": {
-				"01101": {},
+		cache: &cache{
+			prefectures: []plateauapi.Prefecture{
+				{Code: "01", Name: "北海道"},
+				{Code: "02", Name: "青森県"},
+				{Code: "03", Name: "岩手県"},
+			},
+			cities: []plateauapi.City{
+				{Code: "01100", Name: "札幌市", PrefectureCode: "01"},
+				{Code: "02100", Name: "青森市", PrefectureCode: "02"},
+				{Code: "02101", Name: "弘前市", PrefectureCode: "02"},
+				{Code: "03100", Name: "盛岡市", PrefectureCode: "03"},
+				{Code: "03101", Name: "花巻市", PrefectureCode: "03"},
+			},
+			wards: []plateauapi.Ward{
+				{Code: "01101", Name: "中央区", CityCode: "01100", PrefectureCode: "01"},
+				{Code: "01102", Name: "北区", CityCode: "01100", PrefectureCode: "01"},
+			},
+			areasForDataTypes: map[string]map[plateauapi.AreaCode]struct{}{
+				"bldg": {
+					"01101": {},
+				},
 			},
 		},
 	}
@@ -180,20 +184,22 @@ func TestAdapter_Areas(t *testing.T) {
 
 func TestAdapter_DatasetTypes(t *testing.T) {
 	a := &Adapter{
-		plateauDatasetTypes: []plateauapi.PlateauDatasetType{
-			{ID: "1", Name: "Plateau Dataset 1", Year: 2022, PlateauSpecName: "第2.3版"},
-			{ID: "2", Name: "Plateau Dataset 2", Year: 2022, PlateauSpecName: "第2.3版"},
-			{ID: "3", Name: "Plateau Dataset 3", Year: 2023, PlateauSpecName: "第3.0版"},
-		},
-		relatedDatasetTypes: []plateauapi.RelatedDatasetType{
-			{ID: "4", Name: "Related Dataset 1"},
-			{ID: "5", Name: "Related Dataset 2"},
-			{ID: "6", Name: "Related Dataset 3"},
-		},
-		genericDatasetTypes: []plateauapi.GenericDatasetType{
-			{ID: "7", Name: "Generic Dataset 1"},
-			{ID: "8", Name: "Generic Dataset 2"},
-			{ID: "9", Name: "Generic Dataset 3"},
+		cache: &cache{
+			plateauDatasetTypes: []plateauapi.PlateauDatasetType{
+				{ID: "1", Name: "Plateau Dataset 1", Year: 2022, PlateauSpecName: "第2.3版"},
+				{ID: "2", Name: "Plateau Dataset 2", Year: 2022, PlateauSpecName: "第2.3版"},
+				{ID: "3", Name: "Plateau Dataset 3", Year: 2023, PlateauSpecName: "第3.0版"},
+			},
+			relatedDatasetTypes: []plateauapi.RelatedDatasetType{
+				{ID: "4", Name: "Related Dataset 1"},
+				{ID: "5", Name: "Related Dataset 2"},
+				{ID: "6", Name: "Related Dataset 3"},
+			},
+			genericDatasetTypes: []plateauapi.GenericDatasetType{
+				{ID: "7", Name: "Generic Dataset 1"},
+				{ID: "8", Name: "Generic Dataset 2"},
+				{ID: "9", Name: "Generic Dataset 3"},
+			},
 		},
 	}
 
@@ -262,7 +268,9 @@ func TestAdapter_DatasetTypes(t *testing.T) {
 
 func TestAdapter_Years(t *testing.T) {
 	a := &Adapter{
-		years: []int{2020, 2021, 2022, 2023},
+		cache: &cache{
+			years: []int{2020, 2021, 2022, 2023},
+		},
 	}
 
 	expected := []int{2020, 2021, 2022, 2023}
@@ -274,20 +282,22 @@ func TestAdapter_Years(t *testing.T) {
 
 func TestAdapter_Datasets(t *testing.T) {
 	a := &Adapter{
-		plateauDatasets: []plateauapi.PlateauDataset{
-			{ID: "1", Name: "Plateau Dataset 1", Year: 2022, CityCode: lo.ToPtr(plateauapi.AreaCode("01100"))},
-			{ID: "2", Name: "Plateau Dataset 2", Year: 2022, TypeCode: "bldg"},
-			{ID: "3", Name: "Plateau Dataset 3", Year: 2023},
-		},
-		relatedDatasets: []plateauapi.RelatedDataset{
-			{ID: "7", Name: "Related Dataset 1", Year: 2022, Description: lo.ToPtr("desc!")},
-			{ID: "8", Name: "Related Dataset 2", Year: 2022},
-			{ID: "9", Name: "Related Dataset 3", Year: 2023},
-		},
-		genericDatasets: []plateauapi.GenericDataset{
-			{ID: "10", Name: "Generic Dataset 1", Year: 2022},
-			{ID: "11", Name: "Generic Dataset 2", Year: 2022},
-			{ID: "12", Name: "Generic Dataset 3", Year: 2023, CityCode: lo.ToPtr(plateauapi.AreaCode("01100")), WardCode: lo.ToPtr(plateauapi.AreaCode("01101"))},
+		cache: &cache{
+			plateauDatasets: []plateauapi.PlateauDataset{
+				{ID: "1", Name: "Plateau Dataset 1", Year: 2022, CityCode: lo.ToPtr(plateauapi.AreaCode("01100"))},
+				{ID: "2", Name: "Plateau Dataset 2", Year: 2022, TypeCode: "bldg"},
+				{ID: "3", Name: "Plateau Dataset 3", Year: 2023},
+			},
+			relatedDatasets: []plateauapi.RelatedDataset{
+				{ID: "7", Name: "Related Dataset 1", Year: 2022, Description: lo.ToPtr("desc!")},
+				{ID: "8", Name: "Related Dataset 2", Year: 2022},
+				{ID: "9", Name: "Related Dataset 3", Year: 2023},
+			},
+			genericDatasets: []plateauapi.GenericDataset{
+				{ID: "10", Name: "Generic Dataset 1", Year: 2022},
+				{ID: "11", Name: "Generic Dataset 2", Year: 2022},
+				{ID: "12", Name: "Generic Dataset 3", Year: 2023, CityCode: lo.ToPtr(plateauapi.AreaCode("01100")), WardCode: lo.ToPtr(plateauapi.AreaCode("01101"))},
+			},
 		},
 	}
 
@@ -405,33 +415,35 @@ func TestAdapter_Datasets(t *testing.T) {
 
 func TestAdapter_Node(t *testing.T) {
 	a := &Adapter{
-		prefectures: []plateauapi.Prefecture{
-			{ID: plateauapi.NewID("01", plateauapi.TypeArea), Name: "北海道"},
-			{ID: plateauapi.NewID("02", plateauapi.TypeArea), Name: "青森県"},
-		},
-		cities: []plateauapi.City{
-			{ID: plateauapi.NewID("01100", plateauapi.TypeArea), Name: "札幌市", PrefectureCode: "01"},
-		},
-		wards: []plateauapi.Ward{
-			{ID: plateauapi.NewID("01101", plateauapi.TypeArea), Name: "中央区", CityCode: "01100", PrefectureCode: "01"},
-		},
-		plateauDatasetTypes: []plateauapi.PlateauDatasetType{
-			{ID: plateauapi.NewID("1", plateauapi.TypeDatasetType), Name: "Plateau Dataset 1", Year: 2022},
-		},
-		relatedDatasetTypes: []plateauapi.RelatedDatasetType{
-			{ID: plateauapi.NewID("2", plateauapi.TypeDatasetType), Name: "Related Dataset 1"},
-		},
-		genericDatasetTypes: []plateauapi.GenericDatasetType{
-			{ID: plateauapi.NewID("3", plateauapi.TypeDatasetType), Name: "Generic Dataset 1"},
-		},
-		plateauDatasets: []plateauapi.PlateauDataset{
-			{ID: plateauapi.NewID("1", plateauapi.TypeDataset), Name: "Plateau Dataset 1"},
-		},
-		relatedDatasets: []plateauapi.RelatedDataset{
-			{ID: plateauapi.NewID("3", plateauapi.TypeDataset), Name: "Related Dataset 1"},
-		},
-		genericDatasets: []plateauapi.GenericDataset{
-			{ID: plateauapi.NewID("4", plateauapi.TypeDataset), Name: "Generic Dataset 1"},
+		cache: &cache{
+			prefectures: []plateauapi.Prefecture{
+				{ID: plateauapi.NewID("01", plateauapi.TypeArea), Name: "北海道"},
+				{ID: plateauapi.NewID("02", plateauapi.TypeArea), Name: "青森県"},
+			},
+			cities: []plateauapi.City{
+				{ID: plateauapi.NewID("01100", plateauapi.TypeArea), Name: "札幌市", PrefectureCode: "01"},
+			},
+			wards: []plateauapi.Ward{
+				{ID: plateauapi.NewID("01101", plateauapi.TypeArea), Name: "中央区", CityCode: "01100", PrefectureCode: "01"},
+			},
+			plateauDatasetTypes: []plateauapi.PlateauDatasetType{
+				{ID: plateauapi.NewID("1", plateauapi.TypeDatasetType), Name: "Plateau Dataset 1", Year: 2022},
+			},
+			relatedDatasetTypes: []plateauapi.RelatedDatasetType{
+				{ID: plateauapi.NewID("2", plateauapi.TypeDatasetType), Name: "Related Dataset 1"},
+			},
+			genericDatasetTypes: []plateauapi.GenericDatasetType{
+				{ID: plateauapi.NewID("3", plateauapi.TypeDatasetType), Name: "Generic Dataset 1"},
+			},
+			plateauDatasets: []plateauapi.PlateauDataset{
+				{ID: plateauapi.NewID("1", plateauapi.TypeDataset), Name: "Plateau Dataset 1"},
+			},
+			relatedDatasets: []plateauapi.RelatedDataset{
+				{ID: plateauapi.NewID("3", plateauapi.TypeDataset), Name: "Related Dataset 1"},
+			},
+			genericDatasets: []plateauapi.GenericDataset{
+				{ID: plateauapi.NewID("4", plateauapi.TypeDataset), Name: "Generic Dataset 1"},
+			},
 		},
 	}
 
@@ -514,9 +526,11 @@ func TestAdapter_Node(t *testing.T) {
 
 func TestAdapter_Nodes(t *testing.T) {
 	a := &Adapter{
-		prefectures: []plateauapi.Prefecture{
-			{ID: plateauapi.NewID("01", plateauapi.TypeArea), Name: "北海道"},
-			{ID: plateauapi.NewID("02", plateauapi.TypeArea), Name: "青森県"},
+		cache: &cache{
+			prefectures: []plateauapi.Prefecture{
+				{ID: plateauapi.NewID("01", plateauapi.TypeArea), Name: "北海道"},
+				{ID: plateauapi.NewID("02", plateauapi.TypeArea), Name: "青森県"},
+			},
 		},
 	}
 

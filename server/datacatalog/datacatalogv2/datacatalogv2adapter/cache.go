@@ -6,36 +6,47 @@ import (
 
 	"github.com/eukarya-inc/reearth-plateauview/server/datacatalog/datacatalogv2"
 	"github.com/eukarya-inc/reearth-plateauview/server/datacatalog/plateauapi"
+	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
+	"golang.org/x/exp/maps"
 	"golang.org/x/exp/slices"
 )
 
-func (a *Adapter) UpdateCache(ctx context.Context, opts datacatalogv2.FetcherDoOptions) error {
-	updating := a.updatingCache
-	a.lock.Lock()
-	defer a.lock.Unlock()
-	if updating {
-		return nil
-	}
+type cache struct {
+	cache               []datacatalogv2.DataCatalogItem
+	prefectures         []plateauapi.Prefecture
+	cities              []plateauapi.City
+	wards               []plateauapi.Ward
+	areasForDataTypes   map[string]map[plateauapi.AreaCode]struct{}
+	plateauDatasetTypes []plateauapi.PlateauDatasetType
+	relatedDatasetTypes []plateauapi.RelatedDatasetType
+	genericDatasetTypes []plateauapi.GenericDatasetType
+	plateauDatasets     []plateauapi.PlateauDataset
+	relatedDatasets     []plateauapi.RelatedDataset
+	genericDatasets     []plateauapi.GenericDataset
+	years               []int
+}
 
-	a.updatingCache = true
-	defer func() {
-		a.updatingCache = false
-	}()
-
-	r, err := a.fetcher.Do(ctx, a.project, opts)
+func fetchAndCreateCache(ctx context.Context, project string, fetcher datacatalogv2.Fetchable, opts datacatalogv2.FetcherDoOptions) (*cache, error) {
+	r, err := fetcher.Do(ctx, project, opts)
 	if err != nil {
-		return fmt.Errorf("failed to update datacatalog cache: %w", err)
+		return nil, fmt.Errorf("failed to update datacatalog cache: %w", err)
 	}
+
+	return newCache(r)
+}
+
+func newCache(r datacatalogv2.ResponseAll) (*cache, error) {
+	cache := &cache{}
 
 	items := r.All()
-	a.cache = items
-	a.areasForDataTypes = make(map[string]map[plateauapi.AreaCode]struct{})
+	cache.cache = items
+	cache.areasForDataTypes = make(map[string]map[plateauapi.AreaCode]struct{})
 	areas := make(map[plateauapi.AreaCode]struct{})
 
 	for _, d := range items {
 		ty := d.TypeEn
-		areasForType := a.areasForDataTypes[ty]
+		areasForType := cache.areasForDataTypes[ty]
 		if areasForType == nil {
 			areasForType = make(map[plateauapi.AreaCode]struct{})
 		}
@@ -44,7 +55,7 @@ func (a *Adapter) UpdateCache(ctx context.Context, opts datacatalogv2.FetcherDoO
 		areasForType[prefCode] = struct{}{}
 		if _, found := areas[prefCode]; !found {
 			if p := prefectureFrom(d); p != nil {
-				a.prefectures = append(a.prefectures, *p)
+				cache.prefectures = append(cache.prefectures, *p)
 				areas[prefCode] = struct{}{}
 			}
 		}
@@ -54,7 +65,7 @@ func (a *Adapter) UpdateCache(ctx context.Context, opts datacatalogv2.FetcherDoO
 			areasForType[areaCode] = struct{}{}
 			if _, found := areas[areaCode]; !found {
 				if c := cityFrom(d); c != nil {
-					a.cities = append(a.cities, *c)
+					cache.cities = append(cache.cities, *c)
 					areas[areaCode] = struct{}{}
 				}
 			}
@@ -65,67 +76,328 @@ func (a *Adapter) UpdateCache(ctx context.Context, opts datacatalogv2.FetcherDoO
 			areasForType[areaCode] = struct{}{}
 			if _, found := areas[areaCode]; !found {
 				if w := wardFrom(d); w != nil {
-					a.wards = append(a.wards, *w)
+					cache.wards = append(cache.wards, *w)
 					areas[areaCode] = struct{}{}
 				}
 			}
 		}
 
 		if ty := plateauDatasetTypeFrom(d); lo.IsNotEmpty(ty) {
-			if !lo.Contains(a.plateauDatasetTypes, ty) {
-				a.plateauDatasetTypes = append(a.plateauDatasetTypes, ty)
+			if !lo.Contains(cache.plateauDatasetTypes, ty) {
+				cache.plateauDatasetTypes = append(cache.plateauDatasetTypes, ty)
 			}
 		}
 
 		if ty := relatedDatasetTypeFrom(d); lo.IsNotEmpty(ty) {
-			if !lo.Contains(a.relatedDatasetTypes, ty) {
-				a.relatedDatasetTypes = append(a.relatedDatasetTypes, ty)
+			if !lo.Contains(cache.relatedDatasetTypes, ty) {
+				cache.relatedDatasetTypes = append(cache.relatedDatasetTypes, ty)
 			}
 		}
 
 		if ty := genericDatasetTypeFrom(d); lo.IsNotEmpty(ty) {
-			if !lo.Contains(a.genericDatasetTypes, ty) {
-				a.genericDatasetTypes = append(a.genericDatasetTypes, ty)
+			if !lo.Contains(cache.genericDatasetTypes, ty) {
+				cache.genericDatasetTypes = append(cache.genericDatasetTypes, ty)
 			}
 		}
 
 		if d, ok := plateauDatasetFrom(d); ok {
-			a.plateauDatasets = append(a.plateauDatasets, d)
+			cache.plateauDatasets = append(cache.plateauDatasets, d)
 		}
 		if d, ok := relatedDatasetFrom(d); ok {
-			a.relatedDatasets = append(a.relatedDatasets, d)
+			cache.relatedDatasets = append(cache.relatedDatasets, d)
 		}
 		if d, ok := genericDatasetFrom(d); ok {
-			a.genericDatasets = append(a.genericDatasets, d)
+			cache.genericDatasets = append(cache.genericDatasets, d)
 		}
-		if !slices.Contains(a.years, d.Year) {
-			a.years = append(a.years, d.Year)
+		if !slices.Contains(cache.years, d.Year) {
+			cache.years = append(cache.years, d.Year)
 		}
 
-		a.areasForDataTypes[ty] = areasForType
+		cache.areasForDataTypes[ty] = areasForType
 	}
 
-	slices.SortStableFunc(a.prefectures, func(a, b plateauapi.Prefecture) bool {
+	slices.SortStableFunc(cache.prefectures, func(a, b plateauapi.Prefecture) bool {
 		return a.Code < b.Code
 	})
-	slices.SortStableFunc(a.cities, func(a, b plateauapi.City) bool {
+	slices.SortStableFunc(cache.cities, func(a, b plateauapi.City) bool {
 		return a.Code < b.Code
 	})
-	slices.SortStableFunc(a.wards, func(a, b plateauapi.Ward) bool {
+	slices.SortStableFunc(cache.wards, func(a, b plateauapi.Ward) bool {
 		return a.Code < b.Code
 	})
-	slices.SortStableFunc(a.plateauDatasetTypes, func(a, b plateauapi.PlateauDatasetType) bool {
+	slices.SortStableFunc(cache.plateauDatasetTypes, func(a, b plateauapi.PlateauDatasetType) bool {
 		return a.Code < b.Code
 	})
-	slices.SortStableFunc(a.relatedDatasetTypes, func(a, b plateauapi.RelatedDatasetType) bool {
+	slices.SortStableFunc(cache.relatedDatasetTypes, func(a, b plateauapi.RelatedDatasetType) bool {
 		return a.Code < b.Code
 	})
-	slices.SortStableFunc(a.genericDatasetTypes, func(a, b plateauapi.GenericDatasetType) bool {
+	slices.SortStableFunc(cache.genericDatasetTypes, func(a, b plateauapi.GenericDatasetType) bool {
 		return a.Code < b.Code
 	})
-	slices.SortStableFunc(a.years, func(a, b int) bool {
+	slices.SortStableFunc(cache.years, func(a, b int) bool {
 		return a < b
 	})
 
-	return nil
+	return cache, nil
+}
+
+var _ plateauapi.Repo = (*cache)(nil)
+
+func (c *cache) Node(ctx context.Context, id plateauapi.ID) (plateauapi.Node, error) {
+	i, ty := id.Unwrap()
+	switch ty {
+	case plateauapi.TypeArea:
+		if p, ok := lo.Find(c.prefectures, func(p plateauapi.Prefecture) bool {
+			return p.ID == id
+		}); ok {
+			return &p, nil
+		}
+
+		if p, ok := lo.Find(c.cities, func(p plateauapi.City) bool {
+			return p.ID == id
+		}); ok {
+			return &p, nil
+		}
+
+		if p, ok := lo.Find(c.wards, func(p plateauapi.Ward) bool {
+			return p.ID == id
+		}); ok {
+			return &p, nil
+		}
+	case plateauapi.TypeDatasetType:
+		if p, ok := lo.Find(c.plateauDatasetTypes, func(p plateauapi.PlateauDatasetType) bool {
+			return p.ID == id
+		}); ok {
+			return &p, nil
+		}
+
+		if p, ok := lo.Find(c.relatedDatasetTypes, func(p plateauapi.RelatedDatasetType) bool {
+			return p.ID == id
+		}); ok {
+			return &p, nil
+		}
+
+		if p, ok := lo.Find(c.genericDatasetTypes, func(p plateauapi.GenericDatasetType) bool {
+			return p.ID == id
+		}); ok {
+			return &p, nil
+		}
+	case plateauapi.TypeDataset:
+		if p, ok := lo.Find(c.plateauDatasets, func(p plateauapi.PlateauDataset) bool {
+			return p.ID == id
+		}); ok {
+			return &p, nil
+		}
+
+		if p, ok := lo.Find(c.relatedDatasets, func(p plateauapi.RelatedDataset) bool {
+			return p.ID == id
+		}); ok {
+			return &p, nil
+		}
+
+		if p, ok := lo.Find(c.genericDatasets, func(p plateauapi.GenericDataset) bool {
+			return p.ID == id
+		}); ok {
+			return &p, nil
+		}
+	case plateauapi.TypeDatasetItem:
+		parent, _, _ := cutRight(i, "_")
+		parentID := newDatasetID(parent)
+
+		if p, ok := lo.Find(c.plateauDatasets, func(p plateauapi.PlateauDataset) bool {
+			return p.ID == parentID
+		}); ok {
+			item, _ := lo.Find(p.Items, func(i *plateauapi.PlateauDatasetItem) bool {
+				return i.ID == id
+			})
+			return item, nil
+		}
+
+		if p, ok := lo.Find(c.relatedDatasets, func(p plateauapi.RelatedDataset) bool {
+			return p.ID == parentID
+		}); ok {
+			item, _ := lo.Find(p.Items, func(i *plateauapi.RelatedDatasetItem) bool {
+				return i.ID == id
+			})
+			return item, nil
+		}
+
+		if p, ok := lo.Find(c.genericDatasets, func(p plateauapi.GenericDataset) bool {
+			return p.ID == id
+		}); ok {
+			item, _ := lo.Find(p.Items, func(i *plateauapi.GenericDatasetItem) bool {
+				return i.ID == id
+			})
+			return item, nil
+		}
+	case plateauapi.TypePlateauSpec:
+		if p, ok := lo.Find(plateauSpecs, func(p *plateauapi.PlateauSpec) bool {
+			return p.ID == id || lo.SomeBy(p.MinorVersions, func(v *plateauapi.PlateauSpecMinor) bool {
+				return v.ID == id
+			})
+		}); ok {
+			if p.ID != id {
+				m, _ := lo.Find(p.MinorVersions, func(v *plateauapi.PlateauSpecMinor) bool {
+					return v.ID == id
+				})
+				return m, nil
+			}
+			return util.CloneRef(p), nil
+		}
+	}
+
+	return nil, nil
+}
+
+func (c *cache) Nodes(ctx context.Context, ids []plateauapi.ID) ([]plateauapi.Node, error) {
+	return util.TryMap(ids, func(id plateauapi.ID) (plateauapi.Node, error) {
+		return c.Node(ctx, id)
+	})
+}
+
+func (c *cache) Area(ctx context.Context, code plateauapi.AreaCode) (plateauapi.Area, error) {
+	if code.IsPrefectureCode() {
+		area, _ := lo.Find(c.prefectures, func(p plateauapi.Prefecture) bool {
+			return p.Code == code
+		})
+		return &area, nil
+	}
+
+	if area, ok := lo.Find(c.cities, func(p plateauapi.City) bool {
+		return p.Code == code
+	}); ok {
+		return &area, nil
+	}
+
+	if area, ok := lo.Find(c.wards, func(p plateauapi.Ward) bool {
+		return p.Code == code
+	}); ok {
+		return &area, nil
+	}
+
+	return nil, nil
+}
+
+func (c *cache) Areas(ctx context.Context, input *plateauapi.AreaInput) (res []plateauapi.Area, _ error) {
+	inp := lo.FromPtr(input)
+	var codes []plateauapi.AreaCode
+	if inp.DatasetTypes != nil {
+		for _, t := range inp.DatasetTypes {
+			codes = append(codes, maps.Keys(c.areasForDataTypes[t])...)
+		}
+	}
+
+	prefs := lo.Filter(c.prefectures, func(t plateauapi.Prefecture, _ int) bool {
+		return filterArea(t, inp) && inp.ParentCode == nil && (len(codes) == 0 || lo.Contains(codes, t.Code))
+	})
+
+	cities := lo.Filter(c.cities, func(t plateauapi.City, _ int) bool {
+		if !filterArea(t, inp) {
+			return false
+		}
+
+		if len(codes) > 0 && !lo.Contains(codes, t.Code) {
+			return false
+		}
+
+		if inp.ParentCode != nil && t.PrefectureCode != *inp.ParentCode {
+			return false
+		}
+
+		return true
+	})
+
+	wards := lo.Filter(c.wards, func(t plateauapi.Ward, _ int) bool {
+		if !filterArea(t, inp) {
+			return false
+		}
+
+		if len(codes) > 0 && !lo.Contains(codes, t.Code) {
+			return false
+		}
+
+		if inp.ParentCode != nil && t.CityCode != *input.ParentCode {
+			return false
+		}
+
+		return true
+	})
+
+	for _, t := range prefs {
+		t := t
+		res = append(res, &t)
+	}
+	for _, t := range cities {
+		t := t
+		res = append(res, &t)
+	}
+	for _, t := range wards {
+		t := t
+		res = append(res, &t)
+	}
+	return
+}
+
+func (c *cache) DatasetTypes(ctx context.Context, input *plateauapi.DatasetTypeInput) (res []plateauapi.DatasetType, _ error) {
+	inp := lo.FromPtr(input)
+	plateau := lo.Filter(c.plateauDatasetTypes, func(t plateauapi.PlateauDatasetType, _ int) bool {
+		return filterDataType(t, inp)
+	})
+	related := lo.Filter(c.relatedDatasetTypes, func(t plateauapi.RelatedDatasetType, _ int) bool {
+		return filterDataType(t, inp)
+	})
+	generic := lo.Filter(c.genericDatasetTypes, func(t plateauapi.GenericDatasetType, _ int) bool {
+		return filterDataType(t, inp)
+	})
+
+	for _, t := range plateau {
+		t := t
+		res = append(res, &t)
+	}
+	for _, t := range related {
+		t := t
+		res = append(res, &t)
+	}
+	for _, t := range generic {
+		t := t
+		res = append(res, &t)
+	}
+	return
+}
+
+func (c *cache) Datasets(ctx context.Context, input *plateauapi.DatasetInput) (res []plateauapi.Dataset, _ error) {
+	inp := lo.FromPtr(input)
+	plateau := lo.Filter(c.plateauDatasets, func(t plateauapi.PlateauDataset, _ int) bool {
+		return filterDataset(t, inp)
+	})
+	related := lo.Filter(c.relatedDatasets, func(t plateauapi.RelatedDataset, _ int) bool {
+		return filterDataset(t, inp)
+	})
+	generic := lo.Filter(c.genericDatasets, func(t plateauapi.GenericDataset, _ int) bool {
+		return filterDataset(t, inp)
+	})
+
+	for _, t := range plateau {
+		t := t
+		res = append(res, &t)
+	}
+	for _, t := range related {
+		t := t
+		res = append(res, &t)
+	}
+	for _, t := range generic {
+		t := t
+		res = append(res, &t)
+	}
+	return
+}
+
+func (c *cache) PlateauSpecs(ctx context.Context) ([]*plateauapi.PlateauSpec, error) {
+	return lo.Map(plateauSpecs, func(p *plateauapi.PlateauSpec, _ int) *plateauapi.PlateauSpec {
+		return util.CloneRef(p)
+	}), nil
+}
+
+func (c *cache) Years(ctx context.Context) ([]int, error) {
+	return slices.Clone(c.years), nil
 }
