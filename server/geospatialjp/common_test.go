@@ -171,7 +171,7 @@ type mockCMS struct {
 	item cms.Item
 }
 
-func (c *mockCMS) UpdateItem(ctx context.Context, itemID string, fields []cms.Field) (*cms.Item, error) {
+func (c *mockCMS) UpdateItem(ctx context.Context, itemID string, fields []cms.Field, metadataField []cms.Field) (*cms.Item, error) {
 	c.item = cms.Item{
 		ID:     itemID,
 		Fields: fields,

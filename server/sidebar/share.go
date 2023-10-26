@@ -88,7 +88,7 @@ func (s *Handler) CreateShare() echo.HandlerFunc {
 
 		res, err := cmsh.CreateItemByKey(c.Request().Context(), md.ProjectAlias, shareCMSModel, []cms.Field{
 			{Key: shareCMSDataFieldKey, Type: "textarea", Value: string(body)},
-		})
+		}, nil)
 
 		if err != nil {
 			if errors.Is(err, cms.ErrNotFound) {

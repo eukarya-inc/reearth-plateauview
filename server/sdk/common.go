@@ -78,7 +78,7 @@ func (s *Services) RequestMaxLODExtraction(ctx context.Context, item Item, proje
 
 	if _, err := s.CMS.UpdateItem(ctx, item.ID, Item{
 		MaxLODStatus: StatusProcessing,
-	}.Fields()); err != nil {
+	}.Fields(), nil); err != nil {
 		log.Errorfc(ctx, "sdk: failed to update item: %v", err)
 	}
 }
@@ -103,7 +103,7 @@ func (s *Services) ReceiveFMEResult(ctx context.Context, f FMEResult) error {
 
 		if _, err := s.CMS.UpdateItem(ctx, id.ItemID, Item{
 			MaxLODStatus: StatusError,
-		}.Fields()); err != nil {
+		}.Fields(), nil); err != nil {
 			log.Errorfc(ctx, "sdk notify: failed to update item: %v", err)
 		}
 		return nil
@@ -118,7 +118,7 @@ func (s *Services) ReceiveFMEResult(ctx context.Context, f FMEResult) error {
 		MaxLODStatus: StatusOK,
 		MaxLOD:       aid,
 		Dem:          dem,
-	}.Fields()); err != nil {
+	}.Fields(), nil); err != nil {
 		log.Errorfc(ctx, "sdk notify: failed to update item: %v", err)
 		return nil
 	}

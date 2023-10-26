@@ -63,7 +63,7 @@ func (s *Services) CheckCatalog(ctx context.Context, projectID string, i Item) e
 	if err != nil {
 		if _, err := s.CMS.UpdateItem(ctx, i.ID, Item{
 			CatalogStatus: StatusError,
-		}.Fields()); err != nil {
+		}.Fields(), nil); err != nil {
 			log.Errorfc(ctx, "failed to update item %s: %w", i.ID, err)
 		}
 		return fmt.Errorf("目録アセットの読み込みに失敗しました。該当アセットが削除されていませんか？: %w", err)
@@ -74,7 +74,7 @@ func (s *Services) CheckCatalog(ctx context.Context, projectID string, i Item) e
 	if err != nil {
 		if _, err := s.CMS.UpdateItem(ctx, i.ID, Item{
 			CatalogStatus: StatusError,
-		}.Fields()); err != nil {
+		}.Fields(), nil); err != nil {
 			log.Errorfc(ctx, "failed to update item %s: %w", i.ID, err)
 		}
 		return err
@@ -89,7 +89,7 @@ func (s *Services) CheckCatalog(ctx context.Context, projectID string, i Item) e
 	if c == nil {
 		if _, err := s.CMS.UpdateItem(ctx, i.ID, Item{
 			CatalogStatus: StatusError,
-		}.Fields()); err != nil {
+		}.Fields(), nil); err != nil {
 			log.Errorfc(ctx, "failed to update item %s: %w", i.ID, err)
 		}
 		return fmt.Errorf("G空間情報センター用メタデータシートが見つかりません。")
@@ -99,7 +99,7 @@ func (s *Services) CheckCatalog(ctx context.Context, projectID string, i Item) e
 	if err := c.Validate(); err != nil {
 		if _, err := s.CMS.UpdateItem(ctx, i.ID, Item{
 			CatalogStatus: StatusError,
-		}.Fields()); err != nil {
+		}.Fields(), nil); err != nil {
 			log.Errorfc(ctx, "failed to update item %s: %w", i.ID, err)
 		}
 		return err
@@ -108,7 +108,7 @@ func (s *Services) CheckCatalog(ctx context.Context, projectID string, i Item) e
 	// update item
 	if _, err := s.CMS.UpdateItem(ctx, i.ID, Item{
 		CatalogStatus: StatusOK,
-	}.Fields()); err != nil {
+	}.Fields(), nil); err != nil {
 		return fmt.Errorf("failed to update item %s: %w", i.ID, err)
 	}
 
@@ -237,7 +237,7 @@ func (s *Services) RegisterCkanResources(ctx context.Context, i Item, disableSDK
 			ID:             i.ID,
 			SDKPublication: sdkpub,
 			CatalogStatus:  StatusOK,
-		}.Fields()); err != nil {
+		}.Fields(), nil); err != nil {
 			log.Errorfc(ctx, "geospatialjp: failed to update an item: %v", err)
 		}
 	}

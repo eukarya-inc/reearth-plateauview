@@ -117,7 +117,7 @@ func (s *Service) Convert(ctx context.Context, i Item, pid string) error {
 		Data:       aid,
 		DataFormat: "CZML",
 		DataOrig:   []string{i.Data},
-	}.Fields()); err != nil {
+	}.Fields(), nil); err != nil {
 		return fmt.Errorf("failed to upload item (%s): %w", id, err)
 	}
 

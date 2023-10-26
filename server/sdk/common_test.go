@@ -173,7 +173,7 @@ func (m *cmsMock) Asset(ctx context.Context, id string) (*cms.Asset, error) {
 	}, nil
 }
 
-func (m *cmsMock) UpdateItem(ctx context.Context, id string, fields []cms.Field) (*cms.Item, error) {
+func (m *cmsMock) UpdateItem(ctx context.Context, id string, fields []cms.Field, metadataFields []cms.Field) (*cms.Item, error) {
 	m.UpdateItemCalls = append(m.UpdateItemCalls, struct {
 		ID     string
 		Fields []cms.Field

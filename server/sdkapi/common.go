@@ -347,8 +347,8 @@ func (mm MaxLODMap) Files(urls []*url.URL) (r FilesResponse) {
 			}
 
 		}
-		slices.SortFunc(r[ty], func(i, j File) bool {
-			return i.Code < j.Code
+		slices.SortFunc(r[ty], func(i, j File) int {
+			return strings.Compare(i.Code, j.Code)
 		})
 	}
 	return

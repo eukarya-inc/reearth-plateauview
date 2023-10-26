@@ -51,7 +51,7 @@ func WebhookHandler(conf Config) (cmswebhook.Handler, error) {
 				log.Errorfc(ctx, "cmsintegration webhook: failed to read dic: %v", err)
 			} else if _, err = s.CMS.UpdateItem(ctx, item.ID, Item{
 				Dic: d,
-			}.Fields()); err != nil {
+			}.Fields(), nil); err != nil {
 				log.Errorfc(ctx, "cmsintegration webhook: failed to update dic: %v", err)
 			} else {
 				item.Dic = d
@@ -107,7 +107,7 @@ func WebhookHandler(conf Config) (cmswebhook.Handler, error) {
 
 		if _, err := s.CMS.UpdateItem(ctx, item.ID, Item{
 			ConversionStatus: StatusProcessing,
-		}.Fields()); err != nil {
+		}.Fields(), nil); err != nil {
 			log.Errorfc(ctx, "cmsintegration webhook: failed to update item: %w", err)
 			return nil
 		}

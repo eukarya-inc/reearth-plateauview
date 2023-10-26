@@ -62,7 +62,7 @@ func NotifyHandler(conf Config) (echo.HandlerFunc, error) {
 			if _, err := s.CMS.UpdateItem(ctx, id.ItemID, Item{
 				ConversionStatus:  StatusError,
 				ConversionEnabled: ConversionDisabled,
-			}.Fields()); err != nil {
+			}.Fields(), nil); err != nil {
 				log.Errorfc(ctx, "cmsintegration notify: failed to update item: %w", err)
 
 				if conf.Debug {
@@ -101,7 +101,7 @@ func NotifyHandler(conf Config) (echo.HandlerFunc, error) {
 
 		r.ConversionStatus = StatusOK
 		if f := r.Fields(); len(f) > 0 {
-			if _, err := s.CMS.UpdateItem(ctx, id.ItemID, f); err != nil {
+			if _, err := s.CMS.UpdateItem(ctx, id.ItemID, f, nil); err != nil {
 				log.Errorfc(ctx, "cmsintegration notify: failed to update item: %w", err)
 
 				if conf.Debug {

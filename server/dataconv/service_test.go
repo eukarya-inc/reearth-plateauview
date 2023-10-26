@@ -24,7 +24,7 @@ func (c *cmsMock) GetItem(ctx context.Context, itemID string, asset bool) (*cms.
 	}, nil
 }
 
-func (c *cmsMock) UpdateItem(ctx context.Context, itemID string, fields []cms.Field) (*cms.Item, error) {
+func (c *cmsMock) UpdateItem(ctx context.Context, itemID string, fields []cms.Field, metadataFields []cms.Field) (*cms.Item, error) {
 	c.i = &cms.Item{
 		ID:     itemID,
 		Fields: fields,

@@ -85,7 +85,7 @@ func WebhookHandler(conf Config) (cmswebhook.Handler, error) {
 				// update item
 				if _, err2 := s.CMS.UpdateItem(ctx, item.ID, Item{
 					CatalogStatus: StatusError,
-				}.Fields()); err2 != nil {
+				}.Fields(), nil); err2 != nil {
 					log.Errorfc(ctx, "failed to update item %s: %s", item.ID, err2)
 				}
 			} else {

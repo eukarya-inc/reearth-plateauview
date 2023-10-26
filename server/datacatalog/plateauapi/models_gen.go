@@ -11,41 +11,110 @@ import (
 // 地域。都道府県（Prefecture）・市区町村（City）・区（政令指定都市のみ・Ward）のいずれかです。
 // 政令指定都市の場合のみ、市の下に区が存在します。
 type Area interface {
-	Node
+	IsNode()
 	IsArea()
+	GetID() ID
+	// 地域コード。行政コードや市区町村コードとも呼ばれます。
+	// 都道府県の場合は二桁の数字から成る文字列です。
+	// 市区町村の場合は、先頭に都道府県コードを含む6桁の数字から成る文字列です。
+	GetCode() AreaCode
+	// 地域名
+	GetName() string
+	// 地域に属するデータセット（DatasetInput内のareasCodeの指定は無視されます）。
+	GetDatasets() []Dataset
 }
 
 // データセット。
 type Dataset interface {
-	Node
+	IsNode()
 	IsDataset()
+	GetID() ID
+	// データセット名
+	GetName() string
+	// データセットのサブ名
+	GetSubname() *string
+	// データセットの説明
+	GetDescription() *string
+	// データセットの公開年度（西暦）
+	GetYear() int
+	// データセットを分類するグループ。グループが階層構造になっている場合は、親から子の順番で複数のグループ名が存在することがあります。
+	GetGroups() []string
+	// データセットが属する都道府県のID。
+	GetPrefectureID() ID
+	// データセットが属する都道府県コード。2桁の数字から成る文字列です。
+	GetPrefectureCode() AreaCode
+	// データセットが属する市のID。
+	GetCityID() *ID
+	// データセットが属する市コード。先頭に都道府県コードを含む6桁の数字から成る文字列です。
+	GetCityCode() *AreaCode
+	// データセットが属する区のID。
+	GetWardID() *ID
+	// データセットが属する区コード。先頭に都道府県コードを含む6桁の数字から成る文字列です。
+	GetWardCode() *AreaCode
+	// データセットの種類のID。
+	GetTypeID() ID
+	// データセットの種類コード。
+	GetTypeCode() string
+	// データセットが属する都道府県。
+	GetPrefecture() *Prefecture
+	// データセットが属する市。
+	GetCity() *City
+	// データセットが属する区。
+	GetWard() *Ward
+	// データセットの種類。
+	GetType() DatasetType
+	// データセットのアイテム。
+	GetItems() []DatasetItem
 }
 
 // データセットのアイテム。
 type DatasetItem interface {
-	Node
+	IsNode()
 	IsDatasetItem()
+	GetID() ID
+	// データセットのアイテムのフォーマット。
+	GetFormat() DatasetFormat
+	// データセットのアイテム名。
+	GetName() string
+	// データセットのアイテムのURL。
+	GetURL() string
+	// データセットのアイテムのレイヤー名。MVTやWMSなどのフォーマットの場合のみ存在。
+	// レイヤー名が複数存在する場合は、同時に複数のレイヤーを表示可能であることを意味します。
+	GetLayers() []string
+	// データセットのアイテムが属するデータセットのID。
+	GetParentID() ID
+	// データセットのアイテムが属するデータセット。
+	GetParent() Dataset
 }
 
 // データセットの種類。
 type DatasetType interface {
-	Node
+	IsNode()
 	IsDatasetType()
+	GetID() ID
+	// データセットの種類コード。「bldg」など。
+	GetCode() string
+	// データセットの種類名。
+	GetName() string
+	// データセットの種類のカテゴリ。
+	GetCategory() DatasetTypeCategory
 }
 
 // IDを持つオブジェクト。nodeまたはnodesクエリでIDを指定して検索可能です。
 type Node interface {
 	IsNode()
+	// オブジェクトのID
+	GetID() ID
 }
 
 // 地域を検索するためのクエリ。
 type AreasInput struct {
 	// 検索したい地域が属する親となる地域のコード。例えば東京都に属する都市を検索したい場合は "13" を指定します。
-	ParentCode *AreaCode `json:"parentCode"`
+	ParentCode *AreaCode `json:"parentCode,omitempty"`
 	// データセットの種類コード。例えば、建築物モデルのデータセットが存在する地域を検索したい場合は "bldg" を指定します。複数指定するとOR条件で検索を行います。
-	DatasetTypes []string `json:"datasetTypes"`
+	DatasetTypes []string `json:"datasetTypes,omitempty"`
 	// 検索文字列。複数指定するとAND条件で絞り込み検索が行えます。
-	SearchTokens []string `json:"searchTokens"`
+	SearchTokens []string `json:"searchTokens,omitempty"`
 }
 
 // 市区町村
@@ -60,44 +129,68 @@ type City struct {
 	// 市区町村が属する都道府県コード。2桁の数字から成る文字列です。
 	PrefectureCode AreaCode `json:"prefectureCode"`
 	// 市区町村の都道府県。
-	Prefecture *Prefecture `json:"prefecture"`
+	Prefecture *Prefecture `json:"prefecture,omitempty"`
 	// 市区町村に属する区。政令指定都市の場合のみ存在します。
 	Wards []*Ward `json:"wards"`
 	// 市区町村に属するデータセット（DatasetInput内のareasCodeの指定は無視されます）。
 	Datasets []Dataset `json:"datasets"`
 }
 
-func (City) IsArea() {}
+func (City) IsArea()        {}
+func (this City) GetID() ID { return this.ID }
+
+// 地域コード。行政コードや市区町村コードとも呼ばれます。
+// 都道府県の場合は二桁の数字から成る文字列です。
+// 市区町村の場合は、先頭に都道府県コードを含む6桁の数字から成る文字列です。
+func (this City) GetCode() AreaCode { return this.Code }
+
+// 地域名
+func (this City) GetName() string { return this.Name }
+
+// 地域に属するデータセット（DatasetInput内のareasCodeの指定は無視されます）。
+func (this City) GetDatasets() []Dataset {
+	if this.Datasets == nil {
+		return nil
+	}
+	interfaceSlice := make([]Dataset, 0, len(this.Datasets))
+	for _, concrete := range this.Datasets {
+		interfaceSlice = append(interfaceSlice, concrete)
+	}
+	return interfaceSlice
+}
+
 func (City) IsNode() {}
+
+// オブジェクトのID
 
 // データセットの種類を検索するためのクエリ。
 type DatasetTypesInput struct {
 	// データセットの種類のカテゴリ。
-	Category *DatasetTypeCategory `json:"category"`
+	Category *DatasetTypeCategory `json:"category,omitempty"`
 	// データセットの種類が属するPLATEAU都市モデルの仕様名。
-	PlateauSpec *string `json:"plateauSpec"`
+	PlateauSpec *string `json:"plateauSpec,omitempty"`
 	// データセットの種類が属するPLATEAU都市モデルの仕様の公開年度（西暦）。
-	Year *int `json:"year"`
+	Year *int `json:"year,omitempty"`
 }
 
 // データセットを検索するためのクエリ。
 type DatasetsInput struct {
 	// データセットの地域コード（都道府県コードや市区町村コードが使用可能）。複数指定するとOR条件で検索を行います。
-	AreaCodes []AreaCode `json:"areaCodes"`
+	AreaCodes []AreaCode `json:"areaCodes,omitempty"`
 	// 仕様書のバージョン。「第2.3版」「2.3」「2」などの文字列が使用可能です。
-	PlateauSpec *string `json:"plateauSpec"`
+	PlateauSpec *string `json:"plateauSpec,omitempty"`
 	// データの整備年度または公開年度（西暦）。
-	Year *int `json:"year"`
+	Year *int `json:"year,omitempty"`
 	// 検索結果から除外するデータセットの種類コード。
-	ExcludeTypes []string `json:"excludeTypes"`
+	ExcludeTypes []string `json:"excludeTypes,omitempty"`
 	// 検索結果に含めるデータセットの種類コード。未指定の場合、全てのデータセットの種類を対象に検索し、指定するとその種類で検索結果を絞り込みます。
-	IncludeTypes []string `json:"includeTypes"`
+	IncludeTypes []string `json:"includeTypes,omitempty"`
 	// 検索文字列。複数指定するとAND条件で絞り込み検索が行えます。
-	SearchTokens []string `json:"searchTokens"`
+	SearchTokens []string `json:"searchTokens,omitempty"`
 	// areaCodesで指定された地域に直接属しているデータセットのみを検索対象にするかどうか。
 	// デフォルトはfalseで、指定された地域に間接的に属するデータセットも全て検索します。
 	// 例えば、札幌市を対象にした場合、札幌市には中央区や北区といった区のデータセットも存在しますが、trueにすると札幌市のデータセットのみを返します。
-	Shallow *bool `json:"shallow"`
+	Shallow *bool `json:"shallow,omitempty"`
 }
 
 // ユースケースデータなどを含む、その他のデータセット。
@@ -106,43 +199,119 @@ type GenericDataset struct {
 	// データセット名
 	Name string `json:"name"`
 	// データセットのサブ名
-	Subname *string `json:"subname"`
+	Subname *string `json:"subname,omitempty"`
 	// データセットの説明
-	Description *string `json:"description"`
+	Description *string `json:"description,omitempty"`
 	// データセットの公開年度（西暦）
 	Year int `json:"year"`
 	// データセットを分類するグループ。グループが階層構造になっている場合は、親から子の順番で複数のグループ名が存在することがあります。
-	Groups []string `json:"groups"`
+	Groups []string `json:"groups,omitempty"`
 	// データセットが属する都道府県のID。
 	PrefectureID ID `json:"prefectureId"`
 	// データセットが属する都道府県コード。2桁の数字から成る文字列です。
 	PrefectureCode AreaCode `json:"prefectureCode"`
 	// データセットが属する市のID。
-	CityID *ID `json:"cityId"`
+	CityID *ID `json:"cityId,omitempty"`
 	// データセットが属する市コード。先頭に都道府県コードを含む6桁の数字から成る文字列です。
-	CityCode *AreaCode `json:"cityCode"`
+	CityCode *AreaCode `json:"cityCode,omitempty"`
 	// データセットが属する区のID。
-	WardID *ID `json:"wardId"`
+	WardID *ID `json:"wardId,omitempty"`
 	// データセットが属する区コード。先頭に都道府県コードを含む6桁の数字から成る文字列です。
-	WardCode *AreaCode `json:"wardCode"`
+	WardCode *AreaCode `json:"wardCode,omitempty"`
 	// データセットの種類のID。
 	TypeID ID `json:"typeId"`
 	// データセットの種類コード。
 	TypeCode string `json:"typeCode"`
 	// データセットが属する都道府県。
-	Prefecture *Prefecture `json:"prefecture"`
+	Prefecture *Prefecture `json:"prefecture,omitempty"`
 	// データセットが属する市。
-	City *City `json:"city"`
+	City *City `json:"city,omitempty"`
 	// データセットが属する区。
-	Ward *Ward `json:"ward"`
+	Ward *Ward `json:"ward,omitempty"`
 	// データセットの種類。
 	Type *GenericDatasetType `json:"type"`
 	// データセットのアイテム。
 	Items []*GenericDatasetItem `json:"items"`
 }
 
-func (GenericDataset) IsDataset() {}
-func (GenericDataset) IsNode()    {}
+func (GenericDataset) IsDataset()     {}
+func (this GenericDataset) GetID() ID { return this.ID }
+
+// データセット名
+func (this GenericDataset) GetName() string { return this.Name }
+
+// データセットのサブ名
+func (this GenericDataset) GetSubname() *string { return this.Subname }
+
+// データセットの説明
+func (this GenericDataset) GetDescription() *string { return this.Description }
+
+// データセットの公開年度（西暦）
+func (this GenericDataset) GetYear() int { return this.Year }
+
+// データセットを分類するグループ。グループが階層構造になっている場合は、親から子の順番で複数のグループ名が存在することがあります。
+func (this GenericDataset) GetGroups() []string {
+	if this.Groups == nil {
+		return nil
+	}
+	interfaceSlice := make([]string, 0, len(this.Groups))
+	for _, concrete := range this.Groups {
+		interfaceSlice = append(interfaceSlice, concrete)
+	}
+	return interfaceSlice
+}
+
+// データセットが属する都道府県のID。
+func (this GenericDataset) GetPrefectureID() ID { return this.PrefectureID }
+
+// データセットが属する都道府県コード。2桁の数字から成る文字列です。
+func (this GenericDataset) GetPrefectureCode() AreaCode { return this.PrefectureCode }
+
+// データセットが属する市のID。
+func (this GenericDataset) GetCityID() *ID { return this.CityID }
+
+// データセットが属する市コード。先頭に都道府県コードを含む6桁の数字から成る文字列です。
+func (this GenericDataset) GetCityCode() *AreaCode { return this.CityCode }
+
+// データセットが属する区のID。
+func (this GenericDataset) GetWardID() *ID { return this.WardID }
+
+// データセットが属する区コード。先頭に都道府県コードを含む6桁の数字から成る文字列です。
+func (this GenericDataset) GetWardCode() *AreaCode { return this.WardCode }
+
+// データセットの種類のID。
+func (this GenericDataset) GetTypeID() ID { return this.TypeID }
+
+// データセットの種類コード。
+func (this GenericDataset) GetTypeCode() string { return this.TypeCode }
+
+// データセットが属する都道府県。
+func (this GenericDataset) GetPrefecture() *Prefecture { return this.Prefecture }
+
+// データセットが属する市。
+func (this GenericDataset) GetCity() *City { return this.City }
+
+// データセットが属する区。
+func (this GenericDataset) GetWard() *Ward { return this.Ward }
+
+// データセットの種類。
+func (this GenericDataset) GetType() DatasetType { return *this.Type }
+
+// データセットのアイテム。
+func (this GenericDataset) GetItems() []DatasetItem {
+	if this.Items == nil {
+		return nil
+	}
+	interfaceSlice := make([]DatasetItem, 0, len(this.Items))
+	for _, concrete := range this.Items {
+		interfaceSlice = append(interfaceSlice, concrete)
+	}
+	return interfaceSlice
+}
+
+func (GenericDataset) IsNode() {}
+
+// オブジェクトのID
 
 // その他のデータセットのアイテム。
 type GenericDatasetItem struct {
@@ -155,15 +324,47 @@ type GenericDatasetItem struct {
 	URL string `json:"url"`
 	// データセットのアイテムのレイヤー名。MVTやWMSなどのフォーマットの場合のみ存在。
 	// レイヤー名が複数存在する場合は、同時に複数のレイヤーを表示可能であることを意味します。
-	Layers []string `json:"layers"`
+	Layers []string `json:"layers,omitempty"`
 	// データセットのアイテムが属するデータセットのID。
 	ParentID ID `json:"parentId"`
 	// データセットのアイテムが属するデータセット。
-	Parent *GenericDataset `json:"parent"`
+	Parent *GenericDataset `json:"parent,omitempty"`
 }
 
 func (GenericDatasetItem) IsDatasetItem() {}
-func (GenericDatasetItem) IsNode()        {}
+func (this GenericDatasetItem) GetID() ID { return this.ID }
+
+// データセットのアイテムのフォーマット。
+func (this GenericDatasetItem) GetFormat() DatasetFormat { return this.Format }
+
+// データセットのアイテム名。
+func (this GenericDatasetItem) GetName() string { return this.Name }
+
+// データセットのアイテムのURL。
+func (this GenericDatasetItem) GetURL() string { return this.URL }
+
+// データセットのアイテムのレイヤー名。MVTやWMSなどのフォーマットの場合のみ存在。
+// レイヤー名が複数存在する場合は、同時に複数のレイヤーを表示可能であることを意味します。
+func (this GenericDatasetItem) GetLayers() []string {
+	if this.Layers == nil {
+		return nil
+	}
+	interfaceSlice := make([]string, 0, len(this.Layers))
+	for _, concrete := range this.Layers {
+		interfaceSlice = append(interfaceSlice, concrete)
+	}
+	return interfaceSlice
+}
+
+// データセットのアイテムが属するデータセットのID。
+func (this GenericDatasetItem) GetParentID() ID { return this.ParentID }
+
+// データセットのアイテムが属するデータセット。
+func (this GenericDatasetItem) GetParent() Dataset { return *this.Parent }
+
+func (GenericDatasetItem) IsNode() {}
+
+// オブジェクトのID
 
 // その他のデータセットの種類。
 type GenericDatasetType struct {
@@ -177,7 +378,20 @@ type GenericDatasetType struct {
 }
 
 func (GenericDatasetType) IsDatasetType() {}
-func (GenericDatasetType) IsNode()        {}
+func (this GenericDatasetType) GetID() ID { return this.ID }
+
+// データセットの種類コード。「bldg」など。
+func (this GenericDatasetType) GetCode() string { return this.Code }
+
+// データセットの種類名。
+func (this GenericDatasetType) GetName() string { return this.Name }
+
+// データセットの種類のカテゴリ。
+func (this GenericDatasetType) GetCategory() DatasetTypeCategory { return this.Category }
+
+func (GenericDatasetType) IsNode() {}
+
+// オブジェクトのID
 
 // PLATEAU都市モデルの通常のデータセット。例えば、地物型が建築物モデル（bldg）などのデータセットです。
 type PlateauDataset struct {
@@ -185,35 +399,35 @@ type PlateauDataset struct {
 	// データセット名
 	Name string `json:"name"`
 	// データセットのサブ名
-	Subname *string `json:"subname"`
+	Subname *string `json:"subname,omitempty"`
 	// データセットの説明
-	Description *string `json:"description"`
+	Description *string `json:"description,omitempty"`
 	// データセットの公開年度（西暦）
 	Year int `json:"year"`
 	// データセットを分類するグループ。グループが階層構造になっている場合は、親から子の順番で複数のグループ名が存在することがあります。
-	Groups []string `json:"groups"`
+	Groups []string `json:"groups,omitempty"`
 	// データセットが属する都道府県のID。
 	PrefectureID ID `json:"prefectureId"`
 	// データセットが属する都道府県コード。2桁の数字から成る文字列です。
 	PrefectureCode AreaCode `json:"prefectureCode"`
 	// データセットが属する市のID。
-	CityID *ID `json:"cityId"`
+	CityID *ID `json:"cityId,omitempty"`
 	// データセットが属する市コード。先頭に都道府県コードを含む6桁の数字から成る文字列です。
-	CityCode *AreaCode `json:"cityCode"`
+	CityCode *AreaCode `json:"cityCode,omitempty"`
 	// データセットが属する区のID。
-	WardID *ID `json:"wardId"`
+	WardID *ID `json:"wardId,omitempty"`
 	// データセットが属する区コード。先頭に都道府県コードを含む6桁の数字から成る文字列です。
-	WardCode *AreaCode `json:"wardCode"`
+	WardCode *AreaCode `json:"wardCode,omitempty"`
 	// データセットの種類のID。
 	TypeID ID `json:"typeId"`
 	// データセットの種類コード。
 	TypeCode string `json:"typeCode"`
 	// データセットが属する都道府県。
-	Prefecture *Prefecture `json:"prefecture"`
+	Prefecture *Prefecture `json:"prefecture,omitempty"`
 	// データセットが属する市。
-	City *City `json:"city"`
+	City *City `json:"city,omitempty"`
 	// データセットが属する区。
-	Ward *Ward `json:"ward"`
+	Ward *Ward `json:"ward,omitempty"`
 	// データセットの種類。
 	Type *PlateauDatasetType `json:"type"`
 	// データセットのアイテム。
@@ -225,11 +439,87 @@ type PlateauDataset struct {
 	// データセットが準拠するPLATEAU都市モデルの仕様。
 	PlateauSpec *PlateauSpecMinor `json:"plateauSpec"`
 	// 河川。地物型が洪水浸水想定区域モデル（fld）の場合のみ存在します。
-	River *River `json:"river"`
+	River *River `json:"river,omitempty"`
 }
 
-func (PlateauDataset) IsDataset() {}
-func (PlateauDataset) IsNode()    {}
+func (PlateauDataset) IsDataset()     {}
+func (this PlateauDataset) GetID() ID { return this.ID }
+
+// データセット名
+func (this PlateauDataset) GetName() string { return this.Name }
+
+// データセットのサブ名
+func (this PlateauDataset) GetSubname() *string { return this.Subname }
+
+// データセットの説明
+func (this PlateauDataset) GetDescription() *string { return this.Description }
+
+// データセットの公開年度（西暦）
+func (this PlateauDataset) GetYear() int { return this.Year }
+
+// データセットを分類するグループ。グループが階層構造になっている場合は、親から子の順番で複数のグループ名が存在することがあります。
+func (this PlateauDataset) GetGroups() []string {
+	if this.Groups == nil {
+		return nil
+	}
+	interfaceSlice := make([]string, 0, len(this.Groups))
+	for _, concrete := range this.Groups {
+		interfaceSlice = append(interfaceSlice, concrete)
+	}
+	return interfaceSlice
+}
+
+// データセットが属する都道府県のID。
+func (this PlateauDataset) GetPrefectureID() ID { return this.PrefectureID }
+
+// データセットが属する都道府県コード。2桁の数字から成る文字列です。
+func (this PlateauDataset) GetPrefectureCode() AreaCode { return this.PrefectureCode }
+
+// データセットが属する市のID。
+func (this PlateauDataset) GetCityID() *ID { return this.CityID }
+
+// データセットが属する市コード。先頭に都道府県コードを含む6桁の数字から成る文字列です。
+func (this PlateauDataset) GetCityCode() *AreaCode { return this.CityCode }
+
+// データセットが属する区のID。
+func (this PlateauDataset) GetWardID() *ID { return this.WardID }
+
+// データセットが属する区コード。先頭に都道府県コードを含む6桁の数字から成る文字列です。
+func (this PlateauDataset) GetWardCode() *AreaCode { return this.WardCode }
+
+// データセットの種類のID。
+func (this PlateauDataset) GetTypeID() ID { return this.TypeID }
+
+// データセットの種類コード。
+func (this PlateauDataset) GetTypeCode() string { return this.TypeCode }
+
+// データセットが属する都道府県。
+func (this PlateauDataset) GetPrefecture() *Prefecture { return this.Prefecture }
+
+// データセットが属する市。
+func (this PlateauDataset) GetCity() *City { return this.City }
+
+// データセットが属する区。
+func (this PlateauDataset) GetWard() *Ward { return this.Ward }
+
+// データセットの種類。
+func (this PlateauDataset) GetType() DatasetType { return *this.Type }
+
+// データセットのアイテム。
+func (this PlateauDataset) GetItems() []DatasetItem {
+	if this.Items == nil {
+		return nil
+	}
+	interfaceSlice := make([]DatasetItem, 0, len(this.Items))
+	for _, concrete := range this.Items {
+		interfaceSlice = append(interfaceSlice, concrete)
+	}
+	return interfaceSlice
+}
+
+func (PlateauDataset) IsNode() {}
+
+// オブジェクトのID
 
 // PLATEAU都市モデルのデータセットのアイテム。
 type PlateauDatasetItem struct {
@@ -242,21 +532,53 @@ type PlateauDatasetItem struct {
 	URL string `json:"url"`
 	// データセットのアイテムのレイヤー名。MVTやWMSなどのフォーマットの場合のみ存在。
 	// レイヤー名が複数存在する場合は、同時に複数のレイヤーを表示可能であることを意味します。
-	Layers []string `json:"layers"`
+	Layers []string `json:"layers,omitempty"`
 	// データセットのアイテムが属するデータセットのID。
 	ParentID ID `json:"parentId"`
 	// データセットのアイテムが属するデータセット。
-	Parent *PlateauDataset `json:"parent"`
+	Parent *PlateauDataset `json:"parent,omitempty"`
 	// データセットのアイテムのLOD（詳細度・Level of Detail）。1、2、3、4などの整数値です。
-	Lod *int `json:"lod"`
+	Lod *int `json:"lod,omitempty"`
 	// データセットのアイテムのテクスチャの種類。
-	Texture *Texture `json:"texture"`
+	Texture *Texture `json:"texture,omitempty"`
 	// 浸水規模。地物型が洪水・高潮・津波・内水浸水想定区域モデル（fld・htd・tnm・ifld）の場合のみ存在します。
-	FloodingScale *FloodingScale `json:"floodingScale"`
+	FloodingScale *FloodingScale `json:"floodingScale,omitempty"`
 }
 
 func (PlateauDatasetItem) IsDatasetItem() {}
-func (PlateauDatasetItem) IsNode()        {}
+func (this PlateauDatasetItem) GetID() ID { return this.ID }
+
+// データセットのアイテムのフォーマット。
+func (this PlateauDatasetItem) GetFormat() DatasetFormat { return this.Format }
+
+// データセットのアイテム名。
+func (this PlateauDatasetItem) GetName() string { return this.Name }
+
+// データセットのアイテムのURL。
+func (this PlateauDatasetItem) GetURL() string { return this.URL }
+
+// データセットのアイテムのレイヤー名。MVTやWMSなどのフォーマットの場合のみ存在。
+// レイヤー名が複数存在する場合は、同時に複数のレイヤーを表示可能であることを意味します。
+func (this PlateauDatasetItem) GetLayers() []string {
+	if this.Layers == nil {
+		return nil
+	}
+	interfaceSlice := make([]string, 0, len(this.Layers))
+	for _, concrete := range this.Layers {
+		interfaceSlice = append(interfaceSlice, concrete)
+	}
+	return interfaceSlice
+}
+
+// データセットのアイテムが属するデータセットのID。
+func (this PlateauDatasetItem) GetParentID() ID { return this.ParentID }
+
+// データセットのアイテムが属するデータセット。
+func (this PlateauDatasetItem) GetParent() Dataset { return *this.Parent }
+
+func (PlateauDatasetItem) IsNode() {}
+
+// オブジェクトのID
 
 // PLATEAU都市モデルのデータセットの種類。
 type PlateauDatasetType struct {
@@ -272,7 +594,7 @@ type PlateauDatasetType struct {
 	// データセットの種類が属するPLATEAU都市モデルの仕様の名称。
 	PlateauSpecName string `json:"plateauSpecName"`
 	// データセットの種類が属するPLATEAU都市モデルの仕様。
-	PlateauSpec *PlateauSpec `json:"plateauSpec"`
+	PlateauSpec *PlateauSpec `json:"plateauSpec,omitempty"`
 	// データセットの種類が属するPLATEAU都市モデルの仕様の公開年度（西暦）。
 	Year int `json:"year"`
 	// 洪水・高潮・津波・内水浸水想定区域モデルを表す種類かどうか。河川などの情報が利用可能です。
@@ -280,7 +602,20 @@ type PlateauDatasetType struct {
 }
 
 func (PlateauDatasetType) IsDatasetType() {}
-func (PlateauDatasetType) IsNode()        {}
+func (this PlateauDatasetType) GetID() ID { return this.ID }
+
+// データセットの種類コード。「bldg」など。
+func (this PlateauDatasetType) GetCode() string { return this.Code }
+
+// データセットの種類名。
+func (this PlateauDatasetType) GetName() string { return this.Name }
+
+// データセットの種類のカテゴリ。
+func (this PlateauDatasetType) GetCategory() DatasetTypeCategory { return this.Category }
+
+func (PlateauDatasetType) IsNode() {}
+
+// オブジェクトのID
 
 // PLATEAU都市モデルの仕様のメジャーバージョン。
 type PlateauSpec struct {
@@ -296,6 +631,9 @@ type PlateauSpec struct {
 }
 
 func (PlateauSpec) IsNode() {}
+
+// オブジェクトのID
+func (this PlateauSpec) GetID() ID { return this.ID }
 
 // PLATEAU都市モデルの仕様のマイナーバージョン。
 type PlateauSpecMinor struct {
@@ -318,6 +656,9 @@ type PlateauSpecMinor struct {
 
 func (PlateauSpecMinor) IsNode() {}
 
+// オブジェクトのID
+func (this PlateauSpecMinor) GetID() ID { return this.ID }
+
 // 都道府県
 type Prefecture struct {
 	ID ID `json:"id"`
@@ -331,8 +672,32 @@ type Prefecture struct {
 	Datasets []Dataset `json:"datasets"`
 }
 
-func (Prefecture) IsArea() {}
+func (Prefecture) IsArea()        {}
+func (this Prefecture) GetID() ID { return this.ID }
+
+// 地域コード。行政コードや市区町村コードとも呼ばれます。
+// 都道府県の場合は二桁の数字から成る文字列です。
+// 市区町村の場合は、先頭に都道府県コードを含む6桁の数字から成る文字列です。
+func (this Prefecture) GetCode() AreaCode { return this.Code }
+
+// 地域名
+func (this Prefecture) GetName() string { return this.Name }
+
+// 地域に属するデータセット（DatasetInput内のareasCodeの指定は無視されます）。
+func (this Prefecture) GetDatasets() []Dataset {
+	if this.Datasets == nil {
+		return nil
+	}
+	interfaceSlice := make([]Dataset, 0, len(this.Datasets))
+	for _, concrete := range this.Datasets {
+		interfaceSlice = append(interfaceSlice, concrete)
+	}
+	return interfaceSlice
+}
+
 func (Prefecture) IsNode() {}
+
+// オブジェクトのID
 
 // PLATEAU都市モデルデータセットと併せて表示することで情報を補完できる、関連データセット。
 // 避難施設・ランドマーク・鉄道駅・鉄道・緊急輸送道路・公園・行政界などのデータセット。
@@ -341,43 +706,119 @@ type RelatedDataset struct {
 	// データセット名
 	Name string `json:"name"`
 	// データセットのサブ名
-	Subname *string `json:"subname"`
+	Subname *string `json:"subname,omitempty"`
 	// データセットの説明
-	Description *string `json:"description"`
+	Description *string `json:"description,omitempty"`
 	// データセットの公開年度（西暦）
 	Year int `json:"year"`
 	// データセットを分類するグループ。グループが階層構造になっている場合は、親から子の順番で複数のグループ名が存在することがあります。
-	Groups []string `json:"groups"`
+	Groups []string `json:"groups,omitempty"`
 	// データセットが属する都道府県のID。
 	PrefectureID ID `json:"prefectureId"`
 	// データセットが属する都道府県コード。2桁の数字から成る文字列です。
 	PrefectureCode AreaCode `json:"prefectureCode"`
 	// データセットが属する市のID。
-	CityID *ID `json:"cityId"`
+	CityID *ID `json:"cityId,omitempty"`
 	// データセットが属する市コード。先頭に都道府県コードを含む6桁の数字から成る文字列です。
-	CityCode *AreaCode `json:"cityCode"`
+	CityCode *AreaCode `json:"cityCode,omitempty"`
 	// データセットが属する区のID。
-	WardID *ID `json:"wardId"`
+	WardID *ID `json:"wardId,omitempty"`
 	// データセットが属する区コード。先頭に都道府県コードを含む6桁の数字から成る文字列です。
-	WardCode *AreaCode `json:"wardCode"`
+	WardCode *AreaCode `json:"wardCode,omitempty"`
 	// データセットの種類のID。
 	TypeID ID `json:"typeId"`
 	// データセットの種類コード。
 	TypeCode string `json:"typeCode"`
 	// データセットが属する都道府県。
-	Prefecture *Prefecture `json:"prefecture"`
+	Prefecture *Prefecture `json:"prefecture,omitempty"`
 	// データセットが属する市。
-	City *City `json:"city"`
+	City *City `json:"city,omitempty"`
 	// データセットが属する区。
-	Ward *Ward `json:"ward"`
+	Ward *Ward `json:"ward,omitempty"`
 	// データセットの種類。
 	Type *RelatedDatasetType `json:"type"`
 	// データセットのアイテム。
 	Items []*RelatedDatasetItem `json:"items"`
 }
 
-func (RelatedDataset) IsDataset() {}
-func (RelatedDataset) IsNode()    {}
+func (RelatedDataset) IsDataset()     {}
+func (this RelatedDataset) GetID() ID { return this.ID }
+
+// データセット名
+func (this RelatedDataset) GetName() string { return this.Name }
+
+// データセットのサブ名
+func (this RelatedDataset) GetSubname() *string { return this.Subname }
+
+// データセットの説明
+func (this RelatedDataset) GetDescription() *string { return this.Description }
+
+// データセットの公開年度（西暦）
+func (this RelatedDataset) GetYear() int { return this.Year }
+
+// データセットを分類するグループ。グループが階層構造になっている場合は、親から子の順番で複数のグループ名が存在することがあります。
+func (this RelatedDataset) GetGroups() []string {
+	if this.Groups == nil {
+		return nil
+	}
+	interfaceSlice := make([]string, 0, len(this.Groups))
+	for _, concrete := range this.Groups {
+		interfaceSlice = append(interfaceSlice, concrete)
+	}
+	return interfaceSlice
+}
+
+// データセットが属する都道府県のID。
+func (this RelatedDataset) GetPrefectureID() ID { return this.PrefectureID }
+
+// データセットが属する都道府県コード。2桁の数字から成る文字列です。
+func (this RelatedDataset) GetPrefectureCode() AreaCode { return this.PrefectureCode }
+
+// データセットが属する市のID。
+func (this RelatedDataset) GetCityID() *ID { return this.CityID }
+
+// データセットが属する市コード。先頭に都道府県コードを含む6桁の数字から成る文字列です。
+func (this RelatedDataset) GetCityCode() *AreaCode { return this.CityCode }
+
+// データセットが属する区のID。
+func (this RelatedDataset) GetWardID() *ID { return this.WardID }
+
+// データセットが属する区コード。先頭に都道府県コードを含む6桁の数字から成る文字列です。
+func (this RelatedDataset) GetWardCode() *AreaCode { return this.WardCode }
+
+// データセットの種類のID。
+func (this RelatedDataset) GetTypeID() ID { return this.TypeID }
+
+// データセットの種類コード。
+func (this RelatedDataset) GetTypeCode() string { return this.TypeCode }
+
+// データセットが属する都道府県。
+func (this RelatedDataset) GetPrefecture() *Prefecture { return this.Prefecture }
+
+// データセットが属する市。
+func (this RelatedDataset) GetCity() *City { return this.City }
+
+// データセットが属する区。
+func (this RelatedDataset) GetWard() *Ward { return this.Ward }
+
+// データセットの種類。
+func (this RelatedDataset) GetType() DatasetType { return *this.Type }
+
+// データセットのアイテム。
+func (this RelatedDataset) GetItems() []DatasetItem {
+	if this.Items == nil {
+		return nil
+	}
+	interfaceSlice := make([]DatasetItem, 0, len(this.Items))
+	for _, concrete := range this.Items {
+		interfaceSlice = append(interfaceSlice, concrete)
+	}
+	return interfaceSlice
+}
+
+func (RelatedDataset) IsNode() {}
+
+// オブジェクトのID
 
 // 関連データセットのアイテム。
 type RelatedDatasetItem struct {
@@ -390,15 +831,47 @@ type RelatedDatasetItem struct {
 	URL string `json:"url"`
 	// データセットのアイテムのレイヤー名。MVTやWMSなどのフォーマットの場合のみ存在。
 	// レイヤー名が複数存在する場合は、同時に複数のレイヤーを表示可能であることを意味します。
-	Layers []string `json:"layers"`
+	Layers []string `json:"layers,omitempty"`
 	// データセットのアイテムが属するデータセットのID。
 	ParentID ID `json:"parentId"`
 	// データセットのアイテムが属するデータセット。
-	Parent *RelatedDataset `json:"parent"`
+	Parent *RelatedDataset `json:"parent,omitempty"`
 }
 
 func (RelatedDatasetItem) IsDatasetItem() {}
-func (RelatedDatasetItem) IsNode()        {}
+func (this RelatedDatasetItem) GetID() ID { return this.ID }
+
+// データセットのアイテムのフォーマット。
+func (this RelatedDatasetItem) GetFormat() DatasetFormat { return this.Format }
+
+// データセットのアイテム名。
+func (this RelatedDatasetItem) GetName() string { return this.Name }
+
+// データセットのアイテムのURL。
+func (this RelatedDatasetItem) GetURL() string { return this.URL }
+
+// データセットのアイテムのレイヤー名。MVTやWMSなどのフォーマットの場合のみ存在。
+// レイヤー名が複数存在する場合は、同時に複数のレイヤーを表示可能であることを意味します。
+func (this RelatedDatasetItem) GetLayers() []string {
+	if this.Layers == nil {
+		return nil
+	}
+	interfaceSlice := make([]string, 0, len(this.Layers))
+	for _, concrete := range this.Layers {
+		interfaceSlice = append(interfaceSlice, concrete)
+	}
+	return interfaceSlice
+}
+
+// データセットのアイテムが属するデータセットのID。
+func (this RelatedDatasetItem) GetParentID() ID { return this.ParentID }
+
+// データセットのアイテムが属するデータセット。
+func (this RelatedDatasetItem) GetParent() Dataset { return *this.Parent }
+
+func (RelatedDatasetItem) IsNode() {}
+
+// オブジェクトのID
 
 // 関連データセットの種類。
 type RelatedDatasetType struct {
@@ -412,7 +885,20 @@ type RelatedDatasetType struct {
 }
 
 func (RelatedDatasetType) IsDatasetType() {}
-func (RelatedDatasetType) IsNode()        {}
+func (this RelatedDatasetType) GetID() ID { return this.ID }
+
+// データセットの種類コード。「bldg」など。
+func (this RelatedDatasetType) GetCode() string { return this.Code }
+
+// データセットの種類名。
+func (this RelatedDatasetType) GetName() string { return this.Name }
+
+// データセットの種類のカテゴリ。
+func (this RelatedDatasetType) GetCategory() DatasetTypeCategory { return this.Category }
+
+func (RelatedDatasetType) IsNode() {}
+
+// オブジェクトのID
 
 // 洪水浸水想定区域モデルにおける河川。
 type River struct {
@@ -438,15 +924,39 @@ type Ward struct {
 	// 区が属する市のコード。先頭に都道府県コードを含む6桁の数字から成る文字列です。
 	CityCode AreaCode `json:"cityCode"`
 	// 区が属する都道府県。
-	Prefecture *Prefecture `json:"prefecture"`
+	Prefecture *Prefecture `json:"prefecture,omitempty"`
 	// 区が属する市。
-	City *City `json:"city"`
+	City *City `json:"city,omitempty"`
 	// 区に属するデータセット（DatasetInput内のareasCodeの指定は無視されます）。
 	Datasets []Dataset `json:"datasets"`
 }
 
-func (Ward) IsArea() {}
+func (Ward) IsArea()        {}
+func (this Ward) GetID() ID { return this.ID }
+
+// 地域コード。行政コードや市区町村コードとも呼ばれます。
+// 都道府県の場合は二桁の数字から成る文字列です。
+// 市区町村の場合は、先頭に都道府県コードを含む6桁の数字から成る文字列です。
+func (this Ward) GetCode() AreaCode { return this.Code }
+
+// 地域名
+func (this Ward) GetName() string { return this.Name }
+
+// 地域に属するデータセット（DatasetInput内のareasCodeの指定は無視されます）。
+func (this Ward) GetDatasets() []Dataset {
+	if this.Datasets == nil {
+		return nil
+	}
+	interfaceSlice := make([]Dataset, 0, len(this.Datasets))
+	for _, concrete := range this.Datasets {
+		interfaceSlice = append(interfaceSlice, concrete)
+	}
+	return interfaceSlice
+}
+
 func (Ward) IsNode() {}
+
+// オブジェクトのID
 
 // データセットのフォーマット。
 type DatasetFormat string

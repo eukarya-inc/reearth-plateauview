@@ -435,7 +435,7 @@ func (c *mockedCMS) GetItemsByKey(ctx context.Context, projectIDOrAlias, modelID
 	}, nil
 }
 
-func (c *mockedCMS) CreateItemByKey(ctx context.Context, projectID, modelID string, fields []cms.Field) (*cms.Item, error) {
+func (c *mockedCMS) CreateItemByKey(ctx context.Context, projectID, modelID string, fields []cms.Field, metadataFields []cms.Field) (*cms.Item, error) {
 	m := c.m(projectID, modelID)
 	if m == nil {
 		return nil, rerror.ErrNotFound
@@ -454,7 +454,7 @@ func (c *mockedCMS) CreateItemByKey(ctx context.Context, projectID, modelID stri
 	return item, nil
 }
 
-func (c *mockedCMS) UpdateItem(ctx context.Context, itemID string, fields []cms.Field) (*cms.Item, error) {
+func (c *mockedCMS) UpdateItem(ctx context.Context, itemID string, fields []cms.Field, metadataFields []cms.Field) (*cms.Item, error) {
 	i, m := c.l(itemID)
 	if i == nil {
 		return nil, rerror.ErrNotFound
