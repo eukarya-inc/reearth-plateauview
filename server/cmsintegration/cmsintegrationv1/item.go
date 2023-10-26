@@ -1,10 +1,7 @@
 package cmsintegrationv1
 
 import (
-	"fmt"
-	"regexp"
-	"strconv"
-
+	"github.com/eukarya-inc/reearth-plateauview/server/cmsintegration/cmsintegrationcommon"
 	cms "github.com/reearth/reearth-cms-api/go"
 )
 
@@ -34,23 +31,7 @@ func (s Separation) Enabled() bool {
 	return string(s) != "分割しない"
 }
 
-type PRCS string
-
-var prcsRegexp = regexp.MustCompile(`([0-9]+)系`)
-
-func (s PRCS) ESPGCode() string {
-	m := prcsRegexp.FindStringSubmatch(string(s))
-	if len(m) != 2 {
-		return ""
-	}
-
-	c, err := strconv.Atoi(m[1])
-	if err != nil {
-		return ""
-	}
-
-	return fmt.Sprintf("%d", 6668+c)
-}
+type PRCS = cmsintegrationcommon.PRCS
 
 type Item struct {
 	ID string `json:"id,omitempty" cms:"id"`
