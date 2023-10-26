@@ -13,6 +13,7 @@ import (
 	"github.com/eukarya-inc/reearth-plateauview/server/plateaucms"
 	"github.com/eukarya-inc/reearth-plateauview/server/sdk"
 	"github.com/eukarya-inc/reearth-plateauview/server/sdkapi"
+	"github.com/eukarya-inc/reearth-plateauview/server/searchindex"
 	"github.com/eukarya-inc/reearth-plateauview/server/sidebar"
 	"github.com/joho/godotenv"
 	"github.com/kelseyhightower/envconfig"
@@ -99,18 +100,18 @@ func (c *Config) CMSIntegration() cmsintegration.Config {
 	}
 }
 
-// func (c *Config) SearchIndex() searchindex.Config {
-// 	return searchindex.Config{
-// 		CMSBase:           c.CMS_BaseURL,
-// 		CMSToken:          c.CMS_Token,
-// 		CMSStorageProject: c.CMS_SystemProject,
-// 		Delegate:          c.Indexer_Delegate,
-// 		DelegateURL:       c.Delegate_URL,
-// 		Debug:             c.Debug,
-// 		// CMSModel: c.CMS_Model,
-// 		// CMSStorageModel:   c.CMS_IndexerStorageModel,
-// 	}
-// }
+func (c *Config) SearchIndex() searchindex.Config {
+	return searchindex.Config{
+		CMSBase:           c.CMS_BaseURL,
+		CMSToken:          c.CMS_Token,
+		CMSStorageProject: c.CMS_SystemProject,
+		Delegate:          c.Indexer_Delegate,
+		DelegateURL:       c.Delegate_URL,
+		Debug:             c.Debug,
+		// CMSModel: c.CMS_Model,
+		// CMSStorageModel:   c.CMS_IndexerStorageModel,
+	}
+}
 
 func (c *Config) SDK() sdk.Config {
 	return sdk.Config{

@@ -1,4 +1,4 @@
-package cmsintegration
+package cmsintegrationv1
 
 import (
 	"sort"

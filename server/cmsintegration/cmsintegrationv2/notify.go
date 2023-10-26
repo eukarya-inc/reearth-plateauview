@@ -1,4 +1,4 @@
-package cmsintegration
+package cmsintegrationv2
 
 import (
 	"context"

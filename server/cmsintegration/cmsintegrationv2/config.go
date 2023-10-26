@@ -1,24 +1,14 @@
-package cmsintegration
+package cmsintegrationv2
 
 import (
 	"fmt"
 
+	"github.com/eukarya-inc/reearth-plateauview/server/cmsintegration/cmsintegrationcommon"
 	"github.com/eukarya-inc/reearth-plateauview/server/fme"
 	cms "github.com/reearth/reearth-cms-api/go"
 )
 
-type Config struct {
-	FMEMock             bool
-	FMEBaseURL          string
-	FMEToken            string
-	FMEResultURL        string
-	FMESkipQualityCheck bool
-	CMSBaseURL          string
-	CMSToken            string
-	CMSIntegration      string
-	Secret              string
-	Debug               bool
-}
+type Config = cmsintegrationcommon.Config
 
 type Services struct {
 	FME fme.Interface
