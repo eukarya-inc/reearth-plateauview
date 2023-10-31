@@ -16,7 +16,7 @@ var item = Item{
 
 var cmsitem = cms.Item{
 	ID: "xxx",
-	Fields: []cms.Field{
+	Fields: []*cms.Field{
 		{Key: "bldg", Type: "asset", Value: []string{"bldg_assetid", "bldg_assetid2"}},
 		{Key: "search_index", Type: "asset", Value: []string{"searchindex_assetid"}},
 		{Key: "search_index_status", Type: "select", Value: "エラー"},
@@ -27,5 +27,5 @@ func TestItem(t *testing.T) {
 	assert.Equal(t, item, ItemFrom(cmsitem))
 	assert.Equal(t, Item{}, ItemFrom(cms.Item{}))
 	assert.Equal(t, cmsitem.Fields, item.Fields())
-	assert.Equal(t, []cms.Field(nil), Item{}.Fields())
+	assert.Equal(t, []*cms.Field(nil), Item{}.Fields())
 }

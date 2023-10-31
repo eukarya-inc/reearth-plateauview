@@ -40,7 +40,7 @@ func TestService_CheckCatalog(t *testing.T) {
 	}))
 	assert.Equal(t, cms.Item{
 		ID: "item",
-		Fields: []cms.Field{
+		Fields: []*cms.Field{
 			{Key: "catalog_status", Value: "完了", Type: "select"},
 		},
 	}, cmsm.item)
@@ -53,7 +53,7 @@ func TestService_CheckCatalog(t *testing.T) {
 	}), "G空間情報センター用メタデータシートが見つかりません。")
 	assert.Equal(t, cms.Item{
 		ID: "item",
-		Fields: []cms.Field{
+		Fields: []*cms.Field{
 			{Key: "catalog_status", Value: "エラー", Type: "select"},
 		},
 	}, cmsm.item)
@@ -65,7 +65,7 @@ func TestService_CheckCatalog(t *testing.T) {
 	}), "目録アセットの読み込みに失敗しました。該当アセットが削除されていませんか？")
 	assert.Equal(t, cms.Item{
 		ID: "item",
-		Fields: []cms.Field{
+		Fields: []*cms.Field{
 			{Key: "catalog_status", Value: "エラー", Type: "select"},
 		},
 	}, cmsm.item)
@@ -114,7 +114,7 @@ func TestService_RegisterCkanResources(t *testing.T) {
 	assert.Equal(t, "CityGML（v2）", pkg.Resources[1].Name)
 	assert.Equal(t, "https://example.com/12210_mobara-shi_2022_citygml_1_lsld.zip", pkg.Resources[1].URL)
 	assert.Equal(t, "データ目録（v2）", pkg.Resources[2].Name)
-	assert.Equal(t, cms.Item{ID: "item", Fields: []cms.Field{
+	assert.Equal(t, cms.Item{ID: "item", Fields: []*cms.Field{
 		{Key: "catalog_status", Type: "select", Value: "完了"},
 		{Key: "sdk_publication", Type: "select", Value: "公開する"},
 	}}, cmsm.item)
@@ -171,7 +171,7 @@ type mockCMS struct {
 	item cms.Item
 }
 
-func (c *mockCMS) UpdateItem(ctx context.Context, itemID string, fields []cms.Field, metadataField []cms.Field) (*cms.Item, error) {
+func (c *mockCMS) UpdateItem(ctx context.Context, itemID string, fields []*cms.Field, metadataField []*cms.Field) (*cms.Item, error) {
 	c.item = cms.Item{
 		ID:     itemID,
 		Fields: fields,

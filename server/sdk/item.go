@@ -26,7 +26,7 @@ type Item struct {
 	ProjectID string `json:"-" cms:"-"`
 }
 
-func (i Item) Fields() (fields []cms.Field) {
+func (i Item) Fields() (fields []*cms.Field) {
 	item := &cms.Item{}
 	cms.Marshal(i, item)
 	return item.Fields

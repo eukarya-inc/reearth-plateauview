@@ -164,7 +164,7 @@ func mock(t *testing.T) plateaucms.Config {
 			Items: []cms.Item{
 				{
 					ID: "1",
-					Fields: []cms.Field{
+					Fields: []*cms.Field{
 						{Key: "project_alias", Value: "ppp"},
 						{Key: "subproject_alias", Value: "subprj"},
 						{Key: "name", Value: "xxx市"},

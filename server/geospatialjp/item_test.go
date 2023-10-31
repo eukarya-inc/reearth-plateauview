@@ -22,7 +22,7 @@ var item = Item{
 
 var cmsitem = cms.Item{
 	ID: "xxx",
-	Fields: []cms.Field{
+	Fields: []*cms.Field{
 		{Key: "prefecture", Type: "select", Value: "東京都"},
 		{Key: "city_name", Type: "text", Value: "千代田区"},
 		{Key: "citygml", Type: "asset", Value: "citygml_assetid"},
@@ -39,7 +39,7 @@ func TestItem(t *testing.T) {
 	assert.Equal(t, item, ItemFrom(cmsitem))
 	assert.Equal(t, Item{}, ItemFrom(cms.Item{}))
 	assert.Equal(t, cmsitem.Fields, item.Fields())
-	assert.Equal(t, []cms.Field(nil), Item{}.Fields())
+	assert.Equal(t, []*cms.Field(nil), Item{}.Fields())
 }
 
 func TestItem_SpecVersion(t *testing.T) {

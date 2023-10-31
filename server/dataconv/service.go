@@ -28,7 +28,7 @@ type Item struct {
 	DataOrig   []string `json:"data_orig" cms:"data_orig,asset"`
 }
 
-func (i Item) Fields() []cms.Field {
+func (i Item) Fields() []*cms.Field {
 	i2 := &cms.Item{}
 	cms.Marshal(i, i2)
 	return i2.Fields

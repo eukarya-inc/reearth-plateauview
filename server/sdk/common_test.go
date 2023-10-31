@@ -37,10 +37,10 @@ func TestServices_RequestMaxLODExtraction(t *testing.T) {
 	assert.Equal(t, []string{"citygml"}, s.CMS.(*cmsMock).AssetCalls)
 	assert.Equal(t, []struct {
 		ID     string
-		Fields []cms.Field
+		Fields []*cms.Field
 	}{{
 		ID: "id",
-		Fields: []cms.Field{
+		Fields: []*cms.Field{
 			{
 				Key:   "max_lod_status",
 				Type:  "select",
@@ -91,10 +91,10 @@ func TestServices_ReceiveFMEResult(t *testing.T) {
 
 	assert.Equal(t, []struct {
 		ID     string
-		Fields []cms.Field
+		Fields []*cms.Field
 	}{{
 		ID: "id",
-		Fields: []cms.Field{
+		Fields: []*cms.Field{
 			{
 				Key:   "max_lod",
 				Type:  "asset",
@@ -138,7 +138,7 @@ type cmsMock struct {
 	AssetCalls      []string
 	UpdateItemCalls []struct {
 		ID     string
-		Fields []cms.Field
+		Fields []*cms.Field
 	}
 	UploadAssetCalls []struct {
 		ProjectID string
@@ -150,7 +150,7 @@ func (m *cmsMock) GetItem(ctx context.Context, id string, asset bool) (*cms.Item
 	m.GetItemCalls = append(m.GetItemCalls, id)
 	return &cms.Item{
 		ID: id,
-		Fields: []cms.Field{
+		Fields: []*cms.Field{
 			{
 				Key:   "citygml",
 				Type:  "asset",
@@ -173,10 +173,10 @@ func (m *cmsMock) Asset(ctx context.Context, id string) (*cms.Asset, error) {
 	}, nil
 }
 
-func (m *cmsMock) UpdateItem(ctx context.Context, id string, fields []cms.Field, metadataFields []cms.Field) (*cms.Item, error) {
+func (m *cmsMock) UpdateItem(ctx context.Context, id string, fields []*cms.Field, metadataFields []*cms.Field) (*cms.Item, error) {
 	m.UpdateItemCalls = append(m.UpdateItemCalls, struct {
 		ID     string
-		Fields []cms.Field
+		Fields []*cms.Field
 	}{ID: id, Fields: fields})
 	return nil, nil
 }

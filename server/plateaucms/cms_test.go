@@ -117,7 +117,7 @@ func mockCMS(t *testing.T) {
 			Items: []cms.Item{
 				{
 					ID: "1",
-					Fields: []cms.Field{
+					Fields: []*cms.Field{
 						{Key: tokenProjectField, Value: testCMSProject},
 						{Key: "cms_apikey", Value: testCMSToken},
 						{Key: "sidebar_access_token", Value: testSidebarAccessToken},
@@ -125,7 +125,7 @@ func mockCMS(t *testing.T) {
 				},
 				{
 					ID: "2",
-					Fields: []cms.Field{
+					Fields: []*cms.Field{
 						{Key: tokenProjectField, Value: "prjprj"},
 						{Key: "cms_apikey", Value: "token!"},
 						{Key: "sidebar_access_token", Value: "ac"},

@@ -202,7 +202,7 @@ func (h *Handler) createDataHandler() func(c echo.Context) error {
 			return errors.New("invalid json")
 		}
 
-		fields := []cms.Field{{
+		fields := []*cms.Field{{
 			Key:   dataField,
 			Value: string(b),
 		}}
@@ -243,7 +243,7 @@ func (h *Handler) updateDataHandler() func(c echo.Context) error {
 			return errors.New("invalid json")
 		}
 
-		fields := []cms.Field{{
+		fields := []*cms.Field{{
 			Key:   dataField,
 			Value: string(b),
 		}}
@@ -364,7 +364,7 @@ func (h *Handler) createTemplateHandler() func(c echo.Context) error {
 			return errors.New("invalid json")
 		}
 
-		fields := []cms.Field{{
+		fields := []*cms.Field{{
 			Key:   dataField,
 			Value: string(b),
 		}}
@@ -406,7 +406,7 @@ func (h *Handler) updateTemplateHandler() func(c echo.Context) error {
 			return errors.New("invalid json")
 		}
 
-		fields := []cms.Field{{
+		fields := []*cms.Field{{
 			Key:   dataField,
 			Value: string(b),
 		}}
@@ -459,7 +459,7 @@ func itemsToJSONs(items []cms.Item) []any {
 }
 
 func itemJSON(f *cms.Field, id string) any {
-	j, err := f.ValueJSON()
+	j, err := f.GetValue().JSON()
 	if j == nil || err != nil {
 		return nil
 	}

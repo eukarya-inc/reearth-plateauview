@@ -92,11 +92,11 @@ func CityItemFrom(item cms.Item) (i CityItem) {
 	references := map[string]string{}
 	public := map[string]bool{}
 	for _, ft := range featureTypes {
-		if asset := item.MetadataFieldByKey(ft).ValueString(); asset != nil {
+		if asset := item.MetadataFieldByKey(ft).GetValue().String(); asset != nil {
 			references[ft] = *asset
 		}
 
-		if pub := item.MetadataFieldByKey(ft + "-public").ValueBool(); pub != nil {
+		if pub := item.MetadataFieldByKey(ft + "-public").GetValue().Bool(); pub != nil {
 			public[ft] = *pub
 		}
 	}
@@ -106,13 +106,13 @@ func CityItemFrom(item cms.Item) (i CityItem) {
 	return
 }
 
-func (i CityItem) Fields() (fields []cms.Field) {
+func (i CityItem) Fields() (fields []*cms.Field) {
 	item := &cms.Item{}
 	cms.Marshal(i, item)
 
 	for _, ft := range featureTypes {
 		if ref, ok := i.References[ft]; ok {
-			item.MetadataFields = append(item.MetadataFields, cms.Field{
+			item.MetadataFields = append(item.MetadataFields, &cms.Field{
 				Key:   ft,
 				Type:  "reference",
 				Value: ref,
@@ -120,7 +120,7 @@ func (i CityItem) Fields() (fields []cms.Field) {
 		}
 
 		if pub, ok := i.Public[ft]; ok {
-			item.MetadataFields = append(item.MetadataFields, cms.Field{
+			item.MetadataFields = append(item.MetadataFields, &cms.Field{
 				Key:   ft + "-public",
 				Type:  "bool",
 				Value: pub,
@@ -161,7 +161,7 @@ func ItemFrom(item cms.Item) (i Item) {
 	return
 }
 
-func (i Item) Fields() (fields []cms.Field) {
+func (i Item) Fields() (fields []*cms.Field) {
 	item := &cms.Item{}
 	cms.Marshal(i, item)
 	return item.Fields
@@ -197,7 +197,7 @@ func GenericItemFrom(item cms.Item) (i GenericItem) {
 	return
 }
 
-func (i GenericItem) Fields() (fields []cms.Field) {
+func (i GenericItem) Fields() (fields []*cms.Field) {
 	item := &cms.Item{}
 	cms.Marshal(i, item)
 	return item.Fields
@@ -217,11 +217,11 @@ func RelatedItemFrom(item cms.Item) (i RelatedItem) {
 	item.Unmarshal(&i)
 
 	for _, t := range relatedDataTypes {
-		if asset := item.MetadataFieldByKey(t).ValueString(); asset != nil {
+		if asset := item.MetadataFieldByKey(t).GetValue().String(); asset != nil {
 			i.Assets[t] = *asset
 		}
 
-		if pub := item.MetadataFieldByKey(t + "-public").ValueBool(); pub != nil {
+		if pub := item.MetadataFieldByKey(t + "-public").GetValue().Bool(); pub != nil {
 			i.Public[t] = *pub
 		}
 	}
@@ -229,13 +229,13 @@ func RelatedItemFrom(item cms.Item) (i RelatedItem) {
 	return
 }
 
-func (i RelatedItem) Fields() (fields []cms.Field) {
+func (i RelatedItem) Fields() (fields []*cms.Field) {
 	item := &cms.Item{}
 	cms.Marshal(i, item)
 
 	for _, t := range relatedDataTypes {
 		if asset, ok := i.Assets[t]; ok {
-			item.MetadataFields = append(item.MetadataFields, cms.Field{
+			item.MetadataFields = append(item.MetadataFields, &cms.Field{
 				Key:   t,
 				Type:  "asset",
 				Value: asset,
@@ -243,7 +243,7 @@ func (i RelatedItem) Fields() (fields []cms.Field) {
 		}
 
 		if pub, ok := i.Public[t]; ok {
-			item.MetadataFields = append(item.MetadataFields, cms.Field{
+			item.MetadataFields = append(item.MetadataFields, &cms.Field{
 				Key:   t + "-public",
 				Type:  "bool",
 				Value: pub,
@@ -270,7 +270,7 @@ func GeospatialjpIndexItemFrom(item cms.Item) (i GeospatialjpIndexItem) {
 	return
 }
 
-func (i GeospatialjpIndexItem) Fields() (fields []cms.Field) {
+func (i GeospatialjpIndexItem) Fields() (fields []*cms.Field) {
 	item := &cms.Item{}
 	cms.Marshal(i, item)
 	return item.Fields
@@ -294,7 +294,7 @@ func GeospatialjpDataItemFrom(item cms.Item) (i GeospatialjpDataItem) {
 	return
 }
 
-func (i GeospatialjpDataItem) Fields() (fields []cms.Field) {
+func (i GeospatialjpDataItem) Fields() (fields []*cms.Field) {
 	item := &cms.Item{}
 	cms.Marshal(i, item)
 	return item.Fields

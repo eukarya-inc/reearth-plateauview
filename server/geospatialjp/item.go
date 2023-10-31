@@ -36,7 +36,7 @@ func ItemFrom(item cms.Item) (i Item) {
 	return
 }
 
-func (i Item) Fields() (fields []cms.Field) {
+func (i Item) Fields() (fields []*cms.Field) {
 	item := &cms.Item{}
 	cms.Marshal(i, item)
 	return item.Fields

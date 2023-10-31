@@ -38,11 +38,11 @@ func TestRequestHandler(t *testing.T) {
 
 	assert.Equal(t, []struct {
 		ID     string
-		Fields []cms.Field
+		Fields []*cms.Field
 	}{
 		{
 			ID: "id1",
-			Fields: []cms.Field{
+			Fields: []*cms.Field{
 				{
 					Key:   "max_lod_status",
 					Type:  "select",
@@ -52,7 +52,7 @@ func TestRequestHandler(t *testing.T) {
 		},
 		{
 			ID: "id2",
-			Fields: []cms.Field{
+			Fields: []*cms.Field{
 				{
 					Key:   "max_lod_status",
 					Type:  "select",

@@ -335,6 +335,10 @@ github.com/reearth/reearth-cms-api/go v0.0.0-20231027075235-cac16456c590 h1:l+s9
 github.com/reearth/reearth-cms-api/go v0.0.0-20231027075235-cac16456c590/go.mod h1:YN8UwxewzextfQ1FLCR9id2x4eHcEtY+0lHlNgZq0Qc=
 github.com/reearth/reearth-cms-api/go v0.0.0-20231027124134-d8fa6af89ab8 h1:KqzLSjau3y7JSvehALG01k7FAyGmzJzNrqdJfLhtwu8=
 github.com/reearth/reearth-cms-api/go v0.0.0-20231027124134-d8fa6af89ab8/go.mod h1:YN8UwxewzextfQ1FLCR9id2x4eHcEtY+0lHlNgZq0Qc=
+github.com/reearth/reearth-cms-api/go v0.0.0-20231031113414-10317cbbaf2b h1:bw7Lyhe5brRsSV598NCXK5MujCT6GsZ53GosUXkY26M=
+github.com/reearth/reearth-cms-api/go v0.0.0-20231031113414-10317cbbaf2b/go.mod h1:YN8UwxewzextfQ1FLCR9id2x4eHcEtY+0lHlNgZq0Qc=
+github.com/reearth/reearth-cms-api/go v0.0.0-20231031115336-44930c3d4d20 h1:v+/8JIoOCxgn6WQNLSuZBGepTuxhvVrP8N74OkMyWo8=
+github.com/reearth/reearth-cms-api/go v0.0.0-20231031115336-44930c3d4d20/go.mod h1:YN8UwxewzextfQ1FLCR9id2x4eHcEtY+0lHlNgZq0Qc=
 github.com/reearth/reearthx v0.0.0-20231018053753-30170f2e187d h1:ZQyS9jMvhTFKl4AoHtnmTdh9vaoWD2ZtTP3aBHidlws=
 github.com/reearth/reearthx v0.0.0-20231018053753-30170f2e187d/go.mod h1:Rm+kQsXFEVJ2Tta04Uc92Sl8oQckr74zgVfYzacGDXI=
 github.com/richardlehane/mscfb v1.0.4 h1:WULscsljNPConisD5hR0+OyZjwK46Pfyr6mPu5ZawpM=

@@ -86,7 +86,7 @@ func (s *Handler) CreateShare() echo.HandlerFunc {
 			return c.JSON(http.StatusBadRequest, "invalid json")
 		}
 
-		res, err := cmsh.CreateItemByKey(c.Request().Context(), md.ProjectAlias, shareCMSModel, []cms.Field{
+		res, err := cmsh.CreateItemByKey(c.Request().Context(), md.ProjectAlias, shareCMSModel, []*cms.Field{
 			{Key: shareCMSDataFieldKey, Type: "textarea", Value: string(body)},
 		}, nil)
 
