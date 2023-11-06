@@ -6,7 +6,6 @@ import (
 	"github.com/eukarya-inc/reearth-plateauview/server/cmsintegration"
 	"github.com/eukarya-inc/reearth-plateauview/server/datacatalog"
 	"github.com/eukarya-inc/reearth-plateauview/server/opinion"
-	"github.com/eukarya-inc/reearth-plateauview/server/sdk"
 	"github.com/eukarya-inc/reearth-plateauview/server/sdkapi"
 	"github.com/eukarya-inc/reearth-plateauview/server/searchindex"
 	"github.com/eukarya-inc/reearth-plateauview/server/sidebar"
@@ -24,7 +23,6 @@ type Service struct {
 
 var services = [](func(*Config) (*Service, error)){
 	CMSIntegration,
-	SDK,
 	SDKAPI,
 	SearchIndex,
 	Opinion,
@@ -48,7 +46,7 @@ func Services(conf *Config) (srv []*Service, _ error) {
 
 func CMSIntegration(conf *Config) (*Service, error) {
 	c := conf.CMSIntegration()
-	if c.CMSBaseURL == "" || c.CMSToken == "" || c.FMEBaseURL == "" || c.FMEResultURL == "" || c.FMEToken == "" {
+	if c.CMSBaseURL == "" || c.CMSToken == "" || c.FMEBaseURL == "" || c.Host == "" || c.FMEToken == "" {
 		return nil, nil
 	}
 
@@ -79,35 +77,6 @@ func SearchIndex(conf *Config) (*Service, error) {
 
 	return &Service{
 		Name:    "searchindex",
-		Webhook: w,
-	}, nil
-}
-
-func SDK(conf *Config) (*Service, error) {
-	c := conf.SDK()
-	if c.CMSBase == "" || c.CMSToken == "" || c.FMEBaseURL == "" || c.FMEResultURL == "" || c.FMEToken == "" {
-		return nil, nil
-	}
-
-	e, err := sdk.NotifyHandler(c)
-	if err != nil {
-		return nil, err
-	}
-
-	w, err := sdk.WebhookHandler(c)
-	if err != nil {
-		return nil, err
-	}
-
-	return &Service{
-		Name: "sdk",
-		Echo: func(g *echo.Group) error {
-			g.POST("/notify_sdk", e)
-			if err := sdk.RequestHandler(c, g); err != nil {
-				return err
-			}
-			return nil
-		},
 		Webhook: w,
 	}, nil
 }

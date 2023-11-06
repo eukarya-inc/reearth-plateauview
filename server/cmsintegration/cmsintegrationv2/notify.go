@@ -2,6 +2,7 @@ package cmsintegrationv2
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -29,6 +30,17 @@ func NotifyHandler(conf Config) (echo.HandlerFunc, error) {
 		}
 
 		log.Infofc(ctx, "cmsintegration notify: received: %+v", f)
+
+		if f.ResultURL != "" {
+			if err := s.receiveMaxLODExtractionResult(ctx, f); err != nil {
+				if errors.Is(err, ErrInvalidFMEID) {
+					return c.JSON(http.StatusUnauthorized, "unauthorized")
+				}
+				log.Errorfc(ctx, "sdk notify: error: %v", err)
+				return nil
+			}
+			return nil
+		}
 
 		id, err := parseFMEID(f.ID, conf.Secret)
 		if err != nil {

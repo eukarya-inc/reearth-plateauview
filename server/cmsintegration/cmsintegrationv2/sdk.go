@@ -1,48 +1,14 @@
-package sdk
+package cmsintegrationv2
 
 import (
 	"context"
 	"encoding/csv"
-	"errors"
 	"io"
 	"net/http"
+	"net/url"
 
-	cms "github.com/reearth/reearth-cms-api/go"
 	"github.com/reearth/reearthx/log"
 )
-
-var ErrInvalidID = errors.New("invalid id")
-
-type Config struct {
-	CMSBase        string
-	CMSToken       string
-	CMSIntegration string
-	FMEBaseURL     string
-	FMEToken       string
-	FMEResultURL   string
-	FMESecret      string
-	APIToken       string
-}
-
-type Services struct {
-	CMS       cms.Interface
-	FME       fmeInterface
-	FMESecret string
-}
-
-func NewServices(conf Config) (*Services, error) {
-	cms, err := cms.New(conf.CMSBase, conf.CMSToken)
-	if err != nil {
-		return nil, err
-	}
-
-	fme, err := newFME(conf.FMEBaseURL, conf.FMEToken, conf.FMEResultURL)
-	if err != nil {
-		return nil, err
-	}
-
-	return &Services{CMS: cms, FME: fme, FMESecret: conf.FMESecret}, nil
-}
 
 func (s *Services) RequestMaxLODExtraction(ctx context.Context, item Item, project string, force bool) {
 	if !force && item.MaxLODStatus != "" && item.MaxLODStatus != StatusReady {
@@ -82,15 +48,15 @@ func (s *Services) RequestMaxLODExtraction(ctx context.Context, item Item, proje
 	}
 }
 
-func (s *Services) ReceiveFMEResult(ctx context.Context, f FMEResult) error {
+func (s *Services) receiveMaxLODExtractionResult(ctx context.Context, f fmeResult) error {
 	id, err := parseFMEID(f.ID, s.FMESecret)
 	if err != nil {
-		return ErrInvalidID
+		return ErrInvalidFMEID
 	}
 
 	log.Debugfc(ctx, "sdk notify: validate: itemID=%s, assetID=%s", id.ItemID, id.AssetID)
 
-	hasDem, err := IsDemIncludedInCSV(f.ResultURL)
+	hasDem, err := isDemIncludedInCSV(f.ResultURL)
 	if err != nil {
 		log.Errorfc(ctx, "sdk notify: failed to read result csv: %v", err)
 		return nil
@@ -125,7 +91,7 @@ func (s *Services) ReceiveFMEResult(ctx context.Context, f FMEResult) error {
 	return nil
 }
 
-func IsDemIncludedInCSV(url string) (bool, error) {
+func isDemIncludedInCSV(url string) (bool, error) {
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		return false, err
@@ -161,4 +127,20 @@ func IsDemIncludedInCSV(url string) (bool, error) {
 		}
 	}
 	return false, nil
+}
+
+type maxLODRequest struct {
+	ID     string
+	Target string
+}
+
+func (r maxLODRequest) Query() url.Values {
+	q := url.Values{}
+	q.Set("id", r.ID)
+	q.Set("url", r.Target)
+	return q
+}
+
+func (r maxLODRequest) Name() string {
+	return "plateau2022-cms/maxlod-extract"
 }

@@ -29,6 +29,9 @@ var item = Item{
 	All:                "all_assetid",
 	Dictionary:         "dictionary_assetid",
 	ConversionStatus:   "実行中",
+	MaxLOD:             "maxlod_assetid",
+	MaxLODStatus:       "未実行",
+	SDKPublication:     "公開する",
 }
 
 var cmsitem = cms.Item{
@@ -54,6 +57,9 @@ var cmsitem = cms.Item{
 		{Key: "all", Type: "asset", Value: "all_assetid"},
 		{Key: "dictionary", Type: "asset", Value: "dictionary_assetid"},
 		{Key: "conversion_status", Type: "select", Value: "実行中"},
+		{Key: "max_lod", Type: "asset", Value: "maxlod_assetid"},
+		{Key: "max_lod_status", Type: "select", Value: "未実行"},
+		{Key: "sdk_publication", Type: "select", Value: "公開する"},
 	},
 }
 

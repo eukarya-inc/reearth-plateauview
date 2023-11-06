@@ -2,21 +2,18 @@ package main
 
 import (
 	"fmt"
-	"net/url"
 	"os"
 
 	"github.com/eukarya-inc/reearth-plateauview/server/cmsintegration"
 	"github.com/eukarya-inc/reearth-plateauview/server/datacatalog"
 	"github.com/eukarya-inc/reearth-plateauview/server/opinion"
 	"github.com/eukarya-inc/reearth-plateauview/server/plateaucms"
-	"github.com/eukarya-inc/reearth-plateauview/server/sdk"
 	"github.com/eukarya-inc/reearth-plateauview/server/sdkapi"
 	"github.com/eukarya-inc/reearth-plateauview/server/searchindex"
 	"github.com/eukarya-inc/reearth-plateauview/server/sidebar"
 	"github.com/joho/godotenv"
 	"github.com/kelseyhightower/envconfig"
 	"github.com/reearth/reearthx/log"
-	"github.com/reearth/reearthx/util"
 )
 
 const configPrefix = "REEARTH_PLATEAUVIEW"
@@ -87,12 +84,12 @@ func (c *Config) Print() string {
 
 func (c *Config) CMSIntegration() cmsintegration.Config {
 	return cmsintegration.Config{
+		Host:                            c.Host,
 		FMEMock:                         c.FME_Mock,
 		FMEBaseURL:                      c.FME_BaseURL,
 		FMEToken:                        c.FME_Token,
 		FMEBaseURLV2:                    c.FME_BaseURL_V2,
 		FMEURLV3:                        c.FME_URL_V3,
-		FMEResultURL:                    util.DR(url.JoinPath(c.Host, "notify_fme")),
 		FMESkipQualityCheck:             c.FME_SkipQualityCheck,
 		CMSBaseURL:                      c.CMS_BaseURL,
 		CMSToken:                        c.CMS_Token,
@@ -120,19 +117,6 @@ func (c *Config) SearchIndex() searchindex.Config {
 		Debug:             c.Debug,
 		// CMSModel: c.CMS_Model,
 		// CMSStorageModel:   c.CMS_IndexerStorageModel,
-	}
-}
-
-func (c *Config) SDK() sdk.Config {
-	return sdk.Config{
-		FMEBaseURL:     c.FME_BaseURL,
-		FMEToken:       c.FME_Token,
-		FMEResultURL:   util.DR(url.JoinPath(c.Host, "notify_sdk")),
-		CMSBase:        c.CMS_BaseURL,
-		CMSToken:       c.CMS_Token,
-		CMSIntegration: c.CMS_IntegrationID,
-		FMESecret:      c.Secret,
-		APIToken:       c.Sidebar_Token,
 	}
 }
 

@@ -2,6 +2,7 @@ package cmsintegrationv2
 
 import (
 	"fmt"
+	"net/url"
 
 	"github.com/eukarya-inc/reearth-plateauview/server/cmsintegration/cmsintegrationcommon"
 	cms "github.com/reearth/reearth-cms-api/go"
@@ -10,8 +11,9 @@ import (
 type Config = cmsintegrationcommon.Config
 
 type Services struct {
-	FME fmeInterface
-	CMS cms.Interface
+	FME       fmeInterface
+	CMS       cms.Interface
+	FMESecret string
 }
 
 func NewServices(c Config) (s Services, _ error) {
@@ -20,7 +22,13 @@ func NewServices(c Config) (s Services, _ error) {
 		if fmeBaseURL == "" {
 			fmeBaseURL = c.FMEBaseURL
 		}
-		fme, err := newFME(fmeBaseURL, c.FMEToken, c.FMEResultURL)
+
+		resultURL, err := url.JoinPath(c.Host, "/notify_fme")
+		if err != nil {
+			return Services{}, fmt.Errorf("failed to init fme: %w", err)
+		}
+
+		fme, err := newFME(fmeBaseURL, c.FMEToken, resultURL)
 		if err != nil {
 			return Services{}, fmt.Errorf("failed to init fme: %w", err)
 		}

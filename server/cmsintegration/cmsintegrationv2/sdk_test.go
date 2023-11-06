@@ -1,4 +1,4 @@
-package sdk
+package cmsintegrationv2
 
 import (
 	"context"
@@ -70,7 +70,7 @@ func TestServices_ReceiveFMEResult(t *testing.T) {
 		FMESecret: "secret",
 	}
 
-	err := s.ReceiveFMEResult(context.Background(), FMEResult{
+	err := s.receiveMaxLODExtractionResult(context.Background(), fmeResult{
 		ID: fmeID{
 			ItemID:    "id",
 			AssetID:   "citygml",
@@ -122,11 +122,11 @@ func TestIsDemIncludedInCSV(t *testing.T) {
 	httpmock.RegisterResponder("GET", "https://example.com/csv2",
 		httpmock.NewStringResponder(200, "a,b,c,d\naaa,bbb,ccc,ddd\n1,2,3,4\n1,dem,3,4\n"))
 
-	res, err := IsDemIncludedInCSV("https://example.com/csv")
+	res, err := isDemIncludedInCSV("https://example.com/csv")
 	assert.NoError(t, err)
 	assert.False(t, res)
 
-	res, err = IsDemIncludedInCSV("https://example.com/csv2")
+	res, err = isDemIncludedInCSV("https://example.com/csv2")
 	assert.NoError(t, err)
 	assert.True(t, res)
 }

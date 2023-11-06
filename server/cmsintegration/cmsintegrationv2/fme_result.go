@@ -44,6 +44,8 @@ type fmeResult struct {
 	ID      string         `json:"id"`
 	LogURL  string         `json:"logUrl"`
 	Results map[string]any `json:"results"`
+	// SDK
+	ResultURL string `json:"resultUrl,omitempty"`
 }
 
 type fmeResultAssets struct {

@@ -2,6 +2,7 @@ package cmsintegrationcommon
 
 type Config struct {
 	// general
+	Host     string
 	Secret   string
 	Debug    bool
 	APIToken string
@@ -18,8 +19,7 @@ type Config struct {
 	// dataconv
 	DisableDataConv bool
 	// FME common
-	FMEMock      bool
-	FMEResultURL string
+	FMEMock bool
 	// FME v3
 	FMEURLV3 string
 

@@ -41,6 +41,10 @@ func WebhookHandler(conf Config) (cmswebhook.Handler, error) {
 		}
 
 		item := ItemFrom(*w.ItemData.Item)
+		item.ProjectID = w.ItemData.Schema.ProjectID
+
+		// SDK
+		s.RequestMaxLODExtraction(ctx, item, item.ProjectID, false)
 
 		// embed dic
 		if item.Dic == "" && item.Dictionary != "" {
