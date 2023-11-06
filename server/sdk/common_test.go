@@ -4,7 +4,6 @@ import (
 	"context"
 	"testing"
 
-	"github.com/eukarya-inc/reearth-plateauview/server/fme"
 	"github.com/jarcoal/httpmock"
 	cms "github.com/reearth/reearth-cms-api/go"
 	"github.com/stretchr/testify/assert"
@@ -48,9 +47,9 @@ func TestServices_RequestMaxLODExtraction(t *testing.T) {
 			},
 		},
 	}}, s.CMS.(*cmsMock).UpdateItemCalls)
-	assert.Equal(t, []fme.Request{
-		fme.MaxLODRequest{
-			ID: fme.ID{
+	assert.Equal(t, []fmeRequest{
+		maxLODRequest{
+			ID: fmeID{
 				ItemID:    "id",
 				AssetID:   "citygml",
 				ProjectID: "project_id",
@@ -72,7 +71,7 @@ func TestServices_ReceiveFMEResult(t *testing.T) {
 	}
 
 	err := s.ReceiveFMEResult(context.Background(), FMEResult{
-		ID: fme.ID{
+		ID: fmeID{
 			ItemID:    "id",
 			AssetID:   "citygml",
 			ProjectID: "project_id",
@@ -193,11 +192,11 @@ func (m *cmsMock) UploadAsset(ctx context.Context, projectID string, url string)
 }
 
 type fmeMock struct {
-	fme.Interface
-	RequestCalls []fme.Request
+	fmeInterface
+	RequestCalls []fmeRequest
 }
 
-func (m *fmeMock) Request(ctx context.Context, req fme.Request) error {
+func (m *fmeMock) Request(ctx context.Context, req fmeRequest) error {
 	m.RequestCalls = append(m.RequestCalls, req)
 	return nil
 }

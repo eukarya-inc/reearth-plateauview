@@ -3,7 +3,6 @@ package cmsintegrationv1
 import (
 	"net/http"
 
-	"github.com/eukarya-inc/reearth-plateauview/server/fme"
 	"github.com/reearth/reearth-cms-api/go/cmswebhook"
 	"github.com/reearth/reearthx/log"
 )
@@ -85,8 +84,8 @@ func WebhookHandler(conf Config) (cmswebhook.Handler, error) {
 			return nil
 		}
 
-		fmeReq := fme.ConversionRequest{
-			ID: fme.ID{
+		fmeReq := ConversionRequest{
+			ID: fmeID{
 				ItemID:    w.ItemData.Item.ID,
 				AssetID:   asset.ID,
 				ProjectID: w.ItemData.Schema.ProjectID,

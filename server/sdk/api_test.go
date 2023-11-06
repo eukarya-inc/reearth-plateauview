@@ -6,7 +6,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/eukarya-inc/reearth-plateauview/server/fme"
 	"github.com/labstack/echo/v4"
 	cms "github.com/reearth/reearth-cms-api/go"
 	"github.com/stretchr/testify/assert"
@@ -62,17 +61,17 @@ func TestRequestHandler(t *testing.T) {
 		},
 	}, s.CMS.(*cmsMock).UpdateItemCalls)
 
-	assert.Equal(t, []fme.Request{
-		fme.MaxLODRequest{
-			ID: fme.ID{
+	assert.Equal(t, []fmeRequest{
+		maxLODRequest{
+			ID: fmeID{
 				ItemID:    "id1",
 				AssetID:   "citygml",
 				ProjectID: "prj",
 			}.String("secret"),
 			Target: "https://example.com/citygml.zip",
 		},
-		fme.MaxLODRequest{
-			ID: fme.ID{
+		maxLODRequest{
+			ID: fmeID{
 				ItemID:    "id2",
 				AssetID:   "citygml",
 				ProjectID: "prj",

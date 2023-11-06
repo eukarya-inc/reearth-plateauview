@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/eukarya-inc/reearth-plateauview/server/fme"
 	"github.com/labstack/echo/v4"
 	cms "github.com/reearth/reearth-cms-api/go"
 	"github.com/reearth/reearthx/log"
@@ -23,7 +22,7 @@ func NotifyHandler(conf Config) (echo.HandlerFunc, error) {
 	return func(c echo.Context) error {
 		ctx := c.Request().Context()
 
-		var f FMEResult
+		var f fmeResult
 		if err := c.Bind(&f); err != nil {
 			log.Info("cmsintegration notify: invalid payload: %w", err)
 			return c.JSON(http.StatusBadRequest, "invalid payload")
@@ -31,7 +30,7 @@ func NotifyHandler(conf Config) (echo.HandlerFunc, error) {
 
 		log.Infofc(ctx, "cmsintegration notify: received: %+v", f)
 
-		id, err := fme.ParseID(f.ID, conf.Secret)
+		id, err := parseFMEID(f.ID, conf.Secret)
 		if err != nil {
 			return c.JSON(http.StatusUnauthorized, "unauthorized")
 		}
@@ -130,7 +129,7 @@ func NotifyHandler(conf Config) (echo.HandlerFunc, error) {
 	}, nil
 }
 
-func commentContent(f FMEResult) string {
+func commentContent(f fmeResult) string {
 	var log string
 	if f.LogURL != "" {
 		log = fmt.Sprintf(" ログ: %s", f.LogURL)
@@ -152,7 +151,7 @@ func commentContent(f FMEResult) string {
 
 const maxRetry = 3
 
-func uploadAssets(ctx context.Context, c cms.Interface, pid string, f FMEResult) (Item, []string, error) {
+func uploadAssets(ctx context.Context, c cms.Interface, pid string, f fmeResult) (Item, []string, error) {
 	result := map[string][]string{}
 	var errors []string
 	res, unknown := f.GetResult()
@@ -202,7 +201,7 @@ type queue struct {
 	Error error
 }
 
-func queueFromResult(res FMEResultAssets) (q []queue) {
+func queueFromResult(res fmeResultAssets) (q []queue) {
 	for _, e := range res.Entries() {
 		for _, v2 := range e.Value {
 			q = append(q, queue{Key: e.Key, Value: v2})

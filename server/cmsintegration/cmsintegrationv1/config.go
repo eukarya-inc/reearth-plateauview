@@ -4,20 +4,19 @@ import (
 	"fmt"
 
 	"github.com/eukarya-inc/reearth-plateauview/server/cmsintegration/cmsintegrationcommon"
-	"github.com/eukarya-inc/reearth-plateauview/server/fme"
 	cms "github.com/reearth/reearth-cms-api/go"
 )
 
 type Config = cmsintegrationcommon.Config
 
 type Services struct {
-	FME fme.Interface
+	FME fmeInterface
 	CMS cms.Interface
 }
 
 func NewServices(c Config) (s Services, _ error) {
 	if !c.FMEMock {
-		fme, err := fme.New(c.FMEBaseURL, c.FMEToken, c.FMEResultURL)
+		fme, err := NewFME(c.FMEBaseURL, c.FMEToken, c.FMEResultURL)
 		if err != nil {
 			return Services{}, fmt.Errorf("failed to init fme: %w", err)
 		}

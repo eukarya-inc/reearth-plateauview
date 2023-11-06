@@ -7,7 +7,6 @@ import (
 	"io"
 	"net/http"
 
-	"github.com/eukarya-inc/reearth-plateauview/server/fme"
 	cms "github.com/reearth/reearth-cms-api/go"
 	"github.com/reearth/reearthx/log"
 )
@@ -27,7 +26,7 @@ type Config struct {
 
 type Services struct {
 	CMS       cms.Interface
-	FME       fme.Interface
+	FME       fmeInterface
 	FMESecret string
 }
 
@@ -37,7 +36,7 @@ func NewServices(conf Config) (*Services, error) {
 		return nil, err
 	}
 
-	fme, err := fme.New(conf.FMEBaseURL, conf.FMEToken, conf.FMEResultURL)
+	fme, err := NewFME(conf.FMEBaseURL, conf.FMEToken, conf.FMEResultURL)
 	if err != nil {
 		return nil, err
 	}
@@ -64,8 +63,8 @@ func (s *Services) RequestMaxLODExtraction(ctx context.Context, item Item, proje
 		return
 	}
 
-	if err := s.FME.Request(ctx, fme.MaxLODRequest{
-		ID: fme.ID{
+	if err := s.FME.Request(ctx, maxLODRequest{
+		ID: fmeID{
 			ItemID:    item.ID,
 			AssetID:   citygml.ID,
 			ProjectID: project,
@@ -84,7 +83,7 @@ func (s *Services) RequestMaxLODExtraction(ctx context.Context, item Item, proje
 }
 
 func (s *Services) ReceiveFMEResult(ctx context.Context, f FMEResult) error {
-	id, err := fme.ParseID(f.ID, s.FMESecret)
+	id, err := parseFMEID(f.ID, s.FMESecret)
 	if err != nil {
 		return ErrInvalidID
 	}

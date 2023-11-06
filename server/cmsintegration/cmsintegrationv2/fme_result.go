@@ -1,6 +1,7 @@
 package cmsintegrationv2
 
 import (
+	"fmt"
 	"sort"
 	"strings"
 
@@ -8,7 +9,36 @@ import (
 	"golang.org/x/exp/slices"
 )
 
-type FMEResult struct {
+type fmeID struct {
+	ItemID    string
+	AssetID   string
+	ProjectID string
+}
+
+func parseFMEID(id, secret string) (fmeID, error) {
+	payload, err := unsignFMEID(id, secret)
+	if err != nil {
+		return fmeID{}, err
+	}
+
+	s := strings.SplitN(payload, ";", 4)
+	if len(s) != 3 {
+		return fmeID{}, ErrInvalidFMEID
+	}
+
+	return fmeID{
+		ItemID:    s[0],
+		AssetID:   s[1],
+		ProjectID: s[2],
+	}, nil
+}
+
+func (i fmeID) String(secret string) string {
+	payload := fmt.Sprintf("%s;%s;%s", i.ItemID, i.AssetID, i.ProjectID)
+	return signFMEID(payload, secret)
+}
+
+type fmeResult struct {
 	Type    string         `json:"type"`
 	Status  string         `json:"status"`
 	ID      string         `json:"id"`
@@ -16,7 +46,7 @@ type FMEResult struct {
 	Results map[string]any `json:"results"`
 }
 
-type FMEResultAssets struct {
+type fmeResultAssets struct {
 	All  string
 	Dic  string
 	Bldg []string
@@ -32,7 +62,7 @@ type FMEResultAssets struct {
 	Ifld []string
 }
 
-func (b FMEResult) GetResult() (r FMEResultAssets, unknown []string) {
+func (b fmeResult) GetResult() (r fmeResultAssets, unknown []string) {
 	for k, v := range b.Results {
 		if strings.HasPrefix(k, "bldg") {
 			if v2, ok := v.(string); ok {
@@ -93,7 +123,7 @@ func (b FMEResult) GetResult() (r FMEResultAssets, unknown []string) {
 	return
 }
 
-func (d FMEResult) GetDic() string {
+func (d fmeResult) GetDic() string {
 	for k, v := range d.Results {
 		if k == "_dic" {
 			if v2, ok := v.(string); ok {
@@ -126,7 +156,7 @@ func getFld(o any) (r []string) {
 	return
 }
 
-func (a FMEResultAssets) Entries() (s []lo.Entry[string, []string]) {
+func (a fmeResultAssets) Entries() (s []lo.Entry[string, []string]) {
 	if a.All != "" {
 		s = append(s, lo.Entry[string, []string]{
 			Key:   "all",

@@ -2,20 +2,18 @@ package cmsintegrationv2
 
 import (
 	"net/http"
+	"strings"
 
 	"github.com/reearth/reearth-cms-api/go/cmswebhook"
 	"github.com/reearth/reearthx/log"
-)
-
-const (
-	modelKey = "plateau" // TODO
+	"golang.org/x/exp/slices"
 )
 
 func WebhookHandler(conf Config) (cmswebhook.Handler, error) {
-	// s, err := NewServices(conf)
-	// if err != nil {
-	// 	return nil, err
-	// }
+	s, err := NewServices(conf)
+	if err != nil {
+		return nil, err
+	}
 
 	return func(req *http.Request, w *cmswebhook.Payload) error {
 		ctx := req.Context()
@@ -35,12 +33,39 @@ func WebhookHandler(conf Config) (cmswebhook.Handler, error) {
 			return nil
 		}
 
-		if w.ItemData.Model.Key != modelKey {
+		if !strings.HasPrefix(w.ItemData.Model.Key, modelPrefix) {
 			log.Debugfc(ctx, "cmsintegrationv2 webhook: invalid model id: %s, key: %s", w.ItemData.Item.ModelID, w.ItemData.Model.Key)
 			return nil
 		}
 
-		// TODO
+		if len(w.ItemData.Changes) == 0 {
+			log.Debugfc(ctx, "cmsintegrationv2 webhook: no changes")
+			return nil
+		}
+
+		modelName := strings.TrimPrefix(w.ItemData.Model.Key, modelPrefix)
+		var err error
+
+		if modelName == relatedModel {
+			err = convertRelatedDataset(ctx, s, w)
+			if err == nil {
+				err = packageRelatedDatasetForGeospatialjp(ctx, s, w)
+			}
+		} else if slices.Contains(featureTypes, modelName) {
+			err = sendRequestToFME(ctx, s, w)
+			if err == nil {
+				err = buildSearchIndex(ctx, s, w)
+			}
+		} else if modelName == cityModel {
+			err = preparePackagesForGeospatialjp(ctx, s, w)
+			if err == nil {
+				err = publishPackagesForGeospatialjp(ctx, s, w)
+			}
+		}
+
+		if err != nil {
+			log.Errorfc(ctx, "cmsintegrationv2 webhook: failed to process event: %w", err)
+		}
 
 		return nil
 	}, nil

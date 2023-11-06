@@ -4,6 +4,7 @@ import (
 	cms "github.com/reearth/reearth-cms-api/go"
 )
 
+const modelPrefix = "plateau-"
 const cityModel = "city"
 const relatedModel = "relevant"
 const genericModel = "usecase"

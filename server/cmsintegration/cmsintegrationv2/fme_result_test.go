@@ -7,8 +7,15 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestFMEID(t *testing.T) {
+	i := fmeID{ItemID: "item", AssetID: "asset", ProjectID: "project"}
+	assert.Equal(t, i, lo.Must(parseFMEID(i.String("aaa"), "aaa")))
+	_, err := parseFMEID(i.String("aaa"), "aaa2")
+	assert.Same(t, ErrInvalidFMEID, err)
+}
+
 func TestFMEResult_GetResult(t *testing.T) {
-	r, u := FMEResult{
+	r, u := fmeResult{
 		Results: map[string]any{
 			"*":                                         "https://example.com",
 			"_dic":                                      "https://example.com/04100_sendai-shi_2022_citygml_1/dic.json",
@@ -58,7 +65,7 @@ func TestFMEResult_GetResult(t *testing.T) {
 			"unknown":                                   "hoge",
 		},
 	}.GetResult()
-	assert.Equal(t, FMEResultAssets{
+	assert.Equal(t, fmeResultAssets{
 		All: "https://example.com",
 		Dic: "https://example.com/04100_sendai-shi_2022_citygml_1/dic.json",
 		Bldg: []string{
@@ -115,7 +122,7 @@ func TestFMEResult_GetResult(t *testing.T) {
 }
 
 func TestFMEResultAsset_Entries(t *testing.T) {
-	a := FMEResultAssets{
+	a := fmeResultAssets{
 		All: "https://example.com",
 		Dic: "https://example.com/04100_sendai-shi_2022_citygml_1/dic.json",
 		Bldg: []string{
