@@ -36,7 +36,7 @@ func NewServices(conf Config) (*Services, error) {
 		return nil, err
 	}
 
-	fme, err := NewFME(conf.FMEBaseURL, conf.FMEToken, conf.FMEResultURL)
+	fme, err := newFME(conf.FMEBaseURL, conf.FMEToken, conf.FMEResultURL)
 	if err != nil {
 		return nil, err
 	}

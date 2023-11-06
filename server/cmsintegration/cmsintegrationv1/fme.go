@@ -53,7 +53,7 @@ type fme struct {
 	client    *http.Client
 }
 
-func NewFME(baseUrl, token, resultURL string) (*fme, error) {
+func newFME(baseUrl, token, resultURL string) (*fme, error) {
 	b, err := url.Parse(baseUrl)
 	if err != nil {
 		return nil, fmt.Errorf("invalid base url: %w", err)

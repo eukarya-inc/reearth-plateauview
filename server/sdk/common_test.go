@@ -192,7 +192,6 @@ func (m *cmsMock) UploadAsset(ctx context.Context, projectID string, url string)
 }
 
 type fmeMock struct {
-	fmeInterface
 	RequestCalls []fmeRequest
 }
 
