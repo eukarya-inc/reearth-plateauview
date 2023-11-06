@@ -7,8 +7,6 @@ import (
 
 	"github.com/eukarya-inc/reearth-plateauview/server/cmsintegration"
 	"github.com/eukarya-inc/reearth-plateauview/server/datacatalog"
-	"github.com/eukarya-inc/reearth-plateauview/server/dataconv"
-	"github.com/eukarya-inc/reearth-plateauview/server/geospatialjp"
 	"github.com/eukarya-inc/reearth-plateauview/server/opinion"
 	"github.com/eukarya-inc/reearth-plateauview/server/plateaucms"
 	"github.com/eukarya-inc/reearth-plateauview/server/sdk"
@@ -89,18 +87,26 @@ func (c *Config) Print() string {
 
 func (c *Config) CMSIntegration() cmsintegration.Config {
 	return cmsintegration.Config{
-		FMEMock:             c.FME_Mock,
-		FMEBaseURL:          c.FME_BaseURL,
-		FMEToken:            c.FME_Token,
-		FMEBaseURLV2:        c.FME_BaseURL_V2,
-		FMEURLV3:            c.FME_URL_V3,
-		FMEResultURL:        util.DR(url.JoinPath(c.Host, "notify_fme")),
-		FMESkipQualityCheck: c.FME_SkipQualityCheck,
-		CMSBaseURL:          c.CMS_BaseURL,
-		CMSToken:            c.CMS_Token,
-		CMSIntegration:      c.CMS_IntegrationID,
-		Secret:              c.Secret,
-		Debug:               c.Debug,
+		FMEMock:                         c.FME_Mock,
+		FMEBaseURL:                      c.FME_BaseURL,
+		FMEToken:                        c.FME_Token,
+		FMEBaseURLV2:                    c.FME_BaseURL_V2,
+		FMEURLV3:                        c.FME_URL_V3,
+		FMEResultURL:                    util.DR(url.JoinPath(c.Host, "notify_fme")),
+		FMESkipQualityCheck:             c.FME_SkipQualityCheck,
+		CMSBaseURL:                      c.CMS_BaseURL,
+		CMSToken:                        c.CMS_Token,
+		CMSIntegration:                  c.CMS_IntegrationID,
+		Secret:                          c.Secret,
+		Debug:                           c.Debug,
+		CkanBaseURL:                     c.Ckan_BaseURL,
+		CkanOrg:                         c.Ckan_Org,
+		CkanToken:                       c.Ckan_Token,
+		CkanPrivate:                     c.Ckan_Private,
+		DisableGeospatialjpPublication:  c.Geospatialjp_Publication_Disable,
+		DisableGeospatialjpCatalogCheck: c.Geospatialjp_CatalocCheck_Disable,
+		DisableDataConv:                 c.DataConv_Disable,
+		APIToken:                        c.Sidebar_Token,
 	}
 }
 
@@ -152,43 +158,16 @@ func (c *Config) Opinion() opinion.Config {
 	}
 }
 
-func (c *Config) Geospatialjp() geospatialjp.Config {
-	return geospatialjp.Config{
-		CkanBase:            c.Ckan_BaseURL,
-		CkanOrg:             c.Ckan_Org,
-		CkanToken:           c.Ckan_Token,
-		CkanPrivate:         c.Ckan_Private,
-		CMSToken:            c.CMS_Token,
-		CMSBase:             c.CMS_BaseURL,
-		CMSIntegration:      c.CMS_IntegrationID,
-		DisablePublication:  c.Geospatialjp_Publication_Disable,
-		DisableCatalogCheck: c.Geospatialjp_CatalocCheck_Disable,
-		PublicationToken:    c.Sidebar_Token,
-		// EnablePulicationOnWebhook: c.Geospatialjp_EnablePulicationOnWebhook,
-	}
-}
-
-func (c *Config) PLATEAUCMS() plateaucms.Config {
-	return plateaucms.Config{
-		CMSBaseURL:      c.CMS_BaseURL,
-		CMSMainToken:    c.CMS_Token,
-		CMSTokenProject: c.CMS_TokenProject,
-		// compat
-		CMSMainProject: c.CMS_SystemProject,
-		AdminToken:     c.Sidebar_Token,
-	}
-}
-
 func (c *Config) Sidebar() sidebar.Config {
 	return sidebar.Config{
-		Config:       c.PLATEAUCMS(),
+		Config:       c.plateauCMS(),
 		DisableShare: c.Share_Disable,
 	}
 }
 
 func (c *Config) DataCatalog() datacatalog.Config {
 	return datacatalog.Config{
-		Config:               c.PLATEAUCMS(),
+		Config:               c.plateauCMS(),
 		CMSBase:              c.CMS_BaseURL,
 		DisableCache:         c.DataCatalog_DisableCache,
 		CacheTTL:             c.DataCatalog_CacheTTL,
@@ -198,12 +177,13 @@ func (c *Config) DataCatalog() datacatalog.Config {
 	}
 }
 
-func (c *Config) DataConv() dataconv.Config {
-	return dataconv.Config{
-		Disable:  c.DataConv_Disable,
-		CMSBase:  c.CMS_BaseURL,
-		CMSToken: c.CMS_Token,
-		APIToken: c.Sidebar_Token,
-		// CMSModel: ,
+func (c *Config) plateauCMS() plateaucms.Config {
+	return plateaucms.Config{
+		CMSBaseURL:      c.CMS_BaseURL,
+		CMSMainToken:    c.CMS_Token,
+		CMSTokenProject: c.CMS_TokenProject,
+		// compat
+		CMSMainProject: c.CMS_SystemProject,
+		AdminToken:     c.Sidebar_Token,
 	}
 }

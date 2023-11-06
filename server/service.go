@@ -5,8 +5,6 @@ import (
 
 	"github.com/eukarya-inc/reearth-plateauview/server/cmsintegration"
 	"github.com/eukarya-inc/reearth-plateauview/server/datacatalog"
-	"github.com/eukarya-inc/reearth-plateauview/server/dataconv"
-	"github.com/eukarya-inc/reearth-plateauview/server/geospatialjp"
 	"github.com/eukarya-inc/reearth-plateauview/server/opinion"
 	"github.com/eukarya-inc/reearth-plateauview/server/sdk"
 	"github.com/eukarya-inc/reearth-plateauview/server/sdkapi"
@@ -26,14 +24,12 @@ type Service struct {
 
 var services = [](func(*Config) (*Service, error)){
 	CMSIntegration,
-	Geospatialjp,
 	SDK,
 	SDKAPI,
 	SearchIndex,
 	Opinion,
 	Sidebar,
 	DataCatalog,
-	DataConv,
 }
 
 func Services(conf *Config) (srv []*Service, _ error) {
@@ -56,11 +52,6 @@ func CMSIntegration(conf *Config) (*Service, error) {
 		return nil, nil
 	}
 
-	e, err := cmsintegration.NotifyHandler(c)
-	if err != nil {
-		return nil, err
-	}
-
 	w, err := cmsintegration.WebhookHandler(c)
 	if err != nil {
 		return nil, err
@@ -69,37 +60,7 @@ func CMSIntegration(conf *Config) (*Service, error) {
 	return &Service{
 		Name: "cmsintegration",
 		Echo: func(g *echo.Group) error {
-			g.POST("/notify_fme", e)
-			return nil
-		},
-		Webhook: w,
-	}, nil
-}
-
-func Geospatialjp(conf *Config) (*Service, error) {
-	c := conf.Geospatialjp()
-	if c.CMSBase == "" || c.CMSToken == "" || c.CkanBase == "" || c.CkanToken == "" || c.CkanOrg == "" {
-		return nil, nil
-	}
-
-	e, err := geospatialjp.Handler(c)
-	if err != nil {
-		return nil, err
-	}
-
-	w, err := geospatialjp.WebhookHandler(c)
-	if err != nil {
-		return nil, err
-	}
-	if w == nil {
-		return nil, nil
-	}
-
-	return &Service{
-		Name: "geospatialjp",
-		Echo: func(g *echo.Group) error {
-			g.POST("/publish_to_geospatialjp", e)
-			return nil
+			return cmsintegration.Handler(c, g)
 		},
 		Webhook: w,
 	}, nil
@@ -214,37 +175,5 @@ func DataCatalog(conf *Config) (*Service, error) {
 			return datacatalog.Echo(c, g.Group("/datacatalog"))
 		},
 		DisableNoCache: true,
-	}, nil
-}
-
-func DataConv(conf *Config) (*Service, error) {
-	c := conf.DataConv()
-	if c.CMSBase == "" || c.CMSToken == "" {
-		return nil, nil
-	}
-
-	w, err := dataconv.WebhookHandler(c)
-	if err != nil {
-		return nil, err
-	}
-
-	api, err := dataconv.Handler(c)
-	if err != nil {
-		return nil, err
-	}
-
-	if w == nil && api == nil {
-		return nil, nil
-	}
-
-	return &Service{
-		Name:    "dataconv",
-		Webhook: w,
-		Echo: func(g *echo.Group) error {
-			if api != nil {
-				g.POST("/dataconv", echo.WrapHandler(api))
-			}
-			return nil
-		},
 	}, nil
 }

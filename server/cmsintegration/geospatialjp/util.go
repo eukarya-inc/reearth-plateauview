@@ -8,7 +8,7 @@ import (
 	"regexp"
 	"strconv"
 
-	"github.com/eukarya-inc/reearth-plateauview/server/geospatialjp/ckan"
+	"github.com/eukarya-inc/reearth-plateauview/server/cmsintegration/geospatialjp/ckan"
 	"github.com/pkg/errors"
 	"github.com/samber/lo"
 	"github.com/vincent-petithory/dataurl"
