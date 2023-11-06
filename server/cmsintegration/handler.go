@@ -14,12 +14,12 @@ type Config = cmsintegrationcommon.Config
 
 func Handler(conf Config, g *echo.Group) error {
 	// v3
-	v3, err := cmsintegrationv3.NotifyHandler(conf)
+	v3, err := cmsintegrationv3.Handler(conf)
 	if err != nil {
 		return err
 	}
 
-	g.POST("/notify_fme/v3", v3)
+	g.POST(cmsintegrationv3.HandlerPath, v3)
 
 	// v2 (compat)
 	return compatHandler(conf, g)
@@ -53,16 +53,19 @@ func WebhookHandler(conf Config) (cmswebhook.Handler, error) {
 		return nil, err
 	}
 
+	// compat
 	h2, err := cmsintegrationv2.WebhookHandler(conf)
 	if err != nil {
 		return nil, err
 	}
 
+	// compat
 	h3, err := geospatialjp.WebhookHandler(geospatialjpConfig(conf))
 	if err != nil {
 		return nil, err
 	}
 
+	// compat
 	h4, err := dataconv.WebhookHandler(dataConvConfig(conf))
 	if err != nil {
 		return nil, err

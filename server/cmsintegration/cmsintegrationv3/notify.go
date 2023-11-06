@@ -7,7 +7,7 @@ import (
 	"github.com/reearth/reearthx/log"
 )
 
-func NotifyHandler(conf Config) (echo.HandlerFunc, error) {
+func Handler(conf Config) (echo.HandlerFunc, error) {
 	s, err := NewServices(conf)
 	if err != nil {
 		return nil, err
@@ -24,7 +24,7 @@ func NotifyHandler(conf Config) (echo.HandlerFunc, error) {
 
 		log.Infofc(ctx, "cmsintegrationv2 notify: received: %+v", f)
 
-		if err := receiveResultFromFME(ctx, s, f); err != nil {
+		if err := receiveResultFromFME(ctx, s, &conf, f); err != nil {
 			log.Infofc(ctx, "cmsintegrationv2 notify: failed to receive result from fme: %w", err)
 			return c.JSON(http.StatusInternalServerError, "failed to receive result from fme")
 		}

@@ -72,6 +72,7 @@ type CityItem struct {
 	ID                   string            `json:"id,omitempty" cms:"id"`
 	Prefecture           string            `json:"prefecture,omitempty" cms:"prefecture,select"`
 	CityName             string            `json:"city_name,omitempty" cms:"city_name,text"`
+	CityCode             string            `json:"city_code,omitempty" cms:"city_code,text"`
 	SpecificationVersion string            `json:"spec,omitempty" cms:"spec,select"`
 	OpenDataUrl          string            `json:"open_data_url,omitempty" cms:"open_data_url,url"`
 	PRCS                 string            `json:"prcs,omitempty" cms:"prcs,select"`
@@ -87,8 +88,11 @@ type CityItem struct {
 	Public            map[string]bool `json:"public,omitempty" cms:"-"`
 }
 
-func CityItemFrom(item cms.Item) (i CityItem) {
-	item.Unmarshal(&i)
+func CityItemFrom(item *cms.Item) (i CityItem) {
+	if item == nil {
+		item = &cms.Item{}
+	}
+	item.Unmarshal(i)
 
 	references := map[string]string{}
 	public := map[string]bool{}
@@ -107,7 +111,7 @@ func CityItemFrom(item cms.Item) (i CityItem) {
 	return
 }
 
-func (i CityItem) Fields() (fields []*cms.Field) {
+func (i CityItem) CMSItem() *cms.Item {
 	item := &cms.Item{}
 	cms.Marshal(i, item)
 
@@ -129,10 +133,10 @@ func (i CityItem) Fields() (fields []*cms.Field) {
 		}
 	}
 
-	return item.Fields
+	return item
 }
 
-type Item struct {
+type FeatureItem struct {
 	ID          string   `json:"id,omitempty" cms:"id"`
 	City        string   `json:"city,omitempty" cms:"city,reference"`
 	CityGML     string   `json:"citygml,omitempty" cms:"citygml,asset"`
@@ -141,6 +145,7 @@ type Item struct {
 	Rivers      []River  `json:"rivers,omitempty" cms:"rivers,group"`
 	QAResult    string   `json:"qaresult,omitempty" cms:"qa-result,asset"`
 	SearchIndex string   `json:"searchindex,omitempty" cms:"search-index,asset"`
+	Dic         string   `json:"dic,omitempty" cms:"dic,asset"`
 	MaxLOD      string   `json:"maxlod,omitempty" cms:"maxlod,asset"`
 	// metadata
 	Status            ManagementStatus `json:"status,omitempty" cms:"status,select,metadata"`
@@ -157,15 +162,18 @@ type River struct {
 	Desc string   `json:"desc,omitempty" cms:"desc,textarea"`
 }
 
-func ItemFrom(item cms.Item) (i Item) {
-	item.Unmarshal(&i)
+func FeatureItemFrom(item *cms.Item) (i FeatureItem) {
+	if item == nil {
+		item = &cms.Item{}
+	}
+	item.Unmarshal(i)
 	return
 }
 
-func (i Item) Fields() (fields []*cms.Field) {
+func (i FeatureItem) CMSItem() *cms.Item {
 	item := &cms.Item{}
 	cms.Marshal(i, item)
-	return item.Fields
+	return item
 }
 
 type GenericItem struct {
@@ -193,33 +201,50 @@ type GenericItemDataset struct {
 	DataFormat string `json:"data-format,omitempty" cms:"data-format,select"`
 }
 
-func GenericItemFrom(item cms.Item) (i GenericItem) {
-	item.Unmarshal(&i)
+func GenericItemFrom(item *cms.Item) (i GenericItem) {
+	if item == nil {
+		item = &cms.Item{}
+	}
+	item.Unmarshal(i)
 	return
 }
 
-func (i GenericItem) Fields() (fields []*cms.Field) {
+func (i GenericItem) CMSItem() *cms.Item {
 	item := &cms.Item{}
 	cms.Marshal(i, item)
-	return item.Fields
+	return item
 }
 
 type RelatedItem struct {
-	ID         string            `json:"id,omitempty" cms:"id"`
-	Prefecture string            `json:"prefecture,omitempty" cms:"prefecture,select"`
-	CityName   string            `json:"city-name,omitempty" cms:"city_name,text"`
-	Assets     map[string]string `json:"assets,omitempty" cms:"-"`
+	ID              string            `json:"id,omitempty" cms:"id"`
+	Prefecture      string            `json:"prefecture,omitempty" cms:"prefecture,select"`
+	CityName        string            `json:"city-name,omitempty" cms:"city_name,text"`
+	City            string            `json:"city,omitempty" cms:"city,reference"`
+	Assets          map[string]string `json:"assets,omitempty" cms:"-"`
+	ConvertedAssets map[string]string `json:"converted-assets,omitempty" cms:"-"`
 	// metadata
-	Status map[string]ManagementStatus `json:"status,omitempty" cms:"-"`
-	Public map[string]bool             `json:"public,omitempty" cms:"-"`
+	Status       map[string]ManagementStatus `json:"status,omitempty" cms:"-"`
+	ConverStatus map[string]ConvertionStatus `json:"convert-status,omitempty" cms:"-"`
+	Public       map[string]bool             `json:"public,omitempty" cms:"-"`
 }
 
-func RelatedItemFrom(item cms.Item) (i RelatedItem) {
-	item.Unmarshal(&i)
+func RelatedItemFrom(item *cms.Item) (i RelatedItem) {
+	if item == nil {
+		item = &cms.Item{}
+	}
+	item.Unmarshal(i)
 
 	for _, t := range relatedDataTypes {
-		if asset := item.MetadataFieldByKey(t).GetValue().String(); asset != nil {
+		if asset := item.FieldByKey(t).GetValue().String(); asset != nil {
 			i.Assets[t] = *asset
+		}
+
+		if convertedAsset := item.FieldByKey(t + "-converted-data").GetValue().String(); convertedAsset != nil {
+			i.ConvertedAssets[t] = *convertedAsset
+		}
+
+		if conv := item.MetadataFieldByKey(t + "-convert-status").GetValue().String(); conv != nil {
+			i.ConvertedAssets[t] = *conv
 		}
 
 		if pub := item.MetadataFieldByKey(t + "-public").GetValue().Bool(); pub != nil {
@@ -230,7 +255,7 @@ func RelatedItemFrom(item cms.Item) (i RelatedItem) {
 	return
 }
 
-func (i RelatedItem) Fields() (fields []*cms.Field) {
+func (i RelatedItem) CMSItem() *cms.Item {
 	item := &cms.Item{}
 	cms.Marshal(i, item)
 
@@ -252,7 +277,7 @@ func (i RelatedItem) Fields() (fields []*cms.Field) {
 		}
 	}
 
-	return item.Fields
+	return item
 }
 
 type GeospatialjpIndexItem struct {
@@ -266,15 +291,18 @@ type GeospatialjpIndexItem struct {
 	Status ManagementStatus `json:"status,omitempty" cms:"status,select,metadata"`
 }
 
-func GeospatialjpIndexItemFrom(item cms.Item) (i GeospatialjpIndexItem) {
-	item.Unmarshal(&i)
+func GeospatialjpIndexItemFrom(item *cms.Item) (i GeospatialjpIndexItem) {
+	if item == nil {
+		item = &cms.Item{}
+	}
+	item.Unmarshal(i)
 	return
 }
 
-func (i GeospatialjpIndexItem) Fields() (fields []*cms.Field) {
+func (i GeospatialjpIndexItem) CMSItem() *cms.Item {
 	item := &cms.Item{}
 	cms.Marshal(i, item)
-	return item.Fields
+	return item
 }
 
 type GeospatialjpDataItem struct {
@@ -290,13 +318,16 @@ type GeospatialjpDataItem struct {
 	RelatedDataMergeStatus    ConvertionStatus `json:"related-data-merge-status,omitempty" cms:"related-data-merge-status,select,metadata"`
 }
 
-func GeospatialjpDataItemFrom(item cms.Item) (i GeospatialjpDataItem) {
-	item.Unmarshal(&i)
+func GeospatialjpDataItemFrom(item *cms.Item) (i GeospatialjpDataItem) {
+	if item == nil {
+		item = &cms.Item{}
+	}
+	item.Unmarshal(i)
 	return
 }
 
-func (i GeospatialjpDataItem) Fields() (fields []*cms.Field) {
+func (i GeospatialjpDataItem) CMSItem() *cms.Item {
 	item := &cms.Item{}
 	cms.Marshal(i, item)
-	return item.Fields
+	return item
 }

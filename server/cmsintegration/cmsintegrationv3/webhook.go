@@ -52,7 +52,7 @@ func WebhookHandler(conf Config) (cmswebhook.Handler, error) {
 				err = packageRelatedDatasetForGeospatialjp(ctx, s, w)
 			}
 		} else if slices.Contains(featureTypes, modelName) {
-			err = sendRequestToFME(ctx, s, w)
+			err = sendRequestToFME(ctx, s, &conf, w)
 			if err == nil {
 				err = buildSearchIndex(ctx, s, w)
 			}
