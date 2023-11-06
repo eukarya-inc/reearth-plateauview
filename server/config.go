@@ -38,6 +38,8 @@ type Config struct {
 	CMS_SystemProject                 string
 	CMS_TokenProject                  string
 	FME_BaseURL                       string
+	FME_BaseURL_V2                    string
+	FME_URL_V3                        string
 	FME_Mock                          bool
 	FME_Token                         string
 	FME_SkipQualityCheck              bool
@@ -90,6 +92,8 @@ func (c *Config) CMSIntegration() cmsintegration.Config {
 		FMEMock:             c.FME_Mock,
 		FMEBaseURL:          c.FME_BaseURL,
 		FMEToken:            c.FME_Token,
+		FMEBaseURLV2:        c.FME_BaseURL_V2,
+		FMEURLV3:            c.FME_URL_V3,
 		FMEResultURL:        util.DR(url.JoinPath(c.Host, "notify_fme")),
 		FMESkipQualityCheck: c.FME_SkipQualityCheck,
 		CMSBaseURL:          c.CMS_BaseURL,
