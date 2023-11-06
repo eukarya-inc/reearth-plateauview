@@ -1,4 +1,4 @@
-package cmsintegrationv1
+package cmsintegrationv3
 
 import (
 	"testing"

@@ -1,4 +1,4 @@
-package cmsintegrationv1
+package cmsintegrationv2
 
 import (
 	"github.com/eukarya-inc/reearth-plateauview/server/cmsintegration/cmsintegrationcommon"

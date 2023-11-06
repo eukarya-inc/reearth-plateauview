@@ -2,11 +2,13 @@ package cmsintegrationv2
 
 import (
 	"net/http"
-	"strings"
 
 	"github.com/reearth/reearth-cms-api/go/cmswebhook"
 	"github.com/reearth/reearthx/log"
-	"golang.org/x/exp/slices"
+)
+
+const (
+	modelKey = "plateau"
 )
 
 func WebhookHandler(conf Config) (cmswebhook.Handler, error) {
@@ -19,53 +21,102 @@ func WebhookHandler(conf Config) (cmswebhook.Handler, error) {
 		ctx := req.Context()
 
 		if !w.Operator.IsUser() && w.Operator.IsIntegrationBy(conf.CMSIntegration) {
-			log.Debugfc(ctx, "cmsintegrationv2 webhook: invalid event operator: %+v", w.Operator)
+			log.Debugfc(ctx, "cmsintegration webhook: invalid event operator: %+v", w.Operator)
 			return nil
 		}
 
 		if w.Type != cmswebhook.EventItemCreate && w.Type != cmswebhook.EventItemUpdate {
-			log.Debugfc(ctx, "cmsintegrationv2 webhook: invalid event type: %s", w.Type)
+			log.Debugfc(ctx, "cmsintegration webhook: invalid event type: %s", w.Type)
 			return nil
 		}
 
 		if w.ItemData == nil || w.ItemData.Item == nil || w.ItemData.Model == nil {
-			log.Debugfc(ctx, "cmsintegrationv2 webhook: invalid event data: %+v", w.Data)
+			log.Debugfc(ctx, "cmsintegration webhook: invalid event data: %+v", w.Data)
 			return nil
 		}
 
-		if !strings.HasPrefix(w.ItemData.Model.Key, modelPrefix) {
-			log.Debugfc(ctx, "cmsintegrationv2 webhook: invalid model id: %s, key: %s", w.ItemData.Item.ModelID, w.ItemData.Model.Key)
+		if w.ItemData.Model.Key != modelKey {
+			log.Debugfc(ctx, "cmsintegration webhook: invalid model id: %s, key: %s", w.ItemData.Item.ModelID, w.ItemData.Model.Key)
 			return nil
 		}
 
-		if len(w.ItemData.Changes) == 0 {
-			log.Debugfc(ctx, "cmsintegrationv2 webhook: no changes")
+		item := ItemFrom(*w.ItemData.Item)
+
+		// embed dic
+		if item.Dic == "" && item.Dictionary != "" {
+			if dicAsset, err := s.CMS.Asset(ctx, item.Dictionary); err != nil {
+				log.Errorfc(ctx, "cmsintegration webhook: failed to get dic asset: %v", err)
+			} else if d, err := readDic(ctx, dicAsset.URL); err != nil {
+				log.Errorfc(ctx, "cmsintegration webhook: failed to read dic: %v", err)
+			} else if _, err = s.CMS.UpdateItem(ctx, item.ID, Item{
+				Dic: d,
+			}.Fields(), nil); err != nil {
+				log.Errorfc(ctx, "cmsintegration webhook: failed to update dic: %v", err)
+			} else {
+				item.Dic = d
+				log.Infofc(ctx, "cmsintegration webhook: dic embedded to %s", item.ID)
+			}
+		}
+
+		if !item.ConversionEnabled.Enabled() {
+			log.Infofc(ctx, "cmsintegration webhook: convertion disabled: %+v", item)
 			return nil
 		}
 
-		modelName := strings.TrimPrefix(w.ItemData.Model.Key, modelPrefix)
-		var err error
-
-		if modelName == relatedModel {
-			err = convertRelatedDataset(ctx, s, w)
-			if err == nil {
-				err = packageRelatedDatasetForGeospatialjp(ctx, s, w)
-			}
-		} else if slices.Contains(featureTypes, modelName) {
-			err = sendRequestToFME(ctx, s, w)
-			if err == nil {
-				err = buildSearchIndex(ctx, s, w)
-			}
-		} else if modelName == cityModel {
-			err = preparePackagesForGeospatialjp(ctx, s, w)
-			if err == nil {
-				err = publishPackagesForGeospatialjp(ctx, s, w)
-			}
+		if item.ConversionStatus == StatusOK {
+			log.Infofc(ctx, "cmsintegration webhook: convertion already done: %+v", item)
+			return nil
 		}
 
-		if err != nil {
-			log.Errorfc(ctx, "cmsintegrationv2 webhook: failed to process event: %w", err)
+		if item.ConversionStatus == StatusProcessing {
+			log.Infofc(ctx, "cmsintegration webhook: convertion processing: %+v", item)
+			return nil
 		}
+
+		if item.CityGML == "" {
+			log.Infofc(ctx, "cmsintegration webhook: invalid field value: %+v", item)
+			return nil
+		}
+
+		asset, err := s.CMS.Asset(ctx, item.CityGML)
+		if err != nil || asset == nil || asset.ID == "" {
+			log.Infofc(ctx, "cmsintegration webhook: cannot fetch asset: %w", err)
+			return nil
+		}
+
+		fmeReq := ConversionRequest{
+			ID: fmeID{
+				ItemID:    w.ItemData.Item.ID,
+				AssetID:   asset.ID,
+				ProjectID: w.ItemData.Schema.ProjectID,
+			}.String(conf.Secret),
+			Target:             asset.URL,
+			PRCS:               item.PRCS.ESPGCode(),
+			DevideODC:          item.DevideODC.Enabled(),
+			QualityCheckParams: item.QualityCheckParams,
+			QualityCheck:       !conf.FMESkipQualityCheck,
+		}
+
+		if s.FME == nil {
+			log.Infofc(ctx, "webhook: fme mocked: %+v", fmeReq)
+		} else if err := s.FME.Request(ctx, fmeReq); err != nil {
+			log.Errorfc(ctx, "cmsintegration webhook: failed to request fme: %s", err)
+			return nil
+		}
+
+		if _, err := s.CMS.UpdateItem(ctx, item.ID, Item{
+			ConversionStatus: StatusProcessing,
+		}.Fields(), nil); err != nil {
+			log.Errorfc(ctx, "cmsintegration webhook: failed to update item: %w", err)
+			return nil
+		}
+
+		if err := s.CMS.CommentToItem(ctx, item.ID, "CityGMLの品質検査及び3D Tilesへの変換を開始しました。"); err != nil {
+			log.Errorfc(ctx, "cmsintegration webhook: failed to comment: %s", err)
+			return nil
+		}
+
+		log.Infofc(ctx, "cmsintegration webhook: done")
 
 		return nil
 	}, nil

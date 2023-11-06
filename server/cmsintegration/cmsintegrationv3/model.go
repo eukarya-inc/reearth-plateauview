@@ -1,4 +1,4 @@
-package cmsintegrationv2
+package cmsintegrationv3
 
 import (
 	cms "github.com/reearth/reearth-cms-api/go"

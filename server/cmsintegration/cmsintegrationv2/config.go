@@ -1,7 +1,6 @@
 package cmsintegrationv2
 
 import (
-	"errors"
 	"fmt"
 
 	"github.com/eukarya-inc/reearth-plateauview/server/cmsintegration/cmsintegrationcommon"
@@ -15,21 +14,22 @@ type Services struct {
 	CMS cms.Interface
 }
 
-func NewServices(c Config) (s *Services, _ error) {
-	s = &Services{}
-
+func NewServices(c Config) (s Services, _ error) {
 	if !c.FMEMock {
-		fmeURL := c.FMEURLV3
-		if fmeURL == "" {
-			return nil, errors.New("FME URL is not set")
+		fmeBaseURL := c.FMEBaseURLV2
+		if fmeBaseURL == "" {
+			fmeBaseURL = c.FMEBaseURL
 		}
-		fme := newFME(fmeURL, c.FMEResultURL, c.FMESkipQualityCheck)
+		fme, err := newFME(fmeBaseURL, c.FMEToken, c.FMEResultURL)
+		if err != nil {
+			return Services{}, fmt.Errorf("failed to init fme: %w", err)
+		}
 		s.FME = fme
 	}
 
 	cms, err := cms.New(c.CMSBaseURL, c.CMSToken)
 	if err != nil {
-		return nil, fmt.Errorf("failed to init cms: %w", err)
+		return Services{}, fmt.Errorf("failed to init cms: %w", err)
 	}
 	s.CMS = cms
 
