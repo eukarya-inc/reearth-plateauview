@@ -14,7 +14,7 @@ require (
 	github.com/mitchellh/mapstructure v1.5.0
 	github.com/paulmach/go.geojson v1.4.0
 	github.com/reearth/go3dtiles v0.0.0-20230612053146-a6d07c1ab855
-	github.com/reearth/reearth-cms-api/go v0.0.0-20231106091134-42a65a7d352f
+	github.com/reearth/reearth-cms-api/go v0.0.0-20231107030459-e5a3a19eaee1
 	github.com/reearth/reearthx v0.0.0-20231018053753-30170f2e187d
 	github.com/samber/lo v1.38.1
 	github.com/sendgrid/sendgrid-go v3.13.0+incompatible

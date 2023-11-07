@@ -55,7 +55,7 @@ func convertRelatedDataset(ctx context.Context, s *Services, w *cmswebhook.Paylo
 
 	for _, target := range targets {
 		if item.Assets[target] == "" || item.ConvertedAssets[target] != "" ||
-			item.ConverStatus[target] != "" && item.ConverStatus[target] != ConvertionStatusNotStarted {
+			item.ConvertStatus[target] != "" && item.ConvertStatus[target] != ConvertionStatusNotStarted {
 			continue
 		}
 
@@ -97,14 +97,14 @@ func convertRelatedDataset(ctx context.Context, s *Services, w *cmswebhook.Paylo
 		}
 
 		// update item
-		ritem := RelatedItem{
+		ritem := (&RelatedItem{
 			ConvertedAssets: map[string]string{
 				target: assetID,
 			},
-			ConverStatus: map[string]ConvertionStatus{
+			ConvertStatus: map[string]ConvertionStatus{
 				target: ConvertionStatusSuccess,
 			},
-		}.CMSItem()
+		}).CMSItem()
 		_, err = s.CMS.UpdateItem(ctx, item.ID, ritem.Fields, ritem.MetadataFields)
 		if err != nil {
 			return fmt.Errorf("failed to update item: %w", err)

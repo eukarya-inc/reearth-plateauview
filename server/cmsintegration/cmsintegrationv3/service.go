@@ -55,21 +55,9 @@ func NewServices(c Config) (s *Services, _ error) {
 }
 
 func (s *Services) UpdateFeatureItemStatus(ctx context.Context, itemID string, status ConvertionStatus) error {
-	_, err := s.CMS.UpdateItem(ctx, itemID, nil, FeatureItem{
-		ConvertStatus: status,
-	}.CMSItem().MetadataFields)
-	return err
-}
-
-func (s *Services) CompleteFeatureItemConvertion(ctx context.Context, itemID string, assets []string, dic, maxlod string) error {
-	item := FeatureItem{
-		Data:          assets,
-		Dic:           dic,
-		MaxLOD:        maxlod,
-		ConvertStatus: ConvertionStatusSuccess,
-	}.CMSItem()
-
-	_, err := s.CMS.UpdateItem(ctx, itemID, item.Fields, item.MetadataFields)
+	_, err := s.CMS.UpdateItem(ctx, itemID, nil, (&FeatureItem{
+		ConvertionStatus: status,
+	}).CMSItem().MetadataFields)
 	return err
 }
 

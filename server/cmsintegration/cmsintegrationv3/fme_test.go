@@ -67,3 +67,17 @@ func TestSignFMEID(t *testing.T) {
 	assert.Empty(t, unsigned2)
 	assert.Same(t, ErrInvalidFMEID, err)
 }
+
+type fmeMock struct {
+	called []fmeRequest
+	err    error
+}
+
+func (f *fmeMock) Request(ctx context.Context, r fmeRequest) error {
+	f.called = append(f.called, r)
+	return f.err
+}
+
+func (f *fmeMock) Called() []fmeRequest {
+	return f.called
+}
