@@ -28,7 +28,7 @@ jobs:
           cache-dependency-path: server/go.sum
       - name: test
         working-directory: server
-        run: go test ./... -v -race
+        run: go test ./... -v -race -tags draco
   ci-server-test-index:
     runs-on: ubuntu-latest
     steps:
@@ -53,7 +53,7 @@ jobs:
       - name: 'indexer test: run indexer test'
         if: steps.testdata.outputs.testdata
         working-directory: server
-        run: go test ./searchindex/indexer -v
+        run: go test ./searchindex/indexer -v -tags draco
       - name: 'indexer test: list result files'
         if: steps.testdata.outputs.testdata
         working-directory: server
