@@ -138,7 +138,7 @@ func TestItemsFromIntegration(t *testing.T) {
 	cmsitems := []cms.Item{
 		{
 			ID: "xxx",
-			Fields: []cms.Field{
+			Fields: []*cms.Field{
 				{
 					Key:   "specification",
 					Value: "第2.3版",

@@ -153,7 +153,7 @@ func (c *mockCMS) GetItemsByKey(ctx context.Context, projectIDOrAlias, modelIDOr
 
 var mockItem = cms.Item{
 	ID: "item",
-	Fields: []cms.Field{
+	Fields: []*cms.Field{
 		{
 			Key:   "specification",
 			Value: "第2.3版",
@@ -213,7 +213,7 @@ var mockItem = cms.Item{
 
 var mockItem2 = cms.Item{
 	ID: "aaa",
-	Fields: []cms.Field{
+	Fields: []*cms.Field{
 		{
 			Key:   "specification",
 			Value: "第2.3版",

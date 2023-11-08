@@ -156,7 +156,7 @@ func (h *CMS) Metadata(ctx context.Context, prj string) (Metadata, error) {
 	}
 
 	item, ok := lo.Find(items.Items, func(i cms.Item) bool {
-		s := i.FieldByKey(tokenProjectField).ValueString()
+		s := i.FieldByKey(tokenProjectField).GetValue().String()
 		return s != nil && *s == prj
 	})
 	if !ok {

@@ -8,7 +8,6 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/qmuntal/draco-go/gltf/draco"
 	"github.com/qmuntal/gltf"
 	b3dms "github.com/reearth/go3dtiles/b3dm"
 	tiles "github.com/reearth/go3dtiles/tileset"
@@ -23,6 +22,7 @@ const (
 )
 
 const semaphoreLimit = 2
+const DRACO_EXT = "KHR_draco_mesh_compression" // draco.ExtensionName
 
 type Indexer struct {
 	config *Config
@@ -225,7 +225,7 @@ func computeFeaturePositionsFromGltfVertices(doc *gltf.Document, tileTransform, 
 	batchIdPositions := make([][]Cartographic, batchLength)
 
 	extensionsUsed := doc.ExtensionsUsed
-	dracoCompressionUsed := slices.Contains(extensionsUsed, draco.ExtensionName)
+	dracoCompressionUsed := slices.Contains(extensionsUsed, DRACO_EXT)
 
 	for _, node := range nodes {
 		mesh := meshes[*node.Mesh]
@@ -246,19 +246,11 @@ func computeFeaturePositionsFromGltfVertices(doc *gltf.Document, tileTransform, 
 			var positions [][3]float32
 
 			if dracoCompressionUsed {
-				primitiveExt := primitive.Extensions[draco.ExtensionName].(*draco.PrimitiveExt)
-				pd, err := draco.UnmarshalMesh(doc, doc.BufferViews[primitiveExt.BufferView])
+				bi, pos, err := readAttrFromDracoMesh(doc, primitive)
 				if err != nil {
-					return nil, fmt.Errorf("error while unmarshalling mesh: %v", err)
+					return nil, err
 				}
-				bi, _ := pd.ReadAttr(primitive, "_BATCHID", nil)
-				if err != nil {
-					return nil, fmt.Errorf("failed to read batchIds: %v", err)
-				}
-				pos, err := pd.ReadAttr(primitive, "POSITION", nil)
-				if err != nil {
-					return nil, fmt.Errorf("failed to read positions: %v", err)
-				}
+
 				positions = pos.([][3]float32)
 
 				var ok bool

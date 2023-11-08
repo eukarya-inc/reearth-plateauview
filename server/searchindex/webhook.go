@@ -110,7 +110,7 @@ func webhookHandler(cms cms.Interface, conf Config) cmswebhook.Handler {
 
 		if _, err := wc.CMS.UpdateItem(ctx, item.ID, Item{
 			SearchIndexStatus: StatusProcessing,
-		}.Fields()); err != nil {
+		}.Fields(), nil); err != nil {
 			log.Errorfc(ctx, "searchindex webhook: failed to update item: %w", err)
 		}
 
@@ -122,7 +122,7 @@ func webhookHandler(cms cms.Interface, conf Config) cmswebhook.Handler {
 
 			if _, err := wc.CMS.UpdateItem(ctx, item.ID, Item{
 				SearchIndexStatus: StatusError,
-			}.Fields()); err != nil {
+			}.Fields(), nil); err != nil {
 				log.Errorfc(ctx, "searchindex webhook: failed to update item: %s", err)
 			}
 
@@ -135,7 +135,7 @@ func webhookHandler(cms cms.Interface, conf Config) cmswebhook.Handler {
 		if _, err := wc.CMS.UpdateItem(ctx, item.ID, Item{
 			SearchIndexStatus: StatusOK,
 			SearchIndex:       result,
-		}.Fields()); err != nil {
+		}.Fields(), nil); err != nil {
 			log.Errorfc(ctx, "searchindex webhook: failed to update item: %s", err)
 		}
 

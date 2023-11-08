@@ -3,6 +3,7 @@ package datacatalogv2adapter
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/eukarya-inc/reearth-plateauview/server/datacatalog/datacatalogv2"
 	"github.com/eukarya-inc/reearth-plateauview/server/datacatalog/plateauapi"
@@ -116,26 +117,26 @@ func newCache(r datacatalogv2.ResponseAll) (*cache, error) {
 		cache.areasForDataTypes[ty] = areasForType
 	}
 
-	slices.SortStableFunc(cache.prefectures, func(a, b plateauapi.Prefecture) bool {
-		return a.Code < b.Code
+	slices.SortStableFunc(cache.prefectures, func(a, b plateauapi.Prefecture) int {
+		return strings.Compare(string(a.Code), string(b.Code))
 	})
-	slices.SortStableFunc(cache.cities, func(a, b plateauapi.City) bool {
-		return a.Code < b.Code
+	slices.SortStableFunc(cache.cities, func(a, b plateauapi.City) int {
+		return strings.Compare(string(a.Code), string(b.Code))
 	})
-	slices.SortStableFunc(cache.wards, func(a, b plateauapi.Ward) bool {
-		return a.Code < b.Code
+	slices.SortStableFunc(cache.wards, func(a, b plateauapi.Ward) int {
+		return strings.Compare(string(a.Code), string(b.Code))
 	})
-	slices.SortStableFunc(cache.plateauDatasetTypes, func(a, b plateauapi.PlateauDatasetType) bool {
-		return a.Code < b.Code
+	slices.SortStableFunc(cache.plateauDatasetTypes, func(a, b plateauapi.PlateauDatasetType) int {
+		return strings.Compare(a.Code, b.Code)
 	})
-	slices.SortStableFunc(cache.relatedDatasetTypes, func(a, b plateauapi.RelatedDatasetType) bool {
-		return a.Code < b.Code
+	slices.SortStableFunc(cache.relatedDatasetTypes, func(a, b plateauapi.RelatedDatasetType) int {
+		return strings.Compare(a.Code, b.Code)
 	})
-	slices.SortStableFunc(cache.genericDatasetTypes, func(a, b plateauapi.GenericDatasetType) bool {
-		return a.Code < b.Code
+	slices.SortStableFunc(cache.genericDatasetTypes, func(a, b plateauapi.GenericDatasetType) int {
+		return strings.Compare(a.Code, b.Code)
 	})
-	slices.SortStableFunc(cache.years, func(a, b int) bool {
-		return a < b
+	slices.SortStableFunc(cache.years, func(a, b int) int {
+		return a - b
 	})
 
 	return cache, nil

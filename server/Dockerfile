@@ -1,5 +1,5 @@
 FROM golang:1.21-bullseye AS build
-ARG TAG=release
+ARG TAG=release,draco
 ARG VERSION
 
 WORKDIR /app

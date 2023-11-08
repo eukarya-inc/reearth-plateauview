@@ -72,7 +72,7 @@ func TestHandler_getDataHandler(t *testing.T) {
 
 		return httpmock.NewJsonResponse(http.StatusOK, cms.Item{
 			ID: itemID,
-			Fields: []cms.Field{
+			Fields: []*cms.Field{
 				{Key: dataField, Value: expected},
 			},
 		})
@@ -118,7 +118,7 @@ func TestHandler_getDataHandler2(t *testing.T) {
 
 		return httpmock.NewJsonResponse(http.StatusOK, cms.Item{
 			ID: itemID,
-			Fields: []cms.Field{
+			Fields: []*cms.Field{
 				{Key: dataField, Value: expected},
 			},
 		})
@@ -169,11 +169,11 @@ func TestHandler_getAllDataHandler(t *testing.T) {
 			Items: []cms.Item{
 				{
 					ID:     "a",
-					Fields: []cms.Field{{Key: dataField, Value: `{"hoge":"foo"}`}},
+					Fields: []*cms.Field{{Key: dataField, Value: `{"hoge":"foo"}`}},
 				},
 				{
 					ID:     "b",
-					Fields: []cms.Field{{Key: dataField, Value: `{"hoge":"bar"}`}},
+					Fields: []*cms.Field{{Key: dataField, Value: `{"hoge":"bar"}`}},
 				},
 			},
 			Page:       1,
@@ -212,8 +212,8 @@ func TestHandler_createDataHandler(t *testing.T) {
 
 		return httpmock.NewJsonResponse(http.StatusOK, cms.Item{
 			ID: "a",
-			Fields: []cms.Field{
-				{Key: dataField, Value: i.FieldByKey(dataField).ValueString()},
+			Fields: []*cms.Field{
+				{Key: dataField, Value: i.FieldByKey(dataField).GetValue().String()},
 			},
 		},
 		)
@@ -263,8 +263,8 @@ func TestHandler_updateDataHandler(t *testing.T) {
 
 		return httpmock.NewJsonResponse(http.StatusOK, cms.Item{
 			ID: itemID,
-			Fields: []cms.Field{
-				{Key: dataField, Value: i.FieldByKey(dataField).ValueString()},
+			Fields: []*cms.Field{
+				{Key: dataField, Value: i.FieldByKey(dataField).GetValue().String()},
 			},
 		},
 		)
@@ -327,11 +327,11 @@ func TestHandler_fetchTemplatesHandler(t *testing.T) {
 			Items: []cms.Item{
 				{
 					ID:     "a",
-					Fields: []cms.Field{{Key: dataField, Value: `{"hoge":"hoge"}`}},
+					Fields: []*cms.Field{{Key: dataField, Value: `{"hoge":"hoge"}`}},
 				},
 				{
 					ID:     "b",
-					Fields: []cms.Field{{Key: dataField, Value: `{"hoge":"foo"}`}},
+					Fields: []*cms.Field{{Key: dataField, Value: `{"hoge":"foo"}`}},
 				},
 			},
 			Page:       1,
@@ -371,7 +371,7 @@ func TestHandler_fetchTemplateHandler(t *testing.T) {
 	responder := func(req *http.Request) (*http.Response, error) {
 		return httpmock.NewJsonResponse(http.StatusOK, cms.Item{
 			ID:     templateID,
-			Fields: []cms.Field{{Key: dataField, Value: `{"hoge":"hoge"}`}},
+			Fields: []*cms.Field{{Key: dataField, Value: `{"hoge":"hoge"}`}},
 		})
 	}
 	httpmock.RegisterResponder("GET", lo.Must(url.JoinPath(testCMSHost, "api", "items", templateID)), responder)
@@ -404,8 +404,8 @@ func TestHandler_createTemplateHandler(t *testing.T) {
 
 		return httpmock.NewJsonResponse(http.StatusOK, cms.Item{
 			ID: "a",
-			Fields: []cms.Field{
-				{Key: dataField, Value: i.FieldByKey(dataField).ValueString()},
+			Fields: []*cms.Field{
+				{Key: dataField, Value: i.FieldByKey(dataField).GetValue().String()},
 			},
 		},
 		)
@@ -440,8 +440,8 @@ func TestHandler_updateTemplateHandler(t *testing.T) {
 
 		return httpmock.NewJsonResponse(http.StatusOK, cms.Item{
 			ID: itemID,
-			Fields: []cms.Field{
-				{Key: dataField, Value: i.FieldByKey(dataField).ValueString()},
+			Fields: []*cms.Field{
+				{Key: dataField, Value: i.FieldByKey(dataField).GetValue().String()},
 			},
 		},
 		)
@@ -512,7 +512,7 @@ func mockCMS(t *testing.T) {
 			Items: []cms.Item{
 				{
 					ID: "1",
-					Fields: []cms.Field{
+					Fields: []*cms.Field{
 						{Key: tokenProjectField, Value: testCMSProject},
 						{Key: "cms_apikey", Value: testCMSToken},
 						{Key: "sidebar_access_token", Value: testSidebarAccessToken},
@@ -520,7 +520,7 @@ func mockCMS(t *testing.T) {
 				},
 				{
 					ID: "2",
-					Fields: []cms.Field{
+					Fields: []*cms.Field{
 						{Key: tokenProjectField, Value: "prjprj"},
 						{Key: "cms_apikey", Value: "token!"},
 						{Key: "sidebar_access_token", Value: "ac"},

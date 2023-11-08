@@ -202,11 +202,11 @@ func (h *Handler) createDataHandler() func(c echo.Context) error {
 			return errors.New("invalid json")
 		}
 
-		fields := []cms.Field{{
+		fields := []*cms.Field{{
 			Key:   dataField,
 			Value: string(b),
 		}}
-		item, err := cmsh.CreateItemByKey(ctx, md.ProjectAlias, dataModelKey, fields)
+		item, err := cmsh.CreateItemByKey(ctx, md.ProjectAlias, dataModelKey, fields, nil)
 		if err != nil {
 			if errors.Is(err, cms.ErrNotFound) {
 				return c.JSON(http.StatusNotFound, "not found")
@@ -243,12 +243,12 @@ func (h *Handler) updateDataHandler() func(c echo.Context) error {
 			return errors.New("invalid json")
 		}
 
-		fields := []cms.Field{{
+		fields := []*cms.Field{{
 			Key:   dataField,
 			Value: string(b),
 		}}
 
-		item, err := cmsh.UpdateItem(ctx, itemID, fields)
+		item, err := cmsh.UpdateItem(ctx, itemID, fields, nil)
 		if err != nil {
 			if errors.Is(err, cms.ErrNotFound) {
 				return c.JSON(http.StatusNotFound, "not found")
@@ -364,12 +364,12 @@ func (h *Handler) createTemplateHandler() func(c echo.Context) error {
 			return errors.New("invalid json")
 		}
 
-		fields := []cms.Field{{
+		fields := []*cms.Field{{
 			Key:   dataField,
 			Value: string(b),
 		}}
 
-		template, err := cmsh.CreateItemByKey(ctx, md.ProjectAlias, templateModelKey, fields)
+		template, err := cmsh.CreateItemByKey(ctx, md.ProjectAlias, templateModelKey, fields, nil)
 		if err != nil {
 			if errors.Is(err, cms.ErrNotFound) {
 				return c.JSON(http.StatusNotFound, "not found")
@@ -406,12 +406,12 @@ func (h *Handler) updateTemplateHandler() func(c echo.Context) error {
 			return errors.New("invalid json")
 		}
 
-		fields := []cms.Field{{
+		fields := []*cms.Field{{
 			Key:   dataField,
 			Value: string(b),
 		}}
 
-		template, err := cmsh.UpdateItem(ctx, templateID, fields)
+		template, err := cmsh.UpdateItem(ctx, templateID, fields, nil)
 		if err != nil {
 			if errors.Is(err, cms.ErrNotFound) {
 				return c.JSON(http.StatusNotFound, "not found")
@@ -459,7 +459,7 @@ func itemsToJSONs(items []cms.Item) []any {
 }
 
 func itemJSON(f *cms.Field, id string) any {
-	j, err := f.ValueJSON()
+	j, err := f.GetValue().JSON()
 	if j == nil || err != nil {
 		return nil
 	}
