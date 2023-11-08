@@ -81,7 +81,7 @@ func convertRelatedDataset(ctx context.Context, s *Services, w *cmswebhook.Paylo
 			res, err = dataconv.ConvertLandmark(fc, id)
 		}
 
-		if err != nil {
+		if err != nil || res == nil {
 			return fmt.Errorf("failed to convert: %w", err)
 		}
 

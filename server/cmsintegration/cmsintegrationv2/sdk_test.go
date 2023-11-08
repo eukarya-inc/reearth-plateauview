@@ -43,7 +43,7 @@ func TestServices_RequestMaxLODExtraction(t *testing.T) {
 			{
 				Key:   "max_lod_status",
 				Type:  "select",
-				Value: string(StatusProcessing),
+				Value: StatusProcessing,
 			},
 		},
 	}}, s.CMS.(*cmsMock).UpdateItemCalls)
@@ -102,7 +102,7 @@ func TestServices_ReceiveFMEResult(t *testing.T) {
 			{
 				Key:   "max_lod_status",
 				Type:  "select",
-				Value: string(StatusOK),
+				Value: StatusOK,
 			},
 			{
 				Key:   "dem",

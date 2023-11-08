@@ -35,10 +35,25 @@ var cmsitem = cms.Item{
 	},
 }
 
+var cmsitem2 = cms.Item{
+	ID: "xxx",
+	Fields: []*cms.Field{
+		{Key: "prefecture", Type: "select", Value: "東京都"},
+		{Key: "city_name", Type: "text", Value: "千代田区"},
+		{Key: "citygml", Type: "asset", Value: "citygml_assetid"},
+		{Key: "citygml_geospatialjp", Type: "asset", Value: "citygml_geospatialjp_assetid"},
+		{Key: "catalog", Type: "asset", Value: "catalog_assetid"},
+		{Key: "all", Type: "asset", Value: "all_assetid"},
+		{Key: "conversion_status", Type: "select", Value: StatusProcessing},
+		{Key: "catalog_status", Type: "select", Value: StatusOK},
+		{Key: "sdk_publication", Type: "select", Value: "公開する"},
+	},
+}
+
 func TestItem(t *testing.T) {
 	assert.Equal(t, item, ItemFrom(cmsitem))
 	assert.Equal(t, Item{}, ItemFrom(cms.Item{}))
-	assert.Equal(t, cmsitem.Fields, item.Fields())
+	assert.Equal(t, cmsitem2.Fields, item.Fields())
 	assert.Equal(t, []*cms.Field(nil), Item{}.Fields())
 }
 

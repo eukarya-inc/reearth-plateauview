@@ -41,7 +41,7 @@ func TestService_CheckCatalog(t *testing.T) {
 	assert.Equal(t, cms.Item{
 		ID: "item",
 		Fields: []*cms.Field{
-			{Key: "catalog_status", Value: "完了", Type: "select"},
+			{Key: "catalog_status", Value: StatusOK, Type: "select"},
 		},
 	}, cmsm.item)
 	cmsm.item = cms.Item{}
@@ -54,7 +54,7 @@ func TestService_CheckCatalog(t *testing.T) {
 	assert.Equal(t, cms.Item{
 		ID: "item",
 		Fields: []*cms.Field{
-			{Key: "catalog_status", Value: "エラー", Type: "select"},
+			{Key: "catalog_status", Value: StatusError, Type: "select"},
 		},
 	}, cmsm.item)
 	cmsm.item = cms.Item{}
@@ -66,7 +66,7 @@ func TestService_CheckCatalog(t *testing.T) {
 	assert.Equal(t, cms.Item{
 		ID: "item",
 		Fields: []*cms.Field{
-			{Key: "catalog_status", Value: "エラー", Type: "select"},
+			{Key: "catalog_status", Value: StatusError, Type: "select"},
 		},
 	}, cmsm.item)
 	cmsm.item = cms.Item{}
@@ -115,7 +115,7 @@ func TestService_RegisterCkanResources(t *testing.T) {
 	assert.Equal(t, "https://example.com/12210_mobara-shi_2022_citygml_1_lsld.zip", pkg.Resources[1].URL)
 	assert.Equal(t, "データ目録（v2）", pkg.Resources[2].Name)
 	assert.Equal(t, cms.Item{ID: "item", Fields: []*cms.Field{
-		{Key: "catalog_status", Type: "select", Value: "完了"},
+		{Key: "catalog_status", Type: "select", Value: StatusOK},
 		{Key: "sdk_publication", Type: "select", Value: "公開する"},
 	}}, cmsm.item)
 
