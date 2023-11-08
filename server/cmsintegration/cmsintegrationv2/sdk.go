@@ -25,7 +25,7 @@ func (s *Services) RequestMaxLODExtraction(ctx context.Context, item Item, proje
 
 	citygml, err := s.CMS.Asset(ctx, item.CityGML)
 	if err != nil {
-		log.Errorfc(ctx, "sdk: failed to get citygml asset: %s", err)
+		log.Errorfc(ctx, "sdk: failed to get citygml asset: %v", err)
 		return
 	}
 
@@ -37,7 +37,7 @@ func (s *Services) RequestMaxLODExtraction(ctx context.Context, item Item, proje
 		}.String(s.FMESecret),
 		Target: citygml.URL,
 	}); err != nil {
-		log.Errorfc(ctx, "sdk: failed to send request to FME: %s", err)
+		log.Errorfc(ctx, "sdk: failed to send request to FME: %v", err)
 		return
 	}
 

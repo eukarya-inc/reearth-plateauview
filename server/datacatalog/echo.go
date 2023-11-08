@@ -78,7 +78,7 @@ func Echo(conf Config, g *echo.Group) error {
 		}
 
 		if err := repo.UpdateCache(c.Request().Context()); err != nil {
-			log.Errorfc(c.Request().Context(), "datacatalog: failed to update cache: %w", err)
+			log.Errorfc(c.Request().Context(), "datacatalog: failed to update cache: %v", err)
 			return echo.ErrInternalServerError
 		}
 

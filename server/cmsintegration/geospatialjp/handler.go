@@ -53,7 +53,7 @@ func Handler(conf Config) (echo.HandlerFunc, error) {
 		err = s.RegisterCkanResources(ctx, gitem, b.DisableSDKPublication)
 
 		if err != nil {
-			comment := fmt.Sprintf("G空間情報センターへの登録処理でエラーが発生しました。%s", err)
+			comment := fmt.Sprintf("G空間情報センターへの登録処理でエラーが発生しました。%v", err)
 			s.commentToItem(ctx, itemID, comment)
 			return c.JSON(http.StatusBadRequest, map[string]any{"error": err.Error()})
 		}

@@ -104,7 +104,7 @@ func WebhookHandler(conf Config) (cmswebhook.Handler, error) {
 		if s.FME == nil {
 			log.Infofc(ctx, "webhook: fme mocked: %+v", fmeReq)
 		} else if err := s.FME.Request(ctx, fmeReq); err != nil {
-			log.Errorfc(ctx, "cmsintegration webhook: failed to request fme: %s", err)
+			log.Errorfc(ctx, "cmsintegration webhook: failed to request fme: %v", err)
 			return nil
 		}
 
@@ -116,7 +116,7 @@ func WebhookHandler(conf Config) (cmswebhook.Handler, error) {
 		}
 
 		if err := s.CMS.CommentToItem(ctx, item.ID, "CityGMLの品質検査及び3D Tilesへの変換を開始しました。"); err != nil {
-			log.Errorfc(ctx, "cmsintegration webhook: failed to comment: %s", err)
+			log.Errorfc(ctx, "cmsintegration webhook: failed to comment: %v", err)
 			return nil
 		}
 

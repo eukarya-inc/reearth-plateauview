@@ -48,7 +48,7 @@ func (s *Handler) GetShare() echo.HandlerFunc {
 				return c.JSON(http.StatusNotFound, "not found")
 			}
 
-			return rerror.ErrInternalBy(fmt.Errorf("share: failed to get an item: %s", err))
+			return rerror.ErrInternalBy(fmt.Errorf("share: failed to get an item: %v", err))
 		}
 
 		f := res.FieldByKey(shareCMSDataFieldKey)
@@ -95,7 +95,7 @@ func (s *Handler) CreateShare() echo.HandlerFunc {
 				return rerror.ErrNotFound
 			}
 
-			return rerror.ErrInternalBy(fmt.Errorf("share: failed to create an item: %s", err))
+			return rerror.ErrInternalBy(fmt.Errorf("share: failed to create an item: %v", err))
 		}
 
 		return c.JSON(http.StatusOK, res.ID)

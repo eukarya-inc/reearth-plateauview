@@ -398,7 +398,7 @@ func (c *Ckan) send(
 	log.Infofc(ctx, "ckan: send: %s %s", method, u)
 	res, err := c.client.Do(req)
 	if err != nil {
-		log.Errorfc(ctx, "ckan: send error: %s", err)
+		log.Errorfc(ctx, "ckan: send error: %v", err)
 		return fmt.Errorf("failed to send request: %w", err)
 	}
 

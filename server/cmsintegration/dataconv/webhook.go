@@ -52,9 +52,9 @@ func webhookHandler(ctx context.Context, s *Service, w *cmswebhook.Payload) erro
 
 	if err := s.Convert(ctx, i, pid); err != nil {
 		if errors.Cause(err) == ErrSkip {
-			log.Infofc(ctx, "dataconv: skipped: %s", err)
+			log.Infofc(ctx, "dataconv: skipped: %v", err)
 		} else {
-			log.Errorfc(ctx, "dataconv: failed: %s", err)
+			log.Errorfc(ctx, "dataconv: failed: %v", err)
 		}
 	}
 

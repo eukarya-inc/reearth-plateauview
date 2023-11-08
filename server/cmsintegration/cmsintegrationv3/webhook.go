@@ -64,7 +64,7 @@ func WebhookHandler(conf Config) (cmswebhook.Handler, error) {
 		}
 
 		if err != nil {
-			log.Errorfc(ctx, "cmsintegrationv2 webhook: failed to process event: %w", err)
+			log.Errorfc(ctx, "cmsintegrationv2 webhook: failed to process event: %v", err)
 		}
 
 		return nil

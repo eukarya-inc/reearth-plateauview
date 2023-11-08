@@ -63,7 +63,7 @@ func WebhookHandler(conf Config) (cmswebhook.Handler, error) {
 			err = s.RegisterCkanResources(ctx, item, false)
 
 			if err != nil {
-				comment := fmt.Sprintf("G空間情報センターへの登録処理でエラーが発生しました。%s", err)
+				comment := fmt.Sprintf("G空間情報センターへの登録処理でエラーが発生しました。%v", err)
 				s.commentToItem(ctx, item.ID, comment)
 			} else {
 				s.commentToItem(ctx, item.ID, "G空間情報センターへの登録が完了しました")
@@ -79,7 +79,7 @@ func WebhookHandler(conf Config) (cmswebhook.Handler, error) {
 			err = s.CheckCatalog(ctx, w.ItemData.Schema.ProjectID, item)
 
 			if err != nil {
-				comment := fmt.Sprintf("目録ファイルの検査でエラーが発生しました。%s", err)
+				comment := fmt.Sprintf("目録ファイルの検査でエラーが発生しました。%v", err)
 				s.commentToItem(ctx, item.ID, comment)
 
 				// update item

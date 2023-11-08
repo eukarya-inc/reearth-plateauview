@@ -105,13 +105,13 @@ func webhookHandler(cms cms.Interface, conf Config) cmswebhook.Handler {
 		}
 
 		if err := wc.CMS.CommentToItem(ctx, item.ID, "検索インデックスの構築を開始しました。"); err != nil {
-			log.Errorfc(ctx, "searchindex webhook: failed to comment: %s", err)
+			log.Errorfc(ctx, "searchindex webhook: failed to comment: %v", err)
 		}
 
 		if _, err := wc.CMS.UpdateItem(ctx, item.ID, Item{
 			SearchIndexStatus: StatusProcessing,
 		}.Fields(), nil); err != nil {
-			log.Errorfc(ctx, "searchindex webhook: failed to update item: %w", err)
+			log.Errorfc(ctx, "searchindex webhook: failed to update item: %v", err)
 		}
 
 		log.Infofc(ctx, "searchindex webhook: start processing")
@@ -123,11 +123,11 @@ func webhookHandler(cms cms.Interface, conf Config) cmswebhook.Handler {
 			if _, err := wc.CMS.UpdateItem(ctx, item.ID, Item{
 				SearchIndexStatus: StatusError,
 			}.Fields(), nil); err != nil {
-				log.Errorfc(ctx, "searchindex webhook: failed to update item: %s", err)
+				log.Errorfc(ctx, "searchindex webhook: failed to update item: %v", err)
 			}
 
 			if err := wc.CMS.CommentToItem(ctx, item.ID, fmt.Sprintf("検索インデックスの構築に失敗しました。%v", err)); err != nil {
-				log.Errorfc(ctx, "searchindex webhook: failed to comment: %s", err)
+				log.Errorfc(ctx, "searchindex webhook: failed to comment: %v", err)
 			}
 			return nil
 		}
@@ -136,11 +136,11 @@ func webhookHandler(cms cms.Interface, conf Config) cmswebhook.Handler {
 			SearchIndexStatus: StatusOK,
 			SearchIndex:       result,
 		}.Fields(), nil); err != nil {
-			log.Errorfc(ctx, "searchindex webhook: failed to update item: %s", err)
+			log.Errorfc(ctx, "searchindex webhook: failed to update item: %v", err)
 		}
 
 		if err := wc.CMS.CommentToItem(ctx, item.ID, "検索インデックスの構築が完了しました。"); err != nil {
-			log.Errorfc(ctx, "searchindex webhook: failed to comment: %s", err)
+			log.Errorfc(ctx, "searchindex webhook: failed to comment: %v", err)
 		}
 
 		log.Infofc(ctx, "searchindex webhook: done")
@@ -323,7 +323,7 @@ func (wc *webhookContext) FindAsset(ctx context.Context, item Item, siid string)
 			Item:  item.ID,
 			Asset: assetNotDecompressed,
 		}); err != nil {
-			return nil, fmt.Errorf("failed to save to storage: %s", err)
+			return nil, fmt.Errorf("failed to save to storage: %v", err)
 		}
 
 		return nil, errSkipped

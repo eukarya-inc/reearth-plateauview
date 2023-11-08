@@ -59,13 +59,13 @@ func NotifyHandler(conf Config) (echo.HandlerFunc, error) {
 
 		cc := commentContent(f)
 		if err := s.CMS.CommentToItem(ctx, id.ItemID, cc); err != nil {
-			log.Errorfc(ctx, "cmsintegration notify: failed to comment: %w", err)
+			log.Errorfc(ctx, "cmsintegration notify: failed to comment: %v", err)
 			return nil
 		}
 
 		if conf.Debug {
 			if err := s.CMS.CommentToItem(ctx, id.ItemID, fmt.Sprintf("%+v", f.Results)); err != nil {
-				log.Errorfc(ctx, "cmsintegration notify: failed to comment: %w", err)
+				log.Errorfc(ctx, "cmsintegration notify: failed to comment: %v", err)
 			}
 		}
 
@@ -74,11 +74,11 @@ func NotifyHandler(conf Config) (echo.HandlerFunc, error) {
 				ConversionStatus:  StatusError,
 				ConversionEnabled: ConversionDisabled,
 			}.Fields(), nil); err != nil {
-				log.Errorfc(ctx, "cmsintegration notify: failed to update item: %w", err)
+				log.Errorfc(ctx, "cmsintegration notify: failed to update item: %v", err)
 
 				if conf.Debug {
-					if err := s.CMS.CommentToItem(ctx, id.ItemID, fmt.Sprintf("debug: failed to update item 1: %s", err)); err != nil {
-						log.Errorfc(ctx, "cmsintegration notify: failed to comment: %w", err)
+					if err := s.CMS.CommentToItem(ctx, id.ItemID, fmt.Sprintf("debug: failed to update item 1: %v", err)); err != nil {
+						log.Errorfc(ctx, "cmsintegration notify: failed to comment: %v", err)
 					}
 				}
 
@@ -89,7 +89,7 @@ func NotifyHandler(conf Config) (echo.HandlerFunc, error) {
 
 		r, unknown, err := uploadAssets(ctx, s.CMS, id.ProjectID, f)
 		if err != nil {
-			log.Errorfc(ctx, "cmsintegration notify: failed to update assets: %w", err)
+			log.Errorfc(ctx, "cmsintegration notify: failed to update assets: %v", err)
 			// err is reported as a comment later
 		}
 
@@ -98,8 +98,8 @@ func NotifyHandler(conf Config) (echo.HandlerFunc, error) {
 			log.Warnf("cmsintegration notify: unprocessed: %s", u)
 
 			if conf.Debug {
-				if err := s.CMS.CommentToItem(ctx, id.ItemID, fmt.Sprintf("debug: unprocessed keys: %s", err)); err != nil {
-					log.Errorfc(ctx, "cmsintegration notify: failed to comment: %w", err)
+				if err := s.CMS.CommentToItem(ctx, id.ItemID, fmt.Sprintf("debug: unprocessed keys: %v", err)); err != nil {
+					log.Errorfc(ctx, "cmsintegration notify: failed to comment: %v", err)
 				}
 			}
 		}
@@ -113,11 +113,11 @@ func NotifyHandler(conf Config) (echo.HandlerFunc, error) {
 		r.ConversionStatus = StatusOK
 		if f := r.Fields(); len(f) > 0 {
 			if _, err := s.CMS.UpdateItem(ctx, id.ItemID, f, nil); err != nil {
-				log.Errorfc(ctx, "cmsintegration notify: failed to update item: %w", err)
+				log.Errorfc(ctx, "cmsintegration notify: failed to update item: %v", err)
 
 				if conf.Debug {
-					if err := s.CMS.CommentToItem(ctx, id.ItemID, fmt.Sprintf("debug: failed to upload item 3: %s", err)); err != nil {
-						log.Errorfc(ctx, "cmsintegration notify: failed to comment: %w", err)
+					if err := s.CMS.CommentToItem(ctx, id.ItemID, fmt.Sprintf("debug: failed to upload item 3: %v", err)); err != nil {
+						log.Errorfc(ctx, "cmsintegration notify: failed to comment: %v", err)
 					}
 				}
 
@@ -129,12 +129,12 @@ func NotifyHandler(conf Config) (echo.HandlerFunc, error) {
 
 		comment := ""
 		if err != nil {
-			comment = fmt.Sprintf("変換結果アセットのアップロードと設定を行いましたが、一部でエラーが発生しました。 %s", err)
+			comment = fmt.Sprintf("変換結果アセットのアップロードと設定を行いましたが、一部でエラーが発生しました。 %v", err)
 		} else {
 			comment = "変換結果アセットのアップロードと設定が完了しました。"
 		}
 		if err := s.CMS.CommentToItem(ctx, id.ItemID, comment); err != nil {
-			log.Errorfc(ctx, "cmsintegration notify: failed to comment: %w", err)
+			log.Errorfc(ctx, "cmsintegration notify: failed to comment: %v", err)
 		}
 
 		return nil
@@ -184,7 +184,7 @@ func uploadAssets(ctx context.Context, c cms.Interface, pid string, f fmeResult)
 
 		assetID, err := c.UploadAsset(ctx, pid, e.Value)
 		if err != nil {
-			log.Errorfc(ctx, "cmsintegration notify: failed to upload asset %s (%d/3): %w", e.Key, e.Retry, err)
+			log.Errorfc(ctx, "cmsintegration notify: failed to upload asset %s (%d/3): %v", e.Key, e.Retry, err)
 			e.Retry++
 			e.Error = err
 			queue = append(queue, e)

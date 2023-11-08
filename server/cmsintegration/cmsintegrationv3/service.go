@@ -3,6 +3,7 @@ package cmsintegrationv3
 import (
 	"bytes"
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -11,6 +12,7 @@ import (
 
 	"github.com/eukarya-inc/reearth-plateauview/server/cmsintegration/cmsintegrationcommon"
 	cms "github.com/reearth/reearth-cms-api/go"
+	"github.com/reearth/reearthx/log"
 )
 
 type Config = cmsintegrationcommon.Config
@@ -55,9 +57,14 @@ func NewServices(c Config) (s *Services, _ error) {
 }
 
 func (s *Services) UpdateFeatureItemStatus(ctx context.Context, itemID string, status ConvertionStatus) error {
-	_, err := s.CMS.UpdateItem(ctx, itemID, nil, (&FeatureItem{
+	fields := (&FeatureItem{
 		ConvertionStatus: status,
-	}).CMSItem().MetadataFields)
+	}).CMSItem().MetadataFields
+	_, err := s.CMS.UpdateItem(ctx, itemID, nil, fields)
+	if err != nil {
+		j, _ := json.Marshal(fields)
+		log.Debugfc(ctx, "cmsintegrationv3: item update for %s: %s", itemID, j)
+	}
 	return err
 }
 

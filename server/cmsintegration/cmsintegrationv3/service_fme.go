@@ -2,6 +2,7 @@ package cmsintegrationv3
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"strings"
 
@@ -30,12 +31,6 @@ func sendRequestToFME(ctx context.Context, s *Services, conf *Config, w *cmswebh
 
 	log.Infofc(ctx, "cmsintegrationv2: sendRequestToFME")
 
-	// update convertion status
-	err := s.UpdateFeatureItemStatus(ctx, itemID, ConvertionStatusRunning)
-	if err != nil {
-		return fmt.Errorf("failed to update item: %w", err)
-	}
-
 	// get CityGML asset
 	cityGMLAsset, err := s.CMS.Asset(ctx, item.CityGML)
 	if err != nil {
@@ -61,6 +56,12 @@ func sendRequestToFME(ctx context.Context, s *Services, conf *Config, w *cmswebh
 	if err != nil {
 		_ = failToConvert(ctx, s, itemID, "コードリストが見つかりません。")
 		return fmt.Errorf("failed to get codelist asset: %w", err)
+	}
+
+	// update convertion status
+	err = s.UpdateFeatureItemStatus(ctx, itemID, ConvertionStatusRunning)
+	if err != nil {
+		return fmt.Errorf("failed to update item: %w", err)
 	}
 
 	ty := fmeTypeQcConv
@@ -102,6 +103,10 @@ func receiveResultFromFME(ctx context.Context, s *Services, conf *Config, f fmeR
 	id := f.ParseID(conf.Secret)
 	if id.ItemID == "" {
 		return fmt.Errorf("invalid id: %s", f.ID)
+	}
+
+	if f.Status == "" {
+		return fmt.Errorf("invalid status")
 	}
 
 	log.Infofc(ctx, "cmsintegrationv2: receiveResultFromFME")
@@ -171,6 +176,9 @@ func receiveResultFromFME(ctx context.Context, s *Services, conf *Config, f fmeR
 
 	_, err := s.CMS.UpdateItem(ctx, id.ItemID, item.Fields, item.MetadataFields)
 	if err != nil {
+		j1, _ := json.Marshal(item.Fields)
+		j2, _ := json.Marshal(item.MetadataFields)
+		log.Debugfc(ctx, "cmsintegrationv3: item update for %s: %s, %s", id.ItemID, j1, j2)
 		return fmt.Errorf("failed to update item: %w", err)
 	}
 
