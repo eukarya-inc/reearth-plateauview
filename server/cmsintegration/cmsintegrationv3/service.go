@@ -56,9 +56,21 @@ func NewServices(c Config) (s *Services, _ error) {
 	return
 }
 
-func (s *Services) UpdateFeatureItemStatus(ctx context.Context, itemID string, status ConvertionStatus) error {
+func (s *Services) UpdateFeatureItemStatus(ctx context.Context, itemID string, convType fmeRequestType, status ConvertionStatus) error {
+	var qcStatus, convStatus ConvertionStatus
+	switch convType {
+	case fmeTypeConv:
+		convStatus = status
+	case fmeTypeQC:
+		qcStatus = status
+	case fmeTypeQcConv:
+		qcStatus = status
+		convStatus = status
+	}
+
 	fields := (&FeatureItem{
-		ConvertionStatus: status,
+		ConvertionStatus: convStatus,
+		QCStatus:         qcStatus,
 	}).CMSItem().MetadataFields
 	_, err := s.CMS.UpdateItem(ctx, itemID, nil, fields)
 	if err != nil {
@@ -109,4 +121,29 @@ func (s *Services) DownloadAssetAsBytes(ctx context.Context, assetID string) ([]
 	}
 
 	return buf.Bytes(), nil
+}
+
+func (s *Services) GetMainItemWithMetadata(ctx context.Context, i *cms.Item) (_ *cms.Item, err error) {
+	var mainItem, metadataItem *cms.Item
+
+	if i.MetadataItemID == nil && i.OriginalItemID != nil {
+		// w is metadata item
+		metadataItem = i
+		mainItem, err = s.CMS.GetItem(ctx, *i.OriginalItemID, false)
+		if err != nil {
+			return nil, fmt.Errorf("failed to get main item: %w", err)
+		}
+	} else if i.OriginalItemID == nil && i.MetadataItemID != nil {
+		// w is main item
+		mainItem = i
+		metadataItem, err = s.CMS.GetItem(ctx, *i.MetadataItemID, false)
+		if err != nil {
+			return nil, fmt.Errorf("failed to get metadata item: %w", err)
+		}
+	} else {
+		return nil, fmt.Errorf("invalid webhook payload")
+	}
+
+	mainItem.MetadataFields = metadataItem.Fields
+	return mainItem, nil
 }

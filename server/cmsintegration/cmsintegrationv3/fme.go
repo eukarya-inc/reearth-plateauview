@@ -63,7 +63,9 @@ func (s *fme) Request(ctx context.Context, r fmeRequest) error {
 	}
 
 	log.Infofc(ctx, "fme: request: %s %s", req.Method, req.URL.String())
+	log.Debugfc(ctx, "fme: request body: %s", b)
 
+	req.Header.Set("Content-Type", "application/json")
 	res, err := s.client.Do(req)
 	if err != nil {
 		return fmt.Errorf("failed to send: %w", err)

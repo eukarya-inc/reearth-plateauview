@@ -62,29 +62,43 @@ func TestSendRequestToFME(t *testing.T) {
 		},
 	}
 
-	// Test case 1: no metadata item id
-	log := getLogs(t, func() {
+	// Test case 1: no metadataItemID and originalItemID
+	_ = getLogs(t, func() {
 		item := *baseItem
 		item.MetadataItemID = nil
+		item.OriginalItemID = nil
 		w.ItemData.Item = &item
 
 		c.reset()
 
 		err := sendRequestToFME(ctx, s, conf, w)
-		assert.NoError(t, err)
+		assert.ErrorContains(t, err, "invalid webhook payload")
 	})
-	assert.Contains(t, log, "no metadata item id")
 
 	// Test case 2: already converted
-	log = getLogs(t, func() {
+	log := getLogs(t, func() {
 		item := *baseItem
-		item.MetadataFields = append(item.MetadataFields, &cms.Field{
-			Key:   "conv_status",
-			Value: string(ConvertionStatusSuccess),
-		})
 		w.ItemData.Item = &item
 
 		c.reset()
+		c.getItem = func(ctx context.Context, id string, asset bool) (*cms.Item, error) {
+			if id == "itemID" {
+				i := *baseItem
+				return &i, nil
+			}
+			if id == "metadataItemID" {
+				return &cms.Item{
+					ID: "metadataItemID",
+					Fields: []*cms.Field{
+						{
+							Key:   "conv_status",
+							Value: string(ConvertionStatusSuccess),
+						},
+					},
+				}, nil
+			}
+			return nil, fmt.Errorf("failed to get item")
+		}
 
 		err := sendRequestToFME(ctx, s, conf, w)
 		assert.NoError(t, err)
@@ -94,16 +108,31 @@ func TestSendRequestToFME(t *testing.T) {
 	// Test case 3: skip convert
 	log = getLogs(t, func() {
 		item := *baseItem
-		item.MetadataFields = append(item.MetadataFields, &cms.Field{
-			Key:   "skip_convert",
-			Value: true,
-		}, &cms.Field{
-			Key:   "skip_qc",
-			Value: true,
-		})
 		w.ItemData.Item = &item
 
 		c.reset()
+		c.getItem = func(ctx context.Context, id string, asset bool) (*cms.Item, error) {
+			if id == "itemID" {
+				i := *baseItem
+				return &i, nil
+			}
+			if id == "metadataItemID" {
+				return &cms.Item{
+					ID: "metadataItemID",
+					Fields: []*cms.Field{
+						{
+							Key:   "skip_convert",
+							Value: true,
+						},
+						{
+							Key:   "skip_qc",
+							Value: true,
+						},
+					},
+				}, nil
+			}
+			return nil, fmt.Errorf("failed to get item")
+		}
 
 		err := sendRequestToFME(ctx, s, conf, w)
 		assert.NoError(t, err)
@@ -117,6 +146,15 @@ func TestSendRequestToFME(t *testing.T) {
 
 		c.reset()
 		c.getItem = func(ctx context.Context, id string, asset bool) (*cms.Item, error) {
+			if id == "itemID" {
+				i := *baseItem
+				return &i, nil
+			}
+			if id == "metadataItemID" {
+				return &cms.Item{
+					ID: "metadataItemID",
+				}, nil
+			}
 			return cityItem, nil
 		}
 		c.updateItem = func(ctx context.Context, id string, fields []*cms.Field, metadataFields []*cms.Field) (*cms.Item, error) {
@@ -141,6 +179,15 @@ func TestSendRequestToFME(t *testing.T) {
 
 		c.reset()
 		c.getItem = func(ctx context.Context, id string, asset bool) (*cms.Item, error) {
+			if id == "itemID" {
+				i := *baseItem
+				return &i, nil
+			}
+			if id == "metadataItemID" {
+				return &cms.Item{
+					ID: "metadataItemID",
+				}, nil
+			}
 			return nil, fmt.Errorf("failed to get city item")
 		}
 		c.updateItem = func(ctx context.Context, id string, fields []*cms.Field, metadataFields []*cms.Field) (*cms.Item, error) {
@@ -167,6 +214,15 @@ func TestSendRequestToFME(t *testing.T) {
 
 		c.reset()
 		c.getItem = func(ctx context.Context, id string, asset bool) (*cms.Item, error) {
+			if id == "itemID" {
+				i := *baseItem
+				return &i, nil
+			}
+			if id == "metadataItemID" {
+				return &cms.Item{
+					ID: "metadataItemID",
+				}, nil
+			}
 			return cityItem, nil
 		}
 		c.updateItem = func(ctx context.Context, id string, fields []*cms.Field, metadataFields []*cms.Field) (*cms.Item, error) {
@@ -196,6 +252,66 @@ func TestSendRequestToFME(t *testing.T) {
 
 		c.reset()
 		c.getItem = func(ctx context.Context, id string, asset bool) (*cms.Item, error) {
+			if id == "itemID" {
+				i := *baseItem
+				return &i, nil
+			}
+			if id == "metadataItemID" {
+				return &cms.Item{
+					ID: "metadataItemID",
+				}, nil
+			}
+			return cityItem, nil
+		}
+		c.asset = func(ctx context.Context, id string) (*cms.Asset, error) {
+			if id == "citygmlID" {
+				return &cms.Asset{
+					ID: "citygmlID",
+				}, nil
+			}
+			return &cms.Asset{
+				ID: "codelistID",
+			}, nil
+		}
+		c.uploadAsset = func(ctx context.Context, projectID, url string) (string, error) {
+			return "asset", nil
+		}
+		c.uploadAssetDirectly = func(ctx context.Context, projectID, name string, r io.Reader) (string, error) {
+			return "assetd", nil
+		}
+		c.updateItem = func(ctx context.Context, id string, fields []*cms.Field, metadataFields []*cms.Field) (*cms.Item, error) {
+			assert.Equal(t, "conv_status", metadataFields[0].Key)
+			assert.Equal(t, ConvertionStatusRunning, metadataFields[0].Value)
+			return nil, nil
+		}
+		c.commentToItem = func(ctx context.Context, assetID, content string) error {
+			assert.Contains(t, content, "品質検査・変換を開始しました。")
+			return nil
+		}
+
+		err := sendRequestToFME(ctx, s, conf, w)
+		assert.NoError(t, err)
+	})
+
+	// Test case 8: success with metadata item
+	_ = getLogs(t, func() {
+		item := *baseItem
+		item.ID = "metadataItemID"
+		item.MetadataItemID = nil
+		item.OriginalItemID = lo.ToPtr("itemID")
+		w.ItemData.Item = &item
+
+		c.reset()
+		c.getItem = func(ctx context.Context, id string, asset bool) (*cms.Item, error) {
+			if id == "itemID" {
+				i := *baseItem
+				return &i, nil
+			}
+			if id == "metadataItemID" {
+				return &cms.Item{
+					ID: "metadataItemID",
+				}, nil
+			}
 			return cityItem, nil
 		}
 		c.asset = func(ctx context.Context, id string) (*cms.Asset, error) {

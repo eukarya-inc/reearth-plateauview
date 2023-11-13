@@ -21,14 +21,14 @@ var relatedDataConvertionTargets = []string{
 
 func convertRelatedDataset(ctx context.Context, s *Services, w *cmswebhook.Payload) error {
 	if w.ItemData.Model.Key != modelPrefix+relatedModel {
-		log.Debugfc(ctx, "cmsintegrationv2: not related dataset")
+		log.Debugfc(ctx, "cmsintegrationv3: not related dataset")
 		return nil
 	}
 
 	item := RelatedItemFrom(w.ItemData.Item)
 
 	if item.City == "" {
-		log.Debugfc(ctx, "cmsintegrationv2: no city")
+		log.Debugfc(ctx, "cmsintegrationv3: no city")
 		return nil
 	}
 
@@ -36,11 +36,11 @@ func convertRelatedDataset(ctx context.Context, s *Services, w *cmswebhook.Paylo
 		return updatedField(w, t) != nil
 	})
 	if len(targets) == 0 {
-		log.Debugfc(ctx, "cmsintegrationv2: no changes")
+		log.Debugfc(ctx, "cmsintegrationv3: no changes")
 		return nil
 	}
 
-	log.Infofc(ctx, "cmsintegrationv2: convertRelatedDataset")
+	log.Infofc(ctx, "cmsintegrationv3: convertRelatedDataset")
 
 	// get city item
 	cityItemRaw, err := s.CMS.GetItem(ctx, item.City, false)
@@ -60,7 +60,7 @@ func convertRelatedDataset(ctx context.Context, s *Services, w *cmswebhook.Paylo
 		}
 
 		id := fmt.Sprintf("%s_%s_%s", cityItem.CityName, cityItem.CityCode, target)
-		log.Debugf("cmsintegrationv2: convert %s (%s)", target, id)
+		log.Debugf("cmsintegrationv3: convert %s (%s)", target, id)
 
 		// download asset
 		asset, err := s.DownloadAssetAsBytes(ctx, item.Assets[target])
@@ -120,7 +120,7 @@ func convertRelatedDataset(ctx context.Context, s *Services, w *cmswebhook.Paylo
 }
 
 func packageRelatedDatasetForGeospatialjp(ctx context.Context, s *Services, w *cmswebhook.Payload) error {
-	log.Infofc(ctx, "cmsintegrationv2: packageRelatedDatasetForGeospatialjp")
+	log.Infofc(ctx, "cmsintegrationv3: packageRelatedDatasetForGeospatialjp")
 	// TODO
 
 	return nil

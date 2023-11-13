@@ -8,7 +8,7 @@ import (
 )
 
 func TestFMEID(t *testing.T) {
-	i := fmeID{ItemID: "item", FeatureType: "bldg", ProjectID: "project"}
+	i := fmeID{ItemID: "item", FeatureType: "bldg", ProjectID: "project", Type: "qc_conv"}
 	assert.Equal(t, i, lo.Must(parseFMEID(i.String("aaa"), "aaa")))
 	_, err := parseFMEID(i.String("aaa"), "aaa2")
 	assert.Same(t, ErrInvalidFMEID, err)

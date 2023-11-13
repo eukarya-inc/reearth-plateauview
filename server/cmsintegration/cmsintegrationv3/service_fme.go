@@ -12,57 +12,23 @@ import (
 
 func sendRequestToFME(ctx context.Context, s *Services, conf *Config, w *cmswebhook.Payload) error {
 	featureType := strings.TrimPrefix(w.ItemData.Model.Key, modelPrefix)
-	itemID := w.ItemData.Item.ID
-	if w.ItemData.Item.MetadataItemID == nil {
-		log.Debugfc(ctx, "cmsintegrationv2: no metadata item id")
-		return nil
+	mainItem, err := s.GetMainItemWithMetadata(ctx, w.ItemData.Item)
+	if err != nil {
+		return err
 	}
 
-	item := FeatureItemFrom(w.ItemData.Item)
+	item := FeatureItemFrom(mainItem)
 	if item.ConvertionStatus != "" && item.ConvertionStatus != ConvertionStatusNotStarted {
-		log.Debugfc(ctx, "cmsintegrationv2: already converted")
+		log.Debugfc(ctx, "cmsintegrationv3: already converted")
 		return nil
 	}
 
 	if item.SkipQC && item.SkipConvert || item.CityGML == "" || item.City == "" {
-		log.Debugfc(ctx, "cmsintegrationv2: skip convert")
+		log.Debugfc(ctx, "cmsintegrationv3: skip convert")
 		return nil
 	}
 
-	log.Infofc(ctx, "cmsintegrationv2: sendRequestToFME")
-
-	// get CityGML asset
-	cityGMLAsset, err := s.CMS.Asset(ctx, item.CityGML)
-	if err != nil {
-		_ = failToConvert(ctx, s, itemID, "CityGMLが見つかりません。")
-		return fmt.Errorf("failed to get citygml asset: %w", err)
-	}
-
-	// get city item
-	cityItemRaw, err := s.CMS.GetItem(ctx, item.City, false)
-	if err != nil {
-		_ = failToConvert(ctx, s, itemID, "都市アイテムが見つかりません。")
-		return fmt.Errorf("failed to get city item: %w", err)
-	}
-
-	cityItem := CityItemFrom(cityItemRaw)
-	if cityItem.CodeLists == "" {
-		_ = failToConvert(ctx, s, itemID, "コードリストが都市アイテムに登録されていないため品質検査・変換を開始できません。")
-		return fmt.Errorf("city item has no codelist")
-	}
-
-	// get codelist asset
-	codelistAsset, err := s.CMS.Asset(ctx, cityItem.CodeLists)
-	if err != nil {
-		_ = failToConvert(ctx, s, itemID, "コードリストが見つかりません。")
-		return fmt.Errorf("failed to get codelist asset: %w", err)
-	}
-
-	// update convertion status
-	err = s.UpdateFeatureItemStatus(ctx, itemID, ConvertionStatusRunning)
-	if err != nil {
-		return fmt.Errorf("failed to update item: %w", err)
-	}
+	log.Infofc(ctx, "cmsintegrationv3: sendRequestToFME")
 
 	ty := fmeTypeQcConv
 	if item.SkipQC {
@@ -71,12 +37,46 @@ func sendRequestToFME(ctx context.Context, s *Services, conf *Config, w *cmswebh
 		ty = fmeTypeQC
 	}
 
+	// update convertion status
+	err = s.UpdateFeatureItemStatus(ctx, mainItem.ID, ty, ConvertionStatusRunning)
+	if err != nil {
+		return fmt.Errorf("failed to update item: %w", err)
+	}
+
+	// get CityGML asset
+	cityGMLAsset, err := s.CMS.Asset(ctx, item.CityGML)
+	if err != nil {
+		_ = failToConvert(ctx, s, mainItem.ID, ty, "CityGMLが見つかりません。")
+		return fmt.Errorf("failed to get citygml asset: %w", err)
+	}
+
+	// get city item
+	cityItemRaw, err := s.CMS.GetItem(ctx, item.City, false)
+	if err != nil {
+		_ = failToConvert(ctx, s, mainItem.ID, ty, "都市アイテムが見つかりません。")
+		return fmt.Errorf("failed to get city item: %w", err)
+	}
+
+	cityItem := CityItemFrom(cityItemRaw)
+	if cityItem.CodeLists == "" {
+		_ = failToConvert(ctx, s, mainItem.ID, ty, "コードリストが都市アイテムに登録されていないため品質検査・変換を開始できません。")
+		return fmt.Errorf("city item has no codelist")
+	}
+
+	// get codelist asset
+	codelistAsset, err := s.CMS.Asset(ctx, cityItem.CodeLists)
+	if err != nil {
+		_ = failToConvert(ctx, s, mainItem.ID, ty, "コードリストが見つかりません。")
+		return fmt.Errorf("failed to get codelist asset: %w", err)
+	}
+
 	// request to fme
 	err = s.FME.Request(ctx, fmeRequest{
 		ID: fmeID{
-			ItemID:      itemID,
+			ItemID:      mainItem.ID,
 			ProjectID:   w.ProjectID(),
 			FeatureType: featureType,
+			Type:        string(ty),
 		}.String(conf.Secret),
 		Target:    cityGMLAsset.URL,
 		PRCS:      cityItem.PRCS.ESPGCode(),
@@ -86,12 +86,12 @@ func sendRequestToFME(ctx context.Context, s *Services, conf *Config, w *cmswebh
 		// Config: ,
 	})
 	if err != nil {
-		_ = failToConvert(ctx, s, itemID, "FMEへのリクエストに失敗しました。")
+		_ = failToConvert(ctx, s, mainItem.ID, ty, "FMEへのリクエストに失敗しました。%v", err)
 		return fmt.Errorf("failed to request to fme: %w", err)
 	}
 
 	// post a comment to the item
-	err = s.CMS.CommentToItem(ctx, itemID, "品質検査・変換を開始しました。")
+	err = s.CMS.CommentToItem(ctx, mainItem.ID, "品質検査・変換を開始しました。")
 	if err != nil {
 		return fmt.Errorf("failed to add comment: %w", err)
 	}
@@ -109,7 +109,7 @@ func receiveResultFromFME(ctx context.Context, s *Services, conf *Config, f fmeR
 		return fmt.Errorf("invalid status")
 	}
 
-	log.Infofc(ctx, "cmsintegrationv2: receiveResultFromFME")
+	log.Infofc(ctx, "cmsintegrationv3: receiveResultFromFME")
 
 	logmsg := ""
 	if f.LogURL != "" {
@@ -118,8 +118,8 @@ func receiveResultFromFME(ctx context.Context, s *Services, conf *Config, f fmeR
 
 	// handle error
 	if f.Status == "error" {
-		log.Warnfc(ctx, "cmsintegrationv2: failed to convert: %v", f.LogURL)
-		_ = failToConvert(ctx, s, id.ItemID, "品質検査・変換に失敗しました。"+logmsg)
+		log.Warnfc(ctx, "cmsintegrationv3: failed to convert: %v", f.LogURL)
+		_ = failToConvert(ctx, s, id.ItemID, fmeRequestType(id.Type), "品質検査・変換に失敗しました。"+logmsg)
 		return nil
 	}
 
@@ -133,7 +133,7 @@ func receiveResultFromFME(ctx context.Context, s *Services, conf *Config, f fmeR
 		for _, url := range assets.Data {
 			aid, err := s.CMS.UploadAsset(ctx, id.ProjectID, url)
 			if err != nil {
-				log.Errorfc(ctx, "cmsintegrationv2: failed to upload asset (%s): %v", url, err)
+				log.Errorfc(ctx, "cmsintegrationv3: failed to upload asset (%s): %v", url, err)
 				return nil
 			}
 			dataAssets = append(dataAssets, aid)
@@ -143,7 +143,7 @@ func receiveResultFromFME(ctx context.Context, s *Services, conf *Config, f fmeR
 	// upload dic
 	var dicAssetID string
 	if assets.Dic != "" {
-		log.Debugfc(ctx, "cmsintegrationv2: upload dic: %s", assets.Dic)
+		log.Debugfc(ctx, "cmsintegrationv3: upload dic: %s", assets.Dic)
 		var err error
 		dicAssetID, err = s.CMS.UploadAsset(ctx, id.ProjectID, assets.Dic)
 		if err != nil {
@@ -154,7 +154,7 @@ func receiveResultFromFME(ctx context.Context, s *Services, conf *Config, f fmeR
 	// upload maxlod
 	var maxlodAssetID string
 	if assets.MaxLOD != "" {
-		log.Debugfc(ctx, "cmsintegrationv2: upload maxlod: %s", assets.MaxLOD)
+		log.Debugfc(ctx, "cmsintegrationv3: upload maxlod: %s", assets.MaxLOD)
 		var err error
 		maxlodAssetID, err = s.CMS.UploadAsset(ctx, id.ProjectID, assets.MaxLOD)
 		if err != nil {
@@ -164,14 +164,23 @@ func receiveResultFromFME(ctx context.Context, s *Services, conf *Config, f fmeR
 
 	// update item
 	convStatus := ConvertionStatus("")
+	qcStatus := ConvertionStatus("")
+
 	if f.Type == "conv" {
 		convStatus = ConvertionStatusSuccess
+		if id.Type == string(fmeTypeQcConv) {
+			qcStatus = ConvertionStatusSuccess
+		}
+	} else if f.Type == "qc" {
+		convStatus = ConvertionStatusSuccess
 	}
+
 	item := (&FeatureItem{
 		Data:             dataAssets,
 		Dic:              dicAssetID,
 		MaxLOD:           maxlodAssetID,
 		ConvertionStatus: convStatus,
+		QCStatus:         qcStatus,
 	}).CMSItem()
 
 	_, err := s.CMS.UpdateItem(ctx, id.ItemID, item.Fields, item.MetadataFields)
@@ -191,12 +200,12 @@ func receiveResultFromFME(ctx context.Context, s *Services, conf *Config, f fmeR
 	return nil
 }
 
-func failToConvert(ctx context.Context, s *Services, itemID, message string) error {
-	if err := s.UpdateFeatureItemStatus(ctx, itemID, ConvertionStatusError); err != nil {
+func failToConvert(ctx context.Context, s *Services, itemID string, convType fmeRequestType, message string, args ...any) error {
+	if err := s.UpdateFeatureItemStatus(ctx, itemID, convType, ConvertionStatusError); err != nil {
 		return fmt.Errorf("failed to update item: %w", err)
 	}
 
-	if err := s.CMS.CommentToItem(ctx, itemID, message); err != nil {
+	if err := s.CMS.CommentToItem(ctx, itemID, fmt.Sprintf(message, args...)); err != nil {
 		return fmt.Errorf("failed to add comment: %w", err)
 	}
 

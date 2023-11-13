@@ -12,6 +12,7 @@ type fmeID struct {
 	ItemID      string
 	ProjectID   string
 	FeatureType string
+	Type        string
 }
 
 func parseFMEID(id, secret string) (fmeID, error) {
@@ -20,8 +21,8 @@ func parseFMEID(id, secret string) (fmeID, error) {
 		return fmeID{}, err
 	}
 
-	s := strings.SplitN(payload, ";", 4)
-	if len(s) != 4 || s[0] != fmeIDPrefix {
+	s := strings.SplitN(payload, ";", 5)
+	if len(s) != 5 || s[0] != fmeIDPrefix {
 		return fmeID{}, ErrInvalidFMEID
 	}
 
@@ -29,11 +30,12 @@ func parseFMEID(id, secret string) (fmeID, error) {
 		ItemID:      s[1],
 		ProjectID:   s[2],
 		FeatureType: s[3],
+		Type:        s[4],
 	}, nil
 }
 
 func (i fmeID) String(secret string) string {
-	payload := fmt.Sprintf("%s;%s;%s;%s", fmeIDPrefix, i.ItemID, i.ProjectID, i.FeatureType)
+	payload := fmt.Sprintf("%s;%s;%s;%s;%s", fmeIDPrefix, i.ItemID, i.ProjectID, i.FeatureType, i.Type)
 	return signFMEID(payload, secret)
 }
 
