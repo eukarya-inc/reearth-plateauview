@@ -49,6 +49,12 @@ export const defaultProject: Project = {
           "https://gic-plateau.s3.ap-northeast-1.amazonaws.com/2020/ortho/tiles/{z}/{x}/{y}.png",
         tile_type: "url",
       },
+      {
+        id: "base-tile",
+        tile_url:
+          "https://assets.cms.plateau.reearth.io/assets/7d/94b9ee-190a-419a-a192-64fc24ea6878/plateau-ortho-2022/{z}/{x}/{y}.png",
+        tile_type: "url",
+      },
     ],
     atmosphere: { shadows: true },
     light: {
