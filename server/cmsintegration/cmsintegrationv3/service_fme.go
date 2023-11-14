@@ -11,6 +11,11 @@ import (
 )
 
 func sendRequestToFME(ctx context.Context, s *Services, conf *Config, w *cmswebhook.Payload) error {
+	// if event type is "item.create" and payload is metadata, skip it
+	if w.Type != cmswebhook.EventItemCreate && w.ItemData.Item.OriginalItemID != nil {
+		return nil
+	}
+
 	featureType := strings.TrimPrefix(w.ItemData.Model.Key, modelPrefix)
 	mainItem, err := s.GetMainItemWithMetadata(ctx, w.ItemData.Item)
 	if err != nil {
@@ -91,7 +96,7 @@ func sendRequestToFME(ctx context.Context, s *Services, conf *Config, w *cmswebh
 	}
 
 	// post a comment to the item
-	err = s.CMS.CommentToItem(ctx, mainItem.ID, "品質検査・変換を開始しました。")
+	err = s.CMS.CommentToItem(ctx, mainItem.ID, fmt.Sprintf("%sを開始しました。", ty.Title()))
 	if err != nil {
 		return fmt.Errorf("failed to add comment: %w", err)
 	}
@@ -119,7 +124,7 @@ func receiveResultFromFME(ctx context.Context, s *Services, conf *Config, f fmeR
 	// handle error
 	if f.Status == "error" {
 		log.Warnfc(ctx, "cmsintegrationv3: failed to convert: %v", f.LogURL)
-		_ = failToConvert(ctx, s, id.ItemID, fmeRequestType(id.Type), "品質検査・変換に失敗しました。"+logmsg)
+		_ = failToConvert(ctx, s, id.ItemID, fmeRequestType(id.Type), "%sに失敗しました。%s", fmeRequestType(id.Type).Title(), logmsg)
 		return nil
 	}
 
@@ -192,7 +197,7 @@ func receiveResultFromFME(ctx context.Context, s *Services, conf *Config, f fmeR
 	}
 
 	// comment to the item
-	err = s.CMS.CommentToItem(ctx, id.ItemID, "品質検査・変換が完了しました。"+logmsg)
+	err = s.CMS.CommentToItem(ctx, id.ItemID, fmt.Sprintf("%sが完了しました。%s", fmeRequestType(id.Type).Title(), logmsg))
 	if err != nil {
 		return fmt.Errorf("failed to add comment: %w", err)
 	}

@@ -23,6 +23,15 @@ const (
 	fmeTypeQcConv fmeRequestType = "qc_conv"
 )
 
+func (t fmeRequestType) Title() string {
+	if t == fmeTypeConv {
+		return "変換"
+	} else if t == fmeTypeQC {
+		return "品質検査"
+	}
+	return "品質検査・変換"
+}
+
 var ErrInvalidFMEID = errors.New("invalid fme id")
 
 type fmeInterface interface {
