@@ -360,12 +360,14 @@ func TestReceiveResultFromFME(t *testing.T) {
 			ItemID:      "itemID",
 			ProjectID:   "projectID",
 			FeatureType: "bldg",
+			Type:        "qc_conv",
 		}.String("secret"),
 		Results: map[string]any{
 			"_dic":    "dic",
 			"_maxlod": "maxlod",
 			"bldg":    "bldg",
 		},
+		Status: "success",
 	}
 
 	// test case 1: success
@@ -401,6 +403,11 @@ func TestReceiveResultFromFME(t *testing.T) {
 				Type:  "select",
 				Value: ConvertionStatusSuccess,
 			},
+			{
+				Key:   "qc_status",
+				Type:  "select",
+				Value: ConvertionStatusSuccess,
+			},
 		}, metadataFields)
 		return nil, nil
 	}
@@ -428,6 +435,11 @@ func TestReceiveResultFromFME(t *testing.T) {
 		assert.Equal(t, []*cms.Field{
 			{
 				Key:   "conv_status",
+				Type:  "select",
+				Value: ConvertionStatusError,
+			},
+			{
+				Key:   "qc_status",
 				Type:  "select",
 				Value: ConvertionStatusError,
 			},
