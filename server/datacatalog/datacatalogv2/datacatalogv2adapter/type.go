@@ -223,7 +223,7 @@ func genericDatasetFrom(d datacatalogv2.DataCatalogItem) (plateauapi.GenericData
 }
 
 func datasetFormatFrom(f string) plateauapi.DatasetFormat {
-	switch f {
+	switch strings.ToLower(f) {
 	case "geojson":
 		return plateauapi.DatasetFormatGeojson
 	case "3dtiles":
