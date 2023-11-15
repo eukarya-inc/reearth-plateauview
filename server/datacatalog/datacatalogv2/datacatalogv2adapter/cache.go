@@ -83,20 +83,26 @@ func newCache(r datacatalogv2.ResponseAll) (*cache, error) {
 			}
 		}
 
-		if ty := plateauDatasetTypeFrom(d); lo.IsNotEmpty(ty) {
-			if !lo.Contains(cache.plateauDatasetTypes, ty) {
+		if ty := plateauDatasetTypeFrom(d); ty.ID != "" {
+			if !lo.ContainsBy(cache.plateauDatasetTypes, func(t plateauapi.PlateauDatasetType) bool {
+				return t.ID == ty.ID
+			}) {
 				cache.plateauDatasetTypes = append(cache.plateauDatasetTypes, ty)
 			}
 		}
 
-		if ty := relatedDatasetTypeFrom(d); lo.IsNotEmpty(ty) {
-			if !lo.Contains(cache.relatedDatasetTypes, ty) {
+		if ty := relatedDatasetTypeFrom(d); ty.ID != "" {
+			if !lo.ContainsBy(cache.relatedDatasetTypes, func(t plateauapi.RelatedDatasetType) bool {
+				return t.ID == ty.ID
+			}) {
 				cache.relatedDatasetTypes = append(cache.relatedDatasetTypes, ty)
 			}
 		}
 
-		if ty := genericDatasetTypeFrom(d); lo.IsNotEmpty(ty) {
-			if !lo.Contains(cache.genericDatasetTypes, ty) {
+		if ty := genericDatasetTypeFrom(d); ty.ID != "" {
+			if !lo.ContainsBy(cache.genericDatasetTypes, func(t plateauapi.GenericDatasetType) bool {
+				return t.ID == ty.ID
+			}) {
 				cache.genericDatasetTypes = append(cache.genericDatasetTypes, ty)
 			}
 		}

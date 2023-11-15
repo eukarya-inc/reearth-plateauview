@@ -198,17 +198,20 @@ func genericDatasetFrom(d datacatalogv2.DataCatalogItem) (plateauapi.GenericData
 
 	id := datasetIDFrom(d, nil)
 	return plateauapi.GenericDataset{
-		ID:           id,
-		Name:         d.Name,
-		Subname:      nil,
-		Description:  lo.ToPtr(d.Description),
-		PrefectureID: prefectureIDFrom(d),
-		CityID:       cityIDFrom(d),
-		WardID:       wardIDFrom(d),
-		Year:         d.Year,
-		TypeID:       datasetTypeIDFrom(d),
-		TypeCode:     datasetTypeCodeFrom(d),
-		Groups:       groupsFrom(d),
+		ID:             id,
+		Name:           d.Name,
+		Subname:        nil,
+		Description:    lo.ToPtr(d.Description),
+		PrefectureID:   prefectureIDFrom(d),
+		PrefectureCode: prefectureCodeFrom(d),
+		CityID:         cityIDFrom(d),
+		CityCode:       cityCodeFrom(d),
+		WardID:         wardIDFrom(d),
+		WardCode:       wardCodeFrom(d),
+		Year:           d.Year,
+		TypeID:         datasetTypeIDFrom(d),
+		TypeCode:       datasetTypeCodeFrom(d),
+		Groups:         groupsFrom(d),
 		Items: lo.Map(d.MainOrConfigItems(), func(c datacatalogutil.DataCatalogItemConfigItem, _ int) *plateauapi.GenericDatasetItem {
 			return &plateauapi.GenericDatasetItem{
 				ID:       plateauapi.NewID(fmt.Sprintf("%s:%s", d.ID, c.Name), plateauapi.TypeDatasetItem),

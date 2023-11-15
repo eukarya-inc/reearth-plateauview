@@ -34,6 +34,7 @@ func webhookHandler(ctx context.Context, s *Service, w *cmswebhook.Payload) erro
 	pid := w.ProjectID()
 	if w.Type != cmswebhook.EventItemCreate && w.Type != cmswebhook.EventItemUpdate ||
 		pid == "" ||
+		w.ItemData == nil ||
 		w.ItemData.Item == nil ||
 		w.ItemData.Model == nil ||
 		w.ItemData.Model.Key != s.model() ||

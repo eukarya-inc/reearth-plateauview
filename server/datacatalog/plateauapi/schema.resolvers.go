@@ -73,6 +73,26 @@ func (r *genericDatasetItemResolver) Parent(ctx context.Context, obj *GenericDat
 	return to[*GenericDataset](r.Repo.Node(ctx, obj.ParentID))
 }
 
+// Datasets is the resolver for the datasets field.
+func (r *genericDatasetTypeResolver) Datasets(ctx context.Context, obj *GenericDatasetType, input *DatasetsInput) ([]*GenericDataset, error) {
+	if input == nil {
+		input = &DatasetsInput{}
+	}
+	input.IncludeTypes = []string{obj.Code}
+	input.ExcludeTypes = nil
+	datasets, err := r.Repo.Datasets(ctx, input)
+	if err != nil {
+		return nil, err
+	}
+
+	return lo.FilterMap(datasets, func(d Dataset, _ int) (*GenericDataset, bool) {
+		if m, ok := d.(*GenericDataset); ok {
+			return m, ok
+		}
+		return nil, false
+	}), nil
+}
+
 // Prefecture is the resolver for the prefecture field.
 func (r *plateauDatasetResolver) Prefecture(ctx context.Context, obj *PlateauDataset) (*Prefecture, error) {
 	return to[*Prefecture](r.Repo.Node(ctx, obj.PrefectureID))
@@ -112,6 +132,26 @@ func (r *plateauDatasetItemResolver) Parent(ctx context.Context, obj *PlateauDat
 // PlateauSpec is the resolver for the plateauSpec field.
 func (r *plateauDatasetTypeResolver) PlateauSpec(ctx context.Context, obj *PlateauDatasetType) (*PlateauSpec, error) {
 	return to[*PlateauSpec](r.Repo.Node(ctx, obj.PlateauSpecID))
+}
+
+// Datasets is the resolver for the datasets field.
+func (r *plateauDatasetTypeResolver) Datasets(ctx context.Context, obj *PlateauDatasetType, input *DatasetsInput) ([]*PlateauDataset, error) {
+	if input == nil {
+		input = &DatasetsInput{}
+	}
+	input.IncludeTypes = []string{obj.Code}
+	input.ExcludeTypes = nil
+	datasets, err := r.Repo.Datasets(ctx, input)
+	if err != nil {
+		return nil, err
+	}
+
+	return lo.FilterMap(datasets, func(d Dataset, _ int) (*PlateauDataset, bool) {
+		if m, ok := d.(*PlateauDataset); ok {
+			return m, ok
+		}
+		return nil, false
+	}), nil
 }
 
 // DatasetTypes is the resolver for the datasetTypes field.
@@ -242,6 +282,26 @@ func (r *relatedDatasetItemResolver) Parent(ctx context.Context, obj *RelatedDat
 	return to[*RelatedDataset](r.Repo.Node(ctx, obj.ParentID))
 }
 
+// Datasets is the resolver for the datasets field.
+func (r *relatedDatasetTypeResolver) Datasets(ctx context.Context, obj *RelatedDatasetType, input *DatasetsInput) ([]*RelatedDataset, error) {
+	if input == nil {
+		input = &DatasetsInput{}
+	}
+	input.IncludeTypes = []string{obj.Code}
+	input.ExcludeTypes = nil
+	datasets, err := r.Repo.Datasets(ctx, input)
+	if err != nil {
+		return nil, err
+	}
+
+	return lo.FilterMap(datasets, func(d Dataset, _ int) (*RelatedDataset, bool) {
+		if m, ok := d.(*RelatedDataset); ok {
+			return m, ok
+		}
+		return nil, false
+	}), nil
+}
+
 // Prefecture is the resolver for the prefecture field.
 func (r *wardResolver) Prefecture(ctx context.Context, obj *Ward) (*Prefecture, error) {
 	return to[*Prefecture](r.Repo.Node(ctx, obj.PrefectureID))
@@ -270,6 +330,11 @@ func (r *Resolver) GenericDataset() GenericDatasetResolver { return &genericData
 // GenericDatasetItem returns GenericDatasetItemResolver implementation.
 func (r *Resolver) GenericDatasetItem() GenericDatasetItemResolver {
 	return &genericDatasetItemResolver{r}
+}
+
+// GenericDatasetType returns GenericDatasetTypeResolver implementation.
+func (r *Resolver) GenericDatasetType() GenericDatasetTypeResolver {
+	return &genericDatasetTypeResolver{r}
 }
 
 // PlateauDataset returns PlateauDatasetResolver implementation.
@@ -305,12 +370,18 @@ func (r *Resolver) RelatedDatasetItem() RelatedDatasetItemResolver {
 	return &relatedDatasetItemResolver{r}
 }
 
+// RelatedDatasetType returns RelatedDatasetTypeResolver implementation.
+func (r *Resolver) RelatedDatasetType() RelatedDatasetTypeResolver {
+	return &relatedDatasetTypeResolver{r}
+}
+
 // Ward returns WardResolver implementation.
 func (r *Resolver) Ward() WardResolver { return &wardResolver{r} }
 
 type cityResolver struct{ *Resolver }
 type genericDatasetResolver struct{ *Resolver }
 type genericDatasetItemResolver struct{ *Resolver }
+type genericDatasetTypeResolver struct{ *Resolver }
 type plateauDatasetResolver struct{ *Resolver }
 type plateauDatasetItemResolver struct{ *Resolver }
 type plateauDatasetTypeResolver struct{ *Resolver }
@@ -320,4 +391,5 @@ type prefectureResolver struct{ *Resolver }
 type queryResolver struct{ *Resolver }
 type relatedDatasetResolver struct{ *Resolver }
 type relatedDatasetItemResolver struct{ *Resolver }
+type relatedDatasetTypeResolver struct{ *Resolver }
 type wardResolver struct{ *Resolver }

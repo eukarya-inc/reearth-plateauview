@@ -144,6 +144,16 @@ models:
     fields:
       plateauSpec:
         resolver: true
+      datasets:
+        resolver: true
+  RelatedDatasetType:
+    fields:
+      datasets:
+        resolver: true
+  GenericDatasetType:
+    fields:
+      datasets:
+        resolver: true
   PlateauSpec:
     fields:
       datasetTypes:

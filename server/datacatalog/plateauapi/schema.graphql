@@ -378,6 +378,10 @@ interface DatasetType implements Node {
   データセットの種類のカテゴリ。
   """
   category: DatasetTypeCategory!
+  """
+  データセット（DatasetInput内のincludeTypesとexcludeTypesの指定は無視されます）。
+  """
+  datasets(input: DatasetsInput): [Dataset!]!
 }
 
 """
@@ -632,6 +636,10 @@ type PlateauDatasetType implements DatasetType & Node {
   洪水・高潮・津波・内水浸水想定区域モデルを表す種類かどうか。河川などの情報が利用可能です。
   """
   flood: Boolean!
+  """
+  データセット（DatasetInput内のincludeTypesとexcludeTypesの指定は無視されます）。
+  """
+  datasets(input: DatasetsInput): [PlateauDataset!]!
 }
 
 # related dataset
@@ -765,6 +773,10 @@ type RelatedDatasetType implements DatasetType & Node {
   データセットの種類のカテゴリ。
   """
   category: DatasetTypeCategory!
+  """
+  データセット（DatasetInput内のincludeTypesとexcludeTypesの指定は無視されます）。
+  """
+  datasets(input: DatasetsInput): [RelatedDataset!]!
 }
 
 # Generic
@@ -897,6 +909,10 @@ type GenericDatasetType implements DatasetType & Node {
   データセットの種類のカテゴリ。
   """
   category: DatasetTypeCategory!
+  """
+  データセット（DatasetInput内のincludeTypesとexcludeTypesの指定は無視されます）。
+  """
+  datasets(input: DatasetsInput): [GenericDataset!]!
 }
 
 # Queries

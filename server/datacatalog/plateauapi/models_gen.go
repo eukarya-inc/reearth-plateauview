@@ -98,6 +98,8 @@ type DatasetType interface {
 	GetName() string
 	// データセットの種類のカテゴリ。
 	GetCategory() DatasetTypeCategory
+	// データセット（DatasetInput内のincludeTypesとexcludeTypesの指定は無視されます）。
+	GetDatasets() []Dataset
 }
 
 // IDを持つオブジェクト。nodeまたはnodesクエリでIDを指定して検索可能です。
@@ -375,6 +377,8 @@ type GenericDatasetType struct {
 	Name string `json:"name"`
 	// データセットの種類のカテゴリ。
 	Category DatasetTypeCategory `json:"category"`
+	// データセット（DatasetInput内のincludeTypesとexcludeTypesの指定は無視されます）。
+	Datasets []*GenericDataset `json:"datasets"`
 }
 
 func (GenericDatasetType) IsDatasetType() {}
@@ -388,6 +392,18 @@ func (this GenericDatasetType) GetName() string { return this.Name }
 
 // データセットの種類のカテゴリ。
 func (this GenericDatasetType) GetCategory() DatasetTypeCategory { return this.Category }
+
+// データセット（DatasetInput内のincludeTypesとexcludeTypesの指定は無視されます）。
+func (this GenericDatasetType) GetDatasets() []Dataset {
+	if this.Datasets == nil {
+		return nil
+	}
+	interfaceSlice := make([]Dataset, 0, len(this.Datasets))
+	for _, concrete := range this.Datasets {
+		interfaceSlice = append(interfaceSlice, concrete)
+	}
+	return interfaceSlice
+}
 
 func (GenericDatasetType) IsNode() {}
 
@@ -599,6 +615,8 @@ type PlateauDatasetType struct {
 	Year int `json:"year"`
 	// 洪水・高潮・津波・内水浸水想定区域モデルを表す種類かどうか。河川などの情報が利用可能です。
 	Flood bool `json:"flood"`
+	// データセット（DatasetInput内のincludeTypesとexcludeTypesの指定は無視されます）。
+	Datasets []*PlateauDataset `json:"datasets"`
 }
 
 func (PlateauDatasetType) IsDatasetType() {}
@@ -612,6 +630,18 @@ func (this PlateauDatasetType) GetName() string { return this.Name }
 
 // データセットの種類のカテゴリ。
 func (this PlateauDatasetType) GetCategory() DatasetTypeCategory { return this.Category }
+
+// データセット（DatasetInput内のincludeTypesとexcludeTypesの指定は無視されます）。
+func (this PlateauDatasetType) GetDatasets() []Dataset {
+	if this.Datasets == nil {
+		return nil
+	}
+	interfaceSlice := make([]Dataset, 0, len(this.Datasets))
+	for _, concrete := range this.Datasets {
+		interfaceSlice = append(interfaceSlice, concrete)
+	}
+	return interfaceSlice
+}
 
 func (PlateauDatasetType) IsNode() {}
 
@@ -882,6 +912,8 @@ type RelatedDatasetType struct {
 	Name string `json:"name"`
 	// データセットの種類のカテゴリ。
 	Category DatasetTypeCategory `json:"category"`
+	// データセット（DatasetInput内のincludeTypesとexcludeTypesの指定は無視されます）。
+	Datasets []*RelatedDataset `json:"datasets"`
 }
 
 func (RelatedDatasetType) IsDatasetType() {}
@@ -895,6 +927,18 @@ func (this RelatedDatasetType) GetName() string { return this.Name }
 
 // データセットの種類のカテゴリ。
 func (this RelatedDatasetType) GetCategory() DatasetTypeCategory { return this.Category }
+
+// データセット（DatasetInput内のincludeTypesとexcludeTypesの指定は無視されます）。
+func (this RelatedDatasetType) GetDatasets() []Dataset {
+	if this.Datasets == nil {
+		return nil
+	}
+	interfaceSlice := make([]Dataset, 0, len(this.Datasets))
+	for _, concrete := range this.Datasets {
+		interfaceSlice = append(interfaceSlice, concrete)
+	}
+	return interfaceSlice
+}
 
 func (RelatedDatasetType) IsNode() {}
 
