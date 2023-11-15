@@ -362,6 +362,7 @@ func TestReceiveResultFromFME(t *testing.T) {
 			FeatureType: "bldg",
 			Type:        "qc_conv",
 		}.String("secret"),
+		LogURL: "log_ok",
 		Results: map[string]any{
 			"_dic":    "dic",
 			"_maxlod": "maxlod",
@@ -385,6 +386,11 @@ func TestReceiveResultFromFME(t *testing.T) {
 				Key:   "data",
 				Type:  "asset",
 				Value: []string{"bldg"},
+			},
+			{
+				Key:   "qc_result",
+				Type:  "asset",
+				Value: "log_ok",
 			},
 			{
 				Key:   "dic",
@@ -418,7 +424,7 @@ func TestReceiveResultFromFME(t *testing.T) {
 
 	err := receiveResultFromFME(ctx, s, conf, *res)
 	assert.NoError(t, err)
-	assert.Equal(t, []string{"bldg", "dic", "maxlod"}, uploaded)
+	assert.Equal(t, []string{"bldg", "dic", "maxlod", "log_ok"}, uploaded)
 
 	// test case 2: invalid id
 	r := *res

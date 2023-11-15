@@ -167,6 +167,17 @@ func receiveResultFromFME(ctx context.Context, s *Services, conf *Config, f fmeR
 		}
 	}
 
+	// upload qc result
+	var qcResult string
+	if f.Status != "error" && f.LogURL != "" {
+		log.Debugfc(ctx, "cmsintegrationv3: upload qc result: %s", f.LogURL)
+		var err error
+		qcResult, err = s.CMS.UploadAsset(ctx, id.ProjectID, f.LogURL)
+		if err != nil {
+			return fmt.Errorf("failed to upload qc result: %w", err)
+		}
+	}
+
 	// update item
 	convStatus := ConvertionStatus("")
 	qcStatus := ConvertionStatus("")
@@ -186,6 +197,7 @@ func receiveResultFromFME(ctx context.Context, s *Services, conf *Config, f fmeR
 		MaxLOD:           maxlodAssetID,
 		ConvertionStatus: convStatus,
 		QCStatus:         qcStatus,
+		QCResult:         qcResult,
 	}).CMSItem()
 
 	_, err := s.CMS.UpdateItem(ctx, id.ItemID, item.Fields, item.MetadataFields)
