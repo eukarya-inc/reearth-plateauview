@@ -13,7 +13,7 @@ interface Node {
 """
 行政コードを表す文字列。
 都道府県の場合は、2桁の数字で構成された文字列です。
-自治体の場合は、先頭に2桁の都道府県コードを含む、6桁の数字で構成された文字列です。
+自治体の場合は、先頭に2桁の都道府県コードを含む、5桁の数字で構成された文字列です。
 """
 scalar AreaCode
 
@@ -28,7 +28,7 @@ interface Area implements Node {
   """
   地域コード。行政コードや市区町村コードとも呼ばれます。
   都道府県の場合は二桁の数字から成る文字列です。
-  市区町村の場合は、先頭に都道府県コードを含む6桁の数字から成る文字列です。
+  市区町村の場合は、先頭に都道府県コードを含む5桁の数字から成る文字列です。
   """
   code: AreaCode!
   """
@@ -70,7 +70,7 @@ type Prefecture implements Area & Node {
 type City implements Area & Node {
   id: ID!
   """
-  市区町村コード。先頭に都道府県コードを含む6桁の数字から成る文字列です。
+  市区町村コード。先頭に都道府県コードを含む5桁の数字から成る文字列です。
   """
   code: AreaCode!
   """
@@ -105,7 +105,7 @@ type City implements Area & Node {
 type Ward implements Area & Node {
   id: ID!
   """
-  区コード。先頭に都道府県コードを含む6桁の数字から成る文字列です。
+  区コード。先頭に都道府県コードを含む5桁の数字から成る文字列です。
   """
   code: AreaCode!
   """
@@ -125,7 +125,7 @@ type Ward implements Area & Node {
   """
   cityId: ID!
   """
-  区が属する市のコード。先頭に都道府県コードを含む6桁の数字から成る文字列です。
+  区が属する市のコード。先頭に都道府県コードを含む5桁の数字から成る文字列です。
   """
   cityCode: AreaCode!
   """
@@ -242,7 +242,7 @@ interface Dataset implements Node {
   """
   cityId: ID
   """
-  データセットが属する市コード。先頭に都道府県コードを含む6桁の数字から成る文字列です。
+  データセットが属する市コード。先頭に都道府県コードを含む5桁の数字から成る文字列です。
   """
   cityCode: AreaCode
   """
@@ -250,7 +250,7 @@ interface Dataset implements Node {
   """
   wardId: ID
   """
-  データセットが属する区コード。先頭に都道府県コードを含む6桁の数字から成る文字列です。
+  データセットが属する区コード。先頭に都道府県コードを含む5桁の数字から成る文字列です。
   """
   wardCode: AreaCode
   """
@@ -442,7 +442,7 @@ type PlateauDataset implements Dataset & Node {
   """
   cityId: ID
   """
-  データセットが属する市コード。先頭に都道府県コードを含む6桁の数字から成る文字列です。
+  データセットが属する市コード。先頭に都道府県コードを含む5桁の数字から成る文字列です。
   """
   cityCode: AreaCode
   """
@@ -450,7 +450,7 @@ type PlateauDataset implements Dataset & Node {
   """
   wardId: ID
   """
-  データセットが属する区コード。先頭に都道府県コードを含む6桁の数字から成る文字列です。
+  データセットが属する区コード。先頭に都道府県コードを含む5桁の数字から成る文字列です。
   """
   wardCode: AreaCode
   """
@@ -683,7 +683,7 @@ type RelatedDataset implements Dataset & Node {
   """
   cityId: ID
   """
-  データセットが属する市コード。先頭に都道府県コードを含む6桁の数字から成る文字列です。
+  データセットが属する市コード。先頭に都道府県コードを含む5桁の数字から成る文字列です。
   """
   cityCode: AreaCode
   """
@@ -691,7 +691,7 @@ type RelatedDataset implements Dataset & Node {
   """
   wardId: ID
   """
-  データセットが属する区コード。先頭に都道府県コードを含む6桁の数字から成る文字列です。
+  データセットが属する区コード。先頭に都道府県コードを含む5桁の数字から成る文字列です。
   """
   wardCode: AreaCode
   """
@@ -819,7 +819,7 @@ type GenericDataset implements Dataset & Node {
   """
   cityId: ID
   """
-  データセットが属する市コード。先頭に都道府県コードを含む6桁の数字から成る文字列です。
+  データセットが属する市コード。先頭に都道府県コードを含む5桁の数字から成る文字列です。
   """
   cityCode: AreaCode
   """
@@ -827,7 +827,7 @@ type GenericDataset implements Dataset & Node {
   """
   wardId: ID
   """
-  データセットが属する区コード。先頭に都道府県コードを含む6桁の数字から成る文字列です。
+  データセットが属する区コード。先頭に都道府県コードを含む5桁の数字から成る文字列です。
   """
   wardCode: AreaCode
   """

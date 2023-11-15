@@ -16,7 +16,7 @@ type Area interface {
 	GetID() ID
 	// 地域コード。行政コードや市区町村コードとも呼ばれます。
 	// 都道府県の場合は二桁の数字から成る文字列です。
-	// 市区町村の場合は、先頭に都道府県コードを含む6桁の数字から成る文字列です。
+	// 市区町村の場合は、先頭に都道府県コードを含む5桁の数字から成る文字列です。
 	GetCode() AreaCode
 	// 地域名
 	GetName() string
@@ -45,11 +45,11 @@ type Dataset interface {
 	GetPrefectureCode() AreaCode
 	// データセットが属する市のID。
 	GetCityID() *ID
-	// データセットが属する市コード。先頭に都道府県コードを含む6桁の数字から成る文字列です。
+	// データセットが属する市コード。先頭に都道府県コードを含む5桁の数字から成る文字列です。
 	GetCityCode() *AreaCode
 	// データセットが属する区のID。
 	GetWardID() *ID
-	// データセットが属する区コード。先頭に都道府県コードを含む6桁の数字から成る文字列です。
+	// データセットが属する区コード。先頭に都道府県コードを含む5桁の数字から成る文字列です。
 	GetWardCode() *AreaCode
 	// データセットの種類のID。
 	GetTypeID() ID
@@ -122,7 +122,7 @@ type AreasInput struct {
 // 市区町村
 type City struct {
 	ID ID `json:"id"`
-	// 市区町村コード。先頭に都道府県コードを含む6桁の数字から成る文字列です。
+	// 市区町村コード。先頭に都道府県コードを含む5桁の数字から成る文字列です。
 	Code AreaCode `json:"code"`
 	// 市区町村名
 	Name string `json:"name"`
@@ -143,7 +143,7 @@ func (this City) GetID() ID { return this.ID }
 
 // 地域コード。行政コードや市区町村コードとも呼ばれます。
 // 都道府県の場合は二桁の数字から成る文字列です。
-// 市区町村の場合は、先頭に都道府県コードを含む6桁の数字から成る文字列です。
+// 市区町村の場合は、先頭に都道府県コードを含む5桁の数字から成る文字列です。
 func (this City) GetCode() AreaCode { return this.Code }
 
 // 地域名
@@ -214,11 +214,11 @@ type GenericDataset struct {
 	PrefectureCode AreaCode `json:"prefectureCode"`
 	// データセットが属する市のID。
 	CityID *ID `json:"cityId,omitempty"`
-	// データセットが属する市コード。先頭に都道府県コードを含む6桁の数字から成る文字列です。
+	// データセットが属する市コード。先頭に都道府県コードを含む5桁の数字から成る文字列です。
 	CityCode *AreaCode `json:"cityCode,omitempty"`
 	// データセットが属する区のID。
 	WardID *ID `json:"wardId,omitempty"`
-	// データセットが属する区コード。先頭に都道府県コードを含む6桁の数字から成る文字列です。
+	// データセットが属する区コード。先頭に都道府県コードを含む5桁の数字から成る文字列です。
 	WardCode *AreaCode `json:"wardCode,omitempty"`
 	// データセットの種類のID。
 	TypeID ID `json:"typeId"`
@@ -272,13 +272,13 @@ func (this GenericDataset) GetPrefectureCode() AreaCode { return this.Prefecture
 // データセットが属する市のID。
 func (this GenericDataset) GetCityID() *ID { return this.CityID }
 
-// データセットが属する市コード。先頭に都道府県コードを含む6桁の数字から成る文字列です。
+// データセットが属する市コード。先頭に都道府県コードを含む5桁の数字から成る文字列です。
 func (this GenericDataset) GetCityCode() *AreaCode { return this.CityCode }
 
 // データセットが属する区のID。
 func (this GenericDataset) GetWardID() *ID { return this.WardID }
 
-// データセットが属する区コード。先頭に都道府県コードを含む6桁の数字から成る文字列です。
+// データセットが属する区コード。先頭に都道府県コードを含む5桁の数字から成る文字列です。
 func (this GenericDataset) GetWardCode() *AreaCode { return this.WardCode }
 
 // データセットの種類のID。
@@ -428,11 +428,11 @@ type PlateauDataset struct {
 	PrefectureCode AreaCode `json:"prefectureCode"`
 	// データセットが属する市のID。
 	CityID *ID `json:"cityId,omitempty"`
-	// データセットが属する市コード。先頭に都道府県コードを含む6桁の数字から成る文字列です。
+	// データセットが属する市コード。先頭に都道府県コードを含む5桁の数字から成る文字列です。
 	CityCode *AreaCode `json:"cityCode,omitempty"`
 	// データセットが属する区のID。
 	WardID *ID `json:"wardId,omitempty"`
-	// データセットが属する区コード。先頭に都道府県コードを含む6桁の数字から成る文字列です。
+	// データセットが属する区コード。先頭に都道府県コードを含む5桁の数字から成る文字列です。
 	WardCode *AreaCode `json:"wardCode,omitempty"`
 	// データセットの種類のID。
 	TypeID ID `json:"typeId"`
@@ -494,13 +494,13 @@ func (this PlateauDataset) GetPrefectureCode() AreaCode { return this.Prefecture
 // データセットが属する市のID。
 func (this PlateauDataset) GetCityID() *ID { return this.CityID }
 
-// データセットが属する市コード。先頭に都道府県コードを含む6桁の数字から成る文字列です。
+// データセットが属する市コード。先頭に都道府県コードを含む5桁の数字から成る文字列です。
 func (this PlateauDataset) GetCityCode() *AreaCode { return this.CityCode }
 
 // データセットが属する区のID。
 func (this PlateauDataset) GetWardID() *ID { return this.WardID }
 
-// データセットが属する区コード。先頭に都道府県コードを含む6桁の数字から成る文字列です。
+// データセットが属する区コード。先頭に都道府県コードを含む5桁の数字から成る文字列です。
 func (this PlateauDataset) GetWardCode() *AreaCode { return this.WardCode }
 
 // データセットの種類のID。
@@ -707,7 +707,7 @@ func (this Prefecture) GetID() ID { return this.ID }
 
 // 地域コード。行政コードや市区町村コードとも呼ばれます。
 // 都道府県の場合は二桁の数字から成る文字列です。
-// 市区町村の場合は、先頭に都道府県コードを含む6桁の数字から成る文字列です。
+// 市区町村の場合は、先頭に都道府県コードを含む5桁の数字から成る文字列です。
 func (this Prefecture) GetCode() AreaCode { return this.Code }
 
 // 地域名
@@ -749,11 +749,11 @@ type RelatedDataset struct {
 	PrefectureCode AreaCode `json:"prefectureCode"`
 	// データセットが属する市のID。
 	CityID *ID `json:"cityId,omitempty"`
-	// データセットが属する市コード。先頭に都道府県コードを含む6桁の数字から成る文字列です。
+	// データセットが属する市コード。先頭に都道府県コードを含む5桁の数字から成る文字列です。
 	CityCode *AreaCode `json:"cityCode,omitempty"`
 	// データセットが属する区のID。
 	WardID *ID `json:"wardId,omitempty"`
-	// データセットが属する区コード。先頭に都道府県コードを含む6桁の数字から成る文字列です。
+	// データセットが属する区コード。先頭に都道府県コードを含む5桁の数字から成る文字列です。
 	WardCode *AreaCode `json:"wardCode,omitempty"`
 	// データセットの種類のID。
 	TypeID ID `json:"typeId"`
@@ -807,13 +807,13 @@ func (this RelatedDataset) GetPrefectureCode() AreaCode { return this.Prefecture
 // データセットが属する市のID。
 func (this RelatedDataset) GetCityID() *ID { return this.CityID }
 
-// データセットが属する市コード。先頭に都道府県コードを含む6桁の数字から成る文字列です。
+// データセットが属する市コード。先頭に都道府県コードを含む5桁の数字から成る文字列です。
 func (this RelatedDataset) GetCityCode() *AreaCode { return this.CityCode }
 
 // データセットが属する区のID。
 func (this RelatedDataset) GetWardID() *ID { return this.WardID }
 
-// データセットが属する区コード。先頭に都道府県コードを含む6桁の数字から成る文字列です。
+// データセットが属する区コード。先頭に都道府県コードを含む5桁の数字から成る文字列です。
 func (this RelatedDataset) GetWardCode() *AreaCode { return this.WardCode }
 
 // データセットの種類のID。
@@ -955,7 +955,7 @@ type River struct {
 // 区（政令指定都市のみ）
 type Ward struct {
 	ID ID `json:"id"`
-	// 区コード。先頭に都道府県コードを含む6桁の数字から成る文字列です。
+	// 区コード。先頭に都道府県コードを含む5桁の数字から成る文字列です。
 	Code AreaCode `json:"code"`
 	// 区名
 	Name string `json:"name"`
@@ -965,7 +965,7 @@ type Ward struct {
 	PrefectureCode AreaCode `json:"prefectureCode"`
 	// 区が属する市のID。
 	CityID ID `json:"cityId"`
-	// 区が属する市のコード。先頭に都道府県コードを含む6桁の数字から成る文字列です。
+	// 区が属する市のコード。先頭に都道府県コードを含む5桁の数字から成る文字列です。
 	CityCode AreaCode `json:"cityCode"`
 	// 区が属する都道府県。
 	Prefecture *Prefecture `json:"prefecture,omitempty"`
@@ -980,7 +980,7 @@ func (this Ward) GetID() ID { return this.ID }
 
 // 地域コード。行政コードや市区町村コードとも呼ばれます。
 // 都道府県の場合は二桁の数字から成る文字列です。
-// 市区町村の場合は、先頭に都道府県コードを含む6桁の数字から成る文字列です。
+// 市区町村の場合は、先頭に都道府県コードを含む5桁の数字から成る文字列です。
 func (this Ward) GetCode() AreaCode { return this.Code }
 
 // 地域名
