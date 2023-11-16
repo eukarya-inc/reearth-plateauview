@@ -15,7 +15,7 @@ import (
 
 func sendRequestToFME(ctx context.Context, s *Services, conf *Config, w *cmswebhook.Payload) error {
 	// if event type is "item.create" and payload is metadata, skip it
-	if w.Type != cmswebhook.EventItemCreate && w.ItemData.Item.OriginalItemID != nil {
+	if w.Type == cmswebhook.EventItemCreate && w.ItemData.Item.OriginalItemID != nil {
 		return nil
 	}
 
