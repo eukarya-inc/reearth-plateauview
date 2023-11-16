@@ -67,7 +67,7 @@ const (
 	ConvertionStatusNotStarted ConvertionStatus = "未実行"
 	ConvertionStatusRunning    ConvertionStatus = "実行中"
 	ConvertionStatusError      ConvertionStatus = "エラー"
-	ConvertionStatusSuccess    ConvertionStatus = "成功"
+	ConvertionStatusSuccess    ConvertionStatus = "完了"
 )
 
 type CityItem struct {
