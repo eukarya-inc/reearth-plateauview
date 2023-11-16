@@ -104,6 +104,7 @@ func sendRequestToFME(ctx context.Context, s *Services, conf *Config, w *cmswebh
 		return fmt.Errorf("failed to add comment: %w", err)
 	}
 
+	log.Infofc(ctx, "cmsintegrationv3: sendRequestToFME: success")
 	return nil
 }
 
@@ -117,7 +118,7 @@ func receiveResultFromFME(ctx context.Context, s *Services, conf *Config, f fmeR
 		return fmt.Errorf("invalid status")
 	}
 
-	log.Infofc(ctx, "cmsintegrationv3: receiveResultFromFME")
+	log.Infofc(ctx, "cmsintegrationv3: receiveResultFromFME: itemID=%s featureType=%s type=%s", id.ItemID, id.FeatureType, id.Type)
 
 	logmsg := ""
 	if f.LogURL != "" {
@@ -181,13 +182,13 @@ func receiveResultFromFME(ctx context.Context, s *Services, conf *Config, f fmeR
 	convStatus := ConvertionStatus("")
 	qcStatus := ConvertionStatus("")
 
-	if f.Type == "conv" {
+	if id.Type == string(fmeTypeConv) {
 		convStatus = ConvertionStatusSuccess
-		if id.Type == string(fmeTypeQcConv) {
-			qcStatus = ConvertionStatusSuccess
-		}
-	} else if f.Type == "qc" {
+	} else if id.Type == string(fmeTypeQC) {
+		qcStatus = ConvertionStatusSuccess
+	} else if id.Type == string(fmeTypeQcConv) {
 		convStatus = ConvertionStatusSuccess
+		qcStatus = ConvertionStatusSuccess
 	}
 
 	item := (&FeatureItem{
@@ -213,6 +214,7 @@ func receiveResultFromFME(ctx context.Context, s *Services, conf *Config, f fmeR
 		return fmt.Errorf("failed to add comment: %w", err)
 	}
 
+	log.Infofc(ctx, "cmsintegrationv3: receiveResultFromFME: success")
 	return nil
 }
 

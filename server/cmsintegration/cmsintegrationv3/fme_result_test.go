@@ -19,7 +19,7 @@ func TestFMEResult_GetResultURLs(t *testing.T) {
 		Results: map[string]any{
 			"_dic":                            "https://example.com/04100_sendai-shi_2022_citygml_1/dic.json",
 			"_maxlod":                         "https://example.com/04100_sendai-shi_2022_citygml_1/maxlod.csv",
-			"bldg_lod1":                       "https://example.com/04100_sendai-shi_2022_citygml_1/bldg_lod1.zip",
+			"26103_bldg_lod1":                 "https://example.com/04100_sendai-shi_2022_citygml_1/26103_bldg_lod1.zip",
 			"bldg_lod2":                       "https://example.com/04100_sendai-shi_2022_citygml_1/bldg_lod2.zip",
 			"lsld":                            "https://example.com/04100_sendai-shi_2022_citygml_1/lsld.zip",
 			"urf/AreaClassification":          "https://example.com/04100_sendai-shi_2022_citygml_1/AreaClassification.zip",
@@ -43,7 +43,7 @@ func TestFMEResult_GetResultURLs(t *testing.T) {
 	assert.Equal(t, fmeResultURLs{
 		FeatureType: "bldg",
 		Data: []string{
-			"https://example.com/04100_sendai-shi_2022_citygml_1/bldg_lod1.zip",
+			"https://example.com/04100_sendai-shi_2022_citygml_1/26103_bldg_lod1.zip",
 			"https://example.com/04100_sendai-shi_2022_citygml_1/bldg_lod2.zip",
 		},
 		Dic:    "https://example.com/04100_sendai-shi_2022_citygml_1/dic.json",

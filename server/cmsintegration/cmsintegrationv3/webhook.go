@@ -38,7 +38,7 @@ func WebhookHandler(conf Config) (cmswebhook.Handler, error) {
 			return nil
 		}
 
-		if len(w.ItemData.Changes) == 0 {
+		if w.Type == cmswebhook.EventItemUpdate && len(w.ItemData.Changes) == 0 {
 			log.Debugfc(ctx, "cmsintegrationv3 webhook: no changes")
 			return nil
 		}

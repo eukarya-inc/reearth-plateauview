@@ -2,6 +2,7 @@ package cmsintegrationv3
 
 import (
 	"fmt"
+	"regexp"
 	"sort"
 	"strings"
 )
@@ -62,10 +63,14 @@ type fmeResultURLs struct {
 	MaxLOD      string
 }
 
+var reDigits = regexp.MustCompile(`^\d+_(.*)$`)
+
 func (f fmeResult) GetResultURLs(featureType string) (res fmeResultURLs) {
 	res.FeatureType = featureType
 
 	for k, v := range f.Results {
+		k := reDigits.ReplaceAllString(k, "$1")
+
 		if k == featureType || strings.HasPrefix(k, featureType+"/") || strings.HasPrefix(k, featureType+"_") {
 			if v2, ok := v.(string); ok {
 				res.Data = append(res.Data, v2)
