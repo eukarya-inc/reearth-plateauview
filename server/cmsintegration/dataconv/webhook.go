@@ -40,7 +40,7 @@ func webhookHandler(ctx context.Context, s *Service, w *cmswebhook.Payload) erro
 		w.ItemData.Model.Key != s.model() ||
 		w.Operator.User == nil {
 		var key string
-		if w.ItemData.Model != nil {
+		if w.ItemData != nil && w.ItemData.Model != nil {
 			key = w.ItemData.Model.Key
 		}
 		// skipped

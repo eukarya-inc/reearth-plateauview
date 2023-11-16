@@ -18,14 +18,14 @@ func Handler(conf Config) (echo.HandlerFunc, error) {
 
 		var f fmeResult
 		if err := c.Bind(&f); err != nil {
-			log.Info("cmsintegrationv2 notify: invalid payload: %w", err)
+			log.Infofc(ctx, "cmsintegrationv3 notify: invalid payload: %w", err)
 			return c.JSON(http.StatusBadRequest, "invalid payload")
 		}
 
-		log.Infofc(ctx, "cmsintegrationv2 notify: received: %+v", f)
+		log.Infofc(ctx, "cmsintegrationv3 notify: received: %+v", f)
 
 		if err := receiveResultFromFME(ctx, s, &conf, f); err != nil {
-			log.Infofc(ctx, "cmsintegrationv2 notify: failed to receive result from fme: %w", err)
+			log.Infofc(ctx, "cmsintegrationv3 notify: failed to receive result from fme: %w", err)
 			return c.JSON(http.StatusInternalServerError, "failed to receive result from fme")
 		}
 

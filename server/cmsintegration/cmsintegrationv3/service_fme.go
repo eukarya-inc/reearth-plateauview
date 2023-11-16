@@ -136,6 +136,7 @@ func receiveResultFromFME(ctx context.Context, s *Services, conf *Config, f fmeR
 	assets := f.GetResultURLs(id.FeatureType)
 
 	// upload assets
+	log.Infofc(ctx, "cmsintegrationv3: upload assets: %v", assets.Data)
 	var dataAssets []string
 	if len(assets.Data) > 0 {
 		dataAssets = make([]string, 0, len(assets.Data))
@@ -150,10 +151,15 @@ func receiveResultFromFME(ctx context.Context, s *Services, conf *Config, f fmeR
 	}
 
 	// read dic
-	dic, err := readDic(ctx, assets.Dic)
-	if err != nil {
-		log.Errorfc(ctx, "cmsintegrationv3: failed to read dic: %v", err)
-		return nil
+	var dic string
+	if assets.Dic != "" {
+		var err error
+		log.Debugfc(ctx, "cmsintegrationv3: read and upload dic: %s", assets.Dic)
+		dic, err = readDic(ctx, assets.Dic)
+		if err != nil {
+			log.Errorfc(ctx, "cmsintegrationv3: failed to read dic: %v", err)
+			return nil
+		}
 	}
 
 	// upload maxlod
@@ -200,11 +206,12 @@ func receiveResultFromFME(ctx context.Context, s *Services, conf *Config, f fmeR
 		QCResult:         qcResult,
 	}).CMSItem()
 
-	_, err = s.CMS.UpdateItem(ctx, id.ItemID, item.Fields, item.MetadataFields)
+	_, err := s.CMS.UpdateItem(ctx, id.ItemID, item.Fields, item.MetadataFields)
 	if err != nil {
 		j1, _ := json.Marshal(item.Fields)
 		j2, _ := json.Marshal(item.MetadataFields)
 		log.Debugfc(ctx, "cmsintegrationv3: item update for %s: %s, %s", id.ItemID, j1, j2)
+		log.Errorfc(ctx, "cmsintegrationv3: failed to update item: %v", err)
 		return fmt.Errorf("failed to update item: %w", err)
 	}
 
