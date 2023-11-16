@@ -48,7 +48,6 @@ var relatedDataTypes = []string{
 	"station",
 	"railway",
 	"emergency_route",
-	"railway",
 	"border",
 }
 
@@ -147,7 +146,7 @@ type FeatureItem struct {
 	Rivers      []River  `json:"rivers,omitempty" cms:"rivers,group"`
 	QCResult    string   `json:"qcresult,omitempty" cms:"qc_result,asset"`
 	SearchIndex string   `json:"search_index,omitempty" cms:"search_index,asset"`
-	Dic         string   `json:"dic,omitempty" cms:"dic,asset"`
+	Dic         string   `json:"dic,omitempty" cms:"dic,textarea"`
 	MaxLOD      string   `json:"maxlod,omitempty" cms:"maxlod,asset"`
 	// metadata
 	Status            ManagementStatus `json:"status,omitempty" cms:"status,select,metadata"`

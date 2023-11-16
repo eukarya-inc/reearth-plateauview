@@ -4,10 +4,13 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
+	"net/http"
 	"strings"
 
 	"github.com/reearth/reearth-cms-api/go/cmswebhook"
 	"github.com/reearth/reearthx/log"
+	"github.com/spkg/bom"
 )
 
 func sendRequestToFME(ctx context.Context, s *Services, conf *Config, w *cmswebhook.Payload) error {
@@ -145,15 +148,11 @@ func receiveResultFromFME(ctx context.Context, s *Services, conf *Config, f fmeR
 		}
 	}
 
-	// upload dic
-	var dicAssetID string
-	if assets.Dic != "" {
-		log.Debugfc(ctx, "cmsintegrationv3: upload dic: %s", assets.Dic)
-		var err error
-		dicAssetID, err = s.CMS.UploadAsset(ctx, id.ProjectID, assets.Dic)
-		if err != nil {
-			return fmt.Errorf("failed to upload dic: %w", err)
-		}
+	// read dic
+	dic, err := readDic(ctx, assets.Dic)
+	if err != nil {
+		log.Errorfc(ctx, "cmsintegrationv3: failed to read dic: %v", err)
+		return nil
 	}
 
 	// upload maxlod
@@ -193,14 +192,14 @@ func receiveResultFromFME(ctx context.Context, s *Services, conf *Config, f fmeR
 
 	item := (&FeatureItem{
 		Data:             dataAssets,
-		Dic:              dicAssetID,
+		Dic:              dic,
 		MaxLOD:           maxlodAssetID,
 		ConvertionStatus: convStatus,
 		QCStatus:         qcStatus,
 		QCResult:         qcResult,
 	}).CMSItem()
 
-	_, err := s.CMS.UpdateItem(ctx, id.ItemID, item.Fields, item.MetadataFields)
+	_, err = s.CMS.UpdateItem(ctx, id.ItemID, item.Fields, item.MetadataFields)
 	if err != nil {
 		j1, _ := json.Marshal(item.Fields)
 		j2, _ := json.Marshal(item.MetadataFields)
@@ -227,4 +226,30 @@ func failToConvert(ctx context.Context, s *Services, itemID string, convType fme
 	}
 
 	return nil
+}
+
+func readDic(ctx context.Context, u string) (string, error) {
+	if u == "" {
+		return "", nil
+	}
+
+	req, err := http.NewRequestWithContext(ctx, "GET", u, nil)
+	if err != nil {
+		return "", err
+	}
+	res, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return "", err
+	}
+	defer func() {
+		_ = res.Body.Close()
+	}()
+	if res.StatusCode != http.StatusOK {
+		return "", fmt.Errorf("status code is %d", err)
+	}
+	s, err := io.ReadAll(bom.NewReader(res.Body))
+	if err != nil {
+		return "", err
+	}
+	return string(s), nil
 }

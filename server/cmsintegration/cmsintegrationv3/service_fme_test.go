@@ -8,6 +8,7 @@ import (
 	"os"
 	"testing"
 
+	"github.com/jarcoal/httpmock"
 	cms "github.com/reearth/reearth-cms-api/go"
 	"github.com/reearth/reearth-cms-api/go/cmswebhook"
 	"github.com/reearth/reearthx/log"
@@ -346,6 +347,12 @@ func TestSendRequestToFME(t *testing.T) {
 }
 
 func TestReceiveResultFromFME(t *testing.T) {
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder("GET", "https://example.com/dic",
+		httpmock.NewStringResponder(200, "dic!!"))
+
 	ctx := context.Background()
 	c := &cmsMock{}
 	s := &Services{
@@ -364,7 +371,7 @@ func TestReceiveResultFromFME(t *testing.T) {
 		}.String("secret"),
 		LogURL: "log_ok",
 		Results: map[string]any{
-			"_dic":    "dic",
+			"_dic":    "https://example.com/dic",
 			"_maxlod": "maxlod",
 			"bldg":    "bldg",
 		},
@@ -394,8 +401,8 @@ func TestReceiveResultFromFME(t *testing.T) {
 			},
 			{
 				Key:   "dic",
-				Type:  "asset",
-				Value: "dic",
+				Type:  "textarea",
+				Value: "dic!!",
 			},
 			{
 				Key:   "maxlod",
@@ -424,7 +431,7 @@ func TestReceiveResultFromFME(t *testing.T) {
 
 	err := receiveResultFromFME(ctx, s, conf, *res)
 	assert.NoError(t, err)
-	assert.Equal(t, []string{"bldg", "dic", "maxlod", "log_ok"}, uploaded)
+	assert.Equal(t, []string{"bldg", "maxlod", "log_ok"}, uploaded)
 
 	// test case 2: invalid id
 	r := *res
