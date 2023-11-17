@@ -114,15 +114,23 @@ func receiveResultFromFME(ctx context.Context, s *Services, conf *Config, f fmeR
 		return fmt.Errorf("invalid id: %s", f.ID)
 	}
 
-	if f.Status == "" {
-		return fmt.Errorf("invalid status")
-	}
-
 	log.Infofc(ctx, "cmsintegrationv3: receiveResultFromFME: itemID=%s featureType=%s type=%s", id.ItemID, id.FeatureType, id.Type)
 
-	logmsg := ""
+	logmsg := f.Message
 	if f.LogURL != "" {
-		logmsg = "ログ： " + f.LogURL
+		if logmsg != "" {
+			logmsg += " "
+		}
+		logmsg += "ログ： " + f.LogURL
+	}
+
+	// notify
+	if f.Type == "notify" {
+		log.Debugfc(ctx, "cmsintegrationv3: notify: %s", logmsg)
+		if err := s.CMS.CommentToItem(ctx, id.ItemID, logmsg); err != nil {
+			return fmt.Errorf("failed to comment: %w", err)
+		}
+		return nil
 	}
 
 	// handle error

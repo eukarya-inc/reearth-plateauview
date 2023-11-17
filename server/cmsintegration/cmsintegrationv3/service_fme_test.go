@@ -466,6 +466,21 @@ func TestReceiveResultFromFME(t *testing.T) {
 	}
 	err = receiveResultFromFME(ctx, s, conf, r)
 	assert.NoError(t, err)
+
+	// test case4: notify
+	commneted := []string{}
+	r = *res
+	r.Type = "notify"
+	r.LogURL = "log"
+	r.Message = "message"
+	c.reset()
+	c.commentToItem = func(ctx context.Context, assetID, content string) error {
+		commneted = append(commneted, content)
+		return nil
+	}
+	err = receiveResultFromFME(ctx, s, conf, r)
+	assert.NoError(t, err)
+	assert.Equal(t, []string{"message ログ： log"}, commneted)
 }
 
 func getLogs(t *testing.T, f func()) string {

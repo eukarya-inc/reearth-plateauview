@@ -44,6 +44,7 @@ type fmeResult struct {
 	Type    string         `json:"type"`
 	Status  string         `json:"status"`
 	ID      string         `json:"id"`
+	Message string         `json:"message"`
 	LogURL  string         `json:"logUrl"`
 	Results map[string]any `json:"results"`
 }
