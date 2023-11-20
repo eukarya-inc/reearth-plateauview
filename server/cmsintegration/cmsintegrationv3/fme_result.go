@@ -5,6 +5,8 @@ import (
 	"regexp"
 	"sort"
 	"strings"
+
+	"golang.org/x/exp/slices"
 )
 
 const fmeIDPrefix = "v3"
@@ -59,7 +61,9 @@ func (f fmeResult) ParseID(secret string) fmeID {
 
 type fmeResultURLs struct {
 	FeatureType string
+	Keys        []string
 	Data        []string
+	DataMap     map[string][]string
 	Dic         string
 	MaxLOD      string
 	QCResult    string
@@ -69,23 +73,39 @@ var reDigits = regexp.MustCompile(`^\d+_(.*)$`)
 
 func (f fmeResult) GetResultURLs(featureType string) (res fmeResultURLs) {
 	res.FeatureType = featureType
+	res.DataMap = map[string][]string{}
 
 	for k, v := range f.Results {
-		k := reDigits.ReplaceAllString(k, "$1")
+		k2 := reDigits.ReplaceAllString(k, "$1")
 
-		if k == featureType || strings.HasPrefix(k, featureType+"/") || strings.HasPrefix(k, featureType+"_") {
+		if k2 == featureType || strings.HasPrefix(k2, featureType+"/") || strings.HasPrefix(k2, featureType+"_") {
 			if v2, ok := v.(string); ok {
+				res.Keys = append(res.Keys, k)
 				res.Data = append(res.Data, v2)
+				res.DataMap[k] = []string{v2}
 			} else if v2, ok := v.([]any); ok {
 				for _, v3 := range v2 {
 					if v4, ok := v3.(string); ok {
+						if !slices.Contains(res.Keys, k) {
+							res.Keys = append(res.Keys, k)
+						}
 						res.Data = append(res.Data, v4)
+						res.DataMap[k] = append(res.DataMap[k], v4)
 					}
+				}
+			} else if v2, ok := v.([]string); ok {
+				for _, v3 := range v2 {
+					if !slices.Contains(res.Keys, k) {
+						res.Keys = append(res.Keys, k)
+					}
+					res.Data = append(res.Data, v3)
+					res.DataMap[k] = append(res.DataMap[k], v3)
 				}
 			}
 		}
 	}
 
+	sort.Strings(res.Keys)
 	sort.Strings(res.Data)
 
 	if v, ok := f.Results["_dic"].(string); ok {

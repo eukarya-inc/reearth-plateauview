@@ -41,6 +41,15 @@ var featureTypes = []string{
 	"gen",  // 汎用都市オブジェクトモデル*
 }
 
+var featureTypesWithItems = []string{
+	"fld",  // 洪水浸水想定区域モデル*
+	"tnm",  // 津波浸水想定区域モデル*
+	"htd",  // 高潮浸水想定区域モデル*
+	"ifld", // 内水浸水想定区域モデル*
+	"urf",  // 都市計画決定情報モデル*
+	"gen",  // 汎用都市オブジェクトモデル*
+}
+
 var relatedDataTypes = []string{
 	"shelter",
 	"park",
@@ -138,16 +147,16 @@ func (i *CityItem) CMSItem() *cms.Item {
 }
 
 type FeatureItem struct {
-	ID          string   `json:"id,omitempty" cms:"id"`
-	City        string   `json:"city,omitempty" cms:"city,reference"`
-	CityGML     string   `json:"citygml,omitempty" cms:"citygml,asset"`
-	Data        []string `json:"data,omitempty" cms:"data,asset"`
-	Desc        string   `json:"desc,omitempty" cms:"desc,textarea"`
-	Rivers      []River  `json:"rivers,omitempty" cms:"rivers,group"`
-	QCResult    string   `json:"qcresult,omitempty" cms:"qc_result,asset"`
-	SearchIndex string   `json:"search_index,omitempty" cms:"search_index,asset"`
-	Dic         string   `json:"dic,omitempty" cms:"dic,textarea"`
-	MaxLOD      string   `json:"maxlod,omitempty" cms:"maxlod,asset"`
+	ID          string             `json:"id,omitempty" cms:"id"`
+	City        string             `json:"city,omitempty" cms:"city,reference"`
+	CityGML     string             `json:"citygml,omitempty" cms:"citygml,asset"`
+	Data        []string           `json:"data,omitempty" cms:"data,asset"`
+	Desc        string             `json:"desc,omitempty" cms:"desc,textarea"`
+	Items       []FeatureItemDatum `json:"items,omitempty" cms:"items,group"`
+	QCResult    string             `json:"qcresult,omitempty" cms:"qc_result,asset"`
+	SearchIndex string             `json:"search_index,omitempty" cms:"search_index,asset"`
+	Dic         string             `json:"dic,omitempty" cms:"dic,textarea"`
+	MaxLOD      string             `json:"maxlod,omitempty" cms:"maxlod,asset"`
 	// metadata
 	Status            ManagementStatus `json:"status,omitempty" cms:"status,select,metadata"`
 	SkipQC            bool             `json:"skip_qc,omitempty" cms:"skip_qc,bool,metadata"`
@@ -157,10 +166,12 @@ type FeatureItem struct {
 	SearchIndexStatus ConvertionStatus `json:"search_index_status,omitempty" cms:"search_index_status,select,metadata"`
 }
 
-type River struct {
+type FeatureItemDatum struct {
 	ID   string   `json:"id,omitempty" cms:"id"`
 	Data []string `json:"data,omitempty" cms:"data,asset"`
+	Name string   `json:"name,omitempty" cms:"name,text"`
 	Desc string   `json:"desc,omitempty" cms:"desc,textarea"`
+	Key  string   `json:"key,omitempty" cms:"key,text"`
 }
 
 func FeatureItemFrom(item *cms.Item) (i *FeatureItem) {

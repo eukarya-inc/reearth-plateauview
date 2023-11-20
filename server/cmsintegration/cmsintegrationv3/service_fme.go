@@ -6,11 +6,14 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"sort"
 	"strings"
 
 	"github.com/reearth/reearth-cms-api/go/cmswebhook"
 	"github.com/reearth/reearthx/log"
+	"github.com/samber/lo"
 	"github.com/spkg/bom"
+	"golang.org/x/exp/slices"
 )
 
 func sendRequestToFME(ctx context.Context, s *Services, conf *Config, w *cmswebhook.Payload) error {
@@ -170,23 +173,38 @@ func receiveResultFromFME(ctx context.Context, s *Services, conf *Config, f fmeR
 		return nil
 	}
 
+	// get newitem
+	item, err := s.CMS.GetItem(ctx, id.ItemID, false)
+	if err != nil {
+		log.Errorfc(ctx, "cmsintegrationv3: failed to get item: %v", err)
+		return fmt.Errorf("failed to get item: %w", err)
+	}
+
+	baseFeatureItem := FeatureItemFrom(item)
+
 	// get url from the result
 	assets := f.GetResultURLs(id.FeatureType)
 
 	// upload assets
 	log.Infofc(ctx, "cmsintegrationv3: upload assets: %v", assets.Data)
 	var dataAssets []string
-	if len(assets.Data) > 0 {
-		dataAssets = make([]string, 0, len(assets.Data))
-		for _, url := range assets.Data {
-			aid, err := s.CMS.UploadAsset(ctx, id.ProjectID, url)
-			if err != nil {
-				log.Errorfc(ctx, "cmsintegrationv3: failed to upload asset (%s): %v", url, err)
-				return nil
+	dataAssetMap := map[string][]string{}
+	if len(assets.DataMap) > 0 {
+		dataAssets = make([]string, 0, len(assets.DataMap))
+		for _, key := range assets.Keys {
+			urls := assets.DataMap[key]
+			for _, url := range urls {
+				aid, err := s.CMS.UploadAsset(ctx, id.ProjectID, url)
+				if err != nil {
+					log.Errorfc(ctx, "cmsintegrationv3: failed to upload asset (%s): %v", url, err)
+					return nil
+				}
+				dataAssets = append(dataAssets, aid)
+				dataAssetMap[key] = append(dataAssetMap[key], aid)
 			}
-			dataAssets = append(dataAssets, aid)
 		}
 	}
+	sort.Strings(dataAssets)
 
 	// read dic
 	var dic string
@@ -235,8 +253,35 @@ func receiveResultFromFME(ctx context.Context, s *Services, conf *Config, f fmeR
 		qcStatus = ConvertionStatusSuccess
 	}
 
-	item := (&FeatureItem{
-		Data:             dataAssets,
+	// items
+	var data []string
+	var items []FeatureItemDatum
+	if slices.Contains(featureTypesWithItems, id.FeatureType) {
+		for _, k := range assets.Keys {
+			assets := dataAssetMap[k]
+			i, ok := lo.Find(baseFeatureItem.Items, func(i FeatureItemDatum) bool {
+				return i.Key == k
+			})
+
+			var id string
+			if ok {
+				id = i.ID
+			} else {
+				id = k
+			}
+
+			items = append(items, FeatureItemDatum{
+				ID:   id,
+				Data: assets,
+			})
+		}
+	} else {
+		data = dataAssets
+	}
+
+	newitem := (&FeatureItem{
+		Data:             data,
+		Items:            items,
 		Dic:              dic,
 		MaxLOD:           maxlodAssetID,
 		ConvertionStatus: convStatus,
@@ -244,10 +289,10 @@ func receiveResultFromFME(ctx context.Context, s *Services, conf *Config, f fmeR
 		QCResult:         qcResult,
 	}).CMSItem()
 
-	_, err := s.CMS.UpdateItem(ctx, id.ItemID, item.Fields, item.MetadataFields)
+	_, err = s.CMS.UpdateItem(ctx, id.ItemID, newitem.Fields, newitem.MetadataFields)
 	if err != nil {
-		j1, _ := json.Marshal(item.Fields)
-		j2, _ := json.Marshal(item.MetadataFields)
+		j1, _ := json.Marshal(newitem.Fields)
+		j2, _ := json.Marshal(newitem.MetadataFields)
 		log.Debugfc(ctx, "cmsintegrationv3: item update for %s: %s, %s", id.ItemID, j1, j2)
 		log.Errorfc(ctx, "cmsintegrationv3: failed to update item: %v", err)
 		return fmt.Errorf("failed to update item: %w", err)

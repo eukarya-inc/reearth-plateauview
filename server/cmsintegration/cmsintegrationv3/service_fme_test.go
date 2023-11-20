@@ -379,121 +379,223 @@ func TestReceiveResultFromFME(t *testing.T) {
 		Status: "success",
 	}
 
-	// test case 1: success
-	c.reset()
-	uploaded := []string{}
-	c.uploadAsset = func(ctx context.Context, projectID, url string) (string, error) {
-		assert.Equal(t, projectID, "projectID")
-		uploaded = append(uploaded, url)
-		return url, nil
-	}
-	c.updateItem = func(ctx context.Context, id string, fields []*cms.Field, metadataFields []*cms.Field) (*cms.Item, error) {
-		assert.Equal(t, id, "itemID")
-		assert.Equal(t, []*cms.Field{
-			{
-				Key:   "data",
-				Type:  "asset",
-				Value: []string{"bldg"},
-			},
-			{
-				Key:   "qc_result",
-				Type:  "asset",
-				Value: "qc_result",
-			},
-			{
-				Key:   "dic",
-				Type:  "textarea",
-				Value: "dic!!",
-			},
-			{
-				Key:   "maxlod",
-				Type:  "asset",
-				Value: "maxlod",
-			},
-		}, fields)
-		assert.Equal(t, []*cms.Field{
-			{
-				Key:   "conv_status",
-				Type:  "select",
-				Value: ConvertionStatusSuccess,
-			},
-			{
-				Key:   "qc_status",
-				Type:  "select",
-				Value: ConvertionStatusSuccess,
-			},
-		}, metadataFields)
-		return nil, nil
-	}
-	c.commentToItem = func(ctx context.Context, assetID, content string) error {
-		assert.Contains(t, content, "品質検査・変換が完了しました。")
-		return nil
-	}
+	t.Run("no items", func(t *testing.T) {
+		c.reset()
+		uploaded := []string{}
+		c.getItem = func(ctx context.Context, id string, asset bool) (*cms.Item, error) {
+			assert.Equal(t, id, "itemID")
+			return &cms.Item{
+				ID: "itemID",
+			}, nil
+		}
+		c.uploadAsset = func(ctx context.Context, projectID, url string) (string, error) {
+			assert.Equal(t, projectID, "projectID")
+			uploaded = append(uploaded, url)
+			return url, nil
+		}
+		c.updateItem = func(ctx context.Context, id string, fields []*cms.Field, metadataFields []*cms.Field) (*cms.Item, error) {
+			assert.Equal(t, id, "itemID")
+			assert.Equal(t, []*cms.Field{
+				{
+					Key:   "data",
+					Type:  "asset",
+					Value: []string{"bldg"},
+				},
+				{
+					Key:   "qc_result",
+					Type:  "asset",
+					Value: "qc_result",
+				},
+				{
+					Key:   "dic",
+					Type:  "textarea",
+					Value: "dic!!",
+				},
+				{
+					Key:   "maxlod",
+					Type:  "asset",
+					Value: "maxlod",
+				},
+			}, fields)
+			assert.Equal(t, []*cms.Field{
+				{
+					Key:   "conv_status",
+					Type:  "select",
+					Value: ConvertionStatusSuccess,
+				},
+				{
+					Key:   "qc_status",
+					Type:  "select",
+					Value: ConvertionStatusSuccess,
+				},
+			}, metadataFields)
+			return nil, nil
+		}
+		c.commentToItem = func(ctx context.Context, assetID, content string) error {
+			assert.Contains(t, content, "品質検査・変換が完了しました。")
+			return nil
+		}
 
-	err := receiveResultFromFME(ctx, s, conf, *res)
-	assert.NoError(t, err)
-	assert.Equal(t, []string{"bldg", "maxlod", "qc_result"}, uploaded)
+		err := receiveResultFromFME(ctx, s, conf, *res)
+		assert.NoError(t, err)
+		assert.Equal(t, []string{"bldg", "maxlod", "qc_result"}, uploaded)
+	})
 
-	// test case 2: invalid id
-	r := *res
-	r.ID = "invalid"
-	err = receiveResultFromFME(ctx, s, conf, r)
-	assert.ErrorContains(t, err, "invalid id")
+	t.Run("with items", func(t *testing.T) {
+		r := *res
+		r.ID = fmeID{
+			ItemID:      "itemID",
+			ProjectID:   "projectID",
+			FeatureType: "fld",
+			Type:        "qc_conv",
+		}.String("secret")
+		r.Results = map[string]any{
+			"fld/aaa": "AAA",
+			"fld/bbb": "BBB",
+			"fld/ccc": []string{"CCC", "DDD"},
+		}
+		c.reset()
+		uploaded := []string{}
+		c.getItem = func(ctx context.Context, id string, asset bool) (*cms.Item, error) {
+			assert.Equal(t, id, "itemID")
+			return (&FeatureItem{
+				ID: "itemID",
+				Items: []FeatureItemDatum{
+					{
+						ID:   "fld/aaa",
+						Data: []string{"data"},
+						Name: "name1",
+						Desc: "desc1",
+					},
+					{
+						ID:   "fld/ccc",
+						Data: []string{"data"},
+						Name: "name2",
+						Desc: "desc2",
+					},
+				},
+			}).CMSItem(), nil
+		}
+		c.uploadAsset = func(ctx context.Context, projectID, url string) (string, error) {
+			assert.Equal(t, projectID, "projectID")
+			uploaded = append(uploaded, url)
+			return url, nil
+		}
+		c.updateItem = func(ctx context.Context, id string, fields []*cms.Field, metadataFields []*cms.Field) (*cms.Item, error) {
+			assert.Equal(t, id, "itemID")
+			assert.Equal(t, []*cms.Field{
+				{
+					Key:   "data",
+					Type:  "asset",
+					Value: []string{"AAA"},
+					Group: "fld/aaa",
+				},
+				{
+					Key:   "data",
+					Type:  "asset",
+					Value: []string{"BBB"},
+					Group: "fld/bbb",
+				},
+				{
+					Key:   "data",
+					Type:  "asset",
+					Value: []string{"CCC", "DDD"},
+					Group: "fld/ccc",
+				},
+				{
+					Key:   "items",
+					Type:  "group",
+					Value: []string{"fld/aaa", "fld/bbb", "fld/ccc"},
+				},
+			}, fields)
+			assert.Equal(t, []*cms.Field{
+				{
+					Key:   "conv_status",
+					Type:  "select",
+					Value: ConvertionStatusSuccess,
+				},
+				{
+					Key:   "qc_status",
+					Type:  "select",
+					Value: ConvertionStatusSuccess,
+				},
+			}, metadataFields)
+			return nil, nil
+		}
+		c.commentToItem = func(ctx context.Context, assetID, content string) error {
+			assert.Contains(t, content, "品質検査・変換が完了しました。")
+			return nil
+		}
 
-	// test case 3: failed convert
-	r = *res
-	r.Status = "error"
-	r.LogURL = "log"
-	c.reset()
-	c.updateItem = func(ctx context.Context, id string, fields []*cms.Field, metadataFields []*cms.Field) (*cms.Item, error) {
-		assert.Equal(t, []*cms.Field{
-			{
-				Key:   "conv_status",
-				Type:  "select",
-				Value: ConvertionStatusError,
-			},
-			{
-				Key:   "qc_status",
-				Type:  "select",
-				Value: ConvertionStatusError,
-			},
-		}, metadataFields)
-		return nil, nil
-	}
-	c.commentToItem = func(ctx context.Context, assetID, content string) error {
-		assert.Contains(t, content, "品質検査・変換に失敗しました。")
-		assert.Contains(t, content, "ログ： log")
-		return nil
-	}
-	err = receiveResultFromFME(ctx, s, conf, r)
-	assert.NoError(t, err)
+		err := receiveResultFromFME(ctx, s, conf, r)
+		assert.NoError(t, err)
+		assert.Equal(t, []string{"AAA", "BBB", "CCC", "DDD"}, uploaded)
+	})
 
-	// test case4: notify
-	commneted := []string{}
-	r = *res
-	r.Type = "notify"
-	r.LogURL = "log"
-	r.Message = "message"
-	r.Results = map[string]any{
-		"_qc_result": "qc_result",
-	}
-	c.reset()
-	uploaded = []string{}
-	c.commentToItem = func(ctx context.Context, assetID, content string) error {
-		commneted = append(commneted, content)
-		return nil
-	}
-	c.uploadAsset = func(ctx context.Context, projectID, url string) (string, error) {
-		uploaded = append(uploaded, url)
-		return url, nil
-	}
-	c.updateItem = func(ctx context.Context, id string, fields []*cms.Field, metadataFields []*cms.Field) (*cms.Item, error) {
-		return nil, nil
-	}
-	err = receiveResultFromFME(ctx, s, conf, r)
-	assert.NoError(t, err)
-	assert.Equal(t, []string{"message ログ： log"}, commneted)
-	assert.Equal(t, []string{"qc_result"}, uploaded)
+	t.Run("invalid id", func(t *testing.T) {
+		r := *res
+		r.ID = "invalid"
+		err := receiveResultFromFME(ctx, s, conf, r)
+		assert.ErrorContains(t, err, "invalid id")
+	})
+
+	t.Run("failed convert", func(t *testing.T) {
+		r := *res
+		r.Status = "error"
+		r.LogURL = "log"
+		c.reset()
+		c.updateItem = func(ctx context.Context, id string, fields []*cms.Field, metadataFields []*cms.Field) (*cms.Item, error) {
+			assert.Equal(t, []*cms.Field{
+				{
+					Key:   "conv_status",
+					Type:  "select",
+					Value: ConvertionStatusError,
+				},
+				{
+					Key:   "qc_status",
+					Type:  "select",
+					Value: ConvertionStatusError,
+				},
+			}, metadataFields)
+			return nil, nil
+		}
+		c.commentToItem = func(ctx context.Context, assetID, content string) error {
+			assert.Contains(t, content, "品質検査・変換に失敗しました。")
+			assert.Contains(t, content, "ログ： log")
+			return nil
+		}
+		err := receiveResultFromFME(ctx, s, conf, r)
+		assert.NoError(t, err)
+	})
+
+	// test case 5: notify
+	t.Run("notify", func(t *testing.T) {
+		commneted := []string{}
+		r := *res
+		r.Type = "notify"
+		r.LogURL = "log"
+		r.Message = "message"
+		r.Results = map[string]any{
+			"_qc_result": "qc_result",
+		}
+		c.reset()
+		uploaded := []string{}
+		c.commentToItem = func(ctx context.Context, assetID, content string) error {
+			commneted = append(commneted, content)
+			return nil
+		}
+		c.uploadAsset = func(ctx context.Context, projectID, url string) (string, error) {
+			uploaded = append(uploaded, url)
+			return url, nil
+		}
+		c.updateItem = func(ctx context.Context, id string, fields []*cms.Field, metadataFields []*cms.Field) (*cms.Item, error) {
+			return nil, nil
+		}
+		err := receiveResultFromFME(ctx, s, conf, r)
+		assert.NoError(t, err)
+		assert.Equal(t, []string{"message ログ： log"}, commneted)
+		assert.Equal(t, []string{"qc_result"}, uploaded)
+	})
 }
 
 func getLogs(t *testing.T, f func()) string {
