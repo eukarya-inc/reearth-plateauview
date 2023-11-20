@@ -8,6 +8,16 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestFilterDataset(t *testing.T) {
+	t.Run("emergency_route", func(t *testing.T) {
+		assert.True(t, filterDataset(plateauapi.RelatedDataset{
+			TypeCode: "emergency_route",
+		}, plateauapi.DatasetsInput{
+			IncludeTypes: []string{"emergency_route"},
+		}))
+	})
+}
+
 func TestFilterArea(t *testing.T) {
 	testCases := []struct {
 		name     string
@@ -95,7 +105,7 @@ func TestFilterArea(t *testing.T) {
 }
 
 func TestFilterByCode(t *testing.T) {
-	assert.True(t, filterByCode("a", []string{"a"}, nil))
+	assert.True(t, filterByCode("a_a", []string{"a_a"}, nil))
 	assert.True(t, filterByCode("a", []string{"a", "b"}, nil))
 	assert.True(t, filterByCode("b", []string{"a", "b"}, nil))
 	assert.False(t, filterByCode("b", []string{"a"}, nil))

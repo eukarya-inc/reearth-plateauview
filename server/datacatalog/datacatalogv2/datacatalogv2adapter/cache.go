@@ -47,6 +47,7 @@ func newCache(r datacatalogv2.ResponseAll) (*cache, error) {
 
 	for _, d := range items {
 		ty := d.TypeEn
+
 		areasForType := cache.areasForDataTypes[ty]
 		if areasForType == nil {
 			areasForType = make(map[plateauapi.AreaCode]struct{})

@@ -107,7 +107,7 @@ func plateauDatasetFrom(d datacatalogv2.DataCatalogItem) (plateauapi.PlateauData
 		PlateauSpecID:   plateauSpecIDFrom(plateauSpecVersion),
 		PlateauSpecName: plateauSpecVersion,
 		River:           river,
-		Items: lo.Map(d.MainOrConfigItems(), func(c datacatalogutil.DataCatalogItemConfigItem, _ int) *plateauapi.PlateauDatasetItem {
+		Items: lo.Map(d.MainOrConfigItems(), func(c datacatalogutil.DataCatalogItemConfigItem, i int) *plateauapi.PlateauDatasetItem {
 			return plateauDatasetItemFrom(c, id)
 		}),
 	}, true
@@ -212,9 +212,9 @@ func genericDatasetFrom(d datacatalogv2.DataCatalogItem) (plateauapi.GenericData
 		TypeID:         datasetTypeIDFrom(d),
 		TypeCode:       datasetTypeCodeFrom(d),
 		Groups:         groupsFrom(d),
-		Items: lo.Map(d.MainOrConfigItems(), func(c datacatalogutil.DataCatalogItemConfigItem, _ int) *plateauapi.GenericDatasetItem {
+		Items: lo.Map(d.MainOrConfigItems(), func(c datacatalogutil.DataCatalogItemConfigItem, i int) *plateauapi.GenericDatasetItem {
 			return &plateauapi.GenericDatasetItem{
-				ID:       plateauapi.NewID(fmt.Sprintf("%s:%s", d.ID, c.Name), plateauapi.TypeDatasetItem),
+				ID:       plateauapi.NewID(fmt.Sprintf("%s:%d", d.ID, i), plateauapi.TypeDatasetItem),
 				Name:     c.Name,
 				URL:      c.URL,
 				Format:   datasetFormatFrom(c.Type),
@@ -230,10 +230,13 @@ func datasetFormatFrom(f string) plateauapi.DatasetFormat {
 	case "geojson":
 		return plateauapi.DatasetFormatGeojson
 	case "3dtiles":
+		fallthrough
+	case "3d tiles":
 		return plateauapi.DatasetFormatCesium3dtiles
 	case "czml":
 		return plateauapi.DatasetFormatCzml
 	case "gtfs":
+		fallthrough
 	case "gtfs-realtime":
 		return plateauapi.DatasetFormatGtfsRealtime
 	case "gltf":

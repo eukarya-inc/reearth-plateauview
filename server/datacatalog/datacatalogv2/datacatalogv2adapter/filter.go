@@ -106,9 +106,7 @@ func filterByCode(code string, includes []string, excludes []string) bool {
 
 	if len(excludes) > 0 {
 		if lo.SomeBy(excludes, func(t string) bool {
-			return lo.SomeBy(strings.Split(t, "_"), func(c string) bool {
-				return strings.ToLower(c) == code
-			})
+			return strings.ToLower(t) == code
 		}) {
 			return false
 		}
@@ -116,9 +114,7 @@ func filterByCode(code string, includes []string, excludes []string) bool {
 
 	if len(includes) > 0 {
 		if lo.EveryBy(includes, func(t string) bool {
-			return lo.EveryBy(strings.Split(t, "_"), func(c string) bool {
-				return strings.ToLower(c) != code
-			})
+			return strings.ToLower(t) != code
 		}) {
 			return false
 		}
