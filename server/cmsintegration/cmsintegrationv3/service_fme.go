@@ -127,9 +127,39 @@ func receiveResultFromFME(ctx context.Context, s *Services, conf *Config, f fmeR
 	// notify
 	if f.Type == "notify" {
 		log.Debugfc(ctx, "cmsintegrationv3: notify: %s", logmsg)
+
 		if err := s.CMS.CommentToItem(ctx, id.ItemID, logmsg); err != nil {
 			return fmt.Errorf("failed to comment: %w", err)
 		}
+
+		// upload qc result
+		if f.Results != nil {
+			if qcResult, ok := f.Results["_qc_result"]; ok {
+				if qcResultStr, ok := qcResult.(string); ok {
+					log.Debugfc(ctx, "cmsintegrationv3: upload qc result: %s", qcResultStr)
+					var err error
+					qcResultAsset, err := s.CMS.UploadAsset(ctx, id.ProjectID, qcResultStr)
+					if err != nil {
+						return fmt.Errorf("failed to upload maxlod: %w", err)
+					}
+
+					item := (&FeatureItem{
+						QCStatus: ConvertionStatusSuccess,
+						QCResult: qcResultAsset,
+					}).CMSItem()
+
+					_, err = s.CMS.UpdateItem(ctx, id.ItemID, item.Fields, item.MetadataFields)
+					if err != nil {
+						j1, _ := json.Marshal(item.Fields)
+						j2, _ := json.Marshal(item.MetadataFields)
+						log.Debugfc(ctx, "cmsintegrationv3: item update for %s: %s, %s", id.ItemID, j1, j2)
+						log.Errorfc(ctx, "cmsintegrationv3: failed to update item: %v", err)
+						return fmt.Errorf("failed to update item: %w", err)
+					}
+				}
+			}
+		}
+
 		return nil
 	}
 
@@ -183,10 +213,10 @@ func receiveResultFromFME(ctx context.Context, s *Services, conf *Config, f fmeR
 
 	// upload qc result
 	var qcResult string
-	if f.Status != "error" && f.LogURL != "" {
-		log.Debugfc(ctx, "cmsintegrationv3: upload qc result: %s", f.LogURL)
+	if assets.QCResult != "" {
+		log.Debugfc(ctx, "cmsintegrationv3: upload qc result: %s", assets.QCResult)
 		var err error
-		qcResult, err = s.CMS.UploadAsset(ctx, id.ProjectID, f.LogURL)
+		qcResult, err = s.CMS.UploadAsset(ctx, id.ProjectID, assets.QCResult)
 		if err != nil {
 			return fmt.Errorf("failed to upload qc result: %w", err)
 		}

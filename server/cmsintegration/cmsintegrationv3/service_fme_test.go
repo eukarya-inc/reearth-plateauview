@@ -371,9 +371,10 @@ func TestReceiveResultFromFME(t *testing.T) {
 		}.String("secret"),
 		LogURL: "log_ok",
 		Results: map[string]any{
-			"_dic":    "https://example.com/dic",
-			"_maxlod": "maxlod",
-			"bldg":    "bldg",
+			"_dic":       "https://example.com/dic",
+			"_maxlod":    "maxlod",
+			"_qc_result": "qc_result",
+			"bldg":       "bldg",
 		},
 		Status: "success",
 	}
@@ -397,7 +398,7 @@ func TestReceiveResultFromFME(t *testing.T) {
 			{
 				Key:   "qc_result",
 				Type:  "asset",
-				Value: "log_ok",
+				Value: "qc_result",
 			},
 			{
 				Key:   "dic",
@@ -431,7 +432,7 @@ func TestReceiveResultFromFME(t *testing.T) {
 
 	err := receiveResultFromFME(ctx, s, conf, *res)
 	assert.NoError(t, err)
-	assert.Equal(t, []string{"bldg", "maxlod", "log_ok"}, uploaded)
+	assert.Equal(t, []string{"bldg", "maxlod", "qc_result"}, uploaded)
 
 	// test case 2: invalid id
 	r := *res
@@ -473,14 +474,26 @@ func TestReceiveResultFromFME(t *testing.T) {
 	r.Type = "notify"
 	r.LogURL = "log"
 	r.Message = "message"
+	r.Results = map[string]any{
+		"_qc_result": "qc_result",
+	}
 	c.reset()
+	uploaded = []string{}
 	c.commentToItem = func(ctx context.Context, assetID, content string) error {
 		commneted = append(commneted, content)
 		return nil
 	}
+	c.uploadAsset = func(ctx context.Context, projectID, url string) (string, error) {
+		uploaded = append(uploaded, url)
+		return url, nil
+	}
+	c.updateItem = func(ctx context.Context, id string, fields []*cms.Field, metadataFields []*cms.Field) (*cms.Item, error) {
+		return nil, nil
+	}
 	err = receiveResultFromFME(ctx, s, conf, r)
 	assert.NoError(t, err)
 	assert.Equal(t, []string{"message ログ： log"}, commneted)
+	assert.Equal(t, []string{"qc_result"}, uploaded)
 }
 
 func getLogs(t *testing.T, f func()) string {

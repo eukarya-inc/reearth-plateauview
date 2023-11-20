@@ -62,6 +62,7 @@ type fmeResultURLs struct {
 	Data        []string
 	Dic         string
 	MaxLOD      string
+	QCResult    string
 }
 
 var reDigits = regexp.MustCompile(`^\d+_(.*)$`)
@@ -93,6 +94,10 @@ func (f fmeResult) GetResultURLs(featureType string) (res fmeResultURLs) {
 
 	if v, ok := f.Results["_maxlod"].(string); ok {
 		res.MaxLOD = v
+	}
+
+	if v, ok := f.Results["_qc_result"].(string); ok {
+		res.QCResult = v
 	}
 
 	return
