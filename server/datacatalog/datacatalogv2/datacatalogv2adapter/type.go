@@ -17,6 +17,20 @@ const usecaseID = "usecase"
 
 var floodingTypes = []string{"fld", "htd", "tnm", "ifld"}
 
+var landmarkTypes = map[string]string{
+	"病院":      "hospital",
+	"消防署":     "fire_station",
+	"警察署":     "police_station",
+	"郵便局":     "post_office",
+	"保健所":     "health_center",
+	"国の機関":    "national_agency",
+	"地方の機関":   "local_agency",
+	"指定公共機関":  "designated_public_institution",
+	"博物館・美術館": "museum",
+	"学校":      "school",
+	"ランドマーク":  "landmark",
+}
+
 var plateauSpecs = []*plateauapi.PlateauSpec{
 	{
 		ID:           plateauSpecIDFrom("2"),
@@ -163,6 +177,7 @@ func relatedDatasetFrom(d datacatalogv2.DataCatalogItem) (plateauapi.RelatedData
 	}
 
 	id := datasetIDFrom(d, nil)
+	items := d.MainOrConfigItems()
 	return plateauapi.RelatedDataset{
 		ID:             id,
 		Name:           d.Name,
@@ -178,9 +193,16 @@ func relatedDatasetFrom(d datacatalogv2.DataCatalogItem) (plateauapi.RelatedData
 		TypeID:         datasetTypeIDFrom(d),
 		TypeCode:       datasetTypeCodeFrom(d),
 		Groups:         groupsFrom(d),
-		Items: lo.Map(d.MainOrConfigItems(), func(c datacatalogutil.DataCatalogItemConfigItem, _ int) *plateauapi.RelatedDatasetItem {
+		Items: lo.Map(items, func(c datacatalogutil.DataCatalogItemConfigItem, i int) *plateauapi.RelatedDatasetItem {
+			ind := ""
+			if d.TypeEn == "landmark" && landmarkTypes[c.Name] != "" {
+				ind = fmt.Sprintf("_%s", landmarkTypes[c.Name])
+			}
 			return &plateauapi.RelatedDatasetItem{
-				ID:       plateauapi.NewID(id.ID(), plateauapi.TypeDatasetItem), // RelatedDatasetItem should be single
+				ID: plateauapi.NewID(
+					fmt.Sprintf("%s%s", id.ID(), ind),
+					plateauapi.TypeDatasetItem,
+				), // RelatedDatasetItem should be single
 				Name:     c.Name,
 				URL:      c.URL,
 				Format:   datasetFormatFrom(c.Type),
