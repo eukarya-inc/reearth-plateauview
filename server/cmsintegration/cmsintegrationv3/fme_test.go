@@ -28,7 +28,7 @@ func TestFME(t *testing.T) {
 
 	// valid
 	calls := mockFMEServer(t, "http://fme.example.com", req)
-	f := newFME("http://fme.example.com", "https://example.com", false)
+	f := newFME("http://fme.example.com", "https://example.com")
 	assert.NoError(t, f.Request(ctx, req))
 	assert.Equal(t, 1, calls())
 }
@@ -75,6 +75,11 @@ type fmeMock struct {
 
 func (f *fmeMock) Request(ctx context.Context, r fmeRequest) error {
 	f.called = append(f.called, r)
+	d, err := json.Marshal(r)
+	if err != nil {
+		return err
+	}
+	fmt.Printf("fmeMock: %s\n", string(d))
 	return f.err
 }
 

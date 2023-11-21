@@ -43,7 +43,7 @@ func NewServices(c Config) (s *Services, _ error) {
 			return nil, fmt.Errorf("failed to init fme: %w", err)
 		}
 
-		fme := newFME(fmeURL, resultURL, c.FMESkipQualityCheck)
+		fme := newFME(fmeURL, resultURL)
 		s.FME = fme
 	}
 

@@ -41,26 +41,18 @@ type fmeInterface interface {
 type fme struct {
 	url       string
 	resultURL string
-	disableQC bool
 	client    *http.Client
 }
 
-func newFME(url, resultURL string, disableQC bool) *fme {
+func newFME(url, resultURL string) *fme {
 	return &fme{
 		url:       url,
 		resultURL: resultURL,
-		disableQC: disableQC,
 		client:    http.DefaultClient,
 	}
 }
 
 func (s *fme) Request(ctx context.Context, r fmeRequest) error {
-	if s.disableQC {
-		r.Type = fmeTypeConv
-	} else if r.Type == "" {
-		r.Type = fmeTypeQcConv
-	}
-
 	b, err := json.Marshal(r)
 	if err != nil {
 		return fmt.Errorf("failed to marshal request: %w", err)

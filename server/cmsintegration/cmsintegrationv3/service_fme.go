@@ -94,7 +94,6 @@ func sendRequestToFME(ctx context.Context, s *Services, conf *Config, w *cmswebh
 		Codelists: codelistAsset.URL,
 		ResultURL: resultURL(conf),
 		Type:      ty,
-		// Config: ,
 	})
 	if err != nil {
 		_ = failToConvert(ctx, s, mainItem.ID, ty, "FMEへのリクエストに失敗しました。%v", err)

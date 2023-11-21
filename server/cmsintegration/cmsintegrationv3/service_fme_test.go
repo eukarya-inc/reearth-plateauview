@@ -57,9 +57,12 @@ func TestSendRequestToFME(t *testing.T) {
 	w := &cmswebhook.Payload{
 		ItemData: &cmswebhook.ItemData{
 			Model: &cms.Model{
-				Key: "modelKey",
+				Key: "plateau-bldg",
 			},
 			Item: baseItem,
+			Schema: &cms.Schema{
+				ProjectID: "projectID",
+			},
 		},
 	}
 
@@ -247,7 +250,10 @@ func TestSendRequestToFME(t *testing.T) {
 	})
 
 	// Test case 7: success
+
 	_ = getLogs(t, func() {
+		f.called = nil
+
 		item := *baseItem
 		w.ItemData.Item = &item
 
@@ -267,11 +273,13 @@ func TestSendRequestToFME(t *testing.T) {
 		c.asset = func(ctx context.Context, id string) (*cms.Asset, error) {
 			if id == "citygmlID" {
 				return &cms.Asset{
-					ID: "citygmlID",
+					ID:  "citygmlID",
+					URL: "target",
 				}, nil
 			}
 			return &cms.Asset{
-				ID: "codelistID",
+				ID:  "codelistID",
+				URL: "codelists",
 			}, nil
 		}
 		c.uploadAsset = func(ctx context.Context, projectID, url string) (string, error) {
@@ -292,10 +300,27 @@ func TestSendRequestToFME(t *testing.T) {
 
 		err := sendRequestToFME(ctx, s, conf, w)
 		assert.NoError(t, err)
+		assert.Equal(t, []fmeRequest{
+			{
+				Type: "qc_conv",
+				ID: fmeID{
+					ItemID:      "itemID",
+					ProjectID:   "projectID",
+					FeatureType: "bldg",
+					Type:        "qc_conv",
+				}.String("secret"),
+				Target:    "target",
+				Codelists: "codelists",
+				ResultURL: "/notify_fme/v3",
+			},
+		}, f.called)
 	})
 
 	// Test case 8: success with metadata item
+
 	_ = getLogs(t, func() {
+		f.called = nil
+
 		item := *baseItem
 		item.ID = "metadataItemID"
 		item.MetadataItemID = nil
@@ -318,11 +343,13 @@ func TestSendRequestToFME(t *testing.T) {
 		c.asset = func(ctx context.Context, id string) (*cms.Asset, error) {
 			if id == "citygmlID" {
 				return &cms.Asset{
-					ID: "citygmlID",
+					ID:  "citygmlID",
+					URL: "target",
 				}, nil
 			}
 			return &cms.Asset{
-				ID: "codelistID",
+				ID:  "codelistID",
+				URL: "codelists",
 			}, nil
 		}
 		c.uploadAsset = func(ctx context.Context, projectID, url string) (string, error) {
@@ -343,6 +370,20 @@ func TestSendRequestToFME(t *testing.T) {
 
 		err := sendRequestToFME(ctx, s, conf, w)
 		assert.NoError(t, err)
+		assert.Equal(t, []fmeRequest{
+			{
+				Type: "qc_conv",
+				ID: fmeID{
+					ItemID:      "itemID",
+					ProjectID:   "projectID",
+					FeatureType: "bldg",
+					Type:        "qc_conv",
+				}.String("secret"),
+				Target:    "target",
+				Codelists: "codelists",
+				ResultURL: "/notify_fme/v3",
+			},
+		}, f.called)
 	})
 }
 
