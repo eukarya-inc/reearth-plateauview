@@ -9,12 +9,17 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/oklog/ulid/v2"
 	"github.com/reearth/reearth-cms-api/go/cmswebhook"
 	"github.com/reearth/reearthx/log"
 	"github.com/samber/lo"
 	"github.com/spkg/bom"
 	"golang.org/x/exp/slices"
 )
+
+var generateID = func() string {
+	return strings.ToLower(ulid.MustNew(ulid.Now(), nil).String())
+}
 
 func sendRequestToFME(ctx context.Context, s *Services, conf *Config, w *cmswebhook.Payload) error {
 	// if event type is "item.create" and payload is metadata, skip it
@@ -266,12 +271,13 @@ func receiveResultFromFME(ctx context.Context, s *Services, conf *Config, f fmeR
 			if ok {
 				id = i.ID
 			} else {
-				id = k
+				id = generateID()
 			}
 
 			items = append(items, FeatureItemDatum{
 				ID:   id,
 				Data: assets,
+				Key:  k,
 			})
 		}
 	} else {

@@ -160,7 +160,7 @@ type FeatureItem struct {
 	// metadata
 	Status            ManagementStatus `json:"status,omitempty" cms:"status,select,metadata"`
 	SkipQC            bool             `json:"skip_qc,omitempty" cms:"skip_qc,bool,metadata"`
-	SkipConvert       bool             `json:"skip_convert,omitempty" cms:"skip_convert,bool,metadata"`
+	SkipConvert       bool             `json:"skip_conv,omitempty" cms:"skip_conv,bool,metadata"`
 	ConvertionStatus  ConvertionStatus `json:"conv_status,omitempty" cms:"conv_status,select,metadata"`
 	QCStatus          ConvertionStatus `json:"qc_status,omitempty" cms:"qc_status,select,metadata"`
 	SearchIndexStatus ConvertionStatus `json:"search_index_status,omitempty" cms:"search_index_status,select,metadata"`

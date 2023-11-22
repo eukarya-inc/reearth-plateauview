@@ -67,7 +67,7 @@ func TestSendRequestToFME(t *testing.T) {
 	}
 
 	// Test case 1: no metadataItemID and originalItemID
-	_ = getLogs(t, func() {
+	t.Run("no metadataItemID and originalItemID", func(t *testing.T) {
 		item := *baseItem
 		item.MetadataItemID = nil
 		item.OriginalItemID = nil
@@ -80,7 +80,9 @@ func TestSendRequestToFME(t *testing.T) {
 	})
 
 	// Test case 2: already converted
-	log := getLogs(t, func() {
+	t.Run("already converted", func(t *testing.T) {
+		log := getLogs(t)
+
 		item := *baseItem
 		w.ItemData.Item = &item
 
@@ -106,11 +108,13 @@ func TestSendRequestToFME(t *testing.T) {
 
 		err := sendRequestToFME(ctx, s, conf, w)
 		assert.NoError(t, err)
+		assert.Contains(t, log(), "already converted")
 	})
-	assert.Contains(t, log, "already converted")
 
 	// Test case 3: skip convert
-	log = getLogs(t, func() {
+	t.Run("skip convert", func(t *testing.T) {
+		log := getLogs(t)
+
 		item := *baseItem
 		w.ItemData.Item = &item
 
@@ -125,7 +129,7 @@ func TestSendRequestToFME(t *testing.T) {
 					ID: "metadataItemID",
 					Fields: []*cms.Field{
 						{
-							Key:   "skip_convert",
+							Key:   "skip_conv",
 							Value: true,
 						},
 						{
@@ -140,11 +144,12 @@ func TestSendRequestToFME(t *testing.T) {
 
 		err := sendRequestToFME(ctx, s, conf, w)
 		assert.NoError(t, err)
+
+		assert.Contains(t, log(), "skip convert")
 	})
-	assert.Contains(t, log, "skip convert")
 
 	// Test case 4: failed to get citygml asset
-	_ = getLogs(t, func() {
+	t.Run("failed to get citygml asset", func(t *testing.T) {
 		item := *baseItem
 		w.ItemData.Item = &item
 
@@ -177,7 +182,7 @@ func TestSendRequestToFME(t *testing.T) {
 	})
 
 	// Test case 5: failed to get city item
-	_ = getLogs(t, func() {
+	t.Run("failed to get city item", func(t *testing.T) {
 		item := *baseItem
 		w.ItemData.Item = &item
 
@@ -212,7 +217,7 @@ func TestSendRequestToFME(t *testing.T) {
 	})
 
 	// Test case 6: failed to get codelist asset
-	_ = getLogs(t, func() {
+	t.Run("failed to get codelist asset", func(t *testing.T) {
 		item := *baseItem
 		w.ItemData.Item = &item
 
@@ -250,8 +255,7 @@ func TestSendRequestToFME(t *testing.T) {
 	})
 
 	// Test case 7: success
-
-	_ = getLogs(t, func() {
+	t.Run("success", func(t *testing.T) {
 		f.called = nil
 
 		item := *baseItem
@@ -317,8 +321,7 @@ func TestSendRequestToFME(t *testing.T) {
 	})
 
 	// Test case 8: success with metadata item
-
-	_ = getLogs(t, func() {
+	t.Run("success with metadata item", func(t *testing.T) {
 		f.called = nil
 
 		item := *baseItem
@@ -387,7 +390,24 @@ func TestSendRequestToFME(t *testing.T) {
 	})
 }
 
+func mockGenerateID(t *testing.T) func() {
+	t.Helper()
+	counter := 0
+	originalGenID := generateID
+	generateID = func() string {
+		counter++
+		return fmt.Sprintf("id%d", counter)
+	}
+	t.Cleanup(func() {
+		generateID = originalGenID
+	})
+	return func() {
+		counter = 0
+	}
+}
+
 func TestReceiveResultFromFME(t *testing.T) {
+	mockGenerateID(t)
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
 
@@ -503,13 +523,15 @@ func TestReceiveResultFromFME(t *testing.T) {
 				ID: "itemID",
 				Items: []FeatureItemDatum{
 					{
-						ID:   "fld/aaa",
+						ID:   "ida",
+						Key:  "fld/aaa",
 						Data: []string{"data"},
 						Name: "name1",
 						Desc: "desc1",
 					},
 					{
-						ID:   "fld/ccc",
+						ID:   "idb",
+						Key:  "fld/ccc",
 						Data: []string{"data"},
 						Name: "name2",
 						Desc: "desc2",
@@ -529,24 +551,42 @@ func TestReceiveResultFromFME(t *testing.T) {
 					Key:   "data",
 					Type:  "asset",
 					Value: []string{"AAA"},
-					Group: "fld/aaa",
+					Group: "ida",
+				},
+				{
+					Key:   "key",
+					Type:  "text",
+					Value: "fld/aaa",
+					Group: "ida",
 				},
 				{
 					Key:   "data",
 					Type:  "asset",
 					Value: []string{"BBB"},
-					Group: "fld/bbb",
+					Group: "id1",
+				},
+				{
+					Key:   "key",
+					Type:  "text",
+					Value: "fld/bbb",
+					Group: "id1",
 				},
 				{
 					Key:   "data",
 					Type:  "asset",
 					Value: []string{"CCC", "DDD"},
-					Group: "fld/ccc",
+					Group: "idb",
+				},
+				{
+					Key:   "key",
+					Type:  "text",
+					Value: "fld/ccc",
+					Group: "idb",
 				},
 				{
 					Key:   "items",
 					Type:  "group",
-					Value: []string{"fld/aaa", "fld/bbb", "fld/ccc"},
+					Value: []string{"ida", "id1", "idb"},
 				},
 			}, fields)
 			assert.Equal(t, []*cms.Field{
@@ -639,17 +679,18 @@ func TestReceiveResultFromFME(t *testing.T) {
 	})
 }
 
-func getLogs(t *testing.T, f func()) string {
+func getLogs(t *testing.T) func() string {
 	t.Helper()
 	buf := &bytes.Buffer{}
 	log.SetOutput(io.MultiWriter(buf, os.Stdout))
 
-	defer func() {
+	t.Cleanup(func() {
 		log.SetOutput(os.Stdout)
-	}()
+	})
 
-	f()
-	return buf.String()
+	return func() string {
+		return buf.String()
+	}
 }
 
 type cmsMock struct {
