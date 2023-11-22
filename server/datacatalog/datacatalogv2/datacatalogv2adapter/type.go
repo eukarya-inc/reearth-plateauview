@@ -14,6 +14,7 @@ import (
 )
 
 const usecaseID = "usecase"
+const globalID = "global"
 
 var floodingTypes = []string{"fld", "htd", "tnm", "ifld"}
 
@@ -277,8 +278,11 @@ func datasetFormatFrom(f string) plateauapi.DatasetFormat {
 	return ""
 }
 
-func prefectureIDFrom(d datacatalogv2.DataCatalogItem) plateauapi.ID {
-	return plateauapi.NewID(d.PrefCode, plateauapi.TypeArea)
+func prefectureIDFrom(d datacatalogv2.DataCatalogItem) *plateauapi.ID {
+	if d.PrefCode == "" {
+		return nil
+	}
+	return lo.ToPtr(plateauapi.NewID(d.PrefCode, plateauapi.TypeArea))
 }
 
 func cityIDFrom(d datacatalogv2.DataCatalogItem) *plateauapi.ID {
@@ -295,8 +299,11 @@ func wardIDFrom(d datacatalogv2.DataCatalogItem) *plateauapi.ID {
 	return lo.ToPtr(plateauapi.NewID(d.WardCode, plateauapi.TypeArea))
 }
 
-func prefectureCodeFrom(d datacatalogv2.DataCatalogItem) plateauapi.AreaCode {
-	return plateauapi.AreaCode(d.PrefCode)
+func prefectureCodeFrom(d datacatalogv2.DataCatalogItem) *plateauapi.AreaCode {
+	if d.PrefCode == "" {
+		return nil
+	}
+	return lo.ToPtr(plateauapi.AreaCode(d.PrefCode))
 }
 
 func cityCodeFrom(d datacatalogv2.DataCatalogItem) *plateauapi.AreaCode {
@@ -382,6 +389,9 @@ func datasetTypeCodeFrom(d datacatalogv2.DataCatalogItem) string {
 		}
 		return d.Category
 	}
+	if d.PrefCode == "" {
+		return globalID
+	}
 	return usecaseID
 }
 
@@ -403,9 +413,9 @@ func prefectureFrom(d datacatalogv2.DataCatalogItem) *plateauapi.Prefecture {
 	}
 
 	return &plateauapi.Prefecture{
-		ID:   prefectureIDFrom(d),
+		ID:   *prefectureIDFrom(d),
 		Type: plateauapi.AreaTypePrefecture,
-		Code: prefectureCodeFrom(d),
+		Code: *prefectureCodeFrom(d),
 		Name: d.Pref,
 	}
 }
@@ -421,8 +431,8 @@ func cityFrom(d datacatalogv2.DataCatalogItem) *plateauapi.City {
 		Type:           plateauapi.AreaTypeCity,
 		Code:           *code,
 		Name:           d.City,
-		PrefectureID:   prefectureIDFrom(d),
-		PrefectureCode: prefectureCodeFrom(d),
+		PrefectureID:   *prefectureIDFrom(d),
+		PrefectureCode: *prefectureCodeFrom(d),
 	}
 }
 
@@ -442,8 +452,8 @@ func wardFrom(d datacatalogv2.DataCatalogItem) *plateauapi.Ward {
 		Type:           plateauapi.AreaTypeWard,
 		Code:           *code,
 		Name:           d.Ward,
-		PrefectureID:   prefectureIDFrom(d),
-		PrefectureCode: prefectureCodeFrom(d),
+		PrefectureID:   *prefectureIDFrom(d),
+		PrefectureCode: *prefectureCodeFrom(d),
 		CityID:         *cityid,
 		CityCode:       *citycode,
 	}
@@ -499,6 +509,15 @@ func genericDatasetTypeFrom(d datacatalogv2.DataCatalogItem) plateauapi.GenericD
 			ID:       datasetTypeIDFrom(d),
 			Name:     d.Category,
 			Code:     datasetTypeCodeFrom(d),
+			Category: plateauapi.DatasetTypeCategoryGeneric,
+		}
+	}
+
+	if d.PrefCode == "" {
+		return plateauapi.GenericDatasetType{
+			ID:       datasetTypeIDFrom(d),
+			Name:     "全球データ",
+			Code:     globalID,
 			Category: plateauapi.DatasetTypeCategoryGeneric,
 		}
 	}

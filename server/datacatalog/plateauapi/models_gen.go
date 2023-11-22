@@ -42,9 +42,9 @@ type Dataset interface {
 	// データセットを分類するグループ。グループが階層構造になっている場合は、親から子の順番で複数のグループ名が存在することがあります。
 	GetGroups() []string
 	// データセットが属する都道府県のID。
-	GetPrefectureID() ID
+	GetPrefectureID() *ID
 	// データセットが属する都道府県コード。2桁の数字から成る文字列です。
-	GetPrefectureCode() AreaCode
+	GetPrefectureCode() *AreaCode
 	// データセットが属する市のID。
 	GetCityID() *ID
 	// データセットが属する市コード。先頭に都道府県コードを含む5桁の数字から成る文字列です。
@@ -223,9 +223,9 @@ type GenericDataset struct {
 	// データセットを分類するグループ。グループが階層構造になっている場合は、親から子の順番で複数のグループ名が存在することがあります。
 	Groups []string `json:"groups,omitempty"`
 	// データセットが属する都道府県のID。
-	PrefectureID ID `json:"prefectureId"`
+	PrefectureID *ID `json:"prefectureId,omitempty"`
 	// データセットが属する都道府県コード。2桁の数字から成る文字列です。
-	PrefectureCode AreaCode `json:"prefectureCode"`
+	PrefectureCode *AreaCode `json:"prefectureCode,omitempty"`
 	// データセットが属する市のID。
 	CityID *ID `json:"cityId,omitempty"`
 	// データセットが属する市コード。先頭に都道府県コードを含む5桁の数字から成る文字列です。
@@ -278,10 +278,10 @@ func (this GenericDataset) GetGroups() []string {
 }
 
 // データセットが属する都道府県のID。
-func (this GenericDataset) GetPrefectureID() ID { return this.PrefectureID }
+func (this GenericDataset) GetPrefectureID() *ID { return this.PrefectureID }
 
 // データセットが属する都道府県コード。2桁の数字から成る文字列です。
-func (this GenericDataset) GetPrefectureCode() AreaCode { return this.PrefectureCode }
+func (this GenericDataset) GetPrefectureCode() *AreaCode { return this.PrefectureCode }
 
 // データセットが属する市のID。
 func (this GenericDataset) GetCityID() *ID { return this.CityID }
@@ -437,9 +437,9 @@ type PlateauDataset struct {
 	// データセットを分類するグループ。グループが階層構造になっている場合は、親から子の順番で複数のグループ名が存在することがあります。
 	Groups []string `json:"groups,omitempty"`
 	// データセットが属する都道府県のID。
-	PrefectureID ID `json:"prefectureId"`
+	PrefectureID *ID `json:"prefectureId,omitempty"`
 	// データセットが属する都道府県コード。2桁の数字から成る文字列です。
-	PrefectureCode AreaCode `json:"prefectureCode"`
+	PrefectureCode *AreaCode `json:"prefectureCode,omitempty"`
 	// データセットが属する市のID。
 	CityID *ID `json:"cityId,omitempty"`
 	// データセットが属する市コード。先頭に都道府県コードを含む5桁の数字から成る文字列です。
@@ -500,10 +500,10 @@ func (this PlateauDataset) GetGroups() []string {
 }
 
 // データセットが属する都道府県のID。
-func (this PlateauDataset) GetPrefectureID() ID { return this.PrefectureID }
+func (this PlateauDataset) GetPrefectureID() *ID { return this.PrefectureID }
 
 // データセットが属する都道府県コード。2桁の数字から成る文字列です。
-func (this PlateauDataset) GetPrefectureCode() AreaCode { return this.PrefectureCode }
+func (this PlateauDataset) GetPrefectureCode() *AreaCode { return this.PrefectureCode }
 
 // データセットが属する市のID。
 func (this PlateauDataset) GetCityID() *ID { return this.CityID }
@@ -763,9 +763,9 @@ type RelatedDataset struct {
 	// データセットを分類するグループ。グループが階層構造になっている場合は、親から子の順番で複数のグループ名が存在することがあります。
 	Groups []string `json:"groups,omitempty"`
 	// データセットが属する都道府県のID。
-	PrefectureID ID `json:"prefectureId"`
+	PrefectureID *ID `json:"prefectureId,omitempty"`
 	// データセットが属する都道府県コード。2桁の数字から成る文字列です。
-	PrefectureCode AreaCode `json:"prefectureCode"`
+	PrefectureCode *AreaCode `json:"prefectureCode,omitempty"`
 	// データセットが属する市のID。
 	CityID *ID `json:"cityId,omitempty"`
 	// データセットが属する市コード。先頭に都道府県コードを含む5桁の数字から成る文字列です。
@@ -818,10 +818,10 @@ func (this RelatedDataset) GetGroups() []string {
 }
 
 // データセットが属する都道府県のID。
-func (this RelatedDataset) GetPrefectureID() ID { return this.PrefectureID }
+func (this RelatedDataset) GetPrefectureID() *ID { return this.PrefectureID }
 
 // データセットが属する都道府県コード。2桁の数字から成る文字列です。
-func (this RelatedDataset) GetPrefectureCode() AreaCode { return this.PrefectureCode }
+func (this RelatedDataset) GetPrefectureCode() *AreaCode { return this.PrefectureCode }
 
 // データセットが属する市のID。
 func (this RelatedDataset) GetCityID() *ID { return this.CityID }

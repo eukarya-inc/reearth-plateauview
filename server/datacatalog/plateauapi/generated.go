@@ -2574,14 +2574,11 @@ func (ec *executionContext) _GenericDataset_prefectureId(ctx context.Context, fi
 		return graphql.Null
 	}
 	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
 		return graphql.Null
 	}
-	res := resTmp.(ID)
+	res := resTmp.(*ID)
 	fc.Result = res
-	return ec.marshalNID2githubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐID(ctx, field.Selections, res)
+	return ec.marshalOID2ᚖgithubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐID(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_GenericDataset_prefectureId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -2618,14 +2615,11 @@ func (ec *executionContext) _GenericDataset_prefectureCode(ctx context.Context, 
 		return graphql.Null
 	}
 	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
 		return graphql.Null
 	}
-	res := resTmp.(AreaCode)
+	res := resTmp.(*AreaCode)
 	fc.Result = res
-	return ec.marshalNAreaCode2githubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐAreaCode(ctx, field.Selections, res)
+	return ec.marshalOAreaCode2ᚖgithubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐAreaCode(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_GenericDataset_prefectureCode(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -4079,14 +4073,11 @@ func (ec *executionContext) _PlateauDataset_prefectureId(ctx context.Context, fi
 		return graphql.Null
 	}
 	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
 		return graphql.Null
 	}
-	res := resTmp.(ID)
+	res := resTmp.(*ID)
 	fc.Result = res
-	return ec.marshalNID2githubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐID(ctx, field.Selections, res)
+	return ec.marshalOID2ᚖgithubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐID(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_PlateauDataset_prefectureId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -4123,14 +4114,11 @@ func (ec *executionContext) _PlateauDataset_prefectureCode(ctx context.Context, 
 		return graphql.Null
 	}
 	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
 		return graphql.Null
 	}
-	res := resTmp.(AreaCode)
+	res := resTmp.(*AreaCode)
 	fc.Result = res
-	return ec.marshalNAreaCode2githubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐAreaCode(ctx, field.Selections, res)
+	return ec.marshalOAreaCode2ᚖgithubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐAreaCode(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_PlateauDataset_prefectureCode(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -7648,14 +7636,11 @@ func (ec *executionContext) _RelatedDataset_prefectureId(ctx context.Context, fi
 		return graphql.Null
 	}
 	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
 		return graphql.Null
 	}
-	res := resTmp.(ID)
+	res := resTmp.(*ID)
 	fc.Result = res
-	return ec.marshalNID2githubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐID(ctx, field.Selections, res)
+	return ec.marshalOID2ᚖgithubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐID(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_RelatedDataset_prefectureId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -7692,14 +7677,11 @@ func (ec *executionContext) _RelatedDataset_prefectureCode(ctx context.Context, 
 		return graphql.Null
 	}
 	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
 		return graphql.Null
 	}
-	res := resTmp.(AreaCode)
+	res := resTmp.(*AreaCode)
 	fc.Result = res
-	return ec.marshalNAreaCode2githubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐAreaCode(ctx, field.Selections, res)
+	return ec.marshalOAreaCode2ᚖgithubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐAreaCode(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_RelatedDataset_prefectureCode(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -11914,14 +11896,8 @@ func (ec *executionContext) _GenericDataset(ctx context.Context, sel ast.Selecti
 			out.Values[i] = ec._GenericDataset_groups(ctx, field, obj)
 		case "prefectureId":
 			out.Values[i] = ec._GenericDataset_prefectureId(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
-			}
 		case "prefectureCode":
 			out.Values[i] = ec._GenericDataset_prefectureCode(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
-			}
 		case "cityId":
 			out.Values[i] = ec._GenericDataset_cityId(ctx, field, obj)
 		case "cityCode":
@@ -12321,14 +12297,8 @@ func (ec *executionContext) _PlateauDataset(ctx context.Context, sel ast.Selecti
 			out.Values[i] = ec._PlateauDataset_groups(ctx, field, obj)
 		case "prefectureId":
 			out.Values[i] = ec._PlateauDataset_prefectureId(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
-			}
 		case "prefectureCode":
 			out.Values[i] = ec._PlateauDataset_prefectureCode(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
-			}
 		case "cityId":
 			out.Values[i] = ec._PlateauDataset_cityId(ctx, field, obj)
 		case "cityCode":
@@ -13407,14 +13377,8 @@ func (ec *executionContext) _RelatedDataset(ctx context.Context, sel ast.Selecti
 			out.Values[i] = ec._RelatedDataset_groups(ctx, field, obj)
 		case "prefectureId":
 			out.Values[i] = ec._RelatedDataset_prefectureId(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
-			}
 		case "prefectureCode":
 			out.Values[i] = ec._RelatedDataset_prefectureCode(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
-			}
 		case "cityId":
 			out.Values[i] = ec._RelatedDataset_cityId(ctx, field, obj)
 		case "cityCode":

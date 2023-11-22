@@ -132,7 +132,7 @@ func areaCodeFrom(d plateauapi.Dataset) *plateauapi.AreaCode {
 		if d2.CityCode != nil {
 			return d2.CityCode
 		}
-		return &d2.PrefectureCode
+		return d2.PrefectureCode
 	case plateauapi.RelatedDataset:
 		if d2.WardCode != nil {
 			return d2.WardCode
@@ -140,7 +140,7 @@ func areaCodeFrom(d plateauapi.Dataset) *plateauapi.AreaCode {
 		if d2.CityCode != nil {
 			return d2.CityCode
 		}
-		return &d2.PrefectureCode
+		return d2.PrefectureCode
 	case plateauapi.GenericDataset:
 		if d2.WardCode != nil {
 			return d2.WardCode
@@ -148,7 +148,7 @@ func areaCodeFrom(d plateauapi.Dataset) *plateauapi.AreaCode {
 		if d2.CityCode != nil {
 			return d2.CityCode
 		}
-		return &d2.PrefectureCode
+		return d2.PrefectureCode
 	}
 	return nil
 }
@@ -157,19 +157,19 @@ func areaCodesFrom(d plateauapi.Dataset) []plateauapi.AreaCode {
 	switch d2 := d.(type) {
 	case plateauapi.PlateauDataset:
 		return util.DerefSlice([]*plateauapi.AreaCode{
-			lo.ToPtr(d2.PrefectureCode),
+			d2.PrefectureCode,
 			d2.CityCode,
 			d2.WardCode,
 		})
 	case plateauapi.RelatedDataset:
 		return util.DerefSlice([]*plateauapi.AreaCode{
-			lo.ToPtr(d2.PrefectureCode),
+			d2.PrefectureCode,
 			d2.CityCode,
 			d2.WardCode,
 		})
 	case plateauapi.GenericDataset:
 		return util.DerefSlice([]*plateauapi.AreaCode{
-			lo.ToPtr(d2.PrefectureCode),
+			d2.PrefectureCode,
 			d2.CityCode,
 			d2.WardCode,
 		})

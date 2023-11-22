@@ -44,7 +44,10 @@ func (r *cityResolver) Datasets(ctx context.Context, obj *City, input *DatasetsI
 
 // Prefecture is the resolver for the prefecture field.
 func (r *genericDatasetResolver) Prefecture(ctx context.Context, obj *GenericDataset) (*Prefecture, error) {
-	return to[*Prefecture](r.Repo.Node(ctx, obj.PrefectureID))
+	if obj.PrefectureID == nil {
+		return nil, nil
+	}
+	return to[*Prefecture](r.Repo.Node(ctx, *obj.PrefectureID))
 }
 
 // City is the resolver for the city field.
@@ -95,7 +98,10 @@ func (r *genericDatasetTypeResolver) Datasets(ctx context.Context, obj *GenericD
 
 // Prefecture is the resolver for the prefecture field.
 func (r *plateauDatasetResolver) Prefecture(ctx context.Context, obj *PlateauDataset) (*Prefecture, error) {
-	return to[*Prefecture](r.Repo.Node(ctx, obj.PrefectureID))
+	if obj.PrefectureID == nil {
+		return nil, nil
+	}
+	return to[*Prefecture](r.Repo.Node(ctx, *obj.PrefectureID))
 }
 
 // City is the resolver for the city field.
@@ -253,7 +259,10 @@ func (r *queryResolver) Years(ctx context.Context) ([]int, error) {
 
 // Prefecture is the resolver for the prefecture field.
 func (r *relatedDatasetResolver) Prefecture(ctx context.Context, obj *RelatedDataset) (*Prefecture, error) {
-	return to[*Prefecture](r.Repo.Node(ctx, obj.PrefectureID))
+	if obj.PrefectureID == nil {
+		return nil, nil
+	}
+	return to[*Prefecture](r.Repo.Node(ctx, *obj.PrefectureID))
 }
 
 // City is the resolver for the city field.
