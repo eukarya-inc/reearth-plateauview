@@ -18,7 +18,7 @@ import (
 )
 
 var generateID = func() string {
-	return strings.ToLower(ulid.MustNew(ulid.Now(), nil).String())
+	return strings.ToLower(ulid.Make().String())
 }
 
 func sendRequestToFME(ctx context.Context, s *Services, conf *Config, w *cmswebhook.Payload) error {
