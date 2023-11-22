@@ -14,6 +14,8 @@ type Area interface {
 	IsNode()
 	IsArea()
 	GetID() ID
+	// 地域の種類
+	GetType() AreaType
 	// 地域コード。行政コードや市区町村コードとも呼ばれます。
 	// 都道府県の場合は二桁の数字から成る文字列です。
 	// 市区町村の場合は、先頭に都道府県コードを含む5桁の数字から成る文字列です。
@@ -114,7 +116,14 @@ type AreasInput struct {
 	// 検索したい地域が属する親となる地域のコード。例えば東京都に属する都市を検索したい場合は "13" を指定します。
 	ParentCode *AreaCode `json:"parentCode,omitempty"`
 	// データセットの種類コード。例えば、建築物モデルのデータセットが存在する地域を検索したい場合は "bldg" を指定します。複数指定するとOR条件で検索を行います。
+	// 未指定の場合、全てのデータセットの種類を対象に検索します。
 	DatasetTypes []string `json:"datasetTypes,omitempty"`
+	// データセットの種類のカテゴリ。例えば、PLATEAU都市モデルデータセットが存在する地域を検索したい場合は PLATEAU を指定します。複数指定するとOR条件で検索を行います。
+	// 未指定の場合、全てのカテゴリのデータセットを対象に検索します。
+	Categories []DatasetTypeCategory `json:"categories,omitempty"`
+	// 地域の種類。例えば、市を検索したい場合は CITY を指定します。複数指定するとOR条件で検索を行います。
+	// 未指定の場合、全ての地域を対象に検索します。
+	AreaTypes []AreaType `json:"areaTypes,omitempty"`
 	// 検索文字列。複数指定するとAND条件で絞り込み検索が行えます。
 	SearchTokens []string `json:"searchTokens,omitempty"`
 }
@@ -122,6 +131,8 @@ type AreasInput struct {
 // 市区町村
 type City struct {
 	ID ID `json:"id"`
+	// 地域の種類
+	Type AreaType `json:"type"`
 	// 市区町村コード。先頭に都道府県コードを含む5桁の数字から成る文字列です。
 	Code AreaCode `json:"code"`
 	// 市区町村名
@@ -140,6 +151,9 @@ type City struct {
 
 func (City) IsArea()        {}
 func (this City) GetID() ID { return this.ID }
+
+// 地域の種類
+func (this City) GetType() AreaType { return this.Type }
 
 // 地域コード。行政コードや市区町村コードとも呼ばれます。
 // 都道府県の場合は二桁の数字から成る文字列です。
@@ -692,6 +706,8 @@ func (this PlateauSpecMinor) GetID() ID { return this.ID }
 // 都道府県
 type Prefecture struct {
 	ID ID `json:"id"`
+	// 地域の種類
+	Type AreaType `json:"type"`
 	// 都道府県コード。2桁の数字から成る文字列です。
 	Code AreaCode `json:"code"`
 	// 都道府県名
@@ -704,6 +720,9 @@ type Prefecture struct {
 
 func (Prefecture) IsArea()        {}
 func (this Prefecture) GetID() ID { return this.ID }
+
+// 地域の種類
+func (this Prefecture) GetType() AreaType { return this.Type }
 
 // 地域コード。行政コードや市区町村コードとも呼ばれます。
 // 都道府県の場合は二桁の数字から成る文字列です。
@@ -955,6 +974,8 @@ type River struct {
 // 区（政令指定都市のみ）
 type Ward struct {
 	ID ID `json:"id"`
+	// 種類
+	Type AreaType `json:"type"`
 	// 区コード。先頭に都道府県コードを含む5桁の数字から成る文字列です。
 	Code AreaCode `json:"code"`
 	// 区名
@@ -977,6 +998,9 @@ type Ward struct {
 
 func (Ward) IsArea()        {}
 func (this Ward) GetID() ID { return this.ID }
+
+// 地域の種類
+func (this Ward) GetType() AreaType { return this.Type }
 
 // 地域コード。行政コードや市区町村コードとも呼ばれます。
 // 都道府県の場合は二桁の数字から成る文字列です。
@@ -1001,6 +1025,52 @@ func (this Ward) GetDatasets() []Dataset {
 func (Ward) IsNode() {}
 
 // オブジェクトのID
+
+type AreaType string
+
+const (
+	// 都道府県
+	AreaTypePrefecture AreaType = "PREFECTURE"
+	// 市町村
+	AreaTypeCity AreaType = "CITY"
+	// 区（政令指定都市のみ）
+	AreaTypeWard AreaType = "WARD"
+)
+
+var AllAreaType = []AreaType{
+	AreaTypePrefecture,
+	AreaTypeCity,
+	AreaTypeWard,
+}
+
+func (e AreaType) IsValid() bool {
+	switch e {
+	case AreaTypePrefecture, AreaTypeCity, AreaTypeWard:
+		return true
+	}
+	return false
+}
+
+func (e AreaType) String() string {
+	return string(e)
+}
+
+func (e *AreaType) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = AreaType(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid AreaType", str)
+	}
+	return nil
+}
+
+func (e AreaType) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
 
 // データセットのフォーマット。
 type DatasetFormat string

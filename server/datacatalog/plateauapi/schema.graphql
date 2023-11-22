@@ -26,6 +26,10 @@ scalar AreaCode
 interface Area implements Node {
   id: ID!
   """
+  地域の種類
+  """
+  type: AreaType!
+  """
   地域コード。行政コードや市区町村コードとも呼ばれます。
   都道府県の場合は二桁の数字から成る文字列です。
   市区町村の場合は、先頭に都道府県コードを含む5桁の数字から成る文字列です。
@@ -41,11 +45,30 @@ interface Area implements Node {
   datasets(input: DatasetsInput): [Dataset!]!
 }
 
+enum AreaType {
+  """
+  都道府県
+  """
+  PREFECTURE
+  """
+  市町村
+  """
+  CITY
+  """
+  区（政令指定都市のみ）
+  """
+  WARD
+}
+
 """
 都道府県
 """
 type Prefecture implements Area & Node {
   id: ID!
+  """
+  地域の種類
+  """
+  type: AreaType!
   """
   都道府県コード。2桁の数字から成る文字列です。
   """
@@ -69,6 +92,10 @@ type Prefecture implements Area & Node {
 """
 type City implements Area & Node {
   id: ID!
+  """
+  地域の種類
+  """
+  type: AreaType!
   """
   市区町村コード。先頭に都道府県コードを含む5桁の数字から成る文字列です。
   """
@@ -104,6 +131,10 @@ type City implements Area & Node {
 """
 type Ward implements Area & Node {
   id: ID!
+  """
+  種類
+  """
+  type: AreaType!
   """
   区コード。先頭に都道府県コードを含む5桁の数字から成る文字列です。
   """
@@ -927,8 +958,19 @@ input AreasInput {
   parentCode: AreaCode
   """
   データセットの種類コード。例えば、建築物モデルのデータセットが存在する地域を検索したい場合は "bldg" を指定します。複数指定するとOR条件で検索を行います。
+  未指定の場合、全てのデータセットの種類を対象に検索します。
   """
   datasetTypes: [String!]
+  """
+  データセットの種類のカテゴリ。例えば、PLATEAU都市モデルデータセットが存在する地域を検索したい場合は PLATEAU を指定します。複数指定するとOR条件で検索を行います。
+  未指定の場合、全てのカテゴリのデータセットを対象に検索します。
+  """
+  categories: [DatasetTypeCategory!]
+  """
+  地域の種類。例えば、市を検索したい場合は CITY を指定します。複数指定するとOR条件で検索を行います。
+  未指定の場合、全ての地域を対象に検索します。
+  """
+  areaTypes: [AreaType!]
   """
   検索文字列。複数指定するとAND条件で絞り込み検索が行えます。
   """

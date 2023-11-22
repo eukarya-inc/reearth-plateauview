@@ -92,6 +92,11 @@ func TestAdapter_Areas(t *testing.T) {
 					"01101": {},
 				},
 			},
+			plateauDatasetTypes: []plateauapi.PlateauDatasetType{
+				{
+					Code: "bldg",
+				},
+			},
 		},
 	}
 

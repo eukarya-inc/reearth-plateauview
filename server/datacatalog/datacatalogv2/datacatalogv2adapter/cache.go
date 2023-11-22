@@ -288,48 +288,61 @@ func (c *cache) Area(ctx context.Context, code plateauapi.AreaCode) (plateauapi.
 
 func (c *cache) Areas(ctx context.Context, input *plateauapi.AreasInput) (res []plateauapi.Area, _ error) {
 	inp := lo.FromPtr(input)
+
+	types := c.getDatasetTypes(inp.DatasetTypes, inp.Categories)
+
 	var codes []plateauapi.AreaCode
 	if inp.DatasetTypes != nil {
-		for _, t := range inp.DatasetTypes {
+		for _, t := range types {
 			codes = append(codes, maps.Keys(c.areasForDataTypes[t])...)
 		}
 	}
 
-	prefs := lo.Filter(c.prefectures, func(t plateauapi.Prefecture, _ int) bool {
-		return filterArea(t, inp) && inp.ParentCode == nil && (len(codes) == 0 || lo.Contains(codes, t.Code))
-	})
+	var prefs []plateauapi.Prefecture
+	var cities []plateauapi.City
+	var wards []plateauapi.Ward
 
-	cities := lo.Filter(c.cities, func(t plateauapi.City, _ int) bool {
-		if !filterArea(t, inp) {
-			return false
-		}
+	if len(inp.AreaTypes) == 0 || slices.Contains(inp.AreaTypes, plateauapi.AreaTypePrefecture) {
+		prefs = lo.Filter(c.prefectures, func(t plateauapi.Prefecture, _ int) bool {
+			return filterArea(t, inp) && inp.ParentCode == nil && (len(codes) == 0 || lo.Contains(codes, t.Code))
+		})
+	}
 
-		if len(codes) > 0 && !lo.Contains(codes, t.Code) {
-			return false
-		}
+	if len(inp.AreaTypes) == 0 || slices.Contains(inp.AreaTypes, plateauapi.AreaTypeCity) {
+		cities = lo.Filter(c.cities, func(t plateauapi.City, _ int) bool {
+			if !filterArea(t, inp) {
+				return false
+			}
 
-		if inp.ParentCode != nil && t.PrefectureCode != *inp.ParentCode {
-			return false
-		}
+			if len(codes) > 0 && !lo.Contains(codes, t.Code) {
+				return false
+			}
 
-		return true
-	})
+			if inp.ParentCode != nil && t.PrefectureCode != *inp.ParentCode {
+				return false
+			}
 
-	wards := lo.Filter(c.wards, func(t plateauapi.Ward, _ int) bool {
-		if !filterArea(t, inp) {
-			return false
-		}
+			return true
+		})
+	}
 
-		if len(codes) > 0 && !lo.Contains(codes, t.Code) {
-			return false
-		}
+	if len(inp.AreaTypes) == 0 || slices.Contains(inp.AreaTypes, plateauapi.AreaTypeWard) {
+		wards = lo.Filter(c.wards, func(t plateauapi.Ward, _ int) bool {
+			if !filterArea(t, inp) {
+				return false
+			}
 
-		if inp.ParentCode != nil && t.CityCode != *input.ParentCode {
-			return false
-		}
+			if len(codes) > 0 && !lo.Contains(codes, t.Code) {
+				return false
+			}
 
-		return true
-	})
+			if inp.ParentCode != nil && t.CityCode != *input.ParentCode {
+				return false
+			}
+
+			return true
+		})
+	}
 
 	for _, t := range prefs {
 		t := t
@@ -397,6 +410,7 @@ func (c *cache) Datasets(ctx context.Context, input *plateauapi.DatasetsInput) (
 		t := t
 		res = append(res, &t)
 	}
+
 	return
 }
 
@@ -408,4 +422,52 @@ func (c *cache) PlateauSpecs(ctx context.Context) ([]*plateauapi.PlateauSpec, er
 
 func (c *cache) Years(ctx context.Context) ([]int, error) {
 	return slices.Clone(c.years), nil
+}
+
+func (c *cache) getDatasetTypes(types []string, categories []plateauapi.DatasetTypeCategory) (res []string) {
+	for _, t := range c.allDatasetTypes(categories) {
+		code := t.GetCode()
+		if len(types) > 0 && !slices.Contains(types, code) {
+			continue
+		}
+		res = append(res, code)
+	}
+	return res
+}
+
+func (c *cache) allDatasetTypes(categories []plateauapi.DatasetTypeCategory) (res []plateauapi.DatasetType) {
+	var plateau []plateauapi.DatasetType
+	if len(categories) == 0 || slices.Contains(categories, plateauapi.DatasetTypeCategoryPlateau) {
+		for _, t := range c.plateauDatasetTypes {
+			t := t
+			plateau = append(plateau, &t)
+		}
+	}
+	slices.SortStableFunc(plateau, func(a, b plateauapi.DatasetType) int {
+		return strings.Compare(a.GetCode(), b.GetCode())
+	})
+
+	var related []plateauapi.DatasetType
+	if len(categories) == 0 || slices.Contains(categories, plateauapi.DatasetTypeCategoryRelated) {
+		for _, t := range c.relatedDatasetTypes {
+			t := t
+			related = append(related, &t)
+		}
+	}
+	slices.SortStableFunc(related, func(a, b plateauapi.DatasetType) int {
+		return strings.Compare(a.GetCode(), b.GetCode())
+	})
+
+	var generic []plateauapi.DatasetType
+	if len(categories) == 0 || slices.Contains(categories, plateauapi.DatasetTypeCategoryGeneric) {
+		for _, t := range c.genericDatasetTypes {
+			t := t
+			generic = append(generic, &t)
+		}
+	}
+	slices.SortStableFunc(generic, func(a, b plateauapi.DatasetType) int {
+		return strings.Compare(a.GetCode(), b.GetCode())
+	})
+
+	return append(append(plateau, related...), generic...)
 }

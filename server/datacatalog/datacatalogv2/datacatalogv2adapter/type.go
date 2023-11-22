@@ -404,6 +404,7 @@ func prefectureFrom(d datacatalogv2.DataCatalogItem) *plateauapi.Prefecture {
 
 	return &plateauapi.Prefecture{
 		ID:   prefectureIDFrom(d),
+		Type: plateauapi.AreaTypePrefecture,
 		Code: prefectureCodeFrom(d),
 		Name: d.Pref,
 	}
@@ -417,6 +418,7 @@ func cityFrom(d datacatalogv2.DataCatalogItem) *plateauapi.City {
 
 	return &plateauapi.City{
 		ID:             *id,
+		Type:           plateauapi.AreaTypeCity,
 		Code:           *code,
 		Name:           d.City,
 		PrefectureID:   prefectureIDFrom(d),
@@ -437,6 +439,7 @@ func wardFrom(d datacatalogv2.DataCatalogItem) *plateauapi.Ward {
 
 	return &plateauapi.Ward{
 		ID:             *id,
+		Type:           plateauapi.AreaTypeWard,
 		Code:           *code,
 		Name:           d.Ward,
 		PrefectureID:   prefectureIDFrom(d),
