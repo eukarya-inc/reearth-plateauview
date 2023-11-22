@@ -37,6 +37,9 @@ func TestFMEResult_GetResultURLs(t *testing.T) {
 			"urf/UseDistrict":                           "https://example.com/04100_sendai-shi_2022_citygml_1/UseDistrict.zip",
 			"hoge":                                      "hoge",
 			"foo":                                       "foo",
+			"fld/aaa/bbbb_l1":                           []string{"fld1", "fld2"},
+			"fld/aaa/bbbb_l2":                           "fld3",
+			"fld/aaa/bbbb_l2_no_texture":                "fld4",
 		},
 	}
 
@@ -46,10 +49,12 @@ func TestFMEResult_GetResultURLs(t *testing.T) {
 			"https://example.com/04100_sendai-shi_2022_citygml_1/26103_bldg_lod1.zip",
 			"https://example.com/04100_sendai-shi_2022_citygml_1/bldg_lod2.zip",
 		},
-		Keys: []string{"26103_bldg_lod1", "bldg_lod2"},
+		Keys: []string{"bldg"},
 		DataMap: map[string][]string{
-			"26103_bldg_lod1": {"https://example.com/04100_sendai-shi_2022_citygml_1/26103_bldg_lod1.zip"},
-			"bldg_lod2":       {"https://example.com/04100_sendai-shi_2022_citygml_1/bldg_lod2.zip"},
+			"bldg": {
+				"https://example.com/04100_sendai-shi_2022_citygml_1/26103_bldg_lod1.zip",
+				"https://example.com/04100_sendai-shi_2022_citygml_1/bldg_lod2.zip",
+			},
 		},
 		Dic:    "https://example.com/04100_sendai-shi_2022_citygml_1/dic.json",
 		MaxLOD: "https://example.com/04100_sendai-shi_2022_citygml_1/maxlod.csv",
@@ -118,4 +123,19 @@ func TestFMEResult_GetResultURLs(t *testing.T) {
 		Dic:    "https://example.com/04100_sendai-shi_2022_citygml_1/dic.json",
 		MaxLOD: "https://example.com/04100_sendai-shi_2022_citygml_1/maxlod.csv",
 	}, r.GetResultURLs("urf"))
+
+	assert.Equal(t, fmeResultURLs{
+		FeatureType: "fld",
+		Data: []string{
+			"fld1", "fld2", "fld3", "fld4",
+		},
+		Keys: []string{
+			"fld/aaa/bbbb",
+		},
+		DataMap: map[string][]string{
+			"fld/aaa/bbbb": {"fld1", "fld2", "fld3", "fld4"},
+		},
+		Dic:    "https://example.com/04100_sendai-shi_2022_citygml_1/dic.json",
+		MaxLOD: "https://example.com/04100_sendai-shi_2022_citygml_1/maxlod.csv",
+	}, r.GetResultURLs("fld"))
 }

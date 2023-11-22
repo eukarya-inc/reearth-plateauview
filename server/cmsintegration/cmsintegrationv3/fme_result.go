@@ -6,6 +6,7 @@ import (
 	"sort"
 	"strings"
 
+	"golang.org/x/exp/maps"
 	"golang.org/x/exp/slices"
 )
 
@@ -75,38 +76,49 @@ func (f fmeResult) GetResultURLs(featureType string) (res fmeResultURLs) {
 	res.FeatureType = featureType
 	res.DataMap = map[string][]string{}
 
-	for k, v := range f.Results {
+	keys := maps.Keys(f.Results)
+	sort.Strings(keys)
+
+	for _, k := range keys {
+		v := f.Results[k]
 		k2 := reDigits.ReplaceAllString(k, "$1")
+		k2 = strings.TrimSuffix(k2, "_no_texture")
+		k2 = strings.TrimSuffix(k2, "_l1")
+		k2 = strings.TrimSuffix(k2, "_l2")
+		k2 = strings.TrimSuffix(k2, "_lod0")
+		k2 = strings.TrimSuffix(k2, "_lod1")
+		k2 = strings.TrimSuffix(k2, "_lod2")
+		k2 = strings.TrimSuffix(k2, "_lod3")
+		k2 = strings.TrimSuffix(k2, "_lod4")
 
 		if k2 == featureType || strings.HasPrefix(k2, featureType+"/") || strings.HasPrefix(k2, featureType+"_") {
 			if v2, ok := v.(string); ok {
-				res.Keys = append(res.Keys, k)
+				if !slices.Contains(res.Keys, k2) {
+					res.Keys = append(res.Keys, k2)
+				}
 				res.Data = append(res.Data, v2)
-				res.DataMap[k] = []string{v2}
+				res.DataMap[k2] = append(res.DataMap[k2], v2)
 			} else if v2, ok := v.([]any); ok {
 				for _, v3 := range v2 {
 					if v4, ok := v3.(string); ok {
-						if !slices.Contains(res.Keys, k) {
-							res.Keys = append(res.Keys, k)
+						if !slices.Contains(res.Keys, k2) {
+							res.Keys = append(res.Keys, k2)
 						}
 						res.Data = append(res.Data, v4)
-						res.DataMap[k] = append(res.DataMap[k], v4)
+						res.DataMap[k2] = append(res.DataMap[k2], v4)
 					}
 				}
 			} else if v2, ok := v.([]string); ok {
 				for _, v3 := range v2 {
-					if !slices.Contains(res.Keys, k) {
-						res.Keys = append(res.Keys, k)
+					if !slices.Contains(res.Keys, k2) {
+						res.Keys = append(res.Keys, k2)
 					}
 					res.Data = append(res.Data, v3)
-					res.DataMap[k] = append(res.DataMap[k], v3)
+					res.DataMap[k2] = append(res.DataMap[k2], v3)
 				}
 			}
 		}
 	}
-
-	sort.Strings(res.Keys)
-	sort.Strings(res.Data)
 
 	if v, ok := f.Results["_dic"].(string); ok {
 		res.Dic = v
