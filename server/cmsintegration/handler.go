@@ -14,12 +14,9 @@ type Config = cmsintegrationcommon.Config
 
 func Handler(conf Config, g *echo.Group) error {
 	// v3
-	v3, err := cmsintegrationv3.Handler(conf)
-	if err != nil {
+	if err := cmsintegrationv3.Handler(conf, g); err != nil {
 		return err
 	}
-
-	g.POST(cmsintegrationv3.HandlerPath, v3)
 
 	// v2 (compat)
 	return compatHandler(conf, g)

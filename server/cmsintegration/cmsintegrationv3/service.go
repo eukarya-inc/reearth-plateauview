@@ -17,10 +17,10 @@ import (
 
 type Config = cmsintegrationcommon.Config
 
-const HandlerPath = "/notify_fme/v3"
+const fmeHandlerPath = "/notify_fme/v3"
 
 func resultURL(conf *Config) string {
-	return fmt.Sprintf("%s%s", conf.Host, HandlerPath)
+	return fmt.Sprintf("%s%s", conf.Host, fmeHandlerPath)
 }
 
 type Services struct {
