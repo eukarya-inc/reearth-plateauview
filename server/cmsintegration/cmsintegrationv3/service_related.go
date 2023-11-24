@@ -1,10 +1,14 @@
 package cmsintegrationv3
 
 import (
+	"archive/zip"
 	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
+	"path"
+	"strings"
 
 	"github.com/eukarya-inc/reearth-plateauview/server/cmsintegration/dataconv"
 	geojson "github.com/paulmach/go.geojson"
@@ -19,96 +23,142 @@ var relatedDataConvertionTargets = []string{
 	"station",
 }
 
-func convertRelatedDataset(ctx context.Context, s *Services, w *cmswebhook.Payload) error {
+const relatedConvStatus = "conv_status"
+
+func handleRelatedDataset(ctx context.Context, s *Services, w *cmswebhook.Payload) error {
+	// if event type is "item.create" and payload is metadata, skip it
+	if w.Type == cmswebhook.EventItemCreate && w.ItemData.Item.OriginalItemID != nil ||
+		w.ItemData == nil || w.ItemData.Item == nil || w.ItemData.Model == nil ||
+		w.ItemData.Item.FieldByKey(relatedConvStatus) == nil {
+		return nil
+	}
+
 	if w.ItemData.Model.Key != modelPrefix+relatedModel {
 		log.Debugfc(ctx, "cmsintegrationv3: not related dataset")
 		return nil
 	}
 
-	item := RelatedItemFrom(w.ItemData.Item)
+	mainItem, err := s.GetMainItemWithMetadata(ctx, w.ItemData.Item)
+	if err != nil {
+		return err
+	}
 
-	if item.City == "" {
-		log.Debugfc(ctx, "cmsintegrationv3: no city")
+	item := RelatedItemFrom(mainItem)
+
+	if err := convertRelatedDataset(ctx, s, w, item); err != nil {
+		return err
+	}
+
+	if err := packRelatedDataset(ctx, s, w, item); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func convertRelatedDataset(ctx context.Context, s *Services, w *cmswebhook.Payload, item *RelatedItem) (err error) {
+	if item.ConvertStatus != "" && item.ConvertStatus != ConvertionStatusNotStarted {
+		log.Debugfc(ctx, "cmsintegrationv3: already converted")
 		return nil
 	}
 
-	targets := lo.Filter(relatedDataConvertionTargets, func(t string, _ int) bool {
-		return updatedField(w, t) != nil
-	})
-	if len(targets) == 0 {
-		log.Debugfc(ctx, "cmsintegrationv3: no changes")
-		return nil
+	if !lo.SomeBy(relatedDataConvertionTargets, func(t string) bool {
+		return len(item.Assets[t]) > 0
+	}) {
+		log.Debugfc(ctx, "cmsintegrationv3: no assets")
 	}
 
 	log.Infofc(ctx, "cmsintegrationv3: convertRelatedDataset")
 
-	// get city item
-	cityItemRaw, err := s.CMS.GetItem(ctx, item.City, false)
-	if err != nil {
-		return fmt.Errorf("failed to get city item: %w", err)
+	// update status
+	if _, err := s.CMS.UpdateItem(ctx, item.ID, nil, (&RelatedItem{
+		ConvertStatus: ConvertionStatusRunning,
+	}).CMSItem().MetadataFields); err != nil {
+		return fmt.Errorf("failed to update item: %w", err)
 	}
 
-	cityItem := CityItemFrom(cityItemRaw)
-	if cityItem.CityName == "" || cityItem.CityCode == "" {
-		return fmt.Errorf("city item is not valid: %v", cityItem)
+	defer func() {
+		if err == nil {
+			return
+		}
+
+		if _, err := s.CMS.UpdateItem(ctx, item.ID, nil, (&RelatedItem{
+			MergeStatus: ConvertionStatusError,
+		}).CMSItem().MetadataFields); err != nil {
+			log.Warnf("cmsintegrationv3: failed to update item: %w", err)
+		}
+
+		// comment to the item
+		if err := s.CMS.CommentToItem(ctx, item.ID, "G空間情報センター公開用zipファイルの作成に失敗しました。"); err != nil {
+			log.Warnf("cmsintegrationv3: failed to add comment: %w", err)
+		}
+	}()
+
+	// comment to the item
+	if err := s.CMS.CommentToItem(ctx, item.ID, "変換を開始しました。"); err != nil {
+		return fmt.Errorf("failed to add comment: %w", err)
 	}
 
-	for _, target := range targets {
-		if item.Assets[target] == "" || item.ConvertedAssets[target] != "" ||
-			item.ConvertStatus[target] != "" && item.ConvertStatus[target] != ConvertionStatusNotStarted {
+	conv := map[string][]string{}
+	for _, target := range relatedDataConvertionTargets {
+		if len(item.Assets[target]) == 0 {
 			continue
 		}
 
-		id := fmt.Sprintf("%s_%s_%s", cityItem.CityName, cityItem.CityCode, target)
-		log.Debugf("cmsintegrationv3: convert %s (%s)", target, id)
+		for _, t := range item.Assets[target] {
+			asset, err := s.CMS.Asset(ctx, t)
+			if err != nil {
+				return fmt.Errorf("failed to get asset (%s): %w", target, err)
+			}
 
-		// download asset
-		asset, err := s.DownloadAssetAsBytes(ctx, item.Assets[target])
-		if err != nil {
-			return fmt.Errorf("failed to download asset: %w", err)
-		}
+			id := strings.TrimSuffix(path.Base(asset.URL), path.Ext(asset.URL))
+			log.Debugf("cmsintegrationv3: convert %s (%s)", target, id)
 
-		fc, err := geojson.UnmarshalFeatureCollection(asset)
-		if err != nil {
-			return fmt.Errorf("failed to unmarshal asset: %w", err)
-		}
+			// download asset
+			data, err := s.GETAsBytes(ctx, asset.URL)
+			if err != nil {
+				return fmt.Errorf("failed to download asset: %w", err)
+			}
 
-		// conv
-		var res any
-		if target == "border" {
-			res, err = dataconv.ConvertBorder(fc, id)
-		} else if target == "landmark" || target == "station" {
-			res, err = dataconv.ConvertLandmark(fc, id)
-		}
+			fc, err := geojson.UnmarshalFeatureCollection(data)
+			if err != nil {
+				return fmt.Errorf("failed to unmarshal asset: %w", err)
+			}
 
-		if err != nil || res == nil {
-			return fmt.Errorf("failed to convert: %w", err)
-		}
+			// conv
+			var res any
+			if target == "border" {
+				res, err = dataconv.ConvertBorder(fc, id)
+			} else if target == "landmark" || target == "station" {
+				res, err = dataconv.ConvertLandmark(fc, id)
+			}
 
-		uploadBody, err := json.Marshal(res)
-		if err != nil {
-			return fmt.Errorf("failed to marshal: %w", err)
-		}
+			if err != nil || res == nil {
+				return fmt.Errorf("failed to convert: %w", err)
+			}
 
-		// upload
-		assetID, err := s.CMS.UploadAssetDirectly(ctx, w.ProjectID(), id+".czml", bytes.NewReader(uploadBody))
-		if err != nil {
-			return fmt.Errorf("failed to upload asset: %w", err)
-		}
+			uploadBody, err := json.Marshal(res)
+			if err != nil {
+				return fmt.Errorf("failed to marshal: %w", err)
+			}
 
-		// update item
-		ritem := (&RelatedItem{
-			ConvertedAssets: map[string]string{
-				target: assetID,
-			},
-			ConvertStatus: map[string]ConvertionStatus{
-				target: ConvertionStatusSuccess,
-			},
-		}).CMSItem()
-		_, err = s.CMS.UpdateItem(ctx, item.ID, ritem.Fields, ritem.MetadataFields)
-		if err != nil {
-			return fmt.Errorf("failed to update item: %w", err)
+			// upload
+			assetID, err := s.CMS.UploadAssetDirectly(ctx, w.ProjectID(), id+".czml", bytes.NewReader(uploadBody))
+			if err != nil {
+				return fmt.Errorf("failed to upload asset: %w", err)
+			}
+
+			conv[target] = append(conv[target], assetID)
 		}
+	}
+
+	// update item
+	ritem := (&RelatedItem{
+		ConvertedAssets: conv,
+		ConvertStatus:   ConvertionStatusSuccess,
+	}).CMSItem()
+	if _, err := s.CMS.UpdateItem(ctx, item.ID, ritem.Fields, ritem.MetadataFields); err != nil {
+		return fmt.Errorf("failed to update item: %w", err)
 	}
 
 	// comment to the item
@@ -119,9 +169,133 @@ func convertRelatedDataset(ctx context.Context, s *Services, w *cmswebhook.Paylo
 	return nil
 }
 
-func packageRelatedDatasetForGeospatialjp(ctx context.Context, s *Services, w *cmswebhook.Payload) error {
+func packRelatedDataset(ctx context.Context, s *Services, w *cmswebhook.Payload, item *RelatedItem) (err error) {
+	if item.City == "" {
+		log.Debugfc(ctx, "cmsintegrationv3: no city")
+		return nil
+	}
+
+	if item.MergeStatus != "" && item.MergeStatus != ConvertionStatusNotStarted {
+		log.Debugfc(ctx, "cmsintegrationv3: already merged")
+		return nil
+	}
+
+	if missingTypes := lo.Filter(relatedDataTypes, func(t string, _ int) bool {
+		return len(item.Assets[t]) == 0
+	}); len(missingTypes) > 0 {
+		log.Debugfc(ctx, "cmsintegrationv3: there are some missing assets: %v", missingTypes)
+		return nil
+	}
+
 	log.Infofc(ctx, "cmsintegrationv3: packageRelatedDatasetForGeospatialjp")
-	// TODO
+
+	// update status
+	if _, err := s.CMS.UpdateItem(ctx, item.ID, nil, (&RelatedItem{
+		MergeStatus: ConvertionStatusRunning,
+	}).CMSItem().MetadataFields); err != nil {
+		return fmt.Errorf("failed to update item: %w", err)
+	}
+
+	defer func() {
+		if err == nil {
+			return
+		}
+
+		if _, err := s.CMS.UpdateItem(ctx, item.ID, nil, (&RelatedItem{
+			MergeStatus: ConvertionStatusError,
+		}).CMSItem().MetadataFields); err != nil {
+			log.Warnf("cmsintegrationv3: failed to update item: %w", err)
+		}
+
+		// comment to the item
+		if err := s.CMS.CommentToItem(ctx, item.ID, fmt.Sprintf("G空間情報センター公開用zipファイルの作成に失敗しました。%s", err)); err != nil {
+			log.Warnf("cmsintegrationv3: failed to add comment: %w", err)
+		}
+	}()
+
+	// comment to the item
+	if err := s.CMS.CommentToItem(ctx, item.ID, "G空間情報センター公開用zipファイルの作成を開始しました。"); err != nil {
+		return fmt.Errorf("failed to add comment: %w", err)
+	}
+
+	// get city
+	cityItemRaw, err := s.CMS.GetItem(ctx, item.City, false)
+	if err != nil {
+		return fmt.Errorf("failed to get city: %w", err)
+	}
+
+	cityItem := CityItemFrom(cityItemRaw)
+	zipName := fmt.Sprintf("%s_%s_related.zip", cityItem.CityCode, cityItem.CityNameEn)
+
+	zipbuf := bytes.NewBuffer(nil)
+	zw := zip.NewWriter(zipbuf)
+
+	i := 0
+	for _, target := range relatedDataTypes {
+		for _, t := range item.Assets[target] {
+			// get asset
+			asset, err := s.CMS.Asset(ctx, t)
+			if err != nil {
+
+				return fmt.Errorf("failed to get asset (%s): %w", target, err)
+			}
+
+			if err := (func() error {
+				// add to zip
+				f, err := zw.Create(path.Base(asset.URL))
+				if err != nil {
+					return fmt.Errorf("failed to create zip file (%s): %w", target, err)
+				}
+
+				// download asset
+				r, err := s.GET(ctx, asset.URL)
+				if err != nil {
+					return fmt.Errorf("failed to download asset (%s): %w", target, err)
+				}
+
+				defer r.Close()
+
+				if _, err := io.Copy(f, r); err != nil {
+					return fmt.Errorf("failed to copy file to zip (%s): %w", target, err)
+				}
+
+				i++
+				return nil
+			})(); err != nil {
+				return err
+			}
+		}
+	}
+
+	if i == 0 {
+		log.Debugfc(ctx, "cmsintegrationv3: no assets")
+		return nil
+	}
+
+	if err := zw.Close(); err != nil {
+		return fmt.Errorf("failed to close zip: %w", err)
+	}
+
+	// upload zip
+	assetID, err := s.CMS.UploadAssetDirectly(ctx, w.ProjectID(), zipName, zipbuf)
+	if err != nil {
+		return fmt.Errorf("failed to upload zip: %w", err)
+	}
+
+	// update item
+	ritem := (&RelatedItem{
+		Merged:      assetID,
+		MergeStatus: ConvertionStatusSuccess,
+	}).CMSItem()
+
+	if _, err := s.CMS.UpdateItem(ctx, item.ID, ritem.Fields, ritem.MetadataFields); err != nil {
+		return fmt.Errorf("failed to update item: %w", err)
+	}
+
+	// comment to the item
+	if err := s.CMS.CommentToItem(ctx, item.ID, "G空間情報センター公開用zipファイルの作成が完了しました。"); err != nil {
+		return fmt.Errorf("failed to add comment: %w", err)
+	}
 
 	return nil
 }

@@ -123,32 +123,27 @@ func TestRelatedItemFrom(t *testing.T) {
 			{
 				Key:   "park",
 				Type:  "asset",
-				Value: "PARK",
+				Value: []string{"PARK"},
 			},
 			{
 				Key:   "park_conv",
 				Type:  "asset",
-				Value: "PARK_CONV",
+				Value: []string{"PARK_CONV"},
 			},
 			{
 				Key:   "landmark",
 				Type:  "asset",
-				Value: "LANDMARK",
+				Value: []string{"LANDMARK"},
 			},
 		},
 		MetadataFields: []*cms.Field{
 			{
-				Key:   "park_status",
+				Key:   "conv_status",
 				Type:  "select",
-				Value: string(ConvertionStatusSuccess),
+				Value: ConvertionStatusSuccess,
 			},
 			{
-				Key:   "park_public",
-				Type:  "bool",
-				Value: true,
-			},
-			{
-				Key:   "border_public",
+				Key:   "public",
 				Type:  "bool",
 				Value: true,
 			},
@@ -157,20 +152,15 @@ func TestRelatedItemFrom(t *testing.T) {
 
 	expected := &RelatedItem{
 		ID: "id",
-		Assets: map[string]string{
-			"park":     "PARK",
-			"landmark": "LANDMARK",
+		Assets: map[string][]string{
+			"park":     {"PARK"},
+			"landmark": {"LANDMARK"},
 		},
-		ConvertedAssets: map[string]string{
-			"park": "PARK_CONV",
+		ConvertedAssets: map[string][]string{
+			"park": {"PARK_CONV"},
 		},
-		Public: map[string]bool{
-			"park":   true,
-			"border": true,
-		},
-		ConvertStatus: map[string]ConvertionStatus{
-			"park": ConvertionStatusSuccess,
-		},
+		ConvertStatus: ConvertionStatusSuccess,
+		Public:        true,
 	}
 
 	relatedItem := RelatedItemFrom(item)

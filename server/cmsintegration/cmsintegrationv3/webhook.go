@@ -47,10 +47,7 @@ func WebhookHandler(conf Config) (cmswebhook.Handler, error) {
 		var err error
 
 		if modelName == relatedModel {
-			err = convertRelatedDataset(ctx, s, w)
-			if err == nil {
-				err = packageRelatedDatasetForGeospatialjp(ctx, s, w)
-			}
+			err = handleRelatedDataset(ctx, s, w)
 		} else if slices.Contains(featureTypes, modelName) {
 			err = sendRequestToFME(ctx, s, &conf, w)
 			if err == nil {
