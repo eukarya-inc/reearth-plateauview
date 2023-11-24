@@ -5,6 +5,7 @@ import (
 	"encoding/csv"
 	"fmt"
 	"io"
+	"strings"
 
 	"github.com/reearth/reearthx/log"
 )
@@ -37,16 +38,16 @@ func SetupCityItems(ctx context.Context, s *Services, inp SetupCityItemsInput, o
 
 	// get model info
 	modelIDs := map[string]string{}
-	// models, err := s.CMS.GetModels(ctx, inp.ProjectID)
-	// if err != nil {
-	// 	return fmt.Errorf("failed to get models: %w", err)
-	// }
-	// for _, m := range models {
-	// 	if !strings.HasPrefix(m.Key, modelPrefix) {
-	//  	continue
-	// 	}
-	// 	modelIDs[strings.TrimPrefix(m.Key, modelPrefix)] = m.ID
-	// }
+	models, err := s.CMS.GetModels(ctx, inp.ProjectID)
+	if err != nil {
+		return fmt.Errorf("failed to get models: %w", err)
+	}
+	for _, m := range models.Models {
+		if !strings.HasPrefix(m.Key, modelPrefix) {
+			continue
+		}
+		modelIDs[strings.TrimPrefix(m.Key, modelPrefix)] = m.ID
+	}
 	if len(modelIDs) == 0 || modelIDs[modelPrefix+cityModel] == "" || modelIDs[modelPrefix+relatedModel] == "" {
 		return fmt.Errorf("no models found")
 	}
