@@ -4,6 +4,7 @@ import (
 	"archive/zip"
 	"bytes"
 	"context"
+	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
@@ -94,12 +95,34 @@ func TestConvertRelatedDataset(t *testing.T) {
 }
 
 func TestPackRelatedDataset(t *testing.T) {
+	mockGeoJSON := func(name string) map[string]any {
+		return map[string]any{
+			"type": "FeatureCollection",
+			"features": []any{
+				map[string]any{
+					"type": "Feature",
+					"properties": map[string]any{
+						"name": name,
+					},
+					"geometry": map[string]any{
+						"type":        "Point",
+						"coordinates": []any{0.0, 0.0},
+					},
+				},
+			},
+		}
+	}
+
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
-	for _, t := range relatedDataTypes {
-		httpmock.RegisterResponder("GET", fmt.Sprintf("https://example.com/%s.geojson", t),
-			httpmock.NewStringResponder(200, `{}`))
-	}
+	httpmock.RegisterResponder(
+		"GET",
+		`=~^https://example\.com/(.+)\.geojson`,
+		func(req *http.Request) (*http.Response, error) {
+			name := httpmock.MustGetSubmatch(req, 1)
+			return httpmock.NewJsonResponse(200, mockGeoJSON(name))
+		},
+	)
 
 	var updatedFields [][]*cms.Field
 	var updatedMetadataFields [][]*cms.Field
@@ -141,7 +164,7 @@ func TestPackRelatedDataset(t *testing.T) {
 		City: "city",
 		Assets: map[string][]string{
 			"shelter":         {"shelter"},
-			"landmark":        {"landmark"},
+			"landmark":        {"landmark1", "landmark2"},
 			"station":         {"station"},
 			"park":            {"park"},
 			"railway":         {"railway"},
@@ -194,6 +217,8 @@ func TestPackRelatedDataset(t *testing.T) {
 		assert.Equal(t, []string{
 			"shelter.geojson",
 			"park.geojson",
+			"landmark1.geojson",
+			"landmark2.geojson",
 			"landmark.geojson",
 			"station.geojson",
 			"railway.geojson",
@@ -202,5 +227,32 @@ func TestPackRelatedDataset(t *testing.T) {
 		}, lo.Map(zr.File, func(f *zip.File, _ int) string {
 			return f.Name
 		}))
+
+		// assert landmark1.geojson
+		zf := lo.Must(zr.Open("landmark1.geojson"))
+		var ge map[string]any
+		_ = json.NewDecoder(zf).Decode(&ge)
+		assert.Equal(t, mockGeoJSON("landmark1"), ge)
+
+		// assert landmark.geojson
+		zf = lo.Must(zr.Open("landmark.geojson"))
+		ge = nil
+		_ = json.NewDecoder(zf).Decode(&ge)
+		assert.Equal(t, map[string]any{
+			"type": "FeatureCollection",
+			"name": "code_city_landmark",
+			"features": []any{
+				map[string]any{
+					"type":       "Feature",
+					"properties": map[string]any{"name": "landmark1"},
+					"geometry":   map[string]any{"type": "Point", "coordinates": []any{0.0, 0.0}},
+				},
+				map[string]any{
+					"type":       "Feature",
+					"properties": map[string]any{"name": "landmark2"},
+					"geometry":   map[string]any{"type": "Point", "coordinates": []any{0.0, 0.0}},
+				},
+			},
+		}, ge)
 	})
 }

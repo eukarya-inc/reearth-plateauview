@@ -701,6 +701,7 @@ type cmsMock struct {
 	uploadAsset         func(ctx context.Context, projectID, url string) (string, error)
 	uploadAssetDirectly func(ctx context.Context, projectID, name string, r io.Reader) (string, error)
 	commentToItem       func(ctx context.Context, assetID, content string) error
+	getModels           func(ctx context.Context, projectID string) (*cms.Models, error)
 }
 
 func (c *cmsMock) reset() {
@@ -710,6 +711,7 @@ func (c *cmsMock) reset() {
 	c.uploadAsset = nil
 	c.uploadAssetDirectly = nil
 	c.commentToItem = nil
+	c.getModels = nil
 }
 
 func (c *cmsMock) GetItem(ctx context.Context, id string, asset bool) (*cms.Item, error) {
@@ -734,4 +736,8 @@ func (c *cmsMock) UploadAssetDirectly(ctx context.Context, projectID, name strin
 
 func (c *cmsMock) CommentToItem(ctx context.Context, assetID, content string) error {
 	return c.commentToItem(ctx, assetID, content)
+}
+
+func (c *cmsMock) GetModels(ctx context.Context, projectID string) (*cms.Models, error) {
+	return c.getModels(ctx, projectID)
 }

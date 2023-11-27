@@ -6,7 +6,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"io"
 	"path"
 	"strings"
 
@@ -230,8 +229,12 @@ func packRelatedDataset(ctx context.Context, s *Services, w *cmswebhook.Payload,
 	zipbuf := bytes.NewBuffer(nil)
 	zw := zip.NewWriter(zipbuf)
 
-	i := 0
+	assetPreset := false
 	for _, target := range relatedDataTypes {
+		name := fmt.Sprintf("%s_%s_%s", cityItem.CityCode, cityItem.CityNameEn, target)
+		var features []*geojson.Feature
+		noNeedToWriteAssets := len(item.Assets[target]) == 1
+
 		for _, t := range item.Assets[target] {
 			// get asset
 			asset, err := s.CMS.Asset(ctx, t)
@@ -240,34 +243,57 @@ func packRelatedDataset(ctx context.Context, s *Services, w *cmswebhook.Payload,
 				return fmt.Errorf("failed to get asset (%s): %w", target, err)
 			}
 
-			if err := (func() error {
-				// add to zip
+			// download asset
+			data, err := s.GETAsBytes(ctx, asset.URL)
+			if err != nil {
+				return fmt.Errorf("failed to download asset (%s): %w", target, err)
+			}
+
+			// add to zip
+			if !noNeedToWriteAssets {
 				f, err := zw.Create(path.Base(asset.URL))
 				if err != nil {
 					return fmt.Errorf("failed to create zip file (%s): %w", target, err)
 				}
 
-				// download asset
-				r, err := s.GET(ctx, asset.URL)
-				if err != nil {
-					return fmt.Errorf("failed to download asset (%s): %w", target, err)
+				if _, err := f.Write(data); err != nil {
+					return fmt.Errorf("failed to write zip file (%s): %w", target, err)
 				}
+			}
 
-				defer r.Close()
+			fc := geojson.NewFeatureCollection()
+			if err := json.Unmarshal(data, fc); err != nil {
+				return fmt.Errorf("failed to decode asset (%s): %w", target, err)
+			}
 
-				if _, err := io.Copy(f, r); err != nil {
-					return fmt.Errorf("failed to copy file to zip (%s): %w", target, err)
-				}
+			features = append(features, fc.Features...)
+			assetPreset = true
+		}
 
-				i++
-				return nil
-			})(); err != nil {
-				return err
+		// merge multiple assets
+		if len(features) > 0 {
+			f, err := zw.Create(fmt.Sprintf("%s.geojson", target))
+			if err != nil {
+				return fmt.Errorf("failed to create zip file (%s): %w", target, err)
+			}
+
+			fc := map[string]any{
+				"type":     "FeatureCollection",
+				"name":     name,
+				"features": features,
+			}
+			data, err := json.Marshal(fc)
+			if err != nil {
+				return fmt.Errorf("failed to marshal (%s): %w", target, err)
+			}
+
+			if _, err := f.Write(data); err != nil {
+				return fmt.Errorf("failed to write zip file (%s): %w", target, err)
 			}
 		}
 	}
 
-	if i == 0 {
+	if !assetPreset {
 		log.Debugfc(ctx, "cmsintegrationv3: no assets")
 		return nil
 	}
