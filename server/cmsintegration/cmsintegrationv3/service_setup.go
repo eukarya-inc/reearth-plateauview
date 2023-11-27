@@ -8,11 +8,14 @@ import (
 	"strings"
 
 	"github.com/reearth/reearthx/log"
+	"golang.org/x/exp/slices"
 )
 
 type SetupCityItemsInput struct {
 	ProjectID string `json:"projectId"`
 	DataURL   string `json:"dataUrl"`
+	Test      bool   `json:"test"`
+	Force     bool   `json:"force"`
 }
 
 type SetupCSVItem struct {
@@ -48,25 +51,47 @@ func SetupCityItems(ctx context.Context, s *Services, inp SetupCityItemsInput, o
 		}
 		modelIDs[strings.TrimPrefix(m.Key, modelPrefix)] = m.ID
 	}
-	if len(modelIDs) == 0 || modelIDs[modelPrefix+cityModel] == "" || modelIDs[modelPrefix+relatedModel] == "" {
+	if len(modelIDs) == 0 || modelIDs[cityModel] == "" || modelIDs[relatedModel] == "" {
 		return fmt.Errorf("no models found")
 	}
 
-	cityModel := modelIDs[modelPrefix+cityModel]
-	relatedModel := modelIDs[modelPrefix+relatedModel]
+	cityModel := modelIDs[cityModel]
+	relatedModel := modelIDs[relatedModel]
+
+	// check city item total count
+	if !inp.Force {
+		items, err := s.CMS.GetItemsPartially(ctx, cityModel, 0, 1, false)
+		if err != nil {
+			return fmt.Errorf("failed to get city items: %w", err)
+		}
+		if items.TotalCount > 0 {
+			return fmt.Errorf("city items already exist")
+		}
+	}
 
 	// parse data
-	items, err := getAndParseSetupCSV(ctx, s, inp.DataURL)
+	setupItems, features, err := getAndParseSetupCSV(ctx, s, inp.DataURL)
 	if err != nil {
 		return fmt.Errorf("failed to get and parse data: %w", err)
 	}
 
-	log.Infofc(ctx, "cmsintegrationv3: setup %d items", len(items))
+	// if test is true, setupItems count is limited to 10
+	if inp.Test && len(setupItems) > 10 {
+		setupItems = setupItems[:10]
+	}
+
+	for _, f := range features {
+		if modelIDs[f] == "" {
+			return fmt.Errorf("model id for %s is not found", f)
+		}
+	}
+
+	log.Infofc(ctx, "cmsintegrationv3: setup %d items", len(setupItems))
 
 	// process cities
-	for i, item := range items {
+	for i, item := range setupItems {
 		if onprogress != nil {
-			onprogress(i, len(items))
+			onprogress(i, len(setupItems))
 		}
 
 		cityItem := &CityItem{
@@ -79,7 +104,7 @@ func SetupCityItems(ctx context.Context, s *Services, inp SetupCityItemsInput, o
 
 		newCityItem, err := s.CMS.CreateItem(ctx, cityModel, cityCMSItem.Fields, cityCMSItem.MetadataFields)
 		if err != nil {
-			return fmt.Errorf("failed to create city item (%d/%d): %w", i, len(items), err)
+			return fmt.Errorf("failed to create city item (%d/%d): %w", i, len(setupItems), err)
 		}
 
 		relatedItem := &RelatedItem{
@@ -88,24 +113,25 @@ func SetupCityItems(ctx context.Context, s *Services, inp SetupCityItemsInput, o
 
 		newRelatedItem, err := s.CMS.CreateItem(ctx, relatedModel, relatedItem.CMSItem().Fields, nil)
 		if err != nil {
-			return fmt.Errorf("failed to create related data item (%d/%d): %w", i, len(items), err)
+			return fmt.Errorf("failed to create related data item (%d/%d): %w", i, len(setupItems), err)
 		}
 
 		featureItemIDs := map[string]string{}
-		for _, f := range item.Features {
-			if modelIDs[f] == "" {
-				return fmt.Errorf("model id for %s is not found (%d/%d)", f, i, len(items))
+		for _, f := range features {
+			var status ManagementStatus
+			if !slices.Contains(item.Features, f) {
+				status = ManagementStatusSkip
 			}
 
 			featureItem := &FeatureItem{
 				City:   newCityItem.ID,
-				Status: ManagementStatusNotStarted,
+				Status: status,
 			}
 			featureCMSItem := featureItem.CMSItem()
 
 			newFeatureItem, err := s.CMS.CreateItem(ctx, modelIDs[f], featureCMSItem.Fields, featureCMSItem.MetadataFields)
 			if err != nil {
-				return fmt.Errorf("failed to create feature item (%d/%d/%s): %w", i, len(items), f, err)
+				return fmt.Errorf("failed to create feature item (%d/%d/%s): %w", i, len(setupItems), f, err)
 			}
 
 			featureItemIDs[f] = newFeatureItem.ID
@@ -115,34 +141,34 @@ func SetupCityItems(ctx context.Context, s *Services, inp SetupCityItemsInput, o
 			References:     featureItemIDs,
 			RelatedDataset: newRelatedItem.ID,
 		}).CMSItem().Fields, nil); err != nil {
-			return fmt.Errorf("failed to update city item (%d/%d): %w", i, len(items), err)
+			return fmt.Errorf("failed to update city item (%d/%d): %w", i, len(setupItems), err)
 		}
 	}
 
 	return nil
 }
 
-func getAndParseSetupCSV(ctx context.Context, s *Services, url string) ([]SetupCSVItem, error) {
+func getAndParseSetupCSV(ctx context.Context, s *Services, url string) ([]SetupCSVItem, []string, error) {
 	r, err := s.GET(ctx, url)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	defer r.Close()
 
 	return parseSetupCSV(ctx, r)
 }
 
-func parseSetupCSV(ctx context.Context, r io.Reader) ([]SetupCSVItem, error) {
+func parseSetupCSV(ctx context.Context, r io.Reader) ([]SetupCSVItem, []string, error) {
 	cr := csv.NewReader(r)
 	cr.ReuseRecord = true
 
 	// read header
 	header, err := cr.Read()
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	if len(header) < columnFeaturesIndex+1 {
-		return nil, fmt.Errorf("invalid header: %v", header)
+		return nil, nil, fmt.Errorf("invalid header: %v", header)
 	}
 
 	features := make([]string, 0, len(header)-3)
@@ -158,7 +184,7 @@ func parseSetupCSV(ctx context.Context, r io.Reader) ([]SetupCSVItem, error) {
 			break
 		}
 		if err != nil {
-			return nil, err
+			return nil, nil, err
 		}
 
 		itemFeatures := make([]string, 0, len(row)-3)
@@ -178,5 +204,5 @@ func parseSetupCSV(ctx context.Context, r io.Reader) ([]SetupCSVItem, error) {
 		i++
 	}
 
-	return items, nil
+	return items, features, nil
 }
