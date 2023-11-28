@@ -697,6 +697,7 @@ func getLogs(t *testing.T) func() string {
 type cmsMock struct {
 	cms.Interface
 	getItem             func(ctx context.Context, id string, asset bool) (*cms.Item, error)
+	getItemsPartially   func(ctx context.Context, id string, page, perPage int, asset bool) (*cms.Items, error)
 	createItem          func(ctx context.Context, modelID string, fields []*cms.Field, metadataFields []*cms.Field) (*cms.Item, error)
 	updateItem          func(ctx context.Context, id string, fields []*cms.Field, metadataFields []*cms.Field) (*cms.Item, error)
 	asset               func(ctx context.Context, id string) (*cms.Asset, error)
@@ -710,6 +711,7 @@ var _ cms.Interface = &cmsMock{}
 
 func (c *cmsMock) reset() {
 	c.getItem = nil
+	c.getItemsPartially = nil
 	c.updateItem = nil
 	c.asset = nil
 	c.uploadAsset = nil
@@ -720,6 +722,10 @@ func (c *cmsMock) reset() {
 
 func (c *cmsMock) GetItem(ctx context.Context, id string, asset bool) (*cms.Item, error) {
 	return c.getItem(ctx, id, asset)
+}
+
+func (c *cmsMock) GetItemsPartially(ctx context.Context, id string, page, perPage int, asset bool) (*cms.Items, error) {
+	return c.getItemsPartially(ctx, id, page, perPage, asset)
 }
 
 func (c *cmsMock) CreateItem(ctx context.Context, modelID string, fields []*cms.Field, metadataFields []*cms.Field) (*cms.Item, error) {

@@ -129,6 +129,11 @@ func TestSetupCityItems(t *testing.T) {
 					},
 				}, nil
 			},
+			getItemsPartially: func(ctx context.Context, modelID string, page, perPage int, asset bool) (*cms.Items, error) {
+				return &cms.Items{
+					TotalCount: 0,
+				}, nil
+			},
 			createItem: func(ctx context.Context, modelID string, fields []*cms.Field, metadataFields []*cms.Field) (*cms.Item, error) {
 				item := &cms.Item{
 					ID:             fmt.Sprintf("item%d", len(createdItems)),
