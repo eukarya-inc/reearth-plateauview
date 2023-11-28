@@ -348,8 +348,8 @@ github.com/ravilushqa/otelgqlgen v0.13.1 h1:V+zFE75iDd2/CSzy5kKnb+Fi09SsE5535wv9
 github.com/ravilushqa/otelgqlgen v0.13.1/go.mod h1:ZIyWykK2paCuNi9k8gk5edcNSwDJuxZaW90vZXpafxw=
 github.com/reearth/go3dtiles v0.0.0-20230612053146-a6d07c1ab855 h1:9b9YZHEk3ZpPBRwpHf69LhtRu+zhtKBn9DT4RJJwPug=
 github.com/reearth/go3dtiles v0.0.0-20230612053146-a6d07c1ab855/go.mod h1:/Pq32s0cxrQJJhqgNVJ3VSbLZGAw7G34+acBVjq5AIc=
-github.com/reearth/reearth-cms-api/go v0.0.0-20231124114304-1ab17e166a8e h1:Jup6U18uK6lygGLr7OE/Hgzgmw+D6gQ7e+0LtFww0k0=
-github.com/reearth/reearth-cms-api/go v0.0.0-20231124114304-1ab17e166a8e/go.mod h1:vPQbmPuvx3/FIsdwi3gwrwf3VU4QQgovG2/wwFGltAs=
+github.com/reearth/reearth-cms-api/go v0.0.0-20231127120139-56fbd1fed78a h1:WgzlLl3LUiz69j+RbxDR9eJYUL867nFCEgmcNwPRy7Q=
+github.com/reearth/reearth-cms-api/go v0.0.0-20231127120139-56fbd1fed78a/go.mod h1:vPQbmPuvx3/FIsdwi3gwrwf3VU4QQgovG2/wwFGltAs=
 github.com/reearth/reearthx v0.0.0-20231018053753-30170f2e187d h1:ZQyS9jMvhTFKl4AoHtnmTdh9vaoWD2ZtTP3aBHidlws=
 github.com/reearth/reearthx v0.0.0-20231018053753-30170f2e187d/go.mod h1:Rm+kQsXFEVJ2Tta04Uc92Sl8oQckr74zgVfYzacGDXI=
 github.com/richardlehane/mscfb v1.0.4 h1:WULscsljNPConisD5hR0+OyZjwK46Pfyr6mPu5ZawpM=

@@ -328,6 +328,7 @@ func TestSendRequestToFME(t *testing.T) {
 		item.ID = "metadataItemID"
 		item.MetadataItemID = nil
 		item.OriginalItemID = lo.ToPtr("itemID")
+		item.IsMetadata = true
 		w.ItemData.Item = &item
 
 		c.reset()
