@@ -16,6 +16,7 @@ type SetupCityItemsInput struct {
 	DataURL   string `json:"dataUrl"`
 	Test      bool   `json:"test"`
 	Force     bool   `json:"force"`
+	Offset    int    `json:"offset"`
 }
 
 type SetupCSVItem struct {
@@ -73,6 +74,10 @@ func SetupCityItems(ctx context.Context, s *Services, inp SetupCityItemsInput, o
 	setupItems, features, err := getAndParseSetupCSV(ctx, s, inp.DataURL)
 	if err != nil {
 		return fmt.Errorf("failed to get and parse data: %w", err)
+	}
+
+	if inp.Offset > 0 {
+		setupItems = setupItems[inp.Offset:]
 	}
 
 	// if test is true, setupItems count is limited to 10
