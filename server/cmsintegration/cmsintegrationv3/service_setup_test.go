@@ -25,22 +25,22 @@ func TestParseSetupCSV(t *testing.T) {
 	}{
 		{
 			name: "valid csv",
-			csvData: `Name,NameEn,Code,Prefecture,Feature1,Feature2,Feature3
-Tokyo,東京,13,Tokyo,Yes,,Yes
-Osaka,大阪,27,Osaka,Yes,Yes,`,
+			csvData: `city,city_en,pref,Feature1,Feature2,Feature3
+八王子市,hachioji-shi,東京都,Yes,,Yes
+東村山市,higashimurayama-shi,東京都,Yes,Yes,`,
 			expected: []SetupCSVItem{
 				{
-					Name:       "Tokyo",
-					NameEn:     "東京",
-					Code:       "13",
-					Prefecture: "Tokyo",
+					Name:       "八王子市",
+					NameEn:     "hachioji-shi",
+					Code:       "13201",
+					Prefecture: "東京都",
 					Features:   []string{"Feature1", "Feature3"},
 				},
 				{
-					Name:       "Osaka",
-					NameEn:     "大阪",
-					Code:       "27",
-					Prefecture: "Osaka",
+					Name:       "東村山市",
+					NameEn:     "higashimurayama-shi",
+					Code:       "13213",
+					Prefecture: "東京都",
 					Features:   []string{"Feature1", "Feature2"},
 				},
 			},
@@ -56,16 +56,16 @@ Osaka,大阪,27,Osaka,Yes,Yes,`,
 		},
 		{
 			name: "invalid header",
-			csvData: `Name,NameEn,Code,Prefecture
-Tokyo,東京,13,Tokyo`,
+			csvData: `city,city_en,pref
+八王子市,hachioji-shi,東京都`,
 			expected:         nil,
 			expectedFeatures: nil,
-			err:              fmt.Errorf("invalid header: [Name NameEn Code Prefecture]"),
+			err:              fmt.Errorf("invalid header: [city city_en pref]"),
 		},
 		{
 			name: "invalid row",
-			csvData: `Name,NameEn,Code,Prefecture,Feature1
-Tokyo,東京,13,Tokyo`,
+			csvData: `city,city_en,pref,Feature1
+八王子市,hachioji-shi,東京都`,
 			expected: nil,
 			err:      fmt.Errorf("record on line 2: wrong number of fields"),
 		},
@@ -94,9 +94,9 @@ func TestSetupCityItems(t *testing.T) {
 	defer httpmock.DeactivateAndReset()
 
 	httpmock.RegisterResponder("GET", "https://example.com/data.csv",
-		httpmock.NewStringResponder(200, `Name,NameEn,Code,Prefecture,bldg,tran,luse
-八王子市,hachioji-shi,13201,東京都,Yes,,Yes
-東村山市,higashimurayama-shi,13213,東京都,Yes,Yes,`))
+		httpmock.NewStringResponder(200, `city,city_en,pref,bldg,tran,luse
+八王子市,hachioji-shi,東京都,Yes,,Yes
+東村山市,higashimurayama-shi,東京都,Yes,Yes,`))
 
 	var createdItems []*cms.Item
 	var updateditems []*cms.Item
