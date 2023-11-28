@@ -83,6 +83,7 @@ type CityItem struct {
 	ID                   string                    `json:"id,omitempty" cms:"id"`
 	Prefecture           string                    `json:"prefecture,omitempty" cms:"prefecture,select"`
 	CityName             string                    `json:"city_name,omitempty" cms:"city_name,text"`
+	CityNameEn           string                    `json:"city_name_en,omitempty" cms:"city_name_en,text"`
 	CityCode             string                    `json:"city_code,omitempty" cms:"city_code,text"`
 	SpecificationVersion string                    `json:"spec,omitempty" cms:"spec,select"`
 	OpenDataUrl          string                    `json:"open_data_url,omitempty" cms:"open_data_url,url"`
@@ -223,14 +224,15 @@ func (i *GenericItem) CMSItem() *cms.Item {
 }
 
 type RelatedItem struct {
-	ID              string            `json:"id,omitempty" cms:"id"`
-	City            string            `json:"city,omitempty" cms:"city,reference"`
-	Assets          map[string]string `json:"assets,omitempty" cms:"-"`
-	ConvertedAssets map[string]string `json:"converted-assets,omitempty" cms:"-"`
+	ID              string              `json:"id,omitempty" cms:"id"`
+	City            string              `json:"city,omitempty" cms:"city,reference"`
+	Assets          map[string][]string `json:"assets,omitempty" cms:"-"`
+	ConvertedAssets map[string][]string `json:"converted,omitempty" cms:"-"`
+	Merged          string              `json:"merged,omitempty" cms:"merged,asset"`
 	// metadata
-	Status        map[string]ManagementStatus `json:"status,omitempty" cms:"-"`
-	ConvertStatus map[string]ConvertionStatus `json:"convert-status,omitempty" cms:"-"`
-	Public        map[string]bool             `json:"public,omitempty" cms:"-"`
+	ConvertStatus ConvertionStatus `json:"conv_status,omitempty" cms:"conv_status,select,metadata"`
+	MergeStatus   ConvertionStatus `json:"merge_status,omitempty" cms:"merge_status,select,metadata"`
+	Public        bool             `json:"public,omitempty" cms:"public,bool,metadata"`
 }
 
 func RelatedItemFrom(item *cms.Item) (i *RelatedItem) {
@@ -238,32 +240,35 @@ func RelatedItemFrom(item *cms.Item) (i *RelatedItem) {
 	item.Unmarshal(i)
 
 	for _, t := range relatedDataTypes {
-		if asset := item.FieldByKey(t).GetValue().String(); asset != nil {
+		v := item.FieldByKey(t).GetValue()
+		cv := item.FieldByKey(t + "_conv").GetValue()
+
+		var assets []string
+		if s := v.String(); s != nil {
+			assets = []string{*s}
+		} else if s := v.Strings(); s != nil {
+			assets = s
+		}
+
+		var conv []string
+		if s := cv.String(); s != nil {
+			conv = []string{*s}
+		} else if s := cv.Strings(); s != nil {
+			conv = s
+		}
+
+		if len(assets) > 0 {
 			if i.Assets == nil {
-				i.Assets = map[string]string{}
+				i.Assets = map[string][]string{}
 			}
-			i.Assets[t] = *asset
+			i.Assets[t] = append(i.Assets[t], assets...)
 		}
 
-		if conv := item.FieldByKey(t + "_conv").GetValue().String(); conv != nil {
+		if len(conv) > 0 {
 			if i.ConvertedAssets == nil {
-				i.ConvertedAssets = map[string]string{}
+				i.ConvertedAssets = map[string][]string{}
 			}
-			i.ConvertedAssets[t] = *conv
-		}
-
-		if status := item.MetadataFieldByKey(t + "_status").GetValue().String(); status != nil {
-			if i.ConvertStatus == nil {
-				i.ConvertStatus = map[string]ConvertionStatus{}
-			}
-			i.ConvertStatus[t] = ConvertionStatus(*status)
-		}
-
-		if pub := item.MetadataFieldByKey(t + "_public").GetValue().Bool(); pub != nil {
-			if i.Public == nil {
-				i.Public = map[string]bool{}
-			}
-			i.Public[t] = *pub
+			i.ConvertedAssets[t] = append(i.ConvertedAssets[t], conv...)
 		}
 	}
 
@@ -291,21 +296,13 @@ func (i *RelatedItem) CMSItem() *cms.Item {
 			})
 		}
 
-		if status, ok := i.ConvertStatus[t]; ok {
-			item.MetadataFields = append(item.MetadataFields, &cms.Field{
-				Key:   t + "_status",
-				Type:  "select",
-				Value: string(status),
-			})
-		}
-
-		if pub, ok := i.Public[t]; ok {
-			item.MetadataFields = append(item.MetadataFields, &cms.Field{
-				Key:   t + "_public",
-				Type:  "bool",
-				Value: pub,
-			})
-		}
+		// if pub, ok := i.Public[t]; ok {
+		// 	item.MetadataFields = append(item.MetadataFields, &cms.Field{
+		// 		Key:   t + "_public",
+		// 		Type:  "bool",
+		// 		Value: pub,
+		// 	})
+		// }
 	}
 
 	return item

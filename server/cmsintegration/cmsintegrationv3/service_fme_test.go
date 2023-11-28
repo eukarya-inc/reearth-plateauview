@@ -697,24 +697,39 @@ func getLogs(t *testing.T) func() string {
 type cmsMock struct {
 	cms.Interface
 	getItem             func(ctx context.Context, id string, asset bool) (*cms.Item, error)
+	getItemsPartially   func(ctx context.Context, id string, page, perPage int, asset bool) (*cms.Items, error)
+	createItem          func(ctx context.Context, modelID string, fields []*cms.Field, metadataFields []*cms.Field) (*cms.Item, error)
 	updateItem          func(ctx context.Context, id string, fields []*cms.Field, metadataFields []*cms.Field) (*cms.Item, error)
 	asset               func(ctx context.Context, id string) (*cms.Asset, error)
 	uploadAsset         func(ctx context.Context, projectID, url string) (string, error)
 	uploadAssetDirectly func(ctx context.Context, projectID, name string, r io.Reader) (string, error)
 	commentToItem       func(ctx context.Context, assetID, content string) error
+	getModels           func(ctx context.Context, projectID string) (*cms.Models, error)
 }
+
+var _ cms.Interface = &cmsMock{}
 
 func (c *cmsMock) reset() {
 	c.getItem = nil
+	c.getItemsPartially = nil
 	c.updateItem = nil
 	c.asset = nil
 	c.uploadAsset = nil
 	c.uploadAssetDirectly = nil
 	c.commentToItem = nil
+	c.getModels = nil
 }
 
 func (c *cmsMock) GetItem(ctx context.Context, id string, asset bool) (*cms.Item, error) {
 	return c.getItem(ctx, id, asset)
+}
+
+func (c *cmsMock) GetItemsPartially(ctx context.Context, id string, page, perPage int, asset bool) (*cms.Items, error) {
+	return c.getItemsPartially(ctx, id, page, perPage, asset)
+}
+
+func (c *cmsMock) CreateItem(ctx context.Context, modelID string, fields []*cms.Field, metadataFields []*cms.Field) (*cms.Item, error) {
+	return c.createItem(ctx, modelID, fields, metadataFields)
 }
 
 func (c *cmsMock) UpdateItem(ctx context.Context, id string, fields []*cms.Field, metadataFields []*cms.Field) (*cms.Item, error) {
@@ -735,4 +750,8 @@ func (c *cmsMock) UploadAssetDirectly(ctx context.Context, projectID, name strin
 
 func (c *cmsMock) CommentToItem(ctx context.Context, assetID, content string) error {
 	return c.commentToItem(ctx, assetID, content)
+}
+
+func (c *cmsMock) GetModels(ctx context.Context, projectID string) (*cms.Models, error) {
+	return c.getModels(ctx, projectID)
 }

@@ -28,6 +28,11 @@ func sendRequestToFME(ctx context.Context, s *Services, conf *Config, w *cmswebh
 	}
 
 	featureType := strings.TrimPrefix(w.ItemData.Model.Key, modelPrefix)
+	if !slices.Contains(featureTypes, featureType) {
+		log.Debugfc(ctx, "cmsintegrationv3: not feature dataset: %s", featureType)
+		return nil
+	}
+
 	mainItem, err := s.GetMainItemWithMetadata(ctx, w.ItemData.Item)
 	if err != nil {
 		return err

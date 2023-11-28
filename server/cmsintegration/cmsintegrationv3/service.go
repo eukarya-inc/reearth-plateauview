@@ -17,10 +17,10 @@ import (
 
 type Config = cmsintegrationcommon.Config
 
-const HandlerPath = "/notify_fme/v3"
+const fmeHandlerPath = "/notify_fme/v3"
 
 func resultURL(conf *Config) string {
-	return fmt.Sprintf("%s%s", conf.Host, HandlerPath)
+	return fmt.Sprintf("%s%s", conf.Host, fmeHandlerPath)
 }
 
 type Services struct {
@@ -86,22 +86,7 @@ func (s *Services) DownloadAsset(ctx context.Context, assetID string) (io.ReadCl
 		return nil, fmt.Errorf("failed to get asset: %w", err)
 	}
 
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, asset.URL, nil)
-	if err != nil {
-		return nil, fmt.Errorf("failed to create request: %w", err)
-	}
-
-	res, err := s.HTTP.Do(req)
-	if err != nil {
-		return nil, fmt.Errorf("failed to download asset: %w", err)
-	}
-
-	if res.StatusCode != http.StatusOK {
-		_ = res.Body.Close()
-		return nil, fmt.Errorf("failed to download asset: %s", res.Status)
-	}
-
-	return res.Body, nil
+	return s.GET(ctx, asset.URL)
 }
 
 func (s *Services) DownloadAssetAsBytes(ctx context.Context, assetID string) ([]byte, error) {
@@ -146,4 +131,42 @@ func (s *Services) GetMainItemWithMetadata(ctx context.Context, i *cms.Item) (_ 
 
 	mainItem.MetadataFields = metadataItem.Fields
 	return mainItem, nil
+}
+
+func (s *Services) GET(ctx context.Context, url string) (io.ReadCloser, error) {
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create request: %w", err)
+	}
+
+	res, err := s.HTTP.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("failed to download asset: %w", err)
+	}
+
+	if res.StatusCode != http.StatusOK {
+		_ = res.Body.Close()
+		return nil, fmt.Errorf("failed to download asset: %s", res.Status)
+	}
+
+	return res.Body, nil
+}
+
+func (s *Services) GETAsBytes(ctx context.Context, url string) ([]byte, error) {
+	body, err := s.GET(ctx, url)
+	if err != nil {
+		return nil, err
+	}
+
+	defer func() {
+		_ = body.Close()
+	}()
+
+	buf := &bytes.Buffer{}
+	_, err = buf.ReadFrom(body)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read asset: %w", err)
+	}
+
+	return buf.Bytes(), nil
 }
