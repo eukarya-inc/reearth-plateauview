@@ -94,11 +94,15 @@ type CityItem struct {
 	Specification        string                    `json:"specification,omitempty" cms:"specification,asset"`
 	References           map[string]string         `json:"references,omitempty" cms:"-"`
 	RelatedDataset       string                    `json:"related_dataset,omitempty" cms:"related_dataset,reference"`
+	GeospatialjpIndex    string                    `json:"geospatialjp_index,omitempty" cms:"geospatialjp_index,reference"`
+	GeospatialjpData     string                    `json:"geospatialjp_data,omitempty" cms:"geospatialjp_data,reference"`
 	// meatadata
-	PlateauDataStatus string          `json:"plateau_data_status,omitempty" cms:"plateau_data_status,select,metadata"`
-	CityPublic        bool            `json:"city_public,omitempty" cms:"city_public,bool,metadata"`
-	SDKPublic         bool            `json:"sdk_public,omitempty" cms:"sdk_public,bool,metadata"`
-	Public            map[string]bool `json:"public,omitempty" cms:"-"`
+	PlateauDataStatus   string          `json:"plateau_data_status,omitempty" cms:"plateau_data_status,select,metadata"`
+	CityPublic          bool            `json:"city_public,omitempty" cms:"city_public,bool,metadata"`
+	SDKPublic           bool            `json:"sdk_public,omitempty" cms:"sdk_public,bool,metadata"`
+	Public              map[string]bool `json:"public,omitempty" cms:"-"`
+	GeospatialjoPrepare bool            `json:"geospatialjp_prepare,omitempty" cms:"geospatialjp_prepare,bool,metadata"`
+	GeospatialjpPublic  bool            `json:"geospatialjp_public,omitempty" cms:"geospatialjp_public,bool,metadata"`
 }
 
 func CityItemFrom(item *cms.Item) (i *CityItem) {
@@ -295,14 +299,6 @@ func (i *RelatedItem) CMSItem() *cms.Item {
 				Value: conv,
 			})
 		}
-
-		// if pub, ok := i.Public[t]; ok {
-		// 	item.MetadataFields = append(item.MetadataFields, &cms.Field{
-		// 		Key:   t + "_public",
-		// 		Type:  "bool",
-		// 		Value: pub,
-		// 	})
-		// }
 	}
 
 	return item

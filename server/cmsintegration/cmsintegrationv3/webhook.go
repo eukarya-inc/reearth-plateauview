@@ -51,10 +51,7 @@ func WebhookHandler(conf Config) (cmswebhook.Handler, error) {
 		} else if slices.Contains(featureTypes, modelName) {
 			err = sendRequestToFME(ctx, s, &conf, w)
 		} else if modelName == cityModel {
-			err = preparePackagesForGeospatialjp(ctx, s, w)
-			if err == nil {
-				err = publishPackagesForGeospatialjp(ctx, s, w)
-			}
+			err = handleGeospatialjp(ctx, s, w)
 		}
 
 		if err != nil {
