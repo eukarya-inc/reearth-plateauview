@@ -9,6 +9,7 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/k0kubun/pp/v3"
 	"github.com/oklog/ulid/v2"
 	"github.com/reearth/reearth-cms-api/go/cmswebhook"
 	"github.com/reearth/reearthx/log"
@@ -16,6 +17,13 @@ import (
 	"github.com/spkg/bom"
 	"golang.org/x/exp/slices"
 )
+
+var ppp *pp.PrettyPrinter
+
+func init() {
+	ppp = pp.New()
+	ppp.SetColoringEnabled(false)
+}
 
 var generateID = func() string {
 	return strings.ToLower(ulid.Make().String())
@@ -298,6 +306,8 @@ func receiveResultFromFME(ctx context.Context, s *Services, conf *Config, f fmeR
 		QCStatus:         qcStatus,
 		QCResult:         qcResult,
 	}).CMSItem()
+
+	log.Debugfc(ctx, "cmsintegrationv3: update item: %s", ppp.Sprint(newitem))
 
 	_, err = s.CMS.UpdateItem(ctx, id.ItemID, newitem.Fields, newitem.MetadataFields)
 	if err != nil {
