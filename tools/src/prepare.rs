@@ -64,15 +64,19 @@ mod tests {
             format: Format::Zip,
         })?;
 
-        let files = read_dir_with_sorted(&output)?
-            .into_iter()
-            .filter_map(|f| {
-                f.file_name()
-                    .unwrap_or_default()
-                    .to_str()
-                    .map(|s| s.to_string())
-            })
-            .collect::<Vec<_>>();
+        let files = read_dir_with_sorted(
+            output
+                .join("26100_kyoto-shi_city_2022_citygml_3_files")
+                .as_path(),
+        )?
+        .into_iter()
+        .filter_map(|f| {
+            f.file_name()
+                .unwrap_or_default()
+                .to_str()
+                .map(|s| s.to_string())
+        })
+        .collect::<Vec<_>>();
         assert_eq!(
             files,
             vec![
