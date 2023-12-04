@@ -14,7 +14,7 @@ fn main() {
             output,
         } => prepare::prepare(prepare::Config {
             input: targets,
-            output: output,
+            output,
             format: format.into(),
         }),
     } {

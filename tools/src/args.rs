@@ -19,9 +19,9 @@ pub enum Commands {
         format: Format,
         /// 地物単位に分割・圧縮するPLATEAUデータのCityGMLファイルが格納されたフォルダへのパスを指定します。
         targets: Vec<PathBuf>,
-        /// 地物単位に分割・圧縮した結果を格納するフォルダへのパスを指定します。
-        #[clap(short, long, default_value = ".")]
-        output: PathBuf,
+        /// 地物単位に分割・圧縮した結果を格納するフォルダへのパスを指定します。無指定の場合は入力元と同じフォルダに作成します。
+        #[clap(short, long)]
+        output: Option<PathBuf>,
     },
 }
 
@@ -29,18 +29,21 @@ pub enum Commands {
 pub enum Format {
     #[clap(name = "auto")]
     Auto,
+    #[clap(name = "none")]
+    None,
     #[clap(name = "zip")]
     Zip,
-    #[clap(name = "7z")]
-    SevenZip,
+    // #[clap(name = "7z")]
+    // SevenZip,
 }
 
 impl Into<crate::prepare::Format> for Format {
     fn into(self) -> crate::prepare::Format {
         match self {
             Format::Auto => crate::prepare::Format::Auto,
+            Format::None => crate::prepare::Format::None,
             Format::Zip => crate::prepare::Format::Zip,
-            Format::SevenZip => crate::prepare::Format::SevenZip,
+            // Format::SevenZip => crate::prepare::Format::SevenZip,
         }
     }
 }
