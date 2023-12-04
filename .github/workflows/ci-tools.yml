@@ -16,7 +16,9 @@ jobs:
         with:
           reporter: 'github-pr-review'
           github_token: ${{ secrets.GITHUB_TOKEN }}
+          workdir: tools
       - name: test
+        working-directory: tools
         run: cargo test --all
 
   ci-tools-build:
@@ -50,6 +52,7 @@ jobs:
           target: ${{ matrix.platform.target }}
           args: "--locked --release"
           strip: true
+          working-directory: tools
       - name: Upload artifacts
         uses: actions/upload-artifact@v2
         with:
