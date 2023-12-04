@@ -2,7 +2,7 @@ use std::sync::OnceLock;
 
 use regex::Regex;
 
-const PATTERN: &'static str = r"^\d{5}_[a-z0-9-]+_[a-z0-9-]+_\d{4}_citygml_\d+(_([a-z0-9-])+)?$";
+const PATTERN: &str = r"^\d{5}_[a-z0-9-]+_[a-z0-9-]+_\d{4}_citygml_\d+(_([a-z0-9-])+)?$";
 static RE: OnceLock<Regex> = OnceLock::new();
 
 pub fn check_dir_name(name: &str) -> bool {

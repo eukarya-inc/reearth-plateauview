@@ -37,13 +37,13 @@ pub enum Format {
     // SevenZip,
 }
 
-impl Into<crate::prepare::Format> for Format {
-    fn into(self) -> crate::prepare::Format {
-        match self {
-            Format::Auto => crate::prepare::Format::Auto,
-            Format::None => crate::prepare::Format::None,
-            Format::Zip => crate::prepare::Format::Zip,
-            // Format::SevenZip => crate::prepare::Format::SevenZip,
+impl From<Format> for crate::prepare::Format {
+    fn from(f: Format) -> Self {
+        match f {
+            Format::Auto => Self::Auto,
+            Format::None => Self::None,
+            Format::Zip => Self::Zip,
+            // Format::SevenZip => Self::SevenZip,
         }
     }
 }

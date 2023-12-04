@@ -57,4 +57,5 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: ${{ matrix.platform.name }}
-          path: target/${{ matrix.platform.target }}/release/${{ matrix.platform.bin }}
+          path: tools/target/${{ matrix.platform.target }}/release/${{ matrix.platform.bin }}
+          if-no-files-found: error
