@@ -41,6 +41,17 @@ func sendRequestToFME(ctx context.Context, s *Services, conf *Config, w *cmswebh
 		return nil
 	}
 
+	if w.ItemData.Item.IsMetadata {
+		skipQC := getFieldChangeByKey(w.ItemData, "skip_qc")
+		skipConv := getFieldChangeByKey(w.ItemData, "skip_conv")
+		qcStatus := getFieldChangeByKey(w.ItemData, "qc_status")
+		convStatus := getFieldChangeByKey(w.ItemData, "conv_status")
+		if skipQC == nil && skipConv == nil && qcStatus == nil && convStatus == nil {
+			log.Debugfc(ctx, "cmsintegrationv3: no changes: %#v", w.ItemData.Changes)
+			return nil
+		}
+	}
+
 	mainItem, err := s.GetMainItemWithMetadata(ctx, w.ItemData.Item)
 	if err != nil {
 		return err

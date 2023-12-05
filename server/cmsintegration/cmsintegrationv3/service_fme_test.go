@@ -329,6 +329,17 @@ func TestSendRequestToFME(t *testing.T) {
 		item.MetadataItemID = nil
 		item.OriginalItemID = lo.ToPtr("itemID")
 		item.IsMetadata = true
+		item.Fields = []*cms.Field{
+			{
+				ID:  "cs",
+				Key: "conv_status",
+			},
+		}
+		w.ItemData.Changes = []cms.FieldChange{
+			{
+				ID: "cs",
+			},
+		}
 		w.ItemData.Item = &item
 
 		c.reset()
