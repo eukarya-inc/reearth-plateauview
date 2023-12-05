@@ -3,9 +3,12 @@ use std::path::Path;
 use anyhow::Context;
 use rayon::iter::IntoParallelIterator;
 
-use crate::prepare::{list::list_files, zip::zip};
+use crate::prepare::{
+    list::{copy_file, list_files},
+    zip::zip,
+};
 
-use super::{list::copy_files, sevenzip::sevenzip};
+use super::sevenzip::sevenzip;
 use rayon::prelude::*;
 
 pub enum Format {
@@ -50,19 +53,23 @@ pub fn compress_files(
     let files = list_files(input)?;
     let output = output.join(format!("{}_files", prefix));
 
-    println!("{} のコピーを開始します。", prefix);
-    let copied_files = copy_files(&files, &output)?;
-    println!("{} のコピーが完了しました。", prefix);
-
-    if let Format::None = format {
-        return Ok(());
-    }
-
-    println!("{} の圧縮を開始します。", prefix);
-
-    copied_files
+    files
         .into_par_iter()
-        .try_for_each(|path| -> anyhow::Result<()> {
+        .try_for_each(|entry| -> anyhow::Result<()> {
+            println!("{} のコピーを開始します。", prefix);
+            let path = copy_file(&entry, &output)?;
+            let path = if let Some(copied) = path {
+                copied
+            } else {
+                return Ok(());
+            };
+
+            println!("{} のコピーが完了しました。", prefix);
+
+            if let Format::None = format {
+                return Ok(());
+            }
+
             let name = path
                 .file_name()
                 .unwrap_or_default()

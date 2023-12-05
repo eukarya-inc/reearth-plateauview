@@ -1,4 +1,5 @@
 use std::{
+    borrow::Cow,
     fs, io,
     path::{Path, PathBuf},
     sync::mpsc::channel,
@@ -13,9 +14,15 @@ pub struct Files {
     pub misc: Vec<PathBuf>,
 }
 
-pub fn list_files(dir_path: &Path) -> io::Result<Files> {
-    let mut dirs = vec![];
-    let mut misc = Vec::<PathBuf>::new();
+#[derive(Debug, PartialEq, Eq)]
+pub enum Entry {
+    Dir((String, PathBuf)),
+    Files((String, Vec<PathBuf>)),
+}
+
+pub fn list_files(dir_path: &Path) -> io::Result<Vec<Entry>> {
+    let mut entries = vec![];
+    let mut misc = vec![];
 
     for path in read_dir_with_sorted(dir_path)? {
         let name = path
@@ -26,7 +33,7 @@ pub fn list_files(dir_path: &Path) -> io::Result<Files> {
 
         match name {
             "codelists" | "metadata" | "schemas" => {
-                dirs.push((name.to_string(), path));
+                entries.push(Entry::Dir((name.to_string(), path)));
             }
             "udx" => {
                 for path in read_dir_with_sorted(&path)? {
@@ -36,7 +43,7 @@ pub fn list_files(dir_path: &Path) -> io::Result<Files> {
                         .to_str()
                         .unwrap_or_default();
 
-                    dirs.push((name.to_string(), path));
+                    entries.push(Entry::Dir((name.to_string(), path)));
                 }
             }
             _ => {
@@ -45,60 +52,75 @@ pub fn list_files(dir_path: &Path) -> io::Result<Files> {
         }
     }
 
-    Ok(Files { dirs, misc })
+    if !misc.is_empty() {
+        entries.push(Entry::Files(("misc".to_string(), misc)));
+    }
+
+    Ok(entries)
+}
+
+#[allow(dead_code)]
+pub fn copy_files(files: &[Entry], output_dir: &Path) -> anyhow::Result<Vec<PathBuf>> {
+    let (sender, receiver) = channel();
+
+    files
+        .par_iter()
+        .try_for_each_with(sender, |s, e| -> anyhow::Result<()> {
+            let o = copy_file(e, output_dir)?;
+            s.send(o)?;
+            Ok(())
+        })?;
+
+    let mut copied = receiver.iter().filter_map(|f| f).collect::<Vec<_>>();
+    copied.sort();
+
+    Ok(copied)
 }
 
 const SKIPED_FILES: &[&str] = &[".DS_Store", "Thumbs.db", "__MACOSX"];
 
-pub fn copy_files(files: &Files, output_dir: &Path) -> anyhow::Result<Vec<PathBuf>> {
+pub fn copy_file(e: &Entry, output_dir: &Path) -> anyhow::Result<Option<PathBuf>> {
+    let name = match e {
+        Entry::Dir((name, _)) => name,
+        Entry::Files((name, _)) => name,
+    };
+
+    if SKIPED_FILES.contains(&name.as_str()) {
+        return Ok(None);
+    }
+
     let opts: fs_extra::dir::CopyOptions = fs_extra::dir::CopyOptions {
         overwrite: true,
         ..Default::default()
     };
 
-    let (sender, receiver) = channel();
-
-    files
-        .dirs
-        .par_iter()
-        .try_for_each_with(sender, |s, f| -> anyhow::Result<()> {
-            if SKIPED_FILES.contains(&f.0.as_str()) {
-                return Ok(());
-            }
-
-            let files = if f.1.is_dir() {
-                read_dir_with_sorted(&f.1).with_context(|| {
-                    format!(
-                        "{} ディレクトリのファイル一覧の取得に失敗しました。",
-                        f.1.display()
-                    )
-                })?
+    let files = match e {
+        Entry::Dir((_, path)) => {
+            if path.is_dir() {
+                read_dir_with_sorted(path)
+                    .with_context(|| {
+                        format!(
+                            "{} ディレクトリのファイル一覧の取得に失敗しました。",
+                            path.display()
+                        )
+                    })?
+                    .into_iter()
+                    .map(|p| Cow::Owned(p))
+                    .collect()
             } else {
-                vec![f.1.clone()]
-            };
+                vec![Cow::Borrowed(path)]
+            }
+        }
+        Entry::Files((_, paths)) => paths.iter().map(|p| Cow::Borrowed(p)).collect(),
+    };
+    let files = files.iter().map(|p| p.as_path()).collect::<Vec<_>>();
 
-            let output_dir = output_dir.join(&f.0);
-            fs::create_dir_all(&output_dir)?;
-            fs_extra::copy_items(&files, &output_dir, &opts).with_context(|| {
-                format!(
-                    "{} ディレクトリのファイルのコピーに失敗しました。",
-                    f.1.display()
-                )
-            })?;
-
-            s.send(output_dir.clone())?;
-            Ok(())
-        })?;
-
-    let mut copied = receiver.iter().collect::<Vec<_>>();
-    copied.sort();
-
-    let output_dir = output_dir.join("misc");
+    let output_dir = output_dir.join(name);
     fs::create_dir_all(&output_dir)?;
-    fs_extra::copy_items(&files.misc, &output_dir, &opts)?;
-    copied.push(output_dir);
+    fs_extra::copy_items(&files, &output_dir, &opts)
+        .with_context(|| format!("{} ディレクトリのファイルのコピーに失敗しました。", name))?;
 
-    Ok(copied)
+    Ok(Some(output_dir))
 }
 
 fn read_dir_with_sorted(dir_path: &Path) -> io::Result<Vec<PathBuf>> {
@@ -128,23 +150,22 @@ mod tests {
         let files = list_files(&root).unwrap();
 
         assert_eq!(
-            files.dirs,
+            files,
             vec![
-                ("codelists".to_string(), root.join("codelists")),
-                ("metadata".to_string(), root.join("metadata")),
-                ("schemas".to_string(), root.join("schemas")),
-                ("bldg".to_string(), root.join("udx").join("bldg")),
-                ("tran".to_string(), root.join("udx").join("tran"))
+                Entry::Dir(("codelists".to_string(), root.join("codelists"))),
+                Entry::Dir(("metadata".to_string(), root.join("metadata"))),
+                Entry::Dir(("schemas".to_string(), root.join("schemas"))),
+                Entry::Dir(("bldg".to_string(), root.join("udx").join("bldg"))),
+                Entry::Dir(("tran".to_string(), root.join("udx").join("tran"))),
+                Entry::Files((
+                    "misc".to_string(),
+                    vec![
+                        root.join("26100_indexmap.pdf"),
+                        root.join("README.md"),
+                        root.join("specification"),
+                    ]
+                )),
             ],
-        );
-
-        assert_eq!(
-            files.misc,
-            vec![
-                root.join("26100_indexmap.pdf"),
-                root.join("README.md"),
-                root.join("specification"),
-            ]
         );
 
         Ok(())
@@ -159,7 +180,7 @@ mod tests {
         let entries = list_files(&root).unwrap();
 
         let output_dir = tmpdir.path().join("output");
-        copy_files(&entries, &output_dir).unwrap();
+        copy_files(&entries, &output_dir)?;
 
         let result = read_dir_with_sorted(&output_dir)?;
         assert_eq!(

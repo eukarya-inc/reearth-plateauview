@@ -17,9 +17,7 @@ pub struct Config {
 }
 
 pub fn prepare(config: Config) -> anyhow::Result<()> {
-    for input in config.input {
-        eprintln!("{} を処理しています。", input.display());
-
+    for input in config.input.iter() {
         ensure!(
             input.is_dir(),
             "{} はディレクトリではありません。",
@@ -37,7 +35,10 @@ pub fn prepare(config: Config) -> anyhow::Result<()> {
             "フォルダ {} は正しい命名規則に従っていません。 26100_kyoto-shi_city_2022_citygml_3 のような名前にする必要があります。",
             input.file_name().unwrap_or_default().to_str().unwrap_or_default(),
         );
+    }
 
+    for input in config.input {
+        eprintln!("{} を処理しています。", input.display());
         compress::compress_files(&input, config.output.as_ref(), &config.format)?;
     }
     Ok(())
