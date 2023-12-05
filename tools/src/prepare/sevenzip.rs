@@ -13,7 +13,7 @@ pub fn sevenzip(target: impl AsRef<Path>, zip_path: &Path) -> anyhow::Result<()>
     let bufw = BufWriter::new(File::create(zip_path)?);
     let mut z = SevenZWriter::new(bufw)?;
     z.set_content_methods(vec![sevenz_rust::SevenZMethodConfiguration {
-        method: sevenz_rust::SevenZMethod::LZMA2.clone(),
+        method: sevenz_rust::SevenZMethod::LZMA2,
         options: None,
     }]);
 

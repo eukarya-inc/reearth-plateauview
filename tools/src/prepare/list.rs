@@ -71,7 +71,7 @@ pub fn copy_files(files: &[Entry], output_dir: &Path) -> anyhow::Result<Vec<Path
             Ok(())
         })?;
 
-    let mut copied = receiver.iter().filter_map(|f| f).collect::<Vec<_>>();
+    let mut copied = receiver.iter().flatten().collect::<Vec<_>>();
     copied.sort();
 
     Ok(copied)
@@ -105,13 +105,13 @@ pub fn copy_file(e: &Entry, output_dir: &Path) -> anyhow::Result<Option<PathBuf>
                         )
                     })?
                     .into_iter()
-                    .map(|p| Cow::Owned(p))
+                    .map(Cow::Owned)
                     .collect()
             } else {
                 vec![Cow::Borrowed(path)]
             }
         }
-        Entry::Files((_, paths)) => paths.iter().map(|p| Cow::Borrowed(p)).collect(),
+        Entry::Files((_, paths)) => paths.iter().map(Cow::Borrowed).collect(),
     };
     let files = files.iter().map(|p| p.as_path()).collect::<Vec<_>>();
 
