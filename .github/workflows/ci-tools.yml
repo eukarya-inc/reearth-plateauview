@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: print release_tools
-        run: echo "release_tools=${{ github.event.inputs.release_tools }}"
+        run: echo "release_tools=${{ inputs.release_tools }}"
       - uses: actions/checkout@v3
       - uses: dtolnay/rust-toolchain@stable
         with:
@@ -68,7 +68,7 @@ jobs:
   ci-tools-release:
     runs-on: ubuntu-latest
     needs: ci-tools-build
-    if: github.event.inputs.release_tools == 'true'
+    if: inputs.release_tools == 'true'
     steps:
       - name: Set up git config
         run: |
