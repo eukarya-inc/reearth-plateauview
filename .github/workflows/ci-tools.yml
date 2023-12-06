@@ -73,9 +73,10 @@ jobs:
           git config --global user.name "${{ github.actor }}"
           git config --global user.email "${{ github.actor }}@users.noreply.github.com"
       - uses: actions/checkout@v3
-      - uses: actions/download-artifact@v3
+      - uses: dawidd6/action-download-artifact@v2
         with:
           path: tools-artifacts
+          skip_unpack: true
       - name: Push tools tag
         run: |
           git tag -f tools
@@ -88,3 +89,4 @@ jobs:
           tag: tools
           allowUpdates: true
           artifactErrorsFailBuild: true
+          removeArtifacts: true
