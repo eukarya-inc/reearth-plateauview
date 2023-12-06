@@ -1,5 +1,3 @@
-import mapBing from "@web/extensions/sidebar/core/assets/bgmap_bing.png";
-import bgmap_darkmatter from "@web/extensions/sidebar/core/assets/bgmap_darkmatter.png";
 import bgmap_gsi from "@web/extensions/sidebar/core/assets/bgmap_gsi.png";
 import bgmap_tokyo from "@web/extensions/sidebar/core/assets/bgmap_tokyo.png";
 import { ReearthApi } from "@web/extensions/sidebar/types";
@@ -27,22 +25,10 @@ const baseMapData: BaseMapData[] = [
     ],
   },
   {
-    key: "bing",
-    title: "空中写真 (Bing)",
-    icon: mapBing,
-    tile_type: "default_label",
-  },
-  {
     key: "gsi",
     title: "地理院地図 (淡色)",
     icon: bgmap_gsi,
     url: ["https://cyberjapandata.gsi.go.jp/xyz/pale/{z}/{x}/{y}.png"],
-  },
-  {
-    key: "dark-matter",
-    title: "Dark Matter",
-    icon: bgmap_darkmatter,
-    url: ["https://basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.jpg"],
   },
 ];
 
