@@ -8,6 +8,8 @@ jobs:
   ci-tools:
     runs-on: ubuntu-latest
     steps:
+      - name: print release_tools
+        run: echo "release_tools=${{ github.event.inputs.release_tools }}"
       - uses: actions/checkout@v3
       - uses: dtolnay/rust-toolchain@stable
         with:
