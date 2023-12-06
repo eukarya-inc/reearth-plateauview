@@ -40,6 +40,13 @@ jobs:
           files: |
             tools
             .github/workflows/ci-tools.yml
+      - name: print release_tools
+        run: |
+          echo "event_name=${{ github.event_name }}"
+          echo "ref_name=${{ github.ref_name }}"
+          echo "release_tools=$RELEASE_TOOLS"
+        env:
+          RELEASE_TOOLS: ${{ github.event_name == 'push' && github.ref_name == 'main' }}
   ci-plugin:
     needs: prepare
     if: ${{ !failure() && needs.prepare.outputs.plugin == 'true' }}
