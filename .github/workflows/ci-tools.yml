@@ -1,6 +1,9 @@
 name: ci-tools
 on:
   workflow_call:
+    inputs:
+      release_tools:
+        type: string
 jobs:
   ci-tools:
     runs-on: ubuntu-latest
@@ -59,3 +62,28 @@ jobs:
           name: ${{ matrix.platform.name }}
           path: tools/target/${{ matrix.platform.target }}/release/${{ matrix.platform.bin }}
           if-no-files-found: error
+
+  ci-tools-release:
+    runs-on: ubuntu-latest
+    needs: ci-tools-build
+    if: github.event.inputs.release_tools == 'true'
+    steps:
+      - name: Set up git config
+        run: |
+          git config --global user.name "${{ github.actor }}"
+          git config --global user.email "${{ github.actor }}@users.noreply.github.com"
+      - uses: actions/checkout@v3
+      - uses: actions/download-artifact@v3
+        with:
+          path: tools-artifacts
+      - name: Push tools tag
+        run: |
+          git tag -f tools
+          git push -f --tags
+      - name: Update Github Release with artifacts
+        uses: ncipollo/release-action@v1
+        with:
+          artifacts: tools-artifacts/*
+          tag: tools
+          allowUpdates: true
+          artifactErrorsFailBuild: true

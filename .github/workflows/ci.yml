@@ -52,6 +52,8 @@ jobs:
     needs: prepare
     if: ${{ !failure() && needs.prepare.outputs.tools == 'true' }}
     uses: ./.github/workflows/ci-tools.yml
+    with:
+      release_tools: ${{ github.event_name == 'push' && github.ref_name == 'main' }}
   ci:
     runs-on: ubuntu-latest
     needs:
