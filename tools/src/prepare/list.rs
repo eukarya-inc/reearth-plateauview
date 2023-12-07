@@ -8,6 +8,9 @@ use std::{
 use anyhow::Context;
 use rayon::prelude::*;
 
+const UDX: &str = "udx";
+const DIRS: &[&str] = &["codelists", "metadata", "schemas", "specification"];
+
 #[derive(Debug)]
 pub struct Files {
     pub dirs: Vec<(String, PathBuf)>,
@@ -32,10 +35,10 @@ pub fn list_files(dir_path: &Path) -> io::Result<Vec<Entry>> {
             .unwrap_or_default();
 
         match name {
-            "codelists" | "metadata" | "schemas" => {
+            _ if DIRS.contains(&name) => {
                 entries.push(Entry::Dir((name.to_string(), path)));
             }
-            "udx" => {
+            UDX => {
                 for path in read_dir_with_sorted(&path)? {
                     let name = path
                         .file_name()
@@ -155,15 +158,12 @@ mod tests {
                 Entry::Dir(("codelists".to_string(), root.join("codelists"))),
                 Entry::Dir(("metadata".to_string(), root.join("metadata"))),
                 Entry::Dir(("schemas".to_string(), root.join("schemas"))),
+                Entry::Dir(("specification".to_string(), root.join("specification"))),
                 Entry::Dir(("bldg".to_string(), root.join("udx").join("bldg"))),
                 Entry::Dir(("tran".to_string(), root.join("udx").join("tran"))),
                 Entry::Files((
                     "misc".to_string(),
-                    vec![
-                        root.join("26100_indexmap.pdf"),
-                        root.join("README.md"),
-                        root.join("specification"),
-                    ]
+                    vec![root.join("26100_indexmap.pdf"), root.join("README.md"),]
                 )),
             ],
         );
@@ -191,6 +191,7 @@ mod tests {
                 output_dir.join("metadata"),
                 output_dir.join("misc"),
                 output_dir.join("schemas"),
+                output_dir.join("specification"),
                 output_dir.join("tran"),
             ]
         );
@@ -200,6 +201,9 @@ mod tests {
 
         let result = read_dir_with_sorted(output_dir.join("schemas").as_path())?;
         assert_eq!(result, vec![output_dir.join("schemas").join("iur")]);
+
+        let result = read_dir_with_sorted(output_dir.join("specification").as_path())?;
+        assert_eq!(result, vec![output_dir.join("specification").join("iur")]);
 
         let result = read_dir_with_sorted(output_dir.join("metadata").as_path())?;
         assert_eq!(result, vec![output_dir.join("metadata").join("foo.gml")]);
@@ -216,7 +220,6 @@ mod tests {
             vec![
                 output_dir.join("misc").join("26100_indexmap.pdf"),
                 output_dir.join("misc").join("README.md"),
-                output_dir.join("misc").join("specification"),
             ]
         );
 

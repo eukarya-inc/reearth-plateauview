@@ -86,12 +86,14 @@ mod tests {
                 "26100_kyoto-shi_city_2022_citygml_3_metadata.zip",
                 "26100_kyoto-shi_city_2022_citygml_3_misc.zip",
                 "26100_kyoto-shi_city_2022_citygml_3_schemas.zip",
+                "26100_kyoto-shi_city_2022_citygml_3_specification.zip",
                 "26100_kyoto-shi_city_2022_citygml_3_tran.zip",
                 "bldg",
                 "codelists",
                 "metadata",
                 "misc",
                 "schemas",
+                "specification",
                 "tran",
             ]
         );
