@@ -13,11 +13,12 @@ import (
 )
 
 type SetupCityItemsInput struct {
-	ProjectID string `json:"projectId"`
-	DataURL   string `json:"dataUrl"`
-	Force     bool   `json:"force"`
-	Offset    int    `json:"offset"`
-	Limit     int    `json:"limit"`
+	ProjectID string    `json:"projectId"`
+	DataURL   string    `json:"dataUrl"`
+	DataBody  io.Reader `json:"-"`
+	Force     bool      `json:"force"`
+	Offset    int       `json:"offset"`
+	Limit     int       `json:"limit"`
 }
 
 type SetupCSVItem struct {
@@ -33,7 +34,7 @@ func SetupCityItems(ctx context.Context, s *Services, inp SetupCityItemsInput, o
 		return fmt.Errorf("modelId is required")
 	}
 
-	if inp.DataURL == "" {
+	if inp.DataURL == "" && inp.DataBody == nil {
 		return fmt.Errorf("dataUrl is required")
 	}
 
@@ -70,7 +71,7 @@ func SetupCityItems(ctx context.Context, s *Services, inp SetupCityItemsInput, o
 	}
 
 	// parse data
-	setupItems, features, err := getAndParseSetupCSV(ctx, s, inp.DataURL)
+	setupItems, features, err := getAndParseSetupCSV(ctx, s, inp.DataURL, inp.DataBody)
 	if err != nil {
 		return fmt.Errorf("failed to get and parse data: %w", err)
 	}
@@ -151,7 +152,11 @@ func SetupCityItems(ctx context.Context, s *Services, inp SetupCityItemsInput, o
 	return nil
 }
 
-func getAndParseSetupCSV(ctx context.Context, s *Services, url string) ([]SetupCSVItem, []string, error) {
+func getAndParseSetupCSV(ctx context.Context, s *Services, url string, body io.Reader) ([]SetupCSVItem, []string, error) {
+	if body != nil {
+		return parseSetupCSV(ctx, body)
+	}
+
 	r, err := s.GET(ctx, url)
 	if err != nil {
 		return nil, nil, err

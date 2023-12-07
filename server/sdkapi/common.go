@@ -320,7 +320,7 @@ func (mc MaxLODColumns) Map() MaxLODMap {
 	return m
 }
 
-func (mm MaxLODMap) Files(urls []*url.URL) (r FilesResponse) {
+func (mm MaxLODMap) Files(urls []*url.URL) (r FilesResponse, warning []string) {
 	r = FilesResponse{}
 	for ty, m := range mm {
 		if _, ok := r[ty]; !ok {
@@ -343,9 +343,10 @@ func (mm MaxLODMap) Files(urls []*url.URL) (r FilesResponse) {
 						URL:    u.String(),
 						MaxLOD: item.MaxLOD,
 					})
+				} else {
+					warning = append(warning, fmt.Sprintf("unmatched:type=%s,code=%s,path=%s", ty, code, f))
 				}
 			}
-
 		}
 		slices.SortFunc(r[ty], func(i, j File) int {
 			return strings.Compare(i.Code, j.Code)
@@ -513,7 +514,7 @@ func ReadMaxLODCSV(b io.Reader) (MaxLODColumns, error) {
 	return results, nil
 }
 
-func MaxLODFiles(maxLOD MaxLODColumns, assetPaths []string, assetBase *url.URL) FilesResponse {
+func MaxLODFiles(maxLOD MaxLODColumns, assetPaths []string, assetBase *url.URL) (FilesResponse, []string) {
 	files := lo.FilterMap(assetPaths, func(u string, _ int) (*url.URL, bool) {
 		if path.Ext(u) != ".gml" {
 			return nil, false

@@ -5,8 +5,10 @@ import (
 	"fmt"
 	"net/url"
 	"path"
+	"strings"
 
 	cms "github.com/reearth/reearth-cms-api/go"
+	"github.com/reearth/reearthx/log"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/util"
 )
@@ -71,7 +73,12 @@ func (c *CMS) FilesWithPublicAPI(ctx context.Context, model, id string) (FilesRe
 		return nil, rerror.ErrInternalBy(err)
 	}
 
-	return MaxLODFiles(maxlod, asset.Files, nil), nil
+	res, warning := MaxLODFiles(maxlod, asset.Files, nil)
+	if len(warning) > 0 {
+		log.Warnfc(ctx, "sdkapi: warning: %s", strings.Join(warning, "\n"))
+	}
+
+	return res, nil
 }
 
 func (c *CMS) DatasetsWithIntegrationAPI(ctx context.Context, model string) (*DatasetResponse, error) {
@@ -115,5 +122,10 @@ func (c *CMS) FilesWithIntegrationAPI(ctx context.Context, model, id string) (Fi
 		return nil, rerror.ErrInternalBy(err)
 	}
 
-	return MaxLODFiles(maxlod, asset.File.Paths(), assetBase), nil
+	res, warning := MaxLODFiles(maxlod, asset.File.Paths(), assetBase)
+	if len(warning) > 0 {
+		log.Warnfc(ctx, "sdkapi: warning: %s", strings.Join(warning, "\n"))
+	}
+
+	return res, nil
 }

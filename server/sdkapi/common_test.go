@@ -82,25 +82,7 @@ func TestMaxLODColumns_Map(t *testing.T) {
 }
 
 func TestMaxLODMap_Files(t *testing.T) {
-	assert.Equal(t, FilesResponse{
-		"bldg": []File{
-			{Code: "1", URL: "https://example.com/1_bldg_xxx.gml", MaxLOD: 1},
-			{Code: "2", URL: "https://example.com/2_bldg_yyy.gml", MaxLOD: 1},
-		},
-		"veg": []File{
-			{Code: "1", URL: "https://example.com/1_veg_zzz.gml", MaxLOD: 2},
-		},
-		"frn": nil,
-		"fld": []File{
-			{Code: "3", URL: "https://example.com/aaa.gml", MaxLOD: 1},
-		},
-		"dem": []File{
-			{Code: "1111", URL: "https://example.com/00000_dem_1111_00_op.gml", MaxLOD: 1},
-			{Code: "1111", URL: "https://example.com/00000_dem_1111_05_op.gml", MaxLOD: 1},
-			{Code: "1111", URL: "https://example.com/00000_dem_1111_50_op.gml", MaxLOD: 1},
-			{Code: "1111", URL: "https://example.com/00000_dem_1111_55_op.gml", MaxLOD: 1},
-		},
-	}, MaxLODMap{
+	res, warning := MaxLODMap{
 		"bldg": map[string]MaxLODMapItem{
 			"2": {MaxLOD: 1, Files: []string{""}},
 			"1": {MaxLOD: 1, Files: []string{""}},
@@ -131,7 +113,28 @@ func TestMaxLODMap_Files(t *testing.T) {
 		lo.Must(url.Parse("https://example.com/00000_dem_1111_05_op.gml")),
 		lo.Must(url.Parse("https://example.com/00000_dem_1111_50_op.gml")),
 		lo.Must(url.Parse("https://example.com/00000_dem_1111_55_op.gml")),
-	}))
+	})
+
+	assert.Equal(t, warning, []string{"unmatched:type=frn,code=2,path="})
+	assert.Equal(t, FilesResponse{
+		"bldg": []File{
+			{Code: "1", URL: "https://example.com/1_bldg_xxx.gml", MaxLOD: 1},
+			{Code: "2", URL: "https://example.com/2_bldg_yyy.gml", MaxLOD: 1},
+		},
+		"veg": []File{
+			{Code: "1", URL: "https://example.com/1_veg_zzz.gml", MaxLOD: 2},
+		},
+		"frn": nil,
+		"fld": []File{
+			{Code: "3", URL: "https://example.com/aaa.gml", MaxLOD: 1},
+		},
+		"dem": []File{
+			{Code: "1111", URL: "https://example.com/00000_dem_1111_00_op.gml", MaxLOD: 1},
+			{Code: "1111", URL: "https://example.com/00000_dem_1111_05_op.gml", MaxLOD: 1},
+			{Code: "1111", URL: "https://example.com/00000_dem_1111_50_op.gml", MaxLOD: 1},
+			{Code: "1111", URL: "https://example.com/00000_dem_1111_55_op.gml", MaxLOD: 1},
+		},
+	}, res)
 }
 
 func TestItemsFromIntegration(t *testing.T) {
