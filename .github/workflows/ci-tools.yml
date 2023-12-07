@@ -79,8 +79,9 @@ jobs:
       - name: Pack tools
         run: |
           mkdir -p tools-artifacts/tools
-          tar -czf tools-artifacts/tools/plateau-view-tool-Darwin-x86_64.tar.gz tools-artifacts/plateau-view-tool
-          zip -r tools-artifacts/tools/plateau-view-tool-Windows-x86_64.zip tools-artifacts/plateau-view-tool.exe
+          tree tools-artifacts
+          tar -czf tools-artifacts/tools/plateau-view-tool-Darwin-x86_64.tar.gz tools-artifacts/plateau-view-tool-Darwin-x86_64.tar.gz/plateau-view-tool
+          zip -r tools-artifacts/tools/plateau-view-tool-Windows-x86_64.zip tools-artifacts/plateau-view-tool-Windows-x86_64.zip/plateau-view-tool.exe
       - name: Push tools tag
         run: |
           git tag -f tools
