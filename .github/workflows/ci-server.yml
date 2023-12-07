@@ -7,8 +7,8 @@ jobs:
   ci-server-lint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-go@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
         with:
           go-version: ${{ env.GO_VERSION }}
           cache: false
@@ -21,8 +21,8 @@ jobs:
   ci-server-test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-go@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
         with:
           go-version: ${{ env.GO_VERSION }}
           cache-dependency-path: server/go.sum
@@ -37,9 +37,9 @@ jobs:
         run: echo $TESTDATA >> $GITHUB_OUTPUT
         env:
           TESTDATA: ${{ secrets.TESTDATA && 'testdata=1' || 'testdata=' }}
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         if: steps.testdata.outputs.testdata
-      - uses: actions/setup-go@v4
+      - uses: actions/setup-go@v5
         if: steps.testdata.outputs.testdata
         with:
           go-version: ${{ env.GO_VERSION }}

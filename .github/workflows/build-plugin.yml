@@ -37,7 +37,7 @@ jobs:
     env:
       ARTIFACT: plateau-plugin_${{ github.event.inputs.name }}.zip
     steps:
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v3
         with:
           name: plateau-plugin
           path: plateau-plugin/
