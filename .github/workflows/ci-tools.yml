@@ -73,10 +73,14 @@ jobs:
           git config --global user.name "${{ github.actor }}"
           git config --global user.email "${{ github.actor }}@users.noreply.github.com"
       - uses: actions/checkout@v3
-      - uses: dawidd6/action-download-artifact@v2
+      - uses: actions/download-artifact@v3
         with:
           path: tools-artifacts
-          skip_unpack: true
+      - name: Pack tools
+        run: |
+          mkdir -p tools-artifacts/tools
+          tar -czf tools-artifacts/tools/plateau-view-tool-Darwin-x86_64.tar.gz tools-artifacts/plateau-view-tool
+          zip -r tools-artifacts/tools/plateau-view-tool-Windows-x86_64.zip tools-artifacts/plateau-view-tool.exe
       - name: Push tools tag
         run: |
           git tag -f tools
@@ -85,7 +89,7 @@ jobs:
       - name: Update Github Release with artifacts
         uses: ncipollo/release-action@v1
         with:
-          artifacts: tools-artifacts/*
+          artifacts: tools-artifacts/tools/*
           tag: tools
           allowUpdates: true
           artifactErrorsFailBuild: true
