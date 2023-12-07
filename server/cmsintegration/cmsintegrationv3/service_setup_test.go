@@ -5,13 +5,11 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"os"
 	"strings"
 	"testing"
 
 	"github.com/jarcoal/httpmock"
 	cms "github.com/reearth/reearth-cms-api/go"
-	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )
 
