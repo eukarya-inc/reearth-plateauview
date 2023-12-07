@@ -8,10 +8,8 @@ import (
 const modelPrefix = "plateau-"
 const cityModel = "city"
 const relatedModel = "related"
-
-// const genericModel = "usecase"
-// const gspatialjpIndexModel = "g-center-index"
-// const gspatialjpDataModel = "g-center-data"
+const geospatialjpIndex = "geospatialjp-index"
+const geospatialjpData = "geospatialjp-data"
 
 var featureTypes = []string{
 	// *: データカタログ上で複数の項目に分かれて存在
@@ -94,6 +92,8 @@ type CityItem struct {
 	Specification        string                    `json:"specification,omitempty" cms:"specification,asset"`
 	References           map[string]string         `json:"references,omitempty" cms:"-"`
 	RelatedDataset       string                    `json:"related_dataset,omitempty" cms:"related_dataset,reference"`
+	GeospatialjpIndex    string                    `json:"geospatialjp-index,omitempty" cms:"geospatialjp-index,reference"`
+	GeospatialjpData     string                    `json:"geospatialjp-data,omitempty" cms:"geospatialjp-data,reference"`
 	// meatadata
 	PlateauDataStatus string          `json:"plateau_data_status,omitempty" cms:"plateau_data_status,select,metadata"`
 	CityPublic        bool            `json:"city_public,omitempty" cms:"city_public,bool,metadata"`

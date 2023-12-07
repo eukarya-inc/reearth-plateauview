@@ -5,11 +5,13 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"os"
 	"strings"
 	"testing"
 
 	"github.com/jarcoal/httpmock"
 	cms "github.com/reearth/reearth-cms-api/go"
+	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -126,6 +128,14 @@ func TestSetupCityItems(t *testing.T) {
 							ID:  "related",
 							Key: "plateau-related",
 						},
+						{
+							ID:  "geospatialjp-index",
+							Key: "plateau-geospatialjp-index",
+						},
+						{
+							ID:  "geospatialjp-data",
+							Key: "plateau-geospatialjp-data",
+						},
 					},
 				}, nil
 			},
@@ -170,7 +180,7 @@ func TestSetupCityItems(t *testing.T) {
 		err := SetupCityItems(ctx, s, inp, onprogress)
 		assert.NoError(t, err)
 
-		assert.Equal(t, 10, len(createdItems))
+		assert.Equal(t, 14, len(createdItems))
 		assertCityItem(t, &CityItem{
 			ID:         "item0",
 			CityName:   "八王子市",
@@ -179,39 +189,47 @@ func TestSetupCityItems(t *testing.T) {
 			Prefecture: "東京都",
 		}, createdItems[0])
 		assertFeatureItem(t, "related", "item0", "", createdItems[1])
-		assertFeatureItem(t, "bldg", "item0", "", createdItems[2])
-		assertFeatureItem(t, "tran", "item0", ManagementStatusSkip, createdItems[3])
-		assertFeatureItem(t, "luse", "item0", "", createdItems[4])
+		assertFeatureItem(t, "geospatialjp-index", "item0", "", createdItems[2])
+		assertFeatureItem(t, "geospatialjp-data", "item0", "", createdItems[3])
+		assertFeatureItem(t, "bldg", "item0", "", createdItems[4])
+		assertFeatureItem(t, "tran", "item0", ManagementStatusSkip, createdItems[5])
+		assertFeatureItem(t, "luse", "item0", "", createdItems[6])
 		assertCityItem(t, &CityItem{
-			ID:         "item5",
+			ID:         "item7",
 			CityName:   "東村山市",
 			CityNameEn: "higashimurayama-shi",
 			CityCode:   "13213",
 			Prefecture: "東京都",
-		}, createdItems[5])
-		assertFeatureItem(t, "related", "item5", "", createdItems[6])
-		assertFeatureItem(t, "bldg", "item5", "", createdItems[7])
-		assertFeatureItem(t, "tran", "item5", "", createdItems[8])
-		assertFeatureItem(t, "luse", "item5", ManagementStatusSkip, createdItems[9])
+		}, createdItems[7])
+		assertFeatureItem(t, "related", "item7", "", createdItems[8])
+		assertFeatureItem(t, "geospatialjp-index", "item7", "", createdItems[9])
+		assertFeatureItem(t, "geospatialjp-data", "item7", "", createdItems[10])
+		assertFeatureItem(t, "bldg", "item7", "", createdItems[11])
+		assertFeatureItem(t, "tran", "item7", "", createdItems[12])
+		assertFeatureItem(t, "luse", "item7", ManagementStatusSkip, createdItems[13])
 
 		assert.Equal(t, 2, len(updateditems))
 		assertUpdatedCityItem(t, &CityItem{
 			ID: "item0",
 			References: map[string]string{
-				"bldg": "item2",
-				"tran": "item3",
-				"luse": "item4",
+				"bldg": "item4",
+				"tran": "item5",
+				"luse": "item6",
 			},
-			RelatedDataset: "item1",
+			RelatedDataset:    "item1",
+			GeospatialjpIndex: "item2",
+			GeospatialjpData:  "item3",
 		}, updateditems[0])
 		assertUpdatedCityItem(t, &CityItem{
-			ID: "item5",
+			ID: "item7",
 			References: map[string]string{
-				"bldg": "item7",
-				"tran": "item8",
-				"luse": "item9",
+				"bldg": "item11",
+				"tran": "item12",
+				"luse": "item13",
 			},
-			RelatedDataset: "item6",
+			RelatedDataset:    "item8",
+			GeospatialjpIndex: "item9",
+			GeospatialjpData:  "item10",
 		}, updateditems[1])
 	})
 }
@@ -243,9 +261,11 @@ func assertFeatureItem(t *testing.T, expectedModel, expectedCity string, status 
 func assertUpdatedCityItem(t *testing.T, expected *CityItem, actual *cms.Item) {
 	a := CityItemFrom(actual)
 	am := &CityItem{
-		ID:             a.ID,
-		References:     a.References,
-		RelatedDataset: a.RelatedDataset,
+		ID:                a.ID,
+		References:        a.References,
+		RelatedDataset:    a.RelatedDataset,
+		GeospatialjpIndex: a.GeospatialjpIndex,
+		GeospatialjpData:  a.GeospatialjpData,
 	}
 	assert.Equal(t, expected, am)
 }

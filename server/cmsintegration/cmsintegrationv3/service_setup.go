@@ -58,6 +58,8 @@ func SetupCityItems(ctx context.Context, s *Services, inp SetupCityItemsInput, o
 
 	cityModel := modelIDs[cityModel]
 	relatedModel := modelIDs[relatedModel]
+	geospatialjpIndexModel := modelIDs[geospatialjpIndex]
+	geospatialjpDataModel := modelIDs[geospatialjpData]
 
 	// check city item total count
 	if !inp.Force {
@@ -90,6 +92,7 @@ func SetupCityItems(ctx context.Context, s *Services, inp SetupCityItemsInput, o
 		}
 	}
 
+	log.Infofc(ctx, "cmsintegrationv3: setup features: %v", features)
 	log.Infofc(ctx, "cmsintegrationv3: setup %d items", len(setupItems))
 
 	// process cities
@@ -115,9 +118,26 @@ func SetupCityItems(ctx context.Context, s *Services, inp SetupCityItemsInput, o
 			City: newCityItem.ID,
 		}
 
+		// related
 		newRelatedItem, err := s.CMS.CreateItem(ctx, relatedModel, relatedItem.CMSItem().Fields, nil)
 		if err != nil {
 			return fmt.Errorf("failed to create related data item (%d/%d): %w", i, len(setupItems), err)
+		}
+
+		// geospatialjp-index
+		newGeospatialjpIndexItem, err := s.CMS.CreateItem(ctx, geospatialjpIndexModel, (&GeospatialjpIndexItem{
+			City: newCityItem.ID,
+		}).CMSItem().Fields, nil)
+		if err != nil {
+			return fmt.Errorf("failed to create geospatialjp-index item (%d/%d): %w", i, len(setupItems), err)
+		}
+
+		// geospatialjp-data
+		newGeospatialjpDataItem, err := s.CMS.CreateItem(ctx, geospatialjpDataModel, (&GeospatialjpDataItem{
+			City: newCityItem.ID,
+		}).CMSItem().Fields, nil)
+		if err != nil {
+			return fmt.Errorf("failed to create geospatialjp-data item (%d/%d): %w", i, len(setupItems), err)
 		}
 
 		featureItemIDs := map[string]string{}
@@ -142,8 +162,10 @@ func SetupCityItems(ctx context.Context, s *Services, inp SetupCityItemsInput, o
 		}
 
 		if _, err := s.CMS.UpdateItem(ctx, newCityItem.ID, (&CityItem{
-			References:     featureItemIDs,
-			RelatedDataset: newRelatedItem.ID,
+			References:        featureItemIDs,
+			RelatedDataset:    newRelatedItem.ID,
+			GeospatialjpIndex: newGeospatialjpIndexItem.ID,
+			GeospatialjpData:  newGeospatialjpDataItem.ID,
 		}).CMSItem().Fields, nil); err != nil {
 			return fmt.Errorf("failed to update city item (%d/%d): %w", i, len(setupItems), err)
 		}
