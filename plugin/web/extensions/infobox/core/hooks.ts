@@ -26,7 +26,7 @@ export default () => {
 
   useEffect(() => {
     const fieldItems: Field[] = [];
-    const commonProperties = template?.dataType ? commonPropertiesMap[template.dataType] : [];
+    const commonProperties = template?.dataType ? commonPropertiesMap[template.dataType] ?? [] : [];
     setCommonProperties(commonProperties);
 
     // show fields with default order if no settings

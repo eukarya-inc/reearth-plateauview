@@ -883,7 +883,7 @@ function createLayer(dataset: DataCatalogItem, overrides?: any) {
       layers,
       ...(format === "wms" ? { parameters: { transparent: "true", format: "image/png" } } : {}),
       ...(["luse", "lsld", "urf", "rail", "wwy", "area"].includes(dataset.type_en) ||
-      (["tran", "usecase"].includes(dataset.type_en) && format === "mvt")
+      (["tran", "usecase", "gen"].includes(dataset.type_en) && format === "mvt")
         ? { jsonProperties: ["attributes"] }
         : {}),
       ...(dataset.additionalData?.data?.csv ? { csv: dataset.additionalData.data.csv } : {}),

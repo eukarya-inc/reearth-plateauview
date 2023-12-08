@@ -315,4 +315,6 @@ export const commonPropertiesMap: { [key: string]: string[] } = {
   wwy: ["gml_id"],
   // 区域モデル
   area: ["gml_id"],
+  // 汎用都市オブジェクトモデル
+  gen: ["gml_id"],
 };
