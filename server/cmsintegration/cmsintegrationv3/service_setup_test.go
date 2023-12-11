@@ -170,7 +170,7 @@ func TestSetupCityItems(t *testing.T) {
 		DataURL:   "https://example.com/data.csv",
 	}
 
-	onprogress := func(i, l int) {}
+	onprogress := func(i, l int, c SetupCSVItem) {}
 
 	t.Run("success", func(t *testing.T) {
 		createdItems = nil

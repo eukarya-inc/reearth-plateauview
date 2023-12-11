@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"os"
 	"reflect"
 	"runtime"
 	"runtime/debug"
@@ -23,15 +24,20 @@ import (
 )
 
 func main() {
-	log.Infof("reearth-plateauview\n")
-
 	conf := lo.Must(NewConfig())
-	log.Infof("config: %s", conf.Print())
+
+	if len(os.Args) > 1 && os.Args[1] != "" {
+		tool(conf, os.Args[1:])
+		return
+	}
 
 	main2(conf)
 }
 
 func main2(conf *Config) {
+	log.Infof("reearth-plateauview\n")
+	log.Infof("config: %s", conf.Print())
+
 	if conf.GCParcent > 0 {
 		debug.SetGCPercent(conf.GCParcent)
 	}

@@ -19,6 +19,7 @@ type SetupCityItemsInput struct {
 	Force     bool      `json:"force"`
 	Offset    int       `json:"offset"`
 	Limit     int       `json:"limit"`
+	DryRun    bool      `json:"dryrun"`
 }
 
 type SetupCSVItem struct {
@@ -29,7 +30,7 @@ type SetupCSVItem struct {
 	Features   []string `json:"features"`
 }
 
-func SetupCityItems(ctx context.Context, s *Services, inp SetupCityItemsInput, onprogress func(i, l int)) error {
+func SetupCityItems(ctx context.Context, s *Services, inp SetupCityItemsInput, onprogress func(i, l int, c SetupCSVItem)) error {
 	if inp.ProjectID == "" {
 		return fmt.Errorf("modelId is required")
 	}
@@ -79,7 +80,7 @@ func SetupCityItems(ctx context.Context, s *Services, inp SetupCityItemsInput, o
 	}
 
 	if inp.Offset > 0 {
-		setupItems = setupItems[inp.Offset:]
+		setupItems = setupItems[inp.Offset+1:]
 	}
 
 	if inp.Limit > 0 {
@@ -98,7 +99,11 @@ func SetupCityItems(ctx context.Context, s *Services, inp SetupCityItemsInput, o
 	// process cities
 	for i, item := range setupItems {
 		if onprogress != nil {
-			onprogress(i, len(setupItems))
+			onprogress(i, len(setupItems), item)
+		}
+
+		if inp.DryRun {
+			continue
 		}
 
 		cityItem := &CityItem{
