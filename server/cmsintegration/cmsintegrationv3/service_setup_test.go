@@ -25,21 +25,21 @@ func TestParseSetupCSV(t *testing.T) {
 	}{
 		{
 			name: "valid csv",
-			csvData: `city,city_en,pref,Feature1,Feature2,Feature3
-八王子市,hachioji-shi,東京都,Yes,,Yes
-東村山市,higashimurayama-shi,東京都,Yes,Yes,`,
+			csvData: `city_code,city,city_en,pref,Feature1,Feature2,Feature3
+99999,八王子市,hachioji-shi,東京都,Yes,,Yes
+99998,東村山市,higashimurayama-shi,東京都,Yes,Yes,`,
 			expected: []SetupCSVItem{
 				{
 					Name:       "八王子市",
 					NameEn:     "hachioji-shi",
-					Code:       "13201",
+					Code:       "99999",
 					Prefecture: "東京都",
 					Features:   []string{"Feature1", "Feature3"},
 				},
 				{
 					Name:       "東村山市",
 					NameEn:     "higashimurayama-shi",
-					Code:       "13213",
+					Code:       "99998",
 					Prefecture: "東京都",
 					Features:   []string{"Feature1", "Feature2"},
 				},
@@ -56,11 +56,11 @@ func TestParseSetupCSV(t *testing.T) {
 		},
 		{
 			name: "invalid header",
-			csvData: `city,city_en,pref
-八王子市,hachioji-shi,東京都`,
+			csvData: `city,city_en
+八王子市,hachioji-shi`,
 			expected:         nil,
 			expectedFeatures: nil,
-			err:              fmt.Errorf("invalid header: [city city_en pref]"),
+			err:              fmt.Errorf("invalid header: [city city_en]"),
 		},
 		{
 			name: "invalid row",

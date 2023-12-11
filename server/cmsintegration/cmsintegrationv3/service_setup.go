@@ -22,10 +22,10 @@ type SetupCityItemsInput struct {
 }
 
 type SetupCSVItem struct {
-	Prefecture string   `json:"prefecture"`
-	Name       string   `json:"name"`
-	NameEn     string   `json:"nameEn"`
-	Code       string   `json:"code"`
+	Prefecture string   `json:"pref"`
+	Name       string   `json:"city"`
+	NameEn     string   `json:"city_en"`
+	Code       string   `json:"city_code"`
 	Features   []string `json:"features"`
 }
 
@@ -189,7 +189,6 @@ func getAndParseSetupCSV(ctx context.Context, s *Services, url string, body io.R
 }
 
 func parseSetupCSV(ctx context.Context, r io.Reader) ([]SetupCSVItem, []string, error) {
-	const columnFeaturesIndex = 3
 	cr := csv.NewReader(r)
 	cr.ReuseRecord = true
 
@@ -198,18 +197,11 @@ func parseSetupCSV(ctx context.Context, r io.Reader) ([]SetupCSVItem, []string, 
 	if err != nil {
 		return nil, nil, err
 	}
-	if len(header) < columnFeaturesIndex+1 {
-		return nil, nil, fmt.Errorf("invalid header: %v", header)
-	}
-
-	features := make([]string, 0, len(header)-3)
-	for i := columnFeaturesIndex; i < len(header); i++ {
-		features = append(features, header[i])
-	}
 
 	nameIndex := -1
 	nameEnIndex := -1
 	prefectureIndex := -1
+	codeIndex := -1
 	for i, h := range header {
 		switch h {
 		case "pref":
@@ -218,10 +210,18 @@ func parseSetupCSV(ctx context.Context, r io.Reader) ([]SetupCSVItem, []string, 
 			nameIndex = i
 		case "city_en":
 			nameEnIndex = i
+		case "city_code":
+			codeIndex = i
 		}
 	}
 	if nameIndex == -1 || nameEnIndex == -1 || prefectureIndex == -1 {
 		return nil, nil, fmt.Errorf("invalid header: %v", header)
+	}
+
+	columnFeaturesIndex := max(codeIndex, nameEnIndex, prefectureIndex) + 1
+	features := make([]string, 0, len(header)-3)
+	for i := columnFeaturesIndex; i < len(header); i++ {
+		features = append(features, header[i])
 	}
 
 	var items []SetupCSVItem
@@ -243,10 +243,17 @@ func parseSetupCSV(ctx context.Context, r io.Reader) ([]SetupCSVItem, []string, 
 			return nil, nil, fmt.Errorf("empty pref name at line %d", i)
 		}
 
-		pref := jpareacode.PrefectureCodeInt(row[prefectureIndex])
-		city := jpareacode.CityByName(pref, row[nameIndex])
-		if city == nil {
-			return nil, nil, fmt.Errorf("invalid pref or city name: %s", row[nameIndex])
+		var code string
+		if codeIndex == -1 || row[codeIndex] == "" {
+			pref := jpareacode.PrefectureCodeInt(row[prefectureIndex])
+			city := jpareacode.CityByName(pref, row[nameIndex])
+			if city == nil {
+				return nil, nil, fmt.Errorf("invalid pref or city name: %s", row[nameIndex])
+			}
+
+			code = jpareacode.FormatCityCode(city.Code)
+		} else {
+			code = row[codeIndex]
 		}
 
 		itemFeatures := make([]string, 0, len(row)-3)
@@ -259,7 +266,7 @@ func parseSetupCSV(ctx context.Context, r io.Reader) ([]SetupCSVItem, []string, 
 		items = append(items, SetupCSVItem{
 			Name:       row[nameIndex],
 			NameEn:     row[nameEnIndex],
-			Code:       jpareacode.FormatCityCode(city.Code),
+			Code:       code,
 			Prefecture: row[prefectureIndex],
 			Features:   itemFeatures,
 		})
