@@ -26,11 +26,12 @@ type Config struct {
 }
 
 func Echo(conf Config, g *echo.Group) error {
-	// TODO: merge 2022 and later 2023 projects
-	repo, err := datacatalogv2adapter.New(conf.Config.CMSBaseURL, "plateau-2022")
+	repov2, err := datacatalogv2adapter.New(conf.Config.CMSBaseURL, "plateau-2022")
 	if err != nil {
 		return fmt.Errorf("failed to initialize datacatalog repository: %w", err)
 	}
+
+	repo := plateauapi.NewMerger(repov2)
 
 	if conf.GraphqlMaxComplexity <= 0 {
 		conf.GraphqlMaxComplexity = 1000
@@ -77,7 +78,7 @@ func Echo(conf Config, g *echo.Group) error {
 			}
 		}
 
-		if err := repo.UpdateCache(c.Request().Context()); err != nil {
+		if err := repov2.UpdateCache(c.Request().Context()); err != nil {
 			log.Errorfc(c.Request().Context(), "datacatalog: failed to update cache: %v", err)
 			return echo.ErrInternalServerError
 		}
@@ -86,7 +87,7 @@ func Echo(conf Config, g *echo.Group) error {
 	})
 
 	// first cache update
-	if err := repo.UpdateCache(context.Background()); err != nil {
+	if err := repov2.UpdateCache(context.Background()); err != nil {
 		log.Errorf("datacatalog: failed to update cache: %w", err)
 	}
 

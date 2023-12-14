@@ -14,7 +14,7 @@ type Adapter struct {
 	project       string
 	lock          sync.Mutex
 	updatingCache bool
-	cache         *cache
+	cache         *plateauapi.InMemoryRepo
 }
 
 func New(cmsbase, project string) (*Adapter, error) {
@@ -60,7 +60,7 @@ func (a *Adapter) IsAvailable() bool {
 	return a.cache != nil
 }
 
-func (a *Adapter) getCache() *cache {
+func (a *Adapter) getCache() *plateauapi.InMemoryRepo {
 	return a.cache
 }
 
