@@ -78,7 +78,7 @@ func Echo(conf Config, g *echo.Group) error {
 			}
 		}
 
-		if err := repov2.UpdateCache(c.Request().Context()); err != nil {
+		if err := repov2.Update(c.Request().Context()); err != nil {
 			log.Errorfc(c.Request().Context(), "datacatalog: failed to update cache: %v", err)
 			return echo.ErrInternalServerError
 		}
@@ -87,7 +87,7 @@ func Echo(conf Config, g *echo.Group) error {
 	})
 
 	// first cache update
-	if err := repov2.UpdateCache(context.Background()); err != nil {
+	if err := repov2.Update(context.Background()); err != nil {
 		log.Errorf("datacatalog: failed to update cache: %w", err)
 	}
 

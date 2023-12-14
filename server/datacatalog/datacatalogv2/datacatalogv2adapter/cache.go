@@ -9,6 +9,20 @@ import (
 	"golang.org/x/exp/slices"
 )
 
+func New(cmsbase, project string) (*plateauapi.RepoWrapper, error) {
+	fetcher, err := datacatalogv2.NewFetcher(cmsbase)
+	if err != nil {
+		return nil, err
+	}
+	return From(fetcher, project), nil
+}
+
+func From(fetcher datacatalogv2.Fetchable, project string) *plateauapi.RepoWrapper {
+	return plateauapi.NewRepoWrapper(func(ctx context.Context) (plateauapi.Repo, error) {
+		return fetchAndCreateCache(ctx, project, fetcher, datacatalogv2.FetcherDoOptions{})
+	})
+}
+
 func fetchAndCreateCache(ctx context.Context, project string, fetcher datacatalogv2.Fetchable, opts datacatalogv2.FetcherDoOptions) (*plateauapi.InMemoryRepo, error) {
 	r, err := fetcher.Do(ctx, project, opts)
 	if err != nil {
