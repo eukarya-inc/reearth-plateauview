@@ -101,8 +101,8 @@ func filterByPlateauSpec(querySpec *string, datasetSpec string) bool {
 		return false
 	}
 
-	s1, s2 := specNumber(*querySpec), specNumber(datasetSpec)
-	return s1 == s2 || s1 == majorVersion(s2)
+	s1, s2 := SpecNumber(*querySpec), SpecNumber(datasetSpec)
+	return s1 == s2 || s1 == MajorVersion(s2)
 }
 
 func filterByCode(code string, includes []string, excludes []string) bool {
@@ -277,17 +277,4 @@ func filterDatasetType(ty DatasetType, input DatasetTypesInput) bool {
 	}
 
 	return true
-}
-
-func specNumber(spec string) string {
-	return strings.TrimSuffix(strings.TrimPrefix(spec, "第"), "版")
-}
-
-func majorVersion(version string) string {
-	v := specNumber(version)
-	i := strings.Index(v, ".")
-	if i < 0 {
-		return version
-	}
-	return v[:i]
 }

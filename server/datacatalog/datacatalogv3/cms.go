@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/eukarya-inc/reearth-plateauview/server/datacatalog/plateauapi"
 	cms "github.com/reearth/reearth-cms-api/go"
 	"github.com/samber/lo"
 )
@@ -19,11 +20,17 @@ func NewCMS(cms cms.Interface) *CMS {
 func (c *CMS) GetAll(ctx context.Context, project string) (*AllData, error) {
 	all := AllData{}
 
+	specs, err := c.GetPlateauSpecs(ctx, project)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get plateau specs: %w", err)
+	}
+
 	featureTypes, err := c.GetFeatureTypes(ctx, project)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get feature types: %w", err)
 	}
 
+	all.PlateauSpecs = specs
 	all.FeatureTypes = featureTypes
 
 	cityItemsChan := lo.Async2(func() ([]*CityItem, error) {
@@ -38,10 +45,10 @@ func (c *CMS) GetAll(ctx context.Context, project string) (*AllData, error) {
 		return c.GetGenericItems(ctx, project)
 	})
 
-	featureItemsChans := make([]<-chan lo.Tuple3[string, []*FeatureItem, error], 0, len(all.FeatureTypes.Plateau))
+	featureItemsChans := make([]<-chan lo.Tuple3[string, []*PlateauFeatureItem, error], 0, len(all.FeatureTypes.Plateau))
 	for _, featureType := range all.FeatureTypes.Plateau {
 		featureType := featureType
-		featureItemsChan := lo.Async3(func() (string, []*FeatureItem, error) {
+		featureItemsChan := lo.Async3(func() (string, []*PlateauFeatureItem, error) {
 			res, err := c.GetPlateauItems(ctx, project, featureType.Code)
 			return featureType.Code, res, err
 		})
@@ -66,7 +73,7 @@ func (c *CMS) GetAll(ctx context.Context, project string) (*AllData, error) {
 		all.Generic = res.A
 	}
 
-	all.Plateau = make(map[string][]*FeatureItem)
+	all.Plateau = make(map[string][]*PlateauFeatureItem)
 	for _, featureItemsChan := range featureItemsChans {
 		if res := <-featureItemsChan; res.C != nil {
 			return nil, fmt.Errorf("failed to get feature items (%s): %w", res.A, res.C)
@@ -76,6 +83,11 @@ func (c *CMS) GetAll(ctx context.Context, project string) (*AllData, error) {
 	}
 
 	return &all, nil
+}
+
+func (c *CMS) GetPlateauSpecs(ctx context.Context, project string) ([]plateauapi.PlateauSpecSimple, error) {
+	// TODO: load specs from CMS
+	return plateauSpecs, nil
 }
 
 func (c *CMS) GetFeatureTypes(ctx context.Context, project string) (FeatureTypes, error) {
@@ -89,11 +101,17 @@ func (c *CMS) GetFeatureTypes(ctx context.Context, project string) (FeatureTypes
 
 func (c *CMS) GetCityItems(ctx context.Context, project string) ([]*CityItem, error) {
 	items, err := getItemsAndUnmarshal[CityItem](c.cms, ctx, project, modelPrefix+cityModel)
+
+	// TODO: dynamic year
+	for _, item := range items {
+		item.Year = "令和5年度"
+	}
+
 	return items, err
 }
 
-func (c *CMS) GetPlateauItems(ctx context.Context, project, feature string) ([]*FeatureItem, error) {
-	items, err := getItemsAndUnmarshal[FeatureItem](c.cms, ctx, project, modelPrefix+feature)
+func (c *CMS) GetPlateauItems(ctx context.Context, project, feature string) ([]*PlateauFeatureItem, error) {
+	items, err := getItemsAndUnmarshal[PlateauFeatureItem](c.cms, ctx, project, modelPrefix+feature)
 	return items, err
 }
 
@@ -108,7 +126,7 @@ func (c *CMS) GetGenericItems(ctx context.Context, project string) ([]*GenericIt
 }
 
 func getItemsAndUnmarshal[T any](cms cms.Interface, ctx context.Context, project, model string) ([]*T, error) {
-	items, err := cms.GetItemsByKeyInParallel(ctx, project, model, false, 100)
+	items, err := cms.GetItemsByKeyInParallel(ctx, project, model, true, 100)
 	if err != nil {
 		return nil, err
 	}

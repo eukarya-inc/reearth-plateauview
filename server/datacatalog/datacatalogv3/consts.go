@@ -1,101 +1,143 @@
 package datacatalogv3
 
+import (
+	"github.com/eukarya-inc/reearth-plateauview/server/datacatalog/plateauapi"
+)
+
+var plateauSpecVersions3 = []string{"3.0", "3.1", "3.2", "3.3"}
+
+var plateauSpecs = []plateauapi.PlateauSpecSimple{
+	{
+		MajorVersion:  3,
+		Year:          2023,
+		MinorVersions: plateauSpecVersions3,
+	},
+}
+
 var plateauFeatureTypes = []FeatureType{
 	{
-		Code: "bldg",
-		Name: "建築物モデル",
+		Code:      "bldg",
+		Name:      "建築物モデル",
+		SpecMajor: 3,
 	},
 	{
-		Code: "tran",
-		Name: "交通（道路）モデル",
+		Code:      "tran",
+		Name:      "交通（道路）モデル",
+		SpecMajor: 3,
 	},
 	{
-		Code: "rwy",
-		Name: "交通（鉄道）モデル",
+		Code:      "rwy",
+		Name:      "交通（鉄道）モデル",
+		SpecMajor: 3,
 	},
 	{
-		Code: "trk",
-		Name: "交通（徒歩道）モデル",
+		Code:      "trk",
+		Name:      "交通（徒歩道）モデル",
+		SpecMajor: 3,
 	},
 	{
-		Code: "squr",
-		Name: "交通（広場）モデル",
+		Code:      "squr",
+		Name:      "交通（広場）モデル",
+		SpecMajor: 3,
 	},
 	{
-		Code: "wwy",
-		Name: "交通（航路）モデル",
+		Code:      "wwy",
+		Name:      "交通（航路）モデル",
+		SpecMajor: 3,
 	},
 	{
-		Code: "luse",
-		Name: "土地利用モデル",
+		Code:      "luse",
+		Name:      "土地利用モデル",
+		SpecMajor: 3,
 	},
 	{
-		Code: "fld",
-		Name: "洪水浸水想定区域モデル",
+		Code:      "fld",
+		Name:      "洪水浸水想定区域モデル",
+		SpecMajor: 3,
+		Flood:     true,
 	},
 	{
-		Code: "tnm",
-		Name: "津波浸水想定区域モデル",
+		Code:      "tnm",
+		Name:      "津波浸水想定区域モデル",
+		SpecMajor: 3,
+		Flood:     true,
 	},
 	{
-		Code: "htd",
-		Name: "高潮浸水想定区域モデル",
+		Code:      "htd",
+		Name:      "高潮浸水想定区域モデル",
+		SpecMajor: 3,
+		Flood:     true,
 	},
 	{
-		Code: "ifld",
-		Name: "内水浸水想定区域モデル",
+		Code:      "ifld",
+		Name:      "内水浸水想定区域モデル",
+		SpecMajor: 3,
+		Flood:     true,
 	},
 	{
-		Code: "lsld",
-		Name: "土砂災害モデル",
+		Code:      "lsld",
+		Name:      "土砂災害モデル",
+		SpecMajor: 3,
 	},
 	{
-		Code: "urf",
-		Name: "都市計画決定情報モデル",
+		Code:      "urf",
+		Name:      "都市計画決定情報モデル",
+		SpecMajor: 3,
 	},
 	{
-		Code: "unf",
-		Name: "地下埋設物モデル",
+		Code:      "unf",
+		Name:      "地下埋設物モデル",
+		SpecMajor: 3,
 	},
 	{
-		Code: "brid",
-		Name: "橋梁モデル",
+		Code:      "brid",
+		Name:      "橋梁モデル",
+		SpecMajor: 3,
 	},
 	{
-		Code: "tun",
-		Name: "トンネルモデル",
+		Code:      "tun",
+		Name:      "トンネルモデル",
+		SpecMajor: 3,
 	},
 	{
-		Code: "cons",
-		Name: "その他の構造物モデル",
+		Code:      "cons",
+		Name:      "その他の構造物モデル",
+		SpecMajor: 3,
 	},
 	{
-		Code: "frn",
-		Name: "都市設備モデル",
+		Code:      "frn",
+		Name:      "都市設備モデル",
+		SpecMajor: 3,
 	},
 	{
-		Code: "ubld",
-		Name: "地下街モデル",
+		Code:      "ubld",
+		Name:      "地下街モデル",
+		SpecMajor: 3,
 	},
 	{
-		Code: "veg",
-		Name: "植生モデル",
+		Code:      "veg",
+		Name:      "植生モデル",
+		SpecMajor: 3,
 	},
 	{
-		Code: "dem",
-		Name: "地形モデル",
+		Code:      "dem",
+		Name:      "地形モデル",
+		SpecMajor: 3,
 	},
 	{
-		Code: "wtr",
-		Name: "水部モデル",
+		Code:      "wtr",
+		Name:      "水部モデル",
+		SpecMajor: 3,
 	},
 	{
-		Code: "area",
-		Name: "区域モデル",
+		Code:      "area",
+		Name:      "区域モデル",
+		SpecMajor: 3,
 	},
 	{
-		Code: "gen",
-		Name: "汎用都市オブジェクトモデル",
+		Code:      "gen",
+		Name:      "汎用都市オブジェクトモデル",
+		SpecMajor: 3,
 	},
 }
 

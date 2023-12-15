@@ -1,7 +1,9 @@
 package datacatalogv3
 
 import (
-	"github.com/eukarya-inc/reearth-plateauview/server/cmsintegration/cmsintegrationcommon"
+	"encoding/json"
+
+	"github.com/eukarya-inc/reearth-plateauview/server/datacatalog/datacatalogcommon"
 	cms "github.com/reearth/reearth-cms-api/go"
 )
 
@@ -16,42 +18,24 @@ const (
 	ManagementStatusReady ManagementStatus = "確認可能"
 )
 
-type AllData struct {
-	FeatureTypes FeatureTypes
-	City         []*CityItem
-	Related      []*RelatedItem
-	Generic      []*GenericItem
-	Plateau      map[string][]*FeatureItem
-}
-
-type FeatureTypes struct {
-	Plateau []FeatureType
-	Related []FeatureType
-	Generic []FeatureType
-}
-
 type FeatureType struct {
 	Code string `json:"code,omitempty" cms:"code,text"`
 	Name string `json:"name,omitempty" cms:"name,text"`
+	// for plateau
+	SpecMajor int  `json:"spec_major,omitempty" cms:"spec_major,integer"`
+	Flood     bool `json:"flood,omitempty" cms:"flood,bool"`
 }
 
 type CityItem struct {
-	ID                   string                    `json:"id,omitempty" cms:"id"`
-	Prefecture           string                    `json:"prefecture,omitempty" cms:"prefecture,select"`
-	CityName             string                    `json:"city_name,omitempty" cms:"city_name,text"`
-	CityNameEn           string                    `json:"city_name_en,omitempty" cms:"city_name_en,text"`
-	CityCode             string                    `json:"city_code,omitempty" cms:"city_code,text"`
-	SpecificationVersion string                    `json:"spec,omitempty" cms:"spec,select"`
-	OpenDataUrl          string                    `json:"open_data_url,omitempty" cms:"open_data_url,url"`
-	PRCS                 cmsintegrationcommon.PRCS `json:"prcs,omitempty" cms:"prcs,select"`
-	CodeLists            string                    `json:"codelists,omitempty" cms:"codelists,asset"`
-	Schemas              string                    `json:"schemas,omitempty" cms:"schemas,asset"`
-	Metadata             string                    `json:"metadata,omitempty" cms:"metadata,asset"`
-	Specification        string                    `json:"specification,omitempty" cms:"specification,asset"`
-	References           map[string]string         `json:"references,omitempty" cms:"-"`
-	RelatedDataset       string                    `json:"related_dataset,omitempty" cms:"related_dataset,reference"`
-	GeospatialjpIndex    string                    `json:"geospatialjp-index,omitempty" cms:"geospatialjp-index,reference"`
-	GeospatialjpData     string                    `json:"geospatialjp-data,omitempty" cms:"geospatialjp-data,reference"`
+	ID             string            `json:"id,omitempty" cms:"id"`
+	Prefecture     string            `json:"prefecture,omitempty" cms:"prefecture,select"`
+	CityName       string            `json:"city_name,omitempty" cms:"city_name,text"`
+	CityNameEn     string            `json:"city_name_en,omitempty" cms:"city_name_en,text"`
+	CityCode       string            `json:"city_code,omitempty" cms:"city_code,text"`
+	Spec           string            `json:"spec,omitempty" cms:"spec,select"`
+	References     map[string]string `json:"references,omitempty" cms:"-"`
+	RelatedDataset string            `json:"related_dataset,omitempty" cms:"related_dataset,reference"`
+	Year           string            `json:"year,omitempty" cms:"year,select"`
 	// meatadata
 	PlateauDataStatus string          `json:"plateau_data_status,omitempty" cms:"plateau_data_status,select,metadata"`
 	CityPublic        bool            `json:"city_public,omitempty" cms:"city_public,bool,metadata"`
@@ -80,66 +64,60 @@ func CityItemFrom(item *cms.Item, featureTypes []FeatureType) (i *CityItem) {
 	return
 }
 
-func (i *CityItem) CMSItem() *cms.Item {
-	item := &cms.Item{}
-	cms.Marshal(i, item)
-
-	for ft, ref := range i.References {
-		item.Fields = append(item.Fields, &cms.Field{
-			Key:   ft,
-			Type:  "reference",
-			Value: ref,
-		})
-	}
-
-	for ft, pub := range i.Public {
-		item.MetadataFields = append(item.MetadataFields, &cms.Field{
-			Key:   ft + "_public",
-			Type:  "bool",
-			Value: pub,
-		})
-	}
-
-	return item
+func (i *CityItem) YearInt() int {
+	return datacatalogcommon.YearInt(i.Year)
 }
 
-type FeatureItem struct {
-	ID          string             `json:"id,omitempty" cms:"id"`
-	City        string             `json:"city,omitempty" cms:"city,reference"`
-	CityGML     string             `json:"citygml,omitempty" cms:"citygml,asset"`
-	Data        []string           `json:"data,omitempty" cms:"data,asset"`
-	Desc        string             `json:"desc,omitempty" cms:"desc,textarea"`
-	Items       []FeatureItemDatum `json:"items,omitempty" cms:"items,group"`
-	QCResult    string             `json:"qcresult,omitempty" cms:"qc_result,asset"`
-	SearchIndex string             `json:"search_index,omitempty" cms:"search_index,asset"`
-	Dic         string             `json:"dic,omitempty" cms:"dic,textarea"`
-	MaxLOD      string             `json:"maxlod,omitempty" cms:"maxlod,asset"`
+type PlateauFeatureItem struct {
+	ID      string                    `json:"id,omitempty" cms:"id"`
+	City    string                    `json:"city,omitempty" cms:"city,reference"`
+	CityGML string                    `json:"citygml,omitempty" cms:"citygml,-"`
+	Data    []string                  `json:"data,omitempty" cms:"data,-"`
+	Desc    string                    `json:"desc,omitempty" cms:"desc,textarea"`
+	Items   []PlateauFeatureItemDatum `json:"items,omitempty" cms:"items,group"`
+	Dic     string                    `json:"dic,omitempty" cms:"dic,textarea"`
+	MaxLOD  string                    `json:"maxlod,omitempty" cms:"maxlod,-"`
 	// metadata
 	Status ManagementStatus `json:"status,omitempty" cms:"status,select,metadata"`
 }
 
-func (c FeatureItem) IsPublicForAdmin() bool {
+func (c PlateauFeatureItem) IsPublicForAdmin() bool {
 	return c.Status == ManagementStatusReady
 }
 
-type FeatureItemDatum struct {
+func (c PlateauFeatureItem) ReadDic() (d Dic) {
+	_ = json.Unmarshal([]byte(c.Dic), &d)
+	return
+}
+
+type PlateauFeatureItemDatum struct {
 	ID   string   `json:"id,omitempty" cms:"id"`
-	Data []string `json:"data,omitempty" cms:"data,asset"`
+	Data []string `json:"data,omitempty" cms:"data,-"`
 	Name string   `json:"name,omitempty" cms:"name,text"`
 	Desc string   `json:"desc,omitempty" cms:"desc,textarea"`
 	Key  string   `json:"key,omitempty" cms:"key,text"`
 }
 
-func FeatureItemFrom(item *cms.Item) (i *FeatureItem) {
-	i = &FeatureItem{}
-	item.Unmarshal(i)
-	return
+type Dic []DicEntry
+
+type DicEntry struct {
+	Name        string `json:"name,omitempty"`
+	Code        string `json:"code,omitempty"`
+	Description string `json:"description,omitempty"`
 }
 
-func (i *FeatureItem) CMSItem() *cms.Item {
-	item := &cms.Item{}
-	cms.Marshal(i, item)
-	return item
+func PlateauFeatureItemFrom(item *cms.Item) (i *PlateauFeatureItem) {
+	i = &PlateauFeatureItem{}
+	item.Unmarshal(i)
+
+	i.CityGML = valueToAssetURL(item.FieldByKey("citygml").GetValue())
+	i.Data = valueToAssetURLs(item.FieldByKey("data").GetValue())
+	i.MaxLOD = valueToAssetURL(item.FieldByKey("maxlod").GetValue())
+	for ind, d := range i.Items {
+		i.Items[ind].Data = valueToAssetURLs(item.FieldByKeyAndGroup("data", d.ID).GetValue())
+	}
+
+	return
 }
 
 type GenericItem struct {
@@ -148,7 +126,7 @@ type GenericItem struct {
 	Name        string               `json:"name,omitempty" cms:"name,text"`
 	Type        string               `json:"type,omitempty" cms:"type,text"`
 	TypeEn      string               `json:"type_en,omitempty" cms:"type_en,text"`
-	Datasets    []GenericItemDataset `json:"datasets,omitempty" cms:"datasets,group"`
+	Data        []GenericItemDataset `json:"data,omitempty" cms:"data,group"`
 	OpenDataUrl string               `json:"open-data-url,omitempty" cms:"open_data_url,url"`
 	Year        string               `json:"year,omitempty" cms:"year,select"`
 	// metadata
@@ -163,7 +141,7 @@ func (c GenericItem) IsPublicForAdmin() bool {
 
 type GenericItemDataset struct {
 	ID         string `json:"id,omitempty" cms:"id"`
-	Data       string `json:"data,omitempty" cms:"data,asset"`
+	Data       string `json:"data,omitempty" cms:"data,-"`
 	Desc       string `json:"desc,omitempty" cms:"desc,textarea"`
 	DataURL    string `json:"url,omitempty" cms:"data_url,url"`
 	DataFormat string `json:"data-format,omitempty" cms:"data_format,select"`
@@ -173,13 +151,12 @@ type GenericItemDataset struct {
 func GenericItemFrom(item *cms.Item) (i *GenericItem) {
 	i = &GenericItem{}
 	item.Unmarshal(i)
-	return
-}
 
-func (i *GenericItem) CMSItem() *cms.Item {
-	item := &cms.Item{}
-	cms.Marshal(i, item)
-	return item
+	for ind, d := range i.Data {
+		i.Data[ind].Data = valueToAssetURL(item.FieldByKeyAndGroup("data", d.ID).GetValue())
+	}
+
+	return
 }
 
 type RelatedItem struct {
@@ -187,7 +164,6 @@ type RelatedItem struct {
 	City            string              `json:"city,omitempty" cms:"city,reference"`
 	Assets          map[string][]string `json:"assets,omitempty" cms:"-"`
 	ConvertedAssets map[string][]string `json:"converted,omitempty" cms:"-"`
-	Merged          string              `json:"merged,omitempty" cms:"merged,asset"`
 	// metadata
 	Public bool `json:"public,omitempty" cms:"public,bool,metadata"`
 }
@@ -197,22 +173,8 @@ func RelatedItemFrom(item *cms.Item, featureTypes []FeatureType) (i *RelatedItem
 	item.Unmarshal(i)
 
 	for _, t := range featureTypes {
-		v := item.FieldByKey(t.Code).GetValue()
-		cv := item.FieldByKey(t.Code + "_conv").GetValue()
-
-		var assets []string
-		if s := v.String(); s != nil {
-			assets = []string{*s}
-		} else if s := v.Strings(); s != nil {
-			assets = s
-		}
-
-		var conv []string
-		if s := cv.String(); s != nil {
-			conv = []string{*s}
-		} else if s := cv.Strings(); s != nil {
-			conv = s
-		}
+		assets := valueToAssetURLs(item.FieldByKey(t.Code).GetValue())
+		conv := valueToAssetURLs(item.FieldByKey(t.Code + "_conv").GetValue())
 
 		if len(assets) > 0 {
 			if i.Assets == nil {
@@ -232,35 +194,56 @@ func RelatedItemFrom(item *cms.Item, featureTypes []FeatureType) (i *RelatedItem
 	return
 }
 
-func (i *RelatedItem) CMSItem(relatedDataTypes []FeatureType) *cms.Item {
-	item := &cms.Item{}
-	cms.Marshal(i, item)
+func valueToAssetURL(v *cms.Value) string {
+	return anyToAssetURL(v.Interface())
+}
 
-	for _, t := range relatedDataTypes {
-		if asset, ok := i.Assets[t.Code]; ok {
-			item.Fields = append(item.Fields, &cms.Field{
-				Key:   t.Code,
-				Type:  "asset",
-				Value: asset,
-			})
-		}
-
-		if conv, ok := i.ConvertedAssets[t.Code]; ok {
-			item.Fields = append(item.Fields, &cms.Field{
-				Key:   t.Code + "_conv",
-				Type:  "asset",
-				Value: conv,
-			})
-		}
-
-		// if pub, ok := i.Public[t]; ok {
-		// 	item.MetadataFields = append(item.MetadataFields, &cms.Field{
-		// 		Key:   t + "_public",
-		// 		Type:  "bool",
-		// 		Value: pub,
-		// 	})
-		// }
+func valueToAssetURLs(v *cms.Value) (res []string) {
+	i := v.Interface()
+	if i == nil {
+		return
 	}
 
-	return item
+	values := []any{}
+	if s, ok := i.([]any); ok {
+		values = s
+	} else {
+		values = append(values, i)
+	}
+
+	for _, v := range values {
+		if url := anyToAssetURL(v); url != "" {
+			res = append(res, url)
+		}
+	}
+
+	return
+}
+
+func anyToAssetURL(v any) string {
+	if v == nil {
+		return ""
+	}
+
+	m, ok := v.(map[string]any)
+	if !ok {
+		m2, ok := v.(map[any]any)
+		if !ok {
+			return ""
+		}
+
+		m = map[string]interface{}{}
+		for k, v := range m2 {
+			if s, ok := k.(string); ok {
+				m[s] = v
+			}
+		}
+	}
+
+	url, ok := m["url"].(string)
+	if !ok {
+		return ""
+	}
+
+	return url
 }
