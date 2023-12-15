@@ -174,12 +174,12 @@ var relatedFeatureTypes = []FeatureType{
 
 var genericFeatureTypes = []FeatureType{
 	{
-		Code: "global",
-		Name: "全球データ",
-	},
-	{
 		Code: "usecase",
 		Name: "ユースケース",
+	},
+	{
+		Code: "global",
+		Name: "全球データ",
 	},
 	{
 		Code: "sample",

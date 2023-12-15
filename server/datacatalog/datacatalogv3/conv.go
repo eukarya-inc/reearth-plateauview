@@ -13,6 +13,7 @@ func (all *AllData) Into() (res plateauapi.InMemoryRepoContext, warning []string
 
 	ic := newInternalContext()
 
+	// pref and city
 	for _, cityItem := range all.City {
 		pref, city := cityItem.ToPrefecture(), cityItem.ToCity()
 		if pref == nil || city == nil {
@@ -75,7 +76,7 @@ func getWards(items []*PlateauFeatureItem, ic *internalContext) (res []*plateaua
 			continue
 		}
 
-		wards := ds.ToWards(area.Pref, area.City)
+		wards := ds.toWards(area.Pref, area.City)
 		res = append(res, wards...)
 	}
 

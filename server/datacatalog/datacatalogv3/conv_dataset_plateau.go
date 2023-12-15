@@ -4,7 +4,7 @@ import (
 	"github.com/eukarya-inc/reearth-plateauview/server/datacatalog/plateauapi"
 )
 
-func (i *PlateauFeatureItem) ToWards(pref *plateauapi.Prefecture, city *plateauapi.City) (res []*plateauapi.Ward) {
+func (i *PlateauFeatureItem) toWards(pref *plateauapi.Prefecture, city *plateauapi.City) (res []*plateauapi.Ward) {
 	dic := i.ReadDic()
 	if dic == nil || len(dic["admin"]) == 0 {
 		return nil
@@ -76,7 +76,7 @@ func (i *PlateauFeatureItem) toDatasets(area *areaContext, dt *plateauapi.Platea
 		ID:              id,
 		Name:            standardItemName(dt.Name, area.City),
 		Description:     toPtrIfPresent(i.Desc),
-		Year:            dt.Year,
+		Year:            area.CityItem.YearInt(),
 		PrefectureID:    area.PrefID,
 		PrefectureCode:  area.PrefCode,
 		CityID:          area.CityID,
