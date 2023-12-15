@@ -5,47 +5,10 @@ import (
 	cms "github.com/reearth/reearth-cms-api/go"
 )
 
-// const modelPrefix = "plateau-"
-// const cityModel = "city"
-// const relatedModel = "related"
-
-var featureTypes = []string{
-	// *: データカタログ上で複数の項目に分かれて存在
-	"bldg", // 建築物モデル
-	"tran", // 交通（道路）モデル
-	"rwy",  // 交通（鉄道）モデル
-	"trk",  // 交通（徒歩道）モデル
-	"squr", // 交通（広場）モデル
-	"wwy",  // 交通（航路）モデル
-	"luse", // 土地利用モデル
-	"fld",  // 洪水浸水想定区域モデル*
-	"tnm",  // 津波浸水想定区域モデル*
-	"htd",  // 高潮浸水想定区域モデル*
-	"ifld", // 内水浸水想定区域モデル*
-	"lsld", // 土砂災害モデル
-	"urf",  // 都市計画決定情報モデル*
-	"unf",  // 地下埋設物モデル
-	"brid", // 橋梁モデル
-	"tun",  // トンネルモデル
-	"cons", // その他の構造物モデル
-	"frn",  // 都市設備モデル
-	"ubld", // 地下街モデル
-	"veg",  // 植生モデル
-	"dem",  // 地形モデル
-	"wtr",  // 水部モデル
-	"area", // 区域モデル*
-	"gen",  // 汎用都市オブジェクトモデル*
-}
-
-var relatedDataTypes = []string{
-	"shelter",
-	"park",
-	"landmark",
-	"station",
-	"railway",
-	"emergency_route",
-	"border",
-}
+const modelPrefix = "plateau-"
+const cityModel = "city"
+const relatedModel = "related"
+const genericModel = "generic"
 
 type ManagementStatus string
 
@@ -54,10 +17,22 @@ const (
 )
 
 type AllData struct {
-	Cities   []*CityItem
-	Features []*FeatureItem
-	Relateds []*RelatedItem
-	Generics []*GenericItem
+	FeatureTypes FeatureTypes
+	City         []*CityItem
+	Related      []*RelatedItem
+	Generic      []*GenericItem
+	Plateau      map[string][]*FeatureItem
+}
+
+type FeatureTypes struct {
+	Plateau []FeatureType
+	Related []FeatureType
+	Generic []FeatureType
+}
+
+type FeatureType struct {
+	Code string `json:"code,omitempty" cms:"code,text"`
+	Name string `json:"name,omitempty" cms:"name,text"`
 }
 
 type CityItem struct {
@@ -84,19 +59,19 @@ type CityItem struct {
 	Public            map[string]bool `json:"public,omitempty" cms:"-"`
 }
 
-func CityItemFrom(item *cms.Item) (i *CityItem) {
+func CityItemFrom(item *cms.Item, featureTypes []FeatureType) (i *CityItem) {
 	i = &CityItem{}
 	item.Unmarshal(i)
 
 	references := map[string]string{}
 	public := map[string]bool{}
 	for _, ft := range featureTypes {
-		if ref := item.FieldByKey(ft).GetValue().String(); ref != nil {
-			references[ft] = *ref
+		if ref := item.FieldByKey(ft.Code).GetValue().String(); ref != nil {
+			references[ft.Code] = *ref
 		}
 
-		if pub := item.MetadataFieldByKey(ft + "_public").GetValue().Bool(); pub != nil {
-			public[ft] = *pub
+		if pub := item.MetadataFieldByKey(ft.Code + "_public").GetValue().Bool(); pub != nil {
+			public[ft.Code] = *pub
 		}
 	}
 
@@ -109,22 +84,20 @@ func (i *CityItem) CMSItem() *cms.Item {
 	item := &cms.Item{}
 	cms.Marshal(i, item)
 
-	for _, ft := range featureTypes {
-		if ref, ok := i.References[ft]; ok {
-			item.Fields = append(item.Fields, &cms.Field{
-				Key:   ft,
-				Type:  "reference",
-				Value: ref,
-			})
-		}
+	for ft, ref := range i.References {
+		item.Fields = append(item.Fields, &cms.Field{
+			Key:   ft,
+			Type:  "reference",
+			Value: ref,
+		})
+	}
 
-		if pub, ok := i.Public[ft]; ok {
-			item.MetadataFields = append(item.MetadataFields, &cms.Field{
-				Key:   ft + "_public",
-				Type:  "bool",
-				Value: pub,
-			})
-		}
+	for ft, pub := range i.Public {
+		item.MetadataFields = append(item.MetadataFields, &cms.Field{
+			Key:   ft + "_public",
+			Type:  "bool",
+			Value: pub,
+		})
 	}
 
 	return item
@@ -219,13 +192,13 @@ type RelatedItem struct {
 	Public bool `json:"public,omitempty" cms:"public,bool,metadata"`
 }
 
-func RelatedItemFrom(item *cms.Item) (i *RelatedItem) {
+func RelatedItemFrom(item *cms.Item, featureTypes []FeatureType) (i *RelatedItem) {
 	i = &RelatedItem{}
 	item.Unmarshal(i)
 
-	for _, t := range relatedDataTypes {
-		v := item.FieldByKey(t).GetValue()
-		cv := item.FieldByKey(t + "_conv").GetValue()
+	for _, t := range featureTypes {
+		v := item.FieldByKey(t.Code).GetValue()
+		cv := item.FieldByKey(t.Code + "_conv").GetValue()
 
 		var assets []string
 		if s := v.String(); s != nil {
@@ -245,36 +218,36 @@ func RelatedItemFrom(item *cms.Item) (i *RelatedItem) {
 			if i.Assets == nil {
 				i.Assets = map[string][]string{}
 			}
-			i.Assets[t] = append(i.Assets[t], assets...)
+			i.Assets[t.Code] = append(i.Assets[t.Code], assets...)
 		}
 
 		if len(conv) > 0 {
 			if i.ConvertedAssets == nil {
 				i.ConvertedAssets = map[string][]string{}
 			}
-			i.ConvertedAssets[t] = append(i.ConvertedAssets[t], conv...)
+			i.ConvertedAssets[t.Code] = append(i.ConvertedAssets[t.Code], conv...)
 		}
 	}
 
 	return
 }
 
-func (i *RelatedItem) CMSItem() *cms.Item {
+func (i *RelatedItem) CMSItem(relatedDataTypes []FeatureType) *cms.Item {
 	item := &cms.Item{}
 	cms.Marshal(i, item)
 
 	for _, t := range relatedDataTypes {
-		if asset, ok := i.Assets[t]; ok {
+		if asset, ok := i.Assets[t.Code]; ok {
 			item.Fields = append(item.Fields, &cms.Field{
-				Key:   t,
+				Key:   t.Code,
 				Type:  "asset",
 				Value: asset,
 			})
 		}
 
-		if conv, ok := i.ConvertedAssets[t]; ok {
+		if conv, ok := i.ConvertedAssets[t.Code]; ok {
 			item.Fields = append(item.Fields, &cms.Field{
-				Key:   t + "_conv",
+				Key:   t.Code + "_conv",
 				Type:  "asset",
 				Value: conv,
 			})

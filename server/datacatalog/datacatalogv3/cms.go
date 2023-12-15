@@ -19,12 +19,15 @@ func NewCMS(cms cms.Interface) *CMS {
 func (c *CMS) GetAll(ctx context.Context, project string) (*AllData, error) {
 	all := AllData{}
 
+	featureTypes, err := c.GetFeatureTypes(ctx, project)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get feature types: %w", err)
+	}
+
+	all.FeatureTypes = featureTypes
+
 	cityItemsChan := lo.Async2(func() ([]*CityItem, error) {
 		return c.GetCityItems(ctx, project)
-	})
-
-	featureItemsChan := lo.Async2(func() ([]*FeatureItem, error) {
-		return c.GetFeatureItems(ctx, project)
 	})
 
 	relatedItemsChan := lo.Async2(func() ([]*RelatedItem, error) {
@@ -35,45 +38,87 @@ func (c *CMS) GetAll(ctx context.Context, project string) (*AllData, error) {
 		return c.GetGenericItems(ctx, project)
 	})
 
+	featureItemsChans := make([]<-chan lo.Tuple3[string, []*FeatureItem, error], 0, len(all.FeatureTypes.Plateau))
+	for _, featureType := range all.FeatureTypes.Plateau {
+		featureType := featureType
+		featureItemsChan := lo.Async3(func() (string, []*FeatureItem, error) {
+			res, err := c.GetPlateauItems(ctx, project, featureType.Code)
+			return featureType.Code, res, err
+		})
+		featureItemsChans = append(featureItemsChans, featureItemsChan)
+	}
+
 	if res := <-cityItemsChan; res.B != nil {
 		return nil, fmt.Errorf("failed to get city items: %w", res.B)
 	} else {
-		all.Cities = res.A
-	}
-
-	if res := <-featureItemsChan; res.B != nil {
-		return nil, fmt.Errorf("failed to get feature items: %w", res.B)
-	} else {
-		all.Features = res.A
+		all.City = res.A
 	}
 
 	if res := <-relatedItemsChan; res.B != nil {
 		return nil, fmt.Errorf("failed to get related items: %w", res.B)
 	} else {
-		all.Relateds = res.A
+		all.Related = res.A
 	}
 
 	if res := <-genericItemsChan; res.B != nil {
 		return nil, fmt.Errorf("failed to get generic items: %w", res.B)
 	} else {
-		all.Generics = res.A
+		all.Generic = res.A
+	}
+
+	all.Plateau = make(map[string][]*FeatureItem)
+	for _, featureItemsChan := range featureItemsChans {
+		if res := <-featureItemsChan; res.C != nil {
+			return nil, fmt.Errorf("failed to get feature items (%s): %w", res.A, res.C)
+		} else {
+			all.Plateau[res.A] = append(all.Plateau[res.A], res.B...)
+		}
 	}
 
 	return &all, nil
 }
 
-func (c *CMS) GetCityItems(ctx context.Context, project string) ([]*CityItem, error) {
-	panic("not implemented")
+func (c *CMS) GetFeatureTypes(ctx context.Context, project string) (FeatureTypes, error) {
+	// TODO: load feature types from CMS
+	return FeatureTypes{
+		Plateau: plateauFeatureTypes,
+		Related: relatedFeatureTypes,
+		Generic: genericFeatureTypes,
+	}, nil
 }
 
-func (c *CMS) GetFeatureItems(ctx context.Context, project string) ([]*FeatureItem, error) {
-	panic("not implemented")
+func (c *CMS) GetCityItems(ctx context.Context, project string) ([]*CityItem, error) {
+	items, err := getItemsAndUnmarshal[CityItem](c.cms, ctx, project, modelPrefix+cityModel)
+	return items, err
+}
+
+func (c *CMS) GetPlateauItems(ctx context.Context, project, feature string) ([]*FeatureItem, error) {
+	items, err := getItemsAndUnmarshal[FeatureItem](c.cms, ctx, project, modelPrefix+feature)
+	return items, err
 }
 
 func (c *CMS) GetRelatedItems(ctx context.Context, project string) ([]*RelatedItem, error) {
-	panic("not implemented")
+	items, err := getItemsAndUnmarshal[RelatedItem](c.cms, ctx, project, modelPrefix+relatedModel)
+	return items, err
 }
 
 func (c *CMS) GetGenericItems(ctx context.Context, project string) ([]*GenericItem, error) {
-	panic("not implemented")
+	items, err := getItemsAndUnmarshal[GenericItem](c.cms, ctx, project, modelPrefix+genericModel)
+	return items, err
+}
+
+func getItemsAndUnmarshal[T any](cms cms.Interface, ctx context.Context, project, model string) ([]*T, error) {
+	items, err := cms.GetItemsByKeyInParallel(ctx, project, model, false, 100)
+	if err != nil {
+		return nil, err
+	}
+
+	res := make([]*T, 0, len(items.Items))
+	for _, item := range items.Items {
+		var i T
+		item.Unmarshal(&i)
+		res = append(res, &i)
+	}
+
+	return res, nil
 }
