@@ -2,9 +2,11 @@ package datacatalogv3
 
 import (
 	"context"
+	"strings"
 
 	"github.com/eukarya-inc/reearth-plateauview/server/datacatalog/plateauapi"
 	cms "github.com/reearth/reearth-cms-api/go"
+	"github.com/reearth/reearthx/log"
 )
 
 func New(cmsbase, token, project string) (*plateauapi.RepoWrapper, error) {
@@ -21,6 +23,12 @@ func From(cms *CMS, project string) *plateauapi.RepoWrapper {
 		if err != nil {
 			return nil, err
 		}
-		return plateauapi.NewInMemoryRepo(res.Into()), nil
+
+		c, warning := res.Into()
+		if len(warning) > 0 {
+			log.Warnfc(ctx, "datacatalogv3: warning: \n%s", strings.Join(warning, "\n"))
+		}
+
+		return plateauapi.NewInMemoryRepo(c), nil
 	})
 }

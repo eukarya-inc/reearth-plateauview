@@ -104,7 +104,9 @@ func (c *CMS) GetCityItems(ctx context.Context, project string) ([]*CityItem, er
 
 	// TODO: dynamic year
 	for _, item := range items {
-		item.Year = "令和5年度"
+		if item.Year == "" {
+			item.Year = "令和5年度"
+		}
 	}
 
 	return items, err
@@ -122,6 +124,13 @@ func (c *CMS) GetRelatedItems(ctx context.Context, project string) ([]*RelatedIt
 
 func (c *CMS) GetGenericItems(ctx context.Context, project string) ([]*GenericItem, error) {
 	items, err := getItemsAndUnmarshal[GenericItem](c.cms, ctx, project, modelPrefix+genericModel)
+
+	for _, item := range items {
+		if item.Category == "" {
+			item.Category = "ユースケース"
+		}
+	}
+
 	return items, err
 }
 

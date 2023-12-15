@@ -1,99 +1,131 @@
 package datacatalogv3
 
 import (
-	"sort"
+	"fmt"
 
 	"github.com/eukarya-inc/reearth-plateauview/server/datacatalog/plateauapi"
 )
 
-func (all *AllData) Into() (res plateauapi.InMemoryRepoContext) {
+func (all *AllData) Into() (res plateauapi.InMemoryRepoContext, warning []string) {
 	res.PlateauSpecs = plateauapi.PlateauSpecsFrom(all.PlateauSpecs)
 	res.DatasetTypes = all.FeatureTypes.ToDatasetTypes(res.PlateauSpecs)
 
-	years := map[int]struct{}{}
-	prefs := map[plateauapi.AreaCode]struct{}{}
-	cities := map[plateauapi.AreaCode]struct{}{}
+	ic := newInternalContext()
 
-	for _, city := range all.City {
-		pref := city.ToPrefecture()
-		if pref == nil {
+	for _, cityItem := range all.City {
+		pref, city := cityItem.ToPrefecture(), cityItem.ToCity()
+		if pref == nil || city == nil {
 			continue
 		}
 
-		if _, ok := prefs[pref.Code]; !ok {
-			prefs[pref.Code] = struct{}{}
+		ic.Add(cityItem, pref, city)
+
+		if !ic.HasPref(pref.Code.String()) {
 			res.Areas.Append(plateauapi.AreaTypePrefecture, []plateauapi.Area{*pref})
 		}
 
-		if _, ok := cities[plateauapi.AreaCode(city.CityCode)]; !ok {
-			prefs[pref.Code] = struct{}{}
-			res.Areas.Append(plateauapi.AreaTypePrefecture, []plateauapi.Area{*pref})
-		}
-
-		if y := city.YearInt(); y != 0 {
-			years[y] = struct{}{}
+		if !ic.HasCity(city.Code.String()) {
+			res.Areas.Append(plateauapi.AreaTypeCity, []plateauapi.Area{*city})
 		}
 	}
 
-	for _, ft := range all.FeatureTypes.Plateau {
-		for _, f := range all.Plateau[ft.Code] {
-			if ds := f.ToDatasets(); ds != nil {
-				res.Datasets.Append(plateauapi.DatasetTypeCategoryPlateau, ds)
-			}
-		}
+	res.Years = ic.Years()
+
+	// plateau
+	for _, ft := range res.DatasetTypes[plateauapi.DatasetTypeCategoryPlateau] {
+		datasets, w := convertPlateau(all.Plateau[ft.GetCode()], res.PlateauSpecs, ft, ic)
+		warning = append(warning, w...)
+		res.Datasets.Append(plateauapi.DatasetTypeCategoryPlateau, datasets)
 	}
 
-	for _, ds := range all.Related {
-		if ds := ds.ToDatasets(); ds != nil {
-			res.Datasets.Append(plateauapi.DatasetTypeCategoryRelated, ds)
-		}
+	// related
+	{
+		datasets, w := convertRelated(all.Related, res.DatasetTypes[plateauapi.DatasetTypeCategoryRelated], ic)
+		warning = append(warning, w...)
+		res.Datasets.Append(plateauapi.DatasetTypeCategoryRelated, datasets)
 	}
 
-	for _, ds := range all.Generic {
-		if ds := ds.ToDatasets(); ds != nil {
-			res.Datasets.Append(plateauapi.DatasetTypeCategoryGeneric, ds)
-		}
+	// generic
+	{
+		datasets, w := convertGeneric(all.Generic, res.DatasetTypes[plateauapi.DatasetTypeCategoryGeneric], ic)
+		warning = append(warning, w...)
+		res.Datasets.Append(plateauapi.DatasetTypeCategoryGeneric, datasets)
 	}
-
-	for y := range years {
-		res.Years = append(res.Years, y)
-	}
-	sort.Ints(res.Years)
 
 	return
 }
 
-func (all *AllData) FindPlateauByCityID(id, ft string) (res *PlateauFeatureItem) {
-	features, ok := all.Plateau[ft]
+func convertPlateau(items []*PlateauFeatureItem, specs []plateauapi.PlateauSpec, dt plateauapi.DatasetType, ic *internalContext) (res []plateauapi.Dataset, warning []string) {
+	pdt, ok := dt.(*plateauapi.PlateauDatasetType)
 	if !ok {
+		warning = append(warning, fmt.Sprintf("invalid dataset type: %s", dt.GetCode()))
 		return
 	}
 
-	for _, r := range features {
-		if r.City == id {
-			res = r
-			return
+	for _, ds := range items {
+		pref, city, cityItem := ic.PrefAndCityFromCityItemID(ds.City)
+		if pref == nil || city == nil || cityItem == nil {
+			warning = append(warning, fmt.Sprintf("plateau %s: city not found: %s", ds.ID, ds.City))
+			continue
+		}
+
+		spec := plateauapi.FindSpecMinorByName(specs, cityItem.Spec)
+		if spec == nil {
+			warning = append(warning, fmt.Sprintf("plateau %s: spec not found: %s", ds.ID, cityItem.Spec))
+			continue
+		}
+
+		if ds := ds.ToDatasets(
+			pref,
+			city,
+			pdt,
+			spec,
+		); ds != nil {
+			res = append(res, ds...)
 		}
 	}
+
 	return
 }
 
-func (all *AllData) FindRelatedByCityID(id string) (res *RelatedItem) {
-	for _, r := range all.Related {
-		if r.City == id {
-			res = r
-			return
+func convertRelated(items []*RelatedItem, datasetTypes []plateauapi.DatasetType, ic *internalContext) (res []plateauapi.Dataset, warning []string) {
+	for _, ds := range items {
+		pref, city, cityItem := ic.PrefAndCityFromCityItemID(ds.City)
+		if pref == nil || city == nil || cityItem == nil {
+			warning = append(warning, fmt.Sprintf("generic %s: city not found: %s", ds.ID, ds.City))
+			continue
+		}
+
+		if ds := ds.ToDatasets(
+			pref,
+			city,
+			datasetTypes,
+			cityItem.YearInt(),
+		); ds != nil {
+			res = append(res, ds...)
 		}
 	}
+
 	return
 }
 
-func (all *AllData) FindGenericByCityID(id string) (res *GenericItem) {
-	for _, r := range all.Generic {
-		if r.City == id {
-			res = r
-			return
+func convertGeneric(items []*GenericItem, datasetTypes []plateauapi.DatasetType, ic *internalContext) (res []plateauapi.Dataset, warning []string) {
+	for _, ds := range items {
+		pref, city, cityItem := ic.PrefAndCityFromCityItemID(ds.City)
+		if pref == nil || city == nil || cityItem == nil {
+			warning = append(warning, fmt.Sprintf("generic %s: city not found: %s", ds.ID, ds.City))
+			continue
+		}
+
+		if ds := ds.ToDatasets(
+			pref,
+			city,
+			datasetTypes,
+			cityItem.YearInt(),
+		); ds != nil {
+			res = append(res, ds...)
 		}
 	}
+
 	return
 }

@@ -124,11 +124,12 @@ type GenericItem struct {
 	ID          string               `json:"id,omitempty" cms:"id"`
 	City        string               `json:"city,omitempty" cms:"city,reference"`
 	Name        string               `json:"name,omitempty" cms:"name,text"`
+	Desc        string               `json:"desc,omitempty" cms:"desc,textarea"`
 	Type        string               `json:"type,omitempty" cms:"type,text"`
 	TypeEn      string               `json:"type_en,omitempty" cms:"type_en,text"`
 	Data        []GenericItemDataset `json:"data,omitempty" cms:"data,group"`
 	OpenDataUrl string               `json:"open-data-url,omitempty" cms:"open_data_url,url"`
-	Year        string               `json:"year,omitempty" cms:"year,select"`
+	Category    string               `json:"category,omitempty" cms:"category,select"`
 	// metadata
 	Status ManagementStatus `json:"status,omitempty" cms:"status,select,metadata"`
 	Public bool             `json:"public,omitempty" cms:"public,bool,metadata"`
@@ -141,6 +142,7 @@ func (c GenericItem) IsPublicForAdmin() bool {
 
 type GenericItemDataset struct {
 	ID         string `json:"id,omitempty" cms:"id"`
+	Name       string `json:"name,omitempty" cms:"name,text"`
 	Data       string `json:"data,omitempty" cms:"data,-"`
 	Desc       string `json:"desc,omitempty" cms:"desc,textarea"`
 	DataURL    string `json:"url,omitempty" cms:"data_url,url"`
@@ -164,6 +166,7 @@ type RelatedItem struct {
 	City            string              `json:"city,omitempty" cms:"city,reference"`
 	Assets          map[string][]string `json:"assets,omitempty" cms:"-"`
 	ConvertedAssets map[string][]string `json:"converted,omitempty" cms:"-"`
+	Desc            string              `json:"desc,omitempty" cms:"-"`
 	// metadata
 	Public bool `json:"public,omitempty" cms:"public,bool,metadata"`
 }

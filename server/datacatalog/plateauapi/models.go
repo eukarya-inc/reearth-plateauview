@@ -133,3 +133,21 @@ func (d *DatasetTypes) DatasetType(id ID) DatasetType {
 	}
 	return nil
 }
+
+func (s *PlateauSpec) Minor(name string) *PlateauSpecMinor {
+	for _, minor := range s.MinorVersions {
+		if minor.Name == name {
+			return minor
+		}
+	}
+	return nil
+}
+
+func FindSpecMinorByName(specs []PlateauSpec, name string) *PlateauSpecMinor {
+	for _, spec := range specs {
+		if specMinor := spec.Minor(name); specMinor != nil {
+			return specMinor
+		}
+	}
+	return nil
+}
