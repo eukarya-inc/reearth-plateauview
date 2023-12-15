@@ -7,14 +7,6 @@ import (
 	"github.com/samber/lo"
 )
 
-func namesWithoutExtFromUrls(urls []string) []string {
-	res := make([]string, 0, len(urls))
-	for _, url := range urls {
-		res = append(res, nameWithoutExt(nameFromUrl(url)))
-	}
-	return res
-}
-
 func nameFromUrl(url string) string {
 	if url == "" {
 		return ""
@@ -50,14 +42,4 @@ func firstNonEmptyValue[T comparable](v ...T) (_ T) {
 		}
 	}
 	return
-}
-
-func dropNil[T any](s []*T) []*T {
-	res := make([]*T, 0, len(s))
-	for _, i := range s {
-		if i != nil {
-			res = append(res, i)
-		}
-	}
-	return res
 }

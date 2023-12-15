@@ -98,12 +98,14 @@ type PlateauFeatureItemDatum struct {
 	Key  string   `json:"key,omitempty" cms:"key,text"`
 }
 
-type Dic []DicEntry
+type Dic map[string]DicEntry
 
 type DicEntry struct {
 	Name        string `json:"name,omitempty"`
-	Code        string `json:"code,omitempty"`
 	Description string `json:"description,omitempty"`
+	Code        string `json:"code,omitempty"`  // bldg only
+	Admin       string `json:"admin,omitempty"` // fld only
+	Scale       string `json:"scale,omitempty"` // fld only
 }
 
 func PlateauFeatureItemFrom(item *cms.Item) (i *PlateauFeatureItem) {

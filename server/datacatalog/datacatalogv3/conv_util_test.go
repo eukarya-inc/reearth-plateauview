@@ -6,9 +6,12 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func Test_NamesWithoutExtFromUrls(t *testing.T) {
-	urls := []string{"https://example.com/foo/bar.json", "https://example.com/foo/baz"}
-	expected := []string{"bar", "baz"}
-	actual := namesWithoutExtFromUrls(urls)
-	assert.Equal(t, expected, actual)
+func Test_NameWithoutExt(t *testing.T) {
+	assert.Equal(t, "foo", nameWithoutExt("foo"))
+	assert.Equal(t, "bar", nameWithoutExt("bar.json"))
+}
+
+func Test_NameFromUrl(t *testing.T) {
+	assert.Equal(t, "foo", nameFromUrl("https://example.com/foo"))
+	assert.Equal(t, "bar.json", nameFromUrl("bar.json"))
 }
