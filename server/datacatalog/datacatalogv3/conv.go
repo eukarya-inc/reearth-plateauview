@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/eukarya-inc/reearth-plateauview/server/datacatalog/plateauapi"
+	"github.com/samber/lo"
 )
 
 func (all *AllData) Into() (res plateauapi.InMemoryRepoContext, warning []string) {
@@ -31,6 +32,17 @@ func (all *AllData) Into() (res plateauapi.InMemoryRepoContext, warning []string
 
 	res.Years = ic.Years()
 
+	// wards
+	for _, ft := range res.DatasetTypes[plateauapi.DatasetTypeCategoryPlateau] {
+		wards, w := getWards(all.Plateau[ft.GetCode()], ic)
+		warning = append(warning, w...)
+		ic.AddWards(wards)
+		res.Areas.Append(
+			plateauapi.AreaTypeWard,
+			lo.Map(wards, func(w *plateauapi.Ward, _ int) plateauapi.Area { return w }),
+		)
+	}
+
 	// plateau
 	for _, ft := range res.DatasetTypes[plateauapi.DatasetTypeCategoryPlateau] {
 		datasets, w := convertPlateau(all.Plateau[ft.GetCode()], res.PlateauSpecs, ft, ic)
@@ -55,32 +67,43 @@ func (all *AllData) Into() (res plateauapi.InMemoryRepoContext, warning []string
 	return
 }
 
-func convertPlateau(items []*PlateauFeatureItem, specs []plateauapi.PlateauSpec, dt plateauapi.DatasetType, ic *internalContext) (res []plateauapi.Dataset, warning []string) {
-	pdt, ok := dt.(*plateauapi.PlateauDatasetType)
-	if !ok {
-		warning = append(warning, fmt.Sprintf("invalid dataset type: %s", dt.GetCode()))
-		return
-	}
-
+func getWards(items []*PlateauFeatureItem, ic *internalContext) (res []*plateauapi.Ward, warning []string) {
 	for _, ds := range items {
-		pref, city, cityItem := ic.PrefAndCityFromCityItemID(ds.City)
-		if pref == nil || city == nil || cityItem == nil {
+		area := ic.AreaContext(ds.City)
+		if area == nil {
 			warning = append(warning, fmt.Sprintf("plateau %s: city not found: %s", ds.ID, ds.City))
 			continue
 		}
 
-		spec := plateauapi.FindSpecMinorByName(specs, cityItem.Spec)
-		if spec == nil {
-			warning = append(warning, fmt.Sprintf("plateau %s: spec not found: %s", ds.ID, cityItem.Spec))
+		wards := ds.ToWards(area.Pref, area.City)
+		res = append(res, wards...)
+	}
+
+	return
+}
+
+func convertPlateau(items []*PlateauFeatureItem, specs []plateauapi.PlateauSpec, dt plateauapi.DatasetType, ic *internalContext) (res []plateauapi.Dataset, warning []string) {
+	pdt, ok := dt.(*plateauapi.PlateauDatasetType)
+	if !ok {
+		warning = append(warning, fmt.Sprintf("plateau %s: invalid dataset type: %s", dt.GetCode(), dt.GetName()))
+		return
+	}
+
+	for _, ds := range items {
+		area := ic.AreaContext(ds.City)
+		if area == nil {
+			warning = append(warning, fmt.Sprintf("plateau %s: city not found: %s", ds.ID, ds.City))
 			continue
 		}
 
-		if ds := ds.ToDatasets(
-			pref,
-			city,
-			pdt,
-			spec,
-		); ds != nil {
+		spec := plateauapi.FindSpecMinorByName(specs, area.CityItem.Spec)
+		if spec == nil {
+			warning = append(warning, fmt.Sprintf("plateau %s: spec not found: %s", ds.ID, area.CityItem.Spec))
+			continue
+		}
+
+		ds := ds.toDatasets(area, pdt, spec)
+		if ds != nil {
 			res = append(res, ds...)
 		}
 	}
@@ -90,18 +113,14 @@ func convertPlateau(items []*PlateauFeatureItem, specs []plateauapi.PlateauSpec,
 
 func convertRelated(items []*RelatedItem, datasetTypes []plateauapi.DatasetType, ic *internalContext) (res []plateauapi.Dataset, warning []string) {
 	for _, ds := range items {
-		pref, city, cityItem := ic.PrefAndCityFromCityItemID(ds.City)
-		if pref == nil || city == nil || cityItem == nil {
-			warning = append(warning, fmt.Sprintf("generic %s: city not found: %s", ds.ID, ds.City))
+		area := ic.AreaContext(ds.City)
+		if area == nil {
+			warning = append(warning, fmt.Sprintf("related %s: city not found: %s", ds.ID, ds.City))
 			continue
 		}
 
-		if ds := ds.ToDatasets(
-			pref,
-			city,
-			datasetTypes,
-			cityItem.YearInt(),
-		); ds != nil {
+		ds := ds.toDatasets(area, datasetTypes)
+		if ds != nil {
 			res = append(res, ds...)
 		}
 	}
@@ -111,18 +130,9 @@ func convertRelated(items []*RelatedItem, datasetTypes []plateauapi.DatasetType,
 
 func convertGeneric(items []*GenericItem, datasetTypes []plateauapi.DatasetType, ic *internalContext) (res []plateauapi.Dataset, warning []string) {
 	for _, ds := range items {
-		pref, city, cityItem := ic.PrefAndCityFromCityItemID(ds.City)
-		if pref == nil || city == nil || cityItem == nil {
-			warning = append(warning, fmt.Sprintf("generic %s: city not found: %s", ds.ID, ds.City))
-			continue
-		}
-
-		if ds := ds.ToDatasets(
-			pref,
-			city,
-			datasetTypes,
-			cityItem.YearInt(),
-		); ds != nil {
+		area := ic.AreaContext(ds.City)
+		ds := ds.toDatasets(area, datasetTypes)
+		if ds != nil {
 			res = append(res, ds...)
 		}
 	}

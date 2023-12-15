@@ -7,12 +7,12 @@ import (
 	"github.com/samber/lo"
 )
 
-func (i *GenericItem) ToDatasets(pref *plateauapi.Prefecture, city *plateauapi.City, dts []plateauapi.DatasetType, year int) []plateauapi.Dataset {
-	id := plateauapi.NewID(i.ID, plateauapi.TypeDataset)
-	prefID, cityID, prefCode, cityCode := areaInfo(pref, city)
-	if prefID == nil || cityID == nil || prefCode == nil || cityCode == nil {
-		return nil
+func (i *GenericItem) toDatasets(area *areaContext, dts []plateauapi.DatasetType) []plateauapi.Dataset {
+	if area == nil {
+		area = &areaContext{}
 	}
+
+	id := plateauapi.NewID(i.ID, plateauapi.TypeDataset)
 
 	dt, _ := lo.Find(dts, func(dt plateauapi.DatasetType) bool {
 		return dt.GetName() == i.Category
@@ -49,11 +49,11 @@ func (i *GenericItem) ToDatasets(pref *plateauapi.Prefecture, city *plateauapi.C
 		ID:             id,
 		Name:           i.Name,
 		Description:    toPtrIfPresent(i.Desc),
-		Year:           year,
-		PrefectureID:   prefID,
-		PrefectureCode: prefCode,
-		CityID:         cityID,
-		CityCode:       cityCode,
+		Year:           area.CityItem.YearInt(),
+		PrefectureID:   area.PrefID,
+		PrefectureCode: area.PrefCode,
+		CityID:         area.CityID,
+		CityCode:       area.CityCode,
 		TypeID:         dt.GetID(),
 		TypeCode:       dt.GetCode(),
 		Items:          items,

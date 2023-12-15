@@ -98,7 +98,7 @@ type PlateauFeatureItemDatum struct {
 	Key  string   `json:"key,omitempty" cms:"key,text"`
 }
 
-type Dic map[string]DicEntry
+type Dic map[string][]DicEntry // admin, fld. htd, tnm, gen
 
 type DicEntry struct {
 	Name        string `json:"name,omitempty"`

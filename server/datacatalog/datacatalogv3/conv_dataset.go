@@ -8,18 +8,6 @@ import (
 	"github.com/samber/lo"
 )
 
-func areaInfo(pref *plateauapi.Prefecture, city *plateauapi.City) (prefID, cityID *plateauapi.ID, prefCode, cityCode *plateauapi.AreaCode) {
-	if pref != nil {
-		prefID = lo.ToPtr(pref.ID)
-		prefCode = lo.ToPtr(pref.Code)
-	}
-	if city != nil {
-		cityID = lo.ToPtr(city.ID)
-		cityCode = lo.ToPtr(city.Code)
-	}
-	return
-}
-
 func datasetFormatFrom(f string) plateauapi.DatasetFormat {
 	switch strings.ToLower(f) {
 	case "geojson":

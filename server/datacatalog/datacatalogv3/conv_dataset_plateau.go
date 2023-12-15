@@ -4,17 +4,42 @@ import (
 	"github.com/eukarya-inc/reearth-plateauview/server/datacatalog/plateauapi"
 )
 
-func (i *PlateauFeatureItem) ToDatasets(pref *plateauapi.Prefecture, city *plateauapi.City, ft *plateauapi.PlateauDatasetType, spec *plateauapi.PlateauSpecMinor) []plateauapi.Dataset {
-	if len(i.Items) == 0 || len(i.Data) == 0 {
+func (i *PlateauFeatureItem) ToWards(pref *plateauapi.Prefecture, city *plateauapi.City) (res []*plateauapi.Ward) {
+	dic := i.ReadDic()
+	if dic == nil || len(dic["admin"]) == 0 {
 		return nil
 	}
 
-	sid := standardItemID(ft.Code, city)
-	id := plateauapi.NewID(sid, plateauapi.TypeDataset)
-	prefID, cityID, prefCode, cityCode := areaInfo(pref, city)
-	if prefID == nil || cityID == nil || prefCode == nil || cityCode == nil {
+	entries := dic["admin"]
+	for _, entry := range entries {
+		if entry.Code == "" || entry.Description == "" {
+			continue
+		}
+
+		ward := &plateauapi.Ward{
+			ID:             plateauapi.NewID(entry.Code, plateauapi.TypeArea),
+			Name:           entry.Description,
+			Type:           plateauapi.AreaTypeWard,
+			Code:           plateauapi.AreaCode(entry.Code),
+			PrefectureID:   pref.ID,
+			PrefectureCode: pref.Code,
+			CityID:         city.ID,
+			CityCode:       city.Code,
+		}
+
+		res = append(res, ward)
+	}
+
+	return
+}
+
+func (i *PlateauFeatureItem) toDatasets(area *areaContext, dt *plateauapi.PlateauDatasetType, spec *plateauapi.PlateauSpecMinor) []plateauapi.Dataset {
+	if len(i.Items) == 0 || len(i.Data) == 0 || area == nil || area.CityID == nil || area.CityCode == nil || area.PrefID == nil || area.PrefCode == nil {
 		return nil
 	}
+
+	sid := standardItemID(dt.Code, area.City)
+	id := plateauapi.NewID(sid, plateauapi.TypeDataset)
 
 	var river *plateauapi.River                // TODO
 	var items []*plateauapi.PlateauDatasetItem // TODO
@@ -49,15 +74,15 @@ func (i *PlateauFeatureItem) ToDatasets(pref *plateauapi.Prefecture, city *plate
 
 	res := plateauapi.PlateauDataset{
 		ID:              id,
-		Name:            standardItemName(ft.Name, city),
+		Name:            standardItemName(dt.Name, area.City),
 		Description:     toPtrIfPresent(i.Desc),
-		Year:            ft.Year,
-		PrefectureID:    prefID,
-		PrefectureCode:  prefCode,
-		CityID:          cityID,
-		CityCode:        cityCode,
-		TypeID:          ft.ID,
-		TypeCode:        ft.Code,
+		Year:            dt.Year,
+		PrefectureID:    area.PrefID,
+		PrefectureCode:  area.PrefCode,
+		CityID:          area.CityID,
+		CityCode:        area.CityCode,
+		TypeID:          dt.ID,
+		TypeCode:        dt.Code,
 		PlateauSpecID:   spec.ParentID,
 		PlateauSpecName: spec.Name,
 		River:           river,

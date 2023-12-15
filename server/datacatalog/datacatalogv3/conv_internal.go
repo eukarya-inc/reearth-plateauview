@@ -4,6 +4,7 @@ import (
 	"sort"
 
 	"github.com/eukarya-inc/reearth-plateauview/server/datacatalog/plateauapi"
+	"github.com/samber/lo"
 )
 
 type internalContext struct {
@@ -11,6 +12,7 @@ type internalContext struct {
 	cityItems map[string]*CityItem
 	prefs     map[string]*plateauapi.Prefecture
 	cities    map[string]*plateauapi.City
+	wards     map[string][]*plateauapi.Ward
 }
 
 func newInternalContext() *internalContext {
@@ -26,23 +28,8 @@ func (c *internalContext) CityItem(id string) *CityItem {
 	return c.cityItems[id]
 }
 
-func (c *internalContext) PrefAndCityFromCityItemID(id string) (*plateauapi.Prefecture, *plateauapi.City, *CityItem) {
-	cityItem := c.CityItem(id)
-	if cityItem == nil {
-		return nil, nil, nil
-	}
-
-	city := c.cities[cityItem.CityCode]
-	if city == nil {
-		return nil, nil, nil
-	}
-
-	pref := c.prefs[city.Code.PrefectureCode()]
-	if pref == nil {
-		return nil, nil, nil
-	}
-
-	return pref, city, cityItem
+func (c *internalContext) Wards(cityCode string) []*plateauapi.Ward {
+	return c.wards[cityCode]
 }
 
 func (c *internalContext) HasPref(prefCode string) bool {
@@ -72,4 +59,54 @@ func (c *internalContext) Add(cityItem *CityItem, pref *plateauapi.Prefecture, c
 	if y := cityItem.YearInt(); y != 0 {
 		c.years[y] = struct{}{}
 	}
+}
+
+func (c *internalContext) AddWards(wards []*plateauapi.Ward) {
+	for _, w := range wards {
+		cityCode := w.CityCode.String()
+		c.wards[cityCode] = append(c.wards[cityCode], w)
+	}
+}
+
+type areaContext struct {
+	Pref               *plateauapi.Prefecture
+	City               *plateauapi.City
+	CityItem           *CityItem
+	Wards              []*plateauapi.Ward
+	PrefID, CityID     *plateauapi.ID
+	PrefCode, CityCode *plateauapi.AreaCode
+}
+
+func (c *internalContext) AreaContext(cityItemID string) *areaContext {
+	var prefID, cityID *plateauapi.ID
+	var prefCode, cityCode *plateauapi.AreaCode
+
+	cityItem := c.CityItem(cityItemID)
+	if cityItem == nil {
+		return nil
+	}
+
+	city := c.cities[cityItem.CityCode]
+	if city != nil {
+		cityID = lo.ToPtr(city.ID)
+		cityCode = lo.ToPtr(city.Code)
+	}
+
+	pref := c.prefs[city.Code.PrefectureCode()]
+	if pref != nil {
+		prefID = lo.ToPtr(pref.ID)
+		prefCode = lo.ToPtr(pref.Code)
+	}
+
+	return &areaContext{
+		CityItem: cityItem,
+		City:     city,
+		Pref:     pref,
+		Wards:    c.Wards(cityItem.CityCode),
+		PrefID:   prefID,
+		CityID:   cityID,
+		PrefCode: prefCode,
+		CityCode: cityCode,
+	}
+
 }

@@ -203,6 +203,6 @@ func ParseAssetNameExTnm(name string) *AssetNameExTnm {
 
 func ParseAssetUrls(urls []string) []*AssetName {
 	return lo.Map(urls, func(u string, _ int) *AssetName {
-		return ParseAssetName(nameWithoutExt(nameFromUrl(u)))
+		return ParseAssetName(nameWithoutExt(nameFromURL(u)))
 	})
 }

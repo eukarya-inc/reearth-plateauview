@@ -7,7 +7,7 @@ import (
 	"github.com/samber/lo"
 )
 
-func nameFromUrl(url string) string {
+func nameFromURL(url string) string {
 	if url == "" {
 		return ""
 	}
