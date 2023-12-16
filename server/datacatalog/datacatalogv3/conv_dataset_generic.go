@@ -7,7 +7,7 @@ import (
 	"github.com/samber/lo"
 )
 
-func (i *GenericItem) toDatasets(area *areaContext, dts []plateauapi.DatasetType) []plateauapi.Dataset {
+func (i *GenericItem) toDatasets(area *areaContext, dts []plateauapi.DatasetType) (_ []plateauapi.Dataset, _ []string) {
 	if area == nil {
 		area = &areaContext{}
 	}
@@ -18,7 +18,7 @@ func (i *GenericItem) toDatasets(area *areaContext, dts []plateauapi.DatasetType
 		return dt.GetName() == i.Category
 	})
 	if dt == nil {
-		return nil
+		return
 	}
 
 	items := lo.FilterMap(i.Data, func(datum GenericItemDataset, ind int) (*plateauapi.GenericDatasetItem, bool) {
@@ -42,7 +42,7 @@ func (i *GenericItem) toDatasets(area *areaContext, dts []plateauapi.DatasetType
 	})
 
 	if len(items) == 0 {
-		return nil
+		return
 	}
 
 	res := plateauapi.GenericDataset{
@@ -59,5 +59,5 @@ func (i *GenericItem) toDatasets(area *areaContext, dts []plateauapi.DatasetType
 		Items:          items,
 	}
 
-	return []plateauapi.Dataset{&res}
+	return []plateauapi.Dataset{&res}, nil
 }

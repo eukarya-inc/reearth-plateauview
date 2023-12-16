@@ -42,8 +42,8 @@ func standardItemID(name string, area plateauapi.Area) string {
 	return fmt.Sprintf("%s_%s", area.GetCode(), name)
 }
 
-func standardItemName(name string, area *plateauapi.City) string {
-	return fmt.Sprintf("%s (%s)", name, area.Name)
+func standardItemName(name string, area plateauapi.Area) string {
+	return fmt.Sprintf("%s（%s）", name, area.GetName())
 }
 
 func layerNamesFrom(layer string) []string {

@@ -33,9 +33,9 @@ func (i *PlateauFeatureItem) toWards(pref *plateauapi.Prefecture, city *plateaua
 	return
 }
 
-func (i *PlateauFeatureItem) toDatasets(area *areaContext, dt *plateauapi.PlateauDatasetType, spec *plateauapi.PlateauSpecMinor) []plateauapi.Dataset {
+func (i *PlateauFeatureItem) toDatasets(area *areaContext, dt *plateauapi.PlateauDatasetType, spec *plateauapi.PlateauSpecMinor) ([]plateauapi.Dataset, []string) {
 	if len(i.Items) == 0 || len(i.Data) == 0 || area == nil || area.CityID == nil || area.CityCode == nil || area.PrefID == nil || area.PrefCode == nil {
-		return nil
+		return nil, nil
 	}
 
 	sid := standardItemID(dt.Code, area.City)
@@ -69,7 +69,7 @@ func (i *PlateauFeatureItem) toDatasets(area *areaContext, dt *plateauapi.Platea
 	}
 
 	if len(items) == 0 {
-		return nil
+		return nil, nil
 	}
 
 	res := plateauapi.PlateauDataset{
@@ -89,5 +89,5 @@ func (i *PlateauFeatureItem) toDatasets(area *areaContext, dt *plateauapi.Platea
 		Items:           items,
 	}
 
-	return []plateauapi.Dataset{&res}
+	return []plateauapi.Dataset{&res}, nil
 }

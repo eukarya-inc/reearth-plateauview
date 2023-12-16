@@ -103,7 +103,8 @@ func convertPlateau(items []*PlateauFeatureItem, specs []plateauapi.PlateauSpec,
 			continue
 		}
 
-		ds := ds.toDatasets(area, pdt, spec)
+		ds, w := ds.toDatasets(area, pdt, spec)
+		warning = append(warning, w...)
 		if ds != nil {
 			res = append(res, ds...)
 		}
@@ -120,7 +121,8 @@ func convertRelated(items []*RelatedItem, datasetTypes []plateauapi.DatasetType,
 			continue
 		}
 
-		ds := ds.toDatasets(area, datasetTypes)
+		ds, w := ds.toDatasets(area, datasetTypes)
+		warning = append(warning, w...)
 		if ds != nil {
 			res = append(res, ds...)
 		}
@@ -132,7 +134,8 @@ func convertRelated(items []*RelatedItem, datasetTypes []plateauapi.DatasetType,
 func convertGeneric(items []*GenericItem, datasetTypes []plateauapi.DatasetType, ic *internalContext) (res []plateauapi.Dataset, warning []string) {
 	for _, ds := range items {
 		area := ic.AreaContext(ds.City)
-		ds := ds.toDatasets(area, datasetTypes)
+		ds, w := ds.toDatasets(area, datasetTypes)
+		warning = append(warning, w...)
 		if ds != nil {
 			res = append(res, ds...)
 		}
