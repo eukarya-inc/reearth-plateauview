@@ -2,15 +2,18 @@ package datacatalogv3
 
 import (
 	"github.com/eukarya-inc/reearth-plateauview/server/datacatalog/plateauapi"
+	"github.com/samber/lo"
 )
+
+const dicKeyAdmin = "admin"
 
 func (i *PlateauFeatureItem) toWards(pref *plateauapi.Prefecture, city *plateauapi.City) (res []*plateauapi.Ward) {
 	dic := i.ReadDic()
-	if dic == nil || len(dic["admin"]) == 0 {
+	if dic == nil || len(dic[dicKeyAdmin]) == 0 {
 		return nil
 	}
 
-	entries := dic["admin"]
+	entries := dic[dicKeyAdmin]
 	for _, entry := range entries {
 		if entry.Code == "" || entry.Description == "" {
 			continue
@@ -33,61 +36,69 @@ func (i *PlateauFeatureItem) toWards(pref *plateauapi.Prefecture, city *plateaua
 	return
 }
 
-func (i *PlateauFeatureItem) toDatasets(area *areaContext, dt *plateauapi.PlateauDatasetType, spec *plateauapi.PlateauSpecMinor) ([]plateauapi.Dataset, []string) {
+func (i *PlateauFeatureItem) toDatasets(area *areaContext, dt *plateauapi.PlateauDatasetType, spec *plateauapi.PlateauSpecMinor) (res []plateauapi.Dataset, warning []string) {
 	if len(i.Items) == 0 || len(i.Data) == 0 || area == nil || area.CityID == nil || area.CityCode == nil || area.PrefID == nil || area.PrefCode == nil {
 		return nil, nil
 	}
 
-	sid := standardItemID(dt.Code, area.City)
+	datasetSeeds := plateauDatasetSeedsFrom(i, dt, area, spec)
+	for _, seed := range datasetSeeds {
+		dataset, w := seedToDataset(seed)
+		warning = append(warning, w...)
+		if dataset != nil {
+			res = append(res, dataset)
+		}
+	}
+
+	return
+}
+
+func seedToDataset(seed plateauDatasetSeed) (res *plateauapi.PlateauDataset, warning []string) {
+	if len(seed.AssetURLs) == 0 {
+		return
+	}
+
+	sid := standardItemID(seed.DatasetType.Code, seed.Area.City)
 	id := plateauapi.NewID(sid, plateauapi.TypeDataset)
 
-	var river *plateauapi.River                // TODO
-	var items []*plateauapi.PlateauDatasetItem // TODO
-
-	data := i.Items
-	if len(data) == 0 && len(i.Data) > 0 {
-		data = append(data, PlateauFeatureItemDatum{
-			Data: i.Data,
-			Desc: i.Desc,
-		})
-	}
-
-	for _, d := range data {
-		if len(d.Data) == 0 {
-			continue
-		}
-
-		items = append(items, &plateauapi.PlateauDatasetItem{
-			// TODO
-			// ID:   plateauapi.NewID(fmt.Sprintf("%s_%d", sid, d.Index), plateauapi.TypeDatasetItem),
-			// Name: firstNonEmptyValue(d.Name, fmt.Sprintf("%s%s", i.Name, inds)),
-			// URL:      d.Data,
-			// Format:   datasetFormatFrom(d.DataFormat),
-			// Layers:   layerNamesFrom(d.LayerName),
-			ParentID: id,
-		})
-	}
+	seeds, w := plateauDatasetItemSeedFrom(seed)
+	warning = append(warning, w...)
+	items := lo.Map(seeds, func(s plateauDatasetItemSeed, _ int) *plateauapi.PlateauDatasetItem {
+		return seedToDatasetItem(s, sid)
+	})
 
 	if len(items) == 0 {
-		return nil, nil
+		// warning is already reported by plateauDatasetItemSeedFrom
+		return
 	}
 
-	res := plateauapi.PlateauDataset{
+	res = &plateauapi.PlateauDataset{
 		ID:              id,
-		Name:            standardItemName(dt.Name, area.City),
-		Description:     toPtrIfPresent(i.Desc),
-		Year:            area.CityItem.YearInt(),
-		PrefectureID:    area.PrefID,
-		PrefectureCode:  area.PrefCode,
-		CityID:          area.CityID,
-		CityCode:        area.CityCode,
-		TypeID:          dt.ID,
-		TypeCode:        dt.Code,
-		PlateauSpecID:   spec.ParentID,
-		PlateauSpecName: spec.Name,
-		River:           river,
+		Name:            standardItemName(seed.DatasetType.Name, seed.SubName, seed.TargetArea),
+		Description:     toPtrIfPresent(seed.Desc),
+		Year:            seed.Area.CityItem.YearInt(),
+		PrefectureID:    seed.Area.PrefID,
+		PrefectureCode:  seed.Area.PrefCode,
+		CityID:          seed.Area.CityID,
+		CityCode:        seed.Area.CityCode,
+		TypeID:          seed.DatasetType.ID,
+		TypeCode:        seed.DatasetType.Code,
+		PlateauSpecID:   seed.Spec.ParentID,
+		PlateauSpecName: seed.Spec.Name,
+		River:           seed.River,
 		Items:           items,
 	}
 
-	return []plateauapi.Dataset{&res}, nil
+	return
+}
+
+func seedToDatasetItem(i plateauDatasetItemSeed, parentID string) *plateauapi.PlateauDatasetItem {
+	return &plateauapi.PlateauDatasetItem{
+		ID:      i.GetID(parentID),
+		Name:    i.GetName(),
+		URL:     i.URL,
+		Format:  datasetFormatFrom(i.Format),
+		Lod:     i.LOD,
+		Texture: textureFrom(i.NoTexture),
+	}
 }

@@ -8,6 +8,30 @@ import (
 	"github.com/samber/lo"
 )
 
+func riverAdminFrom(admin string) *plateauapi.RiverAdmin {
+	switch admin {
+	case "国":
+		fallthrough
+	case "natl":
+		return lo.ToPtr(plateauapi.RiverAdminNational)
+	case "都道府県":
+		fallthrough
+	case "pref":
+		return lo.ToPtr(plateauapi.RiverAdminPrefecture)
+	}
+	return nil
+}
+
+func textureFrom(texture *bool) *plateauapi.Texture {
+	if texture == nil {
+		return nil
+	}
+	if !*texture {
+		return lo.ToPtr(plateauapi.TextureNone)
+	}
+	return lo.ToPtr(plateauapi.TextureTexture)
+}
+
 func datasetFormatFrom(f string) plateauapi.DatasetFormat {
 	switch strings.ToLower(f) {
 	case "geojson":
@@ -42,8 +66,12 @@ func standardItemID(name string, area plateauapi.Area) string {
 	return fmt.Sprintf("%s_%s", area.GetCode(), name)
 }
 
-func standardItemName(name string, area plateauapi.Area) string {
-	return fmt.Sprintf("%s（%s）", name, area.GetName())
+func standardItemName(dtname, subname string, area plateauapi.Area) string {
+	space := ""
+	if subname != "" {
+		space = " "
+	}
+	return fmt.Sprintf("%s%s%s（%s）", dtname, space, subname, area.GetName())
 }
 
 func layerNamesFrom(layer string) []string {

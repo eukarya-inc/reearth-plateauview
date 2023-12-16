@@ -2,7 +2,6 @@ package datacatalogv3
 
 import (
 	"fmt"
-	"regexp"
 
 	"github.com/eukarya-inc/reearth-plateauview/server/datacatalog/plateauapi"
 	"github.com/samber/lo"
@@ -25,23 +24,23 @@ func (i *RelatedItem) toDatasets(area *areaContext, dts []plateauapi.DatasetType
 			continue
 		}
 
-		items, w := assetUrlsToRelatedItems(assets, area.City, area.Wards)
+		seeds, w := assetUrlsToRelatedDatasetSeeds(assets, area.City, area.Wards)
 		warning = append(warning, w...)
 
-		for _, item := range items {
-			sid := standardItemID(ftcode, item.Area)
+		for _, seed := range seeds {
+			sid := standardItemID(ftcode, seed.Area)
 			id := plateauapi.NewID(sid, plateauapi.TypeDataset)
 			res = append(res, plateauapi.RelatedDataset{
 				ID:             id,
-				Name:           standardItemName(ftname, item.Area),
+				Name:           standardItemName(ftname, "", seed.Area),
 				Description:    toPtrIfPresent(i.Desc),
 				Year:           area.CityItem.YearInt(),
 				PrefectureID:   area.PrefID,
 				PrefectureCode: area.PrefCode,
 				CityID:         area.CityID,
 				CityCode:       area.CityCode,
-				WardID:         item.WardID,
-				WardCode:       item.WardCode,
+				WardID:         seed.WardID,
+				WardCode:       seed.WardCode,
 				TypeID:         dt.GetID(),
 				TypeCode:       ftcode,
 				Items: []*plateauapi.RelatedDatasetItem{
@@ -49,7 +48,7 @@ func (i *RelatedItem) toDatasets(area *areaContext, dts []plateauapi.DatasetType
 						ID:       plateauapi.NewID(sid, plateauapi.TypeDatasetItem),
 						Format:   format,
 						Name:     ftname,
-						URL:      item.URL,
+						URL:      seed.URL,
 						ParentID: id,
 					},
 				},
@@ -60,33 +59,31 @@ func (i *RelatedItem) toDatasets(area *areaContext, dts []plateauapi.DatasetType
 	return
 }
 
-type relatedItem struct {
+type relatedDatasetSeed struct {
 	Area     plateauapi.Area
 	WardID   *plateauapi.ID
 	WardCode *plateauapi.AreaCode
 	URL      string
 }
 
-func assetUrlsToRelatedItems(urls []string, city *plateauapi.City, wards []*plateauapi.Ward) (items []relatedItem, warning []string) {
-	var res []relatedItem
-
+func assetUrlsToRelatedDatasetSeeds(urls []string, city *plateauapi.City, wards []*plateauapi.Ward) (items []relatedDatasetSeed, warning []string) {
 	wasCityAdded := false
 	for _, url := range urls {
 		name := nameFromURL(url)
 		assetName := ParseRelatedAssetName(name)
 		if assetName == nil {
-			warning = append(warning, fmt.Sprintf("related %s %s: invalid asset name: %s", city.Code, assetName.Type, name))
+			warning = append(warning, fmt.Sprintf("related %s: invalid asset name: %s", city.Code, name))
 			continue
 		}
 
 		if assetName.Code == city.Code.String() {
 			if wasCityAdded {
-				warning = append(warning, fmt.Sprintf("related %s %s: city already added: %s", city.Code, assetName.Type, name))
+				warning = append(warning, fmt.Sprintf("related %s: city already added: %s", city.Code, name))
 				continue
 			}
 
 			// it's a city
-			items = append(items, relatedItem{
+			items = append(items, relatedDatasetSeed{
 				Area: city,
 				URL:  url,
 			})
@@ -99,11 +96,11 @@ func assetUrlsToRelatedItems(urls []string, city *plateauapi.City, wards []*plat
 		})
 
 		if ward == nil {
-			warning = append(warning, fmt.Sprintf("related %s %s: ward not found: %s", city.Code, assetName.Type, name))
+			warning = append(warning, fmt.Sprintf("related %s: ward not found: %s", city.Code, name))
 			continue
 		}
 
-		res = append(res, relatedItem{
+		items = append(items, relatedDatasetSeed{
 			Area:     ward,
 			WardID:   lo.ToPtr(ward.ID),
 			WardCode: lo.ToPtr(ward.Code),
@@ -112,27 +109,4 @@ func assetUrlsToRelatedItems(urls []string, city *plateauapi.City, wards []*plat
 	}
 
 	return
-}
-
-type RelatedAssetName struct {
-	Code string
-	Name string
-	Type string
-	Ext  string
-}
-
-var reRelatedAssetName = regexp.MustCompile(`^(\d{5})_([a-zA-Z0-9-]+)_([a-zA-Z0-9-]+)\.([a-z0-9]+)$`)
-
-func ParseRelatedAssetName(name string) *RelatedAssetName {
-	m := reRelatedAssetName.FindStringSubmatch(name)
-	if m == nil {
-		return nil
-	}
-
-	return &RelatedAssetName{
-		Code: m[1],
-		Name: m[2],
-		Type: m[3],
-		Ext:  m[4],
-	}
 }

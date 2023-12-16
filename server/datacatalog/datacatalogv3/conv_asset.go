@@ -1,6 +1,7 @@
 package datacatalogv3
 
 import (
+	"fmt"
 	"regexp"
 	"strconv"
 
@@ -17,12 +18,34 @@ type AssetName struct {
 	Ex          AssetNameEx
 }
 
+func (n AssetName) String() string {
+	var ex string
+	if n.Ex.Ex != "" {
+		ex = "_" + n.Ex.Ex
+	}
+	return fmt.Sprintf("%s_%s_%s_%d_%s_%d_op%s", n.CityCode, n.CityName, n.Provider, n.Year, n.Format, n.UpdateCount, ex)
+}
+
 type AssetNameEx struct {
 	Normal *AssetNameExNormal
 	Urf    *AssetNameExUrf
 	Fld    *AssetNameExFld
 	Tnm    *AssetNameExTnm
 	Ex     string
+}
+
+func (n AssetNameEx) Type() string {
+	switch {
+	case n.Normal != nil:
+		return n.Normal.Type
+	case n.Urf != nil:
+		return n.Urf.Type
+	case n.Fld != nil:
+		return n.Fld.Type
+	case n.Tnm != nil:
+		return n.Tnm.Type
+	}
+	return ""
 }
 
 type AssetNameExNormal struct {
@@ -205,4 +228,27 @@ func ParseAssetUrls(urls []string) []*AssetName {
 	return lo.Map(urls, func(u string, _ int) *AssetName {
 		return ParseAssetName(nameWithoutExt(nameFromURL(u)))
 	})
+}
+
+type RelatedAssetName struct {
+	Code string
+	Name string
+	Type string
+	Ext  string
+}
+
+var reRelatedAssetName = regexp.MustCompile(`^(\d{5})_([a-zA-Z0-9-]+)_([a-zA-Z0-9-]+)\.([a-z0-9]+)$`)
+
+func ParseRelatedAssetName(name string) *RelatedAssetName {
+	m := reRelatedAssetName.FindStringSubmatch(name)
+	if m == nil {
+		return nil
+	}
+
+	return &RelatedAssetName{
+		Code: m[1],
+		Name: m[2],
+		Type: m[3],
+		Ext:  m[4],
+	}
 }

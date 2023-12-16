@@ -100,6 +100,22 @@ type PlateauFeatureItemDatum struct {
 
 type Dic map[string][]DicEntry // admin, fld. htd, tnm, gen
 
+func (d Dic) FindEntry(key, name string) *DicEntry {
+	if d == nil {
+		return nil
+	}
+
+	if entries, ok := d[key]; ok {
+		for _, e := range entries {
+			if e.Name == name {
+				return &e
+			}
+		}
+	}
+
+	return nil
+}
+
 type DicEntry struct {
 	Name        string `json:"name,omitempty"`
 	Description string `json:"description,omitempty"`
