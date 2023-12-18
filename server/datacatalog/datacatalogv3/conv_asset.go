@@ -231,13 +231,15 @@ func ParseAssetUrls(urls []string) []*AssetName {
 }
 
 type RelatedAssetName struct {
-	Code string
-	Name string
-	Type string
-	Ext  string
+	Code     string
+	Name     string
+	Year     int
+	Provider string
+	Type     string
+	Format   string
 }
 
-var reRelatedAssetName = regexp.MustCompile(`^(\d{5})_([a-zA-Z0-9-]+)_([a-zA-Z0-9-]+)\.([a-z0-9]+)$`)
+var reRelatedAssetName = regexp.MustCompile(`^(\d{5})_([a-zA-Z0-9-]+)_([a-zA-Z0-9-]+)_(\d+)_([a-zA-Z0-9-]+)\.([a-z0-9]+)$`)
 
 func ParseRelatedAssetName(name string) *RelatedAssetName {
 	m := reRelatedAssetName.FindStringSubmatch(name)
@@ -245,10 +247,14 @@ func ParseRelatedAssetName(name string) *RelatedAssetName {
 		return nil
 	}
 
+	y, _ := strconv.Atoi(m[4])
+
 	return &RelatedAssetName{
-		Code: m[1],
-		Name: m[2],
-		Type: m[3],
-		Ext:  m[4],
+		Code:     m[1],
+		Name:     m[2],
+		Provider: m[3],
+		Year:     y,
+		Type:     m[5],
+		Format:   m[6],
 	}
 }

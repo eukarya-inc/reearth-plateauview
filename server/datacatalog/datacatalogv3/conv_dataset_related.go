@@ -8,7 +8,8 @@ import (
 )
 
 func (i *RelatedItem) toDatasets(area *areaContext, dts []plateauapi.DatasetType) (res []plateauapi.Dataset, warning []string) {
-	if area == nil || area.PrefID == nil || area.PrefCode == nil || area.CityID == nil || area.CityCode == nil {
+	if !area.IsValid() {
+		warning = append(warning, fmt.Sprintf("related %s: invalid area", i.ID))
 		return
 	}
 
@@ -21,6 +22,7 @@ func (i *RelatedItem) toDatasets(area *areaContext, dts []plateauapi.DatasetType
 			format = plateauapi.DatasetFormatGeojson
 		}
 		if len(assets) == 0 {
+			warning = append(warning, fmt.Sprintf("related %s: no assets for %s", area.CityCode, ftcode))
 			continue
 		}
 
@@ -30,7 +32,7 @@ func (i *RelatedItem) toDatasets(area *areaContext, dts []plateauapi.DatasetType
 		for _, seed := range seeds {
 			sid := standardItemID(ftcode, seed.Area)
 			id := plateauapi.NewID(sid, plateauapi.TypeDataset)
-			res = append(res, plateauapi.RelatedDataset{
+			res = append(res, &plateauapi.RelatedDataset{
 				ID:             id,
 				Name:           standardItemName(ftname, "", seed.Area),
 				Description:    toPtrIfPresent(i.Desc),

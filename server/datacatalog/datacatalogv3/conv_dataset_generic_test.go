@@ -11,7 +11,6 @@ import (
 func Test_GenericItem_ToDatasets(t *testing.T) {
 	item := &GenericItem{
 		ID:   "id",
-		City: "city",
 		Name: "name",
 		Desc: "desc",
 		Data: []GenericItemDataset{
@@ -81,10 +80,9 @@ func Test_GenericItem_ToDatasets(t *testing.T) {
 
 	dts := []plateauapi.DatasetType{
 		&plateauapi.GenericDatasetType{
-			ID:       plateauapi.NewID("usecase", plateauapi.TypeDatasetType),
-			Code:     "usecase",
-			Name:     "ユースケース",
-			Category: plateauapi.DatasetTypeCategoryGeneric,
+			ID:   plateauapi.NewID("usecase", plateauapi.TypeDatasetType),
+			Code: "usecase",
+			Name: "ユースケース",
 		},
 	}
 

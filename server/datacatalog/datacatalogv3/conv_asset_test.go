@@ -269,16 +269,20 @@ func TestParseAssetURLs(t *testing.T) {
 
 func TestParseRelatedAssetName(t *testing.T) {
 	assert.Equal(t, &RelatedAssetName{
-		Code: "13101",
-		Name: "chiyoda-ku",
-		Type: "shelter",
-		Ext:  "geojson",
-	}, ParseRelatedAssetName("13101_chiyoda-ku_shelter.geojson"))
+		Code:     "13101",
+		Name:     "chiyoda-ku",
+		Provider: "city",
+		Year:     2023,
+		Type:     "shelter",
+		Format:   "geojson",
+	}, ParseRelatedAssetName("13101_chiyoda-ku_city_2023_shelter.geojson"))
 	assert.Equal(t, &RelatedAssetName{
-		Code: "13101",
-		Name: "chiyoda-ku",
-		Type: "border",
-		Ext:  "czml",
-	}, ParseRelatedAssetName("13101_chiyoda-ku_border.czml"))
+		Code:     "13101",
+		Name:     "chiyoda-ku",
+		Provider: "city",
+		Year:     2023,
+		Type:     "border",
+		Format:   "czml",
+	}, ParseRelatedAssetName("13101_chiyoda-ku_city_2023_border.czml"))
 	assert.Nil(t, ParseRelatedAssetName("invalid"))
 }

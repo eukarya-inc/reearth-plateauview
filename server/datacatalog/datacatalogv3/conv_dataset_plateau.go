@@ -1,6 +1,8 @@
 package datacatalogv3
 
 import (
+	"fmt"
+
 	"github.com/eukarya-inc/reearth-plateauview/server/datacatalog/plateauapi"
 	"github.com/samber/lo"
 )
@@ -37,8 +39,9 @@ func (i *PlateauFeatureItem) toWards(pref *plateauapi.Prefecture, city *plateaua
 }
 
 func (i *PlateauFeatureItem) toDatasets(area *areaContext, dt *plateauapi.PlateauDatasetType, spec *plateauapi.PlateauSpecMinor) (res []plateauapi.Dataset, warning []string) {
-	if len(i.Items) == 0 || len(i.Data) == 0 || area == nil || area.CityID == nil || area.CityCode == nil || area.PrefID == nil || area.PrefCode == nil {
-		return nil, nil
+	if !area.IsValid() {
+		warning = append(warning, fmt.Sprintf("plateau %s: invalid area", i.ID))
+		return
 	}
 
 	datasetSeeds := plateauDatasetSeedsFrom(i, dt, area, spec)
@@ -63,12 +66,17 @@ func seedToDataset(seed plateauDatasetSeed) (res *plateauapi.PlateauDataset, war
 
 	seeds, w := plateauDatasetItemSeedFrom(seed)
 	warning = append(warning, w...)
-	items := lo.Map(seeds, func(s plateauDatasetItemSeed, _ int) *plateauapi.PlateauDatasetItem {
-		return seedToDatasetItem(s, sid)
+	items := lo.FilterMap(seeds, func(s plateauDatasetItemSeed, i int) (*plateauapi.PlateauDatasetItem, bool) {
+		item := seedToDatasetItem(s, sid)
+		if item == nil {
+			warning = append(warning, fmt.Sprintf("plateau %s[%d]: unknown dataset format: %s", seed.TargetArea.GetCode(), i, s.URL))
+		}
+		return item, item != nil
 	})
 
 	if len(items) == 0 {
 		// warning is already reported by plateauDatasetItemSeedFrom
+		warning = append(warning, fmt.Sprintf("plateau %s: no items", seed.TargetArea.GetCode()))
 		return
 	}
 
@@ -93,11 +101,16 @@ func seedToDataset(seed plateauDatasetSeed) (res *plateauapi.PlateauDataset, war
 }
 
 func seedToDatasetItem(i plateauDatasetItemSeed, parentID string) *plateauapi.PlateauDatasetItem {
+	f := datasetFormatFromOrDetect(i.Format, i.URL)
+	if f == "" {
+		return nil
+	}
+
 	return &plateauapi.PlateauDatasetItem{
 		ID:      i.GetID(parentID),
 		Name:    i.GetName(),
 		URL:     i.URL,
-		Format:  datasetFormatFrom(i.Format),
+		Format:  f,
 		Lod:     i.LOD,
 		Texture: textureFrom(i.NoTexture),
 	}
