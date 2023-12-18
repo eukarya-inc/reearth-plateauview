@@ -48,6 +48,7 @@ func Test_GenericItem_ToDatasets(t *testing.T) {
 			CityCode:       lo.ToPtr(plateauapi.AreaCode("11111")),
 			TypeID:         plateauapi.NewID("usecase", plateauapi.TypeDatasetType),
 			TypeCode:       "usecase",
+			Stage:          lo.ToPtr(string(stageAlpha)),
 			Items: []*plateauapi.GenericDatasetItem{
 				{
 					ID:       plateauapi.NewID("id1", plateauapi.TypeDatasetItem),

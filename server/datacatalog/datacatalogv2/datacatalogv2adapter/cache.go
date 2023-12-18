@@ -18,8 +18,13 @@ func New(cmsbase, project string) (*plateauapi.RepoWrapper, error) {
 }
 
 func From(fetcher datacatalogv2.Fetchable, project string) *plateauapi.RepoWrapper {
-	return plateauapi.NewRepoWrapper(func(ctx context.Context) (plateauapi.Repo, error) {
-		return fetchAndCreateCache(ctx, project, fetcher, datacatalogv2.FetcherDoOptions{})
+	return plateauapi.NewRepoWrapper(func(ctx context.Context, repo *plateauapi.Repo) error {
+		r, err := fetchAndCreateCache(ctx, project, fetcher, datacatalogv2.FetcherDoOptions{})
+		if err != nil {
+			return err
+		}
+		*repo = r
+		return nil
 	})
 }
 
@@ -32,8 +37,8 @@ func fetchAndCreateCache(ctx context.Context, project string, fetcher datacatalo
 	return plateauapi.NewInMemoryRepo(newCache(r)), nil
 }
 
-func newCache(r datacatalogv2.ResponseAll) plateauapi.InMemoryRepoContext {
-	cache := plateauapi.InMemoryRepoContext{
+func newCache(r datacatalogv2.ResponseAll) *plateauapi.InMemoryRepoContext {
+	cache := &plateauapi.InMemoryRepoContext{
 		PlateauSpecs: plateauSpecs,
 	}
 

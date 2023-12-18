@@ -13,25 +13,23 @@ func TestFilterDataset(t *testing.T) {
 			TypeCode: "emergency_route",
 		}, DatasetsInput{
 			IncludeTypes: []string{"emergency_route"},
-		}, false))
+		}, nil))
 	})
 
-	t.Run("public stage only", func(t *testing.T) {
+	t.Run("default stage", func(t *testing.T) {
 		assert.False(t, filterDataset(RelatedDataset{
 			TypeCode: "emergency_route",
 			Stage:    lo.ToPtr("beta"),
-		}, DatasetsInput{
-			IncludeTypes: []string{"emergency_route"},
-		}, false))
+		}, DatasetsInput{}, nil))
 	})
 
-	t.Run("private stage", func(t *testing.T) {
+	t.Run("beta stage", func(t *testing.T) {
 		assert.True(t, filterDataset(RelatedDataset{
 			TypeCode: "emergency_route",
 			Stage:    lo.ToPtr("beta"),
 		}, DatasetsInput{
 			IncludeTypes: []string{"emergency_route"},
-		}, true))
+		}, []string{"beta"}))
 	})
 }
 

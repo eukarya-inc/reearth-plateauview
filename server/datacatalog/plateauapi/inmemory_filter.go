@@ -28,15 +28,13 @@ func ParentAreaCode(a Area) AreaCode {
 	return ""
 }
 
-func filterDataset(d Dataset, input DatasetsInput, includeAllStage bool) bool {
+func filterDataset(d Dataset, input DatasetsInput, stages []string) bool {
 	if d == nil {
 		return false
 	}
 
-	if !includeAllStage {
-		if s := d.GetStage(); s != nil && *s != "" {
-			return false
-		}
+	if s := d.GetStage(); s != nil && *s != "" && len(stages) == 0 || s != nil && !slices.Contains(stages, *s) {
+		return false
 	}
 
 	dataType := d.GetTypeCode()

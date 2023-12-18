@@ -25,6 +25,7 @@ type plateauDatasetSeed struct {
 	City        *plateauapi.City
 	Spec        *plateauapi.PlateauSpecMinor
 	River       *plateauapi.River
+	Stage       *string
 }
 
 func (seed plateauDatasetSeed) GetID() string {
@@ -57,6 +58,7 @@ func plateauDatasetSeedsFrom(i *PlateauFeatureItem, dt *plateauapi.PlateauDatase
 		res[i].Pref = area.Pref
 		res[i].City = area.City
 		res[i].Spec = spec
+		res[i].Stage = stageFrom(area.Stage(dt.Code))
 		if res[i].TargetArea == nil {
 			res[i].TargetArea = area.City
 		}

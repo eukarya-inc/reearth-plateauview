@@ -7,7 +7,8 @@ import (
 	"github.com/samber/lo"
 )
 
-func (all *AllData) Into() (res plateauapi.InMemoryRepoContext, warning []string) {
+func (all *AllData) Into() (res *plateauapi.InMemoryRepoContext, warning []string) {
+	res = &plateauapi.InMemoryRepoContext{}
 	res.PlateauSpecs = plateauapi.PlateauSpecsFrom(all.PlateauSpecs)
 	res.DatasetTypes = all.FeatureTypes.ToDatasetTypes(res.PlateauSpecs)
 

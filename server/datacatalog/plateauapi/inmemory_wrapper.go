@@ -29,7 +29,7 @@ func (a RepoWrappers) Update(ctx context.Context) error {
 	return nil
 }
 
-type RepoUpdater func(ctx context.Context) (Repo, error)
+type RepoUpdater func(ctx context.Context, repo *Repo) error
 
 type RepoWrapper struct {
 	repo    Repo
@@ -55,12 +55,11 @@ func (a *RepoWrapper) Update(ctx context.Context) error {
 	a.lock.Lock()
 	defer a.lock.Unlock()
 
-	repo, err := a.updater(ctx)
+	err := a.updater(ctx, &a.repo)
 	if err != nil {
 		return err
 	}
 
-	a.repo = repo
 	return nil
 }
 

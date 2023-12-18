@@ -31,7 +31,7 @@ func TestNewCache(t *testing.T) {
 		},
 	}
 
-	expectedCache := plateauapi.InMemoryRepoContext{
+	expectedCache := &plateauapi.InMemoryRepoContext{
 		Areas: plateauapi.Areas{
 			plateauapi.AreaTypePrefecture: []plateauapi.Area{
 				plateauapi.Prefecture{

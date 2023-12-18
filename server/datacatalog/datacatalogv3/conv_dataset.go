@@ -8,6 +8,13 @@ import (
 	"github.com/samber/lo"
 )
 
+func stageFrom(s stage) *string {
+	if s == stageGA {
+		return nil
+	}
+	return lo.ToPtr(string(s))
+}
+
 func riverAdminFrom(admin string) *plateauapi.RiverAdmin {
 	switch admin {
 	case "国":

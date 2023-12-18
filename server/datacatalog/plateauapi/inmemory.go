@@ -17,27 +17,33 @@ type InMemoryRepoContext struct {
 	Years        []int
 }
 
+// InMemoryRepo is a repository that stores all data in memory.
+// Note that it is not thread-safe.
 type InMemoryRepo struct {
-	ctx               InMemoryRepoContext
+	ctx               *InMemoryRepoContext
 	areasForDataTypes map[string]map[AreaCode]struct{}
-	includeAllStage   bool
+	includedStages    []string
 }
 
 var _ Repo = (*InMemoryRepo)(nil)
 
-func NewInMemoryRepo(ctx InMemoryRepoContext) *InMemoryRepo {
-	return &InMemoryRepo{
-		ctx:               ctx,
-		areasForDataTypes: areasForDatasetTypes(ctx.Datasets.All()),
-	}
+func NewInMemoryRepo(ctx *InMemoryRepoContext) *InMemoryRepo {
+	r := &InMemoryRepo{}
+	r.SetContext(ctx)
+	return r
 }
 
-func (c *InMemoryRepo) SetIncludeAllStage(s bool) {
-	c.includeAllStage = s
+func (c *InMemoryRepo) SetContext(ctx *InMemoryRepoContext) {
+	c.ctx = ctx
+	c.areasForDataTypes = areasForDatasetTypes(ctx.Datasets.All())
 }
 
-func (c *InMemoryRepo) IncludeAllStage() bool {
-	return c.includeAllStage
+func (c *InMemoryRepo) SetIncludeAllStage(stages ...string) {
+	c.includedStages = stages
+}
+
+func (c *InMemoryRepo) IncludeAllStage() []string {
+	return slices.Clone(c.includedStages)
 }
 
 func (c *InMemoryRepo) Node(ctx context.Context, id ID) (Node, error) {
@@ -131,7 +137,7 @@ func (c *InMemoryRepo) Datasets(ctx context.Context, input *DatasetsInput) (res 
 		input = &DatasetsInput{}
 	}
 	return c.ctx.Datasets.Filter(func(t Dataset) bool {
-		return filterDataset(t, *input, c.includeAllStage)
+		return filterDataset(t, *input, c.includedStages)
 	}), nil
 }
 

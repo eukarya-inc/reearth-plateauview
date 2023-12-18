@@ -64,6 +64,7 @@ func (i *GenericItem) toDatasets(area *areaContext, dts []plateauapi.DatasetType
 		CityCode:       area.CityCode,
 		TypeID:         dt.GetID(),
 		TypeCode:       dt.GetCode(),
+		Stage:          stageFrom(i.Stage()),
 		Items:          items,
 	}
 

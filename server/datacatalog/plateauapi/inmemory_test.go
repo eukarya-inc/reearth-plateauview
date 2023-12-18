@@ -9,7 +9,7 @@ import (
 )
 
 func TestInMemoryRepo_Area(t *testing.T) {
-	a := NewInMemoryRepo(InMemoryRepoContext{
+	a := NewInMemoryRepo(&InMemoryRepoContext{
 		Areas: Areas{
 			AreaTypePrefecture: []Area{
 				&Prefecture{Code: "01", Name: "北海道"},
@@ -68,7 +68,7 @@ func TestInMemoryRepo_Area(t *testing.T) {
 }
 
 func TestInMemoryRepo_Areas(t *testing.T) {
-	a := NewInMemoryRepo(InMemoryRepoContext{
+	a := NewInMemoryRepo(&InMemoryRepoContext{
 		Areas: Areas{
 			AreaTypePrefecture: []Area{
 				&Prefecture{Code: "01", Name: "北海道"},
@@ -187,7 +187,7 @@ func TestInMemoryRepo_Areas(t *testing.T) {
 }
 
 func TestInMemoryRepo_DatasetTypes(t *testing.T) {
-	a := NewInMemoryRepo(InMemoryRepoContext{
+	a := NewInMemoryRepo(&InMemoryRepoContext{
 		DatasetTypes: DatasetTypes{
 			DatasetTypeCategoryPlateau: []DatasetType{
 				&PlateauDatasetType{ID: "1", Name: "Plateau Dataset 1", Year: 2022, PlateauSpecID: "ps_2", Category: DatasetTypeCategoryPlateau},
@@ -271,7 +271,7 @@ func TestInMemoryRepo_DatasetTypes(t *testing.T) {
 }
 
 func TestInMemoryRepo_Years(t *testing.T) {
-	a := NewInMemoryRepo(InMemoryRepoContext{
+	a := NewInMemoryRepo(&InMemoryRepoContext{
 		Years: []int{2020, 2021, 2022, 2023},
 	})
 
@@ -283,7 +283,7 @@ func TestInMemoryRepo_Years(t *testing.T) {
 }
 
 func TestInMemoryRepo_Datasets(t *testing.T) {
-	a := NewInMemoryRepo(InMemoryRepoContext{
+	a := NewInMemoryRepo(&InMemoryRepoContext{
 		Datasets: Datasets{
 			DatasetTypeCategoryPlateau: []Dataset{
 				&PlateauDataset{ID: "1", Name: "Plateau Dataset 1", Year: 2022, CityCode: lo.ToPtr(AreaCode("01100"))},
@@ -428,7 +428,7 @@ func TestInMemoryRepo_Node(t *testing.T) {
 		},
 	}
 
-	a := NewInMemoryRepo(InMemoryRepoContext{
+	a := NewInMemoryRepo(&InMemoryRepoContext{
 		Areas: Areas{
 			AreaTypePrefecture: []Area{
 				&Prefecture{ID: NewID("01", TypeArea), Name: "北海道"},
@@ -546,7 +546,7 @@ func TestInMemoryRepo_Node(t *testing.T) {
 }
 
 func TestInMemoryRepo_Nodes(t *testing.T) {
-	a := NewInMemoryRepo(InMemoryRepoContext{
+	a := NewInMemoryRepo(&InMemoryRepoContext{
 		Areas: Areas{
 			AreaTypePrefecture: []Area{
 				&Prefecture{ID: NewID("01", TypeArea), Name: "北海道"},
@@ -608,7 +608,7 @@ func TestInMemoryRepo_Nodes(t *testing.T) {
 
 func TestInMemoryRepo_getDatasetTypeCodes(t *testing.T) {
 	c := &InMemoryRepo{
-		ctx: InMemoryRepoContext{
+		ctx: &InMemoryRepoContext{
 			DatasetTypes: DatasetTypes{
 				DatasetTypeCategoryPlateau: []DatasetType{
 					&PlateauDatasetType{Code: "1"},

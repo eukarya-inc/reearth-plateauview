@@ -14,7 +14,12 @@ const genericModel = "generic"
 
 type ManagementStatus string
 
+type stage string
+
 const (
+	stageAlpha            stage            = "alpha"
+	stageBeta             stage            = "beta"
+	stageGA               stage            = "ga"
 	ManagementStatusReady ManagementStatus = "確認可能"
 )
 
@@ -37,10 +42,10 @@ type CityItem struct {
 	RelatedDataset string            `json:"related_dataset,omitempty" cms:"related_dataset,reference"`
 	Year           string            `json:"year,omitempty" cms:"year,select"`
 	// meatadata
-	PlateauDataStatus string          `json:"plateau_data_status,omitempty" cms:"plateau_data_status,select,metadata"`
-	CityPublic        bool            `json:"city_public,omitempty" cms:"city_public,bool,metadata"`
-	SDKPublic         bool            `json:"sdk_public,omitempty" cms:"sdk_public,bool,metadata"`
-	Public            map[string]bool `json:"public,omitempty" cms:"-"`
+	PlateauDataStatus ManagementStatus `json:"plateau_data_status,omitempty" cms:"plateau_data_status,select,metadata"`
+	SDKPublic         bool             `json:"sdk_public,omitempty" cms:"sdk_public,bool,metadata"`
+	RelatedPublic     bool             `json:"related_public,omitempty" cms:"related_public,bool,metadata"`
+	Public            map[string]bool  `json:"public,omitempty" cms:"-"`
 }
 
 func CityItemFrom(item *cms.Item, featureTypes []FeatureType) (i *CityItem) {
@@ -154,8 +159,14 @@ type GenericItem struct {
 	UseAR  bool             `json:"use-ar,omitempty" cms:"use-ar,bool,metadata"`
 }
 
-func (c GenericItem) IsPublicForAdmin() bool {
-	return c.Status == ManagementStatusReady
+func (c *GenericItem) Stage() stage {
+	if c.Public {
+		return stageGA
+	}
+	if c.Status == ManagementStatusReady {
+		return stageBeta
+	}
+	return stageAlpha
 }
 
 type GenericItemDataset struct {
@@ -186,7 +197,18 @@ type RelatedItem struct {
 	ConvertedAssets map[string][]string `json:"converted,omitempty" cms:"-"`
 	Desc            string              `json:"desc,omitempty" cms:"-"`
 	// metadata
-	Public bool `json:"public,omitempty" cms:"public,bool,metadata"`
+	Status ManagementStatus `json:"status,omitempty" cms:"status,select,metadata"`
+	Public bool             `json:"public,omitempty" cms:"public,bool,metadata"`
+}
+
+func (c *RelatedItem) Stage() stage {
+	if c.Public {
+		return stageGA
+	}
+	if c.Status == ManagementStatusReady {
+		return stageBeta
+	}
+	return stageAlpha
 }
 
 func RelatedItemFrom(item *cms.Item, featureTypes []FeatureType) (i *RelatedItem) {

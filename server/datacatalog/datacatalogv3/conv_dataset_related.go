@@ -45,6 +45,7 @@ func (i *RelatedItem) toDatasets(area *areaContext, dts []plateauapi.DatasetType
 				WardCode:       seed.WardCode,
 				TypeID:         dt.GetID(),
 				TypeCode:       ftcode,
+				Stage:          stageFrom(i.Stage()),
 				Items: []*plateauapi.RelatedDatasetItem{
 					{
 						ID:       plateauapi.NewID(sid, plateauapi.TypeDatasetItem),
