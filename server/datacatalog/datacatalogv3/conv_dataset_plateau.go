@@ -44,7 +44,8 @@ func (i *PlateauFeatureItem) toDatasets(area *areaContext, dt *plateauapi.Platea
 		return
 	}
 
-	datasetSeeds := plateauDatasetSeedsFrom(i, dt, area, spec)
+	datasetSeeds, w := plateauDatasetSeedsFrom(i, dt, area, spec)
+	warning = append(warning, w...)
 	for _, seed := range datasetSeeds {
 		dataset, w := seedToDataset(seed)
 		warning = append(warning, w...)
@@ -58,10 +59,11 @@ func (i *PlateauFeatureItem) toDatasets(area *areaContext, dt *plateauapi.Platea
 
 func seedToDataset(seed plateauDatasetSeed) (res *plateauapi.PlateauDataset, warning []string) {
 	if len(seed.AssetURLs) == 0 {
+		warning = append(warning, fmt.Sprintf("plateau %s %s: no asset urls", seed.TargetArea.GetCode(), seed.DatasetType.Code))
 		return
 	}
 
-	sid := standardItemID(seed.DatasetType.Code, seed.Area.City)
+	sid := standardItemID(seed.DatasetType.Code, seed.TargetArea)
 	id := plateauapi.NewID(sid, plateauapi.TypeDataset)
 
 	seeds, w := plateauDatasetItemSeedFrom(seed)
@@ -69,14 +71,14 @@ func seedToDataset(seed plateauDatasetSeed) (res *plateauapi.PlateauDataset, war
 	items := lo.FilterMap(seeds, func(s plateauDatasetItemSeed, i int) (*plateauapi.PlateauDatasetItem, bool) {
 		item := seedToDatasetItem(s, sid)
 		if item == nil {
-			warning = append(warning, fmt.Sprintf("plateau %s[%d]: unknown dataset format: %s", seed.TargetArea.GetCode(), i, s.URL))
+			warning = append(warning, fmt.Sprintf("plateau %s %s[%d]: unknown dataset format: %s", seed.TargetArea.GetCode(), seed.DatasetType.Code, i, s.URL))
 		}
 		return item, item != nil
 	})
 
 	if len(items) == 0 {
 		// warning is already reported by plateauDatasetItemSeedFrom
-		warning = append(warning, fmt.Sprintf("plateau %s: no items", seed.TargetArea.GetCode()))
+		warning = append(warning, fmt.Sprintf("plateau %s %s: no items", seed.TargetArea.GetCode(), seed.DatasetType.Code))
 		return
 	}
 
@@ -89,6 +91,8 @@ func seedToDataset(seed plateauDatasetSeed) (res *plateauapi.PlateauDataset, war
 		PrefectureCode:  seed.Area.PrefCode,
 		CityID:          seed.Area.CityID,
 		CityCode:        seed.Area.CityCode,
+		WardID:          seed.WardID,
+		WardCode:        seed.WardCode,
 		TypeID:          seed.DatasetType.ID,
 		TypeCode:        seed.DatasetType.Code,
 		PlateauSpecID:   seed.Spec.ParentID,
@@ -107,11 +111,12 @@ func seedToDatasetItem(i plateauDatasetItemSeed, parentID string) *plateauapi.Pl
 	}
 
 	return &plateauapi.PlateauDatasetItem{
-		ID:      i.GetID(parentID),
-		Name:    i.GetName(),
-		URL:     i.URL,
-		Format:  f,
-		Lod:     i.LOD,
-		Texture: textureFrom(i.NoTexture),
+		ID:       plateauapi.NewID(fmt.Sprintf("%s_%s", parentID, i.ID), plateauapi.TypeDatasetItem),
+		Name:     i.GetName(),
+		URL:      i.URL,
+		Format:   f,
+		Lod:      i.LOD,
+		Texture:  textureFrom(i.NoTexture),
+		ParentID: plateauapi.NewID(parentID, plateauapi.TypeDataset),
 	}
 }

@@ -22,11 +22,11 @@ func riverAdminFrom(admin string) *plateauapi.RiverAdmin {
 	return nil
 }
 
-func textureFrom(texture *bool) *plateauapi.Texture {
-	if texture == nil {
+func textureFrom(notexture *bool) *plateauapi.Texture {
+	if notexture == nil {
 		return nil
 	}
-	if !*texture {
+	if *notexture {
 		return lo.ToPtr(plateauapi.TextureNone)
 	}
 	return lo.ToPtr(plateauapi.TextureTexture)

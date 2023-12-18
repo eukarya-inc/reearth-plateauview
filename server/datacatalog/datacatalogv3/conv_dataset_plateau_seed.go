@@ -14,7 +14,8 @@ type plateauDatasetSeed struct {
 	SubName    string
 	Desc       string
 	TargetArea plateauapi.Area
-	Ward       *plateauapi.Ward
+	WardID     *plateauapi.ID
+	WardCode   *plateauapi.AreaCode
 	// common
 	DatasetType *plateauapi.PlateauDatasetType
 	Dic         Dic
@@ -25,39 +26,47 @@ type plateauDatasetSeed struct {
 	River       *plateauapi.River
 }
 
-func plateauDatasetSeedsFrom(i *PlateauFeatureItem, dt *plateauapi.PlateauDatasetType, area *areaContext, spec *plateauapi.PlateauSpecMinor) (res []plateauDatasetSeed) {
+func plateauDatasetSeedsFrom(i *PlateauFeatureItem, dt *plateauapi.PlateauDatasetType, area *areaContext, spec *plateauapi.PlateauSpecMinor) (res []plateauDatasetSeed, warning []string) {
 	dic := i.ReadDic()
 
 	if len(i.Items) > 0 {
 		for _, item := range i.Items {
-			res = append(res, plateauDatasetSeedsFromItem(i, item, dt, dic))
+			seeds, w := plateauDatasetSeedsFromItem(i, item, dt, dic)
+			warning = append(warning, w...)
+			res = append(res, seeds)
 		}
 	} else {
-		res = plateauDatasetSeedsFromBldg(i, dt, area.Wards)
+		seeds, w := plateauDatasetSeedsFromBldg(i, dt, area.Wards)
+		warning = append(warning, w...)
+		res = append(res, seeds...)
 	}
 
-	for _, seed := range res {
-		seed.DatasetType = dt
-		seed.Dic = dic
-		seed.Area = area
-		seed.Pref = area.Pref
-		seed.City = area.City
-		seed.Spec = spec
-		if seed.TargetArea == nil {
-			seed.TargetArea = area.City
+	for i := range res {
+		res[i].DatasetType = dt
+		res[i].Dic = dic
+		res[i].Area = area
+		res[i].Pref = area.Pref
+		res[i].City = area.City
+		res[i].Spec = spec
+		if res[i].TargetArea == nil {
+			res[i].TargetArea = area.City
 		}
 	}
 
-	return res
+	return
 }
 
-func plateauDatasetSeedsFromItem(i *PlateauFeatureItem, item PlateauFeatureItemDatum, dt *plateauapi.PlateauDatasetType, dic Dic) (res plateauDatasetSeed) {
+func plateauDatasetSeedsFromItem(i *PlateauFeatureItem, item PlateauFeatureItemDatum, dt *plateauapi.PlateauDatasetType, dic Dic) (res plateauDatasetSeed, warning []string) {
 	subname := item.Name
 	var river *plateauapi.River
 
 	assets := lo.Map(item.Data, func(url string, _ int) *AssetName {
 		return ParseAssetName(nameWithoutExt(nameFromURL(url)))
 	})
+	if len(assets) == 0 {
+		warning = append(warning, fmt.Sprintf("plateau %s %s: no assets", i.ID, dt.Code))
+		return
+	}
 
 	// TODO: how to get dicName
 	dicName := strings.TrimPrefix(item.Key, dt.Code+"/")
@@ -96,7 +105,7 @@ func datasetSubNameFromDicEntry(e *DicEntry) string {
 	return e.Description
 }
 
-func plateauDatasetSeedsFromBldg(i *PlateauFeatureItem, dt *plateauapi.PlateauDatasetType, wards []*plateauapi.Ward) (res []plateauDatasetSeed) {
+func plateauDatasetSeedsFromBldg(i *PlateauFeatureItem, dt *plateauapi.PlateauDatasetType, wards []*plateauapi.Ward) (res []plateauDatasetSeed, warning []string) {
 	if len(wards) == 0 {
 		res = append(res, plateauDatasetSeed{
 			AssetURLs: i.Data,
@@ -105,9 +114,18 @@ func plateauDatasetSeedsFromBldg(i *PlateauFeatureItem, dt *plateauapi.PlateauDa
 		return
 	}
 
-	assets := lo.Zip2(lo.Map(i.Data, func(url string, _ int) *AssetName {
-		return ParseAssetName(nameWithoutExt(nameFromURL(url)))
+	assets := lo.Zip2(lo.Map(i.Data, func(url string, ind int) *AssetName {
+		n := nameWithoutExt(nameFromURL(url))
+		an := ParseAssetName(n)
+		if an == nil || an.Ex.Normal == nil {
+			warning = append(warning, fmt.Sprintf("plateau %s %s[%d]: invalid asset name: %s", i.ID, dt.Code, ind, n))
+		}
+		return an
 	}), i.Data)
+	if len(assets) == 0 {
+		warning = append(warning, fmt.Sprintf("plateau %s %s: no assets", i.ID, dt.Code))
+		return
+	}
 
 	for _, ward := range wards {
 		wardCode := ward.Code.String()
@@ -115,6 +133,7 @@ func plateauDatasetSeedsFromBldg(i *PlateauFeatureItem, dt *plateauapi.PlateauDa
 			return name.A != nil && name.A.Ex.Normal != nil && name.A.Ex.Normal.WardCode == wardCode
 		})
 		if len(assets) == 0 {
+			warning = append(warning, fmt.Sprintf("plateau %s %s: no assets for ward %s", i.ID, dt.Code, wardCode))
 			continue
 		}
 
@@ -126,7 +145,8 @@ func plateauDatasetSeedsFromBldg(i *PlateauFeatureItem, dt *plateauapi.PlateauDa
 				return name.A
 			}),
 			Desc:       i.Desc,
-			Ward:       ward,
+			WardID:     lo.ToPtr(ward.ID),
+			WardCode:   lo.ToPtr(ward.Code),
 			TargetArea: ward,
 		})
 	}
@@ -141,10 +161,6 @@ type plateauDatasetItemSeed struct {
 	Format    string
 	LOD       *int
 	NoTexture *bool
-}
-
-func (i plateauDatasetItemSeed) GetID(parent string) plateauapi.ID {
-	return plateauapi.NewID(fmt.Sprintf("%s_%s", parent, i.ID), plateauapi.TypeDatasetItem)
 }
 
 func (i plateauDatasetItemSeed) GetName() string {
@@ -164,11 +180,11 @@ func (i plateauDatasetItemSeed) StandardName() string {
 
 	if i.NoTexture != nil && *i.NoTexture {
 		if lod != "" {
-			lod += "（"
+			tex += "（"
 		}
-		tex = "テクスチャなし"
+		tex += "テクスチャなし"
 		if lod != "" {
-			lod += "）"
+			tex += "）"
 		}
 	}
 
@@ -196,6 +212,9 @@ func plateauDatasetItemSeedFrom(seed plateauDatasetSeed) (items []plateauDataset
 			item = plateauDatasetItemSeedFromFld(url, assetName.Ex.Fld, seed.Dic)
 		case assetName.Ex.Tnm != nil:
 			item = plateauDatasetItemSeedFromTnm(url, assetName.Ex.Tnm, seed.Dic)
+		default:
+			warning = append(warning, fmt.Sprintf("plateau %s %s[%d]: invalid asset name ex: %s", seed.TargetArea.GetCode(), seed.DatasetType.Code, i, name))
+			return
 		}
 
 		if item == nil {
@@ -215,7 +234,7 @@ func plateauDatasetItemSeedFrom(seed plateauDatasetSeed) (items []plateauDataset
 func plateauDatasetItemSeedFromNormal(url string, ex *AssetNameExNormal) *plateauDatasetItemSeed {
 	id := fmt.Sprintf("lod%d", ex.LOD)
 	if ex.NoTexture {
-		id += "_notexture"
+		id += "_no_texture"
 	}
 
 	return &plateauDatasetItemSeed{
