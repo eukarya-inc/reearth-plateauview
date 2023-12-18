@@ -7,6 +7,7 @@ import (
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/handler"
+	"github.com/99designs/gqlgen/graphql/handler/extension"
 )
 
 // Example
@@ -40,11 +41,24 @@ type Resolver struct {
 	Repo Repo
 }
 
-func NewService(repo Repo) *handler.Server {
+type Option func(*handler.Server)
+
+func NewService(repo Repo, opts ...Option) *handler.Server {
 	srv := handler.NewDefaultServer(NewSchema(repo))
+	for _, opt := range opts {
+		opt(srv)
+	}
 	return srv
 }
 
 func NewSchema(repo Repo) graphql.ExecutableSchema {
 	return NewExecutableSchema(Config{Resolvers: &Resolver{Repo: repo}})
+}
+
+func FixedComplexityLimit(limit int) Option {
+	return func(s *handler.Server) {
+		if limit > 0 {
+			s.Use(extension.FixedComplexityLimit(limit))
+		}
+	}
 }

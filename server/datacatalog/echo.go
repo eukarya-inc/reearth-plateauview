@@ -3,21 +3,19 @@ package datacatalog
 import (
 	"context"
 	"fmt"
-	"path"
 
-	"github.com/99designs/gqlgen/graphql/handler/extension"
 	"github.com/eukarya-inc/reearth-plateauview/server/datacatalog/datacatalogv2"
 	"github.com/eukarya-inc/reearth-plateauview/server/datacatalog/datacatalogv2/datacatalogv2adapter"
 	"github.com/eukarya-inc/reearth-plateauview/server/datacatalog/plateauapi"
 	"github.com/eukarya-inc/reearth-plateauview/server/plateaucms"
 	"github.com/labstack/echo/v4"
-	"github.com/labstack/echo/v4/middleware"
 	"github.com/reearth/reearthx/log"
 )
 
 type Config struct {
 	plateaucms.Config
 	CMSBase              string
+	CMSToken             string
 	DisableCache         bool
 	CacheTTL             int
 	CacheUpdateKey       string
@@ -31,27 +29,18 @@ func Echo(conf Config, g *echo.Group) error {
 		return fmt.Errorf("failed to initialize datacatalog repository: %w", err)
 	}
 
-	repo := plateauapi.NewMerger(repov2)
-
-	if conf.GraphqlMaxComplexity <= 0 {
-		conf.GraphqlMaxComplexity = 1000
+	if err := echov3(conf, g, repov2); err != nil {
+		return fmt.Errorf("failed to initialize datacatalog v3 repo: %w", err)
 	}
 
-	// PLATEAU API
-	plateauapig := g.Group("")
-	plateauapig.Use(
-		middleware.CORS(),
-		middleware.Gzip(),
-	)
+	if err := echov2(conf, g, repov2); err != nil {
+		return fmt.Errorf("failed to initialize datacatalog v2 repo: %w", err)
+	}
 
-	srv := plateauapi.NewService(repo)
-	srv.Use(extension.FixedComplexityLimit(conf.GraphqlMaxComplexity))
-	plateauapig.GET("/graphql", echo.WrapHandler(plateauapi.PlaygroundHandler(
-		"PLATEAU GraphQL API Playground",
-		path.Join(conf.PlaygroundEndpoint, "graphql"),
-	)))
-	plateauapig.POST("/graphql", echo.WrapHandler(srv))
+	return nil
+}
 
+func echov2(conf Config, g *echo.Group, repov2 *plateauapi.RepoWrapper) (err error) {
 	// compat: PLATEAU VIEW 2.0 API
 	v2apig := g.Group("")
 	err = datacatalogv2.Echo(datacatalogv2.Config{

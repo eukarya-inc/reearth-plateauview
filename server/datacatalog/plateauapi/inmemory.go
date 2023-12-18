@@ -38,7 +38,7 @@ func (c *InMemoryRepo) SetContext(ctx *InMemoryRepoContext) {
 	c.areasForDataTypes = areasForDatasetTypes(ctx.Datasets.All())
 }
 
-func (c *InMemoryRepo) SetIncludeAllStage(stages ...string) {
+func (c *InMemoryRepo) SetIncludedStages(stages ...string) {
 	c.includedStages = stages
 }
 

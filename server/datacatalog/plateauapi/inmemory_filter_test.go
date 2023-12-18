@@ -31,6 +31,14 @@ func TestFilterDataset(t *testing.T) {
 			IncludeTypes: []string{"emergency_route"},
 		}, []string{"beta"}))
 	})
+
+	t.Run("beta stage 2", func(t *testing.T) {
+		assert.True(t, filterDataset(RelatedDataset{
+			TypeCode: "emergency_route",
+		}, DatasetsInput{
+			IncludeTypes: []string{"emergency_route"},
+		}, []string{"beta"}))
+	})
 }
 
 func TestFilterArea(t *testing.T) {

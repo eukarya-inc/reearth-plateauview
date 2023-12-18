@@ -2,43 +2,21 @@ package plateauapi
 
 import (
 	"context"
-	"fmt"
 	"sync"
-
-	"github.com/samber/lo"
 )
-
-type RepoWrappers []*RepoWrapper
-
-func (a RepoWrappers) Update(ctx context.Context) error {
-	results := make([]<-chan error, 0, len(a))
-	for _, w := range a {
-		w := w
-		ch := lo.Async1(func() error {
-			return w.Update(ctx)
-		})
-		results = append(results, ch)
-	}
-
-	for i, ch := range results {
-		if err := <-ch; err != nil {
-			return fmt.Errorf("repo %d: %w", i, err)
-		}
-	}
-
-	return nil
-}
 
 type RepoUpdater func(ctx context.Context, repo *Repo) error
 
+// RepoWrapper is a thread-safe wrapper of Repo.
 type RepoWrapper struct {
 	repo    Repo
 	lock    sync.RWMutex
 	updater RepoUpdater
 }
 
-func NewRepoWrapper(updater RepoUpdater) *RepoWrapper {
+func NewRepoWrapper(repo Repo, updater RepoUpdater) *RepoWrapper {
 	return &RepoWrapper{
+		repo:    repo,
 		updater: updater,
 	}
 }
@@ -51,16 +29,22 @@ func (a *RepoWrapper) IsAvailable() bool {
 	return a.repo != nil
 }
 
-func (a *RepoWrapper) Update(ctx context.Context) error {
+func (a *RepoWrapper) SetRepo(repo Repo) {
 	a.lock.Lock()
 	defer a.lock.Unlock()
 
-	err := a.updater(ctx, &a.repo)
-	if err != nil {
-		return err
+	a.repo = repo
+}
+
+func (a *RepoWrapper) Update(ctx context.Context) error {
+	if a.updater == nil {
+		return nil
 	}
 
-	return nil
+	a.lock.Lock()
+	defer a.lock.Unlock()
+
+	return a.updater(ctx, &a.repo)
 }
 
 func (a *RepoWrapper) use(f func(r Repo) error) error {

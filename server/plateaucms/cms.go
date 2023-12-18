@@ -97,12 +97,14 @@ func (h *CMS) AuthMiddleware(skipAuth bool) echo.MiddlewareFunc {
 			}
 
 			// auth
-			if !skipAuth && (req.Method == http.MethodPost || req.Method == http.MethodPatch || req.Method == http.MethodPut || req.Method == http.MethodDelete) {
-				header := req.Header.Get("Authorization")
-				token := strings.TrimPrefix(header, "Bearer ")
-				if md.SidebarAccessToken == "" || token != md.SidebarAccessToken {
+			header := req.Header.Get("Authorization")
+			token := strings.TrimPrefix(header, "Bearer ")
+			if md.SidebarAccessToken == "" || token != md.SidebarAccessToken {
+				if !skipAuth && (req.Method == http.MethodPost || req.Method == http.MethodPatch || req.Method == http.MethodPut || req.Method == http.MethodDelete) {
 					return c.JSON(http.StatusUnauthorized, "unauthorized")
 				}
+			} else {
+				md.Auth = true
 			}
 
 			// attach
@@ -131,6 +133,7 @@ type Metadata struct {
 	CMSAPIKey          string `json:"cms_apikey" cms:"cms_apikey,text"`
 	SidebarAccessToken string `json:"sidebar_access_token" cms:"sidebar_access_token,text"`
 	SubPorjectAlias    string `json:"subproject_alias" cms:"subproject_alias,text"`
+	Auth               bool   `json:"-" cms:"-"`
 }
 
 func (h *CMS) Metadata(ctx context.Context, prj string) (Metadata, error) {

@@ -114,7 +114,10 @@ func (m *Merger) Years(ctx context.Context) ([]int, error) {
 }
 
 func getRepoResults[T any](repos []Repo, f func(r Repo) (T, error)) ([]T, error) {
-	return util.TryMap(repos, func(r Repo) (T, error) {
+	return util.TryMap(repos, func(r Repo) (_ T, _ error) {
+		if r == nil {
+			return
+		}
 		return f(r)
 	})
 }
