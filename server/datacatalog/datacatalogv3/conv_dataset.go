@@ -22,6 +22,16 @@ func riverAdminFrom(admin string) *plateauapi.RiverAdmin {
 	return nil
 }
 
+func toRiverAdminName(a plateauapi.RiverAdmin) string {
+	switch a {
+	case plateauapi.RiverAdminNational:
+		return "国"
+	case plateauapi.RiverAdminPrefecture:
+		return "都道府県"
+	}
+	return ""
+}
+
 func textureFrom(notexture *bool) *plateauapi.Texture {
 	if notexture == nil {
 		return nil

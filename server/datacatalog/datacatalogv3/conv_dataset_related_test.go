@@ -138,6 +138,6 @@ func TestRelatedItem_ToDatasets(t *testing.T) {
 	}
 
 	res, warnings := item.toDatasets(area, dts)
-	assert.Equal(t, []string{}, warnings)
+	assert.Nil(t, warnings)
 	assert.Equal(t, expected, res)
 }

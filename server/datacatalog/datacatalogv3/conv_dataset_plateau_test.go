@@ -322,3 +322,180 @@ func TestPlateauDataset_ToDatasets_Tnm(t *testing.T) {
 	assert.Nil(t, warning)
 	assert.Equal(t, expected, res)
 }
+
+func TestPlateauDataset_ToDatasets_Fld(t *testing.T) {
+	item := &PlateauFeatureItem{
+		ID:   "id",
+		Desc: "desc",
+		Items: []PlateauFeatureItemDatum{
+			{
+				ID: "id1",
+				Data: []string{
+					"https://example.com/11111_bar-shi_city_2023_citygml_1_op_fld_natl_yabegawa_haegawa_3dtiles_l1.zip",
+					"https://example.com/11111_bar-shi_city_2023_citygml_1_op_fld_natl_yabegawa_haegawa_3dtiles_l1_no_texture.zip",
+					"https://example.com/11111_bar-shi_city_2023_citygml_1_op_fld_natl_yabegawa_haegawa_3dtiles_l2.zip",
+				},
+				Desc: "desc1",
+			},
+			{
+				ID: "id2",
+				Data: []string{
+					"https://example.com/11111_bar-shi_city_2023_citygml_1_op_fld_natl_yodogawa_ujigawa_3dtiles_l1.zip",
+				},
+				Desc: "desc2",
+			},
+			{
+				ID: "id3",
+				Data: []string{
+					"https://example.com/11111_bar-shi_city_2023_citygml_1_op_fld_pref_yodogawa_ujigawa_3dtiles_l1.zip",
+				},
+				Desc: "desc3",
+			},
+		},
+		Dic: `{
+			"fld": [
+				{ "name": "yabegawa_haegawa_l1", "description": "矢部川水系八重川", "scale": "計画規模", "admin": "国" },
+				{ "name": "yabegawa_haegawa_l2", "description": "矢部川水系八重川", "scale": "想定最大規模", "admin": "国" },
+				{ "name": "yodogawa_ujigawa_l1", "description": "淀川水系宇治川", "scale": "計画規模", "admin": "国" },
+				{ "name": "yodogawa_ujigawa_l1", "description": "淀川水系宇治川", "scale": "計画規模", "admin": "都道府県" }
+			]
+		}`,
+	}
+
+	expected := []plateauapi.Dataset{
+		&plateauapi.PlateauDataset{
+			ID:              plateauapi.NewID("11111_fld_natl_yabegawa_haegawa", plateauapi.TypeDataset),
+			Name:            "洪水浸水想定区域モデル 矢部川水系八重川（国管理区間）（bar市）",
+			Description:     lo.ToPtr("desc1"),
+			Year:            2023,
+			PrefectureID:    lo.ToPtr(plateauapi.NewID("11", plateauapi.TypeArea)),
+			PrefectureCode:  lo.ToPtr(plateauapi.AreaCode("11")),
+			CityID:          lo.ToPtr(plateauapi.NewID("11111", plateauapi.TypeArea)),
+			CityCode:        lo.ToPtr(plateauapi.AreaCode("11111")),
+			TypeID:          plateauapi.NewID("fld", plateauapi.TypeDatasetType),
+			TypeCode:        "fld",
+			PlateauSpecID:   plateauapi.NewID("3", plateauapi.TypePlateauSpec),
+			PlateauSpecName: "第3.2版",
+			Items: []*plateauapi.PlateauDatasetItem{
+				{
+					ID:       plateauapi.NewID("11111_fld_natl_yabegawa_haegawa_l1", plateauapi.TypeDatasetItem),
+					Format:   plateauapi.DatasetFormatCesium3dtiles,
+					Name:     "計画規模",
+					URL:      "https://example.com/11111_bar-shi_city_2023_citygml_1_op_fld_natl_yabegawa_haegawa_3dtiles_l1.zip",
+					Texture:  lo.ToPtr(plateauapi.TextureTexture),
+					ParentID: plateauapi.NewID("11111_fld_natl_yabegawa_haegawa", plateauapi.TypeDataset),
+				},
+				{
+					ID:       plateauapi.NewID("11111_fld_natl_yabegawa_haegawa_l1_no_texture", plateauapi.TypeDatasetItem),
+					Format:   plateauapi.DatasetFormatCesium3dtiles,
+					Name:     "計画規模（テクスチャなし）",
+					URL:      "https://example.com/11111_bar-shi_city_2023_citygml_1_op_fld_natl_yabegawa_haegawa_3dtiles_l1_no_texture.zip",
+					Texture:  lo.ToPtr(plateauapi.TextureNone),
+					ParentID: plateauapi.NewID("11111_fld_natl_yabegawa_haegawa", plateauapi.TypeDataset),
+				},
+				{
+					ID:       plateauapi.NewID("11111_fld_natl_yabegawa_haegawa_l2", plateauapi.TypeDatasetItem),
+					Format:   plateauapi.DatasetFormatCesium3dtiles,
+					Name:     "想定最大規模",
+					URL:      "https://example.com/11111_bar-shi_city_2023_citygml_1_op_fld_natl_yabegawa_haegawa_3dtiles_l2.zip",
+					Texture:  lo.ToPtr(plateauapi.TextureTexture),
+					ParentID: plateauapi.NewID("11111_fld_natl_yabegawa_haegawa", plateauapi.TypeDataset),
+				},
+			},
+			River: &plateauapi.River{
+				Name:  "矢部川水系八重川",
+				Admin: plateauapi.RiverAdminNational,
+			},
+		},
+		&plateauapi.PlateauDataset{
+			ID:              plateauapi.NewID("11111_fld_natl_yodogawa_ujigawa", plateauapi.TypeDataset),
+			Name:            "洪水浸水想定区域モデル 淀川水系宇治川（国管理区間）（bar市）",
+			Description:     lo.ToPtr("desc2"),
+			Year:            2023,
+			PrefectureID:    lo.ToPtr(plateauapi.NewID("11", plateauapi.TypeArea)),
+			PrefectureCode:  lo.ToPtr(plateauapi.AreaCode("11")),
+			CityID:          lo.ToPtr(plateauapi.NewID("11111", plateauapi.TypeArea)),
+			CityCode:        lo.ToPtr(plateauapi.AreaCode("11111")),
+			TypeID:          plateauapi.NewID("fld", plateauapi.TypeDatasetType),
+			TypeCode:        "fld",
+			PlateauSpecID:   plateauapi.NewID("3", plateauapi.TypePlateauSpec),
+			PlateauSpecName: "第3.2版",
+			Items: []*plateauapi.PlateauDatasetItem{
+				{
+					ID:       plateauapi.NewID("11111_fld_natl_yodogawa_ujigawa_l1", plateauapi.TypeDatasetItem),
+					Format:   plateauapi.DatasetFormatCesium3dtiles,
+					Name:     "計画規模",
+					URL:      "https://example.com/11111_bar-shi_city_2023_citygml_1_op_fld_natl_yodogawa_ujigawa_3dtiles_l1.zip",
+					Texture:  lo.ToPtr(plateauapi.TextureTexture),
+					ParentID: plateauapi.NewID("11111_fld_natl_yodogawa_ujigawa", plateauapi.TypeDataset),
+				},
+			},
+			River: &plateauapi.River{
+				Name:  "淀川水系宇治川",
+				Admin: plateauapi.RiverAdminNational,
+			},
+		},
+		&plateauapi.PlateauDataset{
+			ID:              plateauapi.NewID("11111_fld_pref_yodogawa_ujigawa", plateauapi.TypeDataset),
+			Name:            "洪水浸水想定区域モデル 淀川水系宇治川（都道府県管理区間）（bar市）",
+			Description:     lo.ToPtr("desc3"),
+			Year:            2023,
+			PrefectureID:    lo.ToPtr(plateauapi.NewID("11", plateauapi.TypeArea)),
+			PrefectureCode:  lo.ToPtr(plateauapi.AreaCode("11")),
+			CityID:          lo.ToPtr(plateauapi.NewID("11111", plateauapi.TypeArea)),
+			CityCode:        lo.ToPtr(plateauapi.AreaCode("11111")),
+			TypeID:          plateauapi.NewID("fld", plateauapi.TypeDatasetType),
+			TypeCode:        "fld",
+			PlateauSpecID:   plateauapi.NewID("3", plateauapi.TypePlateauSpec),
+			PlateauSpecName: "第3.2版",
+			Items: []*plateauapi.PlateauDatasetItem{
+				{
+					ID:       plateauapi.NewID("11111_fld_pref_yodogawa_ujigawa_l1", plateauapi.TypeDatasetItem),
+					Format:   plateauapi.DatasetFormatCesium3dtiles,
+					Name:     "計画規模",
+					URL:      "https://example.com/11111_bar-shi_city_2023_citygml_1_op_fld_pref_yodogawa_ujigawa_3dtiles_l1.zip",
+					Texture:  lo.ToPtr(plateauapi.TextureTexture),
+					ParentID: plateauapi.NewID("11111_fld_pref_yodogawa_ujigawa", plateauapi.TypeDataset),
+				},
+			},
+			River: &plateauapi.River{
+				Name:  "淀川水系宇治川",
+				Admin: plateauapi.RiverAdminPrefecture,
+			},
+		},
+	}
+
+	area := &areaContext{
+		Pref: &plateauapi.Prefecture{},
+		City: &plateauapi.City{
+			Name: "bar市",
+			Code: "11111",
+		},
+		PrefID:   lo.ToPtr(plateauapi.NewID("11", plateauapi.TypeArea)),
+		CityID:   lo.ToPtr(plateauapi.NewID("11111", plateauapi.TypeArea)),
+		PrefCode: lo.ToPtr(plateauapi.AreaCode("11")),
+		CityCode: lo.ToPtr(plateauapi.AreaCode("11111")),
+		CityItem: &CityItem{
+			Year: "2023年",
+		},
+	}
+
+	dts := &plateauapi.PlateauDatasetType{
+		ID:   plateauapi.NewID("fld", plateauapi.TypeDatasetType),
+		Code: "fld",
+		Name: "洪水浸水想定区域モデル",
+	}
+
+	spec := &plateauapi.PlateauSpecMinor{
+		ID:           plateauapi.NewID("3.2", plateauapi.TypePlateauSpec),
+		Name:         "第3.2版",
+		MajorVersion: 3,
+		Version:      "3.2",
+		Year:         2023,
+		ParentID:     plateauapi.NewID("3", plateauapi.TypePlateauSpec),
+	}
+
+	res, warning := item.toDatasets(area, dts, spec)
+	assert.Nil(t, warning)
+	assert.Equal(t, expected, res)
+}

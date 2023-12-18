@@ -11,7 +11,7 @@ import (
 const dicKeyAdmin = "admin"
 
 func (i *PlateauFeatureItem) toWards(pref *plateauapi.Prefecture, city *plateauapi.City) (res []*plateauapi.Ward) {
-	dic := i.ReadDic()
+	dic, _ := i.ReadDic()
 	if dic == nil || len(dic[dicKeyAdmin]) == 0 {
 		return nil
 	}

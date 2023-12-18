@@ -85,9 +85,9 @@ func (c PlateauFeatureItem) IsPublicForAdmin() bool {
 	return c.Status == ManagementStatusReady
 }
 
-func (c PlateauFeatureItem) ReadDic() (d Dic) {
-	_ = json.Unmarshal([]byte(c.Dic), &d)
-	return
+func (c PlateauFeatureItem) ReadDic() (d Dic, _ error) {
+	err := json.Unmarshal([]byte(c.Dic), &d)
+	return d, err
 }
 
 type PlateauFeatureItemDatum struct {

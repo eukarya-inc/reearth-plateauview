@@ -53,6 +53,30 @@ func (ex AssetNameEx) Key() string {
 	return ""
 }
 
+func (ex AssetNameEx) ItemKey() string {
+	switch {
+	case ex.Normal != nil:
+		return ex.Normal.ItemKey()
+	case ex.Urf != nil:
+		return ex.Urf.ItemKey()
+	case ex.Fld != nil:
+		return ex.Fld.ItemKey()
+	}
+	return ""
+}
+
+func (ex AssetNameEx) DicKey() string {
+	switch {
+	case ex.Normal != nil:
+		return ex.Normal.DicKey()
+	case ex.Urf != nil:
+		return ex.Urf.DicKey()
+	case ex.Fld != nil:
+		return ex.Fld.DicKey()
+	}
+	return ""
+}
+
 type AssetNameExNormal struct {
 	Type      string
 	Format    string
@@ -63,6 +87,14 @@ type AssetNameExNormal struct {
 }
 
 func (ex AssetNameExNormal) Key() string {
+	return ""
+}
+
+func (ex AssetNameExNormal) ItemKey() string {
+	return ""
+}
+
+func (ex AssetNameExNormal) DicKey() string {
 	return ""
 }
 
@@ -78,6 +110,14 @@ func (ex AssetNameExUrf) Key() string {
 	return ex.Name
 }
 
+func (ex AssetNameExUrf) ItemKey() string {
+	return ex.Name
+}
+
+func (ex AssetNameExUrf) DicKey() string {
+	return ex.Name
+}
+
 type AssetNameExFld struct {
 	Type      string
 	Admin     string
@@ -88,7 +128,15 @@ type AssetNameExFld struct {
 }
 
 func (ex AssetNameExFld) Key() string {
-	return fmt.Sprintf("%s_%s_%d", ex.Admin, ex.River, ex.L)
+	return fmt.Sprintf("l%d", ex.L)
+}
+
+func (ex AssetNameExFld) ItemKey() string {
+	return fmt.Sprintf("%s_%s", ex.Admin, ex.River)
+}
+
+func (ex AssetNameExFld) DicKey() string {
+	return fmt.Sprintf("%s_l%d", ex.River, ex.L)
 }
 
 var reAssetName = regexp.MustCompile(`^(\d{5})_([a-z0-9-]+)_([a-z0-9-]+)_(\d{4})_(.+?)_(\d+)(?:_op$?)?(?:_(.+))?$`)
@@ -187,7 +235,7 @@ func ParseAssetNameExUrf(name string) *AssetNameExUrf {
 	}
 }
 
-var reAssetNameExFld = regexp.MustCompile(`^fld_([a-z0-9-]+)_([a-z0-9-_]+)_3dtiles_(l\d+)(_no_texture)?$`)
+var reAssetNameExFld = regexp.MustCompile(`^fld_(natl|pref)_([a-z0-9-_]+)_3dtiles_(l\d+)(_no_texture)?$`)
 
 func ParseAssetNameExFld(name string) *AssetNameExFld {
 	if name == "" {
