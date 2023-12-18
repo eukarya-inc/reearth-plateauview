@@ -94,8 +94,11 @@ func detectDatasetFormatFromURL(url string) plateauapi.DatasetFormat {
 	return ""
 }
 
-func standardItemID(name string, area plateauapi.Area) string {
-	return fmt.Sprintf("%s_%s", area.GetCode(), name)
+func standardItemID(name string, area plateauapi.Area, ex string) string {
+	if ex != "" {
+		ex = fmt.Sprintf("_%s", ex)
+	}
+	return fmt.Sprintf("%s_%s%s", area.GetCode(), name, ex)
 }
 
 func standardItemName(dtname, subname string, area plateauapi.Area) string {

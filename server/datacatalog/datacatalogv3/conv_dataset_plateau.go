@@ -69,7 +69,7 @@ func seedToDataset(seed plateauDatasetSeed) (res *plateauapi.PlateauDataset, war
 		return
 	}
 
-	sid := standardItemID(seed.DatasetType.Code, seed.TargetArea)
+	sid := seed.GetID()
 	id := plateauapi.NewID(sid, plateauapi.TypeDataset)
 
 	seeds, w := plateauDatasetItemSeedFrom(seed)
@@ -117,7 +117,7 @@ func seedToDatasetItem(i plateauDatasetItemSeed, parentID string) *plateauapi.Pl
 	}
 
 	return &plateauapi.PlateauDatasetItem{
-		ID:       plateauapi.NewID(fmt.Sprintf("%s_%s", parentID, i.ID), plateauapi.TypeDatasetItem),
+		ID:       plateauapi.NewID(i.GetID(parentID), plateauapi.TypeDatasetItem),
 		Name:     i.GetName(),
 		URL:      i.URL,
 		Format:   f,

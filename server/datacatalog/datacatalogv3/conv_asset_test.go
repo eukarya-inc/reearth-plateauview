@@ -158,12 +158,32 @@ func TestParseAssetName(t *testing.T) {
 				Format:      "citygml",
 				UpdateCount: 1,
 				Ex: AssetNameEx{
-					Tnm: &AssetNameExTnm{
+					Urf: &AssetNameExUrf{
 						Type:   "tnm",
 						Name:   "40_1",
 						Format: "3dtiles",
 					},
 					Ex: "tnm_40_1_3dtiles",
+				},
+			},
+		},
+		{
+			name: "tnm",
+			args: "40202_omuta-shi_city_2023_citygml_1_op_tnm_AAA_3dtiles",
+			want: &AssetName{
+				CityCode:    "40202",
+				CityName:    "omuta-shi",
+				Provider:    "city",
+				Year:        2023,
+				Format:      "citygml",
+				UpdateCount: 1,
+				Ex: AssetNameEx{
+					Urf: &AssetNameExUrf{
+						Type:   "tnm",
+						Name:   "AAA",
+						Format: "3dtiles",
+					},
+					Ex: "tnm_AAA_3dtiles",
 				},
 			},
 		},
@@ -178,7 +198,7 @@ func TestParseAssetName(t *testing.T) {
 				Format:      "citygml",
 				UpdateCount: 1,
 				Ex: AssetNameEx{
-					Tnm: &AssetNameExTnm{
+					Urf: &AssetNameExUrf{
 						Type:      "tnm",
 						Name:      "40_1",
 						Format:    "3dtiles",

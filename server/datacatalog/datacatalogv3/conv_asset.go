@@ -30,20 +30,25 @@ type AssetNameEx struct {
 	Normal *AssetNameExNormal
 	Urf    *AssetNameExUrf
 	Fld    *AssetNameExFld
-	Tnm    *AssetNameExTnm
 	Ex     string
 }
 
-func (n AssetNameEx) Type() string {
+func (ex AssetNameEx) String() string {
+	return ex.Ex
+}
+
+func (ex AssetNameEx) IsValid() bool {
+	return ex.Normal != nil || ex.Urf != nil || ex.Fld != nil
+}
+
+func (ex AssetNameEx) Key() string {
 	switch {
-	case n.Normal != nil:
-		return n.Normal.Type
-	case n.Urf != nil:
-		return n.Urf.Type
-	case n.Fld != nil:
-		return n.Fld.Type
-	case n.Tnm != nil:
-		return n.Tnm.Type
+	case ex.Normal != nil:
+		return ex.Normal.Key()
+	case ex.Urf != nil:
+		return ex.Urf.Key()
+	case ex.Fld != nil:
+		return ex.Fld.Key()
 	}
 	return ""
 }
@@ -57,11 +62,20 @@ type AssetNameExNormal struct {
 	NoTexture bool
 }
 
+func (ex AssetNameExNormal) Key() string {
+	return ""
+}
+
 type AssetNameExUrf struct {
-	Type   string
-	Name   string
-	Format string
-	LOD    int
+	Type      string
+	Name      string
+	Format    string
+	LOD       int
+	NoTexture bool
+}
+
+func (ex AssetNameExUrf) Key() string {
+	return ex.Name
 }
 
 type AssetNameExFld struct {
@@ -73,11 +87,8 @@ type AssetNameExFld struct {
 	NoTexture bool
 }
 
-type AssetNameExTnm struct {
-	Type      string
-	Name      string
-	Format    string
-	NoTexture bool
+func (ex AssetNameExFld) Key() string {
+	return fmt.Sprintf("%s_%s_%d", ex.Admin, ex.River, ex.L)
 }
 
 var reAssetName = regexp.MustCompile(`^(\d{5})_([a-z0-9-]+)_([a-z0-9-]+)_(\d{4})_(.+?)_(\d+)(?:_op$?)?(?:_(.+))?$`)
@@ -108,11 +119,6 @@ func ParseAssetName(name string) *AssetName {
 
 func ParseAssetNameEx(name string) (ex AssetNameEx) {
 	ex.Ex = name
-
-	ex.Tnm = ParseAssetNameExTnm(name)
-	if ex.Tnm != nil {
-		return
-	}
 
 	ex.Fld = ParseAssetNameExFld(name)
 	if ex.Fld != nil {
@@ -155,14 +161,14 @@ func ParseAssetNameExNormal(name string) *AssetNameExNormal {
 	}
 }
 
-var reAasetNameExUrf = regexp.MustCompile(`^([a-z]+)_([A-Za-z0-9-_]+)_(mvt|3dtiles)(_lod\d+)?$`)
+var reAssetNameExUrf = regexp.MustCompile(`^([a-z]+)_([A-Za-z0-9-_]+)_(mvt|3dtiles)(_lod\d+)?(_no_texture)?$`)
 
 func ParseAssetNameExUrf(name string) *AssetNameExUrf {
 	if name == "" {
 		return nil
 	}
 
-	m := reAasetNameExUrf.FindStringSubmatch(name)
+	m := reAssetNameExUrf.FindStringSubmatch(name)
 	if len(m) == 0 {
 		return nil
 	}
@@ -173,21 +179,22 @@ func ParseAssetNameExUrf(name string) *AssetNameExUrf {
 	}
 
 	return &AssetNameExUrf{
-		Type:   m[1],
-		Name:   m[2],
-		Format: m[3],
-		LOD:    lod,
+		Type:      m[1],
+		Name:      m[2],
+		Format:    m[3],
+		LOD:       lod,
+		NoTexture: m[5] != "",
 	}
 }
 
-var reAasetNameExFld = regexp.MustCompile(`^fld_([a-z0-9-]+)_([a-z0-9-_]+)_3dtiles_(l\d+)(_no_texture)?$`)
+var reAssetNameExFld = regexp.MustCompile(`^fld_([a-z0-9-]+)_([a-z0-9-_]+)_3dtiles_(l\d+)(_no_texture)?$`)
 
 func ParseAssetNameExFld(name string) *AssetNameExFld {
 	if name == "" {
 		return nil
 	}
 
-	m := reAasetNameExFld.FindStringSubmatch(name)
+	m := reAssetNameExFld.FindStringSubmatch(name)
 	if len(m) == 0 {
 		return nil
 	}
@@ -201,26 +208,6 @@ func ParseAssetNameExFld(name string) *AssetNameExFld {
 		Format:    "3dtiles",
 		L:         l,
 		NoTexture: m[4] != "",
-	}
-}
-
-var reAasetNameExTnm = regexp.MustCompile(`^(tnm|htd|ifld)_([a-z0-9-_]+)_3dtiles(_no_texture)?$`)
-
-func ParseAssetNameExTnm(name string) *AssetNameExTnm {
-	if name == "" {
-		return nil
-	}
-
-	m := reAasetNameExTnm.FindStringSubmatch(name)
-	if len(m) == 0 {
-		return nil
-	}
-
-	return &AssetNameExTnm{
-		Type:      m[1],
-		Name:      m[2],
-		Format:    "3dtiles",
-		NoTexture: m[3] != "",
 	}
 }
 

@@ -199,3 +199,126 @@ func TestPlateauDataset_ToDatasets_Bldg(t *testing.T) {
 	assert.Nil(t, warning)
 	assert.Equal(t, expected, res)
 }
+
+func TestPlateauDataset_ToDatasets_Tnm(t *testing.T) {
+	item := &PlateauFeatureItem{
+		ID:   "id",
+		Desc: "desc",
+		Items: []PlateauFeatureItemDatum{
+			{
+				ID: "id1",
+				Data: []string{
+					"https://example.com/11111_bar-shi_city_2023_citygml_1_op_tnm_AAA_3dtiles.zip",
+					"https://example.com/11111_bar-shi_city_2023_citygml_1_op_tnm_AAA_3dtiles_no_texture.zip",
+				},
+				Desc: "desc1",
+			},
+			{
+				ID: "id2",
+				Data: []string{
+					"https://example.com/11111_bar-shi_city_2023_citygml_1_op_tnm_BBB_3dtiles.zip",
+				},
+				Desc: "desc2",
+			},
+		},
+		Dic: `{
+			"tnm": [
+				{ "name": "AAA", "description": "AAA!" },
+				{ "name": "BBB", "description": "BBB!" }
+			]
+		}`,
+	}
+
+	expected := []plateauapi.Dataset{
+		&plateauapi.PlateauDataset{
+			ID:              plateauapi.NewID("11111_tnm_AAA", plateauapi.TypeDataset),
+			Name:            "津波浸水想定区域モデル AAA!（bar市）",
+			Description:     lo.ToPtr("desc1"),
+			Year:            2023,
+			PrefectureID:    lo.ToPtr(plateauapi.NewID("11", plateauapi.TypeArea)),
+			PrefectureCode:  lo.ToPtr(plateauapi.AreaCode("11")),
+			CityID:          lo.ToPtr(plateauapi.NewID("11111", plateauapi.TypeArea)),
+			CityCode:        lo.ToPtr(plateauapi.AreaCode("11111")),
+			TypeID:          plateauapi.NewID("tnm", plateauapi.TypeDatasetType),
+			TypeCode:        "tnm",
+			PlateauSpecID:   plateauapi.NewID("3", plateauapi.TypePlateauSpec),
+			PlateauSpecName: "第3.2版",
+			Items: []*plateauapi.PlateauDatasetItem{
+				{
+					ID:       plateauapi.NewID("11111_tnm_AAA", plateauapi.TypeDatasetItem),
+					Format:   plateauapi.DatasetFormatCesium3dtiles,
+					Name:     "AAA!",
+					URL:      "https://example.com/11111_bar-shi_city_2023_citygml_1_op_tnm_AAA_3dtiles.zip",
+					Texture:  lo.ToPtr(plateauapi.TextureTexture),
+					ParentID: plateauapi.NewID("11111_tnm_AAA", plateauapi.TypeDataset),
+				},
+				{
+					ID:       plateauapi.NewID("11111_tnm_AAA_no_texture", plateauapi.TypeDatasetItem),
+					Format:   plateauapi.DatasetFormatCesium3dtiles,
+					Name:     "AAA!（テクスチャなし）",
+					URL:      "https://example.com/11111_bar-shi_city_2023_citygml_1_op_tnm_AAA_3dtiles_no_texture.zip",
+					Texture:  lo.ToPtr(plateauapi.TextureNone),
+					ParentID: plateauapi.NewID("11111_tnm_AAA", plateauapi.TypeDataset),
+				},
+			},
+		},
+		&plateauapi.PlateauDataset{
+			ID:              plateauapi.NewID("11111_tnm_BBB", plateauapi.TypeDataset),
+			Name:            "津波浸水想定区域モデル BBB!（bar市）",
+			Description:     lo.ToPtr("desc2"),
+			Year:            2023,
+			PrefectureID:    lo.ToPtr(plateauapi.NewID("11", plateauapi.TypeArea)),
+			PrefectureCode:  lo.ToPtr(plateauapi.AreaCode("11")),
+			CityID:          lo.ToPtr(plateauapi.NewID("11111", plateauapi.TypeArea)),
+			CityCode:        lo.ToPtr(plateauapi.AreaCode("11111")),
+			TypeID:          plateauapi.NewID("tnm", plateauapi.TypeDatasetType),
+			TypeCode:        "tnm",
+			PlateauSpecID:   plateauapi.NewID("3", plateauapi.TypePlateauSpec),
+			PlateauSpecName: "第3.2版",
+			Items: []*plateauapi.PlateauDatasetItem{
+				{
+					ID:       plateauapi.NewID("11111_tnm_BBB", plateauapi.TypeDatasetItem),
+					Format:   plateauapi.DatasetFormatCesium3dtiles,
+					Name:     "BBB!",
+					URL:      "https://example.com/11111_bar-shi_city_2023_citygml_1_op_tnm_BBB_3dtiles.zip",
+					Texture:  lo.ToPtr(plateauapi.TextureTexture),
+					ParentID: plateauapi.NewID("11111_tnm_BBB", plateauapi.TypeDataset),
+				},
+			},
+		},
+	}
+
+	area := &areaContext{
+		Pref: &plateauapi.Prefecture{},
+		City: &plateauapi.City{
+			Name: "bar市",
+			Code: "11111",
+		},
+		PrefID:   lo.ToPtr(plateauapi.NewID("11", plateauapi.TypeArea)),
+		CityID:   lo.ToPtr(plateauapi.NewID("11111", plateauapi.TypeArea)),
+		PrefCode: lo.ToPtr(plateauapi.AreaCode("11")),
+		CityCode: lo.ToPtr(plateauapi.AreaCode("11111")),
+		CityItem: &CityItem{
+			Year: "2023年",
+		},
+	}
+
+	dts := &plateauapi.PlateauDatasetType{
+		ID:   plateauapi.NewID("tnm", plateauapi.TypeDatasetType),
+		Code: "tnm",
+		Name: "津波浸水想定区域モデル",
+	}
+
+	spec := &plateauapi.PlateauSpecMinor{
+		ID:           plateauapi.NewID("3.2", plateauapi.TypePlateauSpec),
+		Name:         "第3.2版",
+		MajorVersion: 3,
+		Version:      "3.2",
+		Year:         2023,
+		ParentID:     plateauapi.NewID("3", plateauapi.TypePlateauSpec),
+	}
+
+	res, warning := item.toDatasets(area, dts, spec)
+	assert.Nil(t, warning)
+	assert.Equal(t, expected, res)
+}

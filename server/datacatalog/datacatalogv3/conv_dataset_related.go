@@ -30,7 +30,7 @@ func (i *RelatedItem) toDatasets(area *areaContext, dts []plateauapi.DatasetType
 		warning = append(warning, w...)
 
 		for _, seed := range seeds {
-			sid := standardItemID(ftcode, seed.Area)
+			sid := standardItemID(ftcode, seed.Area, "")
 			id := plateauapi.NewID(sid, plateauapi.TypeDataset)
 			res = append(res, &plateauapi.RelatedDataset{
 				ID:             id,

@@ -9,6 +9,7 @@ import (
 )
 
 type plateauDatasetSeed struct {
+	IDEx       string
 	AssetURLs  []string
 	Assets     []*AssetName
 	SubName    string
@@ -24,6 +25,10 @@ type plateauDatasetSeed struct {
 	City        *plateauapi.City
 	Spec        *plateauapi.PlateauSpecMinor
 	River       *plateauapi.River
+}
+
+func (seed plateauDatasetSeed) GetID() string {
+	return standardItemID(seed.DatasetType.Code, seed.TargetArea, seed.IDEx)
 }
 
 func plateauDatasetSeedsFrom(i *PlateauFeatureItem, dt *plateauapi.PlateauDatasetType, area *areaContext, spec *plateauapi.PlateauSpecMinor) (res []plateauDatasetSeed, warning []string) {
@@ -57,26 +62,36 @@ func plateauDatasetSeedsFrom(i *PlateauFeatureItem, dt *plateauapi.PlateauDatase
 }
 
 func plateauDatasetSeedsFromItem(i *PlateauFeatureItem, item PlateauFeatureItemDatum, dt *plateauapi.PlateauDatasetType, dic Dic) (res plateauDatasetSeed, warning []string) {
-	subname := item.Name
-	var river *plateauapi.River
-
 	assets := lo.Map(item.Data, func(url string, _ int) *AssetName {
-		return ParseAssetName(nameWithoutExt(nameFromURL(url)))
+		n := nameWithoutExt(nameFromURL(url))
+		an := ParseAssetName(n)
+		if an == nil || !an.Ex.IsValid() {
+			warning = append(warning, fmt.Sprintf("plateau %s %s: invalid asset name: %s", i.ID, dt.Code, n))
+		}
+		return an
 	})
 	if len(assets) == 0 {
 		warning = append(warning, fmt.Sprintf("plateau %s %s: no assets", i.ID, dt.Code))
 		return
 	}
 
-	// TODO: how to get dicName
-	dicName := strings.TrimPrefix(item.Key, dt.Code+"/")
+	key := assets[0].Ex.Key()
+	if key == "" {
+		warning = append(warning, fmt.Sprintf("plateau %s %s: invalid asset name key: %s", i.ID, dt.Code, assets[0].Ex.Ex))
+		return
+	}
 
-	if e := dic.FindEntry(dt.Code, dicName); e != nil {
-		if subname == "" {
-			subname = datasetSubNameFromDicEntry(e)
-		}
-		if a := riverAdminFrom(e.Admin); a != nil {
-			// it's river
+	e := dic.FindEntry(dt.Code, key)
+	if e == nil {
+		warning = append(warning, fmt.Sprintf("plateau %s %s: dic entry not found: %s", i.ID, dt.Code, key))
+		return
+	}
+
+	var river *plateauapi.River
+	if a := riverAdminFrom(e.Admin); a != nil {
+		if e.Description == "" {
+			warning = append(warning, fmt.Sprintf("plateau %s %s: dic entry has no description: %s", i.ID, dt.Code, key))
+		} else {
 			river = &plateauapi.River{
 				Name:  e.Description,
 				Admin: *a,
@@ -84,7 +99,16 @@ func plateauDatasetSeedsFromItem(i *PlateauFeatureItem, item PlateauFeatureItemD
 		}
 	}
 
+	subname := item.Name
+	if subname == "" {
+		subname = datasetSubNameFromDicEntry(e)
+	}
+	if subname == "" && e != nil {
+		warning = append(warning, fmt.Sprintf("plateau %s %s: invalid dic entry: %s", i.ID, dt.Code, key))
+	}
+
 	res = plateauDatasetSeed{
+		IDEx:      key,
 		AssetURLs: item.Data,
 		Assets:    assets,
 		SubName:   subname,
@@ -163,15 +187,24 @@ type plateauDatasetItemSeed struct {
 	NoTexture *bool
 }
 
-func (i plateauDatasetItemSeed) GetName() string {
-	if i.Name != "" {
-		return i.Name
+func (i plateauDatasetItemSeed) GetID(parentID string) string {
+	ids := []string{parentID, i.ID}
+
+	if i.LOD != nil {
+		ids = append(ids, fmt.Sprintf("lod%d", *i.LOD))
 	}
 
-	return i.StandardName()
+	if i.NoTexture != nil && *i.NoTexture {
+		ids = append(ids, "no_texture")
+	}
+
+	return strings.Join(lo.Filter(ids, func(s string, _ int) bool {
+		return s != ""
+	}), "_")
 }
 
-func (i plateauDatasetItemSeed) StandardName() string {
+func (i plateauDatasetItemSeed) GetName() string {
+	name := i.Name
 	var lod, tex string
 
 	if i.LOD != nil {
@@ -179,16 +212,19 @@ func (i plateauDatasetItemSeed) StandardName() string {
 	}
 
 	if i.NoTexture != nil && *i.NoTexture {
-		if lod != "" {
+		if name != "" || lod != "" {
 			tex += "（"
 		}
 		tex += "テクスチャなし"
-		if lod != "" {
+		if name != "" || lod != "" {
 			tex += "）"
 		}
 	}
 
-	return lod + tex
+	if name != "" && lod != "" {
+		name += " "
+	}
+	return name + lod + tex
 }
 
 func plateauDatasetItemSeedFrom(seed plateauDatasetSeed) (items []plateauDatasetItemSeed, warning []string) {
@@ -210,15 +246,13 @@ func plateauDatasetItemSeedFrom(seed plateauDatasetSeed) (items []plateauDataset
 			item = plateauDatasetItemSeedFromUrf(url, assetName.Ex.Urf, seed.Dic)
 		case assetName.Ex.Fld != nil:
 			item = plateauDatasetItemSeedFromFld(url, assetName.Ex.Fld, seed.Dic)
-		case assetName.Ex.Tnm != nil:
-			item = plateauDatasetItemSeedFromTnm(url, assetName.Ex.Tnm, seed.Dic)
 		default:
 			warning = append(warning, fmt.Sprintf("plateau %s %s[%d]: invalid asset name ex: %s", seed.TargetArea.GetCode(), seed.DatasetType.Code, i, name))
 			return
 		}
 
 		if item == nil {
-			warning = append(warning, fmt.Sprintf("plateau %s %s: dic entry not found: %s", seed.TargetArea.GetCode(), assetName.Ex.Type(), name))
+			warning = append(warning, fmt.Sprintf("plateau %s %s: dic entry not found: %s", seed.TargetArea.GetCode(), seed.DatasetType.Code, assetName.Ex.Key()))
 			continue
 		}
 
@@ -232,13 +266,8 @@ func plateauDatasetItemSeedFrom(seed plateauDatasetSeed) (items []plateauDataset
 }
 
 func plateauDatasetItemSeedFromNormal(url string, ex *AssetNameExNormal) *plateauDatasetItemSeed {
-	id := fmt.Sprintf("lod%d", ex.LOD)
-	if ex.NoTexture {
-		id += "_no_texture"
-	}
-
 	return &plateauDatasetItemSeed{
-		ID:        id,
+		// ID:        id,
 		Name:      "", // use default
 		URL:       url,
 		Format:    ex.Format,
@@ -248,31 +277,23 @@ func plateauDatasetItemSeedFromNormal(url string, ex *AssetNameExNormal) *platea
 }
 
 func plateauDatasetItemSeedFromUrf(url string, ex *AssetNameExUrf, dic Dic) *plateauDatasetItemSeed {
-	entry := dic.FindEntry(ex.Type, ex.Name)
+	entry := dic.FindEntry(ex.Type, ex.Key())
 	if entry == nil {
 		return nil
 	}
 
-	return &plateauDatasetItemSeed{
-		ID:     entry.Name,
-		Name:   entry.Description,
-		URL:    url,
-		Format: ex.Format,
-		LOD:    toPtrIfPresent(ex.LOD),
-	}
-}
-
-func plateauDatasetItemSeedFromTnm(url string, ex *AssetNameExTnm, dic Dic) *plateauDatasetItemSeed {
-	entry := dic.FindEntry(ex.Type, ex.Name)
-	if entry == nil {
-		return nil
+	var notexture *bool
+	if ex.Format == "3dtiles" {
+		notexture = &ex.NoTexture
 	}
 
 	return &plateauDatasetItemSeed{
-		ID:     entry.Name,
-		Name:   entry.Description,
-		URL:    url,
-		Format: ex.Format,
+		// ID:        entry.Name,
+		Name:      entry.Description,
+		URL:       url,
+		Format:    ex.Format,
+		LOD:       toPtrIfPresent(ex.LOD),
+		NoTexture: notexture,
 	}
 }
 
@@ -284,7 +305,7 @@ func plateauDatasetItemSeedFromFld(url string, ex *AssetNameExFld, dic Dic) *pla
 	}
 
 	return &plateauDatasetItemSeed{
-		ID:     key,
+		// ID:     key,
 		Name:   entry.Scale,
 		URL:    url,
 		Format: ex.Format,
