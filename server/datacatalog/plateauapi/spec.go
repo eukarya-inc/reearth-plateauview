@@ -2,6 +2,7 @@ package plateauapi
 
 import (
 	"fmt"
+	"regexp"
 	"strings"
 
 	"github.com/samber/lo"
@@ -44,10 +45,6 @@ func PlateauSpecMajorIDFrom(version string) ID {
 	return NewID(MajorVersion(version), TypePlateauSpec)
 }
 
-func SpecNumber(spec string) string {
-	return strings.TrimSuffix(strings.TrimPrefix(spec, "第"), "版")
-}
-
 func MajorVersion(version string) string {
 	v := SpecNumber(version)
 	i := strings.Index(v, ".")
@@ -55,4 +52,14 @@ func MajorVersion(version string) string {
 		return version
 	}
 	return v[:i]
+}
+
+var reSpecVersion = regexp.MustCompile(`\d+(\.\d+)?`)
+
+func SpecNumber(spec string) string {
+	if spec == "" {
+		return ""
+	}
+
+	return reSpecVersion.FindString(spec)
 }

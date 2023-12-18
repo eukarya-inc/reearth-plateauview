@@ -190,19 +190,19 @@ func TestInMemoryRepo_DatasetTypes(t *testing.T) {
 	a := NewInMemoryRepo(InMemoryRepoContext{
 		DatasetTypes: DatasetTypes{
 			DatasetTypeCategoryPlateau: []DatasetType{
-				&PlateauDatasetType{ID: "1", Name: "Plateau Dataset 1", Year: 2022, PlateauSpecName: "第2.3版"},
-				&PlateauDatasetType{ID: "2", Name: "Plateau Dataset 2", Year: 2022, PlateauSpecName: "第2.3版"},
-				&PlateauDatasetType{ID: "3", Name: "Plateau Dataset 3", Year: 2023, PlateauSpecName: "第3.0版"},
+				&PlateauDatasetType{ID: "1", Name: "Plateau Dataset 1", Year: 2022, PlateauSpecID: "ps_2", Category: DatasetTypeCategoryPlateau},
+				&PlateauDatasetType{ID: "2", Name: "Plateau Dataset 2", Year: 2022, PlateauSpecID: "ps_2", Category: DatasetTypeCategoryPlateau},
+				&PlateauDatasetType{ID: "3", Name: "Plateau Dataset 3", Year: 2023, PlateauSpecID: "ps_3", Category: DatasetTypeCategoryPlateau},
 			},
 			DatasetTypeCategoryRelated: []DatasetType{
-				&RelatedDatasetType{ID: "4", Name: "Related Dataset 1"},
-				&RelatedDatasetType{ID: "5", Name: "Related Dataset 2"},
-				&RelatedDatasetType{ID: "6", Name: "Related Dataset 3"},
+				&RelatedDatasetType{ID: "4", Name: "Related Dataset 1", Category: DatasetTypeCategoryRelated},
+				&RelatedDatasetType{ID: "5", Name: "Related Dataset 2", Category: DatasetTypeCategoryRelated},
+				&RelatedDatasetType{ID: "6", Name: "Related Dataset 3", Category: DatasetTypeCategoryRelated},
 			},
 			DatasetTypeCategoryGeneric: []DatasetType{
-				&GenericDatasetType{ID: "7", Name: "Generic Dataset 1"},
-				&GenericDatasetType{ID: "8", Name: "Generic Dataset 2"},
-				&GenericDatasetType{ID: "9", Name: "Generic Dataset 3"},
+				&GenericDatasetType{ID: "7", Name: "Generic Dataset 1", Category: DatasetTypeCategoryGeneric},
+				&GenericDatasetType{ID: "8", Name: "Generic Dataset 2", Category: DatasetTypeCategoryGeneric},
+				&GenericDatasetType{ID: "9", Name: "Generic Dataset 3", Category: DatasetTypeCategoryGeneric},
 			},
 		},
 	})
@@ -216,15 +216,15 @@ func TestInMemoryRepo_DatasetTypes(t *testing.T) {
 			name:  "no filter",
 			input: nil,
 			expected: []DatasetType{
-				&PlateauDatasetType{ID: "1", Name: "Plateau Dataset 1", Year: 2022, PlateauSpecName: "第2.3版"},
-				&PlateauDatasetType{ID: "2", Name: "Plateau Dataset 2", Year: 2022, PlateauSpecName: "第2.3版"},
-				&PlateauDatasetType{ID: "3", Name: "Plateau Dataset 3", Year: 2023, PlateauSpecName: "第3.0版"},
-				&RelatedDatasetType{ID: "4", Name: "Related Dataset 1"},
-				&RelatedDatasetType{ID: "5", Name: "Related Dataset 2"},
-				&RelatedDatasetType{ID: "6", Name: "Related Dataset 3"},
-				&GenericDatasetType{ID: "7", Name: "Generic Dataset 1"},
-				&GenericDatasetType{ID: "8", Name: "Generic Dataset 2"},
-				&GenericDatasetType{ID: "9", Name: "Generic Dataset 3"},
+				&PlateauDatasetType{ID: "1", Name: "Plateau Dataset 1", Year: 2022, PlateauSpecID: "ps_2", Category: DatasetTypeCategoryPlateau},
+				&PlateauDatasetType{ID: "2", Name: "Plateau Dataset 2", Year: 2022, PlateauSpecID: "ps_2", Category: DatasetTypeCategoryPlateau},
+				&PlateauDatasetType{ID: "3", Name: "Plateau Dataset 3", Year: 2023, PlateauSpecID: "ps_3", Category: DatasetTypeCategoryPlateau},
+				&RelatedDatasetType{ID: "4", Name: "Related Dataset 1", Category: DatasetTypeCategoryRelated},
+				&RelatedDatasetType{ID: "5", Name: "Related Dataset 2", Category: DatasetTypeCategoryRelated},
+				&RelatedDatasetType{ID: "6", Name: "Related Dataset 3", Category: DatasetTypeCategoryRelated},
+				&GenericDatasetType{ID: "7", Name: "Generic Dataset 1", Category: DatasetTypeCategoryGeneric},
+				&GenericDatasetType{ID: "8", Name: "Generic Dataset 2", Category: DatasetTypeCategoryGeneric},
+				&GenericDatasetType{ID: "9", Name: "Generic Dataset 3", Category: DatasetTypeCategoryGeneric},
 			},
 		},
 		{
@@ -233,18 +233,18 @@ func TestInMemoryRepo_DatasetTypes(t *testing.T) {
 				Year: lo.ToPtr(2022),
 			},
 			expected: []DatasetType{
-				&PlateauDatasetType{ID: "1", Name: "Plateau Dataset 1", Year: 2022, PlateauSpecName: "第2.3版"},
-				&PlateauDatasetType{ID: "2", Name: "Plateau Dataset 2", Year: 2022, PlateauSpecName: "第2.3版"},
+				&PlateauDatasetType{ID: "1", Name: "Plateau Dataset 1", Year: 2022, PlateauSpecID: "ps_2", Category: DatasetTypeCategoryPlateau},
+				&PlateauDatasetType{ID: "2", Name: "Plateau Dataset 2", Year: 2022, PlateauSpecID: "ps_2", Category: DatasetTypeCategoryPlateau},
 			},
 		},
 		{
 			name: "filter by spec",
 			input: &DatasetTypesInput{
-				PlateauSpec: lo.ToPtr("2.3"),
+				PlateauSpec: lo.ToPtr("2"),
 			},
 			expected: []DatasetType{
-				&PlateauDatasetType{ID: "1", Name: "Plateau Dataset 1", Year: 2022, PlateauSpecName: "第2.3版"},
-				&PlateauDatasetType{ID: "2", Name: "Plateau Dataset 2", Year: 2022, PlateauSpecName: "第2.3版"},
+				&PlateauDatasetType{ID: "1", Name: "Plateau Dataset 1", Year: 2022, PlateauSpecID: "ps_2", Category: DatasetTypeCategoryPlateau},
+				&PlateauDatasetType{ID: "2", Name: "Plateau Dataset 2", Year: 2022, PlateauSpecID: "ps_2", Category: DatasetTypeCategoryPlateau},
 			},
 		},
 		{
@@ -253,9 +253,9 @@ func TestInMemoryRepo_DatasetTypes(t *testing.T) {
 				Category: lo.ToPtr(DatasetTypeCategoryGeneric),
 			},
 			expected: []DatasetType{
-				&GenericDatasetType{ID: "7", Name: "Generic Dataset 1"},
-				&GenericDatasetType{ID: "8", Name: "Generic Dataset 2"},
-				&GenericDatasetType{ID: "9", Name: "Generic Dataset 3"},
+				&GenericDatasetType{ID: "7", Name: "Generic Dataset 1", Category: DatasetTypeCategoryGeneric},
+				&GenericDatasetType{ID: "8", Name: "Generic Dataset 2", Category: DatasetTypeCategoryGeneric},
+				&GenericDatasetType{ID: "9", Name: "Generic Dataset 3", Category: DatasetTypeCategoryGeneric},
 			},
 		},
 	}

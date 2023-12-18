@@ -125,11 +125,6 @@ func (r *plateauDatasetResolver) Type(ctx context.Context, obj *PlateauDataset) 
 	return to[*PlateauDatasetType](r.Repo.Node(ctx, obj.TypeID))
 }
 
-// PlateauSpec is the resolver for the plateauSpec field.
-func (r *plateauDatasetResolver) PlateauSpec(ctx context.Context, obj *PlateauDataset) (*PlateauSpecMinor, error) {
-	return to[*PlateauSpecMinor](r.Repo.Node(ctx, obj.PlateauSpecID))
-}
-
 // Parent is the resolver for the parent field.
 func (r *plateauDatasetItemResolver) Parent(ctx context.Context, obj *PlateauDatasetItem) (*PlateauDataset, error) {
 	return to[*PlateauDataset](r.Repo.Node(ctx, obj.ParentID))
@@ -402,3 +397,16 @@ type relatedDatasetResolver struct{ *Resolver }
 type relatedDatasetItemResolver struct{ *Resolver }
 type relatedDatasetTypeResolver struct{ *Resolver }
 type wardResolver struct{ *Resolver }
+
+// !!! WARNING !!!
+// The code below was going to be deleted when updating resolvers. It has been copied here so you have
+// one last chance to move it out of harms way if you want. There are two reasons this happens:
+//   - When renaming or deleting a resolver the old code will be put in here. You can safely delete
+//     it when you're done.
+//   - You have helper methods in this file. Move them out to keep these resolver files clean.
+func (r *plateauDatasetResolver) PlateauSpecMinor(ctx context.Context, obj *PlateauDataset) (*PlateauSpecMinor, error) {
+	return to[*PlateauSpecMinor](r.Repo.Node(ctx, obj.PlateauSpecMinorID))
+}
+func (r *plateauDatasetResolver) PlateauSpec(ctx context.Context, obj *PlateauDataset) (*PlateauSpecMinor, error) {
+	return to[*PlateauSpecMinor](r.Repo.Node(ctx, obj.PlateauSpecMinorID))
+}

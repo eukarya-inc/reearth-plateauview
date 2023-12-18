@@ -67,6 +67,8 @@ type Dataset interface {
 	GetType() DatasetType
 	// データセットのアイテム。
 	GetItems() []DatasetItem
+	// 管理者用
+	GetStage() *string
 }
 
 // データセットのアイテム。
@@ -248,6 +250,8 @@ type GenericDataset struct {
 	Type *GenericDatasetType `json:"type"`
 	// データセットのアイテム。
 	Items []*GenericDatasetItem `json:"items"`
+	// 管理者用
+	Stage *string `json:"stage,omitempty"`
 }
 
 func (GenericDataset) IsDataset()     {}
@@ -324,6 +328,9 @@ func (this GenericDataset) GetItems() []DatasetItem {
 	}
 	return interfaceSlice
 }
+
+// 管理者用
+func (this GenericDataset) GetStage() *string { return this.Stage }
 
 func (GenericDataset) IsNode() {}
 
@@ -462,12 +469,12 @@ type PlateauDataset struct {
 	Type *PlateauDatasetType `json:"type"`
 	// データセットのアイテム。
 	Items []*PlateauDatasetItem `json:"items"`
-	// データセットが準拠するPLATEAU都市モデルの仕様のID。
-	PlateauSpecID ID `json:"plateauSpecId"`
-	// データセットが準拠するPLATEAU都市モデルの仕様の名称。
-	PlateauSpecName string `json:"plateauSpecName"`
+	// 管理者用
+	Stage *string `json:"stage,omitempty"`
+	// データセットが準拠するPLATEAU都市モデルの仕様のマイナーバージョンへのID。
+	PlateauSpecMinorID ID `json:"plateauSpecMinorId"`
 	// データセットが準拠するPLATEAU都市モデルの仕様。
-	PlateauSpec *PlateauSpecMinor `json:"plateauSpec"`
+	PlateauSpecMinor *PlateauSpecMinor `json:"plateauSpecMinor"`
 	// 河川。地物型が洪水浸水想定区域モデル（fld）の場合のみ存在します。
 	River *River `json:"river,omitempty"`
 }
@@ -547,6 +554,9 @@ func (this PlateauDataset) GetItems() []DatasetItem {
 	return interfaceSlice
 }
 
+// 管理者用
+func (this PlateauDataset) GetStage() *string { return this.Stage }
+
 func (PlateauDataset) IsNode() {}
 
 // オブジェクトのID
@@ -621,8 +631,6 @@ type PlateauDatasetType struct {
 	Category DatasetTypeCategory `json:"category"`
 	// データセットの種類が属するPLATEAU都市モデルの仕様のID。
 	PlateauSpecID ID `json:"plateauSpecId"`
-	// データセットの種類が属するPLATEAU都市モデルの仕様の名称。
-	PlateauSpecName string `json:"plateauSpecName"`
 	// データセットの種類が属するPLATEAU都市モデルの仕様。
 	PlateauSpec *PlateauSpec `json:"plateauSpec,omitempty"`
 	// データセットの種類が属するPLATEAU都市モデルの仕様の公開年度（西暦）。
@@ -788,6 +796,8 @@ type RelatedDataset struct {
 	Type *RelatedDatasetType `json:"type"`
 	// データセットのアイテム。
 	Items []*RelatedDatasetItem `json:"items"`
+	// 管理者用
+	Stage *string `json:"stage,omitempty"`
 }
 
 func (RelatedDataset) IsDataset()     {}
@@ -864,6 +874,9 @@ func (this RelatedDataset) GetItems() []DatasetItem {
 	}
 	return interfaceSlice
 }
+
+// 管理者用
+func (this RelatedDataset) GetStage() *string { return this.Stage }
 
 func (RelatedDataset) IsNode() {}
 

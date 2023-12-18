@@ -28,12 +28,17 @@ func ParentAreaCode(a Area) AreaCode {
 	return ""
 }
 
-func filterDataset(d Dataset, input DatasetsInput) bool {
+func filterDataset(d Dataset, input DatasetsInput, includeAllStage bool) bool {
 	if d == nil {
 		return false
 	}
 
-	var spec string
+	if !includeAllStage {
+		if s := d.GetStage(); s != nil && *s != "" {
+			return false
+		}
+	}
+
 	dataType := d.GetTypeCode()
 	text := []string{
 		d.GetName(),
@@ -42,13 +47,14 @@ func filterDataset(d Dataset, input DatasetsInput) bool {
 	}
 	year := d.GetYear()
 
+	var spec string
 	switch d2 := d.(type) {
 	case *PlateauDataset:
 		if d2 != nil {
-			spec = d2.PlateauSpecName
+			spec = string(d2.PlateauSpecMinorID)
 		}
 	case PlateauDataset:
-		spec = d2.PlateauSpecName
+		spec = string(d2.PlateauSpecMinorID)
 	}
 
 	if len(input.AreaCodes) > 0 {
@@ -262,17 +268,17 @@ func filterDatasetType(ty DatasetType, input DatasetTypesInput) bool {
 			return false
 		}
 		year = ty2.Year
-		spec = ty2.PlateauSpecName
+		spec = string(ty2.PlateauSpecID)
 	case PlateauDatasetType:
 		year = ty2.Year
-		spec = ty2.PlateauSpecName
+		spec = string(ty2.PlateauSpecID)
 	}
 
-	if year > 0 && input.Year != nil && year != *input.Year {
+	if input.Year != nil && (year == 0 || year != *input.Year) {
 		return false
 	}
 
-	if spec != "" && input.PlateauSpec != nil && !filterByPlateauSpec(input.PlateauSpec, spec) {
+	if input.PlateauSpec != nil && (spec == "" || !filterByPlateauSpec(input.PlateauSpec, spec)) {
 		return false
 	}
 

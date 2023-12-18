@@ -2,8 +2,32 @@ package plateauapi
 
 import (
 	"context"
+	"fmt"
 	"sync"
+
+	"github.com/samber/lo"
 )
+
+type RepoWrappers []*RepoWrapper
+
+func (a RepoWrappers) Update(ctx context.Context) error {
+	results := make([]<-chan error, 0, len(a))
+	for _, w := range a {
+		w := w
+		ch := lo.Async1(func() error {
+			return w.Update(ctx)
+		})
+		results = append(results, ch)
+	}
+
+	for i, ch := range results {
+		if err := <-ch; err != nil {
+			return fmt.Errorf("repo %d: %w", i, err)
+		}
+	}
+
+	return nil
+}
 
 type RepoUpdater func(ctx context.Context) (Repo, error)
 

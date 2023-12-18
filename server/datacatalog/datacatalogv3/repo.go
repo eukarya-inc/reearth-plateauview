@@ -9,7 +9,7 @@ import (
 	"github.com/reearth/reearthx/log"
 )
 
-func New(cmsbase, token, project string) (*plateauapi.RepoWrapper, error) {
+func New(cmsbase, token, project string, admin bool) (*plateauapi.RepoWrapper, error) {
 	cms, err := cms.New(cmsbase, token)
 	if err != nil {
 		return nil, err

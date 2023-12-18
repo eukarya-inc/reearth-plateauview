@@ -13,7 +13,25 @@ func TestFilterDataset(t *testing.T) {
 			TypeCode: "emergency_route",
 		}, DatasetsInput{
 			IncludeTypes: []string{"emergency_route"},
-		}))
+		}, false))
+	})
+
+	t.Run("public stage only", func(t *testing.T) {
+		assert.False(t, filterDataset(RelatedDataset{
+			TypeCode: "emergency_route",
+			Stage:    lo.ToPtr("beta"),
+		}, DatasetsInput{
+			IncludeTypes: []string{"emergency_route"},
+		}, false))
+	})
+
+	t.Run("private stage", func(t *testing.T) {
+		assert.True(t, filterDataset(RelatedDataset{
+			TypeCode: "emergency_route",
+			Stage:    lo.ToPtr("beta"),
+		}, DatasetsInput{
+			IncludeTypes: []string{"emergency_route"},
+		}, true))
 	})
 }
 
@@ -146,7 +164,7 @@ func TestFilterByPlateauSpec(t *testing.T) {
 		},
 		{
 			name:        "Non-empty query spec and non-empty dataset spec with matching major version",
-			querySpec:   lo.ToPtr("1"),
+			querySpec:   lo.ToPtr("ps_1"),
 			datasetSpec: "1.2",
 			expected:    true,
 		},
@@ -195,9 +213,9 @@ func TestFilterDatasetType(t *testing.T) {
 		{
 			name: "PlateauDatasetType with matching category, year and plateau spec",
 			ty: PlateauDatasetType{
-				Category:        DatasetTypeCategoryPlateau,
-				Year:            2021,
-				PlateauSpecName: "1.0",
+				Category:      DatasetTypeCategoryPlateau,
+				Year:          2021,
+				PlateauSpecID: "ps_1.0",
 			},
 			input: DatasetTypesInput{
 				Category:    lo.ToPtr(DatasetTypeCategoryPlateau),
@@ -209,8 +227,8 @@ func TestFilterDatasetType(t *testing.T) {
 		{
 			name: "PlateauDatasetType with matching plateau spec major version",
 			ty: PlateauDatasetType{
-				Category:        DatasetTypeCategoryPlateau,
-				PlateauSpecName: "1.0",
+				Category:      DatasetTypeCategoryPlateau,
+				PlateauSpecID: "ps_1",
 			},
 			input: DatasetTypesInput{
 				PlateauSpec: lo.ToPtr("1"),
@@ -220,9 +238,9 @@ func TestFilterDatasetType(t *testing.T) {
 		{
 			name: "PlateauDatasetType with non-matching category",
 			ty: PlateauDatasetType{
-				Category:        DatasetTypeCategoryPlateau,
-				Year:            2021,
-				PlateauSpecName: "1.0",
+				Category:      DatasetTypeCategoryPlateau,
+				Year:          2021,
+				PlateauSpecID: "ps_1.0",
 			},
 			input: DatasetTypesInput{
 				Category: lo.ToPtr(DatasetTypeCategoryRelated),
@@ -232,9 +250,9 @@ func TestFilterDatasetType(t *testing.T) {
 		{
 			name: "PlateauDatasetType with non-matching year",
 			ty: PlateauDatasetType{
-				Category:        DatasetTypeCategoryPlateau,
-				Year:            2021,
-				PlateauSpecName: "1.0",
+				Category:      DatasetTypeCategoryPlateau,
+				Year:          2021,
+				PlateauSpecID: "ps_1.0",
 			},
 			input: DatasetTypesInput{
 				Year: lo.ToPtr(2022),
@@ -244,9 +262,9 @@ func TestFilterDatasetType(t *testing.T) {
 		{
 			name: "PlateauDatasetType with non-matching plateau spec",
 			ty: PlateauDatasetType{
-				Category:        DatasetTypeCategoryPlateau,
-				Year:            2021,
-				PlateauSpecName: "1.0",
+				Category:      DatasetTypeCategoryPlateau,
+				Year:          2021,
+				PlateauSpecID: "ps_1.0",
 			},
 			input: DatasetTypesInput{
 				PlateauSpec: lo.ToPtr("2.0"),

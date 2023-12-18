@@ -20,6 +20,7 @@ type InMemoryRepoContext struct {
 type InMemoryRepo struct {
 	ctx               InMemoryRepoContext
 	areasForDataTypes map[string]map[AreaCode]struct{}
+	includeAllStage   bool
 }
 
 var _ Repo = (*InMemoryRepo)(nil)
@@ -29,6 +30,14 @@ func NewInMemoryRepo(ctx InMemoryRepoContext) *InMemoryRepo {
 		ctx:               ctx,
 		areasForDataTypes: areasForDatasetTypes(ctx.Datasets.All()),
 	}
+}
+
+func (c *InMemoryRepo) SetIncludeAllStage(s bool) {
+	c.includeAllStage = s
+}
+
+func (c *InMemoryRepo) IncludeAllStage() bool {
+	return c.includeAllStage
 }
 
 func (c *InMemoryRepo) Node(ctx context.Context, id ID) (Node, error) {
@@ -122,7 +131,7 @@ func (c *InMemoryRepo) Datasets(ctx context.Context, input *DatasetsInput) (res 
 		input = &DatasetsInput{}
 	}
 	return c.ctx.Datasets.Filter(func(t Dataset) bool {
-		return filterDataset(t, *input)
+		return filterDataset(t, *input, c.includeAllStage)
 	}), nil
 }
 

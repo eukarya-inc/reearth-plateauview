@@ -89,22 +89,21 @@ func seedToDataset(seed plateauDatasetSeed) (res *plateauapi.PlateauDataset, war
 	}
 
 	res = &plateauapi.PlateauDataset{
-		ID:              id,
-		Name:            standardItemName(seed.DatasetType.Name, seed.SubName, seed.TargetArea),
-		Description:     toPtrIfPresent(seed.Desc),
-		Year:            seed.Area.CityItem.YearInt(),
-		PrefectureID:    seed.Area.PrefID,
-		PrefectureCode:  seed.Area.PrefCode,
-		CityID:          seed.Area.CityID,
-		CityCode:        seed.Area.CityCode,
-		WardID:          seed.WardID,
-		WardCode:        seed.WardCode,
-		TypeID:          seed.DatasetType.ID,
-		TypeCode:        seed.DatasetType.Code,
-		PlateauSpecID:   seed.Spec.ParentID,
-		PlateauSpecName: seed.Spec.Name,
-		River:           seed.River,
-		Items:           items,
+		ID:                 id,
+		Name:               standardItemName(seed.DatasetType.Name, seed.SubName, seed.TargetArea),
+		Description:        toPtrIfPresent(seed.Desc),
+		Year:               seed.Area.CityItem.YearInt(),
+		PrefectureID:       seed.Area.PrefID,
+		PrefectureCode:     seed.Area.PrefCode,
+		CityID:             seed.Area.CityID,
+		CityCode:           seed.Area.CityCode,
+		WardID:             seed.WardID,
+		WardCode:           seed.WardCode,
+		TypeID:             seed.DatasetType.ID,
+		TypeCode:           seed.DatasetType.Code,
+		PlateauSpecMinorID: seed.Spec.ID,
+		River:              seed.River,
+		Items:              items,
 	}
 
 	return

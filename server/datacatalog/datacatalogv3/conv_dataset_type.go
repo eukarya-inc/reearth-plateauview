@@ -30,8 +30,7 @@ func (f *FeatureType) ToPlateauDatasetType(spec plateauapi.PlateauSpec) *plateau
 		Code:          f.Code,
 		Flood:         f.Flood,
 		PlateauSpecID: spec.ID,
-		// PlateauSpecName: // TODO: remove
-		Year: spec.Year,
+		Year:          spec.Year,
 	}
 }
 
