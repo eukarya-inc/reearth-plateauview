@@ -2,6 +2,7 @@ package datacatalogv3
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/eukarya-inc/reearth-plateauview/server/datacatalog/plateauapi"
 	"github.com/samber/lo"
@@ -21,9 +22,14 @@ func (i *PlateauFeatureItem) toWards(pref *plateauapi.Prefecture, city *plateaua
 			continue
 		}
 
+		_, name, _ := strings.Cut(entry.Description, " ")
+		if name == "" {
+			name = entry.Description
+		}
+
 		ward := &plateauapi.Ward{
 			ID:             plateauapi.NewID(entry.Code, plateauapi.TypeArea),
-			Name:           entry.Description,
+			Name:           name,
 			Type:           plateauapi.AreaTypeWard,
 			Code:           plateauapi.AreaCode(entry.Code),
 			PrefectureID:   pref.ID,

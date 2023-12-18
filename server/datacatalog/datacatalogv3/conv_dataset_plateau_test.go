@@ -8,6 +8,64 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestPlateauDataset_ToWards(t *testing.T) {
+	dic := `{
+		"admin": [
+			{
+				"code": "11112",
+				"name": "bar-shi_bar-ku",
+				"description": "bar市 hoge区"
+			},
+			{
+				"code": "11113",
+				"name": "foo-shi_foo-ku",
+				"description": "foo区"
+			}
+		]
+	}`
+
+	item := &PlateauFeatureItem{
+		ID:  "id",
+		Dic: dic,
+	}
+
+	expected := []*plateauapi.Ward{
+		{
+			ID:             plateauapi.NewID("11112", plateauapi.TypeArea),
+			Name:           "hoge区",
+			Type:           plateauapi.AreaTypeWard,
+			Code:           plateauapi.AreaCode("11112"),
+			PrefectureID:   plateauapi.NewID("11", plateauapi.TypeArea),
+			PrefectureCode: plateauapi.AreaCode("11"),
+			CityID:         plateauapi.NewID("11111", plateauapi.TypeArea),
+			CityCode:       plateauapi.AreaCode("11111"),
+		},
+		{
+			ID:             plateauapi.NewID("11113", plateauapi.TypeArea),
+			Name:           "foo区",
+			Type:           plateauapi.AreaTypeWard,
+			Code:           plateauapi.AreaCode("11113"),
+			PrefectureID:   plateauapi.NewID("11", plateauapi.TypeArea),
+			PrefectureCode: plateauapi.AreaCode("11"),
+			CityID:         plateauapi.NewID("11111", plateauapi.TypeArea),
+			CityCode:       plateauapi.AreaCode("11111"),
+		},
+	}
+
+	pref := &plateauapi.Prefecture{
+		ID:   plateauapi.NewID("11", plateauapi.TypeArea),
+		Code: plateauapi.AreaCode("11"),
+	}
+
+	city := &plateauapi.City{
+		ID:   plateauapi.NewID("11111", plateauapi.TypeArea),
+		Code: plateauapi.AreaCode("11111"),
+	}
+
+	res := item.toWards(pref, city)
+	assert.Equal(t, expected, res)
+}
+
 func TestPlateauDataset_ToDatasets_Bldg(t *testing.T) {
 	item := &PlateauFeatureItem{
 		ID:   "id",
