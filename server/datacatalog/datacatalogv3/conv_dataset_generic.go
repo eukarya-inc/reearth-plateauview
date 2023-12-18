@@ -7,7 +7,7 @@ import (
 	"github.com/samber/lo"
 )
 
-func (i *GenericItem) toDatasets(area *areaContext, dts []plateauapi.DatasetType) (_ []plateauapi.Dataset, _ []string) {
+func (i *GenericItem) toDatasets(area *areaContext, dts []plateauapi.DatasetType) (_ []plateauapi.Dataset, warning []string) {
 	if area == nil {
 		area = &areaContext{}
 	}
@@ -18,11 +18,18 @@ func (i *GenericItem) toDatasets(area *areaContext, dts []plateauapi.DatasetType
 		return dt.GetName() == i.Category
 	})
 	if dt == nil {
+		warning = append(warning, fmt.Sprintf("generic %s: dataset type not found: %s", i.ID, i.Category))
 		return
 	}
 
 	items := lo.FilterMap(i.Data, func(datum GenericItemDataset, ind int) (*plateauapi.GenericDatasetItem, bool) {
-		if datum.Data == "" {
+		url := datum.DataURL
+		if url == "" {
+			url = datum.Data
+		}
+		f := datasetFormatFromOrDetect(datum.DataFormat, url)
+		if url == "" || f == "" {
+			warning = append(warning, fmt.Sprintf("generic %s[%d]: invalid url: %s", i.ID, ind, url))
 			return nil, false
 		}
 
@@ -34,14 +41,15 @@ func (i *GenericItem) toDatasets(area *areaContext, dts []plateauapi.DatasetType
 		return &plateauapi.GenericDatasetItem{
 			ID:       plateauapi.NewID(datum.ID, plateauapi.TypeDatasetItem),
 			Name:     firstNonEmptyValue(datum.Name, fmt.Sprintf("%s%s", i.Name, inds)),
-			URL:      datum.Data,
-			Format:   datasetFormatFrom(datum.DataFormat),
+			URL:      url,
+			Format:   f,
 			Layers:   layerNamesFrom(datum.LayerName),
 			ParentID: id,
 		}, true
 	})
 
 	if len(items) == 0 {
+		warning = append(warning, fmt.Sprintf("generic %s: no items", i.ID))
 		return
 	}
 
@@ -59,5 +67,5 @@ func (i *GenericItem) toDatasets(area *areaContext, dts []plateauapi.DatasetType
 		Items:          items,
 	}
 
-	return []plateauapi.Dataset{&res}, nil
+	return []plateauapi.Dataset{&res}, warning
 }

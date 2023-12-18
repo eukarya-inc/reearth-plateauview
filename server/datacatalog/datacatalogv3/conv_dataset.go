@@ -32,6 +32,13 @@ func textureFrom(texture *bool) *plateauapi.Texture {
 	return lo.ToPtr(plateauapi.TextureTexture)
 }
 
+func datasetFormatFromOrDetect(f string, url string) plateauapi.DatasetFormat {
+	if f != "" {
+		return datasetFormatFrom(f)
+	}
+	return detectDatasetFormatFromURL(url)
+}
+
 func datasetFormatFrom(f string) plateauapi.DatasetFormat {
 	switch strings.ToLower(f) {
 	case "geojson":
@@ -59,6 +66,31 @@ func datasetFormatFrom(f string) plateauapi.DatasetFormat {
 	case "csv":
 		return plateauapi.DatasetFormatCSV
 	}
+	return ""
+}
+
+func detectDatasetFormatFromURL(url string) plateauapi.DatasetFormat {
+	name := strings.ToLower(nameFromURL(url))
+
+	switch {
+	case strings.HasSuffix(name, ".geojson"):
+		return plateauapi.DatasetFormatGeojson
+	case strings.HasSuffix(name, ".czml"):
+		return plateauapi.DatasetFormatCzml
+	case strings.HasSuffix(name, "{z}/{x}/{y}.pbf"):
+		fallthrough
+	case strings.HasSuffix(name, ".mvt"):
+		return plateauapi.DatasetFormatMvt
+	case name == "tileset.json":
+		return plateauapi.DatasetFormatCesium3dtiles
+	case strings.HasSuffix(name, ".csv"):
+		return plateauapi.DatasetFormatCSV
+	case strings.HasSuffix(name, ".gltf"):
+		return plateauapi.DatasetFormatGltf
+	case strings.HasSuffix(name, "{z}/{x}/{y}.png"):
+		return plateauapi.DatasetFormatTiles
+	}
+
 	return ""
 }
 

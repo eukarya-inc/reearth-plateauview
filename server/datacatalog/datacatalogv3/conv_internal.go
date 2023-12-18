@@ -77,6 +77,10 @@ type areaContext struct {
 	PrefCode, CityCode *plateauapi.AreaCode
 }
 
+func (c *areaContext) IsValid() bool {
+	return c.Pref != nil && c.City != nil && c.CityItem != nil && c.PrefID != nil && c.CityID != nil && c.PrefCode != nil && c.CityCode != nil
+}
+
 func (c *internalContext) AreaContext(cityItemID string) *areaContext {
 	var prefID, cityID *plateauapi.ID
 	var prefCode, cityCode *plateauapi.AreaCode
