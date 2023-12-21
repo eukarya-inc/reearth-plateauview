@@ -1,4 +1,6 @@
 import bgmap_gsi from "@web/extensions/sidebar/core/assets/bgmap_gsi.png";
+import bgmap_gsiblank from "@web/extensions/sidebar/core/assets/bgmap_gsiblank.png";
+import bgmap_gsistd from "@web/extensions/sidebar/core/assets/bgmap_gsistd.png";
 import bgmap_tokyo from "@web/extensions/sidebar/core/assets/bgmap_tokyo.png";
 import { ReearthApi } from "@web/extensions/sidebar/types";
 import { useCallback, useMemo } from "react";
@@ -29,6 +31,18 @@ const baseMapData: BaseMapData[] = [
     title: "地理院地図 (淡色)",
     icon: bgmap_gsi,
     url: ["https://cyberjapandata.gsi.go.jp/xyz/pale/{z}/{x}/{y}.png"],
+  },
+  {
+    key: "gsi-std",
+    title: "地理院地図 (標準)",
+    icon: bgmap_gsistd,
+    url: ["https://cyberjapandata.gsi.go.jp/xyz/std/{z}/{x}/{y}.png"],
+  },
+  {
+    key: "gsi-blank",
+    title: "地理院地図 (白地図)",
+    icon: bgmap_gsiblank,
+    url: ["https://cyberjapandata.gsi.go.jp/xyz/blank/{z}/{x}/{y}.png"],
   },
 ];
 
