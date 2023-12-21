@@ -1,4 +1,4 @@
-type TileSelection = "tokyo" | "gsi";
+type TileSelection = "tokyo" | "gsi" | "gsi-std" | "gsi-blank";
 
 export type ViewSelection = "3d-terrain" | "3d-smooth" | "2d";
 
