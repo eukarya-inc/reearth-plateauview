@@ -7,9 +7,9 @@ import (
 	"github.com/reearth/reearth-cms-api/go/cmswebhook"
 )
 
-// func tagIs(t *cms.Tag, v  fmt.Stringer) bool {
-// 	return t != nil && t.Name == v.String()
-// }
+func tagIs(t *cms.Tag, v fmt.Stringer) bool {
+	return t != nil && t.Name == v.String()
+}
 
 func tagIsNot(t *cms.Tag, v fmt.Stringer) bool {
 	return t != nil && t.Name != v.String()

@@ -2,7 +2,9 @@ package cmsintegrationv3
 
 import (
 	"github.com/eukarya-inc/reearth-plateauview/server/cmsintegration/cmsintegrationcommon"
+	"github.com/oklog/ulid/v2"
 	cms "github.com/reearth/reearth-cms-api/go"
+	"github.com/samber/lo"
 )
 
 const modelPrefix = "plateau-"
@@ -230,51 +232,51 @@ func (i *GenericItem) CMSItem() *cms.Item {
 }
 
 type RelatedItem struct {
-	ID              string              `json:"id,omitempty" cms:"id"`
-	City            string              `json:"city,omitempty" cms:"city,reference"`
-	Assets          map[string][]string `json:"assets,omitempty" cms:"-"`
-	ConvertedAssets map[string][]string `json:"converted,omitempty" cms:"-"`
-	Merged          string              `json:"merged,omitempty" cms:"merged,asset"`
+	ID     string                      `json:"id,omitempty" cms:"id"`
+	City   string                      `json:"city,omitempty" cms:"city,reference"`
+	Items  map[string]RelatedItemDatum `json:"items,omitempty" cms:"-"`
+	Merged string                      `json:"merged,omitempty" cms:"merged,asset"`
 	// metadata
-	ConvertStatus *cms.Tag `json:"conv_status,omitempty" cms:"conv_status,tag,metadata"`
-	MergeStatus   *cms.Tag `json:"merge_status,omitempty" cms:"merge_status,tag,metadata"`
-	Public        bool     `json:"public,omitempty" cms:"public,bool,metadata"`
+	ConvertStatus map[string]*cms.Tag `json:"conv_status,omitempty" cms:"-"`
+	MergeStatus   *cms.Tag            `json:"merge_status,omitempty" cms:"merge_status,tag,metadata"`
+}
+
+type RelatedItemDatum struct {
+	ID          string   `json:"id,omitempty" cms:"id"`
+	Asset       []string `json:"asset,omitempty" cms:"asset,asset"`
+	Converted   []string `json:"converted,omitempty" cms:"converted,asset"`
+	Description string   `json:"description,omitempty" cms:"description,textarea"`
 }
 
 func RelatedItemFrom(item *cms.Item) (i *RelatedItem) {
 	i = &RelatedItem{}
 	item.Unmarshal(i)
 
+	if i.Items == nil {
+		i.Items = map[string]RelatedItemDatum{}
+	}
+	if i.ConvertStatus == nil {
+		i.ConvertStatus = map[string]*cms.Tag{}
+	}
+
 	for _, t := range relatedDataTypes {
-		v := item.FieldByKey(t).GetValue()
-		cv := item.FieldByKey(t + "_conv").GetValue()
-
-		var assets []string
-		if s := v.String(); s != nil {
-			assets = []string{*s}
-		} else if s := v.Strings(); s != nil {
-			assets = s
+		g := item.FieldByKey(t).GetValue().String()
+		if g == nil {
+			continue
 		}
 
-		var conv []string
-		if s := cv.String(); s != nil {
-			conv = []string{*s}
-		} else if s := cv.Strings(); s != nil {
-			conv = s
-		}
-
-		if len(assets) > 0 {
-			if i.Assets == nil {
-				i.Assets = map[string][]string{}
+		if group := item.Group(*g); group != nil && len(group.Fields) > 0 {
+			i.Items[t] = RelatedItemDatum{
+				ID:          group.ID,
+				Asset:       group.FieldByKey("asset").GetValue().Strings(),
+				Converted:   group.FieldByKey("conv").GetValue().Strings(),
+				Description: lo.FromPtr(group.FieldByKey("description").GetValue().String()),
 			}
-			i.Assets[t] = append(i.Assets[t], assets...)
 		}
 
-		if len(conv) > 0 {
-			if i.ConvertedAssets == nil {
-				i.ConvertedAssets = map[string][]string{}
-			}
-			i.ConvertedAssets[t] = append(i.ConvertedAssets[t], conv...)
+		tag := item.MetadataFieldByKey(t + "_status").GetValue().Tag()
+		if tag != nil {
+			i.ConvertStatus[t] = tag
 		}
 	}
 
@@ -286,29 +288,52 @@ func (i *RelatedItem) CMSItem() *cms.Item {
 	cms.Marshal(i, item)
 
 	for _, t := range relatedDataTypes {
-		if asset, ok := i.Assets[t]; ok {
+		if d, ok := i.Items[t]; ok {
+			if d.ID == "" {
+				d.ID = ulid.Make().String()
+			}
+
+			if len(d.Asset) > 0 {
+				item.Fields = append(item.Fields, &cms.Field{
+					Key:   "asset",
+					Type:  "asset",
+					Value: d.Asset,
+					Group: d.ID,
+				})
+			}
+
+			if len(d.Converted) > 0 {
+				item.Fields = append(item.Fields, &cms.Field{
+					Key:   "conv",
+					Type:  "asset",
+					Value: d.Converted,
+					Group: d.ID,
+				})
+			}
+
+			if d.Description != "" {
+				item.Fields = append(item.Fields, &cms.Field{
+					Key:   "description",
+					Type:  "textarea",
+					Value: d.Description,
+					Group: d.ID,
+				})
+			}
+
 			item.Fields = append(item.Fields, &cms.Field{
 				Key:   t,
-				Type:  "asset",
-				Value: asset,
+				Type:  "group",
+				Value: d.ID,
 			})
 		}
 
-		if conv, ok := i.ConvertedAssets[t]; ok {
-			item.Fields = append(item.Fields, &cms.Field{
-				Key:   t + "_conv",
-				Type:  "asset",
-				Value: conv,
+		if tag, ok := i.ConvertStatus[t]; ok {
+			item.MetadataFields = append(item.MetadataFields, &cms.Field{
+				Key:   t + "_status",
+				Type:  "tag",
+				Value: tag.Name,
 			})
 		}
-
-		// if pub, ok := i.Public[t]; ok {
-		// 	item.MetadataFields = append(item.MetadataFields, &cms.Field{
-		// 		Key:   t + "_public",
-		// 		Type:  "bool",
-		// 		Value: pub,
-		// 	})
-		// }
 	}
 
 	return item

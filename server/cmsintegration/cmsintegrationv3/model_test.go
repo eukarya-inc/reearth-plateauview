@@ -127,80 +127,115 @@ func TestRelatedItemFrom(t *testing.T) {
 		ID: "id",
 		Fields: []*cms.Field{
 			{
-				Key:   "park",
+				Key:   "asset",
 				Type:  "asset",
 				Value: []string{"PARK"},
+				Group: "park",
 			},
 			{
-				Key:   "park_conv",
+				Key:   "conv",
 				Type:  "asset",
 				Value: []string{"PARK_CONV"},
+				Group: "park",
+			},
+			{
+				Key:   "park",
+				Type:  "group",
+				Value: "park",
+			},
+			{
+				Key:   "asset",
+				Type:  "asset",
+				Value: []string{"LANDMARK"},
+				Group: "landmark",
 			},
 			{
 				Key:   "landmark",
-				Type:  "asset",
-				Value: []string{"LANDMARK"},
+				Type:  "group",
+				Value: "landmark",
 			},
 		},
 		MetadataFields: []*cms.Field{
 			{
-				Key:   "conv_status",
+				Key:   "park_status",
 				Type:  "tag",
 				Value: map[string]any{"id": "xxx", "name": string(ConvertionStatusSuccess)},
 			},
 			{
-				Key:   "public",
-				Type:  "bool",
-				Value: true,
+				Key:   "merge_status",
+				Type:  "tag",
+				Value: map[string]any{"id": "xxx", "name": string(ConvertionStatusSuccess)},
 			},
 		},
 	}
 
 	expected := &RelatedItem{
 		ID: "id",
-		Assets: map[string][]string{
-			"park":     {"PARK"},
-			"landmark": {"LANDMARK"},
+		Items: map[string]RelatedItemDatum{
+			"park": {
+				ID:        "park",
+				Asset:     []string{"PARK"},
+				Converted: []string{"PARK_CONV"},
+			},
+			"landmark": {
+				ID:    "landmark",
+				Asset: []string{"LANDMARK"},
+			},
 		},
-		ConvertedAssets: map[string][]string{
-			"park": {"PARK_CONV"},
+		ConvertStatus: map[string]*cms.Tag{
+			"park": {
+				ID:   "xxx",
+				Name: string(ConvertionStatusSuccess),
+			},
 		},
-		ConvertStatus: &cms.Tag{
+		MergeStatus: &cms.Tag{
 			ID:   "xxx",
 			Name: string(ConvertionStatusSuccess),
 		},
-		Public: true,
 	}
 
 	expected2 := &cms.Item{
 		ID: "id",
 		Fields: []*cms.Field{
 			{
-				Key:   "park",
+				Key:   "asset",
 				Type:  "asset",
 				Value: []string{"PARK"},
+				Group: "park",
 			},
 			{
-				Key:   "park_conv",
+				Key:   "conv",
 				Type:  "asset",
 				Value: []string{"PARK_CONV"},
+				Group: "park",
+			},
+			{
+				Key:   "park",
+				Type:  "group",
+				Value: "park",
+			},
+			{
+				Key:   "asset",
+				Type:  "asset",
+				Value: []string{"LANDMARK"},
+				Group: "landmark",
 			},
 			{
 				Key:   "landmark",
-				Type:  "asset",
-				Value: []string{"LANDMARK"},
+				Type:  "group",
+				Value: "landmark",
 			},
 		},
 		MetadataFields: []*cms.Field{
 			{
-				Key:   "conv_status",
+				Key:   "merge_status",
 				Type:  "tag",
 				Value: "xxx",
 			},
 			{
-				Key:   "public",
-				Type:  "bool",
-				Value: true,
+				Key:   "park_status",
+				Type:  "tag",
+				Value: string(ConvertionStatusSuccess),
 			},
 		},
 	}
