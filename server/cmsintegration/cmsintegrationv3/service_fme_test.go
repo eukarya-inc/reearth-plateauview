@@ -98,7 +98,7 @@ func TestSendRequestToFME(t *testing.T) {
 					Fields: []*cms.Field{
 						{
 							Key:   "conv_status",
-							Value: string(ConvertionStatusSuccess),
+							Value: map[string]interface{}{"value": ConvertionStatusSuccess},
 						},
 					},
 				}, nil
@@ -294,7 +294,7 @@ func TestSendRequestToFME(t *testing.T) {
 		}
 		c.updateItem = func(ctx context.Context, id string, fields []*cms.Field, metadataFields []*cms.Field) (*cms.Item, error) {
 			assert.Equal(t, "conv_status", metadataFields[0].Key)
-			assert.Equal(t, ConvertionStatusRunning, metadataFields[0].Value)
+			assert.Equal(t, string(ConvertionStatusRunning), metadataFields[0].Value)
 			return nil, nil
 		}
 		c.commentToItem = func(ctx context.Context, assetID, content string) error {
@@ -375,7 +375,7 @@ func TestSendRequestToFME(t *testing.T) {
 		}
 		c.updateItem = func(ctx context.Context, id string, fields []*cms.Field, metadataFields []*cms.Field) (*cms.Item, error) {
 			assert.Equal(t, "conv_status", metadataFields[0].Key)
-			assert.Equal(t, ConvertionStatusRunning, metadataFields[0].Value)
+			assert.Equal(t, string(ConvertionStatusRunning), metadataFields[0].Value)
 			return nil, nil
 		}
 		c.commentToItem = func(ctx context.Context, assetID, content string) error {
@@ -493,13 +493,13 @@ func TestReceiveResultFromFME(t *testing.T) {
 			assert.Equal(t, []*cms.Field{
 				{
 					Key:   "conv_status",
-					Type:  "select",
-					Value: ConvertionStatusSuccess,
+					Type:  "tag",
+					Value: string(ConvertionStatusSuccess),
 				},
 				{
 					Key:   "qc_status",
-					Type:  "select",
-					Value: ConvertionStatusSuccess,
+					Type:  "tag",
+					Value: string(ConvertionStatusSuccess),
 				},
 			}, metadataFields)
 			return nil, nil
@@ -604,13 +604,13 @@ func TestReceiveResultFromFME(t *testing.T) {
 			assert.Equal(t, []*cms.Field{
 				{
 					Key:   "conv_status",
-					Type:  "select",
-					Value: ConvertionStatusSuccess,
+					Type:  "tag",
+					Value: string(ConvertionStatusSuccess),
 				},
 				{
 					Key:   "qc_status",
-					Type:  "select",
-					Value: ConvertionStatusSuccess,
+					Type:  "tag",
+					Value: string(ConvertionStatusSuccess),
 				},
 			}, metadataFields)
 			return nil, nil
@@ -641,13 +641,13 @@ func TestReceiveResultFromFME(t *testing.T) {
 			assert.Equal(t, []*cms.Field{
 				{
 					Key:   "conv_status",
-					Type:  "select",
-					Value: ConvertionStatusError,
+					Type:  "tag",
+					Value: string(ConvertionStatusError),
 				},
 				{
 					Key:   "qc_status",
-					Type:  "select",
-					Value: ConvertionStatusError,
+					Type:  "tag",
+					Value: string(ConvertionStatusError),
 				},
 			}, metadataFields)
 			return nil, nil

@@ -233,6 +233,7 @@ func TestSetupCityItems(t *testing.T) {
 }
 
 func assertCityItem(t *testing.T, expected *CityItem, actual *cms.Item) {
+	t.Helper()
 	assert.Equal(t, "city", actual.ModelID)
 	a := CityItemFrom(actual)
 	am := &CityItem{
@@ -246,6 +247,7 @@ func assertCityItem(t *testing.T, expected *CityItem, actual *cms.Item) {
 }
 
 func assertFeatureItem(t *testing.T, expectedModel, expectedCity string, status ManagementStatus, actual *cms.Item) {
+	t.Helper()
 	assert.Equal(t, expectedModel, actual.ModelID, "model of "+actual.ID)
 	assert.Equal(t, expectedCity, actual.FieldByKey("city").GetValue().Interface(), "city of "+actual.ID)
 	statusv := actual.MetadataFieldByKey("status").GetValue().Interface()
@@ -253,10 +255,11 @@ func assertFeatureItem(t *testing.T, expectedModel, expectedCity string, status 
 		assert.Nil(t, statusv, "status of "+actual.ID)
 		return
 	}
-	assert.Equal(t, status, statusv, "status of "+actual.ID)
+	assert.Equal(t, string(status), statusv, "status of "+actual.ID)
 }
 
 func assertUpdatedCityItem(t *testing.T, expected *CityItem, actual *cms.Item) {
+	t.Helper()
 	a := CityItemFrom(actual)
 	am := &CityItem{
 		ID:                a.ID,

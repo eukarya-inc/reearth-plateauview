@@ -50,8 +50,11 @@ func TestConvertRelatedDataset(t *testing.T) {
 	}
 	s := &Services{CMS: c, HTTP: http.DefaultClient}
 	item := &RelatedItem{
-		Assets: map[string][]string{
-			"border": {"border"},
+		Items: map[string]RelatedItemDatum{
+			"border": {
+				ID:    "border",
+				Asset: []string{"border"},
+			},
 		},
 	}
 	w := &cmswebhook.Payload{
@@ -75,22 +78,28 @@ func TestConvertRelatedDataset(t *testing.T) {
 			nil,
 			{
 				{
-					Key:   "border_conv",
+					Key:   "conv",
 					Type:  "asset",
 					Value: []string{"asset"},
+					Group: "border",
+				},
+				{
+					Key:   "border",
+					Type:  "group",
+					Value: "border",
 				},
 			},
 		}, updatedFields)
 		assert.Equal(t, [][]*cms.Field{
 			{
-				{Key: "conv_status", Type: "select", Value: ConvertionStatusRunning},
+				{Key: "border_status", Type: "tag", Value: string(ConvertionStatusRunning)},
 			},
 			{
-				{Key: "conv_status", Type: "select", Value: ConvertionStatusSuccess},
+				{Key: "border_status", Type: "tag", Value: string(ConvertionStatusSuccess)},
 			},
 		}, updatedMetadataFields)
 		assert.Equal(t, []string{"hoge_border.czml"}, uploaded)
-		assert.Equal(t, []string{"変換を開始しました。", "変換に成功しました。"}, comments)
+		assert.Equal(t, []string{"変換を開始しました。", "変換が完了しました。"}, comments)
 	})
 }
 
@@ -133,8 +142,8 @@ func TestPackRelatedDataset(t *testing.T) {
 	c := &cmsMock{
 		getItem: func(ctx context.Context, id string, asset bool) (*cms.Item, error) {
 			return (&CityItem{
-				CityNameEn: "city",
-				CityCode:   "code",
+				CityNameEn: "hoge",
+				CityCode:   "00000",
 			}).CMSItem(), nil
 		},
 		asset: func(ctx context.Context, id string) (*cms.Asset, error) {
@@ -162,14 +171,14 @@ func TestPackRelatedDataset(t *testing.T) {
 	s := &Services{CMS: c, HTTP: http.DefaultClient}
 	item := &RelatedItem{
 		City: "city",
-		Assets: map[string][]string{
-			"shelter":         {"shelter"},
-			"landmark":        {"landmark1", "landmark2"},
-			"station":         {"station"},
-			"park":            {"park"},
-			"railway":         {"railway"},
-			"emergency_route": {"emergency_route"},
-			"border":          {"border"},
+		Items: map[string]RelatedItemDatum{
+			"shelter":         {Asset: []string{"00000_hoge_city_2023_shelter"}},
+			"landmark":        {Asset: []string{"00001_hoge_city_2023_landmark", "00002_hoge_city_2023_landmark"}},
+			"station":         {Asset: []string{"00000_hoge_city_2023_station"}},
+			"park":            {Asset: []string{"00000_hoge_city_2023_park"}},
+			"railway":         {Asset: []string{"00000_hoge_city_2023_railway"}},
+			"emergency_route": {Asset: []string{"00000_hoge_city_2023_emergency_route"}},
+			"border":          {Asset: []string{"00000_hoge_city_2023_border"}},
 		},
 	}
 	w := &cmswebhook.Payload{
@@ -201,13 +210,13 @@ func TestPackRelatedDataset(t *testing.T) {
 		}, updatedFields)
 		assert.Equal(t, [][]*cms.Field{
 			{
-				{Key: "merge_status", Type: "select", Value: ConvertionStatusRunning},
+				{Key: "merge_status", Type: "tag", Value: string(ConvertionStatusRunning)},
 			},
 			{
-				{Key: "merge_status", Type: "select", Value: ConvertionStatusSuccess},
+				{Key: "merge_status", Type: "tag", Value: string(ConvertionStatusSuccess)},
 			},
 		}, updatedMetadataFields)
-		assert.Equal(t, []string{"code_city_related.zip"}, uploaded)
+		assert.Equal(t, []string{"00000_hoge_2023_related.zip"}, uploaded)
 		assert.Equal(t, []string{
 			"G空間情報センター公開用zipファイルの作成を開始しました。",
 			"G空間情報センター公開用zipファイルの作成が完了しました。",
@@ -215,44 +224,56 @@ func TestPackRelatedDataset(t *testing.T) {
 
 		zr, _ := zip.NewReader(bytes.NewReader(uploadedData[0]), int64(len(uploadedData[0])))
 		assert.Equal(t, []string{
-			"shelter.geojson",
-			"park.geojson",
-			"landmark1.geojson",
-			"landmark2.geojson",
-			"landmark.geojson",
-			"station.geojson",
-			"railway.geojson",
-			"emergency_route.geojson",
-			"border.geojson",
+			"00000_hoge_city_2023_shelter.geojson",
+			"00000_hoge_city_2023_park.geojson",
+			"00001_hoge_city_2023_landmark.geojson",
+			"00002_hoge_city_2023_landmark.geojson",
+			"00000_hoge_city_2023_landmark.geojson",
+			"00000_hoge_city_2023_station.geojson",
+			"00000_hoge_city_2023_railway.geojson",
+			"00000_hoge_city_2023_emergency_route.geojson",
+			"00000_hoge_city_2023_border.geojson",
 		}, lo.Map(zr.File, func(f *zip.File, _ int) string {
 			return f.Name
 		}))
 
-		// assert landmark1.geojson
-		zf := lo.Must(zr.Open("landmark1.geojson"))
+		// assert 00001_hoge_city_2023_landmark.geojson
+		zf := lo.Must(zr.Open("00001_hoge_city_2023_landmark.geojson"))
 		var ge map[string]any
 		_ = json.NewDecoder(zf).Decode(&ge)
-		assert.Equal(t, mockGeoJSON("landmark1"), ge)
+		assert.Equal(t, mockGeoJSON("00001_hoge_city_2023_landmark"), ge)
 
-		// assert landmark.geojson
-		zf = lo.Must(zr.Open("landmark.geojson"))
+		// assert 00000_hoge_city_2023_landmark.geojson
+		zf = lo.Must(zr.Open("00000_hoge_city_2023_landmark.geojson"))
 		ge = nil
 		_ = json.NewDecoder(zf).Decode(&ge)
 		assert.Equal(t, map[string]any{
 			"type": "FeatureCollection",
-			"name": "code_city_landmark",
+			"name": "00000_hoge_city_2023_landmark",
 			"features": []any{
 				map[string]any{
 					"type":       "Feature",
-					"properties": map[string]any{"name": "landmark1"},
+					"properties": map[string]any{"name": "00001_hoge_city_2023_landmark"},
 					"geometry":   map[string]any{"type": "Point", "coordinates": []any{0.0, 0.0}},
 				},
 				map[string]any{
 					"type":       "Feature",
-					"properties": map[string]any{"name": "landmark2"},
+					"properties": map[string]any{"name": "00002_hoge_city_2023_landmark"},
 					"geometry":   map[string]any{"type": "Point", "coordinates": []any{0.0, 0.0}},
 				},
 			},
 		}, ge)
 	})
+}
+
+func TestParseRelatedAssetName(t *testing.T) {
+	assert.Equal(t, &relatedAssetName{
+		CityCode: "00000",
+		CityName: "hoge",
+		Provider: "city",
+		Year:     2023,
+		Type:     "landmark",
+		Ext:      "geojson",
+	}, parseRelatedAssetName("https://example.com/00000_hoge_city_2023_landmark.geojson"))
+	assert.Nil(t, parseRelatedAssetName("https://example.com/0000_hoge_city_2023_landmark.geojson"))
 }

@@ -459,7 +459,8 @@ func itemsToJSONs(items []cms.Item) []any {
 }
 
 func itemJSON(f *cms.Field, id string) any {
-	j, err := f.GetValue().JSON()
+	var j any
+	err := f.GetValue().JSON(&j)
 	if j == nil || err != nil {
 		return nil
 	}
