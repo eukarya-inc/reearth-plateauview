@@ -1,4 +1,4 @@
-package geospatialjp
+package geospatialjpv2
 
 import (
 	"testing"

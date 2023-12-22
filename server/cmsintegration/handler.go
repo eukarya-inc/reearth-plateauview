@@ -3,9 +3,9 @@ package cmsintegration
 import (
 	"github.com/eukarya-inc/reearth-plateauview/server/cmsintegration/cmsintegrationcommon"
 	"github.com/eukarya-inc/reearth-plateauview/server/cmsintegration/cmsintegrationv2"
+	"github.com/eukarya-inc/reearth-plateauview/server/cmsintegration/cmsintegrationv2/geospatialjpv2"
 	"github.com/eukarya-inc/reearth-plateauview/server/cmsintegration/cmsintegrationv3"
 	"github.com/eukarya-inc/reearth-plateauview/server/cmsintegration/dataconv"
-	"github.com/eukarya-inc/reearth-plateauview/server/cmsintegration/geospatialjp"
 	"github.com/labstack/echo/v4"
 	"github.com/reearth/reearth-cms-api/go/cmswebhook"
 )
@@ -28,7 +28,7 @@ func compatHandler(conf Config, g *echo.Group) error {
 		return err
 	}
 
-	geo, err := geospatialjp.Handler(geospatialjpConfig(conf))
+	geo, err := geospatialjpv2.Handler(geospatialjpConfig(conf))
 	if err != nil {
 		return err
 	}
@@ -45,36 +45,41 @@ func compatHandler(conf Config, g *echo.Group) error {
 }
 
 func WebhookHandler(conf Config) (cmswebhook.Handler, error) {
-	h1, err := cmsintegrationv3.WebhookHandler(conf)
+	hv3, err := cmsintegrationv3.WebhookHandler(conf)
+	if err != nil {
+		return nil, err
+	}
+
+	hv3geo, err := geospatialjpv2.WebhookHandler(geospatialjpConfig(conf))
 	if err != nil {
 		return nil, err
 	}
 
 	// compat
-	h2, err := cmsintegrationv2.WebhookHandler(conf)
+	hv2, err := cmsintegrationv2.WebhookHandler(conf)
 	if err != nil {
 		return nil, err
 	}
 
 	// compat
-	h3, err := geospatialjp.WebhookHandler(geospatialjpConfig(conf))
+	hv2geo, err := geospatialjpv2.WebhookHandler(geospatialjpConfig(conf))
 	if err != nil {
 		return nil, err
 	}
 
 	// compat
-	h4, err := dataconv.WebhookHandler(dataConvConfig(conf))
+	hv2dataconv, err := dataconv.WebhookHandler(dataConvConfig(conf))
 	if err != nil {
 		return nil, err
 	}
 
 	return cmswebhook.MergeHandlers([]cmswebhook.Handler{
-		h1, h2, h3, h4,
+		hv3, hv3geo, hv2, hv2geo, hv2dataconv,
 	}), nil
 }
 
-func geospatialjpConfig(conf Config) geospatialjp.Config {
-	return geospatialjp.Config{
+func geospatialjpConfig(conf Config) geospatialjpv2.Config {
+	return geospatialjpv2.Config{
 		CMSBase:             conf.CMSBaseURL,
 		CMSToken:            conf.CMSToken,
 		CMSIntegration:      conf.CMSIntegration,
