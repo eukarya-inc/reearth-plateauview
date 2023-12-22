@@ -154,7 +154,7 @@ func SetupCityItems(ctx context.Context, s *Services, inp SetupCityItemsInput, o
 
 			featureItem := &FeatureItem{
 				City:   newCityItem.ID,
-				Status: status,
+				Status: tagFrom(status),
 			}
 			featureCMSItem := featureItem.CMSItem()
 

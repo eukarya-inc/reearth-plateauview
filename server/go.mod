@@ -16,9 +16,9 @@ require (
 	github.com/oklog/ulid/v2 v2.1.0
 	github.com/paulmach/go.geojson v1.4.0
 	github.com/reearth/go3dtiles v0.0.0-20230612053146-a6d07c1ab855
-	github.com/reearth/reearth-cms-api/go v0.0.0-20231127120139-56fbd1fed78a
+	github.com/reearth/reearth-cms-api/go v0.0.0-20231222104419-9d47b68b37ab
 	github.com/reearth/reearthx v0.0.0-20231018053753-30170f2e187d
-	github.com/samber/lo v1.38.1
+	github.com/samber/lo v1.39.0
 	github.com/sendgrid/sendgrid-go v3.13.0+incompatible
 	github.com/spf13/afero v1.10.0
 	github.com/spkg/bom v1.0.0
@@ -27,7 +27,7 @@ require (
 	github.com/thanhpk/randstr v1.0.4
 	github.com/vektah/gqlparser/v2 v2.5.10
 	github.com/vincent-petithory/dataurl v1.0.0
-	golang.org/x/net v0.18.0
+	golang.org/x/net v0.19.0
 	gonum.org/v1/gonum v0.13.0
 )
 
@@ -49,13 +49,13 @@ require (
 	github.com/deepmap/oapi-codegen/v2 v2.0.0 // indirect
 	github.com/dsnet/compress v0.0.1 // indirect
 	github.com/fatih/color v1.12.0 // indirect
-	github.com/getkin/kin-openapi v0.120.0 // indirect
+	github.com/getkin/kin-openapi v0.122.0 // indirect
 	github.com/go-fonts/latin-modern v0.3.0 // indirect
 	github.com/go-latex/latex v0.0.0-20230307184459-12ec69307ad9 // indirect
 	github.com/go-logr/logr v1.2.4 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
-	github.com/go-openapi/jsonpointer v0.20.0 // indirect
-	github.com/go-openapi/swag v0.22.4 // indirect
+	github.com/go-openapi/jsonpointer v0.20.2 // indirect
+	github.com/go-openapi/swag v0.22.6 // indirect
 	github.com/goccy/go-yaml v1.11.2 // indirect
 	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0 // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
@@ -96,7 +96,7 @@ require (
 	golang.org/x/mod v0.14.0 // indirect
 	golang.org/x/oauth2 v0.13.0 // indirect
 	golang.org/x/sync v0.5.0 // indirect
-	golang.org/x/tools v0.15.0 // indirect
+	golang.org/x/tools v0.16.1 // indirect
 	golang.org/x/xerrors v0.0.0-20220411194840-2f41105eb62f // indirect
 	gonum.org/v1/plot v0.11.0 // indirect
 	google.golang.org/api v0.126.0 // indirect
@@ -135,9 +135,9 @@ require (
 	go.uber.org/atomic v1.11.0 // indirect
 	go.uber.org/multierr v1.10.0 // indirect
 	go.uber.org/zap v1.26.0 // indirect
-	golang.org/x/crypto v0.15.0 // indirect
-	golang.org/x/exp v0.0.0-20231110203233-9a3e6036ecaa
-	golang.org/x/sys v0.14.0 // indirect
+	golang.org/x/crypto v0.16.0 // indirect
+	golang.org/x/exp v0.0.0-20231219180239-dc181d75b848
+	golang.org/x/sys v0.15.0 // indirect
 	golang.org/x/text v0.14.0
 	golang.org/x/time v0.3.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect

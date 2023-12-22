@@ -58,7 +58,7 @@ func sendRequestToFME(ctx context.Context, s *Services, conf *Config, w *cmswebh
 	}
 
 	item := FeatureItemFrom(mainItem)
-	if item.ConvertionStatus != "" && item.ConvertionStatus != ConvertionStatusNotStarted {
+	if tagIsNot(item.ConvertionStatus, ConvertionStatusNotStarted) {
 		log.Debugfc(ctx, "cmsintegrationv3: already converted")
 		return nil
 	}
@@ -175,7 +175,7 @@ func receiveResultFromFME(ctx context.Context, s *Services, conf *Config, f fmeR
 					}
 
 					item := (&FeatureItem{
-						QCStatus: ConvertionStatusSuccess,
+						QCStatus: tagFrom(ConvertionStatusSuccess),
 						QCResult: qcResultAsset,
 					}).CMSItem()
 
@@ -313,8 +313,8 @@ func receiveResultFromFME(ctx context.Context, s *Services, conf *Config, f fmeR
 		Items:            items,
 		Dic:              dic,
 		MaxLOD:           maxlodAssetID,
-		ConvertionStatus: convStatus,
-		QCStatus:         qcStatus,
+		ConvertionStatus: tagFrom(convStatus),
+		QCStatus:         tagFrom(qcStatus),
 		QCResult:         qcResult,
 	}).CMSItem()
 

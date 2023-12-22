@@ -60,6 +60,10 @@ var relatedDataTypes = []string{
 
 type ManagementStatus string
 
+func (s ManagementStatus) String() string {
+	return string(s)
+}
+
 const (
 	ManagementStatusNotStarted ManagementStatus = "登録未着手"
 	ManagementStatusRunning    ManagementStatus = "新規登録中"
@@ -69,6 +73,10 @@ const (
 )
 
 type ConvertionStatus string
+
+func (s ConvertionStatus) String() string {
+	return string(s)
+}
 
 const (
 	ConvertionStatusNotStarted ConvertionStatus = "未実行"
@@ -159,12 +167,11 @@ type FeatureItem struct {
 	Dic         string             `json:"dic,omitempty" cms:"dic,textarea"`
 	MaxLOD      string             `json:"maxlod,omitempty" cms:"maxlod,asset"`
 	// metadata
-	Status            ManagementStatus `json:"status,omitempty" cms:"status,select,metadata"`
-	SkipQC            bool             `json:"skip_qc,omitempty" cms:"skip_qc,bool,metadata"`
-	SkipConvert       bool             `json:"skip_conv,omitempty" cms:"skip_conv,bool,metadata"`
-	ConvertionStatus  ConvertionStatus `json:"conv_status,omitempty" cms:"conv_status,select,metadata"`
-	QCStatus          ConvertionStatus `json:"qc_status,omitempty" cms:"qc_status,select,metadata"`
-	SearchIndexStatus ConvertionStatus `json:"search_index_status,omitempty" cms:"search_index_status,select,metadata"`
+	SkipQC           bool     `json:"skip_qc,omitempty" cms:"skip_qc,bool,metadata"`
+	SkipConvert      bool     `json:"skip_conv,omitempty" cms:"skip_conv,bool,metadata"`
+	Status           *cms.Tag `json:"status,omitempty" cms:"status,select,metadata"`
+	ConvertionStatus *cms.Tag `json:"conv_status,omitempty" cms:"conv_status,tag,metadata"`
+	QCStatus         *cms.Tag `json:"qc_status,omitempty" cms:"qc_status,tag,metadata"`
 }
 
 type FeatureItemDatum struct {
@@ -197,9 +204,8 @@ type GenericItem struct {
 	OpenDataUrl string               `json:"open-data-url,omitempty" cms:"open_data_url,url"`
 	Year        string               `json:"year,omitempty" cms:"year,select"`
 	// metadata
-	Status ManagementStatus `json:"status,omitempty" cms:"status,select,metadata"`
-	Public bool             `json:"public,omitempty" cms:"public,bool,metadata"`
-	UseAR  bool             `json:"use-ar,omitempty" cms:"use-ar,bool,metadata"`
+	Public bool `json:"public,omitempty" cms:"public,bool,metadata"`
+	UseAR  bool `json:"use-ar,omitempty" cms:"use-ar,bool,metadata"`
 }
 
 type GenericItemDataset struct {
@@ -230,9 +236,9 @@ type RelatedItem struct {
 	ConvertedAssets map[string][]string `json:"converted,omitempty" cms:"-"`
 	Merged          string              `json:"merged,omitempty" cms:"merged,asset"`
 	// metadata
-	ConvertStatus ConvertionStatus `json:"conv_status,omitempty" cms:"conv_status,select,metadata"`
-	MergeStatus   ConvertionStatus `json:"merge_status,omitempty" cms:"merge_status,select,metadata"`
-	Public        bool             `json:"public,omitempty" cms:"public,bool,metadata"`
+	ConvertStatus *cms.Tag `json:"conv_status,omitempty" cms:"conv_status,tag,metadata"`
+	MergeStatus   *cms.Tag `json:"merge_status,omitempty" cms:"merge_status,tag,metadata"`
+	Public        bool     `json:"public,omitempty" cms:"public,bool,metadata"`
 }
 
 func RelatedItemFrom(item *cms.Item) (i *RelatedItem) {

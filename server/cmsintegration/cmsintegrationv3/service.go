@@ -69,8 +69,8 @@ func (s *Services) UpdateFeatureItemStatus(ctx context.Context, itemID string, c
 	}
 
 	fields := (&FeatureItem{
-		ConvertionStatus: convStatus,
-		QCStatus:         qcStatus,
+		ConvertionStatus: tagFrom(convStatus),
+		QCStatus:         tagFrom(qcStatus),
 	}).CMSItem().MetadataFields
 	_, err := s.CMS.UpdateItem(ctx, itemID, nil, fields)
 	if err != nil {

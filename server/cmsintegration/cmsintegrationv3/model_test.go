@@ -53,16 +53,22 @@ func TestFeatureItemFrom(t *testing.T) {
 		ID: "id",
 		MetadataFields: []*cms.Field{
 			{
-				Key:   "conv_status",
-				Type:  "select",
-				Value: string(ConvertionStatusError),
+				Key:  "conv_status",
+				Type: "tag",
+				Value: map[string]any{
+					"id":   "xxx",
+					"name": string(ConvertionStatusError),
+				},
 			},
 		},
 	}
 
 	expected := &FeatureItem{
-		ID:               "id",
-		ConvertionStatus: ConvertionStatusError,
+		ID: "id",
+		ConvertionStatus: &cms.Tag{
+			ID:   "xxx",
+			Name: string(ConvertionStatusError),
+		},
 	}
 
 	expected2 := &cms.Item{
@@ -70,8 +76,8 @@ func TestFeatureItemFrom(t *testing.T) {
 		MetadataFields: []*cms.Field{
 			{
 				Key:   "conv_status",
-				Type:  "select",
-				Value: ConvertionStatusError,
+				Type:  "tag",
+				Value: "xxx",
 			},
 		},
 	}
@@ -87,25 +93,25 @@ func TestGenericItemFrom(t *testing.T) {
 		ID: "id",
 		MetadataFields: []*cms.Field{
 			{
-				Key:   "status",
-				Type:  "select",
-				Value: string(ManagementStatusDone),
+				Key:   "public",
+				Type:  "bool",
+				Value: true,
 			},
 		},
 	}
 
 	expected := &GenericItem{
 		ID:     "id",
-		Status: ManagementStatusDone,
+		Public: true,
 	}
 
 	expected2 := &cms.Item{
 		ID: "id",
 		MetadataFields: []*cms.Field{
 			{
-				Key:   "status",
-				Type:  "select",
-				Value: ManagementStatusDone,
+				Key:   "public",
+				Type:  "bool",
+				Value: true,
 			},
 		},
 	}
@@ -139,8 +145,8 @@ func TestRelatedItemFrom(t *testing.T) {
 		MetadataFields: []*cms.Field{
 			{
 				Key:   "conv_status",
-				Type:  "select",
-				Value: ConvertionStatusSuccess,
+				Type:  "tag",
+				Value: map[string]any{"id": "xxx", "name": string(ConvertionStatusSuccess)},
 			},
 			{
 				Key:   "public",
@@ -159,12 +165,48 @@ func TestRelatedItemFrom(t *testing.T) {
 		ConvertedAssets: map[string][]string{
 			"park": {"PARK_CONV"},
 		},
-		ConvertStatus: ConvertionStatusSuccess,
-		Public:        true,
+		ConvertStatus: &cms.Tag{
+			ID:   "xxx",
+			Name: string(ConvertionStatusSuccess),
+		},
+		Public: true,
+	}
+
+	expected2 := &cms.Item{
+		ID: "id",
+		Fields: []*cms.Field{
+			{
+				Key:   "park",
+				Type:  "asset",
+				Value: []string{"PARK"},
+			},
+			{
+				Key:   "park_conv",
+				Type:  "asset",
+				Value: []string{"PARK_CONV"},
+			},
+			{
+				Key:   "landmark",
+				Type:  "asset",
+				Value: []string{"LANDMARK"},
+			},
+		},
+		MetadataFields: []*cms.Field{
+			{
+				Key:   "conv_status",
+				Type:  "tag",
+				Value: "xxx",
+			},
+			{
+				Key:   "public",
+				Type:  "bool",
+				Value: true,
+			},
+		},
 	}
 
 	relatedItem := RelatedItemFrom(item)
 	assert.Equal(t, expected, relatedItem)
 	item2 := relatedItem.CMSItem()
-	assert.Equal(t, item, item2)
+	assert.Equal(t, expected2, item2)
 }

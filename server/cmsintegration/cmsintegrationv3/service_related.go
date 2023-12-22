@@ -56,7 +56,7 @@ func handleRelatedDataset(ctx context.Context, s *Services, w *cmswebhook.Payloa
 }
 
 func convertRelatedDataset(ctx context.Context, s *Services, w *cmswebhook.Payload, item *RelatedItem) (err error) {
-	if item.ConvertStatus != "" && item.ConvertStatus != ConvertionStatusNotStarted {
+	if tagIsNot(item.ConvertStatus, ConvertionStatusNotStarted) {
 		log.Debugfc(ctx, "cmsintegrationv3: already converted")
 		return nil
 	}
@@ -71,7 +71,7 @@ func convertRelatedDataset(ctx context.Context, s *Services, w *cmswebhook.Paylo
 
 	// update status
 	if _, err := s.CMS.UpdateItem(ctx, item.ID, nil, (&RelatedItem{
-		ConvertStatus: ConvertionStatusRunning,
+		ConvertStatus: tagFrom(ConvertionStatusRunning),
 	}).CMSItem().MetadataFields); err != nil {
 		return fmt.Errorf("failed to update item: %w", err)
 	}
@@ -82,7 +82,7 @@ func convertRelatedDataset(ctx context.Context, s *Services, w *cmswebhook.Paylo
 		}
 
 		if _, err := s.CMS.UpdateItem(ctx, item.ID, nil, (&RelatedItem{
-			MergeStatus: ConvertionStatusError,
+			MergeStatus: tagFrom(ConvertionStatusError),
 		}).CMSItem().MetadataFields); err != nil {
 			log.Warnf("cmsintegrationv3: failed to update item: %w", err)
 		}
@@ -154,7 +154,7 @@ func convertRelatedDataset(ctx context.Context, s *Services, w *cmswebhook.Paylo
 	// update item
 	ritem := (&RelatedItem{
 		ConvertedAssets: conv,
-		ConvertStatus:   ConvertionStatusSuccess,
+		ConvertStatus:   tagFrom(ConvertionStatusSuccess),
 	}).CMSItem()
 	if _, err := s.CMS.UpdateItem(ctx, item.ID, ritem.Fields, ritem.MetadataFields); err != nil {
 		return fmt.Errorf("failed to update item: %w", err)
@@ -174,7 +174,7 @@ func packRelatedDataset(ctx context.Context, s *Services, w *cmswebhook.Payload,
 		return nil
 	}
 
-	if item.MergeStatus != "" && item.MergeStatus != ConvertionStatusNotStarted {
+	if tagIsNot(item.MergeStatus, ConvertionStatusNotStarted) {
 		log.Debugfc(ctx, "cmsintegrationv3: already merged")
 		return nil
 	}
@@ -190,7 +190,7 @@ func packRelatedDataset(ctx context.Context, s *Services, w *cmswebhook.Payload,
 
 	// update status
 	if _, err := s.CMS.UpdateItem(ctx, item.ID, nil, (&RelatedItem{
-		MergeStatus: ConvertionStatusRunning,
+		MergeStatus: tagFrom(ConvertionStatusRunning),
 	}).CMSItem().MetadataFields); err != nil {
 		return fmt.Errorf("failed to update item: %w", err)
 	}
@@ -201,7 +201,7 @@ func packRelatedDataset(ctx context.Context, s *Services, w *cmswebhook.Payload,
 		}
 
 		if _, err := s.CMS.UpdateItem(ctx, item.ID, nil, (&RelatedItem{
-			MergeStatus: ConvertionStatusError,
+			MergeStatus: tagFrom(ConvertionStatusError),
 		}).CMSItem().MetadataFields); err != nil {
 			log.Warnf("cmsintegrationv3: failed to update item: %w", err)
 		}
@@ -311,7 +311,7 @@ func packRelatedDataset(ctx context.Context, s *Services, w *cmswebhook.Payload,
 	// update item
 	ritem := (&RelatedItem{
 		Merged:      assetID,
-		MergeStatus: ConvertionStatusSuccess,
+		MergeStatus: tagFrom(ConvertionStatusSuccess),
 	}).CMSItem()
 
 	if _, err := s.CMS.UpdateItem(ctx, item.ID, ritem.Fields, ritem.MetadataFields); err != nil {

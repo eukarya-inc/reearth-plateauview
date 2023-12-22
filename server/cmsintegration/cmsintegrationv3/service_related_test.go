@@ -83,10 +83,10 @@ func TestConvertRelatedDataset(t *testing.T) {
 		}, updatedFields)
 		assert.Equal(t, [][]*cms.Field{
 			{
-				{Key: "conv_status", Type: "select", Value: ConvertionStatusRunning},
+				{Key: "conv_status", Type: "tag", Value: string(ConvertionStatusRunning)},
 			},
 			{
-				{Key: "conv_status", Type: "select", Value: ConvertionStatusSuccess},
+				{Key: "conv_status", Type: "tag", Value: string(ConvertionStatusSuccess)},
 			},
 		}, updatedMetadataFields)
 		assert.Equal(t, []string{"hoge_border.czml"}, uploaded)
@@ -201,10 +201,10 @@ func TestPackRelatedDataset(t *testing.T) {
 		}, updatedFields)
 		assert.Equal(t, [][]*cms.Field{
 			{
-				{Key: "merge_status", Type: "select", Value: ConvertionStatusRunning},
+				{Key: "merge_status", Type: "tag", Value: string(ConvertionStatusRunning)},
 			},
 			{
-				{Key: "merge_status", Type: "select", Value: ConvertionStatusSuccess},
+				{Key: "merge_status", Type: "tag", Value: string(ConvertionStatusSuccess)},
 			},
 		}, updatedMetadataFields)
 		assert.Equal(t, []string{"code_city_related.zip"}, uploaded)
