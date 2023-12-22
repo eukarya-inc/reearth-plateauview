@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/eukarya-inc/reearth-plateauview/server/datacatalog/plateauapi"
+	cms "github.com/reearth/reearth-cms-api/go"
 	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )
@@ -477,8 +478,10 @@ func TestPlateauDataset_ToDatasets_Fld(t *testing.T) {
 		PrefCode: lo.ToPtr(plateauapi.AreaCode("11")),
 		CityCode: lo.ToPtr(plateauapi.AreaCode("11111")),
 		CityItem: &CityItem{
-			Year:              "2023年",
-			PlateauDataStatus: ManagementStatusReady,
+			Year: "2023年",
+			PlateauDataStatus: &cms.Tag{
+				Name: string(ManagementStatusReady),
+			},
 		},
 	}
 

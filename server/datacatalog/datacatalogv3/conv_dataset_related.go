@@ -13,17 +13,24 @@ func (i *RelatedItem) toDatasets(area *areaContext, dts []plateauapi.DatasetType
 		return
 	}
 
+	stage := (*string)(nil)
+	if !area.CityItem.RelatedPublic {
+		stage = lo.EmptyableToPtr(string(area.CityItem.relatedStage()))
+	}
+
 	for _, dt := range dts {
 		ftname, ftcode := dt.GetName(), dt.GetCode()
-		assets := i.ConvertedAssets[ftcode]
+		d := i.Items[ftcode]
+		if len(d.Asset) == 0 && len(d.Converted) == 0 {
+			warning = append(warning, fmt.Sprintf("related %s: no data for %s", area.CityCode, ftcode))
+			continue
+		}
+
+		assets := d.Converted
 		format := plateauapi.DatasetFormatCzml
 		if len(assets) == 0 {
-			assets = i.Assets[ftcode]
+			assets = d.Asset
 			format = plateauapi.DatasetFormatGeojson
-		}
-		if len(assets) == 0 {
-			warning = append(warning, fmt.Sprintf("related %s: no assets for %s", area.CityCode, ftcode))
-			continue
 		}
 
 		seeds, w := assetUrlsToRelatedDatasetSeeds(assets, area.City, area.Wards)
@@ -35,7 +42,7 @@ func (i *RelatedItem) toDatasets(area *areaContext, dts []plateauapi.DatasetType
 			res = append(res, &plateauapi.RelatedDataset{
 				ID:             id,
 				Name:           standardItemName(ftname, "", seed.Area),
-				Description:    toPtrIfPresent(i.Desc),
+				Description:    toPtrIfPresent(d.Description),
 				Year:           area.CityItem.YearInt(),
 				PrefectureID:   area.PrefID,
 				PrefectureCode: area.PrefCode,
@@ -45,7 +52,7 @@ func (i *RelatedItem) toDatasets(area *areaContext, dts []plateauapi.DatasetType
 				WardCode:       seed.WardCode,
 				TypeID:         dt.GetID(),
 				TypeCode:       ftcode,
-				Stage:          stageFrom(i.Stage()),
+				Stage:          stage,
 				Items: []*plateauapi.RelatedDatasetItem{
 					{
 						ID:       plateauapi.NewID(sid, plateauapi.TypeDatasetItem),

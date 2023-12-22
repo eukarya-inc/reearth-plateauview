@@ -5,6 +5,7 @@ import (
 
 	"github.com/eukarya-inc/reearth-plateauview/server/datacatalog/datacatalogcommon"
 	cms "github.com/reearth/reearth-cms-api/go"
+	"github.com/samber/lo"
 )
 
 const modelPrefix = "plateau-"
@@ -42,10 +43,11 @@ type CityItem struct {
 	RelatedDataset string            `json:"related_dataset,omitempty" cms:"related_dataset,reference"`
 	Year           string            `json:"year,omitempty" cms:"year,select"`
 	// meatadata
-	PlateauDataStatus ManagementStatus `json:"plateau_data_status,omitempty" cms:"plateau_data_status,select,metadata"`
-	SDKPublic         bool             `json:"sdk_public,omitempty" cms:"sdk_public,bool,metadata"`
-	RelatedPublic     bool             `json:"related_public,omitempty" cms:"related_public,bool,metadata"`
-	Public            map[string]bool  `json:"public,omitempty" cms:"-"`
+	PlateauDataStatus *cms.Tag        `json:"plateau_data_status,omitempty" cms:"plateau_data_status,select,metadata"`
+	RelatedDataStatus *cms.Tag        `json:"related_data_status,omitempty" cms:"related_data_status,select,metadata"`
+	SDKPublic         bool            `json:"sdk_public,omitempty" cms:"sdk_public,bool,metadata"`
+	RelatedPublic     bool            `json:"related_public,omitempty" cms:"related_public,bool,metadata"`
+	Public            map[string]bool `json:"public,omitempty" cms:"-"`
 }
 
 func CityItemFrom(item *cms.Item, featureTypes []FeatureType) (i *CityItem) {
@@ -73,6 +75,26 @@ func (i *CityItem) YearInt() int {
 	return datacatalogcommon.YearInt(i.Year)
 }
 
+func (i *CityItem) plateauStage(ft string) stage {
+	if i.Public[ft] {
+		return stageGA
+	}
+	if i.PlateauDataStatus != nil && i.PlateauDataStatus.Name == string(ManagementStatusReady) {
+		return stageBeta
+	}
+	return stageAlpha
+}
+
+func (i *CityItem) relatedStage() stage {
+	if i.Public[relatedModel] {
+		return stageGA
+	}
+	if i.RelatedDataStatus != nil && i.RelatedDataStatus.Name == string(ManagementStatusReady) {
+		return stageBeta
+	}
+	return stageAlpha
+}
+
 type PlateauFeatureItem struct {
 	ID      string                    `json:"id,omitempty" cms:"id"`
 	City    string                    `json:"city,omitempty" cms:"city,reference"`
@@ -83,11 +105,11 @@ type PlateauFeatureItem struct {
 	Dic     string                    `json:"dic,omitempty" cms:"dic,textarea"`
 	MaxLOD  string                    `json:"maxlod,omitempty" cms:"maxlod,-"`
 	// metadata
-	Status ManagementStatus `json:"status,omitempty" cms:"status,select,metadata"`
+	Status *cms.Tag `json:"status,omitempty" cms:"status,select,metadata"`
 }
 
 func (c PlateauFeatureItem) IsPublicForAdmin() bool {
-	return c.Status == ManagementStatusReady
+	return c.Status != nil && c.Status.Name == string(ManagementStatusReady)
 }
 
 func (c PlateauFeatureItem) ReadDic() (d Dic, _ error) {
@@ -154,16 +176,16 @@ type GenericItem struct {
 	OpenDataUrl string               `json:"open-data-url,omitempty" cms:"open_data_url,url"`
 	Category    string               `json:"category,omitempty" cms:"category,select"`
 	// metadata
-	Status ManagementStatus `json:"status,omitempty" cms:"status,select,metadata"`
-	Public bool             `json:"public,omitempty" cms:"public,bool,metadata"`
-	UseAR  bool             `json:"use-ar,omitempty" cms:"use-ar,bool,metadata"`
+	Status *cms.Tag `json:"status,omitempty" cms:"status,select,metadata"`
+	Public bool     `json:"public,omitempty" cms:"public,bool,metadata"`
+	UseAR  bool     `json:"use-ar,omitempty" cms:"use-ar,bool,metadata"`
 }
 
 func (c *GenericItem) Stage() stage {
 	if c.Public {
 		return stageGA
 	}
-	if c.Status == ManagementStatusReady {
+	if c.Status != nil && c.Status.Name == string(ManagementStatusReady) {
 		return stageBeta
 	}
 	return stageAlpha
@@ -191,46 +213,40 @@ func GenericItemFrom(item *cms.Item) (i *GenericItem) {
 }
 
 type RelatedItem struct {
-	ID              string              `json:"id,omitempty" cms:"id"`
-	City            string              `json:"city,omitempty" cms:"city,reference"`
-	Assets          map[string][]string `json:"assets,omitempty" cms:"-"`
-	ConvertedAssets map[string][]string `json:"converted,omitempty" cms:"-"`
-	Desc            string              `json:"desc,omitempty" cms:"-"`
-	// metadata
-	Status ManagementStatus `json:"status,omitempty" cms:"status,select,metadata"`
-	Public bool             `json:"public,omitempty" cms:"public,bool,metadata"`
+	ID     string                      `json:"id,omitempty" cms:"id"`
+	City   string                      `json:"city,omitempty" cms:"city,reference"`
+	Items  map[string]RelatedItemDatum `json:"items,omitempty" cms:"-"`
+	Merged string                      `json:"merged,omitempty" cms:"merged,asset"`
 }
 
-func (c *RelatedItem) Stage() stage {
-	if c.Public {
-		return stageGA
-	}
-	if c.Status == ManagementStatusReady {
-		return stageBeta
-	}
-	return stageAlpha
+type RelatedItemDatum struct {
+	ID          string   `json:"id,omitempty" cms:"id"`
+	Asset       []string `json:"asset,omitempty" cms:"asset,asset"`
+	Converted   []string `json:"converted,omitempty" cms:"converted,asset"`
+	Description string   `json:"description,omitempty" cms:"description,textarea"`
 }
 
 func RelatedItemFrom(item *cms.Item, featureTypes []FeatureType) (i *RelatedItem) {
 	i = &RelatedItem{}
 	item.Unmarshal(i)
 
-	for _, t := range featureTypes {
-		assets := valueToAssetURLs(item.FieldByKey(t.Code).GetValue())
-		conv := valueToAssetURLs(item.FieldByKey(t.Code + "_conv").GetValue())
+	if i.Items == nil {
+		i.Items = map[string]RelatedItemDatum{}
+	}
 
-		if len(assets) > 0 {
-			if i.Assets == nil {
-				i.Assets = map[string][]string{}
-			}
-			i.Assets[t.Code] = append(i.Assets[t.Code], assets...)
+	for _, t := range featureTypes {
+		g := item.FieldByKey(t.Code).GetValue().String()
+		if g == nil {
+			continue
 		}
 
-		if len(conv) > 0 {
-			if i.ConvertedAssets == nil {
-				i.ConvertedAssets = map[string][]string{}
+		if group := item.Group(*g); group != nil && len(group.Fields) > 0 {
+			i.Items[t.Code] = RelatedItemDatum{
+				ID:          group.ID,
+				Asset:       valueToAssetURLs(group.FieldByKey("asset").GetValue()),
+				Converted:   valueToAssetURLs(group.FieldByKey("conv").GetValue()),
+				Description: lo.FromPtr(group.FieldByKey("description").GetValue().String()),
 			}
-			i.ConvertedAssets[t.Code] = append(i.ConvertedAssets[t.Code], conv...)
 		}
 	}
 

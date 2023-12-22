@@ -11,27 +11,30 @@ import (
 func TestRelatedItem_ToDatasets(t *testing.T) {
 	item := &RelatedItem{
 		ID: "id",
-		Assets: map[string][]string{
+		Items: map[string]RelatedItemDatum{
 			"landmark": {
-				"https://example.com/11112_hoge-ku_city_2023_landmark.geojson",
-				"https://example.com/11113_foo-ku_city_2023_landmark.geojson",
+				Asset: []string{
+					"https://example.com/11112_hoge-ku_city_2023_landmark.geojson",
+					"https://example.com/11113_foo-ku_city_2023_landmark.geojson",
+				},
+				Converted: []string{
+					"https://example.com/11112_hoge-ku_city_2023_landmark.czml",
+					"https://example.com/11113_foo-ku_city_2023_landmark.czml",
+				},
+				Description: "desc1",
 			},
-			"border": {"https://example.com/11111_bar-shi_city_2023_border.geojson"},
-		},
-		ConvertedAssets: map[string][]string{
-			"landmark": {
-				"https://example.com/11112_hoge-ku_city_2023_landmark.czml",
-				"https://example.com/11113_foo-ku_city_2023_landmark.czml",
+			"border": {
+				Asset:       []string{"https://example.com/11111_bar-shi_city_2023_border.geojson"},
+				Description: "desc2",
 			},
 		},
-		Desc: "desc",
 	}
 
 	expected := []plateauapi.Dataset{
 		&plateauapi.RelatedDataset{
 			ID:             plateauapi.NewID("11112_landmark", plateauapi.TypeDataset),
 			Name:           "ランドマーク情報（hoge区）",
-			Description:    toPtrIfPresent("desc"),
+			Description:    toPtrIfPresent("desc1"),
 			Year:           2023,
 			PrefectureID:   lo.ToPtr(plateauapi.NewID("11", plateauapi.TypeArea)),
 			PrefectureCode: lo.ToPtr(plateauapi.AreaCode("11")),
@@ -55,7 +58,7 @@ func TestRelatedItem_ToDatasets(t *testing.T) {
 		&plateauapi.RelatedDataset{
 			ID:             plateauapi.NewID("11113_landmark", plateauapi.TypeDataset),
 			Name:           "ランドマーク情報（foo区）",
-			Description:    toPtrIfPresent("desc"),
+			Description:    toPtrIfPresent("desc1"),
 			Year:           2023,
 			PrefectureID:   lo.ToPtr(plateauapi.NewID("11", plateauapi.TypeArea)),
 			PrefectureCode: lo.ToPtr(plateauapi.AreaCode("11")),
@@ -79,7 +82,7 @@ func TestRelatedItem_ToDatasets(t *testing.T) {
 		&plateauapi.RelatedDataset{
 			ID:             plateauapi.NewID("11111_border", plateauapi.TypeDataset),
 			Name:           "行政界情報（bar市）",
-			Description:    toPtrIfPresent("desc"),
+			Description:    toPtrIfPresent("desc2"),
 			Year:           2023,
 			PrefectureID:   lo.ToPtr(plateauapi.NewID("11", plateauapi.TypeArea)),
 			PrefectureCode: lo.ToPtr(plateauapi.AreaCode("11")),

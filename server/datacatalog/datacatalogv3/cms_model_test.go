@@ -105,11 +105,38 @@ func TestRelatedItemFrom(t *testing.T) {
 		Fields: []*cms.Field{
 			{
 				Key:   "hoge",
-				Value: map[string]any{"url": "url1"},
+				Type:  "group",
+				Value: "hoge",
 			},
 			{
-				Key:   "foo_conv",
-				Value: map[string]any{"url": "url2"},
+				Key:   "foo",
+				Type:  "group",
+				Value: "foo",
+			},
+			{
+				Key:   "asset",
+				Value: []any{map[string]any{"url": "url1"}},
+				Group: "hoge",
+			},
+			{
+				Key:   "conv",
+				Value: []any{map[string]any{"url": "url2"}},
+				Group: "hoge",
+			},
+			{
+				Key:   "description",
+				Value: "desc1",
+				Group: "hoge",
+			},
+			{
+				Key:   "asset",
+				Value: []any{map[string]any{"url": "url3"}},
+				Group: "foo",
+			},
+			{
+				Key:   "description",
+				Value: "desc2",
+				Group: "foo",
 			},
 		},
 	}
@@ -125,11 +152,18 @@ func TestRelatedItemFrom(t *testing.T) {
 
 	expected := &RelatedItem{
 		ID: "id",
-		Assets: map[string][]string{
-			"hoge": {"url1"},
-		},
-		ConvertedAssets: map[string][]string{
-			"foo": {"url2"},
+		Items: map[string]RelatedItemDatum{
+			"hoge": {
+				ID:          "hoge",
+				Asset:       []string{"url1"},
+				Converted:   []string{"url2"},
+				Description: "desc1",
+			},
+			"foo": {
+				ID:          "foo",
+				Asset:       []string{"url3"},
+				Description: "desc2",
+			},
 		},
 	}
 
@@ -137,11 +171,11 @@ func TestRelatedItemFrom(t *testing.T) {
 }
 
 func TestValueToAssetURLs(t *testing.T) {
-	assert.Nil(t, valueToAssetURLs(cms.NewValeu("string")))
-	assert.Nil(t, valueToAssetURLs(cms.NewValeu(map[string]string{"aaa": "bbb"})))
-	assert.Equal(t, []string{"url"}, valueToAssetURLs(cms.NewValeu(map[string]any{"url": "url"})))
-	assert.Equal(t, []string{"url"}, valueToAssetURLs(cms.NewValeu(map[any]any{"url": "url"})))
-	assert.Equal(t, []string{"url", "url2"}, valueToAssetURLs(cms.NewValeu([]any{
+	assert.Nil(t, valueToAssetURLs(cms.NewValue("string")))
+	assert.Nil(t, valueToAssetURLs(cms.NewValue(map[string]string{"aaa": "bbb"})))
+	assert.Equal(t, []string{"url"}, valueToAssetURLs(cms.NewValue(map[string]any{"url": "url"})))
+	assert.Equal(t, []string{"url"}, valueToAssetURLs(cms.NewValue(map[any]any{"url": "url"})))
+	assert.Equal(t, []string{"url", "url2"}, valueToAssetURLs(cms.NewValue([]any{
 		map[string]any{"url": "url"}, map[any]any{"url": "url2"}, map[string]any{},
 	})))
 }
