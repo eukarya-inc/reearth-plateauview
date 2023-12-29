@@ -261,7 +261,10 @@ func (s *Services) parseCatalogAndDeleteSheet(ctx context.Context, catalogURL st
 	}
 
 	// delete sheet
-	cf.DeleteSheet()
+	if err := cf.DeleteSheet(); err != nil {
+		err2 = fmt.Errorf("目録ファイルのシート削除に失敗しました。: %w", err)
+		return
+	}
 
 	catalogData, err := cf.File().WriteToBuffer()
 	if err != nil {

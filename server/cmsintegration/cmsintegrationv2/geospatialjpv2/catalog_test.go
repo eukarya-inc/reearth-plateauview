@@ -48,7 +48,7 @@ func TestCatalogFile(t *testing.T) {
 		LicenseAgreement:  "LICENSE AGREEMENT",
 		CustomFields:      nil,
 		Thumbnail:         thumbnail,
-		ThumbnailFileName: "image1.jpeg",
+		ThumbnailFileName: "thumbnail.jpeg",
 	}, cc)
 
 	// delete sheet

@@ -138,16 +138,15 @@ func (c *CatalogFile) MustDeleteSheet() error {
 	if sheet == "" {
 		return errors.New("シート「G空間登録用メタデータ」が見つかりませんでした。")
 	}
-	c.file.DeleteSheet(sheet)
-	return nil
+	return c.file.DeleteSheet(sheet)
 }
 
-func (c *CatalogFile) DeleteSheet() {
+func (c *CatalogFile) DeleteSheet() error {
 	sheet := c.getSheet()
 	if sheet == "" {
-		return
+		return nil
 	}
-	c.file.DeleteSheet(sheet)
+	return c.file.DeleteSheet(sheet)
 }
 
 func (c *CatalogFile) File() *excelize.File {
@@ -155,9 +154,9 @@ func (c *CatalogFile) File() *excelize.File {
 }
 
 func (c *CatalogFile) getSheet() string {
-	if i := c.file.GetSheetIndex("G空間登録用メタデータ "); i < 0 {
-		if i = c.file.GetSheetIndex("G空間登録用メタデータ"); i < 0 {
-			if i = c.file.GetSheetIndex("G空間登録用メタデータ_基本セット"); i < 0 {
+	if i, err := c.file.GetSheetIndex("G空間登録用メタデータ "); err != nil || i < 0 {
+		if i, err = c.file.GetSheetIndex("G空間登録用メタデータ"); err != nil || i < 0 {
+			if i, err = c.file.GetSheetIndex("G空間登録用メタデータ_基本セット"); err != nil || i < 0 {
 				return ""
 			}
 			return "G空間登録用メタデータ_基本セット"
@@ -200,11 +199,11 @@ func (c *CatalogFile) getCellValueAsTags(sheet, name, axis string, errs []error)
 }
 
 func (c *CatalogFile) getPicture(sheet, name, axis string, errs []error) (string, []byte, []error) {
-	file, raw, err := c.file.GetPicture(sheet, axis)
-	if err != nil {
+	pics, err := c.file.GetPictures(sheet, axis)
+	if err != nil || len(pics) == 0 {
 		return "", nil, append(errs, fmt.Errorf("「%s」が見つかりませんでした。", name))
 	}
-	return file, raw, errs
+	return "thumbnail" + pics[0].Extension, pics[0].File, errs
 }
 
 func (c *CatalogFile) findCell(sheet, name string, errs []error) (string, []error) {
