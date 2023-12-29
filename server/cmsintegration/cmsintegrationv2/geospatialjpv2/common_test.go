@@ -20,7 +20,7 @@ func TestService_CheckCatalog(t *testing.T) {
 	ctx := context.Background()
 	catalogData := lo.Must(os.ReadFile("testdata/xxxxx_xxx_catalog.xlsx"))
 	cf := NewCatalogFile(lo.Must(excelize.OpenReader(bytes.NewReader(catalogData))))
-	cf.DeleteSheet()
+	assert.NoError(t, cf.DeleteSheet())
 	catalogData2 := lo.Must(cf.File().WriteToBuffer()).Bytes()
 
 	httpmock.Activate()
@@ -76,7 +76,7 @@ func TestService_RegisterCkanResources(t *testing.T) {
 	ctx := context.Background()
 	catalogData := lo.Must(os.ReadFile("testdata/xxxxx_xxx_catalog.xlsx"))
 	cf := NewCatalogFile(lo.Must(excelize.OpenReader(bytes.NewReader(catalogData))))
-	cf.DeleteSheet()
+	assert.NoError(t, cf.DeleteSheet())
 	catalogData2 := lo.Must(cf.File().WriteToBuffer()).Bytes()
 
 	httpmock.Activate()
