@@ -133,14 +133,6 @@ func plateauDatasetSeedsFromItem(i *PlateauFeatureItem, item PlateauFeatureItemD
 }
 
 func plateauDatasetSeedsFromBldg(i *PlateauFeatureItem, dt *plateauapi.PlateauDatasetType, wards []*plateauapi.Ward) (res []plateauDatasetSeed, warning []string) {
-	if len(wards) == 0 {
-		res = append(res, plateauDatasetSeed{
-			AssetURLs: i.Data,
-			Desc:      i.Desc,
-		})
-		return
-	}
-
 	assets := lo.Zip2(lo.Map(i.Data, func(url string, ind int) *AssetName {
 		n := nameWithoutExt(nameFromURL(url))
 		an := ParseAssetName(n)
@@ -151,6 +143,17 @@ func plateauDatasetSeedsFromBldg(i *PlateauFeatureItem, dt *plateauapi.PlateauDa
 	}), i.Data)
 	if len(assets) == 0 {
 		warning = append(warning, fmt.Sprintf("plateau %s %s: no assets", i.ID, dt.Code))
+		return
+	}
+
+	if len(wards) == 0 {
+		res = append(res, plateauDatasetSeed{
+			AssetURLs: i.Data,
+			Assets: lo.Map(assets, func(name lo.Tuple2[*AssetName, string], _ int) *AssetName {
+				return name.A
+			}),
+			Desc: i.Desc,
+		})
 		return
 	}
 

@@ -52,7 +52,7 @@ func (c *internalContext) Years() []int {
 }
 
 func (c *internalContext) Add(cityItem *CityItem, pref *plateauapi.Prefecture, city *plateauapi.City) {
-	c.cityItems[cityItem.CityCode] = cityItem
+	c.cityItems[cityItem.ID] = cityItem
 	c.prefs[pref.Code.String()] = pref
 	c.cities[city.Code.String()] = city
 

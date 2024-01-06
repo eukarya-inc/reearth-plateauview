@@ -34,11 +34,11 @@ func (c *CMS) GetAll(ctx context.Context, project string) (*AllData, error) {
 	all.FeatureTypes = featureTypes
 
 	cityItemsChan := lo.Async2(func() ([]*CityItem, error) {
-		return c.GetCityItems(ctx, project)
+		return c.GetCityItems(ctx, project, featureTypes.Plateau)
 	})
 
 	relatedItemsChan := lo.Async2(func() ([]*RelatedItem, error) {
-		return c.GetRelatedItems(ctx, project)
+		return c.GetRelatedItems(ctx, project, featureTypes.Related)
 	})
 
 	genericItemsChan := lo.Async2(func() ([]*GenericItem, error) {
@@ -99,8 +99,13 @@ func (c *CMS) GetFeatureTypes(ctx context.Context, project string) (FeatureTypes
 	}, nil
 }
 
-func (c *CMS) GetCityItems(ctx context.Context, project string) ([]*CityItem, error) {
-	items, err := getItemsAndUnmarshal[CityItem](c.cms, ctx, project, modelPrefix+cityModel)
+func (c *CMS) GetCityItems(ctx context.Context, project string, featureTypes []FeatureType) ([]*CityItem, error) {
+	items, err := getItemsAndConv[CityItem](
+		c.cms, ctx, project, modelPrefix+cityModel,
+		func(i cms.Item) *CityItem {
+			return CityItemFrom(&i, featureTypes)
+		},
+	)
 
 	// TODO: dynamic year
 	for _, item := range items {
@@ -113,17 +118,32 @@ func (c *CMS) GetCityItems(ctx context.Context, project string) ([]*CityItem, er
 }
 
 func (c *CMS) GetPlateauItems(ctx context.Context, project, feature string) ([]*PlateauFeatureItem, error) {
-	items, err := getItemsAndUnmarshal[PlateauFeatureItem](c.cms, ctx, project, modelPrefix+feature)
+	items, err := getItemsAndConv[PlateauFeatureItem](
+		c.cms, ctx, project, modelPrefix+feature,
+		func(i cms.Item) *PlateauFeatureItem {
+			return PlateauFeatureItemFrom(&i)
+		},
+	)
 	return items, err
 }
 
-func (c *CMS) GetRelatedItems(ctx context.Context, project string) ([]*RelatedItem, error) {
-	items, err := getItemsAndUnmarshal[RelatedItem](c.cms, ctx, project, modelPrefix+relatedModel)
+func (c *CMS) GetRelatedItems(ctx context.Context, project string, featureTypes []FeatureType) ([]*RelatedItem, error) {
+	items, err := getItemsAndConv[RelatedItem](
+		c.cms, ctx, project, modelPrefix+relatedModel,
+		func(i cms.Item) *RelatedItem {
+			return RelatedItemFrom(&i, featureTypes)
+		},
+	)
 	return items, err
 }
 
 func (c *CMS) GetGenericItems(ctx context.Context, project string) ([]*GenericItem, error) {
-	items, err := getItemsAndUnmarshal[GenericItem](c.cms, ctx, project, modelPrefix+genericModel)
+	items, err := getItemsAndConv[GenericItem](
+		c.cms, ctx, project, modelPrefix+genericModel,
+		func(i cms.Item) *GenericItem {
+			return GenericItemFrom(&i)
+		},
+	)
 
 	for _, item := range items {
 		if item.Category == "" {
@@ -134,17 +154,18 @@ func (c *CMS) GetGenericItems(ctx context.Context, project string) ([]*GenericIt
 	return items, err
 }
 
-func getItemsAndUnmarshal[T any](cms cms.Interface, ctx context.Context, project, model string) ([]*T, error) {
+func getItemsAndConv[T any](cms cms.Interface, ctx context.Context, project, model string, conv func(cms.Item) *T) ([]*T, error) {
 	items, err := cms.GetItemsByKeyInParallel(ctx, project, model, true, 100)
 	if err != nil {
 		return nil, err
 	}
+	if items == nil {
+		return nil, nil
+	}
 
 	res := make([]*T, 0, len(items.Items))
 	for _, item := range items.Items {
-		var i T
-		item.Unmarshal(&i)
-		res = append(res, &i)
+		res = append(res, conv(item))
 	}
 
 	return res, nil

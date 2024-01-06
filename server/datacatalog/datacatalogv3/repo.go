@@ -10,13 +10,14 @@ import (
 	"github.com/eukarya-inc/reearth-plateauview/server/datacatalog/plateauapi"
 	cms "github.com/reearth/reearth-cms-api/go"
 	"github.com/reearth/reearthx/log"
+	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
 )
 
 var stagesForAdmin = []string{string(stageBeta)}
 
 type Repos struct {
-	baseURL    string
+	locks      util.LockMap[string]
 	cms        map[string]*CMS
 	context    map[string]*plateauapi.InMemoryRepoContext
 	repos      map[string]*plateauapi.RepoWrapper
@@ -26,9 +27,9 @@ type Repos struct {
 	now        func() time.Time
 }
 
-func NewRepos(baseURL string) *Repos {
+func NewRepos() *Repos {
 	return &Repos{
-		baseURL:    baseURL,
+		locks:      util.LockMap[string]{},
 		cms:        map[string]*CMS{},
 		context:    map[string]*plateauapi.InMemoryRepoContext{},
 		repos:      map[string]*plateauapi.RepoWrapper{},
@@ -43,8 +44,7 @@ func (r *Repos) Prepare(ctx context.Context, project string, cms cms.Interface) 
 		return nil
 	}
 
-	r.cms[project] = NewCMS(cms)
-	return r.Update(ctx, project)
+	return r.Update(ctx, project, cms)
 }
 
 func (r *Repos) Repo(project string, admin bool) *plateauapi.RepoWrapper {
@@ -59,20 +59,26 @@ func (r *Repos) UpdateAll(ctx context.Context) error {
 	sort.Strings(projects)
 
 	for _, project := range projects {
-		if err := r.Update(ctx, project); err != nil {
+		if err := r.Update(ctx, project, nil); err != nil {
 			return fmt.Errorf("failed to update project %s: %w", project, err)
 		}
 	}
 	return nil
 }
 
-func (r *Repos) Update(ctx context.Context, project string) error {
+func (r *Repos) Update(ctx context.Context, project string, rawcms cms.Interface) error {
+	r.locks.Lock(project)
+	defer r.locks.Unlock(project)
+
 	cms := r.cms[project]
 	if cms == nil {
-		return nil
+		if rawcms == nil {
+			return nil
+		}
+		cms = NewCMS(rawcms)
 	}
 
-	log.Infoc(ctx, "datacatalogv3: updating project %s", project)
+	log.Infofc(ctx, "datacatalogv3: updating project %s", project)
 	data, err := cms.GetAll(ctx, project)
 	if err != nil {
 		return err
@@ -108,7 +114,7 @@ func (r *Repos) Update(ctx context.Context, project string) error {
 		r.updatedAt[project] = time.Now()
 	}
 
-	log.Infoc(ctx, "datacatalogv3: updated project %s", project)
+	log.Infofc(ctx, "datacatalogv3: updated project %s", project)
 	return nil
 }
 

@@ -15,6 +15,10 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
+// TODO
+const datacatalogDefaultProject = "plateau-2023"
+const datacatalogv2project = "plateau-2022"
+
 func echov3(conf Config, g *echo.Group) (func(ctx context.Context) error, error) {
 	h, err := newReposHandler(conf)
 	if err != nil {
@@ -66,10 +70,6 @@ type reposHandler struct {
 const pidParamName = "pid"
 const gqlComplexityLimit = 1000
 
-// TODO
-const datacatalogDefaultProject = "plateau-2023"
-const datacatalogv2project = "plateau-2022"
-
 func newReposHandler(conf Config) (*reposHandler, error) {
 	pcms, err := plateaucms.New(conf.Config)
 	if err != nil {
@@ -81,7 +81,7 @@ func newReposHandler(conf Config) (*reposHandler, error) {
 		return nil, fmt.Errorf("failed to initialize datacatalog v2 repo: %w", err)
 	}
 
-	reposv3 := datacatalogv3.NewRepos(conf.Config.CMSBaseURL)
+	reposv3 := datacatalogv3.NewRepos()
 
 	if conf.GraphqlMaxComplexity <= 0 {
 		conf.GraphqlMaxComplexity = gqlComplexityLimit

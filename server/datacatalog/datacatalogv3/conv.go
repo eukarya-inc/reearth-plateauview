@@ -8,7 +8,10 @@ import (
 )
 
 func (all *AllData) Into() (res *plateauapi.InMemoryRepoContext, warning []string) {
-	res = &plateauapi.InMemoryRepoContext{}
+	res = &plateauapi.InMemoryRepoContext{
+		Areas:    plateauapi.Areas{},
+		Datasets: plateauapi.Datasets{},
+	}
 	res.PlateauSpecs = plateauapi.PlateauSpecsFrom(all.PlateauSpecs)
 	res.DatasetTypes = all.FeatureTypes.ToDatasetTypes(res.PlateauSpecs)
 
@@ -24,11 +27,11 @@ func (all *AllData) Into() (res *plateauapi.InMemoryRepoContext, warning []strin
 		ic.Add(cityItem, pref, city)
 
 		if !ic.HasPref(pref.Code.String()) {
-			res.Areas.Append(plateauapi.AreaTypePrefecture, []plateauapi.Area{*pref})
+			res.Areas.Append(plateauapi.AreaTypePrefecture, []plateauapi.Area{pref})
 		}
 
 		if !ic.HasCity(city.Code.String()) {
-			res.Areas.Append(plateauapi.AreaTypeCity, []plateauapi.Area{*city})
+			res.Areas.Append(plateauapi.AreaTypeCity, []plateauapi.Area{city})
 		}
 	}
 
