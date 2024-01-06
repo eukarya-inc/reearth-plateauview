@@ -58,7 +58,7 @@ type Config struct {
 	DataCatalog_CacheUpdateKey        string
 	DataCatalog_PlaygroundEndpoint    string
 	DataCatalog_CacheTTL              int
-	DataCatalog_GQL_MAXCOMPLEXITY     int
+	DataCatalog_GQL_MaxComplexity     int
 	SDKAPI_DisableCache               bool
 	SDKAPI_CacheTTL                   int
 	GCParcent                         int
@@ -152,12 +152,11 @@ func (c *Config) Sidebar() sidebar.Config {
 func (c *Config) DataCatalog() datacatalog.Config {
 	return datacatalog.Config{
 		Config:               c.plateauCMS(),
-		CMSBase:              c.CMS_BaseURL,
-		DisableCache:         c.DataCatalog_DisableCache,
-		CacheTTL:             c.DataCatalog_CacheTTL,
 		CacheUpdateKey:       c.DataCatalog_CacheUpdateKey,
 		PlaygroundEndpoint:   c.DataCatalog_PlaygroundEndpoint,
-		GraphqlMaxComplexity: c.DataCatalog_GQL_MAXCOMPLEXITY,
+		GraphqlMaxComplexity: c.DataCatalog_GQL_MaxComplexity,
+		DisableCache:         c.DataCatalog_DisableCache,
+		CacheTTL:             c.DataCatalog_CacheTTL,
 	}
 }
 

@@ -14,7 +14,6 @@ import (
 
 type Config struct {
 	plateaucms.Config
-	CMSBase      string
 	DisableCache bool
 	CacheTTL     int
 }
@@ -25,7 +24,7 @@ func Echo(conf Config, g *echo.Group) error {
 		return err
 	}
 
-	f, err := NewFetcher(conf.CMSBase)
+	f, err := NewFetcher(conf.Config.CMSBaseURL)
 	if err != nil {
 		return err
 	}

@@ -23,7 +23,6 @@ func TestEcho(t *testing.T) {
 	g := e.Group("/datacatalog")
 	assert.NoError(t, Echo(Config{
 		Config:       conf,
-		CMSBase:      "https://example.com",
 		DisableCache: true,
 	}, g))
 
@@ -99,7 +98,6 @@ func TestEchoMerge(t *testing.T) {
 	g := e.Group("/datacatalog")
 	assert.NoError(t, Echo(Config{
 		Config:       conf,
-		CMSBase:      "https://example.com",
 		DisableCache: true,
 	}, g))
 

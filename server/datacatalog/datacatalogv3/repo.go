@@ -38,17 +38,12 @@ func NewRepos(baseURL string) *Repos {
 	}
 }
 
-func (r *Repos) Prepare(ctx context.Context, project, token string) error {
+func (r *Repos) Prepare(ctx context.Context, project string, cms cms.Interface) error {
 	if r.cms[project] != nil {
 		return nil
 	}
 
-	cms, err := cms.New(r.baseURL, token)
-	if err != nil {
-		return fmt.Errorf("failed to initialize cms: %w", err)
-	}
 	r.cms[project] = NewCMS(cms)
-
 	return r.Update(ctx, project)
 }
 
