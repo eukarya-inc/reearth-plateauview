@@ -34,7 +34,7 @@ func TestHandler_AuthMiddleware(t *testing.T) {
 
 	// normal project
 	t.Run("normal project", func(t *testing.T) {
-		m := h.AuthMiddleware("", HTTPMethodsAll)
+		m := h.AuthMiddleware("", HTTPMethodsAll, false, "")
 		handler := m(func(c echo.Context) error {
 			return nil
 		})
@@ -51,16 +51,43 @@ func TestHandler_AuthMiddleware(t *testing.T) {
 		assert.Equal(t, "prjprj", c.Param("pid"))
 		assert.NotNil(t, GetCMSFromContext(c.Request().Context()))
 		assert.Equal(t, Metadata{
-			ProjectAlias:       "prjprj",
-			CMSAPIKey:          "token!",
-			SidebarAccessToken: "ac",
-			Auth:               true,
+			ProjectAlias:             "prjprj",
+			DataCatalogProjectAlias:  "prjprjprj",
+			DataCatalogSchemaVersion: "v3",
+			CMSAPIKey:                "token!",
+			SidebarAccessToken:       "ac",
+			Auth:                     true,
+		}, GetCMSMetadataFromContext(c.Request().Context()))
+	})
+
+	// default project
+	t.Run("normal project", func(t *testing.T) {
+		m := h.AuthMiddleware("", HTTPMethodsAll, false, "prjprj")
+		handler := m(func(c echo.Context) error {
+			return nil
+		})
+		r := httptest.NewRequest("POST", "/", nil)
+		r.Header.Set("Authorization", "Bearer ac")
+		w := httptest.NewRecorder()
+		c := e.NewContext(r, w)
+
+		assert.NoError(t, handler(c))
+		assert.Equal(t, http.StatusOK, w.Result().StatusCode)
+		assert.Equal(t, "prjprj", c.Param("pid"))
+		assert.NotNil(t, GetCMSFromContext(c.Request().Context()))
+		assert.Equal(t, Metadata{
+			ProjectAlias:             "prjprj",
+			DataCatalogProjectAlias:  "prjprjprj",
+			DataCatalogSchemaVersion: "v3",
+			CMSAPIKey:                "token!",
+			SidebarAccessToken:       "ac",
+			Auth:                     true,
 		}, GetCMSMetadataFromContext(c.Request().Context()))
 	})
 
 	// normal project with invalid token
 	t.Run("normal project with invalid token", func(t *testing.T) {
-		m := h.AuthMiddleware("", HTTPMethodsAll)
+		m := h.AuthMiddleware("", HTTPMethodsAll, false, "")
 		handler := m(func(c echo.Context) error {
 			return nil
 		})
@@ -81,7 +108,7 @@ func TestHandler_AuthMiddleware(t *testing.T) {
 
 	// normal project with invalid token and without auth
 	t.Run("normal project with invalid token and skipAuth", func(t *testing.T) {
-		m := h.AuthMiddleware("", nil)
+		m := h.AuthMiddleware("", nil, false, "")
 		handler := m(func(c echo.Context) error {
 			return nil
 		})
@@ -98,16 +125,18 @@ func TestHandler_AuthMiddleware(t *testing.T) {
 		assert.Equal(t, "prjprj", c.Param("pid"))
 		assert.NotNil(t, GetCMSFromContext(c.Request().Context()))
 		assert.Equal(t, Metadata{
-			ProjectAlias:       "prjprj",
-			CMSAPIKey:          "token!",
-			SidebarAccessToken: "ac",
-			Auth:               false,
+			ProjectAlias:             "prjprj",
+			DataCatalogProjectAlias:  "prjprjprj",
+			DataCatalogSchemaVersion: "v3",
+			CMSAPIKey:                "token!",
+			SidebarAccessToken:       "ac",
+			Auth:                     false,
 		}, GetCMSMetadataFromContext(c.Request().Context()))
 	})
 
 	// invalid project
 	t.Run("invalid project", func(t *testing.T) {
-		m := h.AuthMiddleware("", HTTPMethodsAll)
+		m := h.AuthMiddleware("", HTTPMethodsAll, false, "")
 		handler := m(func(c echo.Context) error {
 			return nil
 		})
@@ -131,17 +160,29 @@ func TestHandler_Metadata(t *testing.T) {
 	mockCMS(t)
 	h := newHandler()
 
-	md, err := h.Metadata(context.Background(), "prjprj")
+	md, err := h.Metadata(context.Background(), "prjprj", false)
 	assert.NoError(t, err)
 	assert.Equal(t, Metadata{
-		ProjectAlias:       "prjprj",
-		CMSAPIKey:          "token!",
-		SidebarAccessToken: "ac",
+		ProjectAlias:             "prjprj",
+		DataCatalogProjectAlias:  "prjprjprj",
+		DataCatalogSchemaVersion: "v3",
+		CMSAPIKey:                "token!",
+		SidebarAccessToken:       "ac",
 	}, md)
 
-	md, err = h.Metadata(context.Background(), "prjprj!")
+	md, err = h.Metadata(context.Background(), "prjprjprj", false)
 	assert.Equal(t, rerror.ErrNotFound, err)
 	assert.Empty(t, md)
+
+	md, err = h.Metadata(context.Background(), "prjprjprj", true)
+	assert.NoError(t, err)
+	assert.Equal(t, Metadata{
+		ProjectAlias:             "prjprj",
+		DataCatalogProjectAlias:  "prjprjprj",
+		DataCatalogSchemaVersion: "v3",
+		CMSAPIKey:                "token!",
+		SidebarAccessToken:       "ac",
+	}, md)
 }
 
 func TestHandler_LastModified(t *testing.T) {
@@ -218,7 +259,7 @@ func mockCMS(t *testing.T) {
 				{
 					ID: "1",
 					Fields: []*cms.Field{
-						{Key: tokenProjectField, Value: testCMSProject},
+						{Key: projectAliasField, Value: testCMSProject},
 						{Key: "cms_apikey", Value: testCMSToken},
 						{Key: "sidebar_access_token", Value: testSidebarAccessToken},
 					},
@@ -226,7 +267,9 @@ func mockCMS(t *testing.T) {
 				{
 					ID: "2",
 					Fields: []*cms.Field{
-						{Key: tokenProjectField, Value: "prjprj"},
+						{Key: projectAliasField, Value: "prjprj"},
+						{Key: "datacatalog_project_alias", Value: "prjprjprj"},
+						{Key: "datacatalog_schema_version", Value: "v3"},
 						{Key: "cms_apikey", Value: "token!"},
 						{Key: "sidebar_access_token", Value: "ac"},
 					},

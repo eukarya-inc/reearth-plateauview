@@ -30,7 +30,7 @@ func ShareEcho(g *echo.Group, c Config) error {
 		return err
 	}
 
-	g.Use(middleware.CORS(), middleware.BodyLimit("10M"), h.cms.AuthMiddleware("pid", nil))
+	g.Use(middleware.CORS(), middleware.BodyLimit("10M"), h.cms.AuthMiddleware("pid", nil, false, ""))
 
 	g.GET("/:pid/:id", h.GetShare())
 	g.POST("/:pid", h.CreateShare())
