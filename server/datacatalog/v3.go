@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"path"
+	"strings"
 
 	"github.com/eukarya-inc/reearth-plateauview/server/datacatalog/datacatalogv2/datacatalogv2adapter"
 	"github.com/eukarya-inc/reearth-plateauview/server/datacatalog/datacatalogv3"
@@ -53,6 +54,9 @@ func echov3(conf Config, g *echo.Group) (func(ctx context.Context) error, error)
 
 	// cache update API
 	g.POST("/update-cache", h.UpdateCacheHandler)
+
+	// warning API
+	g.GET("/:pid/warnings", h.WarningHandler)
 
 	return func(ctx context.Context) error {
 		return h.Init(ctx)
@@ -158,6 +162,21 @@ func (h *reposHandler) UpdateCacheHandler(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, "ok")
+}
+
+func (h *reposHandler) WarningHandler(c echo.Context) error {
+	pid := c.Param(pidParamName)
+	md := plateaucms.GetCMSMetadataFromContext(c.Request().Context())
+	if md.ProjectAlias != pid {
+		return echo.NewHTTPError(http.StatusNotFound, "not found")
+	}
+
+	if !md.Auth {
+		return echo.NewHTTPError(http.StatusUnauthorized, "unauthorized")
+	}
+
+	w := strings.Join(h.reposv3.Warnings(pid), "\n")
+	return c.String(http.StatusOK, w)
 }
 
 func (h *reposHandler) UpdateCache(ctx context.Context) error {
