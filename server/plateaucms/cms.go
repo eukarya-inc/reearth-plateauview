@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"slices"
 	"strings"
 	"time"
 
@@ -21,6 +22,21 @@ const (
 	tokenModel        = "workspaces"
 	tokenProjectField = "project_alias"
 )
+
+var HTTPMethodsAll = []string{
+	http.MethodGet,
+	http.MethodPost,
+	http.MethodPatch,
+	http.MethodPut,
+	http.MethodDelete,
+}
+
+var HTTPMethodsExceptGET = []string{
+	http.MethodPost,
+	http.MethodPatch,
+	http.MethodPut,
+	http.MethodDelete,
+}
 
 type Config struct {
 	CMSBaseURL      string
@@ -74,12 +90,16 @@ func (h *CMS) Clone() *CMS {
 	}
 }
 
-func (h *CMS) AuthMiddleware(skipAuth bool) echo.MiddlewareFunc {
+func (h *CMS) AuthMiddleware(key string, authMethods []string) echo.MiddlewareFunc {
+	if key == "" {
+		key = ProjectNameParam
+	}
+
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
 			req := c.Request()
 			ctx := req.Context()
-			prj := c.Param(ProjectNameParam)
+			prj := c.Param(key)
 
 			md, err := h.Metadata(ctx, prj)
 			if err != nil {
@@ -100,7 +120,7 @@ func (h *CMS) AuthMiddleware(skipAuth bool) echo.MiddlewareFunc {
 			header := req.Header.Get("Authorization")
 			token := strings.TrimPrefix(header, "Bearer ")
 			if md.SidebarAccessToken == "" || token != md.SidebarAccessToken {
-				if !skipAuth && (req.Method == http.MethodPost || req.Method == http.MethodPatch || req.Method == http.MethodPut || req.Method == http.MethodDelete) {
+				if len(authMethods) > 0 && slices.Contains(authMethods, req.Method) {
 					return c.JSON(http.StatusUnauthorized, "unauthorized")
 				}
 			} else {
@@ -120,11 +140,13 @@ type cmsContextKey struct{}
 type cmsMetadataContextKey struct{}
 
 func GetCMSFromContext(ctx context.Context) cms.Interface {
-	return ctx.Value(cmsContextKey{}).(cms.Interface)
+	cms, _ := ctx.Value(cmsContextKey{}).(cms.Interface)
+	return cms
 }
 
 func GetCMSMetadataFromContext(ctx context.Context) Metadata {
-	return ctx.Value(cmsMetadataContextKey{}).(Metadata)
+	md, _ := ctx.Value(cmsMetadataContextKey{}).(Metadata)
+	return md
 }
 
 type Metadata struct {
@@ -133,7 +155,8 @@ type Metadata struct {
 	CMSAPIKey          string `json:"cms_apikey" cms:"cms_apikey,text"`
 	SidebarAccessToken string `json:"sidebar_access_token" cms:"sidebar_access_token,text"`
 	SubPorjectAlias    string `json:"subproject_alias" cms:"subproject_alias,text"`
-	Auth               bool   `json:"-" cms:"-"`
+	// whether the request is authenticated with sidebar access token
+	Auth bool `json:"-" cms:"-"`
 }
 
 func (h *CMS) Metadata(ctx context.Context, prj string) (Metadata, error) {

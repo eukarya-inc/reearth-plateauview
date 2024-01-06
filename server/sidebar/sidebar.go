@@ -24,13 +24,19 @@ const (
 	limit             = 10
 )
 
+var authMethods = plateaucms.HTTPMethodsExceptGET
+
 func Echo(g *echo.Group, c Config) error {
 	h, err := NewHandler(c)
 	if err != nil {
 		return err
 	}
 
-	g.Use(middleware.CORS(), middleware.BodyLimit("5M"), h.cms.AuthMiddleware(false))
+	g.Use(
+		middleware.CORS(),
+		middleware.BodyLimit("5M"),
+		h.cms.AuthMiddleware("pid", authMethods),
+	)
 
 	g.GET("/:pid", h.fetchRoot())
 	g.GET("/:pid/data", h.getAllDataHandler())
@@ -56,6 +62,9 @@ func (h *Handler) fetchRoot() func(c echo.Context) error {
 			return rerror.ErrNotFound
 		}
 		cmsh := plateaucms.GetCMSFromContext(ctx)
+		if cmsh == nil {
+			return rerror.ErrNotFound
+		}
 
 		c.Response().Header().Set(echo.HeaderCacheControl, "no-cache, must-revalidate")
 
@@ -125,6 +134,9 @@ func (h *Handler) getAllDataHandler() func(c echo.Context) error {
 			return rerror.ErrNotFound
 		}
 		cmsh := plateaucms.GetCMSFromContext(ctx)
+		if cmsh == nil {
+			return rerror.ErrNotFound
+		}
 
 		c.Response().Header().Set(echo.HeaderCacheControl, "no-cache, must-revalidate")
 
@@ -158,6 +170,9 @@ func (h *Handler) getDataHandler() func(c echo.Context) error {
 			return rerror.ErrNotFound
 		}
 		cmsh := plateaucms.GetCMSFromContext(ctx)
+		if cmsh == nil {
+			return rerror.ErrNotFound
+		}
 
 		itemID := c.Param("iid")
 		if itemID == "" {
@@ -192,6 +207,9 @@ func (h *Handler) createDataHandler() func(c echo.Context) error {
 			return rerror.ErrNotFound
 		}
 		cmsh := plateaucms.GetCMSFromContext(ctx)
+		if cmsh == nil {
+			return rerror.ErrNotFound
+		}
 
 		b, err := io.ReadAll(c.Request().Body)
 		if err != nil {
@@ -232,6 +250,9 @@ func (h *Handler) updateDataHandler() func(c echo.Context) error {
 			return rerror.ErrNotFound
 		}
 		cmsh := plateaucms.GetCMSFromContext(ctx)
+		if cmsh == nil {
+			return rerror.ErrNotFound
+		}
 
 		itemID := c.Param("iid")
 		b, err := io.ReadAll(c.Request().Body)
@@ -274,6 +295,10 @@ func (h *Handler) deleteDataHandler() func(c echo.Context) error {
 			return rerror.ErrNotFound
 		}
 		cmsh := plateaucms.GetCMSFromContext(ctx)
+		if cmsh == nil {
+			return rerror.ErrNotFound
+		}
+
 		itemID := c.Param("iid")
 
 		if err := cmsh.DeleteItem(ctx, itemID); err != nil {
@@ -296,6 +321,9 @@ func (h *Handler) fetchTemplatesHandler() func(c echo.Context) error {
 			return rerror.ErrNotFound
 		}
 		cmsh := plateaucms.GetCMSFromContext(ctx)
+		if cmsh == nil {
+			return rerror.ErrNotFound
+		}
 
 		c.Response().Header().Set(echo.HeaderCacheControl, "no-cache, must-revalidate")
 
@@ -326,6 +354,9 @@ func (h *Handler) fetchTemplateHandler() func(c echo.Context) error {
 			return rerror.ErrNotFound
 		}
 		cmsh := plateaucms.GetCMSFromContext(ctx)
+		if cmsh == nil {
+			return rerror.ErrNotFound
+		}
 
 		templateID := c.Param("tid")
 		template, err := cmsh.GetItem(ctx, templateID, false)
@@ -354,6 +385,9 @@ func (h *Handler) createTemplateHandler() func(c echo.Context) error {
 			return rerror.ErrNotFound
 		}
 		cmsh := plateaucms.GetCMSFromContext(ctx)
+		if cmsh == nil {
+			return rerror.ErrNotFound
+		}
 
 		b, err := io.ReadAll(c.Request().Body)
 		if err != nil {
@@ -395,6 +429,9 @@ func (h *Handler) updateTemplateHandler() func(c echo.Context) error {
 			return rerror.ErrNotFound
 		}
 		cmsh := plateaucms.GetCMSFromContext(ctx)
+		if cmsh == nil {
+			return rerror.ErrNotFound
+		}
 
 		templateID := c.Param("tid")
 		b, err := io.ReadAll(c.Request().Body)
@@ -437,6 +474,9 @@ func (h *Handler) deleteTemplateHandler() func(c echo.Context) error {
 			return rerror.ErrNotFound
 		}
 		cmsh := plateaucms.GetCMSFromContext(ctx)
+		if cmsh == nil {
+			return rerror.ErrNotFound
+		}
 
 		templateID := c.Param("tid")
 

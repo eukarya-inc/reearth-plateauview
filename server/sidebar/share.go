@@ -30,7 +30,7 @@ func ShareEcho(g *echo.Group, c Config) error {
 		return err
 	}
 
-	g.Use(middleware.CORS(), middleware.BodyLimit("10M"), h.cms.AuthMiddleware(true))
+	g.Use(middleware.CORS(), middleware.BodyLimit("10M"), h.cms.AuthMiddleware("pid", nil))
 
 	g.GET("/:pid/:id", h.GetShare())
 	g.POST("/:pid", h.CreateShare())
@@ -41,6 +41,9 @@ func (s *Handler) GetShare() echo.HandlerFunc {
 	return func(c echo.Context) error {
 		ctx := c.Request().Context()
 		cmsh := plateaucms.GetCMSFromContext(ctx)
+		if cmsh == nil {
+			return rerror.ErrNotFound
+		}
 
 		res, err := cmsh.GetItem(c.Request().Context(), c.Param("id"), false)
 		if err != nil {

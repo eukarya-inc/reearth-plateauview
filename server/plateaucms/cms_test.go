@@ -25,23 +25,123 @@ const (
 	testModelKey2          = "model2"
 )
 
+func TestHandler_AuthMiddleware(t *testing.T) {
+	httpmock.Activate()
+	defer httpmock.Deactivate()
+	mockCMS(t)
+	h := newHandler()
+	e := echo.New()
+
+	// normal project
+	t.Run("normal project", func(t *testing.T) {
+		m := h.AuthMiddleware("", HTTPMethodsAll)
+		handler := m(func(c echo.Context) error {
+			return nil
+		})
+		r := httptest.NewRequest("POST", "/", nil)
+		r.Header.Set("Authorization", "Bearer ac")
+		w := httptest.NewRecorder()
+		c := e.NewContext(r, w)
+		c.SetPath("/:pid")
+		c.SetParamNames("pid")
+		c.SetParamValues("prjprj")
+
+		assert.NoError(t, handler(c))
+		assert.Equal(t, http.StatusOK, w.Result().StatusCode)
+		assert.Equal(t, "prjprj", c.Param("pid"))
+		assert.NotNil(t, GetCMSFromContext(c.Request().Context()))
+		assert.Equal(t, Metadata{
+			ProjectAlias:       "prjprj",
+			CMSAPIKey:          "token!",
+			SidebarAccessToken: "ac",
+			Auth:               true,
+		}, GetCMSMetadataFromContext(c.Request().Context()))
+	})
+
+	// normal project with invalid token
+	t.Run("normal project with invalid token", func(t *testing.T) {
+		m := h.AuthMiddleware("", HTTPMethodsAll)
+		handler := m(func(c echo.Context) error {
+			return nil
+		})
+		r := httptest.NewRequest("POST", "/", nil)
+		r.Header.Set("Autorization", "Bearer invalid")
+		w := httptest.NewRecorder()
+		c := e.NewContext(r, w)
+		c.SetPath("/:pid")
+		c.SetParamNames("pid")
+		c.SetParamValues("prjprj")
+
+		assert.NoError(t, handler(c))
+		assert.Equal(t, http.StatusUnauthorized, w.Result().StatusCode)
+		assert.Equal(t, "prjprj", c.Param("pid"))
+		assert.Nil(t, GetCMSFromContext(c.Request().Context()))
+		assert.Empty(t, GetCMSMetadataFromContext(c.Request().Context()))
+	})
+
+	// normal project with invalid token and without auth
+	t.Run("normal project with invalid token and skipAuth", func(t *testing.T) {
+		m := h.AuthMiddleware("", nil)
+		handler := m(func(c echo.Context) error {
+			return nil
+		})
+		r := httptest.NewRequest("POST", "/", nil)
+		r.Header.Set("Autorization", "Bearer invalid")
+		w := httptest.NewRecorder()
+		c := e.NewContext(r, w)
+		c.SetPath("/:pid")
+		c.SetParamNames("pid")
+		c.SetParamValues("prjprj")
+
+		assert.NoError(t, handler(c))
+		assert.Equal(t, http.StatusOK, w.Result().StatusCode)
+		assert.Equal(t, "prjprj", c.Param("pid"))
+		assert.NotNil(t, GetCMSFromContext(c.Request().Context()))
+		assert.Equal(t, Metadata{
+			ProjectAlias:       "prjprj",
+			CMSAPIKey:          "token!",
+			SidebarAccessToken: "ac",
+			Auth:               false,
+		}, GetCMSMetadataFromContext(c.Request().Context()))
+	})
+
+	// invalid project
+	t.Run("invalid project", func(t *testing.T) {
+		m := h.AuthMiddleware("", HTTPMethodsAll)
+		handler := m(func(c echo.Context) error {
+			return nil
+		})
+		r := httptest.NewRequest("POST", "/", nil)
+		w := httptest.NewRecorder()
+		c := e.NewContext(r, w)
+		c.SetPath("/:pid")
+		c.SetParamNames("pid")
+		c.SetParamValues("prjprj!")
+
+		assert.NoError(t, handler(c))
+		assert.Equal(t, http.StatusOK, w.Result().StatusCode)
+		assert.Nil(t, GetCMSFromContext(c.Request().Context()))
+		assert.Empty(t, GetCMSMetadataFromContext(c.Request().Context()))
+	})
+}
+
 func TestHandler_Metadata(t *testing.T) {
 	httpmock.Activate()
 	defer httpmock.Deactivate()
 	mockCMS(t)
 	h := newHandler()
 
-	toekn, err := h.Metadata(context.Background(), "prjprj")
+	md, err := h.Metadata(context.Background(), "prjprj")
 	assert.NoError(t, err)
 	assert.Equal(t, Metadata{
 		ProjectAlias:       "prjprj",
 		CMSAPIKey:          "token!",
 		SidebarAccessToken: "ac",
-	}, toekn)
+	}, md)
 
-	toekn, err = h.Metadata(context.Background(), "prjprj!")
+	md, err = h.Metadata(context.Background(), "prjprj!")
 	assert.Equal(t, rerror.ErrNotFound, err)
-	assert.Empty(t, toekn)
+	assert.Empty(t, md)
 }
 
 func TestHandler_LastModified(t *testing.T) {
