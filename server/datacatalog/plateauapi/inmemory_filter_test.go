@@ -1,94 +1,121 @@
-package datacatalogv2adapter
+package plateauapi
 
 import (
 	"testing"
 
-	"github.com/eukarya-inc/reearth-plateauview/server/datacatalog/plateauapi"
 	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestFilterDataset(t *testing.T) {
 	t.Run("emergency_route", func(t *testing.T) {
-		assert.True(t, filterDataset(plateauapi.RelatedDataset{
+		assert.True(t, filterDataset(RelatedDataset{
 			TypeCode: "emergency_route",
-		}, plateauapi.DatasetsInput{
+		}, DatasetsInput{
 			IncludeTypes: []string{"emergency_route"},
-		}))
+		}, nil))
+	})
+
+	t.Run("default stage", func(t *testing.T) {
+		assert.False(t, filterDataset(RelatedDataset{
+			TypeCode: "emergency_route",
+			Admin: map[string]any{
+				"stage": "beta",
+			},
+		}, DatasetsInput{}, nil))
+	})
+
+	t.Run("beta stage", func(t *testing.T) {
+		assert.True(t, filterDataset(RelatedDataset{
+			TypeCode: "emergency_route",
+			Admin: map[string]any{
+				"stage": "beta",
+			},
+		}, DatasetsInput{
+			IncludeTypes: []string{"emergency_route"},
+		}, []string{"beta"}))
+	})
+
+	t.Run("beta stage 2", func(t *testing.T) {
+		assert.True(t, filterDataset(RelatedDataset{
+			TypeCode: "emergency_route",
+		}, DatasetsInput{
+			IncludeTypes: []string{"emergency_route"},
+		}, []string{"beta"}))
 	})
 }
 
 func TestFilterArea(t *testing.T) {
 	testCases := []struct {
 		name     string
-		area     plateauapi.Area
-		input    plateauapi.AreasInput
+		area     Area
+		input    AreasInput
 		expected bool
 	}{
 		{
 			name: "Prefecture with search tokens",
-			area: plateauapi.Prefecture{Name: "Tokyo"},
-			input: plateauapi.AreasInput{
+			area: Prefecture{Name: "Tokyo"},
+			input: AreasInput{
 				SearchTokens: []string{"Tokyo"},
 			},
 			expected: true,
 		},
 		{
 			name: "Prefecture without search tokens",
-			area: plateauapi.Prefecture{Name: "Tokyo"},
-			input: plateauapi.AreasInput{
+			area: Prefecture{Name: "Tokyo"},
+			input: AreasInput{
 				SearchTokens: []string{},
 			},
 			expected: true,
 		},
 		{
 			name: "Prefecture without non-matching search tokens",
-			area: plateauapi.Prefecture{Name: "Tokyo"},
-			input: plateauapi.AreasInput{
+			area: Prefecture{Name: "Tokyo"},
+			input: AreasInput{
 				SearchTokens: []string{"Kanagawa"},
 			},
 			expected: false,
 		},
 		{
 			name: "City with search tokens and matching parent code",
-			area: plateauapi.City{Name: "Shinjuku", PrefectureCode: "13"},
-			input: plateauapi.AreasInput{
+			area: City{Name: "Shinjuku", PrefectureCode: "13"},
+			input: AreasInput{
 				SearchTokens: []string{"Shinjuku"},
-				ParentCode:   lo.ToPtr(plateauapi.AreaCode("13")),
+				ParentCode:   lo.ToPtr(AreaCode("13")),
 			},
 			expected: true,
 		},
 		{
 			name: "City with search tokens and non-matching parent code",
-			area: plateauapi.City{Name: "Shinjuku", PrefectureCode: "13"},
-			input: plateauapi.AreasInput{
+			area: City{Name: "Shinjuku", PrefectureCode: "13"},
+			input: AreasInput{
 				SearchTokens: []string{"Shinjuku"},
-				ParentCode:   lo.ToPtr(plateauapi.AreaCode("14")),
+				ParentCode:   lo.ToPtr(AreaCode("14")),
 			},
 			expected: false,
 		},
 		{
 			name: "Ward with search tokens and matching parent code",
-			area: plateauapi.Ward{Name: "Shinjuku", PrefectureCode: "13", CityCode: "13104"},
-			input: plateauapi.AreasInput{
+			area: Ward{Name: "Shinjuku", PrefectureCode: "13", CityCode: "13104"},
+			input: AreasInput{
 				SearchTokens: []string{"Shinjuku"},
-				ParentCode:   lo.ToPtr(plateauapi.AreaCode("13104")),
+				ParentCode:   lo.ToPtr(AreaCode("13104")),
 			},
 			expected: true,
 		},
 		{
 			name: "Ward with search tokens and non-matching parent code",
-			area: plateauapi.Ward{Name: "Shinjuku", PrefectureCode: "13", CityCode: "13104"},
-			input: plateauapi.AreasInput{
+			area: Ward{Name: "Shinjuku", PrefectureCode: "13", CityCode: "13104"},
+			input: AreasInput{
 				SearchTokens: []string{"Shinjuku"},
-				ParentCode:   lo.ToPtr(plateauapi.AreaCode("13105")),
+				ParentCode:   lo.ToPtr(AreaCode("13105")),
 			},
 			expected: false,
 		},
 		{
 			name: "Ward without search tokens",
-			area: plateauapi.Ward{Name: "Shinjuku", PrefectureCode: "13", CityCode: "13104"},
-			input: plateauapi.AreasInput{
+			area: Ward{Name: "Shinjuku", PrefectureCode: "13", CityCode: "13104"},
+			input: AreasInput{
 				SearchTokens: []string{},
 			},
 			expected: true,
@@ -147,7 +174,7 @@ func TestFilterByPlateauSpec(t *testing.T) {
 		},
 		{
 			name:        "Non-empty query spec and non-empty dataset spec with matching major version",
-			querySpec:   lo.ToPtr("1"),
+			querySpec:   lo.ToPtr("ps_1"),
 			datasetSpec: "1.2",
 			expected:    true,
 		},
@@ -186,21 +213,22 @@ func TestFilterByPlateauSpec(t *testing.T) {
 	}
 }
 
-func TestFilterDataType(t *testing.T) {
+func TestFilterDatasetType(t *testing.T) {
 	testCases := []struct {
 		name     string
-		ty       plateauapi.DatasetType
-		input    plateauapi.DatasetTypesInput
+		ty       DatasetType
+		input    DatasetTypesInput
 		expected bool
 	}{
 		{
 			name: "PlateauDatasetType with matching category, year and plateau spec",
-			ty: plateauapi.PlateauDatasetType{
-				Year:            2021,
-				PlateauSpecName: "1.0",
+			ty: PlateauDatasetType{
+				Category:      DatasetTypeCategoryPlateau,
+				Year:          2021,
+				PlateauSpecID: "ps_1.0",
 			},
-			input: plateauapi.DatasetTypesInput{
-				Category:    lo.ToPtr(plateauapi.DatasetTypeCategoryPlateau),
+			input: DatasetTypesInput{
+				Category:    lo.ToPtr(DatasetTypeCategoryPlateau),
 				Year:        lo.ToPtr(2021),
 				PlateauSpec: lo.ToPtr("1.0"),
 			},
@@ -208,76 +236,88 @@ func TestFilterDataType(t *testing.T) {
 		},
 		{
 			name: "PlateauDatasetType with matching plateau spec major version",
-			ty: plateauapi.PlateauDatasetType{
-				PlateauSpecName: "1.0",
+			ty: PlateauDatasetType{
+				Category:      DatasetTypeCategoryPlateau,
+				PlateauSpecID: "ps_1",
 			},
-			input: plateauapi.DatasetTypesInput{
+			input: DatasetTypesInput{
 				PlateauSpec: lo.ToPtr("1"),
 			},
 			expected: true,
 		},
 		{
 			name: "PlateauDatasetType with non-matching category",
-			ty: plateauapi.PlateauDatasetType{
-				Year:            2021,
-				PlateauSpecName: "1.0",
+			ty: PlateauDatasetType{
+				Category:      DatasetTypeCategoryPlateau,
+				Year:          2021,
+				PlateauSpecID: "ps_1.0",
 			},
-			input: plateauapi.DatasetTypesInput{
-				Category: lo.ToPtr(plateauapi.DatasetTypeCategoryRelated),
+			input: DatasetTypesInput{
+				Category: lo.ToPtr(DatasetTypeCategoryRelated),
 			},
 			expected: false,
 		},
 		{
 			name: "PlateauDatasetType with non-matching year",
-			ty: plateauapi.PlateauDatasetType{
-				Year:            2021,
-				PlateauSpecName: "1.0",
+			ty: PlateauDatasetType{
+				Category:      DatasetTypeCategoryPlateau,
+				Year:          2021,
+				PlateauSpecID: "ps_1.0",
 			},
-			input: plateauapi.DatasetTypesInput{
+			input: DatasetTypesInput{
 				Year: lo.ToPtr(2022),
 			},
 			expected: false,
 		},
 		{
 			name: "PlateauDatasetType with non-matching plateau spec",
-			ty: plateauapi.PlateauDatasetType{
-				Year:            2021,
-				PlateauSpecName: "1.0",
+			ty: PlateauDatasetType{
+				Category:      DatasetTypeCategoryPlateau,
+				Year:          2021,
+				PlateauSpecID: "ps_1.0",
 			},
-			input: plateauapi.DatasetTypesInput{
+			input: DatasetTypesInput{
 				PlateauSpec: lo.ToPtr("2.0"),
 			},
 			expected: false,
 		},
 		{
 			name: "RelatedDatasetType with matching category",
-			ty:   plateauapi.RelatedDatasetType{},
-			input: plateauapi.DatasetTypesInput{
-				Category: lo.ToPtr(plateauapi.DatasetTypeCategoryRelated),
+			ty: RelatedDatasetType{
+				Category: DatasetTypeCategoryRelated,
+			},
+			input: DatasetTypesInput{
+				Category: lo.ToPtr(DatasetTypeCategoryRelated),
 			},
 			expected: true,
 		},
 		{
 			name: "RelatedDatasetType with non-matching category",
-			ty:   plateauapi.RelatedDatasetType{},
-			input: plateauapi.DatasetTypesInput{
-				Category: lo.ToPtr(plateauapi.DatasetTypeCategoryPlateau),
+			ty: RelatedDatasetType{
+				Category: DatasetTypeCategoryRelated,
+			},
+			input: DatasetTypesInput{
+				Category: lo.ToPtr(DatasetTypeCategoryPlateau),
 			},
 			expected: false,
 		},
 		{
 			name: "GenericDatasetType with matching category",
-			ty:   plateauapi.GenericDatasetType{},
-			input: plateauapi.DatasetTypesInput{
-				Category: lo.ToPtr(plateauapi.DatasetTypeCategoryGeneric),
+			ty: GenericDatasetType{
+				Category: DatasetTypeCategoryGeneric,
+			},
+			input: DatasetTypesInput{
+				Category: lo.ToPtr(DatasetTypeCategoryGeneric),
 			},
 			expected: true,
 		},
 		{
 			name: "GenericDatasetType with non-matching category",
-			ty:   plateauapi.GenericDatasetType{},
-			input: plateauapi.DatasetTypesInput{
-				Category: lo.ToPtr(plateauapi.DatasetTypeCategoryPlateau),
+			ty: GenericDatasetType{
+				Category: DatasetTypeCategoryGeneric,
+			},
+			input: DatasetTypesInput{
+				Category: lo.ToPtr(DatasetTypeCategoryPlateau),
 			},
 			expected: false,
 		},
@@ -286,7 +326,7 @@ func TestFilterDataType(t *testing.T) {
 	for _, tc := range testCases {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
-			actual := filterDataType(tc.ty, tc.input)
+			actual := filterDatasetType(tc.ty, tc.input)
 			assert.Equal(t, tc.expected, actual)
 		})
 	}

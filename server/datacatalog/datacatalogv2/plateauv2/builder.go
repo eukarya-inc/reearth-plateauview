@@ -1,9 +1,7 @@
 package plateauv2
 
 import (
-	"bytes"
 	_ "embed"
-	"encoding/csv"
 	"encoding/json"
 	"fmt"
 	"net/url"
@@ -18,23 +16,6 @@ import (
 	"github.com/samber/lo"
 	"github.com/spkg/bom"
 )
-
-//go:embed urf.csv
-var urfFeatureTypesData []byte
-var urfFeatureTypeMap map[string]string
-var urfFeatureTypes []string
-
-func init() {
-	r := csv.NewReader(bom.NewReader(bytes.NewReader(urfFeatureTypesData)))
-	d := lo.Must(r.ReadAll())
-	urfFeatureTypes = make([]string, 0, len(d)-1)
-	for _, c := range d[1:] {
-		urfFeatureTypes = append(urfFeatureTypes, c[0])
-	}
-	urfFeatureTypeMap = lo.SliceToMap(d[1:], func(c []string) (string, string) {
-		return c[0], c[1]
-	})
-}
 
 type DataCatalogItemBuilder struct {
 	Assets           []*cms.PublicAsset

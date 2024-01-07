@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"slices"
 	"strings"
 	"time"
 
@@ -16,11 +17,28 @@ import (
 )
 
 const (
-	ProjectNameParam  = "pid"
-	tokenProject      = "system"
-	tokenModel        = "workspaces"
-	tokenProjectField = "project_alias"
+	ProjectNameParam             = "pid"
+	tokenProject                 = "system"
+	tokenModel                   = "workspaces"
+	plateauProjectModel          = "plateau-projects"
+	projectAliasField            = "project_alias"
+	datacatalogProjectAliasField = "datacatalog_project_alias"
 )
+
+var HTTPMethodsAll = []string{
+	http.MethodGet,
+	http.MethodPost,
+	http.MethodPatch,
+	http.MethodPut,
+	http.MethodDelete,
+}
+
+var HTTPMethodsExceptGET = []string{
+	http.MethodPost,
+	http.MethodPatch,
+	http.MethodPut,
+	http.MethodDelete,
+}
 
 type Config struct {
 	CMSBaseURL      string
@@ -74,14 +92,21 @@ func (h *CMS) Clone() *CMS {
 	}
 }
 
-func (h *CMS) AuthMiddleware(skipAuth bool) echo.MiddlewareFunc {
+func (h *CMS) AuthMiddleware(key string, authMethods []string, findDataCatalog bool, defaultProject string) echo.MiddlewareFunc {
+	if key == "" {
+		key = ProjectNameParam
+	}
+
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
 			req := c.Request()
 			ctx := req.Context()
-			prj := c.Param(ProjectNameParam)
+			prj := c.Param(key)
+			if prj == "" {
+				prj = defaultProject
+			}
 
-			md, err := h.Metadata(ctx, prj)
+			md, err := h.Metadata(ctx, prj, findDataCatalog)
 			if err != nil {
 				if errors.Is(err, rerror.ErrNotFound) {
 					ctx = context.WithValue(ctx, cmsMetadataContextKey{}, md)
@@ -97,12 +122,14 @@ func (h *CMS) AuthMiddleware(skipAuth bool) echo.MiddlewareFunc {
 			}
 
 			// auth
-			if !skipAuth && (req.Method == http.MethodPost || req.Method == http.MethodPatch || req.Method == http.MethodPut || req.Method == http.MethodDelete) {
-				header := req.Header.Get("Authorization")
-				token := strings.TrimPrefix(header, "Bearer ")
-				if md.SidebarAccessToken == "" || token != md.SidebarAccessToken {
+			header := req.Header.Get("Authorization")
+			token := strings.TrimPrefix(header, "Bearer ")
+			if md.SidebarAccessToken == "" || token != md.SidebarAccessToken {
+				if len(authMethods) > 0 && slices.Contains(authMethods, req.Method) {
 					return c.JSON(http.StatusUnauthorized, "unauthorized")
 				}
+			} else {
+				md.Auth = true
 			}
 
 			// attach
@@ -118,22 +145,28 @@ type cmsContextKey struct{}
 type cmsMetadataContextKey struct{}
 
 func GetCMSFromContext(ctx context.Context) cms.Interface {
-	return ctx.Value(cmsContextKey{}).(cms.Interface)
+	cms, _ := ctx.Value(cmsContextKey{}).(cms.Interface)
+	return cms
 }
 
 func GetCMSMetadataFromContext(ctx context.Context) Metadata {
-	return ctx.Value(cmsMetadataContextKey{}).(Metadata)
+	md, _ := ctx.Value(cmsMetadataContextKey{}).(Metadata)
+	return md
 }
 
 type Metadata struct {
-	Name               string `json:"name" cms:"name,text"`
-	ProjectAlias       string `json:"project_alias" cms:"project_alias,text"`
-	CMSAPIKey          string `json:"cms_apikey" cms:"cms_apikey,text"`
-	SidebarAccessToken string `json:"sidebar_access_token" cms:"sidebar_access_token,text"`
-	SubPorjectAlias    string `json:"subproject_alias" cms:"subproject_alias,text"`
+	Name                     string `json:"name" cms:"name,text"`
+	ProjectAlias             string `json:"project_alias" cms:"project_alias,text"`
+	DataCatalogProjectAlias  string `json:"datacatalog_project_alias" cms:"datacatalog_project_alias,text"`
+	DataCatalogSchemaVersion string `json:"datacatalog_schema_version" cms:"datacatalog_schema_version,select"`
+	CMSAPIKey                string `json:"cms_apikey" cms:"cms_apikey,text"`
+	SidebarAccessToken       string `json:"sidebar_access_token" cms:"sidebar_access_token,text"`
+	SubPorjectAlias          string `json:"subproject_alias" cms:"subproject_alias,text"`
+	// whether the request is authenticated with sidebar access token
+	Auth bool `json:"-" cms:"-"`
 }
 
-func (h *CMS) Metadata(ctx context.Context, prj string) (Metadata, error) {
+func (h *CMS) Metadata(ctx context.Context, prj string, findDataCatalog bool) (Metadata, error) {
 	// compat
 	if h.cmsMainProject != "" && prj == h.cmsMainProject {
 		return Metadata{
@@ -152,11 +185,18 @@ func (h *CMS) Metadata(ctx context.Context, prj string) (Metadata, error) {
 		if errors.Is(err, cms.ErrNotFound) || items == nil {
 			return Metadata{}, rerror.ErrNotFound
 		}
-		return Metadata{}, rerror.ErrInternalBy(fmt.Errorf("sidebar: failed to get token: %w", err))
+		return Metadata{}, rerror.ErrInternalBy(fmt.Errorf("plateaucms: failed to get token: %w", err))
 	}
 
 	item, ok := lo.Find(items.Items, func(i cms.Item) bool {
-		s := i.FieldByKey(tokenProjectField).GetValue().String()
+		if findDataCatalog {
+			s := i.FieldByKey(datacatalogProjectAliasField).GetValue().String()
+			if s != nil && *s == prj {
+				return true
+			}
+		}
+
+		s := i.FieldByKey(projectAliasField).GetValue().String()
 		return s != nil && *s == prj
 	})
 	if !ok {
@@ -167,6 +207,9 @@ func (h *CMS) Metadata(ctx context.Context, prj string) (Metadata, error) {
 	item.Unmarshal(&m)
 	if m.CMSAPIKey == "" {
 		return Metadata{}, rerror.ErrNotFound
+	}
+	if m.DataCatalogProjectAlias == "" {
+		m.DataCatalogProjectAlias = m.ProjectAlias
 	}
 
 	return m, nil

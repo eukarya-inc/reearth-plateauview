@@ -28,6 +28,7 @@ require (
 	github.com/vektah/gqlparser/v2 v2.5.10
 	github.com/vincent-petithory/dataurl v1.0.0
 	golang.org/x/net v0.19.0
+	golang.org/x/sync v0.5.0
 	gonum.org/v1/gonum v0.14.0
 )
 
@@ -96,7 +97,6 @@ require (
 	golang.org/x/image v0.14.0 // indirect
 	golang.org/x/mod v0.14.0 // indirect
 	golang.org/x/oauth2 v0.15.0 // indirect
-	golang.org/x/sync v0.5.0 // indirect
 	golang.org/x/tools v0.16.1 // indirect
 	golang.org/x/xerrors v0.0.0-20231012003039-104605ab7028 // indirect
 	gonum.org/v1/plot v0.14.0 // indirect

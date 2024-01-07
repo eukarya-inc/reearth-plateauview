@@ -28,3 +28,10 @@ func TestAreaCode(t *testing.T) {
 	assert.Equal(t, 0, AreaCode("0").PrefectureCodeInt())
 	assert.False(t, AreaCode("0").IsPrefectureCode())
 }
+
+func TestSpecNumber(t *testing.T) {
+	assert.Equal(t, "2.3", SpecNumber("2.3"))
+	assert.Equal(t, "2", SpecNumber("第2版"))
+	assert.Equal(t, "2.3", SpecNumber("第2.3版"))
+	assert.Equal(t, "2.3", SpecNumber("ps_2.3"))
+}

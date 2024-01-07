@@ -32,7 +32,7 @@ var landmarkTypes = map[string]string{
 	"ランドマーク":  "landmark",
 }
 
-var plateauSpecs = []*plateauapi.PlateauSpec{
+var plateauSpecs = []plateauapi.PlateauSpec{
 	{
 		ID:           plateauSpecIDFrom("2"),
 		MajorVersion: 2,
@@ -105,23 +105,22 @@ func plateauDatasetFrom(d datacatalogv2.DataCatalogItem) (plateauapi.PlateauData
 
 	id := datasetIDFrom(d, nil)
 	return plateauapi.PlateauDataset{
-		ID:              id,
-		Name:            d.Name,
-		Subname:         subname,
-		Description:     lo.ToPtr(d.Description),
-		PrefectureID:    prefectureIDFrom(d),
-		PrefectureCode:  prefectureCodeFrom(d),
-		CityID:          cityIDFrom(d),
-		CityCode:        cityCodeFrom(d),
-		WardID:          wardIDFrom(d),
-		WardCode:        wardCodeFrom(d),
-		Year:            d.Year,
-		TypeID:          datasetTypeIDFrom(d),
-		TypeCode:        datasetTypeCodeFrom(d),
-		Groups:          groupsFrom(d),
-		PlateauSpecID:   plateauSpecIDFrom(plateauSpecVersion),
-		PlateauSpecName: plateauSpecVersion,
-		River:           river,
+		ID:                 id,
+		Name:               d.Name,
+		Subname:            subname,
+		Description:        lo.ToPtr(d.Description),
+		PrefectureID:       prefectureIDFrom(d),
+		PrefectureCode:     prefectureCodeFrom(d),
+		CityID:             cityIDFrom(d),
+		CityCode:           cityCodeFrom(d),
+		WardID:             wardIDFrom(d),
+		WardCode:           wardCodeFrom(d),
+		Year:               d.Year,
+		TypeID:             datasetTypeIDFrom(d),
+		TypeCode:           datasetTypeCodeFrom(d),
+		Groups:             groupsFrom(d),
+		PlateauSpecMinorID: plateauSpecIDFrom(plateauSpecVersion),
+		River:              river,
 		Items: lo.Map(d.MainOrConfigItems(), func(c datacatalogutil.DataCatalogItemConfigItem, i int) *plateauapi.PlateauDatasetItem {
 			return plateauDatasetItemFrom(c, id)
 		}),
@@ -470,19 +469,18 @@ func plateauDatasetTypeFrom(d datacatalogv2.DataCatalogItem) plateauapi.PlateauD
 	}
 	spec := d.Spec
 	if isEx(d) {
-		spec = "第3.0版"
+		spec = "3.0"
 	}
 
 	year, _ := strconv.Atoi(d.Edition)
 	return plateauapi.PlateauDatasetType{
-		ID:              datasetTypeIDFrom(d),
-		Name:            name,
-		Code:            datasetTypeCodeFrom(d),
-		Year:            year,
-		Category:        plateauapi.DatasetTypeCategoryPlateau,
-		PlateauSpecID:   plateauSpecMajorIDFrom(spec),
-		PlateauSpecName: spec,
-		Flood:           slices.Contains(floodingTypes, d.TypeEn),
+		ID:            datasetTypeIDFrom(d),
+		Name:          name,
+		Code:          datasetTypeCodeFrom(d),
+		Year:          year,
+		Category:      plateauapi.DatasetTypeCategoryPlateau,
+		PlateauSpecID: plateauSpecMajorIDFrom(spec),
+		Flood:         slices.Contains(floodingTypes, d.TypeEn),
 	}
 }
 
@@ -535,15 +533,6 @@ func groupsFrom(d datacatalogv2.DataCatalogItem) []string {
 		return nil
 	}
 	return strings.Split(d.Group, "/")
-}
-
-// cut string with sep from right
-func cutRight(s, sep string) (string, string, bool) {
-	i := strings.LastIndex(s, sep)
-	if i < 0 {
-		return s, "", false
-	}
-	return s[:i], s[i+len(sep):], true
 }
 
 func majorVersion(version string) string {

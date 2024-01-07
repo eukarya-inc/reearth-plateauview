@@ -1,4 +1,5 @@
 # Base
+scalar Any
 
 """
 IDを持つオブジェクト。nodeまたはnodesクエリでIDを指定して検索可能です。
@@ -312,6 +313,10 @@ interface Dataset implements Node {
   データセットのアイテム。
   """
   items: [DatasetItem!]!
+  """
+  管理者用
+  """
+  admin: Any
 }
 
 """
@@ -513,17 +518,17 @@ type PlateauDataset implements Dataset & Node {
   """
   items: [PlateauDatasetItem!]!
   """
-  データセットが準拠するPLATEAU都市モデルの仕様のID。
+  管理者用
   """
-  plateauSpecId: ID!
+  admin: Any
   """
-  データセットが準拠するPLATEAU都市モデルの仕様の名称。
+  データセットが準拠するPLATEAU都市モデルの仕様のマイナーバージョンへのID。
   """
-  plateauSpecName: String!
+  plateauSpecMinorId: ID!
   """
   データセットが準拠するPLATEAU都市モデルの仕様。
   """
-  plateauSpec: PlateauSpecMinor!
+  plateauSpecMinor: PlateauSpecMinor!
   """
   河川。地物型が洪水浸水想定区域モデル（fld）の場合のみ存在します。
   """
@@ -652,10 +657,6 @@ type PlateauDatasetType implements DatasetType & Node {
   """
   plateauSpecId: ID!
   """
-  データセットの種類が属するPLATEAU都市モデルの仕様の名称。
-  """
-  plateauSpecName: String!
-  """
   データセットの種類が属するPLATEAU都市モデルの仕様。
   """
   plateauSpec: PlateauSpec
@@ -753,6 +754,10 @@ type RelatedDataset implements Dataset & Node {
   データセットのアイテム。
   """
   items: [RelatedDatasetItem!]!
+  """
+  管理者用
+  """
+  admin: Any
 }
 
 """
@@ -889,6 +894,10 @@ type GenericDataset implements Dataset & Node {
   データセットのアイテム。
   """
   items: [GenericDatasetItem!]!
+  """
+  管理者用
+  """
+  admin: Any
 }
 
 """

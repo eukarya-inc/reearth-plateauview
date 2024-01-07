@@ -1,7 +1,6 @@
 package datacatalogv2
 
 import (
-	"context"
 	"net/http"
 	"time"
 
@@ -14,7 +13,6 @@ import (
 
 type Config struct {
 	plateaucms.Config
-	CMSBase      string
 	DisableCache bool
 	CacheTTL     int
 }
@@ -25,7 +23,7 @@ func Echo(conf Config, g *echo.Group) error {
 		return err
 	}
 
-	f, err := NewFetcher(conf.CMSBase)
+	f, err := NewFetcher(conf.Config.CMSBaseURL)
 	if err != nil {
 		return err
 	}
@@ -38,13 +36,24 @@ func Echo(conf Config, g *echo.Group) error {
 			TTL:          time.Duration(conf.CacheTTL) * time.Second,
 			CacheControl: true,
 		}).Middleware(),
-		pcms.AuthMiddleware(false),
+		pcms.AuthMiddleware("pid", nil, true, ""),
 	)
 
 	g.GET("/:pid", func(c echo.Context) error {
 		ctx := c.Request().Context()
-		prj := c.Param("pid")
-		res, err := f.Do(ctx, prj, options(ctx, prj))
+
+		md := plateaucms.GetCMSMetadataFromContext(ctx)
+		if md.DataCatalogProjectAlias == "" || md.DataCatalogSchemaVersion != "" && md.DataCatalogSchemaVersion != "v2" {
+			return c.JSON(http.StatusNotFound, "not found")
+		}
+
+		opts := FetcherDoOptions{}
+		if md.Name != "" {
+			opts.Subproject = md.SubPorjectAlias
+			opts.CityName = md.Name
+		}
+
+		res, err := f.Do(ctx, md.DataCatalogProjectAlias, opts)
 		if err != nil {
 			log.Errorfc(ctx, "datacatalog: %v", err)
 			return c.JSON(http.StatusInternalServerError, "error")
@@ -53,16 +62,4 @@ func Echo(conf Config, g *echo.Group) error {
 	})
 
 	return nil
-}
-
-func options(ctx context.Context, prj string) FetcherDoOptions {
-	md := plateaucms.GetCMSMetadataFromContext(ctx)
-	if md.Name == "" {
-		return FetcherDoOptions{}
-	}
-
-	return FetcherDoOptions{
-		Subproject: md.SubPorjectAlias,
-		CityName:   md.Name,
-	}
 }

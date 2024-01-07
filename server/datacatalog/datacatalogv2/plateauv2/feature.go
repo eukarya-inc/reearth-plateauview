@@ -5,6 +5,7 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/eukarya-inc/reearth-plateauview/server/datacatalog/datacatalogcommon"
 	"github.com/samber/lo"
 	"golang.org/x/exp/slices"
 )
@@ -90,7 +91,7 @@ var FeatureOptions = map[string]DataCatalogItemBuilderOption{
 		Group: func(ctx ItemContext) Override {
 			var name, t2 string
 			ft := normalizeUrfFeatureType(ctx.AssetName.UrfFeatureType)
-			if urfName := urfFeatureTypeMap[ft]; urfName != "" {
+			if urfName := datacatalogcommon.UrfFeatureTypeMap[ft]; urfName != "" {
 				name = fmt.Sprintf("%sモデル", urfName)
 				t2 = urfName
 			} else {
@@ -109,13 +110,13 @@ var FeatureOptions = map[string]DataCatalogItemBuilderOption{
 			return normalizeUrfFeatureType(an.UrfFeatureType)
 		},
 		SortGroupBy: func(c, d AssetName) bool {
-			i1 := slices.Index(urfFeatureTypes, normalizeUrfFeatureType(c.UrfFeatureType))
+			i1 := slices.Index(datacatalogcommon.UrfFeatureTypes, normalizeUrfFeatureType(c.UrfFeatureType))
 			if i1 < 0 {
-				i1 = len(urfFeatureTypes)
+				i1 = len(datacatalogcommon.UrfFeatureTypes)
 			}
-			i2 := slices.Index(urfFeatureTypes, normalizeUrfFeatureType(d.UrfFeatureType))
+			i2 := slices.Index(datacatalogcommon.UrfFeatureTypes, normalizeUrfFeatureType(d.UrfFeatureType))
 			if i2 < 0 {
-				i2 = len(urfFeatureTypes)
+				i2 = len(datacatalogcommon.UrfFeatureTypes)
 			}
 			return i1 < i2
 		},

@@ -23,7 +23,6 @@ func TestEcho(t *testing.T) {
 	g := e.Group("/datacatalog")
 	assert.NoError(t, Echo(Config{
 		Config:       conf,
-		CMSBase:      "https://example.com",
 		DisableCache: true,
 	}, g))
 
@@ -99,7 +98,6 @@ func TestEchoMerge(t *testing.T) {
 	g := e.Group("/datacatalog")
 	assert.NoError(t, Echo(Config{
 		Config:       conf,
-		CMSBase:      "https://example.com",
 		DisableCache: true,
 	}, g))
 
@@ -168,6 +166,13 @@ func mock(t *testing.T) plateaucms.Config {
 						{Key: "project_alias", Value: "ppp"},
 						{Key: "subproject_alias", Value: "subprj"},
 						{Key: "name", Value: "xxx市"},
+						{Key: "cms_apikey", Value: "apikey"},
+					},
+				},
+				{
+					ID: "2",
+					Fields: []*cms.Field{
+						{Key: "project_alias", Value: "subprj"},
 						{Key: "cms_apikey", Value: "apikey"},
 					},
 				},
