@@ -44,7 +44,10 @@ func TestRelatedItem_ToDatasets(t *testing.T) {
 			WardCode:       lo.ToPtr(plateauapi.AreaCode("11112")),
 			TypeID:         plateauapi.NewID("landmark", plateauapi.TypeDatasetType),
 			TypeCode:       "landmark",
-			Stage:          lo.ToPtr(string(stageAlpha)),
+			Admin: map[string]any{
+				"cmsUrl": "https://example.com/id",
+				"stage":  string(stageAlpha),
+			},
 			Items: []*plateauapi.RelatedDatasetItem{
 				{
 					ID:       plateauapi.NewID("11112_landmark", plateauapi.TypeDatasetItem),
@@ -68,7 +71,10 @@ func TestRelatedItem_ToDatasets(t *testing.T) {
 			WardCode:       lo.ToPtr(plateauapi.AreaCode("11113")),
 			TypeID:         plateauapi.NewID("landmark", plateauapi.TypeDatasetType),
 			TypeCode:       "landmark",
-			Stage:          lo.ToPtr(string(stageAlpha)),
+			Admin: map[string]any{
+				"cmsUrl": "https://example.com/id",
+				"stage":  string(stageAlpha),
+			},
 			Items: []*plateauapi.RelatedDatasetItem{
 				{
 					ID:       plateauapi.NewID("11113_landmark", plateauapi.TypeDatasetItem),
@@ -90,7 +96,10 @@ func TestRelatedItem_ToDatasets(t *testing.T) {
 			CityCode:       lo.ToPtr(plateauapi.AreaCode("11111")),
 			TypeID:         plateauapi.NewID("border", plateauapi.TypeDatasetType),
 			TypeCode:       "border",
-			Stage:          lo.ToPtr(string(stageAlpha)),
+			Admin: map[string]any{
+				"cmsUrl": "https://example.com/id",
+				"stage":  string(stageAlpha),
+			},
 			Items: []*plateauapi.RelatedDatasetItem{
 				{
 					ID:       plateauapi.NewID("11111_border", plateauapi.TypeDatasetItem),
@@ -114,6 +123,7 @@ func TestRelatedItem_ToDatasets(t *testing.T) {
 		PrefCode: lo.ToPtr(plateauapi.AreaCode("11")),
 		CityCode: lo.ToPtr(plateauapi.AreaCode("11111")),
 		CityItem: &CityItem{
+			ID:   "id",
 			Year: "2023年",
 		},
 		Wards: []*plateauapi.Ward{
@@ -143,7 +153,7 @@ func TestRelatedItem_ToDatasets(t *testing.T) {
 		},
 	}
 
-	res, warnings := item.toDatasets(area, dts)
+	res, warnings := item.toDatasets(area, dts, "https://example.com/")
 	assert.Nil(t, warnings)
 	assert.Equal(t, expected, res)
 }

@@ -86,7 +86,7 @@ func (i *CityItem) plateauStage(ft string) stage {
 }
 
 func (i *CityItem) relatedStage() stage {
-	if i.Public[relatedModel] {
+	if i.RelatedPublic {
 		return stageGA
 	}
 	if i.RelatedDataStatus != nil && i.RelatedDataStatus.Name == string(ManagementStatusReady) {

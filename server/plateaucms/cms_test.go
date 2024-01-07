@@ -73,7 +73,7 @@ func TestHandler_AuthMiddleware(t *testing.T) {
 
 		assert.NoError(t, handler(c))
 		assert.Equal(t, http.StatusOK, w.Result().StatusCode)
-		assert.Equal(t, "prjprj", c.Param("pid"))
+		assert.Empty(t, c.Param("pid"))
 		assert.NotNil(t, GetCMSFromContext(c.Request().Context()))
 		assert.Equal(t, Metadata{
 			ProjectAlias:             "prjprj",

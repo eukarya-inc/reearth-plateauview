@@ -68,7 +68,7 @@ type Dataset interface {
 	// データセットのアイテム。
 	GetItems() []DatasetItem
 	// 管理者用
-	GetStage() *string
+	GetAdmin() interface{}
 }
 
 // データセットのアイテム。
@@ -251,7 +251,7 @@ type GenericDataset struct {
 	// データセットのアイテム。
 	Items []*GenericDatasetItem `json:"items"`
 	// 管理者用
-	Stage *string `json:"stage,omitempty"`
+	Admin interface{} `json:"admin,omitempty"`
 }
 
 func (GenericDataset) IsDataset()     {}
@@ -330,7 +330,7 @@ func (this GenericDataset) GetItems() []DatasetItem {
 }
 
 // 管理者用
-func (this GenericDataset) GetStage() *string { return this.Stage }
+func (this GenericDataset) GetAdmin() interface{} { return this.Admin }
 
 func (GenericDataset) IsNode() {}
 
@@ -470,7 +470,7 @@ type PlateauDataset struct {
 	// データセットのアイテム。
 	Items []*PlateauDatasetItem `json:"items"`
 	// 管理者用
-	Stage *string `json:"stage,omitempty"`
+	Admin interface{} `json:"admin,omitempty"`
 	// データセットが準拠するPLATEAU都市モデルの仕様のマイナーバージョンへのID。
 	PlateauSpecMinorID ID `json:"plateauSpecMinorId"`
 	// データセットが準拠するPLATEAU都市モデルの仕様。
@@ -555,7 +555,7 @@ func (this PlateauDataset) GetItems() []DatasetItem {
 }
 
 // 管理者用
-func (this PlateauDataset) GetStage() *string { return this.Stage }
+func (this PlateauDataset) GetAdmin() interface{} { return this.Admin }
 
 func (PlateauDataset) IsNode() {}
 
@@ -797,7 +797,7 @@ type RelatedDataset struct {
 	// データセットのアイテム。
 	Items []*RelatedDatasetItem `json:"items"`
 	// 管理者用
-	Stage *string `json:"stage,omitempty"`
+	Admin interface{} `json:"admin,omitempty"`
 }
 
 func (RelatedDataset) IsDataset()     {}
@@ -876,7 +876,7 @@ func (this RelatedDataset) GetItems() []DatasetItem {
 }
 
 // 管理者用
-func (this RelatedDataset) GetStage() *string { return this.Stage }
+func (this RelatedDataset) GetAdmin() interface{} { return this.Admin }
 
 func (RelatedDataset) IsNode() {}
 

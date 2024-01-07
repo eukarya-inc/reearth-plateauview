@@ -41,6 +41,14 @@ func TestRepos(t *testing.T) {
 			AreaCodes: []plateauapi.AreaCode{plateauapi.AreaCode(cityCode)},
 		})
 		assert.NoError(t, err)
+
+		var admin any
+		if stage != nil {
+			admin = map[string]any{
+				"stage": string(*stage),
+			}
+		}
+
 		if found {
 			assert.Equal(t, []plateauapi.Dataset{
 				&plateauapi.PlateauDataset{
@@ -65,7 +73,7 @@ func TestRepos(t *testing.T) {
 							Texture:  lo.ToPtr(plateauapi.TextureTexture),
 						},
 					},
-					Stage: stage,
+					Admin: admin,
 				},
 			}, dataset)
 		} else {

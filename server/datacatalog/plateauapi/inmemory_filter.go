@@ -33,7 +33,7 @@ func filterDataset(d Dataset, input DatasetsInput, stages []string) bool {
 		return false
 	}
 
-	if s := d.GetStage(); s != nil && *s != "" && len(stages) == 0 || s != nil && !slices.Contains(stages, *s) {
+	if s := stageFrom(d); s != "" && (len(stages) == 0 || !slices.Contains(stages, s)) {
 		return false
 	}
 

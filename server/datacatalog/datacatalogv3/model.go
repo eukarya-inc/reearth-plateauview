@@ -9,10 +9,20 @@ type AllData struct {
 	Related      []*RelatedItem
 	Generic      []*GenericItem
 	Plateau      map[string][]*PlateauFeatureItem
+	CMSInfo      CMSInfo
 }
 
 type FeatureTypes struct {
 	Plateau []FeatureType
 	Related []FeatureType
 	Generic []FeatureType
+}
+
+type CMSInfo struct {
+	CMSURL         string
+	WorkspaceID    string
+	ProjectID      string
+	PlateauModelID string
+	RelatedModelID string
+	GenericModelID string
 }

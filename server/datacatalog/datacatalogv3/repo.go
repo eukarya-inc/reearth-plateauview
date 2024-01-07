@@ -90,6 +90,7 @@ func (r *Repos) Update(ctx context.Context, project string, rawcms cms.Interface
 
 	repo := plateauapi.NewInMemoryRepo(c)
 	adminRepo := plateauapi.NewInMemoryRepo(c)
+	adminRepo.SetAdmin(true)
 	adminRepo.SetIncludedStages(stagesForAdmin...)
 
 	adminRepoWrapper := r.adminRepos[project]

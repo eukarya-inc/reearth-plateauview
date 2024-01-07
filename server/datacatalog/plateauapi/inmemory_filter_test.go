@@ -19,14 +19,18 @@ func TestFilterDataset(t *testing.T) {
 	t.Run("default stage", func(t *testing.T) {
 		assert.False(t, filterDataset(RelatedDataset{
 			TypeCode: "emergency_route",
-			Stage:    lo.ToPtr("beta"),
+			Admin: map[string]any{
+				"stage": "beta",
+			},
 		}, DatasetsInput{}, nil))
 	})
 
 	t.Run("beta stage", func(t *testing.T) {
 		assert.True(t, filterDataset(RelatedDataset{
 			TypeCode: "emergency_route",
-			Stage:    lo.ToPtr("beta"),
+			Admin: map[string]any{
+				"stage": "beta",
+			},
 		}, DatasetsInput{
 			IncludeTypes: []string{"emergency_route"},
 		}, []string{"beta"}))

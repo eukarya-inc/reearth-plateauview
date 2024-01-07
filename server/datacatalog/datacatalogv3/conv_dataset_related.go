@@ -7,15 +7,10 @@ import (
 	"github.com/samber/lo"
 )
 
-func (i *RelatedItem) toDatasets(area *areaContext, dts []plateauapi.DatasetType) (res []plateauapi.Dataset, warning []string) {
+func (i *RelatedItem) toDatasets(area *areaContext, dts []plateauapi.DatasetType, cmsurl string) (res []plateauapi.Dataset, warning []string) {
 	if !area.IsValid() {
 		warning = append(warning, fmt.Sprintf("related %s: invalid area", i.ID))
 		return
-	}
-
-	stage := (*string)(nil)
-	if !area.CityItem.RelatedPublic {
-		stage = lo.EmptyableToPtr(string(area.CityItem.relatedStage()))
 	}
 
 	for _, dt := range dts {
@@ -52,7 +47,7 @@ func (i *RelatedItem) toDatasets(area *areaContext, dts []plateauapi.DatasetType
 				WardCode:       seed.WardCode,
 				TypeID:         dt.GetID(),
 				TypeCode:       ftcode,
-				Stage:          stage,
+				Admin:          adminFrom(area.CityItem, cmsurl, "related"),
 				Items: []*plateauapi.RelatedDatasetItem{
 					{
 						ID:       plateauapi.NewID(sid, plateauapi.TypeDatasetItem),

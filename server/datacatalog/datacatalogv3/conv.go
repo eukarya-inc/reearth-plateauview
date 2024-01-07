@@ -17,6 +17,10 @@ func (all *AllData) Into() (res *plateauapi.InMemoryRepoContext, warning []strin
 
 	ic := newInternalContext()
 
+	ic.SetURL("plateau", all.CMSInfo.CMSURL, all.CMSInfo.WorkspaceID, all.CMSInfo.ProjectID, all.CMSInfo.PlateauModelID)
+	ic.SetURL("related", all.CMSInfo.CMSURL, all.CMSInfo.WorkspaceID, all.CMSInfo.ProjectID, all.CMSInfo.RelatedModelID)
+	ic.SetURL("generic", all.CMSInfo.CMSURL, all.CMSInfo.WorkspaceID, all.CMSInfo.ProjectID, all.CMSInfo.GenericModelID)
+
 	// pref and city
 	for _, cityItem := range all.City {
 		pref, city := cityItem.ToPrefecture(), cityItem.ToCity()
@@ -107,7 +111,7 @@ func convertPlateau(items []*PlateauFeatureItem, specs []plateauapi.PlateauSpec,
 			continue
 		}
 
-		ds, w := ds.toDatasets(area, pdt, spec)
+		ds, w := ds.toDatasets(area, pdt, spec, ic.plateauCMSURL)
 		warning = append(warning, w...)
 		if ds != nil {
 			res = append(res, ds...)
@@ -125,7 +129,7 @@ func convertRelated(items []*RelatedItem, datasetTypes []plateauapi.DatasetType,
 			continue
 		}
 
-		ds, w := ds.toDatasets(area, datasetTypes)
+		ds, w := ds.toDatasets(area, datasetTypes, ic.relatedCMSURL)
 		warning = append(warning, w...)
 		if ds != nil {
 			res = append(res, ds...)
@@ -138,7 +142,7 @@ func convertRelated(items []*RelatedItem, datasetTypes []plateauapi.DatasetType,
 func convertGeneric(items []*GenericItem, datasetTypes []plateauapi.DatasetType, ic *internalContext) (res []plateauapi.Dataset, warning []string) {
 	for _, ds := range items {
 		area := ic.AreaContext(ds.City)
-		ds, w := ds.toDatasets(area, datasetTypes)
+		ds, w := ds.toDatasets(area, datasetTypes, ic.genericCMSURL)
 		warning = append(warning, w...)
 		if ds != nil {
 			res = append(res, ds...)

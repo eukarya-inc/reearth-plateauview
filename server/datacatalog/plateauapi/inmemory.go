@@ -22,6 +22,7 @@ type InMemoryRepoContext struct {
 type InMemoryRepo struct {
 	ctx               *InMemoryRepoContext
 	areasForDataTypes map[string]map[AreaCode]struct{}
+	admin             bool
 	includedStages    []string
 }
 
@@ -42,8 +43,16 @@ func (c *InMemoryRepo) SetIncludedStages(stages ...string) {
 	c.includedStages = stages
 }
 
-func (c *InMemoryRepo) IncludeAllStage() []string {
+func (c *InMemoryRepo) IncludedStages() []string {
 	return slices.Clone(c.includedStages)
+}
+
+func (c *InMemoryRepo) SetAdmin(admin bool) {
+	c.admin = admin
+}
+
+func (c *InMemoryRepo) Admin() bool {
+	return c.admin
 }
 
 func (c *InMemoryRepo) Node(ctx context.Context, id ID) (Node, error) {
@@ -59,7 +68,7 @@ func (c *InMemoryRepo) Node(ctx context.Context, id ID) (Node, error) {
 		}
 	case TypeDataset:
 		if d := c.ctx.Datasets.Dataset(id); d != nil {
-			return d, nil
+			return removeAdminFromDataset(d, c.admin), nil
 		}
 	case TypeDatasetItem:
 		if i := c.ctx.Datasets.Item(id); i != nil {
@@ -136,9 +145,9 @@ func (c *InMemoryRepo) Datasets(ctx context.Context, input *DatasetsInput) (res 
 	if input == nil {
 		input = &DatasetsInput{}
 	}
-	return c.ctx.Datasets.Filter(func(t Dataset) bool {
+	return removeAdminFromDatasets(c.ctx.Datasets.Filter(func(t Dataset) bool {
 		return filterDataset(t, *input, c.includedStages)
-	}), nil
+	}), c.admin), nil
 }
 
 func (c *InMemoryRepo) PlateauSpecs(ctx context.Context) ([]*PlateauSpec, error) {
@@ -182,4 +191,45 @@ func areasForDatasetTypes(ds []Dataset) map[string]map[AreaCode]struct{} {
 	}
 
 	return res
+}
+
+func removeAdminFromDatasets(ds []Dataset, admin bool) []Dataset {
+	if admin {
+		return ds
+	}
+
+	return lo.Map(ds, func(d Dataset, _ int) Dataset {
+		return removeAdminFromDataset(d, admin)
+	})
+}
+
+func removeAdminFromDataset(d Dataset, admin bool) Dataset {
+	if admin {
+		return d
+	}
+
+	switch e := d.(type) {
+	case *PlateauDataset:
+		f := *e
+		f.Admin = nil
+		return &f
+	case *RelatedDataset:
+		f := *e
+		f.Admin = nil
+		return &f
+	case *GenericDataset:
+		f := *e
+		f.Admin = nil
+		return &f
+	case PlateauDataset:
+		e.Admin = nil
+		return e
+	case RelatedDataset:
+		e.Admin = nil
+		return e
+	case GenericDataset:
+		e.Admin = nil
+		return e
+	}
+	return d
 }

@@ -1,6 +1,7 @@
 package datacatalogv3
 
 import (
+	"fmt"
 	"sort"
 
 	"github.com/eukarya-inc/reearth-plateauview/server/datacatalog/plateauapi"
@@ -8,11 +9,14 @@ import (
 )
 
 type internalContext struct {
-	years     map[int]struct{}
-	cityItems map[string]*CityItem
-	prefs     map[string]*plateauapi.Prefecture
-	cities    map[string]*plateauapi.City
-	wards     map[string][]*plateauapi.Ward
+	years         map[int]struct{}
+	cityItems     map[string]*CityItem
+	prefs         map[string]*plateauapi.Prefecture
+	cities        map[string]*plateauapi.City
+	wards         map[string][]*plateauapi.Ward
+	plateauCMSURL string
+	relatedCMSURL string
+	genericCMSURL string
 }
 
 func newInternalContext() *internalContext {
@@ -65,6 +69,23 @@ func (c *internalContext) AddWards(wards []*plateauapi.Ward) {
 	for _, w := range wards {
 		cityCode := w.CityCode.String()
 		c.wards[cityCode] = append(c.wards[cityCode], w)
+	}
+}
+
+func (c *internalContext) SetURL(t, cmsurl, ws, prj, modelID string) {
+	if cmsurl == "" || ws == "" || prj == "" || modelID == "" {
+		return
+	}
+
+	url := fmt.Sprintf("%s/workspace/%s/project/%s/content/%s/details/", cmsurl, ws, prj, modelID)
+
+	switch t {
+	case "plateau":
+		c.plateauCMSURL = url
+	case "related":
+		c.plateauCMSURL = url
+	case "generic":
+		c.plateauCMSURL = url
 	}
 }
 

@@ -8,13 +8,6 @@ import (
 	"github.com/samber/lo"
 )
 
-func stageFrom(s stage) *string {
-	if s == stageGA {
-		return nil
-	}
-	return lo.ToPtr(string(s))
-}
-
 func riverAdminFrom(admin string) *plateauapi.RiverAdmin {
 	switch admin {
 	case "国":
@@ -134,4 +127,36 @@ func layerNamesFrom(layer string) []string {
 	return lo.Map(strings.Split(layer, ","), func(s string, _ int) string {
 		return strings.TrimSpace(s)
 	})
+}
+
+func adminFrom(cityItem *CityItem, cmsurl string, ft string) any {
+	var stage stage
+	if ft == "related" {
+		stage = cityItem.relatedStage()
+	} else {
+		stage = cityItem.plateauStage(ft)
+	}
+
+	return newAdmin(cityItem.ID, stage, cmsurl)
+}
+
+func newAdmin(id string, stage stage, cmsurl string) any {
+	a := map[string]any{}
+
+	if cmsurl != "" && id != "" {
+		a["cmsUrl"] = cmsurl + id
+	}
+
+	if stage != stageGA {
+		if stage == "" {
+			stage = stageAlpha
+		}
+		a["stage"] = string(stage)
+	}
+
+	if len(a) == 0 {
+		return nil
+	}
+
+	return a
 }

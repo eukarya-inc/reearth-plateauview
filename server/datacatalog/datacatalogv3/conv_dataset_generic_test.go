@@ -48,7 +48,10 @@ func Test_GenericItem_ToDatasets(t *testing.T) {
 			CityCode:       lo.ToPtr(plateauapi.AreaCode("11111")),
 			TypeID:         plateauapi.NewID("usecase", plateauapi.TypeDatasetType),
 			TypeCode:       "usecase",
-			Stage:          lo.ToPtr(string(stageAlpha)),
+			Admin: map[string]any{
+				"cmsUrl": "https://example.com/id",
+				"stage":  string(stageAlpha),
+			},
 			Items: []*plateauapi.GenericDatasetItem{
 				{
 					ID:       plateauapi.NewID("id1", plateauapi.TypeDatasetItem),
@@ -75,6 +78,7 @@ func Test_GenericItem_ToDatasets(t *testing.T) {
 		CityID:   lo.ToPtr(plateauapi.NewID("11111", plateauapi.TypeArea)),
 		CityCode: lo.ToPtr(plateauapi.AreaCode("11111")),
 		CityItem: &CityItem{
+			ID:   "id",
 			Year: "令和5年度",
 		},
 	}
@@ -87,7 +91,7 @@ func Test_GenericItem_ToDatasets(t *testing.T) {
 		},
 	}
 
-	res, warning := item.toDatasets(area, dts)
+	res, warning := item.toDatasets(area, dts, "https://example.com/")
 	assert.Equal(t, []string{"generic id[2]: invalid url: "}, warning)
 	assert.Equal(t, expected, res)
 }

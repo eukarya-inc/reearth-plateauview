@@ -7,7 +7,7 @@ import (
 	"github.com/samber/lo"
 )
 
-func (i *GenericItem) toDatasets(area *areaContext, dts []plateauapi.DatasetType) (_ []plateauapi.Dataset, warning []string) {
+func (i *GenericItem) toDatasets(area *areaContext, dts []plateauapi.DatasetType, cmsurl string) (_ []plateauapi.Dataset, warning []string) {
 	if area == nil {
 		area = &areaContext{}
 	}
@@ -64,7 +64,7 @@ func (i *GenericItem) toDatasets(area *areaContext, dts []plateauapi.DatasetType
 		CityCode:       area.CityCode,
 		TypeID:         dt.GetID(),
 		TypeCode:       dt.GetCode(),
-		Stage:          stageFrom(i.Stage()),
+		Admin:          newAdmin(i.ID, i.Stage(), cmsurl),
 		Items:          items,
 	}
 

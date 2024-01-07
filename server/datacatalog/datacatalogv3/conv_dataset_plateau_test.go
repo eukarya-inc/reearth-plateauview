@@ -94,7 +94,10 @@ func TestPlateauDataset_ToDatasets_Bldg(t *testing.T) {
 			TypeID:             plateauapi.NewID("bldg", plateauapi.TypeDatasetType),
 			TypeCode:           "bldg",
 			PlateauSpecMinorID: plateauapi.NewID("3.2", plateauapi.TypePlateauSpec),
-			Stage:              lo.ToPtr(string(stageAlpha)),
+			Admin: map[string]any{
+				"cmsUrl": "https://example.com/cityid",
+				"stage":  string(stageAlpha),
+			},
 			Items: []*plateauapi.PlateauDatasetItem{
 				{
 					ID:       plateauapi.NewID("11112_bldg_lod1", plateauapi.TypeDatasetItem),
@@ -139,7 +142,10 @@ func TestPlateauDataset_ToDatasets_Bldg(t *testing.T) {
 			TypeID:             plateauapi.NewID("bldg", plateauapi.TypeDatasetType),
 			TypeCode:           "bldg",
 			PlateauSpecMinorID: plateauapi.NewID("3.2", plateauapi.TypePlateauSpec),
-			Stage:              lo.ToPtr(string(stageAlpha)),
+			Admin: map[string]any{
+				"cmsUrl": "https://example.com/cityid",
+				"stage":  string(stageAlpha),
+			},
 			Items: []*plateauapi.PlateauDatasetItem{
 				{
 					ID:       plateauapi.NewID("11113_bldg_lod1", plateauapi.TypeDatasetItem),
@@ -165,6 +171,7 @@ func TestPlateauDataset_ToDatasets_Bldg(t *testing.T) {
 		PrefCode: lo.ToPtr(plateauapi.AreaCode("11")),
 		CityCode: lo.ToPtr(plateauapi.AreaCode("11111")),
 		CityItem: &CityItem{
+			ID:   "cityid",
 			Year: "2023年",
 		},
 		Wards: []*plateauapi.Ward{
@@ -196,7 +203,7 @@ func TestPlateauDataset_ToDatasets_Bldg(t *testing.T) {
 		ParentID:     plateauapi.NewID("3", plateauapi.TypePlateauSpec),
 	}
 
-	res, warning := item.toDatasets(area, dts, spec)
+	res, warning := item.toDatasets(area, dts, spec, "https://example.com/")
 	assert.Nil(t, warning)
 	assert.Equal(t, expected, res)
 }
@@ -320,7 +327,7 @@ func TestPlateauDataset_ToDatasets_Tnm(t *testing.T) {
 		ParentID:     plateauapi.NewID("3", plateauapi.TypePlateauSpec),
 	}
 
-	res, warning := item.toDatasets(area, dts, spec)
+	res, warning := item.toDatasets(area, dts, spec, "https://example.com/")
 	assert.Nil(t, warning)
 	assert.Equal(t, expected, res)
 }
@@ -377,7 +384,9 @@ func TestPlateauDataset_ToDatasets_Fld(t *testing.T) {
 			TypeID:             plateauapi.NewID("fld", plateauapi.TypeDatasetType),
 			TypeCode:           "fld",
 			PlateauSpecMinorID: plateauapi.NewID("3.2", plateauapi.TypePlateauSpec),
-			Stage:              lo.ToPtr(string(stageBeta)),
+			Admin: map[string]any{
+				"stage": string(stageBeta),
+			},
 			Items: []*plateauapi.PlateauDatasetItem{
 				{
 					ID:       plateauapi.NewID("11111_fld_natl_yabegawa_haegawa_l1", plateauapi.TypeDatasetItem),
@@ -421,7 +430,9 @@ func TestPlateauDataset_ToDatasets_Fld(t *testing.T) {
 			TypeID:             plateauapi.NewID("fld", plateauapi.TypeDatasetType),
 			TypeCode:           "fld",
 			PlateauSpecMinorID: plateauapi.NewID("3.2", plateauapi.TypePlateauSpec),
-			Stage:              lo.ToPtr(string(stageBeta)),
+			Admin: map[string]any{
+				"stage": string(stageBeta),
+			},
 			Items: []*plateauapi.PlateauDatasetItem{
 				{
 					ID:       plateauapi.NewID("11111_fld_natl_yodogawa_ujigawa_l1", plateauapi.TypeDatasetItem),
@@ -449,7 +460,9 @@ func TestPlateauDataset_ToDatasets_Fld(t *testing.T) {
 			TypeID:             plateauapi.NewID("fld", plateauapi.TypeDatasetType),
 			TypeCode:           "fld",
 			PlateauSpecMinorID: plateauapi.NewID("3.2", plateauapi.TypePlateauSpec),
-			Stage:              lo.ToPtr(string(stageBeta)),
+			Admin: map[string]any{
+				"stage": string(stageBeta),
+			},
 			Items: []*plateauapi.PlateauDatasetItem{
 				{
 					ID:       plateauapi.NewID("11111_fld_pref_yodogawa_ujigawa_l1", plateauapi.TypeDatasetItem),
@@ -500,7 +513,7 @@ func TestPlateauDataset_ToDatasets_Fld(t *testing.T) {
 		ParentID:     plateauapi.NewID("3", plateauapi.TypePlateauSpec),
 	}
 
-	res, warning := item.toDatasets(area, dts, spec)
+	res, warning := item.toDatasets(area, dts, spec, "")
 	assert.Nil(t, warning)
 	assert.Equal(t, expected, res)
 }

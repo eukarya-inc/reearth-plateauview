@@ -20,6 +20,8 @@ func NewCMS(cms cms.Interface) *CMS {
 func (c *CMS) GetAll(ctx context.Context, project string) (*AllData, error) {
 	all := AllData{}
 
+	// TODO: get CMSInfo
+
 	specs, err := c.GetPlateauSpecs(ctx, project)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get plateau specs: %w", err)

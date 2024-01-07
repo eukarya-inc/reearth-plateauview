@@ -25,14 +25,14 @@ type plateauDatasetSeed struct {
 	City        *plateauapi.City
 	Spec        *plateauapi.PlateauSpecMinor
 	River       *plateauapi.River
-	Stage       *string
+	Admin       any
 }
 
 func (seed plateauDatasetSeed) GetID() string {
 	return standardItemID(seed.DatasetType.Code, seed.TargetArea, seed.IDEx)
 }
 
-func plateauDatasetSeedsFrom(i *PlateauFeatureItem, dt *plateauapi.PlateauDatasetType, area *areaContext, spec *plateauapi.PlateauSpecMinor) (res []plateauDatasetSeed, warning []string) {
+func plateauDatasetSeedsFrom(i *PlateauFeatureItem, dt *plateauapi.PlateauDatasetType, area *areaContext, spec *plateauapi.PlateauSpecMinor, cmsurl string) (res []plateauDatasetSeed, warning []string) {
 	dic, err := i.ReadDic()
 	if err != nil && i.Dic != "" {
 		warning = append(warning, fmt.Sprintf("plateau %s %s: invalid dic: %s", i.ID, dt.Code, err))
@@ -58,7 +58,7 @@ func plateauDatasetSeedsFrom(i *PlateauFeatureItem, dt *plateauapi.PlateauDatase
 		res[i].Pref = area.Pref
 		res[i].City = area.City
 		res[i].Spec = spec
-		res[i].Stage = stageFrom(area.CityItem.plateauStage(dt.Code))
+		res[i].Admin = adminFrom(area.CityItem, cmsurl, dt.Code)
 		if res[i].TargetArea == nil {
 			res[i].TargetArea = area.City
 		}
