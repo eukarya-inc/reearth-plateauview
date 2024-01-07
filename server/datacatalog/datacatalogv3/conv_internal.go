@@ -25,6 +25,7 @@ func newInternalContext() *internalContext {
 		cityItems: map[string]*CityItem{},
 		prefs:     map[string]*plateauapi.Prefecture{},
 		cities:    map[string]*plateauapi.City{},
+		wards:     map[string][]*plateauapi.Ward{},
 	}
 }
 

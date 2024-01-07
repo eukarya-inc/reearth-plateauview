@@ -101,13 +101,14 @@ func convertPlateau(items []*PlateauFeatureItem, specs []plateauapi.PlateauSpec,
 	for _, ds := range items {
 		area := ic.AreaContext(ds.City)
 		if area == nil {
-			warning = append(warning, fmt.Sprintf("plateau %s: city not found: %s", ds.ID, ds.City))
+			warning = append(warning, fmt.Sprintf("plateau %s %s: invalid city: %s", ds.ID, pdt.Code, ds.City))
 			continue
 		}
 
+		cityCode := lo.FromPtr(area.CityCode).String()
 		spec := plateauapi.FindSpecMinorByName(specs, area.CityItem.Spec)
 		if spec == nil {
-			warning = append(warning, fmt.Sprintf("plateau %s: spec not found: %s", ds.ID, area.CityItem.Spec))
+			warning = append(warning, fmt.Sprintf("plateau %s %s: invalid spec: %s", cityCode, pdt.Code, area.CityItem.Spec))
 			continue
 		}
 
@@ -125,7 +126,7 @@ func convertRelated(items []*RelatedItem, datasetTypes []plateauapi.DatasetType,
 	for _, ds := range items {
 		area := ic.AreaContext(ds.City)
 		if area == nil {
-			warning = append(warning, fmt.Sprintf("related %s: city not found: %s", ds.ID, ds.City))
+			warning = append(warning, fmt.Sprintf("related %s: invalid city: %s", ds.ID, ds.City))
 			continue
 		}
 

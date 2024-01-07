@@ -1,6 +1,7 @@
 package datacatalogv3
 
 import (
+	"encoding/json"
 	"testing"
 
 	cms "github.com/reearth/reearth-cms-api/go"
@@ -178,4 +179,18 @@ func TestValueToAssetURLs(t *testing.T) {
 	assert.Equal(t, []string{"url", "url2"}, valueToAssetURLs(cms.NewValue([]any{
 		map[string]any{"url": "url"}, map[any]any{"url": "url2"}, map[string]any{},
 	})))
+}
+
+func TestStringOrNumber(t *testing.T) {
+	stringOrNumber := &StringOrNumber{}
+	assert.NoError(t, json.Unmarshal([]byte(`"string"`), stringOrNumber))
+	assert.Equal(t, "string", stringOrNumber.String())
+
+	stringOrNumber = &StringOrNumber{}
+	assert.NoError(t, json.Unmarshal([]byte(`123`), stringOrNumber))
+	assert.Equal(t, "123", stringOrNumber.String())
+
+	stringOrNumber = &StringOrNumber{}
+	assert.NoError(t, json.Unmarshal([]byte(`123.456`), stringOrNumber))
+	assert.Equal(t, "123.456000", stringOrNumber.String())
 }

@@ -76,6 +76,7 @@ func (r *Repos) Update(ctx context.Context, project string, rawcms cms.Interface
 			return nil
 		}
 		cms = NewCMS(rawcms)
+		r.cms[project] = cms
 	}
 
 	log.Infofc(ctx, "datacatalogv3: updating project %s", project)
@@ -120,6 +121,9 @@ func (r *Repos) Update(ctx context.Context, project string, rawcms cms.Interface
 }
 
 func (r *Repos) Warnings(project string) []string {
+	if r.UpdatedAt(project).IsZero() {
+		return []string{"project is not initialized"}
+	}
 	return slices.Clone(r.warnings[project])
 }
 

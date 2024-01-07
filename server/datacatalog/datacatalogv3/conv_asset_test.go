@@ -126,10 +126,10 @@ func TestParseAssetName(t *testing.T) {
 		},
 		{
 			name: "fld notexture",
-			args: "40202_omuta-shi_city_2023_citygml_1_op_fld_natl_yabegawa_haegawa_3dtiles_l2_no_texture",
+			args: "28201_himeji-shi_city_2023_citygml_1_op_fld_natl_ibogawa_hayashidagawa_3dtiles_l2_no_texture",
 			want: &AssetName{
-				CityCode:    "40202",
-				CityName:    "omuta-shi",
+				CityCode:    "28201",
+				CityName:    "himeji-shi",
 				Provider:    "city",
 				Year:        2023,
 				Format:      "citygml",
@@ -138,12 +138,12 @@ func TestParseAssetName(t *testing.T) {
 					Fld: &AssetNameExFld{
 						Type:      "fld",
 						Admin:     "natl",
-						River:     "yabegawa_haegawa",
+						River:     "ibogawa_hayashidagawa",
 						Format:    "3dtiles",
 						L:         2,
 						NoTexture: true,
 					},
-					Ex: "fld_natl_yabegawa_haegawa_3dtiles_l2_no_texture",
+					Ex: "fld_natl_ibogawa_hayashidagawa_3dtiles_l2_no_texture",
 				},
 			},
 		},

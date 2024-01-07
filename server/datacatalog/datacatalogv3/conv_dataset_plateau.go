@@ -18,7 +18,7 @@ func (i *PlateauFeatureItem) toWards(pref *plateauapi.Prefecture, city *plateaua
 
 	entries := dic[dicKeyAdmin]
 	for _, entry := range entries {
-		if entry.Code == "" || entry.Description == "" {
+		if entry.Code.String() == "" || entry.Description == "" {
 			continue
 		}
 
@@ -28,10 +28,10 @@ func (i *PlateauFeatureItem) toWards(pref *plateauapi.Prefecture, city *plateaua
 		}
 
 		ward := &plateauapi.Ward{
-			ID:             plateauapi.NewID(entry.Code, plateauapi.TypeArea),
+			ID:             plateauapi.NewID(entry.Code.String(), plateauapi.TypeArea),
 			Name:           name,
 			Type:           plateauapi.AreaTypeWard,
-			Code:           plateauapi.AreaCode(entry.Code),
+			Code:           plateauapi.AreaCode(entry.Code.String()),
 			PrefectureID:   pref.ID,
 			PrefectureCode: pref.Code,
 			CityID:         city.ID,
@@ -65,7 +65,7 @@ func (i *PlateauFeatureItem) toDatasets(area *areaContext, dt *plateauapi.Platea
 
 func seedToDataset(seed plateauDatasetSeed) (res *plateauapi.PlateauDataset, warning []string) {
 	if len(seed.AssetURLs) == 0 {
-		warning = append(warning, fmt.Sprintf("plateau %s %s: no asset urls", seed.TargetArea.GetCode(), seed.DatasetType.Code))
+		// warning = append(warning, fmt.Sprintf("plateau %s %s: no asset urls", seed.TargetArea.GetCode(), seed.DatasetType.Code))
 		return
 	}
 

@@ -13,6 +13,7 @@ import (
 	"github.com/eukarya-inc/reearth-plateauview/server/plateaucms"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	"github.com/reearth/reearthx/log"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -52,11 +53,11 @@ func echov3(conf Config, g *echo.Group) (func(ctx context.Context) error, error)
 	// GraphQL API (admin)
 	plateauapig.POST("/:pid/admin/graphql", h.Handler(true))
 
+	// warning API
+	plateauapig.GET("/:pid/warnings", h.WarningHandler)
+
 	// cache update API
 	g.POST("/update-cache", h.UpdateCacheHandler)
-
-	// warning API
-	g.GET("/:pid/warnings", h.WarningHandler)
 
 	return func(ctx context.Context) error {
 		return h.Init(ctx)
@@ -73,6 +74,7 @@ type reposHandler struct {
 
 const pidParamName = "pid"
 const gqlComplexityLimit = 1000
+const cmsSchemaVersion = "v3"
 
 func newReposHandler(conf Config) (*reposHandler, error) {
 	pcms, err := plateaucms.New(conf.Config)
@@ -128,15 +130,18 @@ func (h *reposHandler) getRepo(ctx context.Context, admin, mergev2 bool) (platea
 	}
 
 	cmsmd := plateaucms.GetCMSMetadataFromContext(ctx)
-	if cmsmd.ProjectAlias == "" || (admin && !cmsmd.Auth) {
+	project := cmsmd.DataCatalogProjectAlias
+	if project == "" || (admin && !cmsmd.Auth) || cmsmd.DataCatalogSchemaVersion != cmsSchemaVersion {
 		return nil, nil
 	}
 
-	if err := h.reposv3.Prepare(ctx, cmsmd.ProjectAlias, cms); err != nil {
+	log.Debugfc(ctx, "datacatalogv3: use CMS project: %s", project)
+
+	if err := h.reposv3.Prepare(ctx, project, cms); err != nil {
 		return nil, err
 	}
 
-	rw := h.reposv3.Repo(cmsmd.ProjectAlias, admin)
+	rw := h.reposv3.Repo(project, admin)
 
 	if mergev2 {
 		return plateauapi.NewMerger(rw, h.repov2), nil
@@ -167,7 +172,7 @@ func (h *reposHandler) UpdateCacheHandler(c echo.Context) error {
 func (h *reposHandler) WarningHandler(c echo.Context) error {
 	pid := c.Param(pidParamName)
 	md := plateaucms.GetCMSMetadataFromContext(c.Request().Context())
-	if md.ProjectAlias != pid {
+	if md.DataCatalogProjectAlias != pid {
 		return echo.NewHTTPError(http.StatusNotFound, "not found")
 	}
 

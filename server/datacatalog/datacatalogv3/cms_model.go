@@ -2,6 +2,7 @@ package datacatalogv3
 
 import (
 	"encoding/json"
+	"fmt"
 
 	"github.com/eukarya-inc/reearth-plateauview/server/datacatalog/datacatalogcommon"
 	cms "github.com/reearth/reearth-cms-api/go"
@@ -12,6 +13,7 @@ const modelPrefix = "plateau-"
 const cityModel = "city"
 const relatedModel = "related"
 const genericModel = "generic"
+const defaultSpec = "第3.2版"
 
 type ManagementStatus string
 
@@ -68,6 +70,11 @@ func CityItemFrom(item *cms.Item, featureTypes []FeatureType) (i *CityItem) {
 
 	i.References = references
 	i.Public = public
+
+	if i.Spec == "" {
+		i.Spec = defaultSpec
+	}
+
 	return
 }
 
@@ -125,7 +132,30 @@ type PlateauFeatureItemDatum struct {
 	Key  string   `json:"key,omitempty" cms:"key,text"`
 }
 
-type Dic map[string][]DicEntry // admin, fld. htd, tnm, gen
+type Dic map[string][]DicEntry // admin, fld. htd, tnm, urf, gen
+
+func (d Dic) FindEntryOrDefault(key, name string) (*DicEntry, bool) {
+	if e := d.FindEntry(key, name); e != nil {
+		return e, true
+	}
+
+	// urf
+	if key == "urf" {
+		if code, ok := datacatalogcommon.UrfFeatureTypeMap[name]; ok {
+			return &DicEntry{
+				Name:        &StringOrNumber{Value: name},
+				Code:        &StringOrNumber{Value: code},
+				Description: name,
+			}, true
+		}
+	}
+
+	return &DicEntry{
+		Name:        &StringOrNumber{Value: name},
+		Code:        &StringOrNumber{Value: name},
+		Description: name,
+	}, false
+}
 
 func (d Dic) FindEntry(key, name string) *DicEntry {
 	if d == nil {
@@ -134,7 +164,7 @@ func (d Dic) FindEntry(key, name string) *DicEntry {
 
 	if entries, ok := d[key]; ok {
 		for _, e := range entries {
-			if e.Name == name {
+			if e.Name.String() == name || e.Code.String() == name {
 				return &e
 			}
 		}
@@ -144,11 +174,11 @@ func (d Dic) FindEntry(key, name string) *DicEntry {
 }
 
 type DicEntry struct {
-	Name        string `json:"name,omitempty"`
-	Description string `json:"description,omitempty"`
-	Code        string `json:"code,omitempty"`  // bldg only
-	Admin       string `json:"admin,omitempty"` // fld only
-	Scale       string `json:"scale,omitempty"` // fld only
+	Name        *StringOrNumber `json:"name,omitempty"`
+	Description string          `json:"description,omitempty"`
+	Code        *StringOrNumber `json:"code,omitempty"`  // bldg only
+	Admin       string          `json:"admin,omitempty"` // fld only
+	Scale       string          `json:"scale,omitempty"` // fld only
 }
 
 func PlateauFeatureItemFrom(item *cms.Item) (i *PlateauFeatureItem) {
@@ -163,6 +193,39 @@ func PlateauFeatureItemFrom(item *cms.Item) (i *PlateauFeatureItem) {
 	}
 
 	return
+}
+
+type StringOrNumber struct {
+	Value string
+}
+
+func (s *StringOrNumber) UnmarshalJSON(b []byte) error {
+	var str string
+	if err := json.Unmarshal(b, &str); err == nil {
+		s.Value = str
+		return nil
+	}
+
+	var in int
+	if err := json.Unmarshal(b, &in); err == nil {
+		s.Value = fmt.Sprintf("%d", in)
+		return nil
+	}
+
+	var num float64
+	if err := json.Unmarshal(b, &num); err == nil {
+		s.Value = fmt.Sprintf("%f", num)
+		return nil
+	}
+
+	return nil
+}
+
+func (s *StringOrNumber) String() string {
+	if s == nil {
+		return ""
+	}
+	return s.Value
 }
 
 type GenericItem struct {

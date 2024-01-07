@@ -17,7 +17,7 @@ func (i *RelatedItem) toDatasets(area *areaContext, dts []plateauapi.DatasetType
 		ftname, ftcode := dt.GetName(), dt.GetCode()
 		d := i.Items[ftcode]
 		if len(d.Asset) == 0 && len(d.Converted) == 0 {
-			warning = append(warning, fmt.Sprintf("related %s: no data for %s", area.CityCode, ftcode))
+			// warning = append(warning, fmt.Sprintf("related %s: no data for %s", area.CityCode, ftcode))
 			continue
 		}
 
