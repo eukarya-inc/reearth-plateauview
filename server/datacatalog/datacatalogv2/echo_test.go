@@ -169,6 +169,13 @@ func mock(t *testing.T) plateaucms.Config {
 						{Key: "cms_apikey", Value: "apikey"},
 					},
 				},
+				{
+					ID: "2",
+					Fields: []*cms.Field{
+						{Key: "project_alias", Value: "subprj"},
+						{Key: "cms_apikey", Value: "apikey"},
+					},
+				},
 			},
 		}),
 	)

@@ -43,7 +43,7 @@ func Echo(conf Config, g *echo.Group) error {
 		ctx := c.Request().Context()
 
 		md := plateaucms.GetCMSMetadataFromContext(ctx)
-		if md.DataCatalogSchemaVersion != "" && md.DataCatalogSchemaVersion != "v2" {
+		if md.DataCatalogProjectAlias == "" || md.DataCatalogSchemaVersion != "" && md.DataCatalogSchemaVersion != "v2" {
 			return c.JSON(http.StatusNotFound, "not found")
 		}
 
