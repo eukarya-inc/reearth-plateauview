@@ -44,7 +44,8 @@ func (r *Repos) Prepare(ctx context.Context, project string, cms cms.Interface) 
 		return nil
 	}
 
-	return r.Update(ctx, project, cms)
+	r.setCMS(project, cms)
+	return r.Update(ctx, project)
 }
 
 func (r *Repos) Repo(project string, admin bool) *plateauapi.RepoWrapper {
@@ -54,29 +55,29 @@ func (r *Repos) Repo(project string, admin bool) *plateauapi.RepoWrapper {
 	return r.repos[project]
 }
 
-func (r *Repos) UpdateAll(ctx context.Context) error {
-	projects := lo.Keys(r.repos)
-	sort.Strings(projects)
+func (r *Repos) Projects() []string {
+	keys := lo.Keys(r.repos)
+	sort.Strings(keys)
+	return keys
+}
 
+func (r *Repos) UpdateAll(ctx context.Context) error {
+	projects := r.Projects()
 	for _, project := range projects {
-		if err := r.Update(ctx, project, nil); err != nil {
+		if err := r.Update(ctx, project); err != nil {
 			return fmt.Errorf("failed to update project %s: %w", project, err)
 		}
 	}
 	return nil
 }
 
-func (r *Repos) Update(ctx context.Context, project string, rawcms cms.Interface) error {
+func (r *Repos) Update(ctx context.Context, project string) error {
 	r.locks.Lock(project)
 	defer r.locks.Unlock(project)
 
 	cms := r.cms[project]
 	if cms == nil {
-		if rawcms == nil {
-			return nil
-		}
-		cms = NewCMS(rawcms)
-		r.cms[project] = cms
+		return fmt.Errorf("cms is not initialized for %s", project)
 	}
 
 	log.Infofc(ctx, "datacatalogv3: updating repo %s", project)
@@ -131,4 +132,12 @@ func (r *Repos) Warnings(project string) []string {
 
 func (r *Repos) UpdatedAt(project string) time.Time {
 	return r.updatedAt[project]
+}
+
+func (r *Repos) setCMS(project string, cms cms.Interface) {
+	r.locks.Lock(project)
+	defer r.locks.Unlock(project)
+
+	c := NewCMS(cms)
+	r.cms[project] = c
 }

@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 	"slices"
+	"strconv"
 	"strings"
 	"time"
 
@@ -107,6 +108,10 @@ func (h *CMS) AuthMiddleware(key string, authMethods []string, findDataCatalog b
 			}
 
 			md, all, err := h.Metadata(ctx, prj, findDataCatalog)
+			if len(all) > 0 {
+				ctx = context.WithValue(ctx, cmsAllMetadataContextKey{}, all)
+			}
+
 			if err != nil {
 				if errors.Is(err, rerror.ErrNotFound) {
 					ctx = context.WithValue(ctx, cmsMetadataContextKey{}, md)
@@ -134,7 +139,6 @@ func (h *CMS) AuthMiddleware(key string, authMethods []string, findDataCatalog b
 
 			// attach
 			ctx = context.WithValue(ctx, cmsMetadataContextKey{}, md)
-			ctx = context.WithValue(ctx, cmsAllMetadataContextKey{}, all)
 			ctx = context.WithValue(ctx, cmsContextKey{}, cmsh)
 			c.SetRequest(req.WithContext(ctx))
 			return next(c)
@@ -254,4 +258,37 @@ func (h *CMS) LastModified(c echo.Context, prj string, models ...string) (bool, 
 
 func (m Metadata) CMS() (*cms.CMS, error) {
 	return cms.New(m.CMSBaseURL, m.CMSAPIKey)
+}
+
+func (m Metadata) PlateauYear() int {
+	if !strings.HasPrefix(m.DataCatalogProjectAlias, "plateau-") {
+		return 0
+	}
+
+	name := strings.TrimPrefix(m.DataCatalogProjectAlias, "plateau-")
+	if len(name) < 4 {
+		return 0
+	}
+
+	year, err := strconv.Atoi(name[:4])
+	if err != nil {
+		return 0
+	}
+
+	return year
+}
+
+func PlateauProjectsFromMetadata(metadata []Metadata) []Metadata {
+	m := lo.FilterMap(metadata, func(m Metadata, _ int) (lo.Tuple2[Metadata, int], bool) {
+		y := m.PlateauYear()
+		return lo.Tuple2[Metadata, int]{A: m, B: y}, y > 0
+	})
+
+	slices.SortFunc(m, func(a, b lo.Tuple2[Metadata, int]) int {
+		return b.B - a.B
+	})
+
+	return lo.Map(m, func(t lo.Tuple2[Metadata, int], _ int) Metadata {
+		return t.A
+	})
 }

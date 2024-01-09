@@ -304,3 +304,26 @@ func mockCMS(t *testing.T) {
 		}),
 	)
 }
+
+func TestPlateauProjectsFromMetadata(t *testing.T) {
+	m := []Metadata{
+		{
+			DataCatalogProjectAlias: "plateau-2022",
+		},
+		{
+			DataCatalogProjectAlias: "plateau-aaaa",
+		},
+		{
+			DataCatalogProjectAlias: "plateau-2023",
+		},
+	}
+	ps := PlateauProjectsFromMetadata(m)
+	assert.Equal(t, []Metadata{
+		{
+			DataCatalogProjectAlias: "plateau-2023",
+		},
+		{
+			DataCatalogProjectAlias: "plateau-2022",
+		},
+	}, ps)
+}
