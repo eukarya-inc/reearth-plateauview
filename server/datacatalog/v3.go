@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"path"
 	"strings"
+	"time"
 
 	"github.com/eukarya-inc/reearth-plateauview/server/datacatalog/datacatalogv2/datacatalogv2adapter"
 	"github.com/eukarya-inc/reearth-plateauview/server/datacatalog/datacatalogv3"
@@ -187,8 +188,13 @@ func (h *reposHandler) WarningHandler(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusUnauthorized, "unauthorized")
 	}
 
-	w := strings.Join(h.reposv3.Warnings(pid), "\n")
-	return c.String(http.StatusOK, w)
+	t := h.reposv3.UpdatedAt(pid)
+	res := ""
+	if !t.IsZero() {
+		res = fmt.Sprintf("updated at: %s\n", t.Format(time.RFC3339))
+	}
+	res += strings.Join(h.reposv3.Warnings(pid), "\n")
+	return c.String(http.StatusOK, res)
 }
 
 func (h *reposHandler) UpdateCache(ctx context.Context) error {

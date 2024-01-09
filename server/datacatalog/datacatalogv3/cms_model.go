@@ -141,11 +141,11 @@ func (d Dic) FindEntryOrDefault(key, name string) (*DicEntry, bool) {
 
 	// urf
 	if key == "urf" {
-		if code, ok := datacatalogcommon.UrfFeatureTypeMap[name]; ok {
+		if desc, ok := datacatalogcommon.UrfFeatureTypeMap[name]; ok {
 			return &DicEntry{
 				Name:        &StringOrNumber{Value: name},
-				Code:        &StringOrNumber{Value: code},
-				Description: name,
+				Code:        &StringOrNumber{Value: name},
+				Description: desc,
 			}, true
 		}
 	}

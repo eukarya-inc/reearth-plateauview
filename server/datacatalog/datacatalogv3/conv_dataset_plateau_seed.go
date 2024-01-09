@@ -95,24 +95,24 @@ func plateauDatasetSeedsFromItem(i *PlateauFeatureItem, item PlateauFeatureItemD
 
 	assetName := assets[0]
 	key, dickey := assetName.Ex.ItemKey(), assetName.Ex.DicKey()
-	if key == "" || dickey == "" {
-		warning = append(warning, fmt.Sprintf("plateau %s %s: invalid asset name key: %s", cityCode, dt.Code, assetName.Ex.Ex))
-		return
-	}
+	var e *DicEntry
 
-	e, found := dic.FindEntryOrDefault(dt.Code, dickey)
-	if !found {
-		warning = append(warning, fmt.Sprintf("plateau %s %s: unknown dic key: %s", cityCode, dt.Code, dickey))
-		if e == nil {
-			return
+	if dickey != "" {
+		var found bool
+		e, found = dic.FindEntryOrDefault(dt.Code, dickey)
+		if !found {
+			warning = append(warning, fmt.Sprintf("plateau %s %s: unknown dic key: %s", cityCode, dt.Code, dickey))
+			if e == nil {
+				return
+			}
 		}
 	}
 
 	var river *plateauapi.River
 	if assetName.Ex.Fld != nil {
 		if a := riverAdminFrom(assetName.Ex.Fld.Admin); a != nil {
-			if e.Description == "" {
-				warning = append(warning, fmt.Sprintf("plateau %s %s: dic entry has no description: %s", cityCode, dt.Code, key))
+			if e == nil || e.Description == "" {
+				warning = append(warning, fmt.Sprintf("plateau %s %s: dic entry has no description or entry not found: %s", cityCode, dt.Code, key))
 			} else {
 				river = &plateauapi.River{
 					Name:  e.Description,
