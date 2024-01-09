@@ -14,6 +14,7 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/reearth/reearthx/log"
+	"github.com/samber/lo"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -199,7 +200,30 @@ func (h *reposHandler) UpdateCache(ctx context.Context) error {
 }
 
 func (h *reposHandler) Init(ctx context.Context) error {
-	return h.UpdateCache(ctx)
+	all, err := h.pcms.AllMetadata(ctx, true)
+	if err != nil {
+		return fmt.Errorf("failed to get all metadata: %w", err)
+	}
+
+	target := lo.Filter(all, func(m plateaucms.Metadata, _ int) bool {
+		return m.DataCatalogSchemaVersion == cmsSchemaVersion
+	})
+
+	log.Infofc(ctx, "datacatalogv3: initializing repos for %d projects", len(target))
+
+	for _, md := range target {
+		cms, err := md.CMS()
+		if err != nil {
+			log.Errorfc(ctx, "datacatalogv3: failed to create cms for %s: %w", md.DataCatalogProjectAlias, err)
+			continue
+		}
+
+		if err := h.reposv3.Prepare(ctx, md.DataCatalogProjectAlias, cms); err != nil {
+			log.Errorfc(ctx, "datacatalogv3: failed to prepare repo for %s: %w", md.DataCatalogProjectAlias, err)
+		}
+	}
+
+	return nil
 }
 
 func gqlPlaygroundHandler(endpoint string, admin bool) echo.HandlerFunc {

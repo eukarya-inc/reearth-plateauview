@@ -19,7 +19,7 @@ import (
 const (
 	ProjectNameParam             = "pid"
 	tokenProject                 = "system"
-	tokenModel                   = "workspaces"
+	metadataModel                = "workspaces"
 	plateauProjectModel          = "plateau-projects"
 	projectAliasField            = "project_alias"
 	datacatalogProjectAliasField = "datacatalog_project_alias"
@@ -50,9 +50,9 @@ type Config struct {
 }
 
 type CMS struct {
-	cmsbase         string
-	cmsTokenProject string
-	cmsMain         cms.Interface
+	cmsbase            string
+	cmsMetadataProject string
+	cmsMain            cms.Interface
 	// comapt
 	cmsMainProject string
 	cmsToken       string
@@ -70,9 +70,9 @@ func New(c Config) (*CMS, error) {
 	}
 
 	return &CMS{
-		cmsbase:         c.CMSBaseURL,
-		cmsTokenProject: c.CMSTokenProject,
-		cmsMain:         cmsMain,
+		cmsbase:            c.CMSBaseURL,
+		cmsMetadataProject: c.CMSTokenProject,
+		cmsMain:            cmsMain,
 		// compat
 		cmsMainProject: c.CMSMainProject,
 		cmsToken:       c.CMSMainToken,
@@ -82,9 +82,9 @@ func New(c Config) (*CMS, error) {
 
 func (h *CMS) Clone() *CMS {
 	return &CMS{
-		cmsbase:         h.cmsbase,
-		cmsTokenProject: h.cmsTokenProject,
-		cmsMain:         h.cmsMain,
+		cmsbase:            h.cmsbase,
+		cmsMetadataProject: h.cmsMetadataProject,
+		cmsMain:            h.cmsMain,
 		// compat
 		cmsMainProject: h.cmsMainProject,
 		cmsToken:       h.cmsToken,
@@ -106,7 +106,7 @@ func (h *CMS) AuthMiddleware(key string, authMethods []string, findDataCatalog b
 				prj = defaultProject
 			}
 
-			md, err := h.Metadata(ctx, prj, findDataCatalog)
+			md, all, err := h.Metadata(ctx, prj, findDataCatalog)
 			if err != nil {
 				if errors.Is(err, rerror.ErrNotFound) {
 					ctx = context.WithValue(ctx, cmsMetadataContextKey{}, md)
@@ -134,6 +134,7 @@ func (h *CMS) AuthMiddleware(key string, authMethods []string, findDataCatalog b
 
 			// attach
 			ctx = context.WithValue(ctx, cmsMetadataContextKey{}, md)
+			ctx = context.WithValue(ctx, cmsAllMetadataContextKey{}, all)
 			ctx = context.WithValue(ctx, cmsContextKey{}, cmsh)
 			c.SetRequest(req.WithContext(ctx))
 			return next(c)
@@ -143,6 +144,7 @@ func (h *CMS) AuthMiddleware(key string, authMethods []string, findDataCatalog b
 
 type cmsContextKey struct{}
 type cmsMetadataContextKey struct{}
+type cmsAllMetadataContextKey struct{}
 
 func GetCMSFromContext(ctx context.Context) cms.Interface {
 	cms, _ := ctx.Value(cmsContextKey{}).(cms.Interface)
@@ -151,6 +153,11 @@ func GetCMSFromContext(ctx context.Context) cms.Interface {
 
 func GetCMSMetadataFromContext(ctx context.Context) Metadata {
 	md, _ := ctx.Value(cmsMetadataContextKey{}).(Metadata)
+	return md
+}
+
+func GetAllCMSMetadataFromContext(ctx context.Context) []Metadata {
+	md, _ := ctx.Value(cmsAllMetadataContextKey{}).([]Metadata)
 	return md
 }
 
@@ -163,56 +170,64 @@ type Metadata struct {
 	SidebarAccessToken       string `json:"sidebar_access_token" cms:"sidebar_access_token,text"`
 	SubPorjectAlias          string `json:"subproject_alias" cms:"subproject_alias,text"`
 	// whether the request is authenticated with sidebar access token
-	Auth bool `json:"-" cms:"-"`
+	Auth       bool   `json:"-" cms:"-"`
+	CMSBaseURL string `json:"-" cms:"-"`
 }
 
-func (h *CMS) Metadata(ctx context.Context, prj string, findDataCatalog bool) (Metadata, error) {
+func (h *CMS) Metadata(ctx context.Context, prj string, findDataCatalog bool) (Metadata, []Metadata, error) {
 	// compat
 	if h.cmsMainProject != "" && prj == h.cmsMainProject {
 		return Metadata{
 			ProjectAlias:       h.cmsMainProject,
 			CMSAPIKey:          h.cmsToken,
 			SidebarAccessToken: h.adminToken,
-		}, nil
+			CMSBaseURL:         h.cmsbase,
+		}, nil, nil
 	}
 
-	if h.cmsTokenProject == "" {
-		return Metadata{}, rerror.ErrNotFound
+	all, err := h.AllMetadata(ctx, findDataCatalog)
+	if err != nil {
+		return Metadata{}, nil, err
 	}
 
-	items, err := h.cmsMain.GetItemsByKeyInParallel(ctx, h.cmsTokenProject, tokenModel, false, 100)
-	if err != nil || items == nil {
-		if errors.Is(err, cms.ErrNotFound) || items == nil {
-			return Metadata{}, rerror.ErrNotFound
-		}
-		return Metadata{}, rerror.ErrInternalBy(fmt.Errorf("plateaucms: failed to get token: %w", err))
-	}
-
-	item, ok := lo.Find(items.Items, func(i cms.Item) bool {
-		if findDataCatalog {
-			s := i.FieldByKey(datacatalogProjectAliasField).GetValue().String()
-			if s != nil && *s == prj {
-				return true
-			}
-		}
-
-		s := i.FieldByKey(projectAliasField).GetValue().String()
-		return s != nil && *s == prj
+	md, ok := lo.Find(all, func(i Metadata) bool {
+		return findDataCatalog && i.DataCatalogProjectAlias == prj || i.ProjectAlias == prj
 	})
 	if !ok {
-		return Metadata{}, rerror.ErrNotFound
+		return Metadata{}, all, rerror.ErrNotFound
 	}
 
-	m := Metadata{}
-	item.Unmarshal(&m)
-	if m.CMSAPIKey == "" {
-		return Metadata{}, rerror.ErrNotFound
-	}
-	if m.DataCatalogProjectAlias == "" {
-		m.DataCatalogProjectAlias = m.ProjectAlias
+	return md, all, nil
+}
+
+func (h *CMS) AllMetadata(ctx context.Context, findDataCatalog bool) ([]Metadata, error) {
+	if h.cmsMetadataProject == "" {
+		return nil, rerror.ErrNotFound
 	}
 
-	return m, nil
+	items, err := h.cmsMain.GetItemsByKeyInParallel(ctx, h.cmsMetadataProject, metadataModel, false, 100)
+	if err != nil || items == nil {
+		if errors.Is(err, cms.ErrNotFound) || items == nil {
+			return nil, rerror.ErrNotFound
+		}
+		return nil, rerror.ErrInternalBy(fmt.Errorf("plateaucms: failed to get metadata: %w", err))
+	}
+
+	all := make([]Metadata, 0, len(items.Items))
+	for _, item := range items.Items {
+		m := Metadata{}
+		item.Unmarshal(&m)
+		if m.CMSAPIKey == "" {
+			continue
+		}
+		if m.DataCatalogProjectAlias == "" {
+			m.DataCatalogProjectAlias = m.ProjectAlias
+		}
+		m.CMSBaseURL = h.cmsbase
+		all = append(all, m)
+	}
+
+	return all, nil
 }
 
 func (h *CMS) LastModified(c echo.Context, prj string, models ...string) (bool, error) {
@@ -235,4 +250,8 @@ func (h *CMS) LastModified(c echo.Context, prj string, models ...string) (bool, 
 	}
 
 	return putil.LastModified(c, mlastModified)
+}
+
+func (m Metadata) CMS() (*cms.CMS, error) {
+	return cms.New(m.CMSBaseURL, m.CMSAPIKey)
 }
