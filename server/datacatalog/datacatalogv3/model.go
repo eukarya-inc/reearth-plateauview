@@ -3,6 +3,7 @@ package datacatalogv3
 import "github.com/eukarya-inc/reearth-plateauview/server/datacatalog/plateauapi"
 
 type AllData struct {
+	Name         string
 	PlateauSpecs []plateauapi.PlateauSpecSimple
 	FeatureTypes FeatureTypes
 	City         []*CityItem

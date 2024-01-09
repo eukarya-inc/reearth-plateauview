@@ -39,19 +39,25 @@ func echov3(conf Config, g *echo.Group) (func(ctx context.Context) error, error)
 	// GraphQL playground (all)
 	plateauapig.GET("/graphql", gqlPlaygroundHandler(conf.PlaygroundEndpoint, false))
 
+	// GraphQL playground (all, admin)
+	plateauapig.GET("/admin/graphql", gqlPlaygroundHandler(conf.PlaygroundEndpoint, true))
+
 	// GraphQL playground (project)
 	plateauapig.GET("/:pid/graphql", gqlPlaygroundHandler(conf.PlaygroundEndpoint, false))
 
-	// GraphQL playground (admin)
+	// GraphQL playground (project, admin)
 	plateauapig.GET("/:pid/admin/graphql", gqlPlaygroundHandler(conf.PlaygroundEndpoint, true))
 
 	// GraphQL API (all)
 	plateauapig.POST("/graphql", h.Handler(false))
 
+	// GraphQL API (all, admin)
+	plateauapig.POST("/admin/graphql", h.Handler(true))
+
 	// GraphQL API (project)
 	plateauapig.POST("/:pid/graphql", h.Handler(false))
 
-	// GraphQL API (admin)
+	// GraphQL API (project, admin)
 	plateauapig.POST("/:pid/admin/graphql", h.Handler(true))
 
 	// warning API
@@ -209,7 +215,11 @@ func (h *reposHandler) Init(ctx context.Context) error {
 		return m.DataCatalogSchemaVersion == cmsSchemaVersion
 	})
 
-	log.Infofc(ctx, "datacatalogv3: initializing repos for %d projects", len(target))
+	targetLen := len(target)
+	if h.repov2 != nil {
+		targetLen++
+	}
+	log.Infofc(ctx, "datacatalogv3: initializing repos for %d projects", targetLen)
 
 	for _, md := range target {
 		cms, err := md.CMS()
@@ -223,6 +233,13 @@ func (h *reposHandler) Init(ctx context.Context) error {
 		}
 	}
 
+	// repov2
+	log.Infofc(ctx, "datacatalogv3: updating v2 repo")
+	if err := h.repov2.Update(ctx); err != nil {
+		log.Errorfc(ctx, "datacatalogv3: failed to update v2 repo: %w", err)
+	}
+
+	log.Infofc(ctx, "datacatalogv3: updated v2 repos")
 	return nil
 }
 

@@ -285,6 +285,8 @@ type PlateauDatasetResolver interface {
 	City(ctx context.Context, obj *PlateauDataset) (*City, error)
 	Ward(ctx context.Context, obj *PlateauDataset) (*Ward, error)
 	Type(ctx context.Context, obj *PlateauDataset) (*PlateauDatasetType, error)
+
+	PlateauSpecMinor(ctx context.Context, obj *PlateauDataset) (*PlateauSpecMinor, error)
 }
 type PlateauDatasetItemResolver interface {
 	Parent(ctx context.Context, obj *PlateauDatasetItem) (*PlateauDataset, error)
@@ -4847,7 +4849,7 @@ func (ec *executionContext) _PlateauDataset_plateauSpecMinor(ctx context.Context
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.PlateauSpecMinor, nil
+		return ec.resolvers.PlateauDataset().PlateauSpecMinor(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -4868,8 +4870,8 @@ func (ec *executionContext) fieldContext_PlateauDataset_plateauSpecMinor(ctx con
 	fc = &graphql.FieldContext{
 		Object:     "PlateauDataset",
 		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "id":
@@ -12482,10 +12484,41 @@ func (ec *executionContext) _PlateauDataset(ctx context.Context, sel ast.Selecti
 				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "plateauSpecMinor":
-			out.Values[i] = ec._PlateauDataset_plateauSpecMinor(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._PlateauDataset_plateauSpecMinor(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
 			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "river":
 			out.Values[i] = ec._PlateauDataset_river(ctx, field, obj)
 		default:
@@ -15024,6 +15057,10 @@ func (ec *executionContext) marshalNPlateauSpec2ᚖgithubᚗcomᚋeukaryaᚑinc�
 		return graphql.Null
 	}
 	return ec._PlateauSpec(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNPlateauSpecMinor2githubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐPlateauSpecMinor(ctx context.Context, sel ast.SelectionSet, v PlateauSpecMinor) graphql.Marshaler {
+	return ec._PlateauSpecMinor(ctx, sel, &v)
 }
 
 func (ec *executionContext) marshalNPlateauSpecMinor2ᚕᚖgithubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐPlateauSpecMinorᚄ(ctx context.Context, sel ast.SelectionSet, v []*PlateauSpecMinor) graphql.Marshaler {

@@ -79,7 +79,7 @@ func (r *Repos) Update(ctx context.Context, project string, rawcms cms.Interface
 		r.cms[project] = cms
 	}
 
-	log.Infofc(ctx, "datacatalogv3: updating project %s", project)
+	log.Infofc(ctx, "datacatalogv3: updating repo %s", project)
 	data, err := cms.GetAll(ctx, project)
 	if err != nil {
 		return err
@@ -97,6 +97,7 @@ func (r *Repos) Update(ctx context.Context, project string, rawcms cms.Interface
 	adminRepoWrapper := r.adminRepos[project]
 	if adminRepoWrapper == nil {
 		adminRepoWrapper = plateauapi.NewRepoWrapper(adminRepo, nil)
+		adminRepoWrapper.SetName(fmt.Sprintf("%s(admin)", project))
 		r.adminRepos[project] = adminRepoWrapper
 	} else {
 		adminRepoWrapper.SetRepo(adminRepo)
@@ -105,6 +106,7 @@ func (r *Repos) Update(ctx context.Context, project string, rawcms cms.Interface
 	repoWrapper := r.repos[project]
 	if repoWrapper == nil {
 		repoWrapper = plateauapi.NewRepoWrapper(repo, nil)
+		repoWrapper.SetName(project)
 		r.repos[project] = repoWrapper
 	} else {
 		repoWrapper.SetRepo(repo)
@@ -116,7 +118,7 @@ func (r *Repos) Update(ctx context.Context, project string, rawcms cms.Interface
 		r.updatedAt[project] = time.Now()
 	}
 
-	log.Infofc(ctx, "datacatalogv3: updated project %s", project)
+	log.Infofc(ctx, "datacatalogv3: updated repo %s", project)
 	return nil
 }
 

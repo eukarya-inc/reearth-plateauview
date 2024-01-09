@@ -10,6 +10,7 @@ type RepoUpdater func(ctx context.Context, repo *Repo) error
 // RepoWrapper is a thread-safe wrapper of Repo.
 type RepoWrapper struct {
 	repo    Repo
+	name    string
 	lock    sync.RWMutex
 	updater RepoUpdater
 }
@@ -36,6 +37,10 @@ func (a *RepoWrapper) SetRepo(repo Repo) {
 	a.repo = repo
 }
 
+func (a *RepoWrapper) SetName(name string) {
+	a.name = name
+}
+
 func (a *RepoWrapper) Update(ctx context.Context) error {
 	if a.updater == nil {
 		return nil
@@ -58,6 +63,16 @@ func (a *RepoWrapper) use(f func(r Repo) error) error {
 }
 
 var _ Repo = (*RepoWrapper)(nil)
+
+func (a *RepoWrapper) Name() string {
+	if a.name != "" {
+		return a.name
+	}
+	if a.repo == nil {
+		return "wrapper"
+	}
+	return a.repo.Name()
+}
 
 func (a *RepoWrapper) Node(ctx context.Context, id ID) (res Node, err error) {
 	err = a.use(func(r Repo) (err error) {

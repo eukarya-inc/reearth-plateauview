@@ -41,12 +41,22 @@ func plateauDatasetSeedsFrom(i *PlateauFeatureItem, dt *plateauapi.PlateauDatase
 		return
 	}
 
-	if dt.Code == "bldg" && len(i.Items) == 0 {
+	items := i.Items
+	if len(i.Data) > 0 {
+		items = append(items, lo.Map(i.Data, func(url string, _ int) PlateauFeatureItemDatum {
+			return PlateauFeatureItemDatum{
+				Data: []string{url},
+				Desc: i.Desc,
+			}
+		})...)
+	}
+
+	if dt.Code == "bldg" {
 		seeds, w := plateauDatasetSeedsFromBldg(i, dt, cityCode, area.Wards)
 		warning = append(warning, w...)
 		res = append(res, seeds...)
 	} else {
-		for _, item := range i.Items {
+		for _, item := range items {
 			seeds, w := plateauDatasetSeedsFromItem(i, item, dt, dic, cityCode)
 			warning = append(warning, w...)
 			res = append(res, seeds)
@@ -70,13 +80,13 @@ func plateauDatasetSeedsFrom(i *PlateauFeatureItem, dt *plateauapi.PlateauDatase
 }
 
 func plateauDatasetSeedsFromItem(i *PlateauFeatureItem, item PlateauFeatureItemDatum, dt *plateauapi.PlateauDatasetType, dic Dic, cityCode string) (res plateauDatasetSeed, warning []string) {
-	assets := lo.Map(item.Data, func(url string, _ int) *AssetName {
+	assets := lo.FilterMap(item.Data, func(url string, _ int) (*AssetName, bool) {
 		n := nameWithoutExt(nameFromURL(url))
 		an := ParseAssetName(n)
 		if an == nil || !an.Ex.IsValid() {
 			warning = append(warning, fmt.Sprintf("plateau %s %s: invalid asset name: %s", cityCode, dt.Code, n))
 		}
-		return an
+		return an, an != nil
 	})
 	if len(assets) == 0 {
 		// warning = append(warning, fmt.Sprintf("plateau %s %s: no assets", cityCode, dt.Code))
@@ -86,7 +96,7 @@ func plateauDatasetSeedsFromItem(i *PlateauFeatureItem, item PlateauFeatureItemD
 	assetName := assets[0]
 	key, dickey := assetName.Ex.ItemKey(), assetName.Ex.DicKey()
 	if key == "" || dickey == "" {
-		warning = append(warning, fmt.Sprintf("plateau %s %s: invalid asset name key: %s", cityCode, dt.Code, assets[0].Ex.Ex))
+		warning = append(warning, fmt.Sprintf("plateau %s %s: invalid asset name key: %s", cityCode, dt.Code, assetName.Ex.Ex))
 		return
 	}
 

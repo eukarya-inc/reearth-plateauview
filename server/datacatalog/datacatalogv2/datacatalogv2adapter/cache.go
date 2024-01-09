@@ -18,7 +18,7 @@ func New(cmsbase, project string) (*plateauapi.RepoWrapper, error) {
 }
 
 func From(fetcher datacatalogv2.Fetchable, project string) *plateauapi.RepoWrapper {
-	return plateauapi.NewRepoWrapper(nil, func(ctx context.Context, repo *plateauapi.Repo) error {
+	r := plateauapi.NewRepoWrapper(nil, func(ctx context.Context, repo *plateauapi.Repo) error {
 		r, err := fetchAndCreateCache(ctx, project, fetcher, datacatalogv2.FetcherDoOptions{})
 		if err != nil {
 			return err
@@ -26,6 +26,8 @@ func From(fetcher datacatalogv2.Fetchable, project string) *plateauapi.RepoWrapp
 		*repo = r
 		return nil
 	})
+	r.SetName(fmt.Sprintf("%s(v2)", project))
+	return r
 }
 
 func fetchAndCreateCache(ctx context.Context, project string, fetcher datacatalogv2.Fetchable, opts datacatalogv2.FetcherDoOptions) (*plateauapi.InMemoryRepo, error) {

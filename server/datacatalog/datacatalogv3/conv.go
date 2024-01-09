@@ -9,6 +9,7 @@ import (
 
 func (all *AllData) Into() (res *plateauapi.InMemoryRepoContext, warning []string) {
 	res = &plateauapi.InMemoryRepoContext{
+		Name:     all.Name,
 		Areas:    plateauapi.Areas{},
 		Datasets: plateauapi.Datasets{},
 	}

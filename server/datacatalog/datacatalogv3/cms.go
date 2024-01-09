@@ -18,7 +18,9 @@ func NewCMS(cms cms.Interface) *CMS {
 }
 
 func (c *CMS) GetAll(ctx context.Context, project string) (*AllData, error) {
-	all := AllData{}
+	all := AllData{
+		Name: project,
+	}
 
 	// TODO: get CMSInfo
 

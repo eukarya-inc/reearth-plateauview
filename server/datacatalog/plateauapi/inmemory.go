@@ -2,6 +2,7 @@ package plateauapi
 
 import (
 	"context"
+	"fmt"
 	"slices"
 
 	"github.com/reearth/reearthx/util"
@@ -10,6 +11,7 @@ import (
 )
 
 type InMemoryRepoContext struct {
+	Name         string
 	Areas        Areas
 	DatasetTypes DatasetTypes
 	Datasets     Datasets
@@ -32,6 +34,13 @@ func NewInMemoryRepo(ctx *InMemoryRepoContext) *InMemoryRepo {
 	r := &InMemoryRepo{}
 	r.SetContext(ctx)
 	return r
+}
+
+func (c *InMemoryRepo) Name() string {
+	if c.ctx == nil || c.ctx.Name == "" {
+		return "inmemory"
+	}
+	return fmt.Sprintf("inmemory(%s)", c.ctx.Name)
 }
 
 func (c *InMemoryRepo) SetContext(ctx *InMemoryRepoContext) {
