@@ -278,6 +278,10 @@ func (m Metadata) PlateauYear() int {
 	return year
 }
 
+func (m Metadata) IsValidToken(token string) bool {
+	return m.SidebarAccessToken == token
+}
+
 func PlateauProjectsFromMetadata(metadata []Metadata) []Metadata {
 	m := lo.FilterMap(metadata, func(m Metadata, _ int) (lo.Tuple2[Metadata, int], bool) {
 		y := m.PlateauYear()

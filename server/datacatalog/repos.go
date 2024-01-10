@@ -65,15 +65,17 @@ func (h *reposHandler) Handler(admin bool) echo.HandlerFunc {
 
 		if pid == "" {
 			metadata := plateaucms.GetAllCMSMetadataFromContext(ctx)
-			repos = h.getAllRepos(c.Request().Context(), admin, metadata)
-
-			if len(metadata) == 0 {
+			plateauMetadata := plateaucms.PlateauProjectsFromMetadata(metadata)
+			if len(plateauMetadata) == 0 {
 				return echo.NewHTTPError(http.StatusNotFound, "not found")
 			}
 
-			if admin && (token == "" || metadata[0].SidebarAccessToken != token) {
+			if admin && (token == "" || !plateauMetadata[0].IsValidToken(token)) {
+				log.Debugfc(ctx, "datacatalogv3: unauthorized access: input_token=%s, project=%#v", token, plateauMetadata[0].DataCatalogProjectAlias)
 				return echo.NewHTTPError(http.StatusUnauthorized, "unauthorized")
 			}
+
+			repos = h.getAllRepos(c.Request().Context(), admin, plateauMetadata)
 		} else {
 			md := plateaucms.GetCMSMetadataFromContext(ctx)
 			if md.DataCatalogProjectAlias != pid || !isV3(md) {
