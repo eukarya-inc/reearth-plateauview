@@ -45,13 +45,6 @@ jobs:
             --region $GCP_REGION \
             --platform managed \
             --quiet
-      - name: Deploy indexer server to Cloud Run
-        run: |
-          gcloud run deploy plateauview-api-indexer \
-            --image $IMAGE_GCP \
-            --region $GCP_REGION \
-            --platform managed \
-            --quiet
   push_hub:
     runs-on: ubuntu-latest
     permissions:
