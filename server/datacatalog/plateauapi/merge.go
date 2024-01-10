@@ -3,6 +3,7 @@ package plateauapi
 import (
 	"context"
 	"fmt"
+	"reflect"
 	"sort"
 
 	"github.com/reearth/reearthx/util"
@@ -167,11 +168,13 @@ func sortNodes[T IDNode](nodes []T) {
 
 func getLatestYearNode[T any](results []T) T {
 	results = lo.Filter(results, func(a T, _ int) bool {
-		return isNodePresent(a)
+		return isPresent(a)
 	})
-	return lo.MaxBy(results, func(a, b T) bool {
-		return getYear(a) > getYear(b)
+	max := lo.MaxBy(results, func(a, b T) bool {
+		ya, yb := getYear(a), getYear(b)
+		return ya > yb
 	})
+	return max
 }
 
 func zip[T any](a ...[]T) [][]T {
@@ -198,11 +201,9 @@ type YearNode interface {
 	GetYear() int
 }
 
-func isNodePresent(n any) bool {
-	if n, ok := n.(Node); ok {
-		return n != nil
-	}
-	return false
+func isPresent(n any) bool {
+	v := reflect.ValueOf(n)
+	return v.Kind() != reflect.Ptr || !v.IsNil()
 }
 
 func getYear(n any) int {

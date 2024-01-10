@@ -175,3 +175,12 @@ func stageFrom(ds Dataset) string {
 
 	return s
 }
+
+func (d *PlateauDatasetType) GetYear() int {
+	if d == nil {
+		return 0
+	}
+	return d.Year
+}
+
+var _ YearNode = (*PlateauDatasetType)(nil)

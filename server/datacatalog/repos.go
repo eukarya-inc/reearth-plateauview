@@ -61,10 +61,19 @@ func (h *reposHandler) Handler(admin bool) echo.HandlerFunc {
 		ctx := c.Request().Context()
 		var repos []plateauapi.Repo
 		pid := c.Param(pidParamName)
+		token := strings.TrimSuffix(c.Request().Header.Get("Authorization"), "Bearer ")
 
 		if pid == "" {
 			metadata := plateaucms.GetAllCMSMetadataFromContext(ctx)
 			repos = h.getAllRepos(c.Request().Context(), admin, metadata)
+
+			if len(metadata) == 0 {
+				return echo.NewHTTPError(http.StatusNotFound, "not found")
+			}
+
+			if admin && (token == "" || metadata[0].SidebarAccessToken != token) {
+				return echo.NewHTTPError(http.StatusUnauthorized, "unauthorized")
+			}
 		} else {
 			md := plateaucms.GetCMSMetadataFromContext(ctx)
 			if md.DataCatalogProjectAlias != pid || !isV3(md) {
