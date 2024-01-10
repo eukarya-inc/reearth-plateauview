@@ -61,7 +61,7 @@ func (h *reposHandler) Handler(admin bool) echo.HandlerFunc {
 		ctx := c.Request().Context()
 		var repos []plateauapi.Repo
 		pid := c.Param(pidParamName)
-		token := strings.TrimSuffix(c.Request().Header.Get("Authorization"), "Bearer ")
+		token := strings.TrimPrefix(c.Request().Header.Get("Authorization"), "Bearer ")
 
 		if pid == "" {
 			metadata := plateaucms.GetAllCMSMetadataFromContext(ctx)

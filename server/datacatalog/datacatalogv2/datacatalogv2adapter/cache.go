@@ -90,7 +90,7 @@ func newCache(r datacatalogv2.ResponseAll) *plateauapi.InMemoryRepoContext {
 				if cache.DatasetTypes == nil {
 					cache.DatasetTypes = make(plateauapi.DatasetTypes)
 				}
-				cache.DatasetTypes.Append(plateauapi.DatasetTypeCategoryPlateau, []plateauapi.DatasetType{ty})
+				cache.DatasetTypes.Append(plateauapi.DatasetTypeCategoryPlateau, []plateauapi.DatasetType{&ty})
 			}
 		}
 
@@ -99,7 +99,7 @@ func newCache(r datacatalogv2.ResponseAll) *plateauapi.InMemoryRepoContext {
 				if cache.DatasetTypes == nil {
 					cache.DatasetTypes = make(plateauapi.DatasetTypes)
 				}
-				cache.DatasetTypes.Append(plateauapi.DatasetTypeCategoryRelated, []plateauapi.DatasetType{ty})
+				cache.DatasetTypes.Append(plateauapi.DatasetTypeCategoryRelated, []plateauapi.DatasetType{&ty})
 			}
 		}
 
@@ -108,7 +108,7 @@ func newCache(r datacatalogv2.ResponseAll) *plateauapi.InMemoryRepoContext {
 				if cache.DatasetTypes == nil {
 					cache.DatasetTypes = make(plateauapi.DatasetTypes)
 				}
-				cache.DatasetTypes.Append(plateauapi.DatasetTypeCategoryGeneric, []plateauapi.DatasetType{ty})
+				cache.DatasetTypes.Append(plateauapi.DatasetTypeCategoryGeneric, []plateauapi.DatasetType{&ty})
 			}
 		}
 

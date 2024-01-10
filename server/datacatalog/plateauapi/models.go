@@ -176,10 +176,7 @@ func stageFrom(ds Dataset) string {
 	return s
 }
 
-func (d *PlateauDatasetType) GetYear() int {
-	if d == nil {
-		return 0
-	}
+func (d PlateauDatasetType) GetYear() int {
 	return d.Year
 }
 
