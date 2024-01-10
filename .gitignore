@@ -4,8 +4,7 @@ node_modules
 
 /.idea/
 
-/server/.env*
+.env
 /server/server
-
 /plugin/dist
 target
