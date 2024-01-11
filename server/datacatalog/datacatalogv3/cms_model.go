@@ -30,8 +30,10 @@ type FeatureType struct {
 	Code string `json:"code,omitempty" cms:"code,text"`
 	Name string `json:"name,omitempty" cms:"name,text"`
 	// for plateau
-	SpecMajor int  `json:"spec_major,omitempty" cms:"spec_major,integer"`
-	Flood     bool `json:"flood,omitempty" cms:"flood,bool"`
+	SpecMajor           int              `json:"spec_major,omitempty" cms:"spec_major,integer"`
+	Flood               bool             `json:"flood,omitempty" cms:"flood,bool"`
+	MVTLayerName        []string         `json:"layer_name,omitempty" cms:"layer_name,text"`
+	MVTLayerNamesForLOD map[int][]string `json:"layer_names_for_lod,omitempty" cms:"-"`
 }
 
 type CityItem struct {

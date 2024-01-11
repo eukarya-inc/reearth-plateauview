@@ -18,6 +18,9 @@ func (all *AllData) Into() (res *plateauapi.InMemoryRepoContext, warning []strin
 
 	ic := newInternalContext()
 
+	// layer names
+	ic.layerNamesForType = all.FeatureTypes.LayerNames()
+
 	ic.SetURL("plateau", all.CMSInfo.CMSURL, all.CMSInfo.WorkspaceID, all.CMSInfo.ProjectID, all.CMSInfo.PlateauModelID)
 	ic.SetURL("related", all.CMSInfo.CMSURL, all.CMSInfo.WorkspaceID, all.CMSInfo.ProjectID, all.CMSInfo.RelatedModelID)
 	ic.SetURL("generic", all.CMSInfo.CMSURL, all.CMSInfo.WorkspaceID, all.CMSInfo.ProjectID, all.CMSInfo.GenericModelID)
@@ -54,8 +57,8 @@ func (all *AllData) Into() (res *plateauapi.InMemoryRepoContext, warning []strin
 	}
 
 	// plateau
-	for _, ft := range res.DatasetTypes[plateauapi.DatasetTypeCategoryPlateau] {
-		datasets, w := convertPlateau(all.Plateau[ft.GetCode()], res.PlateauSpecs, ft, ic)
+	for _, dt := range res.DatasetTypes[plateauapi.DatasetTypeCategoryPlateau] {
+		datasets, w := convertPlateau(all.Plateau[dt.GetCode()], res.PlateauSpecs, dt, ic)
 		warning = append(warning, w...)
 		res.Datasets.Append(plateauapi.DatasetTypeCategoryPlateau, datasets)
 	}
@@ -99,6 +102,8 @@ func convertPlateau(items []*PlateauFeatureItem, specs []plateauapi.PlateauSpec,
 		return
 	}
 
+	layerNames := ic.layerNamesForType[pdt.Code]
+
 	for _, ds := range items {
 		area := ic.AreaContext(ds.City)
 		if area == nil {
@@ -113,7 +118,7 @@ func convertPlateau(items []*PlateauFeatureItem, specs []plateauapi.PlateauSpec,
 			continue
 		}
 
-		ds, w := ds.toDatasets(area, pdt, spec, ic.plateauCMSURL)
+		ds, w := ds.toDatasets(area, pdt, spec, layerNames, ic.plateauCMSURL)
 		warning = append(warning, w...)
 		if ds != nil {
 			res = append(res, ds...)

@@ -44,13 +44,13 @@ func (i *PlateauFeatureItem) toWards(pref *plateauapi.Prefecture, city *plateaua
 	return
 }
 
-func (i *PlateauFeatureItem) toDatasets(area *areaContext, dt *plateauapi.PlateauDatasetType, spec *plateauapi.PlateauSpecMinor, cmsurl string) (res []plateauapi.Dataset, warning []string) {
+func (i *PlateauFeatureItem) toDatasets(area *areaContext, dt *plateauapi.PlateauDatasetType, spec *plateauapi.PlateauSpecMinor, layerNames LayerNames, cmsurl string) (res []plateauapi.Dataset, warning []string) {
 	if !area.IsValid() {
 		warning = append(warning, fmt.Sprintf("plateau %s: invalid area", i.ID))
 		return
 	}
 
-	datasetSeeds, w := plateauDatasetSeedsFrom(i, dt, area, spec, cmsurl)
+	datasetSeeds, w := plateauDatasetSeedsFrom(i, dt, area, spec, layerNames, cmsurl)
 	warning = append(warning, w...)
 	for _, seed := range datasetSeeds {
 		dataset, w := seedToDataset(seed)
@@ -115,6 +115,7 @@ func seedToDatasetItem(i plateauDatasetItemSeed, parentID string) *plateauapi.Pl
 		ID:       plateauapi.NewID(i.GetID(parentID), plateauapi.TypeDatasetItem),
 		Name:     i.GetName(),
 		URL:      i.URL,
+		Layers:   i.Layers,
 		Format:   i.Format,
 		Lod:      i.LOD,
 		Texture:  textureFrom(i.NoTexture),

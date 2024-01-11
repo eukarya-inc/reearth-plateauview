@@ -26,13 +26,14 @@ type plateauDatasetSeed struct {
 	Spec        *plateauapi.PlateauSpecMinor
 	River       *plateauapi.River
 	Admin       any
+	LayerNames  LayerNames
 }
 
 func (seed plateauDatasetSeed) GetID() string {
 	return standardItemID(seed.DatasetType.Code, seed.TargetArea, seed.IDEx)
 }
 
-func plateauDatasetSeedsFrom(i *PlateauFeatureItem, dt *plateauapi.PlateauDatasetType, area *areaContext, spec *plateauapi.PlateauSpecMinor, cmsurl string) (res []plateauDatasetSeed, warning []string) {
+func plateauDatasetSeedsFrom(i *PlateauFeatureItem, dt *plateauapi.PlateauDatasetType, area *areaContext, spec *plateauapi.PlateauSpecMinor, layerNames LayerNames, cmsurl string) (res []plateauDatasetSeed, warning []string) {
 	cityCode := lo.FromPtr(area.CityCode).String()
 
 	dic, err := i.ReadDic()
@@ -71,6 +72,7 @@ func plateauDatasetSeedsFrom(i *PlateauFeatureItem, dt *plateauapi.PlateauDatase
 		res[i].City = area.City
 		res[i].Spec = spec
 		res[i].Admin = adminFrom(area.CityItem, cmsurl, dt.Code)
+		res[i].LayerNames = layerNames
 		if res[i].TargetArea == nil {
 			res[i].TargetArea = area.City
 		}
@@ -205,6 +207,7 @@ type plateauDatasetItemSeed struct {
 	Format    plateauapi.DatasetFormat
 	LOD       *int
 	NoTexture *bool
+	Layers    []string
 }
 
 func (i plateauDatasetItemSeed) GetID(parentID string) string {
@@ -263,9 +266,9 @@ func plateauDatasetItemSeedFrom(seed plateauDatasetSeed) (items []plateauDataset
 
 		switch {
 		case assetName.Ex.Normal != nil:
-			item, w = plateauDatasetItemSeedFromNormal(url, assetName.Ex.Normal, cityCode)
+			item, w = plateauDatasetItemSeedFromNormal(url, assetName.Ex.Normal, seed.LayerNames, cityCode)
 		case assetName.Ex.Urf != nil:
-			item, w = plateauDatasetItemSeedFromUrf(url, assetName.Ex.Urf, seed.Dic, cityCode)
+			item, w = plateauDatasetItemSeedFromUrf(url, assetName.Ex.Urf, seed.Dic, seed.LayerNames, cityCode)
 		case assetName.Ex.Fld != nil:
 			item, w = plateauDatasetItemSeedFromFld(url, assetName.Ex.Fld, seed.Dic, cityCode)
 		default:
@@ -287,7 +290,7 @@ func plateauDatasetItemSeedFrom(seed plateauDatasetSeed) (items []plateauDataset
 	return
 }
 
-func plateauDatasetItemSeedFromNormal(url string, ex *AssetNameExNormal, cityCode string) (res *plateauDatasetItemSeed, w []string) {
+func plateauDatasetItemSeedFromNormal(url string, ex *AssetNameExNormal, layerNames LayerNames, cityCode string) (res *plateauDatasetItemSeed, w []string) {
 	format := datasetFormatFrom(ex.Format)
 	if format == "" {
 		w = append(w, fmt.Sprintf("plateau %s %s: invalid format: %s", cityCode, ex.Type, ex.Format))
@@ -300,19 +303,22 @@ func plateauDatasetItemSeedFromNormal(url string, ex *AssetNameExNormal, cityCod
 		Format:    format,
 		LOD:       lo.ToPtr(ex.LOD),
 		NoTexture: lo.ToPtr(ex.NoTexture),
+		Layers:    layerNames.LayerName(nil, ex.LOD, format),
 	}, nil
 }
 
-func plateauDatasetItemSeedFromUrf(url string, ex *AssetNameExUrf, dic Dic, cityCode string) (_ *plateauDatasetItemSeed, w []string) {
+func plateauDatasetItemSeedFromUrf(url string, ex *AssetNameExUrf, dic Dic, layerNames LayerNames, cityCode string) (_ *plateauDatasetItemSeed, w []string) {
 	format := datasetFormatFrom(ex.Format)
 	if format == "" {
 		w = append(w, fmt.Sprintf("plateau %s %s: unknown format: %s", cityCode, ex.Type, ex.Format))
 		return
 	}
 
+	key := ex.DicKey()
+
 	entry, found := dic.FindEntryOrDefault(ex.Type, ex.DicKey())
 	if !found {
-		w = append(w, fmt.Sprintf("plateau %s %s: unknown dic key: %s", cityCode, ex.Type, ex.DicKey()))
+		w = append(w, fmt.Sprintf("plateau %s %s: unknown dic key: %s", cityCode, ex.Type, key))
 	}
 	if entry == nil {
 		return
@@ -329,6 +335,7 @@ func plateauDatasetItemSeedFromUrf(url string, ex *AssetNameExUrf, dic Dic, city
 		Format:    format,
 		LOD:       toPtrIfPresent(ex.LOD),
 		NoTexture: notexture,
+		Layers:    layerNames.LayerName([]string{key}, ex.LOD, format),
 	}, w
 }
 

@@ -51,3 +51,19 @@ func (f *FeatureType) ToGenericDatasetType() *plateauapi.GenericDatasetType {
 		Code:     f.Code,
 	}
 }
+
+func (ft FeatureTypes) LayerNames() map[string]LayerNames {
+	res := map[string]LayerNames{}
+	for _, ft := range ft.Plateau {
+		namesForLOD := map[int][]string{}
+		for lod, layers := range ft.MVTLayerNamesForLOD {
+			namesForLOD[lod] = layers
+		}
+
+		res[ft.Code] = LayerNames{
+			Name:        ft.MVTLayerName,
+			NamesForLOD: namesForLOD,
+		}
+	}
+	return res
+}

@@ -203,7 +203,9 @@ func TestPlateauDataset_ToDatasets_Bldg(t *testing.T) {
 		ParentID:     plateauapi.NewID("3", plateauapi.TypePlateauSpec),
 	}
 
-	res, warning := item.toDatasets(area, dts, spec, "https://example.com/")
+	layerNames := LayerNames{}
+
+	res, warning := item.toDatasets(area, dts, spec, layerNames, "https://example.com/")
 	assert.Nil(t, warning)
 	assert.Equal(t, expected, res)
 }
@@ -327,7 +329,9 @@ func TestPlateauDataset_ToDatasets_Tnm(t *testing.T) {
 		ParentID:     plateauapi.NewID("3", plateauapi.TypePlateauSpec),
 	}
 
-	res, warning := item.toDatasets(area, dts, spec, "https://example.com/")
+	layerNames := LayerNames{}
+
+	res, warning := item.toDatasets(area, dts, spec, layerNames, "https://example.com/")
 	assert.Nil(t, warning)
 	assert.Equal(t, expected, res)
 }
@@ -513,7 +517,9 @@ func TestPlateauDataset_ToDatasets_Fld(t *testing.T) {
 		ParentID:     plateauapi.NewID("3", plateauapi.TypePlateauSpec),
 	}
 
-	res, warning := item.toDatasets(area, dts, spec, "")
+	layerNames := LayerNames{}
+
+	res, warning := item.toDatasets(area, dts, spec, layerNames, "")
 	assert.Nil(t, warning)
 	assert.Equal(t, expected, res)
 }
