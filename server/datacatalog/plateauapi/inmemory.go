@@ -77,7 +77,9 @@ func (c *InMemoryRepo) Node(ctx context.Context, id ID) (Node, error) {
 		}
 	case TypeDataset:
 		if d := c.ctx.Datasets.Dataset(id); d != nil {
-			return removeAdminFromDataset(d, c.admin), nil
+			if filterDataset(d, DatasetsInput{}, c.includedStages) {
+				return removeAdminFromDataset(d, c.admin), nil
+			}
 		}
 	case TypeDatasetItem:
 		if i := c.ctx.Datasets.Item(id); i != nil {
@@ -154,6 +156,7 @@ func (c *InMemoryRepo) Datasets(ctx context.Context, input *DatasetsInput) (res 
 	if input == nil {
 		input = &DatasetsInput{}
 	}
+
 	return removeAdminFromDatasets(c.ctx.Datasets.Filter(func(t Dataset) bool {
 		return filterDataset(t, *input, c.includedStages)
 	}), c.admin), nil
