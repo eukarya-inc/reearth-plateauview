@@ -41,7 +41,7 @@ func (i *GenericItem) toDatasets(area *areaContext, dts []plateauapi.DatasetType
 		return &plateauapi.GenericDatasetItem{
 			ID:       plateauapi.NewID(datum.ID, plateauapi.TypeDatasetItem),
 			Name:     firstNonEmptyValue(datum.Name, fmt.Sprintf("%s%s", i.Name, inds)),
-			URL:      url,
+			URL:      assetURLFromFormat(url, f),
 			Format:   f,
 			Layers:   layerNamesFrom(datum.LayerName),
 			ParentID: id,

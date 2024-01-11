@@ -111,16 +111,11 @@ func seedToDataset(seed plateauDatasetSeed) (res *plateauapi.PlateauDataset, war
 }
 
 func seedToDatasetItem(i plateauDatasetItemSeed, parentID string) *plateauapi.PlateauDatasetItem {
-	f := datasetFormatFromOrDetect(i.Format, i.URL)
-	if f == "" {
-		return nil
-	}
-
 	return &plateauapi.PlateauDatasetItem{
 		ID:       plateauapi.NewID(i.GetID(parentID), plateauapi.TypeDatasetItem),
 		Name:     i.GetName(),
 		URL:      i.URL,
-		Format:   f,
+		Format:   i.Format,
 		Lod:      i.LOD,
 		Texture:  textureFrom(i.NoTexture),
 		ParentID: plateauapi.NewID(parentID, plateauapi.TypeDataset),

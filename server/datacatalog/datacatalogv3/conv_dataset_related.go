@@ -53,7 +53,7 @@ func (i *RelatedItem) toDatasets(area *areaContext, dts []plateauapi.DatasetType
 						ID:       plateauapi.NewID(sid, plateauapi.TypeDatasetItem),
 						Format:   format,
 						Name:     ftname,
-						URL:      seed.URL,
+						URL:      assetURLFromFormat(seed.URL, format),
 						ParentID: id,
 					},
 				},

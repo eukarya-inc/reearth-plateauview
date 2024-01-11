@@ -22,11 +22,12 @@ func Test_GenericItem_ToDatasets(t *testing.T) {
 				DataFormat: "3D Tiles",
 			},
 			{
-				ID:        "id2",
-				Data:      "url2",
-				DataURL:   "https://example.com/{z}/{x}/{y}.mvt",
-				Desc:      "desc2",
-				LayerName: "layer1, layer2",
+				ID:         "id2",
+				Data:       "url2",
+				DataFormat: "MVT",
+				DataURL:    "https://example.com/a.zip",
+				Desc:       "desc2",
+				LayerName:  "layer1, layer2",
 			},
 			// invalid item
 			{
@@ -63,7 +64,7 @@ func Test_GenericItem_ToDatasets(t *testing.T) {
 				{
 					ID:       plateauapi.NewID("id2", plateauapi.TypeDatasetItem),
 					Name:     "name 2",
-					URL:      "https://example.com/{z}/{x}/{y}.mvt",
+					URL:      "https://example.com/a/{z}/{x}/{y}.mvt",
 					Format:   plateauapi.DatasetFormatMvt,
 					Layers:   []string{"layer1", "layer2"},
 					ParentID: plateauapi.NewID("id", plateauapi.TypeDataset),

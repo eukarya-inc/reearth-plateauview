@@ -202,7 +202,7 @@ type plateauDatasetItemSeed struct {
 	ID        string
 	Name      string
 	URL       string
-	Format    string
+	Format    plateauapi.DatasetFormat
 	LOD       *int
 	NoTexture *bool
 }
@@ -263,7 +263,7 @@ func plateauDatasetItemSeedFrom(seed plateauDatasetSeed) (items []plateauDataset
 
 		switch {
 		case assetName.Ex.Normal != nil:
-			item = plateauDatasetItemSeedFromNormal(url, assetName.Ex.Normal)
+			item, w = plateauDatasetItemSeedFromNormal(url, assetName.Ex.Normal, cityCode)
 		case assetName.Ex.Urf != nil:
 			item, w = plateauDatasetItemSeedFromUrf(url, assetName.Ex.Urf, seed.Dic, cityCode)
 		case assetName.Ex.Fld != nil:
@@ -287,17 +287,29 @@ func plateauDatasetItemSeedFrom(seed plateauDatasetSeed) (items []plateauDataset
 	return
 }
 
-func plateauDatasetItemSeedFromNormal(url string, ex *AssetNameExNormal) *plateauDatasetItemSeed {
+func plateauDatasetItemSeedFromNormal(url string, ex *AssetNameExNormal, cityCode string) (res *plateauDatasetItemSeed, w []string) {
+	format := datasetFormatFrom(ex.Format)
+	if format == "" {
+		w = append(w, fmt.Sprintf("plateau %s %s: invalid format: %s", cityCode, ex.Type, ex.Format))
+		return
+	}
+
 	return &plateauDatasetItemSeed{
 		Name:      "", // use default
-		URL:       url,
-		Format:    ex.Format,
+		URL:       assetURLFromFormat(url, format),
+		Format:    format,
 		LOD:       lo.ToPtr(ex.LOD),
 		NoTexture: lo.ToPtr(ex.NoTexture),
-	}
+	}, nil
 }
 
 func plateauDatasetItemSeedFromUrf(url string, ex *AssetNameExUrf, dic Dic, cityCode string) (_ *plateauDatasetItemSeed, w []string) {
+	format := datasetFormatFrom(ex.Format)
+	if format == "" {
+		w = append(w, fmt.Sprintf("plateau %s %s: unknown format: %s", cityCode, ex.Type, ex.Format))
+		return
+	}
+
 	entry, found := dic.FindEntryOrDefault(ex.Type, ex.DicKey())
 	if !found {
 		w = append(w, fmt.Sprintf("plateau %s %s: unknown dic key: %s", cityCode, ex.Type, ex.DicKey()))
@@ -313,14 +325,20 @@ func plateauDatasetItemSeedFromUrf(url string, ex *AssetNameExUrf, dic Dic, city
 
 	return &plateauDatasetItemSeed{
 		Name:      entry.Description,
-		URL:       url,
-		Format:    ex.Format,
+		URL:       assetURLFromFormat(url, format),
+		Format:    format,
 		LOD:       toPtrIfPresent(ex.LOD),
 		NoTexture: notexture,
 	}, w
 }
 
 func plateauDatasetItemSeedFromFld(url string, ex *AssetNameExFld, dic Dic, cityCode string) (_ *plateauDatasetItemSeed, w []string) {
+	format := datasetFormatFrom(ex.Format)
+	if format == "" {
+		w = append(w, fmt.Sprintf("plateau %s %s: unknown format: %s", cityCode, ex.Type, ex.Format))
+		return
+	}
+
 	key := ex.Key()
 	entry, found := dic.FindEntryOrDefault(ex.Type, ex.DicKey())
 	if !found {
@@ -333,8 +351,8 @@ func plateauDatasetItemSeedFromFld(url string, ex *AssetNameExFld, dic Dic, city
 	return &plateauDatasetItemSeed{
 		ID:        key,
 		Name:      entry.Scale,
-		URL:       url,
-		Format:    ex.Format,
+		URL:       assetURLFromFormat(url, format),
+		Format:    format,
 		NoTexture: &ex.NoTexture,
 	}, w
 }

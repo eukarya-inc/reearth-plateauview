@@ -2,6 +2,8 @@ package datacatalogv3
 
 import (
 	"fmt"
+	"net/url"
+	"path"
 	"strings"
 
 	"github.com/eukarya-inc/reearth-plateauview/server/datacatalog/plateauapi"
@@ -159,4 +161,61 @@ func newAdmin(id string, stage stage, cmsurl string) any {
 	}
 
 	return a
+}
+
+func assetURLFromFormat(u string, f plateauapi.DatasetFormat) string {
+	u2, err := url.Parse(u)
+	if err != nil {
+		return u
+	}
+
+	dir := path.Dir(u2.Path)
+	ext := path.Ext(u2.Path)
+	base := path.Base(u2.Path)
+	name := strings.TrimSuffix(base, ext)
+	isArchive := ext == ".zip" || ext == ".7z"
+
+	u2.Path = assetRootPath(u2.Path)
+	if f == plateauapi.DatasetFormatCesium3dtiles {
+		if !isArchive {
+			// not CMS asset
+			return u
+		}
+
+		u2.Path = path.Join(u2.Path, "tileset.json")
+		return u2.String()
+	} else if f == plateauapi.DatasetFormatTiles || f == plateauapi.DatasetFormatMvt {
+		us := ""
+		if !isArchive {
+			// not CMS asset
+			us = u
+		} else {
+			ext := ""
+			if f == plateauapi.DatasetFormatMvt {
+				ext = "mvt"
+			} else {
+				ext = "png"
+			}
+
+			u2.Path = path.Join(u2.Path, "{z}/{x}/{y}."+ext)
+			us = u2.String()
+		}
+
+		return strings.ReplaceAll(strings.ReplaceAll(us, "%7B", "{"), "%7D", "}")
+	} else if f == plateauapi.DatasetFormatTms {
+		if !isArchive {
+			// not CMS asset
+			return u
+		}
+		return u2.String()
+	} else if (f == plateauapi.DatasetFormatCzml) && isArchive {
+		u2.Path = path.Join(dir, name, fmt.Sprintf("%s.%s", name, strings.ToLower(string(f))))
+		return u2.String()
+	}
+	return u
+}
+
+func assetRootPath(p string) string {
+	fn := strings.TrimSuffix(path.Base(p), path.Ext(p))
+	return path.Join(path.Dir(p), fn)
 }
