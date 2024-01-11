@@ -14,6 +14,8 @@ import (
 	"github.com/samber/lo"
 )
 
+const cacheUpdateDuration = 10 * time.Second
+
 var stagesForAdmin = []string{string(stageBeta)}
 
 type Repos struct {
@@ -75,12 +77,25 @@ func (r *Repos) Update(ctx context.Context, project string) error {
 	r.locks.Lock(project)
 	defer r.locks.Unlock(project)
 
+	updated := r.UpdatedAt(project)
+	var updatedStr string
+	if !updated.IsZero() {
+		updatedStr = updated.Format(time.RFC3339)
+	}
+
+	// avoid too frequent updates
+	since := r.getNow().Sub(updated)
+	if !updated.IsZero() && since < cacheUpdateDuration {
+		log.Infofc(ctx, "datacatalogv3: skip updating repo %s: last_update=%s, since=%s", project, updatedStr, since)
+		return nil
+	}
+
 	cms := r.cms[project]
 	if cms == nil {
 		return fmt.Errorf("cms is not initialized for %s", project)
 	}
 
-	log.Infofc(ctx, "datacatalogv3: updating repo %s", project)
+	log.Infofc(ctx, "datacatalogv3: updating repo %s: last_update=%s", project, updatedStr)
 	data, err := cms.GetAll(ctx, project)
 	if err != nil {
 		return err
@@ -113,11 +128,7 @@ func (r *Repos) Update(ctx context.Context, project string) error {
 		repoWrapper.SetRepo(repo)
 	}
 
-	if r.now != nil {
-		r.updatedAt[project] = r.now()
-	} else {
-		r.updatedAt[project] = time.Now()
-	}
+	r.updatedAt[project] = r.getNow()
 
 	log.Infofc(ctx, "datacatalogv3: updated repo %s", project)
 	return nil
@@ -140,4 +151,11 @@ func (r *Repos) setCMS(project string, cms cms.Interface) {
 
 	c := NewCMS(cms)
 	r.cms[project] = c
+}
+
+func (r *Repos) getNow() time.Time {
+	if r.now != nil {
+		return r.now()
+	}
+	return time.Now()
 }

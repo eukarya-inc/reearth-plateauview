@@ -273,12 +273,14 @@ func (h *reposHandler) updateV2(ctx context.Context, prj string) error {
 
 	log.Infofc(ctx, "datacatalogv3: updating repo v2 for %s", prj)
 
-	if err := r.Update(ctx); err != nil {
+	if updated, err := r.Update(ctx); err != nil {
 		return fmt.Errorf("datacatalogv3: failed to update repo v2 for %s: %w", prj, err)
+	} else if !updated {
+		log.Infofc(ctx, "datacatalogv3: skip updating repo v2 for %s", prj)
+		return nil
 	}
 
 	log.Infofc(ctx, "datacatalogv3: updated repo v2 for %s", prj)
-
 	return nil
 }
 

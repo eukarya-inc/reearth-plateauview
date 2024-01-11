@@ -3,16 +3,20 @@ package plateauapi
 import (
 	"context"
 	"sync"
+	"time"
 )
 
 type RepoUpdater func(ctx context.Context, repo *Repo) error
 
 // RepoWrapper is a thread-safe wrapper of Repo.
 type RepoWrapper struct {
-	repo    Repo
-	name    string
-	lock    sync.RWMutex
-	updater RepoUpdater
+	repo             Repo
+	name             string
+	lock             sync.RWMutex
+	updater          RepoUpdater
+	updatedAt        time.Time
+	now              func() time.Time
+	minCacheDuration time.Duration
 }
 
 func NewRepoWrapper(repo Repo, updater RepoUpdater) *RepoWrapper {
@@ -20,6 +24,10 @@ func NewRepoWrapper(repo Repo, updater RepoUpdater) *RepoWrapper {
 		repo:    repo,
 		updater: updater,
 	}
+}
+
+func (a *RepoWrapper) SetMinCacheDuration(d time.Duration) {
+	a.minCacheDuration = d
 }
 
 func (a *RepoWrapper) GetRepo() Repo {
@@ -35,21 +43,38 @@ func (a *RepoWrapper) SetRepo(repo Repo) {
 	defer a.lock.Unlock()
 
 	a.repo = repo
+	a.updatedAt = a.getNow()
 }
 
 func (a *RepoWrapper) SetName(name string) {
 	a.name = name
 }
 
-func (a *RepoWrapper) Update(ctx context.Context) error {
+func (a *RepoWrapper) Update(ctx context.Context) (bool, error) {
 	if a.updater == nil {
-		return nil
+		return false, nil
 	}
 
 	a.lock.Lock()
 	defer a.lock.Unlock()
 
-	return a.updater(ctx, &a.repo)
+	// avoid too frequent updates
+	if a.minCacheDuration > 0 && !a.updatedAt.IsZero() && a.getNow().Sub(a.updatedAt) < a.minCacheDuration {
+		return false, nil
+	}
+
+	if err := a.updater(ctx, &a.repo); err != nil {
+		return false, err
+	}
+
+	a.updatedAt = a.getNow()
+	return true, nil
+}
+
+func (a *RepoWrapper) UpdatedAt() time.Time {
+	a.lock.RLock()
+	defer a.lock.RUnlock()
+	return a.updatedAt
 }
 
 func (a *RepoWrapper) use(f func(r Repo) error) error {
@@ -60,6 +85,13 @@ func (a *RepoWrapper) use(f func(r Repo) error) error {
 	a.lock.RLock()
 	defer a.lock.RUnlock()
 	return f(a.GetRepo())
+}
+
+func (a *RepoWrapper) getNow() time.Time {
+	if a.now != nil {
+		return a.now()
+	}
+	return time.Now()
 }
 
 var _ Repo = (*RepoWrapper)(nil)

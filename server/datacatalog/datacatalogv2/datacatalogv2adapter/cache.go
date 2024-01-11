@@ -3,11 +3,14 @@ package datacatalogv2adapter
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/eukarya-inc/reearth-plateauview/server/datacatalog/datacatalogv2"
 	"github.com/eukarya-inc/reearth-plateauview/server/datacatalog/plateauapi"
 	"golang.org/x/exp/slices"
 )
+
+const minCacheDuration = 30 * time.Second
 
 func New(cmsbase, project string) (*plateauapi.RepoWrapper, error) {
 	fetcher, err := datacatalogv2.NewFetcher(cmsbase)
@@ -27,6 +30,7 @@ func From(fetcher datacatalogv2.Fetchable, project string) *plateauapi.RepoWrapp
 		return nil
 	})
 	r.SetName(fmt.Sprintf("%s(v2)", project))
+	r.SetMinCacheDuration(minCacheDuration)
 	return r
 }
 
