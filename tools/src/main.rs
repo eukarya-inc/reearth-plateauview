@@ -1,5 +1,4 @@
 mod args;
-mod migrateuc;
 mod prepare;
 use args::{Cli, Commands};
 
@@ -18,9 +17,6 @@ fn main() {
             output,
             format: format.into(),
         }),
-        Commands::MigrateUC { list_path, output } => {
-            migrateuc::migrateuc(migrateuc::Config { list_path, output })
-        }
     } {
         eprintln!("{}", err);
         std::process::exit(1);

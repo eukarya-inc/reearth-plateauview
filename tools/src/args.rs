@@ -23,13 +23,6 @@ pub enum Commands {
         #[clap(short, long)]
         output: Option<PathBuf>,
     },
-    /// PLATEAU VIEW 1.1 のS3内に格納されたユースケースデータのファイルを移行します。
-    MigrateUC {
-        #[clap(short, long)]
-        list_path: PathBuf,
-        #[clap(short, long)]
-        output: Option<PathBuf>,
-    },
 }
 
 #[derive(Debug, Clone, ValueEnum)]

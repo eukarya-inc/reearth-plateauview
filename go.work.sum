@@ -470,6 +470,7 @@ google.golang.org/grpc v1.45.0 h1:NEpgUqV3Z+ZjkqMsxMg11IaDrXY4RY6CQukSGK0uI1M=
 gopkg.in/errgo.v2 v2.1.0 h1:0vLT13EuvQ0hNvakwLuFZ/jYrLp5F3kcWHXdRggjCE8=
 honnef.co/go/js/dom v0.0.0-20210725211120-f030747120f2 h1:oomkgU6VaQDsV6qZby2uz1Lap0eXmku8+2em3A/l700=
 honnef.co/go/js/dom v0.0.0-20210725211120-f030747120f2/go.mod h1:sUMDUKNB2ZcVjt92UnLy3cdGs+wDAcrPdV3JP6sVgA4=
+honnef.co/go/tools v0.0.0-20190523083050-ea95bdfd59fc h1:/hemPrYIhOhy8zYrNj+069zDB68us2sMGsfkFJO0iZs=
 honnef.co/go/tools v0.0.1-2020.1.4 h1:UoveltGrhghAA7ePc+e+QYDHXrBps2PqFZiHkGR/xK8=
 rsc.io/binaryregexp v0.2.0 h1:HfqmD5MEmC0zvwBuF187nq9mdnXjXsSivRiXN7SmRkE=
 rsc.io/quote/v3 v3.1.0 h1:9JKUTTIUgS6kzR9mK1YuGKv6Nl+DijDNIc0ghT58FaY=
