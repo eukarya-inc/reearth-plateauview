@@ -163,7 +163,7 @@ func TestHandler_Metadata(t *testing.T) {
 	mockCMS(t)
 	h := newHandler()
 
-	expectedAll := []Metadata{
+	expectedAll := MetadataList{
 		{
 			ProjectAlias:            testCMSProject,
 			DataCatalogProjectAlias: testCMSProject,
@@ -305,8 +305,8 @@ func mockCMS(t *testing.T) {
 	)
 }
 
-func TestPlateauProjectsFromMetadata(t *testing.T) {
-	m := []Metadata{
+func TestMetadataList_PlateauProjects(t *testing.T) {
+	m := MetadataList{
 		{
 			DataCatalogProjectAlias: "plateau-2022",
 		},
@@ -317,8 +317,8 @@ func TestPlateauProjectsFromMetadata(t *testing.T) {
 			DataCatalogProjectAlias: "plateau-2023",
 		},
 	}
-	ps := PlateauProjectsFromMetadata(m)
-	assert.Equal(t, []Metadata{
+	ps := m.PlateauProjects()
+	assert.Equal(t, MetadataList{
 		{
 			DataCatalogProjectAlias: "plateau-2023",
 		},

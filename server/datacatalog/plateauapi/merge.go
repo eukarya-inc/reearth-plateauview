@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"reflect"
 	"sort"
+	"strings"
 
 	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
@@ -22,12 +23,13 @@ func NewMerger(repos ...Repo) *Merger {
 var _ Repo = (*Merger)(nil)
 
 func (m *Merger) Name() string {
-	return fmt.Sprintf("merger(%s)", lo.Map(m.repos, func(r Repo, _ int) string {
+	names := lo.Map(m.repos, func(r Repo, _ int) string {
 		if r == nil {
 			return "nil"
 		}
 		return r.Name()
-	}))
+	})
+	return fmt.Sprintf("merger(%s)", strings.Join(names, ","))
 }
 
 func (m *Merger) Node(ctx context.Context, id ID) (Node, error) {

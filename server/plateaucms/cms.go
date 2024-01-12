@@ -160,8 +160,8 @@ func GetCMSMetadataFromContext(ctx context.Context) Metadata {
 	return md
 }
 
-func GetAllCMSMetadataFromContext(ctx context.Context) []Metadata {
-	md, _ := ctx.Value(cmsAllMetadataContextKey{}).([]Metadata)
+func GetAllCMSMetadataFromContext(ctx context.Context) MetadataList {
+	md, _ := ctx.Value(cmsAllMetadataContextKey{}).(MetadataList)
 	return md
 }
 
@@ -173,12 +173,13 @@ type Metadata struct {
 	CMSAPIKey                string `json:"cms_apikey" cms:"cms_apikey,text"`
 	SidebarAccessToken       string `json:"sidebar_access_token" cms:"sidebar_access_token,text"`
 	SubPorjectAlias          string `json:"subproject_alias" cms:"subproject_alias,text"`
+	MergePlateau             bool   `json:"merge_plateau" cms:"merge_plateau,boolean"`
 	// whether the request is authenticated with sidebar access token
 	Auth       bool   `json:"-" cms:"-"`
 	CMSBaseURL string `json:"-" cms:"-"`
 }
 
-func (h *CMS) Metadata(ctx context.Context, prj string, findDataCatalog bool) (Metadata, []Metadata, error) {
+func (h *CMS) Metadata(ctx context.Context, prj string, findDataCatalog bool) (Metadata, MetadataList, error) {
 	// compat
 	if h.cmsMainProject != "" && prj == h.cmsMainProject {
 		return Metadata{
@@ -204,7 +205,7 @@ func (h *CMS) Metadata(ctx context.Context, prj string, findDataCatalog bool) (M
 	return md, all, nil
 }
 
-func (h *CMS) AllMetadata(ctx context.Context, findDataCatalog bool) ([]Metadata, error) {
+func (h *CMS) AllMetadata(ctx context.Context, findDataCatalog bool) (MetadataList, error) {
 	if h.cmsMetadataProject == "" {
 		return nil, rerror.ErrNotFound
 	}
@@ -282,8 +283,10 @@ func (m Metadata) IsValidToken(token string) bool {
 	return m.SidebarAccessToken == token
 }
 
-func PlateauProjectsFromMetadata(metadata []Metadata) []Metadata {
-	m := lo.FilterMap(metadata, func(m Metadata, _ int) (lo.Tuple2[Metadata, int], bool) {
+type MetadataList []Metadata
+
+func (l MetadataList) PlateauProjects() MetadataList {
+	m := lo.FilterMap(l, func(m Metadata, _ int) (lo.Tuple2[Metadata, int], bool) {
 		y := m.PlateauYear()
 		return lo.Tuple2[Metadata, int]{A: m, B: y}, y > 0
 	})
@@ -295,4 +298,39 @@ func PlateauProjectsFromMetadata(metadata []Metadata) []Metadata {
 	return lo.Map(m, func(t lo.Tuple2[Metadata, int], _ int) Metadata {
 		return t.A
 	})
+}
+
+func (l MetadataList) FindSys(project string) (Metadata, bool) {
+	return lo.Find(l, func(m Metadata) bool {
+		return m.ProjectAlias == project
+	})
+}
+
+func (l MetadataList) FindDataCatalog(project string) (Metadata, bool) {
+	return lo.Find(l, func(m Metadata) bool {
+		return m.DataCatalogProjectAlias == project
+	})
+}
+
+func (l MetadataList) FindDataCatalogAndSub(project string) (res MetadataList) {
+	m, ok := l.FindDataCatalog(project)
+	if !ok {
+		return nil
+	}
+
+	res = MetadataList{m}
+	if m.SubPorjectAlias == "" && !m.MergePlateau {
+		return
+	}
+
+	if m.MergePlateau {
+		return append(res, l.PlateauProjects()...)
+	}
+
+	sub, ok := l.FindDataCatalog(m.SubPorjectAlias)
+	if !ok {
+		return
+	}
+
+	return append(res, sub)
 }

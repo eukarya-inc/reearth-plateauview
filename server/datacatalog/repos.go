@@ -59,46 +59,21 @@ func (h *reposHandler) Middleware() echo.MiddlewareFunc {
 func (h *reposHandler) Handler(admin bool) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		ctx := c.Request().Context()
-		var repos []plateauapi.Repo
 		pid := c.Param(pidParamName)
 		token := strings.TrimPrefix(c.Request().Header.Get("Authorization"), "Bearer ")
+		metadata := plateaucms.GetAllCMSMetadataFromContext(ctx)
 
-		if pid == "" {
-			metadata := plateaucms.GetAllCMSMetadataFromContext(ctx)
-			plateauMetadata := plateaucms.PlateauProjectsFromMetadata(metadata)
-			if len(plateauMetadata) == 0 {
-				return echo.NewHTTPError(http.StatusNotFound, "not found")
-			}
-
-			if admin && (token == "" || !plateauMetadata[0].IsValidToken(token)) {
-				log.Debugfc(ctx, "datacatalogv3: unauthorized access: input_token=%s, project=%#v", token, plateauMetadata[0].DataCatalogProjectAlias)
-				return echo.NewHTTPError(http.StatusUnauthorized, "unauthorized")
-			}
-
-			repos = h.getAllRepos(c.Request().Context(), admin, plateauMetadata)
-		} else {
-			md := plateaucms.GetCMSMetadataFromContext(ctx)
-			if md.DataCatalogProjectAlias != pid || !isV3(md) {
-				return echo.NewHTTPError(http.StatusNotFound, "not found")
-			}
-
-			if admin && !md.Auth {
-				return echo.NewHTTPError(http.StatusUnauthorized, "unauthorized")
-			}
-
-			if err := h.prepare(ctx, md); err != nil {
-				return echo.NewHTTPError(http.StatusBadGateway, "failed to prepare")
-			}
-
-			repo := h.getRepo(ctx, admin, md)
-			if repo == nil {
-				return echo.NewHTTPError(http.StatusNotFound, "not found")
-			}
-
-			repos = append(repos, repo)
+		if err := h.auth(ctx, admin, metadata, pid, token); err != nil {
+			return err
 		}
 
-		merged := plateauapi.NewMerger(repos...)
+		merged := h.prepareAndGetMergedRepo(ctx, admin, pid, metadata)
+		if merged == nil {
+			return echo.NewHTTPError(http.StatusNotFound, "not found")
+		}
+
+		log.Debugfc(ctx, "datacatalogv3: use repo for %s: %s", pid, merged.Name())
+
 		srv := plateauapi.NewService(merged, plateauapi.FixedComplexityLimit(h.gqlComplexityLimit))
 		srv.ServeHTTP(c.Response(), c.Request())
 		return nil
@@ -173,44 +148,89 @@ func (h *reposHandler) Init(ctx context.Context) error {
 		return fmt.Errorf("datacatalogv3: failed to get all metadata: %w", err)
 	}
 
-	if err := h.prepareAllPlateauProjects(ctx, metadata); err != nil {
+	plateauMetadata := metadata.PlateauProjects()
+	if err := h.prepareAll(ctx, plateauMetadata); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func (h *reposHandler) getAllRepos(ctx context.Context, admin bool, metadata []plateaucms.Metadata) []plateauapi.Repo {
-	targets := plateaucms.PlateauProjectsFromMetadata(metadata)
-
-	repos := make([]plateauapi.Repo, 0, len(targets))
-	for _, md := range targets {
-		r := h.getRepo(ctx, admin, md)
-		if r != nil {
-			repos = append(repos, r)
-			log.Infofc(ctx, "datacatalogv3: found repo for %s", md.DataCatalogProjectAlias)
-		}
+func (*reposHandler) auth(ctx context.Context, admin bool, metadata plateaucms.MetadataList, pid, token string) error {
+	if !admin {
+		return nil
 	}
 
-	return repos
-}
+	if pid == "" {
+		plateauMetadata := metadata.PlateauProjects()
+		if len(plateauMetadata) == 0 {
+			return echo.NewHTTPError(http.StatusNotFound, "not found")
+		}
 
-func (h *reposHandler) getRepo(ctx context.Context, admin bool, md plateaucms.Metadata) plateauapi.Repo {
-	if isV2(md) {
-		return h.reposv2[md.DataCatalogProjectAlias]
-	} else if isV3(md) {
-		return h.reposv3.Repo(md.DataCatalogProjectAlias, admin)
+		if token == "" || !plateauMetadata[0].IsValidToken(token) {
+			log.Debugfc(ctx, "datacatalogv3: unauthorized access: input_token=%s, project=%s", token, plateauMetadata[0].DataCatalogProjectAlias)
+			return echo.NewHTTPError(http.StatusUnauthorized, "unauthorized")
+		}
+	} else {
+		md := plateaucms.GetCMSMetadataFromContext(ctx)
+		if md.DataCatalogProjectAlias != pid || !isV3(md) {
+			return echo.NewHTTPError(http.StatusNotFound, "not found")
+		}
+
+		if !md.Auth {
+			return echo.NewHTTPError(http.StatusUnauthorized, "unauthorized")
+		}
 	}
 
 	return nil
 }
 
-func (h *reposHandler) prepareAllPlateauProjects(ctx context.Context, metadata []plateaucms.Metadata) error {
-	targets := plateaucms.PlateauProjectsFromMetadata(metadata)
-	log.Infofc(ctx, "datacatalogv3: preparing repos for %d projects", len(targets))
+func (h *reposHandler) prepareAndGetMergedRepo(ctx context.Context, admin bool, project string, metadata plateaucms.MetadataList) plateauapi.Repo {
+	var mds plateaucms.MetadataList
+	if project == "" {
+		mds = metadata.PlateauProjects()
+	} else {
+		mds = metadata.FindDataCatalogAndSub(project)
+	}
 
+	if err := h.prepareAll(ctx, mds); err != nil {
+		log.Errorfc(ctx, "datacatalogv3: failed to prepare repos: %w", err)
+	}
+
+	repos := make([]plateauapi.Repo, 0, len(mds))
+	for _, s := range mds {
+		if r := h.getRepo(ctx, admin, s); r != nil {
+			repos = append(repos, r)
+		}
+	}
+
+	if len(repos) == 0 {
+		return nil
+	}
+
+	if len(repos) == 1 {
+		return repos[0]
+	}
+
+	return plateauapi.NewMerger(repos...)
+}
+
+func (h *reposHandler) getRepo(ctx context.Context, admin bool, md plateaucms.Metadata) (repo plateauapi.Repo) {
+	if md.DataCatalogProjectAlias == "" {
+		return
+	}
+
+	if isV2(md) {
+		repo = h.reposv2[md.DataCatalogProjectAlias]
+	} else if isV3(md) {
+		repo = h.reposv3.Repo(md.DataCatalogProjectAlias, admin)
+	}
+	return
+}
+
+func (h *reposHandler) prepareAll(ctx context.Context, metadata plateaucms.MetadataList) error {
 	errg, ctx := errgroup.WithContext(ctx)
-	for _, md := range targets {
+	for _, md := range metadata {
 		md := md
 
 		errg.Go(func() error {
@@ -241,7 +261,7 @@ func (h *reposHandler) prepareV2(ctx context.Context, md plateaucms.Metadata) er
 
 	r, err := datacatalogv2adapter.New(md.CMSBaseURL, md.DataCatalogProjectAlias)
 	if err != nil {
-		return fmt.Errorf("datacatalogv3: failed to create repo v2 for %s: %w", md.DataCatalogProjectAlias, err)
+		return fmt.Errorf("datacatalogv3: failed to create repo(v2) %s: %w", md.DataCatalogProjectAlias, err)
 	}
 
 	h.reposv2[md.DataCatalogProjectAlias] = r
@@ -271,28 +291,28 @@ func (h *reposHandler) updateV2(ctx context.Context, prj string) error {
 		return nil
 	}
 
-	log.Infofc(ctx, "datacatalogv3: updating repo v2 for %s", prj)
+	log.Infofc(ctx, "datacatalogv3: updating repo(v2) %s", prj)
 
 	if updated, err := r.Update(ctx); err != nil {
-		return fmt.Errorf("datacatalogv3: failed to update repo v2 for %s: %w", prj, err)
+		return fmt.Errorf("datacatalogv3: failed to update repo(v2) %s: %w", prj, err)
 	} else if !updated {
-		log.Infofc(ctx, "datacatalogv3: skip updating repo v2 for %s", prj)
+		log.Infofc(ctx, "datacatalogv3: skip updating repo(v2) %s", prj)
 		return nil
 	}
 
-	log.Infofc(ctx, "datacatalogv3: updated repo v2 for %s", prj)
+	log.Infofc(ctx, "datacatalogv3: updated repo(v2) %s", prj)
 	return nil
 }
 
 func (h *reposHandler) updateV3(ctx context.Context, prj string) error {
 	if err := h.reposv3.Update(ctx, prj); err != nil {
-		return fmt.Errorf("datacatalogv3: failed to update repo for %s: %w", prj, err)
+		return fmt.Errorf("datacatalogv3: failed to update repo %s: %w", prj, err)
 	}
 	return nil
 }
 
 func isV2(md plateaucms.Metadata) bool {
-	return md.DataCatalogSchemaVersion == cmsSchemaVersionV2
+	return md.DataCatalogSchemaVersion == "" || md.DataCatalogSchemaVersion == cmsSchemaVersionV2
 }
 
 func isV3(md plateaucms.Metadata) bool {
