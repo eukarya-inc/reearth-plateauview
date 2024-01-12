@@ -110,11 +110,12 @@ jobs:
         run: echo "sha_short=$SHA_SHORT, new_tag=$NEW_TAG, new_tag_short=$NEW_TAG_SHORT, name=$NAME"
   build-plugin:
     needs:
+      - prepare
       - ci
       - ci-plugin
       - ci-collect-info
     runs-on: ubuntu-latest
-    if: ${{!failure() && github.event_name == 'push' && (github.ref_name == 'main' || github.ref_name == 'release')}}
+    if: ${{!failure() && needs.prepare.outputs.plugin == 'true' && github.event_name == 'push' && (github.ref_name == 'main' || github.ref_name == 'release')}}
     steps:
       - name: Dispatch Plugin Build
         uses: benc-uk/workflow-dispatch@v1
