@@ -52,17 +52,22 @@ func uploadAssets(conf *Config, args []string) error {
 
 		file, err := os.Open(filepath.Join(target, f.Name()))
 		if err != nil {
-			return err
+			return fmt.Errorf("failed to open file: %w", err)
 		}
 
-		fmt.Printf("%s -> ", file.Name())
+		fmt.Printf("%s", file.Name())
 
 		assetID, err := c.UploadAssetDirectly(ctx, pid, file.Name(), file)
 		if err != nil {
-			return err
+			return fmt.Errorf("failed to upload asset: %w", err)
 		}
 
-		fmt.Printf("%s\n", assetID)
+		asset, err := c.Asset(ctx, assetID)
+		if err != nil {
+			return fmt.Errorf("failed to get asset: %w", err)
+		}
+
+		fmt.Printf(" -> %s | %s\n", assetID, asset.URL)
 	}
 
 	return nil

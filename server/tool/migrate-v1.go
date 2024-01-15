@@ -78,7 +78,7 @@ func migrateV1(conf *Config, args []string) error {
 			return nil
 		}
 
-		file, err = os.OpenFile(filepath.Join(output, g+".zip"), os.O_CREATE|os.O_WRONLY, 0644)
+		file, err = os.OpenFile(filepath.Join(output, "uc_"+g+".zip"), os.O_CREATE|os.O_WRONLY, 0644)
 		if err != nil {
 			return fmt.Errorf("failed to open file: %w", err)
 		}
@@ -96,6 +96,7 @@ func migrateV1(conf *Config, args []string) error {
 		}
 	}()
 
+	errors := []int{}
 	group := ""
 	for i, p := range list {
 		g := p[1]
@@ -122,13 +123,27 @@ func migrateV1(conf *Config, args []string) error {
 
 		if wetrun {
 			if err := downloadAndAddToZip(zw, path, u, filePath); err != nil {
-				return fmt.Errorf("failed to download: %w", err)
+				errors = append(errors, i)
+				fmt.Printf("ERROR: %d/%d | %s | %s | %s\n", i+1, le, p[1], filePath, u)
 			}
 		}
 	}
 
 	if err := exhangeZw(""); err != nil {
 		return err
+	}
+
+	if len(errors) > 0 {
+		fmt.Printf("ERRORS: %d\n", len(errors))
+
+		for _, i := range errors {
+			p := list[i]
+			filePath := path.Join(p[2:]...)
+			path := filepath.Join(p...)
+			u, _ := url.JoinPath(baseURL, path)
+
+			fmt.Printf("ERROR: %d/%d | %s | %s | %s\n", i+1, le, p[1], filePath, u)
+		}
 	}
 
 	return nil
@@ -169,6 +184,10 @@ func parseList(b []byte) (res [][]string, err error) {
 		if c == '\n' {
 			r := string(b[start:i])
 			start = i + 1
+
+			if r == "" {
+				continue
+			}
 
 			s := reSpace.Split(r, -1)
 			if len(s) <= 3 {
