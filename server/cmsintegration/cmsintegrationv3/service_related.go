@@ -168,8 +168,8 @@ func convertRelatedDataset(ctx context.Context, s *Services, w *cmswebhook.Paylo
 
 func convRelatedType(ctx context.Context, project, target, assetID string, s *Services) (_ string, err error) {
 	asset, err := s.CMS.Asset(ctx, assetID)
-	if err != nil {
-		return "", fmt.Errorf("failed to get asset (%s): %w", target, err)
+	if err != nil || asset == nil {
+		return "", fmt.Errorf("failed to get asset: type=%s, asset_id=%s: %v", target, assetID, err)
 	}
 
 	id := strings.TrimSuffix(path.Base(asset.URL), path.Ext(asset.URL))
