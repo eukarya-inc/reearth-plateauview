@@ -173,7 +173,6 @@ func convRelatedType(ctx context.Context, project, target, assetID string, s *Se
 	}
 
 	id := strings.TrimSuffix(path.Base(asset.URL), path.Ext(asset.URL))
-	log.Debugfc(ctx, "cmsintegrationv3: convertRelatedDataset: convert asset: type=%s, name=%s", target, id)
 
 	// download asset
 	data, err := s.GETAsBytes(ctx, asset.URL)
@@ -181,14 +180,10 @@ func convRelatedType(ctx context.Context, project, target, assetID string, s *Se
 		return "", fmt.Errorf("failed to download asset: %w", err)
 	}
 
-	log.Debugfc(ctx, "cmsintegrationv3: convertRelatedDataset: download asset: type=%s, name=%s", target, id)
-
 	fc, err := geojson.UnmarshalFeatureCollection(data)
 	if err != nil || fc == nil {
 		return "", fmt.Errorf("failed to unmarshal asset: %w", err)
 	}
-
-	log.Debugfc(ctx, "cmsintegrationv3: convertRelatedDataset: umarshal: type=%s, name=%s", target, id)
 
 	// conv
 	var res any
@@ -202,14 +197,12 @@ func convRelatedType(ctx context.Context, project, target, assetID string, s *Se
 		return "", fmt.Errorf("failed to convert: %w", err)
 	}
 
-	log.Debugfc(ctx, "cmsintegrationv3: convertRelatedDataset: converted: type=%s, name=%s", target, id)
 	uploadBody, err := json.Marshal(res)
 	if err != nil {
 		return "", fmt.Errorf("failed to marshal: %w", err)
 	}
 
 	// upload
-	log.Debugfc(ctx, "cmsintegrationv3: convertRelatedDataset: upload asset: type=%s, name=%s", target, id)
 	newAssetID, err := s.CMS.UploadAssetDirectly(ctx, project, id+".czml", bytes.NewReader(uploadBody))
 	if err != nil {
 		return "", fmt.Errorf("failed to upload asset: %w", err)
@@ -261,7 +254,7 @@ func packRelatedDataset(ctx context.Context, s *Services, w *cmswebhook.Payload,
 			MergeStatus: tagFrom(status),
 		}).CMSItem()
 		if _, err := s.CMS.UpdateItem(ctx, item.ID, newItem.Fields, newItem.MetadataFields); err != nil {
-			log.Errorfc(ctx, "cmsintegrationv3: packRelatedDataset: failed to update item: %w", err)
+			log.Errorfc(ctx, "cmsintegrationv3: packRelatedDataset: failed to update item: %v", err)
 		}
 
 		// comment to the item
@@ -273,7 +266,7 @@ func packRelatedDataset(ctx context.Context, s *Services, w *cmswebhook.Payload,
 		}
 
 		if err := s.CMS.CommentToItem(ctx, item.ID, comment); err != nil {
-			log.Errorfc(ctx, "cmsintegrationv3: packRelatedDataset: failed to add comment: %w", err)
+			log.Errorfc(ctx, "cmsintegrationv3: packRelatedDataset: failed to add comment: %v", err)
 		}
 	}()
 
@@ -345,11 +338,11 @@ func packRelatedDatasetTarget(ctx context.Context, target string, assets []strin
 
 		an := parseRelatedAssetName(asset.URL)
 		if an == nil {
-			return 0, fmt.Errorf("(%s/%d/%s): ファイル名が命名規則に沿っていません。 \"[市区町村コード5桁]_[市区町村名英名]_[提供事業者名]_[整備年度4桁]_[landmark,shelterなど].geojson\" としてください。: %v", target, i+1, path.Base(asset.URL), err)
+			return 0, fmt.Errorf("(%s/%d/%s): ファイル名が命名規則に沿っていません。 `[市区町村コード5桁]_[市区町村名英名]_[提供事業者名(city等)]_[整備年度4桁]_[landmark,shelterなど].geojson` としてください。", target, i+1, path.Base(asset.URL))
 		}
 
 		if !noNeedToWriteAssets && an.CityCode == cityCode {
-			return 0, fmt.Errorf("(%s/%d/%s): アセット名の市区町村コードが全体の市区町村コードと同じです。区ごとに登録する場合はファイル名中のコードを各区のコードにしてください。", target, i+1, path.Base(asset.URL))
+			return 0, fmt.Errorf("(%s/%d/%s): アセット名の区コードが全体の市区町村コードと同じです。区ごとに登録する場合はファイル名中のコードを各区のコードにしてください。", target, i+1, path.Base(asset.URL))
 		}
 
 		if assetName == nil {
