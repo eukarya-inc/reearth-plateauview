@@ -177,14 +177,18 @@ func convRelatedType(ctx context.Context, project, target, assetID string, s *Se
 
 	// download asset
 	data, err := s.GETAsBytes(ctx, asset.URL)
-	if err != nil {
+	if err != nil || len(data) == 0 {
 		return "", fmt.Errorf("failed to download asset: %w", err)
 	}
 
+	log.Debugfc(ctx, "cmsintegrationv3: convertRelatedDataset: download asset: type=%s, name=%s", target, id)
+
 	fc, err := geojson.UnmarshalFeatureCollection(data)
-	if err != nil {
+	if err != nil || fc == nil {
 		return "", fmt.Errorf("failed to unmarshal asset: %w", err)
 	}
+
+	log.Debugfc(ctx, "cmsintegrationv3: convertRelatedDataset: umarshal: type=%s, name=%s", target, id)
 
 	// conv
 	var res any
@@ -198,12 +202,14 @@ func convRelatedType(ctx context.Context, project, target, assetID string, s *Se
 		return "", fmt.Errorf("failed to convert: %w", err)
 	}
 
+	log.Debugfc(ctx, "cmsintegrationv3: convertRelatedDataset: converted: type=%s, name=%s", target, id)
 	uploadBody, err := json.Marshal(res)
 	if err != nil {
 		return "", fmt.Errorf("failed to marshal: %w", err)
 	}
 
 	// upload
+	log.Debugfc(ctx, "cmsintegrationv3: convertRelatedDataset: upload asset: type=%s, name=%s", target, id)
 	newAssetID, err := s.CMS.UploadAssetDirectly(ctx, project, id+".czml", bytes.NewReader(uploadBody))
 	if err != nil {
 		return "", fmt.Errorf("failed to upload asset: %w", err)
