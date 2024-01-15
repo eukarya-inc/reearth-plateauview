@@ -2,10 +2,13 @@ package datacatalogv3
 
 import (
 	"fmt"
+	"slices"
 
 	"github.com/eukarya-inc/reearth-plateauview/server/datacatalog/plateauapi"
 	"github.com/samber/lo"
 )
+
+var convIgnored = []string{"border"}
 
 func (i *RelatedItem) toDatasets(area *areaContext, dts []plateauapi.DatasetType, cmsurl string) (res []plateauapi.Dataset, warning []string) {
 	if !area.IsValid() {
@@ -19,6 +22,10 @@ func (i *RelatedItem) toDatasets(area *areaContext, dts []plateauapi.DatasetType
 		if len(d.Asset) == 0 && len(d.Converted) == 0 {
 			// warning = append(warning, fmt.Sprintf("related %s: no data for %s", area.CityCode, ftcode))
 			continue
+		}
+
+		if slices.Contains(convIgnored, ftcode) {
+			d.Converted = nil
 		}
 
 		seeds, w := assetUrlsToRelatedDatasetSeeds(d.Asset, d.Converted, area.City, area.Wards)
