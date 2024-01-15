@@ -3,6 +3,7 @@ package plateauv2
 import (
 	"encoding/json"
 	"fmt"
+	"path"
 	"strings"
 
 	"github.com/eukarya-inc/jpareacode"
@@ -23,21 +24,22 @@ var datasetTypes = map[string]string{
 }
 
 type DatasetItem struct {
-	ID          string           `json:"id,omitempty"`
-	Name        string           `json:"name,omitempty"`
-	Type        string           `json:"type,omitempty"`
-	Prefecture  string           `json:"prefecture,omitempty"`
-	CityName    string           `json:"city_name,omitempty"`
-	WardName    string           `json:"ward_name,omitempty"`
-	OpenDataURL string           `json:"opendata_url,omitempty"`
-	Description string           `json:"description,omitempty"`
-	Year        string           `json:"year,omitempty"`
-	Data        *cms.PublicAsset `json:"data,omitempty"`
-	DataFormat  string           `json:"data_format,omitempty"`
-	DataURL     string           `json:"data_url,omitempty"`
-	DataLayers  string           `json:"data_layer,omitempty"`
-	Config      string           `json:"config,omitempty"`
-	Order       *int             `json:"order,omitempty"`
+	ID           string             `json:"id,omitempty"`
+	Name         string             `json:"name,omitempty"`
+	Type         string             `json:"type,omitempty"`
+	Prefecture   string             `json:"prefecture,omitempty"`
+	CityName     string             `json:"city_name,omitempty"`
+	WardName     string             `json:"ward_name,omitempty"`
+	OpenDataURL  string             `json:"opendata_url,omitempty"`
+	Description  string             `json:"description,omitempty"`
+	Year         string             `json:"year,omitempty"`
+	Data         *cms.PublicAsset   `json:"data,omitempty"`
+	DataFormat   string             `json:"data_format,omitempty"`
+	DataURL      string             `json:"data_url,omitempty"`
+	DataLayers   string             `json:"data_layer,omitempty"`
+	Config       string             `json:"config,omitempty"`
+	Order        *int               `json:"order,omitempty"`
+	OriginalData []*cms.PublicAsset `json:"data_orig,omitempty"`
 }
 
 func (i DatasetItem) GetCityName() string {
@@ -72,6 +74,12 @@ func (i DatasetItem) DataCatalogs() []DataCatalogItem {
 
 	f := datacatalogutil.FormatTypeEn(i.DataFormat)
 
+	var ou, of string
+	if len(i.OriginalData) > 0 {
+		ou = i.OriginalData[0].URL
+		of = datacatalogutil.FormatTypeEn(strings.TrimPrefix(path.Ext(ou), "."))
+	}
+
 	t := i.Type
 	if t != "" && !strings.HasSuffix(t, "情報") {
 		t += "情報"
@@ -92,25 +100,27 @@ func (i DatasetItem) DataCatalogs() []DataCatalogItem {
 	}
 
 	return []DataCatalogItem{{
-		ID:          i.ID,
-		Name:        name,
-		Type:        t,
-		TypeEn:      datasetTypes[i.Type],
-		Pref:        pref,
-		PrefCode:    prefCode,
-		City:        city,
-		CityCode:    cCode,
-		Ward:        ward,
-		WardCode:    wCode,
-		Format:      f,
-		URL:         datacatalogutil.AssetURLFromFormat(u, f),
-		Description: i.Description,
-		Config:      c,
-		Layers:      layers,
-		Year:        datacatalogutil.YearInt(i.Year),
-		OpenDataURL: i.OpenDataURL,
-		Order:       i.Order,
-		Family:      "related",
-		Edition:     "2022",
+		ID:             i.ID,
+		Name:           name,
+		Type:           t,
+		TypeEn:         datasetTypes[i.Type],
+		Pref:           pref,
+		PrefCode:       prefCode,
+		City:           city,
+		CityCode:       cCode,
+		Ward:           ward,
+		WardCode:       wCode,
+		Format:         f,
+		URL:            datacatalogutil.AssetURLFromFormat(u, f),
+		OriginalFormat: of,
+		OriginalURL:    datacatalogutil.AssetURLFromFormat(ou, of),
+		Description:    i.Description,
+		Config:         c,
+		Layers:         layers,
+		Year:           datacatalogutil.YearInt(i.Year),
+		OpenDataURL:    i.OpenDataURL,
+		Order:          i.Order,
+		Family:         "related",
+		Edition:        "2022",
 	}}
 }

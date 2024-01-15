@@ -11,30 +11,32 @@ type ItemCommon interface {
 }
 
 type DataCatalogItem struct {
-	ID          string                                 `json:"id,omitempty"`
-	ItemID      string                                 `json:"itemId,omitempty"`
-	Name        string                                 `json:"name,omitempty"`
-	Pref        string                                 `json:"pref,omitempty"`
-	PrefCode    string                                 `json:"pref_code,omitempty"`
-	City        string                                 `json:"city,omitempty"`
-	CityEn      string                                 `json:"city_en,omitempty"`
-	CityCode    string                                 `json:"city_code,omitempty"`
-	Ward        string                                 `json:"ward,omitempty"`
-	WardEn      string                                 `json:"ward_en,omitempty"`
-	WardCode    string                                 `json:"ward_code,omitempty"`
-	Type        string                                 `json:"type,omitempty"`
-	Type2       string                                 `json:"type2,omitempty"`
-	TypeEn      string                                 `json:"type_en,omitempty"`
-	Type2En     string                                 `json:"type2_en,omitempty"`
-	Format      string                                 `json:"format,omitempty"`
-	Layers      []string                               `json:"layers,omitempty"`
-	URL         string                                 `json:"url,omitempty"`
-	Description string                                 `json:"desc,omitempty"`
-	SearchIndex string                                 `json:"search_index,omitempty"`
-	Year        int                                    `json:"year,omitempty"`
-	OpenDataURL string                                 `json:"openDataUrl,omitempty"`
-	Config      *datacatalogutil.DataCatalogItemConfig `json:"config,omitempty"`
-	Order       *int                                   `json:"order,omitempty"`
+	ID             string                                 `json:"id,omitempty"`
+	ItemID         string                                 `json:"itemId,omitempty"`
+	Name           string                                 `json:"name,omitempty"`
+	Pref           string                                 `json:"pref,omitempty"`
+	PrefCode       string                                 `json:"pref_code,omitempty"`
+	City           string                                 `json:"city,omitempty"`
+	CityEn         string                                 `json:"city_en,omitempty"`
+	CityCode       string                                 `json:"city_code,omitempty"`
+	Ward           string                                 `json:"ward,omitempty"`
+	WardEn         string                                 `json:"ward_en,omitempty"`
+	WardCode       string                                 `json:"ward_code,omitempty"`
+	Type           string                                 `json:"type,omitempty"`
+	Type2          string                                 `json:"type2,omitempty"`
+	TypeEn         string                                 `json:"type_en,omitempty"`
+	Type2En        string                                 `json:"type2_en,omitempty"`
+	Format         string                                 `json:"format,omitempty"`
+	Layers         []string                               `json:"layers,omitempty"`
+	URL            string                                 `json:"url,omitempty"`
+	Description    string                                 `json:"desc,omitempty"`
+	SearchIndex    string                                 `json:"search_index,omitempty"`
+	Year           int                                    `json:"year,omitempty"`
+	OpenDataURL    string                                 `json:"openDataUrl,omitempty"`
+	Config         *datacatalogutil.DataCatalogItemConfig `json:"config,omitempty"`
+	Order          *int                                   `json:"order,omitempty"`
+	OriginalURL    string                                 `json:"original_url,omitempty"`
+	OriginalFormat string                                 `json:"original_format,omitempty"`
 	// force not creatign a type folder
 	Root bool `json:"root,omitempty"`
 	// force creating folder on root
@@ -59,10 +61,12 @@ func (i DataCatalogItem) MainConfigItem() *datacatalogutil.DataCatalogItemConfig
 		name = i.Type
 	}
 	return &datacatalogutil.DataCatalogItemConfigItem{
-		Name:   name,
-		URL:    i.URL,
-		Type:   i.Format,
-		Layers: i.Layers,
+		Name:           name,
+		URL:            i.URL,
+		Type:           i.Format,
+		Layers:         i.Layers,
+		OriginalURL:    i.OriginalURL,
+		OriginalFormat: i.OriginalFormat,
 	}
 }
 

@@ -198,16 +198,24 @@ func relatedDatasetFrom(d datacatalogv2.DataCatalogItem) (plateauapi.RelatedData
 			if d.TypeEn == "landmark" && landmarkTypes[c.Name] != "" {
 				ind = fmt.Sprintf("_%s", landmarkTypes[c.Name])
 			}
+
+			var of *plateauapi.DatasetFormat
+			if c.OriginalURL != "" {
+				of = lo.ToPtr(datasetFormatFrom(c.OriginalFormat))
+			}
+
 			return &plateauapi.RelatedDatasetItem{
 				ID: plateauapi.NewID(
 					fmt.Sprintf("%s%s", id.ID(), ind),
 					plateauapi.TypeDatasetItem,
 				), // RelatedDatasetItem should be single
-				Name:     c.Name,
-				URL:      c.URL,
-				Format:   datasetFormatFrom(c.Type),
-				Layers:   c.Layers,
-				ParentID: id,
+				Name:           c.Name,
+				Format:         datasetFormatFrom(c.Type),
+				URL:            c.URL,
+				OriginalFormat: of,
+				OriginalURL:    lo.EmptyableToPtr(c.OriginalURL),
+				Layers:         c.Layers,
+				ParentID:       id,
 			}
 		}),
 	}, true

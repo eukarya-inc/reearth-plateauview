@@ -164,6 +164,10 @@ func newAdmin(id string, stage stage, cmsurl string) any {
 }
 
 func assetURLFromFormat(u string, f plateauapi.DatasetFormat) string {
+	if u == "" {
+		return ""
+	}
+
 	u2, err := url.Parse(u)
 	if err != nil {
 		return u

@@ -5,8 +5,10 @@ type DataCatalogItemConfig struct {
 }
 
 type DataCatalogItemConfigItem struct {
-	Name   string   `json:"name"`
-	URL    string   `json:"url"`
-	Type   string   `json:"type"`
-	Layers []string `json:"layer,omitempty"`
+	Name           string   `json:"name"`
+	URL            string   `json:"url"`
+	Type           string   `json:"type"`
+	Layers         []string `json:"layer,omitempty"`
+	OriginalURL    string   `json:"originalUrl,omitempty"`
+	OriginalFormat string   `json:"originalFormat,omitempty"`
 }

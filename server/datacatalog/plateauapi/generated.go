@@ -226,13 +226,15 @@ type ComplexityRoot struct {
 	}
 
 	RelatedDatasetItem struct {
-		Format   func(childComplexity int) int
-		ID       func(childComplexity int) int
-		Layers   func(childComplexity int) int
-		Name     func(childComplexity int) int
-		Parent   func(childComplexity int) int
-		ParentID func(childComplexity int) int
-		URL      func(childComplexity int) int
+		Format         func(childComplexity int) int
+		ID             func(childComplexity int) int
+		Layers         func(childComplexity int) int
+		Name           func(childComplexity int) int
+		OriginalFormat func(childComplexity int) int
+		OriginalURL    func(childComplexity int) int
+		Parent         func(childComplexity int) int
+		ParentID       func(childComplexity int) int
+		URL            func(childComplexity int) int
 	}
 
 	RelatedDatasetType struct {
@@ -1346,6 +1348,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.RelatedDatasetItem.Name(childComplexity), true
+
+	case "RelatedDatasetItem.originalFormat":
+		if e.complexity.RelatedDatasetItem.OriginalFormat == nil {
+			break
+		}
+
+		return e.complexity.RelatedDatasetItem.OriginalFormat(childComplexity), true
+
+	case "RelatedDatasetItem.originalUrl":
+		if e.complexity.RelatedDatasetItem.OriginalURL == nil {
+			break
+		}
+
+		return e.complexity.RelatedDatasetItem.OriginalURL(childComplexity), true
 
 	case "RelatedDatasetItem.parent":
 		if e.complexity.RelatedDatasetItem.Parent == nil {
@@ -8235,6 +8251,10 @@ func (ec *executionContext) fieldContext_RelatedDataset_items(ctx context.Contex
 				return ec.fieldContext_RelatedDatasetItem_name(ctx, field)
 			case "url":
 				return ec.fieldContext_RelatedDatasetItem_url(ctx, field)
+			case "originalFormat":
+				return ec.fieldContext_RelatedDatasetItem_originalFormat(ctx, field)
+			case "originalUrl":
+				return ec.fieldContext_RelatedDatasetItem_originalUrl(ctx, field)
 			case "layers":
 				return ec.fieldContext_RelatedDatasetItem_layers(ctx, field)
 			case "parentId":
@@ -8453,6 +8473,88 @@ func (ec *executionContext) _RelatedDatasetItem_url(ctx context.Context, field g
 }
 
 func (ec *executionContext) fieldContext_RelatedDatasetItem_url(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "RelatedDatasetItem",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _RelatedDatasetItem_originalFormat(ctx context.Context, field graphql.CollectedField, obj *RelatedDatasetItem) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RelatedDatasetItem_originalFormat(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.OriginalFormat, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*DatasetFormat)
+	fc.Result = res
+	return ec.marshalODatasetFormat2ᚖgithubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐDatasetFormat(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_RelatedDatasetItem_originalFormat(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "RelatedDatasetItem",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type DatasetFormat does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _RelatedDatasetItem_originalUrl(ctx context.Context, field graphql.CollectedField, obj *RelatedDatasetItem) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RelatedDatasetItem_originalUrl(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.OriginalURL, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_RelatedDatasetItem_originalUrl(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "RelatedDatasetItem",
 		Field:      field,
@@ -13604,6 +13706,10 @@ func (ec *executionContext) _RelatedDatasetItem(ctx context.Context, sel ast.Sel
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
+		case "originalFormat":
+			out.Values[i] = ec._RelatedDatasetItem_originalFormat(ctx, field, obj)
+		case "originalUrl":
+			out.Values[i] = ec._RelatedDatasetItem_originalUrl(ctx, field, obj)
 		case "layers":
 			out.Values[i] = ec._RelatedDatasetItem_layers(ctx, field, obj)
 		case "parentId":
@@ -15755,6 +15861,22 @@ func (ec *executionContext) marshalOCity2ᚖgithubᚗcomᚋeukaryaᚑincᚋreear
 		return graphql.Null
 	}
 	return ec._City(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalODatasetFormat2ᚖgithubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐDatasetFormat(ctx context.Context, v interface{}) (*DatasetFormat, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var res = new(DatasetFormat)
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalODatasetFormat2ᚖgithubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐDatasetFormat(ctx context.Context, sel ast.SelectionSet, v *DatasetFormat) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return v
 }
 
 func (ec *executionContext) unmarshalODatasetTypeCategory2ᚕgithubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐDatasetTypeCategoryᚄ(ctx context.Context, v interface{}) ([]DatasetTypeCategory, error) {
