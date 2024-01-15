@@ -139,7 +139,12 @@ func (s *Services) GET(ctx context.Context, url string) (io.ReadCloser, error) {
 		return nil, fmt.Errorf("failed to create request: %w", err)
 	}
 
-	res, err := s.HTTP.Do(req)
+	client := s.HTTP
+	if client == nil {
+		client = http.DefaultClient
+	}
+
+	res, err := client.Do(req)
 	if err != nil {
 		return nil, fmt.Errorf("failed to download asset: %w", err)
 	}
