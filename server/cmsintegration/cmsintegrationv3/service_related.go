@@ -26,13 +26,10 @@ var relatedDataConvertionTargets = []string{
 	"station",
 }
 
-const relatedConvStatus = "conv_status"
-
 func handleRelatedDataset(ctx context.Context, s *Services, w *cmswebhook.Payload) error {
 	// if event type is "item.create" and payload is metadata, skip it
 	if w.Type == cmswebhook.EventItemCreate && w.ItemData.Item.OriginalItemID != nil ||
-		w.ItemData == nil || w.ItemData.Item == nil || w.ItemData.Model == nil ||
-		w.ItemData.Item.FieldByKey(relatedConvStatus) == nil {
+		w.ItemData == nil || w.ItemData.Item == nil || w.ItemData.Model == nil {
 		return nil
 	}
 
