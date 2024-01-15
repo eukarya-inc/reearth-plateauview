@@ -34,6 +34,15 @@ func Command(conf *Config) error {
 	}
 
 	cityItem := CityItemFrom(cityItemRaw)
+	{
+		pp := pp.New()
+		pp.SetColoringEnabled(false)
+		s := pp.Sprint(cityItem)
+		log.Infofc(ctx, "city item: %s", s)
+	}
+
+	cityName := cityItem.CityName
+	log.Infofc(ctx, "city name: %s", cityName)
 
 	log.Infofc(ctx, "getting all feature items...")
 
