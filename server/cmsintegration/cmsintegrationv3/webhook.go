@@ -38,11 +38,6 @@ func WebhookHandler(conf Config) (cmswebhook.Handler, error) {
 			return nil
 		}
 
-		if w.Type == cmswebhook.EventItemUpdate && len(w.ItemData.Changes) == 0 {
-			log.Debugfc(ctx, "cmsintegrationv3 webhook: no changes")
-			return nil
-		}
-
 		modelName := strings.TrimPrefix(w.ItemData.Model.Key, modelPrefix)
 		var err error
 
