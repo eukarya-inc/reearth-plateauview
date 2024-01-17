@@ -370,7 +370,7 @@ func TestSendRequestToFME(t *testing.T) {
 						{
 							Key: "skip_qc_conv",
 							Value: &cms.Tag{
-								Name: "変換のみスキップ",
+								Name: "変換をスキップ",
 							},
 						},
 					},
