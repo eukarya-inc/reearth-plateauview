@@ -15,14 +15,18 @@ import (
 )
 
 func PrepareCityGML(ctx context.Context, cms *cms.CMS, cityItem *CityItem, allFeatureItems map[string]FeatureItem) (string, string, error) {
-	return "", "", nil
-	// zipFileName := "citygml.zip"
-	tmpPath, outPath, err := prepareTmpDir()
+	// return "", "", nil // TODO: remove this line
+	tmpPath := "tmp/"
+	outPath := tmpPath + "udx/"
+
+	err := mkDir(outPath)
 	if err != nil {
 		return "", "", err
 	}
 
-	// panic("not implemented")
+	zipFileName := "citygml.zip"
+	zipFilePath := tmpPath + zipFileName
+
 	for _, ft := range featureTypes {
 		if fi, ok := allFeatureItems[ft]; ok {
 			if fi.CityGML == "" {
@@ -53,27 +57,32 @@ func PrepareCityGML(ctx context.Context, cms *cms.CMS, cityItem *CityItem, allFe
 		}
 	}
 
+	if err := zipDir(outPath, zipFilePath, "udx/"); err != nil {
+		log.Printf("failed to zip citygml: %s", err)
+		return "", "", err
+	}
+
+	os.RemoveAll(outPath)
+
 	return "", "", nil
 }
 
-func prepareTmpDir() (string, string, error) {
-	tmpPath := "tmp/"
-	outPath := tmpPath + "citygml/"
+func mkDir(dirPath string) error {
 
 	fileInfo, err := os.Lstat("./")
 
 	if err != nil {
-		return "", "", err
+		return err
 	}
 
 	fileMode := fileInfo.Mode()
 	unixPerms := fileMode & os.ModePerm
 
-	if err := os.MkdirAll(outPath, unixPerms); err != nil {
-		return "", "", err
+	if err := os.MkdirAll(dirPath, unixPerms); err != nil {
+		return err
 	}
 
-	return tmpPath, outPath, nil
+	return nil
 }
 
 func downloadFile(filePath string, url string) error {
@@ -146,6 +155,55 @@ func unzip(zipFile, targetDir string) error {
 		destFile.Close()
 		srcFile.Close()
 	}
+	return nil
+}
+
+func zipDir(srcDir string, destZip string, contentBaseDir string) error {
+	log.Printf("zipping %s to %s...", srcDir, destZip)
+	file, err := os.Create(destZip)
+	if err != nil {
+		log.Printf("failed to create zip file: %s", err)
+		return err
+	}
+	defer file.Close()
+
+	w := zip.NewWriter(file)
+	defer w.Close()
+
+	walker := func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+		if info.IsDir() {
+			return nil
+		}
+		file, err := os.Open(path)
+
+		if err != nil {
+			return err
+		}
+		defer file.Close()
+
+		path = strings.TrimPrefix(path, srcDir)
+
+		f, err := w.Create(contentBaseDir + path)
+		if err != nil {
+			return err
+		}
+
+		_, err = io.Copy(f, file)
+		if err != nil {
+			return err
+		}
+
+		return nil
+	}
+	err = filepath.Walk(srcDir, walker)
+	if err != nil {
+		log.Printf("failed to walk: %s", err)
+		return err
+	}
+
 	return nil
 }
 
