@@ -2,129 +2,104 @@ package preparegspatialjp
 
 import (
 	"archive/zip"
+	"bytes"
 	"context"
 	"fmt"
 	"io"
-	"log"
 	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
 
 	cms "github.com/reearth/reearth-cms-api/go"
+	"github.com/reearth/reearthx/log"
 )
 
 func PrepareCityGML(ctx context.Context, cms *cms.CMS, cityItem *CityItem, allFeatureItems map[string]FeatureItem) (string, string, error) {
 	// return "", "", nil // TODO: remove this line
-	tmpPath := "tmp/"
-	outPath := tmpPath + "udx/"
 
-	err := mkDir(outPath)
-	if err != nil {
-		return "", "", err
-	}
+	tmpPath := filepath.Join("tmp", cityItem.CityCode+"_citygml")
+	outPath := filepath.Join(tmpPath, "udx")
+	_ = os.MkdirAll(outPath, os.ModePerm)
 
-	zipFileName := "citygml.zip"
-	zipFilePath := tmpPath + zipFileName
+	zipFileName := "citygml.zip" // TODO: generate random name
+	zipFilePath := filepath.Join(tmpPath, zipFileName)
 
 	for _, ft := range featureTypes {
-		if fi, ok := allFeatureItems[ft]; ok {
-			if fi.CityGML == "" {
-				continue
-			}
+		fi, ok := allFeatureItems[ft]
+		if !ok || fi.CityGML == "" {
+			continue
+		}
 
-			log.Printf("downloading citygml for %s...", ft)
+		log.Infofc(ctx, "downloading citygml for %s...", ft)
 
-			downloadPath := tmpPath + ft + ".zip"
-			if err := downloadFile(downloadPath, fi.CityGML); err != nil {
-				log.Printf("failed to download citygml for %s: %s", ft, err)
-				return "", "", err
-			}
+		data, err := downloadFile(ctx, fi.CityGML)
+		if err != nil {
+			return "", "", fmt.Errorf("failed to download citygml for %s: %w", ft, err)
+		}
 
-			if err := unzip(downloadPath, tmpPath); err != nil {
-				log.Printf("failed to unzip citygml for %s: %s", ft, err)
-				return "", "", err
-			}
-
-			if err := moveDir(tmpPath+ft, outPath+ft); err != nil {
-				log.Printf("failed to move citygml for %s: %s", ft, err)
-				return "", "", err
-			}
-
-			os.Remove(downloadPath)
-
-			log.Printf("getting citygml for %s...", ft)
+		if err := unzip(ctx, data, outPath); err != nil {
+			return "", "", fmt.Errorf("failed to unzip citygml for %s: %w", ft, err)
 		}
 	}
 
-	if err := zipDir(outPath, zipFilePath, "udx/"); err != nil {
-		log.Printf("failed to zip citygml: %s", err)
+	if err := zipDir(ctx, outPath, zipFilePath, "udx"); err != nil {
+		log.Infofc(ctx, "failed to zip citygml: %s", err)
 		return "", "", err
 	}
-
-	os.RemoveAll(outPath)
 
 	return "", "", nil
 }
 
-func mkDir(dirPath string) error {
+func downloadFile(ctx context.Context, url string) (*bytes.Reader, error) {
+	log.Infofc(ctx, "downloading %s...", url)
 
-	fileInfo, err := os.Lstat("./")
-
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	fileMode := fileInfo.Mode()
-	unixPerms := fileMode & os.ModePerm
-
-	if err := os.MkdirAll(dirPath, unixPerms); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func downloadFile(filePath string, url string) error {
-	log.Printf("downloading %s...", url)
-	resp, err := http.Get(url)
+	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
-		return err
+		return nil, err
 	}
+
 	defer resp.Body.Close()
 
-	out, err := os.Create(filePath)
-	if err != nil {
-		return err
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("failed to download %s: %s", url, resp.Status)
 	}
-	defer out.Close()
 
-	_, err = io.Copy(out, resp.Body)
+	b := &bytes.Buffer{}
+	_, err = io.Copy(b, resp.Body)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	return nil
+
+	return bytes.NewReader(b.Bytes()), nil
 }
 
-func unzip(zipFile, targetDir string) error {
+func unzip(ctx context.Context, zipFile *bytes.Reader, targetDir string) error {
 	// Open the zip archive for reading.
-	r, err := zip.OpenReader(zipFile)
+	r, err := zip.NewReader(zipFile, int64(zipFile.Len()))
 	if err != nil {
 		return fmt.Errorf("failed to open zip file: %v", err)
 	}
-	defer r.Close()
+
 	// Iterate through the files in the archive.
 	for _, f := range r.File {
 		// Determine the file path ensuring it's within targetDir.
 		filePath := filepath.Join(targetDir, f.Name)
 		filePath = strings.TrimSuffix(filePath, `\`)
 		filePath = strings.ReplaceAll(filePath, `\`, `/`)
+
 		if !strings.HasPrefix(filePath, filepath.Clean(targetDir)+string(os.PathSeparator)) {
 			return fmt.Errorf("invalid file path: %s", filePath)
 		}
+
 		// If it's a directory, create it.
 		if f.FileInfo().IsDir() {
-			log.Printf("creating dir %s...", f.Name)
+			log.Infofc(ctx, "creating dir %s...", f.Name)
 			if err := os.MkdirAll(filePath, os.ModePerm); err != nil {
 				return fmt.Errorf("failed to create dir: %v", err)
 			}
@@ -134,36 +109,44 @@ func unzip(zipFile, targetDir string) error {
 		if err := os.MkdirAll(filepath.Dir(filePath), os.ModePerm); err != nil {
 			return fmt.Errorf("failed to create dir: %v", err)
 		}
+
 		// Create the file.
 		destFile, err := os.OpenFile(filePath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, f.Mode())
 		if err != nil {
 			return fmt.Errorf("failed to create file: %v", err)
 		}
+
+		log.Infofc(ctx, "unzipping %s -> %s", f.Name, filePath)
+
 		// Open the file within the zip archive for reading.
 		srcFile, err := f.Open()
 		if err != nil {
-			destFile.Close()
+			_ = destFile.Close()
 			return fmt.Errorf("failed to open file in zip: %v", err)
 		}
+
 		// Copy the file contents from the zip archive to the new file.
 		if _, err := io.Copy(destFile, srcFile); err != nil {
-			destFile.Close()
-			srcFile.Close()
-			return fmt.Errorf("failed to copy file contents: %v", err)
+			_ = destFile.Close()
+			_ = srcFile.Close()
+			log.Errorfc(ctx, "failed to copy file contents: %v", err)
+			continue
+			// return fmt.Errorf("failed to copy file contents: %v", err)
 		}
+
 		// Close the file descriptors.
-		destFile.Close()
-		srcFile.Close()
+		_ = destFile.Close()
+		_ = srcFile.Close()
 	}
 	return nil
 }
 
-func zipDir(srcDir string, destZip string, contentBaseDir string) error {
-	log.Printf("zipping %s to %s...", srcDir, destZip)
+func zipDir(ctx context.Context, srcDir string, destZip string, contentBaseDir string) error {
+	log.Infofc(ctx, "zipping %s to %s...", srcDir, destZip)
+
 	file, err := os.Create(destZip)
 	if err != nil {
-		log.Printf("failed to create zip file: %s", err)
-		return err
+		return fmt.Errorf("failed to create zip file: %v", err)
 	}
 	defer file.Close()
 
@@ -174,16 +157,17 @@ func zipDir(srcDir string, destZip string, contentBaseDir string) error {
 		if err != nil {
 			return err
 		}
+
 		if info.IsDir() {
 			return nil
 		}
-		file, err := os.Open(path)
 
+		file, err := os.Open(path)
 		if err != nil {
 			return err
 		}
-		defer file.Close()
 
+		defer file.Close()
 		path = strings.TrimPrefix(path, srcDir)
 
 		f, err := w.Create(contentBaseDir + path)
@@ -191,27 +175,15 @@ func zipDir(srcDir string, destZip string, contentBaseDir string) error {
 			return err
 		}
 
-		_, err = io.Copy(f, file)
-		if err != nil {
+		if _, err := io.Copy(f, file); err != nil {
 			return err
 		}
 
 		return nil
 	}
-	err = filepath.Walk(srcDir, walker)
-	if err != nil {
-		log.Printf("failed to walk: %s", err)
-		return err
-	}
 
-	return nil
-}
-
-func moveDir(src string, dest string) error {
-	log.Printf("moving %s to %s...", src, dest)
-
-	if err := os.Rename(src, dest); err != nil {
-		return err
+	if err := filepath.Walk(srcDir, walker); err != nil {
+		return fmt.Errorf("failed to walk dir: %v", err)
 	}
 
 	return nil
