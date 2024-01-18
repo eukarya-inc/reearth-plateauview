@@ -41,11 +41,14 @@ jobs:
           PUBLISH_PATH: reearth-web/published.html
           APP_NAME: PLATEAU VIEW(Ver2.0)
         run: |
-          SOURCE=$(cat $APP_PATH)
-          SOURCE=${SOURCE/\/static\/favicon*.ico/$PLATEAU_FAVICON}
-          SOURCE=${SOURCE/\<title\>*\<\/title\>/<title>$APP_NAME</title>}
-          echo $SOURCE > $APP_PATH
-          echo $SOURCE > $PUBLISH_PATH
+          APP_SOURCE=$(cat $APP_PATH)
+          APP_SOURCE=${APP_SOURCE/\/static\/favicon*.ico/$PLATEAU_FAVICON}
+          APP_SOURCE=${APP_SOURCE/\<title\>*\<\/title\>/<title>$APP_NAME</title>}
+          PUBLISH_SOURCE=$(cat $PUBLISH_PATH)
+          PUBLISH_SOURCE=${PUBLISH_SOURCE/\/static\/favicon*.ico/$PLATEAU_FAVICON}
+          PUBLISH_SOURCE=${PUBLISH_SOURCE/\<title\>*\<\/title\>/<title>$APP_NAME</title>}
+          echo $APP_SOURCE > $APP_PATH
+          echo $PUBLISH_SOURCE > $PUBLISH_PATH
       - name: Deploy
         run: gsutil -m -h "Cache-Control:no-store" rsync -x "^cloud/.*$|^reearth_config\\.json$|^extension/.*$" -dr reearth-web/ ${{ env.GCS_DEST }}
       - name: Pack web
