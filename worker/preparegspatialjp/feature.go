@@ -8,9 +8,9 @@ import (
 )
 
 type FeatureItem struct {
-	ID      string `json:"id,omitempty" cms:"id"`
-	CityGML string `json:"citygml,omitempty" cms:"-"`
-	Data    string `json:"data,omitempty" cms:"-"`
+	ID      string   `json:"id,omitempty"`
+	CityGML string   `json:"citygml,omitempty"`
+	Data    []string `json:"data,omitempty"`
 }
 
 func getAllFeatureItems(ctx context.Context, c *cms.CMS, cityItem *CityItem) (map[string]FeatureItem, error) {
@@ -33,26 +33,53 @@ func getAllFeatureItems(ctx context.Context, c *cms.CMS, cityItem *CityItem) (ma
 }
 
 func FeatureItemFrom(item *cms.Item) FeatureItem {
-	fi := FeatureItem{}
+	res := FeatureItem{}
+
+	type internalGroup struct {
+		Data []any `cms:"data"`
+	}
+
+	type internalItem struct {
+		ID      string          `cms:"id"`
+		CityGML any             `cms:"citygml"`
+		Data    []any           `cms:"data"`
+		Items   []internalGroup `cms:"items,group"`
+	}
+
+	fi := internalItem{}
 	item.Unmarshal(&fi)
 
-	field := item.FieldByKey("citygml")
-	if field != nil {
-		asset, ok := field.Value.(map[string]any)
+	res.ID = fi.ID
+
+	if fi.CityGML != nil {
+		asset, ok := fi.CityGML.(map[string]any)
 		if ok {
 			url, _ := asset["url"].(string)
-			fi.CityGML = url
+			res.CityGML = url
 		}
 	}
 
-	field = item.FieldByKey("data")
-	if field != nil {
-		asset, ok := field.Value.(map[string]any)
-		if ok {
-			url, _ := asset["url"].(string)
-			fi.Data = url
+	if fi.Data != nil {
+		for _, d := range fi.Data {
+			asset, ok := d.(map[string]any)
+			if ok {
+				url, _ := asset["url"].(string)
+				res.Data = append(res.Data, url)
+			}
 		}
 	}
 
-	return fi
+	if fi.Items != nil {
+		for _, item := range fi.Items {
+			for _, d := range item.Data {
+				asset, ok := d.(map[string]any)
+				if ok {
+					url, _ := asset["url"].(string)
+					res.Data = append(res.Data, url)
+				}
+			}
+		}
+	}
+
+	return res
 }
