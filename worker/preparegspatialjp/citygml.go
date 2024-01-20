@@ -1,15 +1,10 @@
 package preparegspatialjp
 
 import (
-	"archive/zip"
-	"bytes"
 	"context"
 	"fmt"
-	"io"
-	"net/http"
 	"os"
 	"path/filepath"
-	"strings"
 
 	cms "github.com/reearth/reearth-cms-api/go"
 	"github.com/reearth/reearthx/log"
@@ -17,13 +12,31 @@ import (
 
 func PrepareCityGML(ctx context.Context, cms *cms.CMS, cityItem *CityItem, allFeatureItems map[string]FeatureItem) (string, string, error) {
 	// return "", "", nil // TODO: remove this line
+	tmpDir := "tmp"
+	downloadPath := filepath.Join(tmpDir, cityItem.CityCode+"_citygml")
+	_ = os.MkdirAll(downloadPath, os.ModePerm)
 
-	tmpPath := filepath.Join("tmp", cityItem.CityCode+"_citygml")
-	outPath := filepath.Join(tmpPath, "udx")
+	zipFileName := cityItem.CityCode + "_" + cityItem.CityNameEn + "_city_2023_citygml_1_op.zip"
+	zipFilePath := filepath.Join(tmpDir, zipFileName)
+
+	if err := getAssets(ctx, cms, cityItem, downloadPath); err != nil {
+		return "", "", fmt.Errorf("failed to get assets: %w", err)
+	}
+
+	if err := getUdx(ctx, allFeatureItems, downloadPath); err != nil {
+		return "", "", fmt.Errorf("failed to get udx: %w", err)
+	}
+
+	if err := ZipDir(ctx, downloadPath, zipFilePath); err != nil {
+		return "", "", fmt.Errorf("failed to zip citygml: %w", err)
+	}
+
+	return zipFileName, zipFilePath, nil
+}
+
+func getUdx(ctx context.Context, allFeatureItems map[string]FeatureItem, downloadPath string) error {
+	outPath := filepath.Join(downloadPath, "udx")
 	_ = os.MkdirAll(outPath, os.ModePerm)
-
-	zipFileName := "citygml.zip" // TODO: generate random name
-	zipFilePath := filepath.Join(tmpPath, zipFileName)
 
 	for _, ft := range featureTypes {
 		fi, ok := allFeatureItems[ft]
@@ -33,157 +46,112 @@ func PrepareCityGML(ctx context.Context, cms *cms.CMS, cityItem *CityItem, allFe
 
 		log.Infofc(ctx, "downloading citygml for %s...", ft)
 
-		data, err := downloadFile(ctx, fi.CityGML)
+		data, err := DownloadFile(ctx, fi.CityGML)
 		if err != nil {
-			return "", "", fmt.Errorf("failed to download citygml for %s: %w", ft, err)
+			return fmt.Errorf("failed to download citygml for %s: %w", ft, err)
 		}
 
-		if err := unzip(ctx, data, outPath); err != nil {
-			return "", "", fmt.Errorf("failed to unzip citygml for %s: %w", ft, err)
+		if err := Unzip(ctx, data, outPath, ""); err != nil {
+			return fmt.Errorf("failed to unzip citygml for %s: %w", ft, err)
 		}
-	}
-
-	if err := zipDir(ctx, outPath, zipFilePath, "udx"); err != nil {
-		log.Infofc(ctx, "failed to zip citygml: %s", err)
-		return "", "", err
-	}
-
-	return "", "", nil
-}
-
-func downloadFile(ctx context.Context, url string) (*bytes.Reader, error) {
-	log.Infofc(ctx, "downloading %s...", url)
-
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
-	if err != nil {
-		return nil, err
-	}
-
-	resp, err := http.DefaultClient.Do(req)
-	if err != nil {
-		return nil, err
-	}
-
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("failed to download %s: %s", url, resp.Status)
-	}
-
-	b := &bytes.Buffer{}
-	_, err = io.Copy(b, resp.Body)
-	if err != nil {
-		return nil, err
-	}
-
-	return bytes.NewReader(b.Bytes()), nil
-}
-
-func unzip(ctx context.Context, zipFile *bytes.Reader, targetDir string) error {
-	// Open the zip archive for reading.
-	r, err := zip.NewReader(zipFile, int64(zipFile.Len()))
-	if err != nil {
-		return fmt.Errorf("failed to open zip file: %v", err)
-	}
-
-	// Iterate through the files in the archive.
-	for _, f := range r.File {
-		// Determine the file path ensuring it's within targetDir.
-		filePath := filepath.Join(targetDir, f.Name)
-		filePath = strings.TrimSuffix(filePath, `\`)
-		filePath = strings.ReplaceAll(filePath, `\`, `/`)
-
-		if !strings.HasPrefix(filePath, filepath.Clean(targetDir)+string(os.PathSeparator)) {
-			return fmt.Errorf("invalid file path: %s", filePath)
-		}
-
-		// If it's a directory, create it.
-		if f.FileInfo().IsDir() {
-			log.Infofc(ctx, "creating dir %s...", f.Name)
-			if err := os.MkdirAll(filePath, os.ModePerm); err != nil {
-				return fmt.Errorf("failed to create dir: %v", err)
-			}
-			continue
-		}
-		// Create the enclosing directory if needed.
-		if err := os.MkdirAll(filepath.Dir(filePath), os.ModePerm); err != nil {
-			return fmt.Errorf("failed to create dir: %v", err)
-		}
-
-		// Create the file.
-		destFile, err := os.OpenFile(filePath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, f.Mode())
-		if err != nil {
-			return fmt.Errorf("failed to create file: %v", err)
-		}
-
-		log.Infofc(ctx, "unzipping %s -> %s", f.Name, filePath)
-
-		// Open the file within the zip archive for reading.
-		srcFile, err := f.Open()
-		if err != nil {
-			_ = destFile.Close()
-			return fmt.Errorf("failed to open file in zip: %v", err)
-		}
-
-		// Copy the file contents from the zip archive to the new file.
-		if _, err := io.Copy(destFile, srcFile); err != nil {
-			_ = destFile.Close()
-			_ = srcFile.Close()
-			log.Errorfc(ctx, "failed to copy file contents: %v", err)
-			continue
-			// return fmt.Errorf("failed to copy file contents: %v", err)
-		}
-
-		// Close the file descriptors.
-		_ = destFile.Close()
-		_ = srcFile.Close()
 	}
 	return nil
 }
 
-func zipDir(ctx context.Context, srcDir string, destZip string, contentBaseDir string) error {
-	log.Infofc(ctx, "zipping %s to %s...", srcDir, destZip)
+func getAssets(ctx context.Context, cms *cms.CMS, cityItem *CityItem, downloadPath string) error {
+	codeLists := cityItem.CodeLists
+	if codeLists != "" {
+		log.Infofc(ctx, "downloading codeLists: %s...", codeLists)
 
-	file, err := os.Create(destZip)
-	if err != nil {
-		return fmt.Errorf("failed to create zip file: %v", err)
-	}
-	defer file.Close()
-
-	w := zip.NewWriter(file)
-	defer w.Close()
-
-	walker := func(path string, info os.FileInfo, err error) error {
+		assets, err := cms.Asset(ctx, codeLists)
 		if err != nil {
-			return err
+			return fmt.Errorf("failed to get assets codeLists: %w", err)
 		}
 
-		if info.IsDir() {
-			return nil
-		}
-
-		file, err := os.Open(path)
+		data, err := DownloadFile(ctx, assets.URL)
 		if err != nil {
-			return err
+			return fmt.Errorf("failed to download assets codeLists: %w", err)
 		}
 
-		defer file.Close()
-		path = strings.TrimPrefix(path, srcDir)
-
-		f, err := w.Create(contentBaseDir + path)
-		if err != nil {
-			return err
+		if err := Unzip(ctx, data, downloadPath, ""); err != nil {
+			return fmt.Errorf("failed to unzip assets codeLists: %w", err)
 		}
-
-		if _, err := io.Copy(f, file); err != nil {
-			return err
-		}
-
-		return nil
 	}
 
-	if err := filepath.Walk(srcDir, walker); err != nil {
-		return fmt.Errorf("failed to walk dir: %v", err)
+	schemas := cityItem.Schemas
+	if schemas != "" {
+		log.Infofc(ctx, "downloading schemas: %s...", schemas)
+
+		assets, err := cms.Asset(ctx, schemas)
+		if err != nil {
+			return fmt.Errorf("failed to get assets schemas: %w", err)
+		}
+
+		data, err := DownloadFile(ctx, assets.URL)
+		if err != nil {
+			return fmt.Errorf("failed to download assets schemas: %w", err)
+		}
+
+		if err := Unzip(ctx, data, downloadPath, ""); err != nil {
+			return fmt.Errorf("failed to unzip assets schemas: %w", err)
+		}
+	}
+
+	metadata := cityItem.Metadata
+	if metadata != "" {
+		log.Infofc(ctx, "downloading metadata: %s...", metadata)
+
+		assets, err := cms.Asset(ctx, metadata)
+		if err != nil {
+			return fmt.Errorf("failed to get assets metadata: %w", err)
+		}
+
+		data, err := DownloadFile(ctx, assets.URL)
+		if err != nil {
+			return fmt.Errorf("failed to download assets metadata: %w", err)
+		}
+
+		if err := Unzip(ctx, data, downloadPath, ""); err != nil {
+			return fmt.Errorf("failed to unzip assets metadata: %w", err)
+		}
+	}
+
+	specification := cityItem.Specification
+	if specification != "" {
+		log.Infofc(ctx, "downloading specification: %s...", specification)
+
+		assets, err := cms.Asset(ctx, specification)
+		if err != nil {
+			return fmt.Errorf("failed to get assets specification: %w", err)
+		}
+
+		data, err := DownloadFile(ctx, assets.URL)
+		if err != nil {
+			return fmt.Errorf("failed to download assets specification: %w", err)
+		}
+
+		if err := Unzip(ctx, data, downloadPath, ""); err != nil {
+			return fmt.Errorf("failed to unzip assets specification: %w", err)
+		}
+	}
+
+	misc := cityItem.Misc
+	if misc != "" {
+		log.Infofc(ctx, "downloading misc: %s...", misc)
+
+		assets, err := cms.Asset(ctx, misc)
+		if err != nil {
+			return fmt.Errorf("failed to get assets misc: %w", err)
+		}
+
+		data, err := DownloadFile(ctx, assets.URL)
+		if err != nil {
+			return fmt.Errorf("failed to download assets misc: %w", err)
+		}
+
+		if err := Unzip(ctx, data, downloadPath, "misc"); err != nil {
+			return fmt.Errorf("failed to unzip assets misc: %w", err)
+		}
 	}
 
 	return nil

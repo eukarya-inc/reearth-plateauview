@@ -60,27 +60,56 @@ func Command(conf *Config) error {
 
 	log.Infofc(ctx, "preparing citygml and plateau...")
 
-	citygmlZipName, citygmlZipPath, err := PrepareCityGML(ctx, cms, cityItem, allFeatureItems)
+	type result struct {
+		zipName string
+		zipPath string
+		err     error
+	}
+
+	citygmlCh := make(chan result)
+	plateauCh := make(chan result)
+
+	go func(c chan result) {
+		citygmlZipName, citygmlZipPath, err := PrepareCityGML(ctx, cms, cityItem, allFeatureItems)
+		c <- result{
+			zipName: citygmlZipName,
+			zipPath: citygmlZipPath,
+			err:     err,
+		}
+	}(citygmlCh)
+
+	go func(c chan result) {
+		plateauZipName, plateauZipPath, err := PreparePlateau(ctx, cms, cityItem, allFeatureItems)
+		c <- result{
+			zipName: plateauZipName,
+			zipPath: plateauZipPath,
+			err:     err,
+		}
+	}(plateauCh)
+
+	citygmlResult := <-citygmlCh
+	citygmlZipPath, citygmlZipName, err := citygmlResult.zipPath, citygmlResult.zipName, citygmlResult.err
 	if err != nil {
 		return fmt.Errorf("failed to prepare citygml: %w", err)
 	}
 
-	log.Infofc(ctx, "preparing plateau...")
-
-	plateauZipName, plateauZipPath, err := PreparePlateau(ctx, cms, cityItem, allFeatureItems)
+	plateauResult := <-plateauCh
+	plateauZipPath, plateauZipName, err := plateauResult.zipPath, plateauResult.zipName, plateauResult.err
 	if err != nil {
 		return fmt.Errorf("failed to prepare plateau: %w", err)
 	}
 
 	var citygmlZipAssetID, plateauZipAssetID string
 
-	if citygmlZipAssetID != "" {
+	log.Infofc(ctx, "uploading zips...")
+
+	if conf.WetRun {
 		if citygmlZipAssetID, err = uploadZip(ctx, cms, conf.ProjectID, citygmlZipName, citygmlZipPath); err != nil {
 			return fmt.Errorf("failed to upload citygml zip: %w", err)
 		}
 	}
 
-	if plateauZipAssetID != "" {
+	if conf.WetRun {
 		if plateauZipAssetID, err = uploadZip(ctx, cms, conf.ProjectID, plateauZipName, plateauZipPath); err != nil {
 			return fmt.Errorf("failed to upload plateau zip: %w", err)
 		}
