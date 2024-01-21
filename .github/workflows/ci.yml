@@ -60,6 +60,7 @@ jobs:
       - ci-plugin
       - ci-server
       - ci-tools
+      # - ci-worker //TODO: implement
     if: '!failure()'
     steps:
       - run: echo OK
@@ -67,6 +68,10 @@ jobs:
     needs: ci-server
     if: ${{ success() && github.event_name == 'push' && github.ref_name == 'main' }}
     uses: ./.github/workflows/build-server.yml
+  build-worker:
+    # needs: ci-worker
+    if: ${{ success() && github.event_name == 'push' && github.ref_name == 'geospatialjpv3' }}
+    uses: ./.github/workflows/build-worker.yml
   ci-collect-info:
     name: Collect information
     needs: ci
