@@ -39,7 +39,7 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           workflow: ci.yml
           workflow_conclusion: success
-          branch: main
+          branch: geospatialjpv3
           name: plateauview-api-worker
           check_artifacts: true
       - name: Unpack docker image
