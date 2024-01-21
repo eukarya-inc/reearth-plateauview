@@ -27,3 +27,11 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
           push: false
+      - name: Save docker image
+        run: docker save ${{ env.IMAGE_NAME }} | gzip > plateauview-api-worker.tar.gz
+      - name: Save imaged to artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: plateauview-api-worker
+          path: plateauview-api-worker.tar.gz
+          if-no-files-found: error
