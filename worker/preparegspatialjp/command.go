@@ -18,7 +18,7 @@ type Config struct {
 	WetRun     bool
 }
 
-func Command(conf *Config) error {
+func Command(conf *Config) (err error) {
 	ctx := context.Background()
 
 	cms, err := cms.New(conf.CMSURL, conf.CMSToken)
@@ -44,10 +44,19 @@ func Command(conf *Config) error {
 	cityName := cityItem.CityName
 	log.Infofc(ctx, "city name: %s", cityName)
 
+	var citygmlError, plateauError bool
+	defer func() {
+		if err := notifyError(ctx, cms, cityItem.GeospatialjpData, citygmlError, plateauError, err.Error()); err != nil {
+			log.Errorfc(ctx, "failed to notify error: %w", err)
+		}
+	}()
+
 	log.Infofc(ctx, "getting all feature items...")
 
 	allFeatureItems, err := getAllFeatureItems(ctx, cms, cityItem)
 	if err != nil {
+		citygmlError = true
+		plateauError = true
 		return fmt.Errorf("failed to get all feature items: %w", err)
 	}
 
@@ -68,6 +77,10 @@ func Command(conf *Config) error {
 
 	citygmlCh := make(chan result)
 	plateauCh := make(chan result)
+
+	if err := notifyRunning(ctx, cms, cityItem.GeospatialjpData, true, true); err != nil {
+		return fmt.Errorf("failed to notify running: %w", err)
+	}
 
 	go func(c chan result) {
 		citygmlZipName, citygmlZipPath, err := PrepareCityGML(ctx, cms, cityItem, allFeatureItems)
@@ -90,12 +103,14 @@ func Command(conf *Config) error {
 	citygmlResult := <-citygmlCh
 	citygmlZipPath, citygmlZipName, err := citygmlResult.zipPath, citygmlResult.zipName, citygmlResult.err
 	if err != nil {
+		citygmlError = true
 		return fmt.Errorf("failed to prepare citygml: %w", err)
 	}
 
 	plateauResult := <-plateauCh
 	plateauZipPath, plateauZipName, err := plateauResult.zipPath, plateauResult.zipName, plateauResult.err
 	if err != nil {
+		plateauError = true
 		return fmt.Errorf("failed to prepare plateau: %w", err)
 	}
 
@@ -103,7 +118,7 @@ func Command(conf *Config) error {
 
 	relatedZipAssetID, err := GetRelatedZipAssetID(ctx, cms, cityItem)
 	if err != nil {
-		return fmt.Errorf("failed to get related zip asset id: %w", err)
+		log.Errorfc(ctx, "failed to get related zip asset id: %w", err)
 	}
 
 	if conf.WetRun {
@@ -169,31 +184,123 @@ func attachAssets(ctx context.Context, c *cms.CMS, cityItem *CityItem, citygmlZi
 		return nil
 	}
 
-	var fields []*cms.Field
+	item := GspatialjpItem{
+		ID: cityItem.GeospatialjpData,
+	}
 
 	if citygmlZipAssetID != "" {
-		fields = append(fields, &cms.Field{
-			Key:   "citygml",
-			Value: citygmlZipAssetID,
-		})
+		item.CityGML = citygmlZipAssetID
+		item.MergeCityGMLStatus = &cms.Tag{
+			Name: "成功",
+		}
 	}
 
 	if plateauZipAssetID != "" {
-		fields = append(fields, &cms.Field{
-			Key:   "plateau",
-			Value: plateauZipAssetID,
-		})
+		item.Plateau = plateauZipAssetID
+		item.MergePlateauStatus = &cms.Tag{
+			Name: "成功",
+		}
 	}
 
 	if relatedZipAssetID != "" {
-		fields = append(fields, &cms.Field{
-			Key:   "related",
-			Value: relatedZipAssetID,
-		})
+		item.Related = plateauZipAssetID
+		item.MergeRelatedStatus = &cms.Tag{
+			Name: "成功",
+		}
 	}
 
-	if _, err := c.UpdateItem(ctx, cityItem.GeospatialjpData, fields, nil); err != nil {
+	if relatedZipAssetID != "" {
+		item.Related = relatedZipAssetID
+	}
+
+	var rawItem *cms.Item
+	cms.Marshal(item, rawItem)
+
+	if _, err := c.UpdateItem(ctx, rawItem.ID, rawItem.Fields, rawItem.MetadataFields); err != nil {
 		return fmt.Errorf("failed to update item: %w", err)
+	}
+	if err := c.CommentToItem(ctx, cityItem.GeospatialjpData, "マージ処理が完了しました。"); err != nil {
+		return fmt.Errorf("failed to comment to item: %w", err)
+	}
+
+	return nil
+}
+
+func notifyError(ctx context.Context, c *cms.CMS, cityItemID string, citygmlError, plateauError bool, comment string) error {
+	if comment != "" {
+		if err := c.CommentToItem(ctx, cityItemID, fmt.Sprintf("マージ処理に失敗しました。%s", comment)); err != nil {
+			return fmt.Errorf("failed to comment to item: %w", err)
+		}
+	}
+
+	if !citygmlError && !plateauError {
+		return nil
+	}
+
+	item := GspatialjpItem{
+		ID: cityItemID,
+	}
+
+	if citygmlError {
+		item.MergeCityGMLStatus = &cms.Tag{
+			Name: "エラー",
+		}
+	} else {
+		item.MergeCityGMLStatus = &cms.Tag{
+			Name: "未実行",
+		}
+	}
+
+	if plateauError {
+		item.MergePlateauStatus = &cms.Tag{
+			Name: "エラー",
+		}
+	} else {
+		item.MergePlateauStatus = &cms.Tag{
+			Name: "未実行",
+		}
+	}
+
+	var rawItem *cms.Item
+	cms.Marshal(item, rawItem)
+
+	if _, err := c.UpdateItem(ctx, rawItem.ID, rawItem.Fields, rawItem.MetadataFields); err != nil {
+		return fmt.Errorf("failed to update item: %w", err)
+	}
+
+	return nil
+}
+
+func notifyRunning(ctx context.Context, c *cms.CMS, cityItemID string, citygmlRunning, plateauRunning bool) error {
+	if !citygmlRunning && !plateauRunning {
+		return nil
+	}
+
+	item := GspatialjpItem{
+		ID: cityItemID,
+	}
+
+	if citygmlRunning {
+		item.MergeCityGMLStatus = &cms.Tag{
+			Name: "実行中",
+		}
+	}
+
+	if plateauRunning {
+		item.MergePlateauStatus = &cms.Tag{
+			Name: "実行中",
+		}
+	}
+
+	var rawItem *cms.Item
+	cms.Marshal(item, rawItem)
+
+	if _, err := c.UpdateItem(ctx, rawItem.ID, rawItem.Fields, rawItem.MetadataFields); err != nil {
+		return fmt.Errorf("failed to update item: %w", err)
+	}
+
+	if err := c.CommentToItem(ctx, rawItem.ID, "マージ処理を開始しました。"); err != nil {
+		return fmt.Errorf("failed to comment to item: %w", err)
 	}
 
 	return nil
