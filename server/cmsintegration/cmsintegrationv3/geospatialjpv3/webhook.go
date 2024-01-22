@@ -32,7 +32,7 @@ func (h *handler) Webhook(conf Config) (cmswebhook.Handler, error) {
 			return nil
 		}
 
-		if w.Type != cmswebhook.EventItemCreate && w.Type != cmswebhook.EventItemUpdate && w.Type != cmswebhook.EventItemPublish {
+		if w.Type != cmswebhook.EventItemUpdate {
 			log.Debugfc(ctx, "geospatialjp webhook: invalid event type: %s", w.Type)
 			return nil
 		}
