@@ -71,7 +71,9 @@ func sendRequestToFME(ctx context.Context, s *Services, conf *Config, w *cmswebh
 		ty = fmeTypeQC
 	}
 
-	log.Infofc(ctx, "cmsintegrationv3: sendRequestToFME: %s", ty)
+	log.Infofc(ctx, "cmsintegrationv3: sendRequestToFME: itemID=%s featureType=%s", mainItem.ID, featureType)
+	log.Debugfc(ctx, "cmsintegrationv3: sendRequestToFME: raw item: %s", ppp.Sprint(mainItem))
+	log.Debugfc(ctx, "cmsintegrationv3: sendRequestToFME: item: %s", ppp.Sprint(item))
 
 	// update convertion status
 	err = s.UpdateFeatureItemStatus(ctx, mainItem.ID, ty, ConvertionStatusRunning)
