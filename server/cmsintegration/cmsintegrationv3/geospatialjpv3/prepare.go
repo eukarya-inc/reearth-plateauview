@@ -10,14 +10,11 @@ import (
 	"github.com/reearth/reearthx/log"
 )
 
-type PrepareConfig struct {
-	gcpProjectID string
-	gcpLocation  string
-	wetRun       bool
-}
+// jobName: "projects/" + gcpProjectID + "/locations/" + gcpLocation + "/jobs/plateauview-api-worker"
 
-func (c *PrepareConfig) RequestPreparing(ctx context.Context, w *cmswebhook.Payload) error {
-	log.Debugfc(ctx, "geospatialjp webhook: RequestPreparing")
+func Prepare(ctx context.Context, w *cmswebhook.Payload, jobName string) error {
+	log.Debugfc(ctx, "geospatialjp webhook: Prepare: %s", jobName)
+
 	client, err := run.NewJobsClient(ctx)
 	if err != nil {
 		log.Debugfc(ctx, "geospatialjp webhook: failed to create run client: %v", err)
@@ -25,32 +22,26 @@ func (c *PrepareConfig) RequestPreparing(ctx context.Context, w *cmswebhook.Payl
 	}
 	defer client.Close()
 
-	const Job = "plateauview-api-worker"
-
-	//TODO: wet run implementation
-
 	overrides := runpb.RunJobRequest_Overrides{
 		ContainerOverrides: []*runpb.RunJobRequest_Overrides_ContainerOverride{
-			{Args: []string{"prepare-gspatialjp", "--city=" + w.ItemData.Item.ID, "--project=" + w.ProjectID()}}}}
+			{Args: []string{
+				"prepare-gspatialjp",
+				"--city=" + w.ItemData.Item.ID,
+				"--project=" + w.ProjectID(),
+				"--wetrun",
+			}},
+		}}
 
 	req := &runpb.RunJobRequest{
-		Name:      "projects/" + c.gcpProjectID + "/locations/" + c.gcpLocation + "/jobs/" + Job,
+		Name:      jobName,
 		Overrides: &overrides,
 	}
 
-	log.Debugfc(ctx, "geospatialjp webhook: run job: %v", req)
-	op, err := client.RunJob(ctx, req)
-	if err != nil {
+	if _, err = client.RunJob(ctx, req); err != nil {
 		log.Debugfc(ctx, "geospatialjp webhook: failed to run job: %v", err)
 		return err
 	}
 
-	//TODO: 実際はwaitする必要無し
-	log.Debugfc(ctx, "geospatialjp webhook: waiting for job to complete")
-	if _, err := op.Wait(ctx); err != nil {
-		log.Debugfc(ctx, "geospatialjp webhook: failed to wait for job: %v", err)
-		return err
-	}
-
+	log.Debugfc(ctx, "geospatialjp webhook: run job: %v", req)
 	return nil
 }

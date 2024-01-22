@@ -52,6 +52,7 @@ type Config struct {
 	Share_Disable                     bool
 	Geospatialjp_Publication_Disable  bool
 	Geospatialjp_CatalocCheck_Disable bool
+	Geospatialjp_JobName              string
 	DataConv_Disable                  bool
 	Indexer_Delegate                  bool
 	DataCatalog_DisableCache          bool
@@ -104,6 +105,7 @@ func (c *Config) CMSIntegration() cmsintegration.Config {
 		DisableGeospatialjpCatalogCheck: c.Geospatialjp_CatalocCheck_Disable,
 		DisableDataConv:                 c.DataConv_Disable,
 		APIToken:                        c.Sidebar_Token,
+		GeospatialjpJobName:             c.Geospatialjp_JobName,
 	}
 }
 

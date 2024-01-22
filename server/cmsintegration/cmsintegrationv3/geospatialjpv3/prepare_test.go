@@ -6,28 +6,24 @@ import (
 
 	cms "github.com/reearth/reearth-cms-api/go"
 	"github.com/reearth/reearth-cms-api/go/cmswebhook"
-	"github.com/reearth/reearthx/log"
+	"github.com/stretchr/testify/assert"
 )
 
+const jobName = "projects/xxxxx/locations/xxxxx/jobs/plateauview-api-worker"
+const itemID = ""
+const projectID = ""
+
 func TestPrepare_RequestZip(t *testing.T) {
-	// t.Skip()
+	t.Skip()
 
 	ctx := context.Background()
-
-	c := PrepareConfig{
-		gcpProjectID: "reearth-plateau-dev",
-		gcpLocation:  "asia-northeast1",
-	}
-
 	w := &cmswebhook.Payload{
 		ItemData: &cmswebhook.ItemData{
-			Item:   &cms.Item{ID: ""},
-			Schema: &cms.Schema{ProjectID: ""},
+			Item:   &cms.Item{ID: itemID},
+			Schema: &cms.Schema{ProjectID: projectID},
 		},
 	}
 
-	log.Debugfc(ctx, "geospatialjp webhook: RequestPreparing")
-
-	_ = c.RequestPreparing(ctx, w)
-
+	err := Prepare(ctx, w, jobName)
+	assert.NoError(t, err)
 }

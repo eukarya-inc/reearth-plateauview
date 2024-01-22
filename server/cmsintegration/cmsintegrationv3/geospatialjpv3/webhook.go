@@ -7,16 +7,36 @@ import (
 	cms "github.com/reearth/reearth-cms-api/go"
 	"github.com/reearth/reearth-cms-api/go/cmswebhook"
 	"github.com/reearth/reearthx/log"
+	"github.com/samber/lo"
 )
 
 const (
 	modelKey = "plateau"
 )
 
+func WebhookHandler(conf Config) (cmswebhook.Handler, error) {
+	c, err := cms.New(conf.CMSBase, conf.CMSToken)
+	if err != nil {
+		return nil, err
+	}
+
+	ck, err := ckan.New(conf.CkanBase, conf.CkanToken)
+	if err != nil {
+		return nil, err
+	}
+
+	return (&handler{
+		cms:  c,
+		ckan: ck,
+	}).Webhook(conf)
+}
+
 type handler struct {
 	cms  cms.Interface
 	ckan ckan.Interface
 }
+
+const prepareFieldKey = "geospatialjp_prepare"
 
 func (h *handler) Webhook(conf Config) (cmswebhook.Handler, error) {
 	return func(req *http.Request, w *cmswebhook.Payload) error {
@@ -48,11 +68,28 @@ func (h *handler) Webhook(conf Config) (cmswebhook.Handler, error) {
 		}
 
 		log.Debugfc(ctx, "geospatialjp webhook")
-		// TODO prepare data (start async job)
+
+		// prepare
+		if prepareField := w.ItemData.Item.MetadataFieldByKey(prepareFieldKey); prepareField != nil {
+			changed, ok := lo.Find(w.ItemData.Changes, func(c cms.FieldChange) bool {
+				return c.ID == prepareField.ID
+			})
+
+			if ok && lo.FromPtr(changed.GetCurrentValue().Bool()) {
+				if err := Prepare(ctx, w, conf.JobName); err != nil {
+					return err
+				}
+			} else {
+				log.Debugfc(ctx, "geospatialjp webhook: prepare field not changed or not true")
+			}
+		} else {
+			log.Debugfc(ctx, "geospatialjp webhook: prepare field not found")
+		}
 
 		// TODO: create resources to ckan and publish
 
-		// TODO: make resources private
+		// TODO: make resources private when unpublished
+
 		return nil
 	}, nil
 }

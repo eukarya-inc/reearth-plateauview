@@ -12,4 +12,5 @@ type Config struct {
 	DisableCatalogCheck       bool
 	EnablePulicationOnWebhook bool
 	PublicationToken          string
+	JobName                   string
 }
