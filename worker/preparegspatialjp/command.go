@@ -101,35 +101,39 @@ func Command(conf *Config) error {
 
 	var citygmlZipAssetID, plateauZipAssetID string
 
-	log.Infofc(ctx, "uploading zips...")
-
-	if conf.WetRun {
-		if citygmlZipAssetID, err = uploadZip(ctx, cms, conf.ProjectID, citygmlZipName, citygmlZipPath); err != nil {
-			return fmt.Errorf("failed to upload citygml zip: %w", err)
-		}
-	}
-
-	if conf.WetRun {
-		if plateauZipAssetID, err = uploadZip(ctx, cms, conf.ProjectID, plateauZipName, plateauZipPath); err != nil {
-			return fmt.Errorf("failed to upload plateau zip: %w", err)
-		}
-	}
-
 	relatedZipAssetID, err := GetRelatedZipAssetID(ctx, cms, cityItem)
 	if err != nil {
 		return fmt.Errorf("failed to get related zip asset id: %w", err)
 	}
 
+	if conf.WetRun {
+		log.Infofc(ctx, "uploading zips...")
+
+		if citygmlZipAssetID, err = uploadZip(ctx, cms, conf.ProjectID, citygmlZipName, citygmlZipPath); err != nil {
+			return fmt.Errorf("failed to upload citygml zip: %w", err)
+		}
+
+		if plateauZipAssetID, err = uploadZip(ctx, cms, conf.ProjectID, plateauZipName, plateauZipPath); err != nil {
+			return fmt.Errorf("failed to upload plateau zip: %w", err)
+		}
+	}
+
 	if citygmlZipAssetID != "" {
 		log.Infofc(ctx, "citygml zip asset id: %s", citygmlZipAssetID)
+	} else {
+		log.Infofc(ctx, "citygml zip asset id: (not uploaded)")
 	}
 
 	if plateauZipAssetID != "" {
 		log.Infofc(ctx, "plateau zip asset id: %s", plateauZipAssetID)
+	} else {
+		log.Infofc(ctx, "plateau zip asset id: (not uploaded)")
 	}
 
 	if relatedZipAssetID != "" {
 		log.Infofc(ctx, "related zip asset id: %s", relatedZipAssetID)
+	} else {
+		log.Infofc(ctx, "related zip asset id: (not uploaded)")
 	}
 
 	if conf.WetRun {

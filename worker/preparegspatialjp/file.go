@@ -96,9 +96,10 @@ func Unzip(ctx context.Context, zipFile *bytes.Reader, targetDir string, trimPat
 		if _, err := io.Copy(destFile, srcFile); err != nil {
 			_ = destFile.Close()
 			_ = srcFile.Close()
-			log.Errorfc(ctx, "failed to copy file contents: %v", err)
-			continue
-			// return fmt.Errorf("failed to copy file contents: %v", err)
+
+			// log.Errorfc(ctx, "failed to copy file contents: %v", err)
+			// continue
+			return fmt.Errorf("failed to copy file contents: %v", err)
 		}
 
 		// Close the file descriptors.
