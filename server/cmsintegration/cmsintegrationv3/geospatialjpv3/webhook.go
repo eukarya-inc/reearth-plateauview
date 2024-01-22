@@ -26,48 +26,51 @@ func WebhookHandler(conf Config) (cmswebhook.Handler, error) {
 	}
 
 	return (&handler{
-		cms:  c,
-		ckan: ck,
+		cms:     c,
+		ckan:    ck,
+		ckanOrg: conf.CkanOrg,
 	}).Webhook(conf)
 }
 
 type handler struct {
-	cms  cms.Interface
-	ckan ckan.Interface
+	cms     cms.Interface
+	ckan    ckan.Interface
+	ckanOrg string
 }
 
 const prepareFieldKey = "geospatialjp_prepare"
+const publishFieldKey = "geospatialjp_publish"
 
 func (h *handler) Webhook(conf Config) (cmswebhook.Handler, error) {
 	return func(req *http.Request, w *cmswebhook.Payload) error {
 		if req == nil || w == nil {
-			log.Debug("geospatialjp webhook: invalid payload")
+			log.Debug("geospatialjpv3 webhook: invalid payload")
 			return nil
 		}
 
 		ctx := req.Context()
 
 		if !w.Operator.IsUser() && w.Operator.IsIntegrationBy(conf.CMSIntegration) {
-			log.Debugfc(ctx, "geospatialjp webhook: invalid event operator: %+v", w.Operator)
+			log.Debugfc(ctx, "geospatialjpv3 webhook: invalid event operator: %+v", w.Operator)
 			return nil
 		}
 
 		if w.Type != cmswebhook.EventItemUpdate {
-			log.Debugfc(ctx, "geospatialjp webhook: invalid event type: %s", w.Type)
+			log.Debugfc(ctx, "geospatialjpv3 webhook: invalid event type: %s", w.Type)
 			return nil
 		}
 
 		if w.ItemData == nil || w.ItemData.Item == nil || w.ItemData.Model == nil {
-			log.Debugfc(ctx, "geospatialjp webhook: invalid event data: %+v", w.Data)
+			log.Debugfc(ctx, "geospatialjpv3 webhook: invalid event data: %+v", w.Data)
 			return nil
 		}
 
 		if w.ItemData.Model.Key != modelKey {
-			log.Debugfc(ctx, "geospatialjp webhook: invalid model id: %s, key: %s", w.ItemData.Item.ModelID, w.ItemData.Model.Key)
+			log.Debugfc(ctx, "geospatialjpv3 webhook: invalid model id: %s, key: %s", w.ItemData.Item.ModelID, w.ItemData.Model.Key)
 			return nil
 		}
 
-		log.Debugfc(ctx, "geospatialjp webhook")
+		log.Debugfc(ctx, "geospatialjpv3 webhook")
 
 		// prepare
 		if prepareField := w.ItemData.Item.MetadataFieldByKey(prepareFieldKey); prepareField != nil {
@@ -80,13 +83,28 @@ func (h *handler) Webhook(conf Config) (cmswebhook.Handler, error) {
 					return err
 				}
 			} else {
-				log.Debugfc(ctx, "geospatialjp webhook: prepare field not changed or not true")
+				log.Debugfc(ctx, "geospatialjpv3 webhook: prepare field not changed or not true")
 			}
 		} else {
-			log.Debugfc(ctx, "geospatialjp webhook: prepare field not found")
+			log.Debugfc(ctx, "geospatialjpv3 webhook: prepare field not found")
 		}
 
 		// TODO: create resources to ckan and publish
+		if publishField := w.ItemData.Item.MetadataFieldByKey(publishFieldKey); publishField != nil {
+			changed, ok := lo.Find(w.ItemData.Changes, func(c cms.FieldChange) bool {
+				return c.ID == publishField.ID
+			})
+
+			if ok && lo.FromPtr(changed.GetCurrentValue().Bool()) {
+				if err := h.Publish(ctx, w); err != nil {
+					return err
+				}
+			} else {
+				log.Debugfc(ctx, "geospatialjpv3 webhook: publish field not changed or not true")
+			}
+		} else {
+			log.Debugfc(ctx, "geospatialjpv3 webhook: publish field not found")
+		}
 
 		// TODO: make resources private when unpublished
 
