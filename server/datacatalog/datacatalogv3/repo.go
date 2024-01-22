@@ -102,6 +102,7 @@ func (r *Repos) Update(ctx context.Context, project string) error {
 	}
 
 	c, warning := data.Into()
+	sort.Strings(warning)
 	r.warnings[project] = warning
 	r.context[project] = c
 

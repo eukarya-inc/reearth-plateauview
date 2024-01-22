@@ -27,6 +27,7 @@ type plateauDatasetSeed struct {
 	River       *plateauapi.River
 	Admin       any
 	LayerNames  LayerNames
+	Year        int
 }
 
 func (seed plateauDatasetSeed) GetID() string {
@@ -35,6 +36,7 @@ func (seed plateauDatasetSeed) GetID() string {
 
 func plateauDatasetSeedsFrom(i *PlateauFeatureItem, dt *plateauapi.PlateauDatasetType, area *areaContext, spec *plateauapi.PlateauSpecMinor, layerNames LayerNames, cmsurl string) (res []plateauDatasetSeed, warning []string) {
 	cityCode := lo.FromPtr(area.CityCode).String()
+	year := area.CityItem.YearInt()
 
 	dic, err := i.ReadDic()
 	if err != nil && i.Dic != "" {
@@ -73,6 +75,7 @@ func plateauDatasetSeedsFrom(i *PlateauFeatureItem, dt *plateauapi.PlateauDatase
 		res[i].Spec = spec
 		res[i].Admin = adminFrom(area.CityItem, cmsurl, dt.Code)
 		res[i].LayerNames = layerNames
+		res[i].Year = year
 		if res[i].TargetArea == nil {
 			res[i].TargetArea = area.City
 		}
@@ -259,6 +262,9 @@ func plateauDatasetItemSeedFrom(seed plateauDatasetSeed) (items []plateauDataset
 		if assetName == nil {
 			warning = append(warning, fmt.Sprintf("plateau %s %s: invalid asset name: %s", seed.TargetArea.GetCode(), seed.DatasetType.Code, name))
 			continue
+		}
+		if assetName.Year != seed.Year {
+			warning = append(warning, fmt.Sprintf("plateau %s %s: invalid asset name year: %s: %d should be %d", seed.TargetArea.GetCode(), seed.DatasetType.Code, name, assetName.Year, seed.Year))
 		}
 
 		var item *plateauDatasetItemSeed

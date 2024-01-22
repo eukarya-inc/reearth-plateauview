@@ -28,7 +28,7 @@ func (i *RelatedItem) toDatasets(area *areaContext, dts []plateauapi.DatasetType
 			d.Converted = nil
 		}
 
-		seeds, w := assetUrlsToRelatedDatasetSeeds(d.Asset, d.Converted, area.City, area.Wards)
+		seeds, w := assetUrlsToRelatedDatasetSeeds(d.Asset, d.Converted, area.City, area.Wards, area.CityItem.YearInt())
 		warning = append(warning, w...)
 
 		for _, seed := range seeds {
@@ -82,7 +82,7 @@ type relatedDatasetSeed struct {
 	OriginalFormat *plateauapi.DatasetFormat
 }
 
-func assetUrlsToRelatedDatasetSeeds(orig, conv []string, city *plateauapi.City, wards []*plateauapi.Ward) (items []relatedDatasetSeed, warning []string) {
+func assetUrlsToRelatedDatasetSeeds(orig, conv []string, city *plateauapi.City, wards []*plateauapi.Ward, year int) (items []relatedDatasetSeed, warning []string) {
 	var assets []OriginalAndConv
 	if len(conv) == 0 {
 		assets = lo.Map(orig, func(a string, _ int) OriginalAndConv {
@@ -119,6 +119,14 @@ func assetUrlsToRelatedDatasetSeeds(orig, conv []string, city *plateauapi.City, 
 		if nameConv != "" && assetNameConv == nil {
 			warning = append(warning, fmt.Sprintf("related %s: invalid asset name: %s", city.Code, nameConv))
 			continue
+		}
+
+		if assetNameConv.Year != 0 && assetNameConv.Year != year {
+			warning = append(warning, fmt.Sprintf("related %s: invalid year: %s: %d should be %d", city.Code, nameConv, assetNameConv.Year, year))
+		}
+
+		if assetNameOrig.Year != 0 && assetNameOrig.Year != year {
+			warning = append(warning, fmt.Sprintf("related %s: invalid year: %s: %d should be %d", city.Code, nameConv, assetNameOrig.Year, year))
 		}
 
 		// city
