@@ -37,7 +37,7 @@ func sendRequestToFME(ctx context.Context, s *Services, conf *Config, w *cmswebh
 
 	featureType := strings.TrimPrefix(w.ItemData.Model.Key, modelPrefix)
 	if !slices.Contains(featureTypes, featureType) {
-		log.Debugfc(ctx, "cmsintegrationv3: not feature dataset: %s", featureType)
+		log.Debugfc(ctx, "cmsintegrationv3: not feature item: %s", featureType)
 		return nil
 	}
 
@@ -53,7 +53,7 @@ func sendRequestToFME(ctx context.Context, s *Services, conf *Config, w *cmswebh
 		return nil
 	}
 
-	skipQC, skipConv := isQCAndConvSkipped(item)
+	skipQC, skipConv := isQCAndConvSkipped(item, featureType)
 	if skipQC && skipConv {
 		log.Debugfc(ctx, "cmsintegrationv3: skip qc and convert")
 		return nil
@@ -381,7 +381,11 @@ const (
 	conv = "変換"
 )
 
-func isQCAndConvSkipped(item *FeatureItem) (bool, bool) {
+var noConvFeatureTypes = []string{"dem"}
+
+func isQCAndConvSkipped(item *FeatureItem, featureType string) (bool, bool) {
+	noconv := slices.Contains(noConvFeatureTypes, featureType)
+
 	if item.SkipQCConv != nil {
 		if n := item.SkipQCConv.Name; strings.Contains(n, skip) {
 			skipQC := strings.Contains(n, qc)
@@ -389,10 +393,10 @@ func isQCAndConvSkipped(item *FeatureItem) (bool, bool) {
 			if !skipQC && !skipConv {
 				return true, true
 			}
-			return skipQC, skipConv
+			return skipQC, noconv || skipConv
 		}
-		return false, false
+		return false, noconv
 	}
 
-	return item.SkipQC, item.SkipConvert
+	return item.SkipQC, noconv || item.SkipConvert
 }
