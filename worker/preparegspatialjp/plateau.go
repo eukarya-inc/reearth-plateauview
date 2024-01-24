@@ -14,7 +14,7 @@ func PreparePlateau(ctx context.Context, cms *cms.CMS, cityItem *CityItem, allFe
 	log.Infofc(ctx, "preparing plateau...")
 
 	tmpDir := "tmp"
-	downloadPath := filepath.Join(tmpDir, cityItem.CityCode+"_plateau")
+	downloadPath := filepath.Join(tmpDir, cityItem.CityCode+"_"+cityItem.CityNameEn+"_plateau")
 	_ = os.MkdirAll(downloadPath, os.ModePerm)
 
 	zipFileName := cityItem.CityCode + "_" + cityItem.CityNameEn + "_city_2023_3dtiles_mvt.zip"

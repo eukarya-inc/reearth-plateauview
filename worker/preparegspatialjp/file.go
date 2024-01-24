@@ -62,7 +62,7 @@ func Unzip(ctx context.Context, zipFile *bytes.Reader, targetDir string, trimPat
 			filePath = strings.Trim(filePath, trimPathSuffix)
 		}
 
-		if !strings.HasPrefix(filePath, filepath.Clean(targetDir)+string(os.PathSeparator)) {
+		if !strings.HasPrefix(filePath, filepath.Clean(targetDir)) {
 			return fmt.Errorf("invalid file path: %s", filePath)
 		}
 
