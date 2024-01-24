@@ -869,3 +869,76 @@ func (c *cmsMock) CommentToItem(ctx context.Context, assetID, content string) er
 func (c *cmsMock) GetModels(ctx context.Context, projectID string) (*cms.Models, error) {
 	return c.getModels(ctx, projectID)
 }
+
+func TestIsQCAndConvSkipped(t *testing.T) {
+	skipQC, skipConv := isQCAndConvSkipped(&FeatureItem{}, "")
+	assert.False(t, skipQC)
+	assert.False(t, skipConv)
+
+	skipQC, skipConv = isQCAndConvSkipped(&FeatureItem{
+		QCStatus: &cms.Tag{
+			Name: "成功",
+		},
+	}, "")
+	assert.True(t, skipQC)
+	assert.False(t, skipConv)
+
+	skipQC, skipConv = isQCAndConvSkipped(&FeatureItem{
+		ConvertionStatus: &cms.Tag{
+			Name: "成功",
+		},
+	}, "")
+	assert.False(t, skipQC)
+	assert.True(t, skipConv)
+
+	skipQC, skipConv = isQCAndConvSkipped(&FeatureItem{
+		QCStatus: &cms.Tag{
+			Name: "成功",
+		},
+	}, "dem")
+	assert.True(t, skipQC)
+	assert.True(t, skipConv)
+
+	skipQC, skipConv = isQCAndConvSkipped(&FeatureItem{
+		SkipQCConv: &cms.Tag{
+			Name: "品質検査のみをスキップ",
+		},
+	}, "")
+	assert.True(t, skipQC)
+	assert.False(t, skipConv)
+
+	skipQC, skipConv = isQCAndConvSkipped(&FeatureItem{
+		SkipQCConv: &cms.Tag{
+			Name: "変換のみをスキップ",
+		},
+	}, "")
+	assert.False(t, skipQC)
+	assert.True(t, skipConv)
+
+	skipQC, skipConv = isQCAndConvSkipped(&FeatureItem{
+		SkipQCConv: &cms.Tag{
+			Name: "品質検査・変換のみをスキップ",
+		},
+	}, "")
+	assert.True(t, skipQC)
+	assert.True(t, skipConv)
+
+	skipQC, skipConv = isQCAndConvSkipped(&FeatureItem{
+		SkipQC: true,
+	}, "")
+	assert.True(t, skipQC)
+	assert.False(t, skipConv)
+
+	skipQC, skipConv = isQCAndConvSkipped(&FeatureItem{
+		SkipConvert: true,
+	}, "")
+	assert.False(t, skipQC)
+	assert.True(t, skipConv)
+
+	skipQC, skipConv = isQCAndConvSkipped(&FeatureItem{
+		SkipQC:      true,
+		SkipConvert: true,
+	}, "")
+	assert.True(t, skipQC)
+	assert.True(t, skipConv)
+}

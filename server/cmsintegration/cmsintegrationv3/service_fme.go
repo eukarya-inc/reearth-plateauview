@@ -48,11 +48,6 @@ func sendRequestToFME(ctx context.Context, s *Services, conf *Config, w *cmswebh
 
 	item := FeatureItemFrom(mainItem)
 
-	if tagIsNot(item.ConvertionStatus, ConvertionStatusNotStarted) {
-		log.Debugfc(ctx, "cmsintegrationv3: already converted")
-		return nil
-	}
-
 	skipQC, skipConv := isQCAndConvSkipped(item, featureType)
 	if skipQC && skipConv {
 		log.Debugfc(ctx, "cmsintegrationv3: skip qc and convert")
@@ -71,7 +66,7 @@ func sendRequestToFME(ctx context.Context, s *Services, conf *Config, w *cmswebh
 		ty = fmeTypeQC
 	}
 
-	log.Infofc(ctx, "cmsintegrationv3: sendRequestToFME: itemID=%s featureType=%s", mainItem.ID, featureType)
+	log.Debugfc(ctx, "cmsintegrationv3: sendRequestToFME: itemID=%s featureType=%s", mainItem.ID, featureType)
 	log.Debugfc(ctx, "cmsintegrationv3: sendRequestToFME: raw item: %s", ppp.Sprint(mainItem))
 	log.Debugfc(ctx, "cmsintegrationv3: sendRequestToFME: item: %s", ppp.Sprint(item))
 
@@ -383,20 +378,34 @@ const (
 
 var noConvFeatureTypes = []string{"dem"}
 
-func isQCAndConvSkipped(item *FeatureItem, featureType string) (bool, bool) {
-	noconv := slices.Contains(noConvFeatureTypes, featureType)
+func isQCAndConvSkipped(item *FeatureItem, featureType string) (skipQC bool, skipConv bool) {
+	if tagIsNot(item.QCStatus, ConvertionStatusNotStarted) {
+		skipQC = true
+	}
+	if tagIsNot(item.ConvertionStatus, ConvertionStatusNotStarted) ||
+		slices.Contains(noConvFeatureTypes, featureType) {
+		skipConv = true
+	}
+
+	if skipQC && skipConv {
+		return true, true
+	}
 
 	if item.SkipQCConv != nil {
 		if n := item.SkipQCConv.Name; strings.Contains(n, skip) {
-			skipQC := strings.Contains(n, qc)
-			skipConv := strings.Contains(n, conv)
-			if !skipQC && !skipConv {
-				return true, true
+			qc := strings.Contains(n, qc)
+			conv := strings.Contains(n, conv)
+			if !qc && !conv {
+				skipQC = true
+				skipConv = true
+			} else {
+				skipQC = skipQC || qc
+				skipConv = skipConv || conv
 			}
-			return skipQC, noconv || skipConv
 		}
-		return false, noconv
 	}
 
-	return item.SkipQC, noconv || item.SkipConvert
+	skipQC = skipQC || item.SkipQC
+	skipConv = skipConv || item.SkipConvert
+	return
 }
