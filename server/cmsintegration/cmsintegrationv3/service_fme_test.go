@@ -95,8 +95,12 @@ func TestSendRequestToFME(t *testing.T) {
 					ID: "metadataItemID",
 					Fields: []*cms.Field{
 						{
+							Key:   "qc_status",
+							Value: &cms.Tag{Name: "成功"},
+						},
+						{
 							Key:   "conv_status",
-							Value: map[string]interface{}{"value": ConvertionStatusSuccess},
+							Value: &cms.Tag{Name: "成功"},
 						},
 					},
 				}, nil
@@ -106,7 +110,7 @@ func TestSendRequestToFME(t *testing.T) {
 
 		err := sendRequestToFME(ctx, s, conf, w)
 		assert.NoError(t, err)
-		assert.Contains(t, log(), "already converted")
+		assert.Contains(t, log(), "skip qc and convert")
 	})
 
 	t.Run("skip qc and convert", func(t *testing.T) {
