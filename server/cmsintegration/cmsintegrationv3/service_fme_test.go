@@ -66,7 +66,6 @@ func TestSendRequestToFME(t *testing.T) {
 		},
 	}
 
-	// Test case 1: no metadataItemID and originalItemID
 	t.Run("no metadataItemID and originalItemID", func(t *testing.T) {
 		item := *baseItem
 		item.MetadataItemID = nil
@@ -79,7 +78,6 @@ func TestSendRequestToFME(t *testing.T) {
 		assert.ErrorContains(t, err, "invalid webhook payload")
 	})
 
-	// Test case 2: already converted
 	t.Run("already converted", func(t *testing.T) {
 		log := getLogs(t)
 
@@ -97,8 +95,12 @@ func TestSendRequestToFME(t *testing.T) {
 					ID: "metadataItemID",
 					Fields: []*cms.Field{
 						{
+							Key:   "qc_status",
+							Value: &cms.Tag{Name: "成功"},
+						},
+						{
 							Key:   "conv_status",
-							Value: map[string]interface{}{"value": ConvertionStatusSuccess},
+							Value: &cms.Tag{Name: "成功"},
 						},
 					},
 				}, nil
@@ -108,11 +110,10 @@ func TestSendRequestToFME(t *testing.T) {
 
 		err := sendRequestToFME(ctx, s, conf, w)
 		assert.NoError(t, err)
-		assert.Contains(t, log(), "already converted")
+		assert.Contains(t, log(), "skip qc and convert")
 	})
 
-	// Test case 3: skip convert
-	t.Run("skip convert", func(t *testing.T) {
+	t.Run("skip qc and convert", func(t *testing.T) {
 		log := getLogs(t)
 
 		item := *baseItem
@@ -124,6 +125,7 @@ func TestSendRequestToFME(t *testing.T) {
 				i := *baseItem
 				return &i, nil
 			}
+
 			if id == "metadataItemID" {
 				return &cms.Item{
 					ID: "metadataItemID",
@@ -139,16 +141,52 @@ func TestSendRequestToFME(t *testing.T) {
 					},
 				}, nil
 			}
+
 			return nil, fmt.Errorf("failed to get item")
 		}
 
 		err := sendRequestToFME(ctx, s, conf, w)
 		assert.NoError(t, err)
 
-		assert.Contains(t, log(), "skip convert")
+		assert.Contains(t, log(), "skip qc and convert")
 	})
 
-	// Test case 4: failed to get citygml asset
+	t.Run("skip qc and convert with tags", func(t *testing.T) {
+		log := getLogs(t)
+
+		item := *baseItem
+		w.ItemData.Item = &item
+
+		c.reset()
+		c.getItem = func(ctx context.Context, id string, asset bool) (*cms.Item, error) {
+			if id == "itemID" {
+				i := *baseItem
+				return &i, nil
+			}
+
+			if id == "metadataItemID" {
+				return &cms.Item{
+					ID: "metadataItemID",
+					Fields: []*cms.Field{
+						{
+							Key: "skip_qc_conv",
+							Value: &cms.Tag{
+								Name: "スキップ",
+							},
+						},
+					},
+				}, nil
+			}
+
+			return nil, fmt.Errorf("failed to get item")
+		}
+
+		err := sendRequestToFME(ctx, s, conf, w)
+		assert.NoError(t, err)
+
+		assert.Contains(t, log(), "skip qc and convert")
+	})
+
 	t.Run("failed to get citygml asset", func(t *testing.T) {
 		item := *baseItem
 		w.ItemData.Item = &item
@@ -181,7 +219,6 @@ func TestSendRequestToFME(t *testing.T) {
 		assert.ErrorContains(t, err, "failed to get citygml asset")
 	})
 
-	// Test case 5: failed to get city item
 	t.Run("failed to get city item", func(t *testing.T) {
 		item := *baseItem
 		w.ItemData.Item = &item
@@ -216,7 +253,6 @@ func TestSendRequestToFME(t *testing.T) {
 		assert.ErrorContains(t, err, "failed to get city item")
 	})
 
-	// Test case 6: failed to get codelist asset
 	t.Run("failed to get codelist asset", func(t *testing.T) {
 		item := *baseItem
 		w.ItemData.Item = &item
@@ -254,7 +290,6 @@ func TestSendRequestToFME(t *testing.T) {
 		assert.ErrorContains(t, err, "failed to get codelist asset")
 	})
 
-	// Test case 7: success
 	t.Run("success", func(t *testing.T) {
 		f.called = nil
 
@@ -320,7 +355,79 @@ func TestSendRequestToFME(t *testing.T) {
 		}, f.called)
 	})
 
-	// Test case 8: success with metadata item
+	t.Run("success with only qc", func(t *testing.T) {
+		f.called = nil
+
+		item := *baseItem
+		w.ItemData.Item = &item
+
+		c.reset()
+		c.getItem = func(ctx context.Context, id string, asset bool) (*cms.Item, error) {
+			if id == "itemID" {
+				i := *baseItem
+				return &i, nil
+			}
+			if id == "metadataItemID" {
+				return &cms.Item{
+					ID: "metadataItemID",
+					Fields: []*cms.Field{
+						{
+							Key: "skip_qc_conv",
+							Value: &cms.Tag{
+								Name: "変換をスキップ",
+							},
+						},
+					},
+				}, nil
+			}
+			return cityItem, nil
+		}
+		c.asset = func(ctx context.Context, id string) (*cms.Asset, error) {
+			if id == "citygmlID" {
+				return &cms.Asset{
+					ID:  "citygmlID",
+					URL: "target",
+				}, nil
+			}
+			return &cms.Asset{
+				ID:  "codelistID",
+				URL: "codelists",
+			}, nil
+		}
+		c.uploadAsset = func(ctx context.Context, projectID, url string) (string, error) {
+			return "asset", nil
+		}
+		c.uploadAssetDirectly = func(ctx context.Context, projectID, name string, r io.Reader) (string, error) {
+			return "assetd", nil
+		}
+		c.updateItem = func(ctx context.Context, id string, fields []*cms.Field, metadataFields []*cms.Field) (*cms.Item, error) {
+			assert.Equal(t, "qc_status", metadataFields[0].Key)
+			assert.Equal(t, string(ConvertionStatusRunning), metadataFields[0].Value)
+			return nil, nil
+		}
+		c.commentToItem = func(ctx context.Context, assetID, content string) error {
+			assert.Contains(t, content, "品質検査を開始しました。")
+			return nil
+		}
+
+		err := sendRequestToFME(ctx, s, conf, w)
+		assert.NoError(t, err)
+		assert.Equal(t, []fmeRequest{
+			{
+				Type: "qc",
+				ID: fmeID{
+					ItemID:      "itemID",
+					ProjectID:   "projectID",
+					FeatureType: "bldg",
+					Type:        "qc",
+				}.String("secret"),
+				Target:    "target",
+				Codelists: "codelists",
+				ResultURL: "/notify_fme/v3",
+			},
+		}, f.called)
+	})
+
 	t.Run("success with metadata item", func(t *testing.T) {
 		f.called = nil
 
@@ -765,4 +872,77 @@ func (c *cmsMock) CommentToItem(ctx context.Context, assetID, content string) er
 
 func (c *cmsMock) GetModels(ctx context.Context, projectID string) (*cms.Models, error) {
 	return c.getModels(ctx, projectID)
+}
+
+func TestIsQCAndConvSkipped(t *testing.T) {
+	skipQC, skipConv := isQCAndConvSkipped(&FeatureItem{}, "")
+	assert.False(t, skipQC)
+	assert.False(t, skipConv)
+
+	skipQC, skipConv = isQCAndConvSkipped(&FeatureItem{
+		QCStatus: &cms.Tag{
+			Name: "成功",
+		},
+	}, "")
+	assert.True(t, skipQC)
+	assert.False(t, skipConv)
+
+	skipQC, skipConv = isQCAndConvSkipped(&FeatureItem{
+		ConvertionStatus: &cms.Tag{
+			Name: "成功",
+		},
+	}, "")
+	assert.False(t, skipQC)
+	assert.True(t, skipConv)
+
+	skipQC, skipConv = isQCAndConvSkipped(&FeatureItem{
+		QCStatus: &cms.Tag{
+			Name: "成功",
+		},
+	}, "dem")
+	assert.True(t, skipQC)
+	assert.True(t, skipConv)
+
+	skipQC, skipConv = isQCAndConvSkipped(&FeatureItem{
+		SkipQCConv: &cms.Tag{
+			Name: "品質検査のみをスキップ",
+		},
+	}, "")
+	assert.True(t, skipQC)
+	assert.False(t, skipConv)
+
+	skipQC, skipConv = isQCAndConvSkipped(&FeatureItem{
+		SkipQCConv: &cms.Tag{
+			Name: "変換のみをスキップ",
+		},
+	}, "")
+	assert.False(t, skipQC)
+	assert.True(t, skipConv)
+
+	skipQC, skipConv = isQCAndConvSkipped(&FeatureItem{
+		SkipQCConv: &cms.Tag{
+			Name: "品質検査・変換のみをスキップ",
+		},
+	}, "")
+	assert.True(t, skipQC)
+	assert.True(t, skipConv)
+
+	skipQC, skipConv = isQCAndConvSkipped(&FeatureItem{
+		SkipQC: true,
+	}, "")
+	assert.True(t, skipQC)
+	assert.False(t, skipConv)
+
+	skipQC, skipConv = isQCAndConvSkipped(&FeatureItem{
+		SkipConvert: true,
+	}, "")
+	assert.False(t, skipQC)
+	assert.True(t, skipConv)
+
+	skipQC, skipConv = isQCAndConvSkipped(&FeatureItem{
+		SkipQC:      true,
+		SkipConvert: true,
+	}, "")
+	assert.True(t, skipQC)
+	assert.True(t, skipConv)
 }

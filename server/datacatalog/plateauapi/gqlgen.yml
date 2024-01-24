@@ -90,7 +90,7 @@ models:
         resolver: true
       type:
         resolver: true
-      plateauSpec:
+      plateauSpecMinor:
         resolver: true
   PlateauDatasetItem:
     fields:

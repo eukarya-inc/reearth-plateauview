@@ -14,6 +14,8 @@ import (
 	"github.com/samber/lo"
 )
 
+const cacheUpdateDuration = 10 * time.Second
+
 var stagesForAdmin = []string{string(stageBeta)}
 
 type Repos struct {
@@ -44,7 +46,8 @@ func (r *Repos) Prepare(ctx context.Context, project string, cms cms.Interface) 
 		return nil
 	}
 
-	return r.Update(ctx, project, cms)
+	r.setCMS(project, cms)
+	return r.Update(ctx, project)
 }
 
 func (r *Repos) Repo(project string, admin bool) *plateauapi.RepoWrapper {
@@ -54,38 +57,52 @@ func (r *Repos) Repo(project string, admin bool) *plateauapi.RepoWrapper {
 	return r.repos[project]
 }
 
-func (r *Repos) UpdateAll(ctx context.Context) error {
-	projects := lo.Keys(r.repos)
-	sort.Strings(projects)
+func (r *Repos) Projects() []string {
+	keys := lo.Keys(r.repos)
+	sort.Strings(keys)
+	return keys
+}
 
+func (r *Repos) UpdateAll(ctx context.Context) error {
+	projects := r.Projects()
 	for _, project := range projects {
-		if err := r.Update(ctx, project, nil); err != nil {
+		if err := r.Update(ctx, project); err != nil {
 			return fmt.Errorf("failed to update project %s: %w", project, err)
 		}
 	}
 	return nil
 }
 
-func (r *Repos) Update(ctx context.Context, project string, rawcms cms.Interface) error {
+func (r *Repos) Update(ctx context.Context, project string) error {
 	r.locks.Lock(project)
 	defer r.locks.Unlock(project)
 
-	cms := r.cms[project]
-	if cms == nil {
-		if rawcms == nil {
-			return nil
-		}
-		cms = NewCMS(rawcms)
-		r.cms[project] = cms
+	updated := r.UpdatedAt(project)
+	var updatedStr string
+	if !updated.IsZero() {
+		updatedStr = updated.Format(time.RFC3339)
 	}
 
-	log.Infofc(ctx, "datacatalogv3: updating project %s", project)
+	// avoid too frequent updates
+	since := r.getNow().Sub(updated)
+	if !updated.IsZero() && since < cacheUpdateDuration {
+		log.Infofc(ctx, "datacatalogv3: skip updating repo %s: last_update=%s, since=%s", project, updatedStr, since)
+		return nil
+	}
+
+	cms := r.cms[project]
+	if cms == nil {
+		return fmt.Errorf("cms is not initialized for %s", project)
+	}
+
+	log.Infofc(ctx, "datacatalogv3: updating repo %s: last_update=%s", project, updatedStr)
 	data, err := cms.GetAll(ctx, project)
 	if err != nil {
 		return err
 	}
 
 	c, warning := data.Into()
+	sort.Strings(warning)
 	r.warnings[project] = warning
 	r.context[project] = c
 
@@ -97,6 +114,7 @@ func (r *Repos) Update(ctx context.Context, project string, rawcms cms.Interface
 	adminRepoWrapper := r.adminRepos[project]
 	if adminRepoWrapper == nil {
 		adminRepoWrapper = plateauapi.NewRepoWrapper(adminRepo, nil)
+		adminRepoWrapper.SetName(fmt.Sprintf("%s(admin)", project))
 		r.adminRepos[project] = adminRepoWrapper
 	} else {
 		adminRepoWrapper.SetRepo(adminRepo)
@@ -105,18 +123,15 @@ func (r *Repos) Update(ctx context.Context, project string, rawcms cms.Interface
 	repoWrapper := r.repos[project]
 	if repoWrapper == nil {
 		repoWrapper = plateauapi.NewRepoWrapper(repo, nil)
+		repoWrapper.SetName(project)
 		r.repos[project] = repoWrapper
 	} else {
 		repoWrapper.SetRepo(repo)
 	}
 
-	if r.now != nil {
-		r.updatedAt[project] = r.now()
-	} else {
-		r.updatedAt[project] = time.Now()
-	}
+	r.updatedAt[project] = r.getNow()
 
-	log.Infofc(ctx, "datacatalogv3: updated project %s", project)
+	log.Infofc(ctx, "datacatalogv3: updated repo %s", project)
 	return nil
 }
 
@@ -129,4 +144,19 @@ func (r *Repos) Warnings(project string) []string {
 
 func (r *Repos) UpdatedAt(project string) time.Time {
 	return r.updatedAt[project]
+}
+
+func (r *Repos) setCMS(project string, cms cms.Interface) {
+	r.locks.Lock(project)
+	defer r.locks.Unlock(project)
+
+	c := NewCMS(cms)
+	r.cms[project] = c
+}
+
+func (r *Repos) getNow() time.Time {
+	if r.now != nil {
+		return r.now()
+	}
+	return time.Now()
 }

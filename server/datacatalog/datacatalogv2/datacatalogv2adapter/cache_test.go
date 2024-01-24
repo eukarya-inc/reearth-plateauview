@@ -54,7 +54,7 @@ func TestNewCache(t *testing.T) {
 		},
 		DatasetTypes: plateauapi.DatasetTypes{
 			plateauapi.DatasetTypeCategoryPlateau: []plateauapi.DatasetType{
-				plateauapi.PlateauDatasetType{
+				&plateauapi.PlateauDatasetType{
 					ID:            "dt_bldg_2",
 					Code:          "bldg",
 					Name:          "建築物モデル",

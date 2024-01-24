@@ -1,4 +1,4 @@
-package main
+package tool
 
 import (
 	"context"
@@ -12,30 +12,6 @@ import (
 	cms "github.com/reearth/reearth-cms-api/go"
 	"github.com/samber/lo"
 )
-
-func tool(conf *Config, args []string) {
-	subommand := args[0]
-	var err error
-
-	switch subommand {
-	case "setup-city-items":
-		err = setupCityItems(conf, args[1:])
-	case "help":
-		err = help(conf)
-	default:
-		err = errors.New("invalid subcommand")
-	}
-
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
-}
-
-func help(*Config) error {
-	fmt.Println(`Usage: plateauview <command> [arguments] [options] [flags]`)
-	return nil
-}
 
 func setupCityItems(conf *Config, args []string) error {
 	println("setup-city-items")

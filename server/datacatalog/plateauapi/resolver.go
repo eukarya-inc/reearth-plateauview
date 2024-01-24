@@ -35,6 +35,7 @@ var ErrDatacatalogUnavailable = errors.New("datacatalog is currently unavailable
 
 type Repo interface {
 	QueryResolver
+	Name() string
 }
 
 type Resolver struct {

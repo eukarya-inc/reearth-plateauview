@@ -3,11 +3,14 @@ package datacatalogv2adapter
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/eukarya-inc/reearth-plateauview/server/datacatalog/datacatalogv2"
 	"github.com/eukarya-inc/reearth-plateauview/server/datacatalog/plateauapi"
 	"golang.org/x/exp/slices"
 )
+
+const minCacheDuration = 30 * time.Second
 
 func New(cmsbase, project string) (*plateauapi.RepoWrapper, error) {
 	fetcher, err := datacatalogv2.NewFetcher(cmsbase)
@@ -18,7 +21,7 @@ func New(cmsbase, project string) (*plateauapi.RepoWrapper, error) {
 }
 
 func From(fetcher datacatalogv2.Fetchable, project string) *plateauapi.RepoWrapper {
-	return plateauapi.NewRepoWrapper(nil, func(ctx context.Context, repo *plateauapi.Repo) error {
+	r := plateauapi.NewRepoWrapper(nil, func(ctx context.Context, repo *plateauapi.Repo) error {
 		r, err := fetchAndCreateCache(ctx, project, fetcher, datacatalogv2.FetcherDoOptions{})
 		if err != nil {
 			return err
@@ -26,6 +29,9 @@ func From(fetcher datacatalogv2.Fetchable, project string) *plateauapi.RepoWrapp
 		*repo = r
 		return nil
 	})
+	r.SetName(fmt.Sprintf("%s(v2)", project))
+	r.SetMinCacheDuration(minCacheDuration)
+	return r
 }
 
 func fetchAndCreateCache(ctx context.Context, project string, fetcher datacatalogv2.Fetchable, opts datacatalogv2.FetcherDoOptions) (*plateauapi.InMemoryRepo, error) {
@@ -88,7 +94,7 @@ func newCache(r datacatalogv2.ResponseAll) *plateauapi.InMemoryRepoContext {
 				if cache.DatasetTypes == nil {
 					cache.DatasetTypes = make(plateauapi.DatasetTypes)
 				}
-				cache.DatasetTypes.Append(plateauapi.DatasetTypeCategoryPlateau, []plateauapi.DatasetType{ty})
+				cache.DatasetTypes.Append(plateauapi.DatasetTypeCategoryPlateau, []plateauapi.DatasetType{&ty})
 			}
 		}
 
@@ -97,7 +103,7 @@ func newCache(r datacatalogv2.ResponseAll) *plateauapi.InMemoryRepoContext {
 				if cache.DatasetTypes == nil {
 					cache.DatasetTypes = make(plateauapi.DatasetTypes)
 				}
-				cache.DatasetTypes.Append(plateauapi.DatasetTypeCategoryRelated, []plateauapi.DatasetType{ty})
+				cache.DatasetTypes.Append(plateauapi.DatasetTypeCategoryRelated, []plateauapi.DatasetType{&ty})
 			}
 		}
 
@@ -106,7 +112,7 @@ func newCache(r datacatalogv2.ResponseAll) *plateauapi.InMemoryRepoContext {
 				if cache.DatasetTypes == nil {
 					cache.DatasetTypes = make(plateauapi.DatasetTypes)
 				}
-				cache.DatasetTypes.Append(plateauapi.DatasetTypeCategoryGeneric, []plateauapi.DatasetType{ty})
+				cache.DatasetTypes.Append(plateauapi.DatasetTypeCategoryGeneric, []plateauapi.DatasetType{&ty})
 			}
 		}
 

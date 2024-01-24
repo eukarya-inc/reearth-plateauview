@@ -5,6 +5,7 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/eukarya-inc/reearth-plateauview/server/datacatalog/datacatalogv2/datacatalogutil"
 	"github.com/samber/lo"
 )
 
@@ -174,4 +175,14 @@ func stageFrom(ds Dataset) string {
 	}
 
 	return s
+}
+
+func (d PlateauDatasetType) GetYear() int {
+	return d.Year
+}
+
+var _ YearNode = (*PlateauDatasetType)(nil)
+
+func IsLayerSupported(format DatasetFormat) bool {
+	return datacatalogutil.IsLayerSupported(strings.ToLower(string(format)))
 }

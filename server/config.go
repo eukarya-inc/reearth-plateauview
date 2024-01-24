@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"os"
 
 	"github.com/eukarya-inc/reearth-plateauview/server/cmsintegration"
@@ -12,57 +11,65 @@ import (
 	"github.com/eukarya-inc/reearth-plateauview/server/searchindex"
 	"github.com/eukarya-inc/reearth-plateauview/server/sidebar"
 	"github.com/joho/godotenv"
+	"github.com/k0kubun/pp/v3"
 	"github.com/kelseyhightower/envconfig"
 	"github.com/reearth/reearthx/log"
 )
 
+var noColorPP *pp.PrettyPrinter
+
+func init() {
+	noColorPP = pp.New()
+	noColorPP.SetColoringEnabled(false)
+}
+
 const configPrefix = "REEARTH_PLATEAUVIEW"
 
 type Config struct {
-	Port                              uint   `default:"8080" envconfig:"PORT"`
-	Host                              string `default:"http://localhost:8080"`
-	Debug                             bool
-	Origin                            []string
-	Secret                            string
-	Delegate_URL                      string
-	CMS_Webhook_Secret                string
-	CMS_BaseURL                       string
-	CMS_Token                         string
-	CMS_IntegrationID                 string
-	CMS_PlateauProject                string
-	CMS_SystemProject                 string
-	CMS_TokenProject                  string
-	FME_BaseURL                       string
-	FME_BaseURL_V2                    string
-	FME_URL_V3                        string
-	FME_Mock                          bool
-	FME_Token                         string
-	FME_SkipQualityCheck              bool
-	Ckan_BaseURL                      string
-	Ckan_Org                          string
-	Ckan_Token                        string
-	Ckan_Private                      bool
-	SDK_Token                         string
-	SendGrid_APIKey                   string
-	Opinion_From                      string
-	Opinion_FromName                  string
-	Opinion_To                        string
-	Opinion_ToName                    string
-	Sidebar_Token                     string
-	Share_Disable                     bool
-	Geospatialjp_Publication_Disable  bool
-	Geospatialjp_CatalocCheck_Disable bool
-	Geospatialjp_JobName              string
-	DataConv_Disable                  bool
-	Indexer_Delegate                  bool
-	DataCatalog_DisableCache          bool
-	DataCatalog_CacheUpdateKey        string
-	DataCatalog_PlaygroundEndpoint    string
-	DataCatalog_CacheTTL              int
-	DataCatalog_GQL_MaxComplexity     int
-	SDKAPI_DisableCache               bool
-	SDKAPI_CacheTTL                   int
-	GCParcent                         int
+	Port                              uint     `default:"8080" envconfig:"PORT"`
+	Host                              string   `default:"http://localhost:8080"`
+	Debug                             bool     `pp:",omitempty"`
+	Origin                            []string `pp:",omitempty"`
+	Secret                            string   `pp:",omitempty"`
+	Delegate_URL                      string   `pp:",omitempty"`
+	CMS_Webhook_Secret                string   `pp:",omitempty"`
+	CMS_BaseURL                       string   `pp:",omitempty"`
+	CMS_Token                         string   `pp:",omitempty"`
+	CMS_IntegrationID                 string   `pp:",omitempty"`
+	CMS_PlateauProject                string   `pp:",omitempty"`
+	CMS_SystemProject                 string   `pp:",omitempty"`
+	CMS_TokenProject                  string   `pp:",omitempty"`
+	FME_BaseURL                       string   `pp:",omitempty"`
+	FME_BaseURL_V2                    string   `pp:",omitempty"`
+	FME_URL_V3                        string   `pp:",omitempty"`
+	FME_Mock                          bool     `pp:",omitempty"`
+	FME_Token                         string   `pp:",omitempty"`
+	FME_SkipQualityCheck              bool     `pp:",omitempty"`
+	Ckan_BaseURL                      string   `pp:",omitempty"`
+	Ckan_Org                          string   `pp:",omitempty"`
+	Ckan_Token                        string   `pp:",omitempty"`
+	Ckan_Private                      bool     `pp:",omitempty"`
+	SDK_Token                         string   `pp:",omitempty"`
+	SendGrid_APIKey                   string   `pp:",omitempty"`
+	Opinion_From                      string   `pp:",omitempty"`
+	Opinion_FromName                  string   `pp:",omitempty"`
+	Opinion_To                        string   `pp:",omitempty"`
+	Opinion_ToName                    string   `pp:",omitempty"`
+	Sidebar_Token                     string   `pp:",omitempty"`
+	Share_Disable                     bool     `pp:",omitempty"`
+	Geospatialjp_Publication_Disable  bool     `pp:",omitempty"`
+	Geospatialjp_CatalocCheck_Disable bool     `pp:",omitempty"`
+	Geospatialjp_JobName              string   `pp:",omitempty"`
+	DataConv_Disable                  bool     `pp:",omitempty"`
+	Indexer_Delegate                  bool     `pp:",omitempty"`
+	DataCatalog_DisableCache          bool     `pp:",omitempty"`
+	DataCatalog_CacheUpdateKey        string   `pp:",omitempty"`
+	DataCatalog_PlaygroundEndpoint    string   `pp:",omitempty"`
+	DataCatalog_CacheTTL              int      `pp:",omitempty"`
+	DataCatalog_GQL_MaxComplexity     int      `pp:",omitempty"`
+	SDKAPI_DisableCache               bool     `pp:",omitempty"`
+	SDKAPI_CacheTTL                   int      `pp:",omitempty"`
+	GCParcent                         int      `pp:",omitempty"`
 }
 
 func NewConfig() (*Config, error) {
@@ -79,8 +86,7 @@ func NewConfig() (*Config, error) {
 }
 
 func (c *Config) Print() string {
-	s := fmt.Sprintf("%+v", c)
-	return s
+	return noColorPP.Sprint(c)
 }
 
 func (c *Config) CMSIntegration() cmsintegration.Config {

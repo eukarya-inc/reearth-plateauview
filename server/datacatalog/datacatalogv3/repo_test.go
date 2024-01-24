@@ -66,7 +66,7 @@ func TestRepos(t *testing.T) {
 						{
 							ID:       plateauapi.ID("di_" + cityCode + "_bldg_lod1"),
 							Format:   plateauapi.DatasetFormatCesium3dtiles,
-							URL:      "https://example.com/00000_hoge_city_2023_citygml_1_op_bldg_3dtiles_lod1.zip",
+							URL:      "https://example.com/00000_hoge_city_2023_citygml_1_op_bldg_3dtiles_lod1/tileset.json",
 							Name:     "LOD1",
 							ParentID: plateauapi.ID("d_" + cityCode + "_bldg"),
 							Lod:      lo.ToPtr(1),

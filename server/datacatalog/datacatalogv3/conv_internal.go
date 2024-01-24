@@ -9,23 +9,25 @@ import (
 )
 
 type internalContext struct {
-	years         map[int]struct{}
-	cityItems     map[string]*CityItem
-	prefs         map[string]*plateauapi.Prefecture
-	cities        map[string]*plateauapi.City
-	wards         map[string][]*plateauapi.Ward
-	plateauCMSURL string
-	relatedCMSURL string
-	genericCMSURL string
+	years             map[int]struct{}
+	cityItems         map[string]*CityItem
+	prefs             map[string]*plateauapi.Prefecture
+	cities            map[string]*plateauapi.City
+	wards             map[string][]*plateauapi.Ward
+	layerNamesForType map[string]LayerNames
+	plateauCMSURL     string
+	relatedCMSURL     string
+	genericCMSURL     string
 }
 
 func newInternalContext() *internalContext {
 	return &internalContext{
-		years:     map[int]struct{}{},
-		cityItems: map[string]*CityItem{},
-		prefs:     map[string]*plateauapi.Prefecture{},
-		cities:    map[string]*plateauapi.City{},
-		wards:     map[string][]*plateauapi.Ward{},
+		years:             map[int]struct{}{},
+		cityItems:         map[string]*CityItem{},
+		prefs:             map[string]*plateauapi.Prefecture{},
+		cities:            map[string]*plateauapi.City{},
+		wards:             map[string][]*plateauapi.Ward{},
+		layerNamesForType: map[string]LayerNames{},
 	}
 }
 
@@ -134,4 +136,28 @@ func (c *internalContext) AreaContext(cityItemID string) *areaContext {
 		PrefCode: prefCode,
 		CityCode: cityCode,
 	}
+}
+
+type LayerNames struct {
+	Name        []string
+	NamesForLOD map[int][]string
+}
+
+func (l LayerNames) LayerName(def []string, lod int, format plateauapi.DatasetFormat) []string {
+	if !plateauapi.IsLayerSupported(format) {
+		return nil
+	}
+
+	if l.Name != nil {
+		return l.Name
+	}
+
+	if l.NamesForLOD == nil {
+		return def
+	}
+	if l := l.NamesForLOD[lod]; l != nil {
+		return l
+	}
+
+	return def
 }

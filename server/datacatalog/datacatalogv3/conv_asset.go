@@ -277,6 +277,10 @@ type RelatedAssetName struct {
 var reRelatedAssetName = regexp.MustCompile(`^(\d{5})_([a-zA-Z0-9-]+)_([a-zA-Z0-9-]+)_(\d+)_([a-zA-Z0-9-]+)\.([a-z0-9]+)$`)
 
 func ParseRelatedAssetName(name string) *RelatedAssetName {
+	if name == "" {
+		return nil
+	}
+
 	m := reRelatedAssetName.FindStringSubmatch(name)
 	if m == nil {
 		return nil

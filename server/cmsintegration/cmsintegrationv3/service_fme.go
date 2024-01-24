@@ -37,19 +37,8 @@ func sendRequestToFME(ctx context.Context, s *Services, conf *Config, w *cmswebh
 
 	featureType := strings.TrimPrefix(w.ItemData.Model.Key, modelPrefix)
 	if !slices.Contains(featureTypes, featureType) {
-		log.Debugfc(ctx, "cmsintegrationv3: not feature dataset: %s", featureType)
+		log.Debugfc(ctx, "cmsintegrationv3: not feature item: %s", featureType)
 		return nil
-	}
-
-	if w.ItemData.Item.IsMetadata {
-		skipQC := getFieldChangeByKey(w.ItemData, "skip_qc")
-		skipConv := getFieldChangeByKey(w.ItemData, "skip_conv")
-		qcStatus := getFieldChangeByKey(w.ItemData, "qc_status")
-		convStatus := getFieldChangeByKey(w.ItemData, "conv_status")
-		if skipQC == nil && skipConv == nil && qcStatus == nil && convStatus == nil {
-			log.Debugfc(ctx, "cmsintegrationv3: no changes: %#v", w.ItemData.Changes)
-			return nil
-		}
 	}
 
 	mainItem, err := s.GetMainItemWithMetadata(ctx, w.ItemData.Item)
@@ -58,24 +47,28 @@ func sendRequestToFME(ctx context.Context, s *Services, conf *Config, w *cmswebh
 	}
 
 	item := FeatureItemFrom(mainItem)
-	if tagIsNot(item.ConvertionStatus, ConvertionStatusNotStarted) {
-		log.Debugfc(ctx, "cmsintegrationv3: already converted")
+
+	skipQC, skipConv := isQCAndConvSkipped(item, featureType)
+	if skipQC && skipConv {
+		log.Debugfc(ctx, "cmsintegrationv3: skip qc and convert")
 		return nil
 	}
 
-	if item.SkipQC && item.SkipConvert || item.CityGML == "" || item.City == "" {
-		log.Debugfc(ctx, "cmsintegrationv3: skip convert")
+	if item.CityGML == "" || item.City == "" {
+		log.Debugfc(ctx, "cmsintegrationv3: no city or no citygml")
 		return nil
 	}
-
-	log.Infofc(ctx, "cmsintegrationv3: sendRequestToFME")
 
 	ty := fmeTypeQcConv
-	if item.SkipQC {
+	if skipQC {
 		ty = fmeTypeConv
-	} else if item.SkipConvert {
+	} else if skipConv {
 		ty = fmeTypeQC
 	}
+
+	log.Debugfc(ctx, "cmsintegrationv3: sendRequestToFME: itemID=%s featureType=%s", mainItem.ID, featureType)
+	log.Debugfc(ctx, "cmsintegrationv3: sendRequestToFME: raw item: %s", ppp.Sprint(mainItem))
+	log.Debugfc(ctx, "cmsintegrationv3: sendRequestToFME: item: %s", ppp.Sprint(item))
 
 	// update convertion status
 	err = s.UpdateFeatureItemStatus(ctx, mainItem.ID, ty, ConvertionStatusRunning)
@@ -375,4 +368,44 @@ func readDic(ctx context.Context, u string) (string, error) {
 		return "", err
 	}
 	return string(s), nil
+}
+
+const (
+	skip = "スキップ"
+	qc   = "品質検査"
+	conv = "変換"
+)
+
+var noConvFeatureTypes = []string{"dem"}
+
+func isQCAndConvSkipped(item *FeatureItem, featureType string) (skipQC bool, skipConv bool) {
+	if tagIsNot(item.QCStatus, ConvertionStatusNotStarted) {
+		skipQC = true
+	}
+	if tagIsNot(item.ConvertionStatus, ConvertionStatusNotStarted) ||
+		slices.Contains(noConvFeatureTypes, featureType) {
+		skipConv = true
+	}
+
+	if skipQC && skipConv {
+		return true, true
+	}
+
+	if item.SkipQCConv != nil {
+		if n := item.SkipQCConv.Name; strings.Contains(n, skip) {
+			qc := strings.Contains(n, qc)
+			conv := strings.Contains(n, conv)
+			if !qc && !conv {
+				skipQC = true
+				skipConv = true
+			} else {
+				skipQC = skipQC || qc
+				skipConv = skipConv || conv
+			}
+		}
+	}
+
+	skipQC = skipQC || item.SkipQC
+	skipConv = skipConv || item.SkipConvert
+	return
 }

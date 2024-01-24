@@ -26,13 +26,10 @@ var relatedDataConvertionTargets = []string{
 	"station",
 }
 
-const relatedConvStatus = "conv_status"
-
 func handleRelatedDataset(ctx context.Context, s *Services, w *cmswebhook.Payload) error {
 	// if event type is "item.create" and payload is metadata, skip it
 	if w.Type == cmswebhook.EventItemCreate && w.ItemData.Item.OriginalItemID != nil ||
-		w.ItemData == nil || w.ItemData.Item == nil || w.ItemData.Model == nil ||
-		w.ItemData.Item.FieldByKey(relatedConvStatus) == nil {
+		w.ItemData == nil || w.ItemData.Item == nil || w.ItemData.Model == nil {
 		return nil
 	}
 
@@ -61,6 +58,11 @@ func handleRelatedDataset(ctx context.Context, s *Services, w *cmswebhook.Payloa
 }
 
 func convertRelatedDataset(ctx context.Context, s *Services, w *cmswebhook.Payload, item *RelatedItem) (err error) {
+	if item.Items == nil {
+		log.Debugfc(ctx, "cmsintegrationv3: convertRelatedDataset: no items")
+		return nil
+	}
+
 	project := w.ProjectID()
 	convTargets := make([]string, 0, len(relatedDataConvertionTargets))
 	newStatus := map[string]*cms.Tag{}
@@ -68,7 +70,7 @@ func convertRelatedDataset(ctx context.Context, s *Services, w *cmswebhook.Paylo
 
 	for _, target := range relatedDataConvertionTargets {
 		if tagIsNot(item.ConvertStatus[target], ConvertionStatusNotStarted) {
-			log.Debugfc(ctx, "cmsintegrationv3: already converted")
+			log.Debugfc(ctx, "cmsintegrationv3: convertRelatedDataset: already converted: %s", target)
 			continue
 		}
 
@@ -81,11 +83,11 @@ func convertRelatedDataset(ctx context.Context, s *Services, w *cmswebhook.Paylo
 	}
 
 	if len(convTargets) == 0 {
-		log.Debugfc(ctx, "cmsintegrationv3: no conv targets")
+		log.Debugfc(ctx, "cmsintegrationv3: convertRelatedDataset: no conv targets")
 		return nil
 	}
 
-	log.Infofc(ctx, "cmsintegrationv3: convertRelatedDataset: %v", convTargets)
+	log.Infofc(ctx, "cmsintegrationv3: convertRelatedDataset: start conv for %v", convTargets)
 
 	// update status
 	if _, err := s.CMS.UpdateItem(ctx, item.ID, nil, (&RelatedItem{
@@ -133,14 +135,15 @@ func convertRelatedDataset(ctx context.Context, s *Services, w *cmswebhook.Paylo
 	}
 
 	for _, target := range convTargets {
-		log.Debugf("cmsintegrationv3: convert %s: %#v", target)
-
 		d := item.Items[target]
+		log.Debugfc(ctx, "cmsintegrationv3: convertRelatedDataset: convert %s: %#v", target, d)
+
 		var converror bool
 		var convassets []string
 		for _, a := range d.Asset {
 			newAsset, err2 := convRelatedType(ctx, project, target, a, s)
 			if err2 != nil {
+				log.Infofc(ctx, "cmsintegrationv3: convertRelatedDataset: failed to convert %s: %v", target, err2)
 				err = errors.Join(err, fmt.Errorf("%s: %s", target, err2))
 				converror = true
 			} else {
@@ -165,21 +168,20 @@ func convertRelatedDataset(ctx context.Context, s *Services, w *cmswebhook.Paylo
 
 func convRelatedType(ctx context.Context, project, target, assetID string, s *Services) (_ string, err error) {
 	asset, err := s.CMS.Asset(ctx, assetID)
-	if err != nil {
-		return "", fmt.Errorf("failed to get asset (%s): %w", target, err)
+	if err != nil || asset == nil {
+		return "", fmt.Errorf("failed to get asset: type=%s, asset_id=%s: %v", target, assetID, err)
 	}
 
 	id := strings.TrimSuffix(path.Base(asset.URL), path.Ext(asset.URL))
-	log.Debugf("cmsintegrationv3: convert %s (%s)", target, id)
 
 	// download asset
 	data, err := s.GETAsBytes(ctx, asset.URL)
-	if err != nil {
+	if err != nil || len(data) == 0 {
 		return "", fmt.Errorf("failed to download asset: %w", err)
 	}
 
 	fc, err := geojson.UnmarshalFeatureCollection(data)
-	if err != nil {
+	if err != nil || fc == nil {
 		return "", fmt.Errorf("failed to unmarshal asset: %w", err)
 	}
 
@@ -206,29 +208,29 @@ func convRelatedType(ctx context.Context, project, target, assetID string, s *Se
 		return "", fmt.Errorf("failed to upload asset: %w", err)
 	}
 
-	log.Debugf("cmsintegrationv3: converted %s (%s) to %s", target, id, newAssetID)
+	log.Debugfc(ctx, "cmsintegrationv3: convertRelatedDataset: done: %s (%s) -> %s", target, id, newAssetID)
 	return newAssetID, nil
 }
 
 func packRelatedDataset(ctx context.Context, s *Services, w *cmswebhook.Payload, item *RelatedItem) (err error) {
 	if item.City == "" {
-		log.Debugfc(ctx, "cmsintegrationv3: no city")
+		log.Debugfc(ctx, "cmsintegrationv3: packRelatedDataset: no city")
 		return nil
 	}
 
 	if tagIsNot(item.MergeStatus, ConvertionStatusNotStarted) {
-		log.Debugfc(ctx, "cmsintegrationv3: already merged")
+		log.Debugfc(ctx, "cmsintegrationv3: packRelatedDataset: already merged")
 		return nil
 	}
 
 	if missingTypes := lo.Filter(relatedDataTypes, func(t string, _ int) bool {
 		return len(item.Items[t].Asset) == 0
 	}); len(missingTypes) > 0 {
-		log.Debugfc(ctx, "cmsintegrationv3: there are some missing assets: %v", missingTypes)
+		log.Debugfc(ctx, "cmsintegrationv3: packRelatedDataset: cannot pack because there are some missing assets: %v", missingTypes)
 		return nil
 	}
 
-	log.Infofc(ctx, "cmsintegrationv3: packageRelatedDatasetForGeospatialjp")
+	log.Infofc(ctx, "cmsintegrationv3: packRelatedDataset")
 
 	// update status
 	if _, err := s.CMS.UpdateItem(ctx, item.ID, nil, (&RelatedItem{
@@ -252,7 +254,7 @@ func packRelatedDataset(ctx context.Context, s *Services, w *cmswebhook.Payload,
 			MergeStatus: tagFrom(status),
 		}).CMSItem()
 		if _, err := s.CMS.UpdateItem(ctx, item.ID, newItem.Fields, newItem.MetadataFields); err != nil {
-			log.Errorfc(ctx, "cmsintegrationv3: failed to update item: %w", err)
+			log.Errorfc(ctx, "cmsintegrationv3: packRelatedDataset: failed to update item: %v", err)
 		}
 
 		// comment to the item
@@ -264,7 +266,7 @@ func packRelatedDataset(ctx context.Context, s *Services, w *cmswebhook.Payload,
 		}
 
 		if err := s.CMS.CommentToItem(ctx, item.ID, comment); err != nil {
-			log.Errorfc(ctx, "cmsintegrationv3: failed to add comment: %w", err)
+			log.Errorfc(ctx, "cmsintegrationv3: packRelatedDataset: failed to add comment: %v", err)
 		}
 	}()
 
@@ -303,7 +305,7 @@ func packRelatedDataset(ctx context.Context, s *Services, w *cmswebhook.Payload,
 	}
 
 	if !assetMerged {
-		log.Debugfc(ctx, "cmsintegrationv3: no assets")
+		log.Debugfc(ctx, "cmsintegrationv3: packRelatedDataset: no assets")
 		return nil
 	}
 
@@ -318,7 +320,7 @@ func packRelatedDataset(ctx context.Context, s *Services, w *cmswebhook.Payload,
 		return fmt.Errorf("failed to upload zip: %w", err)
 	}
 
-	log.Infofc(ctx, "cmsintegrationv3: packageRelatedDatasetForGeospatialjp: done")
+	log.Infofc(ctx, "cmsintegrationv3: packRelatedDataset: done")
 	return nil
 }
 
@@ -336,11 +338,11 @@ func packRelatedDatasetTarget(ctx context.Context, target string, assets []strin
 
 		an := parseRelatedAssetName(asset.URL)
 		if an == nil {
-			return 0, fmt.Errorf("(%s/%d/%s): ファイル名が命名規則に沿っていません。 \"[市区町村コード5桁]_[市区町村名英名]_[提供事業者名]_[整備年度4桁]_[landmark,shelterなど].geojson\" としてください。: %v", target, i+1, path.Base(asset.URL), err)
+			return 0, fmt.Errorf("(%s/%d/%s): ファイル名が命名規則に沿っていません。 `[市区町村コード5桁]_[市区町村名英名]_[提供事業者名(city等)]_[整備年度4桁]_[landmark,shelterなど].geojson` としてください。", target, i+1, path.Base(asset.URL))
 		}
 
 		if !noNeedToWriteAssets && an.CityCode == cityCode {
-			return 0, fmt.Errorf("(%s/%d/%s): アセット名の市区町村コードが全体の市区町村コードと同じです。区ごとに登録する場合はファイル名中のコードを各区のコードにしてください。", target, i+1, path.Base(asset.URL))
+			return 0, fmt.Errorf("(%s/%d/%s): アセット名の区コードが全体の市区町村コードと同じです。区ごとに登録する場合はファイル名中のコードを各区のコードにしてください。", target, i+1, path.Base(asset.URL))
 		}
 
 		if assetName == nil {

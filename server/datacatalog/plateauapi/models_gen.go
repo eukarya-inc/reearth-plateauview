@@ -891,6 +891,12 @@ type RelatedDatasetItem struct {
 	Name string `json:"name"`
 	// データセットのアイテムのURL。
 	URL string `json:"url"`
+	// データセットのアイテムの変換前データのフォーマット。
+	// originalUrlフィールドが存在する場合のみ存在します。
+	OriginalFormat *DatasetFormat `json:"originalFormat,omitempty"`
+	// データセットのアイテムの変換前データのURL。
+	// 鉄道駅情報・ランドマーク情報はurlフィールドではCZML形式で提供されていますが、元となったGeoJSONデータが存在します。
+	OriginalURL *string `json:"originalUrl,omitempty"`
 	// データセットのアイテムのレイヤー名。MVTやWMSなどのフォーマットの場合のみ存在。
 	// レイヤー名が複数存在する場合は、同時に複数のレイヤーを表示可能であることを意味します。
 	Layers []string `json:"layers,omitempty"`

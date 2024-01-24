@@ -2,7 +2,10 @@ package plateauapi
 
 import (
 	"context"
+	"fmt"
+	"reflect"
 	"sort"
+	"strings"
 
 	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
@@ -18,6 +21,16 @@ func NewMerger(repos ...Repo) *Merger {
 }
 
 var _ Repo = (*Merger)(nil)
+
+func (m *Merger) Name() string {
+	names := lo.Map(m.repos, func(r Repo, _ int) string {
+		if r == nil {
+			return "nil"
+		}
+		return r.Name()
+	})
+	return fmt.Sprintf("merger(%s)", strings.Join(names, ","))
+}
 
 func (m *Merger) Node(ctx context.Context, id ID) (Node, error) {
 	nodes, err := getRepoResults(m.repos, func(r Repo) (Node, error) {
@@ -118,7 +131,11 @@ func getRepoResults[T any](repos []Repo, f func(r Repo) (T, error)) ([]T, error)
 		if r == nil {
 			return
 		}
-		return f(r)
+		res, err := f(r)
+		if err != nil {
+			return res, fmt.Errorf("repo %s: %w", r.Name(), err)
+		}
+		return res, nil
 	})
 }
 
@@ -152,9 +169,14 @@ func sortNodes[T IDNode](nodes []T) {
 }
 
 func getLatestYearNode[T any](results []T) T {
-	return lo.MaxBy(results, func(a, b T) bool {
-		return getYear(a) > getYear(b)
+	results = lo.Filter(results, func(a T, _ int) bool {
+		return isPresent(a)
 	})
+	max := lo.MaxBy(results, func(a, b T) bool {
+		ya, yb := getYear(a), getYear(b)
+		return ya > yb
+	})
+	return max
 }
 
 func zip[T any](a ...[]T) [][]T {
@@ -179,6 +201,11 @@ type IDNode interface {
 
 type YearNode interface {
 	GetYear() int
+}
+
+func isPresent(n any) bool {
+	v := reflect.ValueOf(n)
+	return v.Kind() != reflect.Ptr || !v.IsNil()
 }
 
 func getYear(n any) int {

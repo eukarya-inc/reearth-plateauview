@@ -157,6 +157,15 @@ func TestGetLatestYearNode(t *testing.T) {
 	})
 
 	t.Run("multiple nodes", func(t *testing.T) {
+		dt := PlateauDatasetType{ID: "1", Year: 2021}
+		assert.True(t, isPresent(dt))
+
+		results := []Node{nil, dt}
+		res := getLatestYearNode(results)
+		assert.Equal(t, dt, res)
+	})
+
+	t.Run("multiple nodes 2", func(t *testing.T) {
 		results := []PlateauDataset{
 			{ID: "1", Year: 2020, Name: "a"},
 			{ID: "2", Year: 2019},

@@ -57,6 +57,7 @@ func TestHandler_AuthMiddleware(t *testing.T) {
 			CMSAPIKey:                "token!",
 			SidebarAccessToken:       "ac",
 			Auth:                     true,
+			CMSBaseURL:               testCMSHost,
 		}, GetCMSMetadataFromContext(c.Request().Context()))
 	})
 
@@ -82,6 +83,7 @@ func TestHandler_AuthMiddleware(t *testing.T) {
 			CMSAPIKey:                "token!",
 			SidebarAccessToken:       "ac",
 			Auth:                     true,
+			CMSBaseURL:               testCMSHost,
 		}, GetCMSMetadataFromContext(c.Request().Context()))
 	})
 
@@ -131,6 +133,7 @@ func TestHandler_AuthMiddleware(t *testing.T) {
 			CMSAPIKey:                "token!",
 			SidebarAccessToken:       "ac",
 			Auth:                     false,
+			CMSBaseURL:               testCMSHost,
 		}, GetCMSMetadataFromContext(c.Request().Context()))
 	})
 
@@ -160,7 +163,25 @@ func TestHandler_Metadata(t *testing.T) {
 	mockCMS(t)
 	h := newHandler()
 
-	md, err := h.Metadata(context.Background(), "prjprj", false)
+	expectedAll := MetadataList{
+		{
+			ProjectAlias:            testCMSProject,
+			DataCatalogProjectAlias: testCMSProject,
+			CMSAPIKey:               testCMSToken,
+			SidebarAccessToken:      testSidebarAccessToken,
+			CMSBaseURL:              testCMSHost,
+		},
+		{
+			ProjectAlias:             "prjprj",
+			DataCatalogProjectAlias:  "prjprjprj",
+			DataCatalogSchemaVersion: "v3",
+			CMSAPIKey:                "token!",
+			SidebarAccessToken:       "ac",
+			CMSBaseURL:               testCMSHost,
+		},
+	}
+
+	md, all, err := h.Metadata(context.Background(), "prjprj", false)
 	assert.NoError(t, err)
 	assert.Equal(t, Metadata{
 		ProjectAlias:             "prjprj",
@@ -168,20 +189,25 @@ func TestHandler_Metadata(t *testing.T) {
 		DataCatalogSchemaVersion: "v3",
 		CMSAPIKey:                "token!",
 		SidebarAccessToken:       "ac",
+		CMSBaseURL:               testCMSHost,
 	}, md)
+	assert.Equal(t, expectedAll, all)
 
-	md, err = h.Metadata(context.Background(), "prjprjprj", false)
+	md, all, err = h.Metadata(context.Background(), "prjprjprj", false)
 	assert.Equal(t, rerror.ErrNotFound, err)
+	assert.Equal(t, expectedAll, all)
 	assert.Empty(t, md)
 
-	md, err = h.Metadata(context.Background(), "prjprjprj", true)
+	md, all, err = h.Metadata(context.Background(), "prjprjprj", true)
 	assert.NoError(t, err)
+	assert.Equal(t, expectedAll, all)
 	assert.Equal(t, Metadata{
 		ProjectAlias:             "prjprj",
 		DataCatalogProjectAlias:  "prjprjprj",
 		DataCatalogSchemaVersion: "v3",
 		CMSAPIKey:                "token!",
 		SidebarAccessToken:       "ac",
+		CMSBaseURL:               testCMSHost,
 	}, md)
 }
 
@@ -239,9 +265,9 @@ func TestHandler_LastModified(t *testing.T) {
 
 func newHandler() *CMS {
 	return &CMS{
-		cmsbase:         testCMSHost,
-		cmsTokenProject: tokenProject,
-		cmsMain:         lo.Must(cms.New(testCMSHost, testCMSToken)),
+		cmsbase:            testCMSHost,
+		cmsMetadataProject: tokenProject,
+		cmsMain:            lo.Must(cms.New(testCMSHost, testCMSToken)),
 	}
 }
 
@@ -250,7 +276,7 @@ func mockCMS(t *testing.T) {
 
 	httpmock.RegisterResponder(
 		"GET",
-		lo.Must(url.JoinPath(testCMSHost, "api", "projects", tokenProject, "models", tokenModel, "items")),
+		lo.Must(url.JoinPath(testCMSHost, "api", "projects", tokenProject, "models", metadataModel, "items")),
 		httpmock.NewJsonResponderOrPanic(http.StatusOK, cms.Items{
 			PerPage:    1,
 			Page:       1,
@@ -259,7 +285,7 @@ func mockCMS(t *testing.T) {
 				{
 					ID: "1",
 					Fields: []*cms.Field{
-						{Key: projectAliasField, Value: testCMSProject},
+						{Key: "project_alias", Value: testCMSProject},
 						{Key: "cms_apikey", Value: testCMSToken},
 						{Key: "sidebar_access_token", Value: testSidebarAccessToken},
 					},
@@ -267,7 +293,7 @@ func mockCMS(t *testing.T) {
 				{
 					ID: "2",
 					Fields: []*cms.Field{
-						{Key: projectAliasField, Value: "prjprj"},
+						{Key: "project_alias", Value: "prjprj"},
 						{Key: "datacatalog_project_alias", Value: "prjprjprj"},
 						{Key: "datacatalog_schema_version", Value: "v3"},
 						{Key: "cms_apikey", Value: "token!"},
@@ -277,4 +303,27 @@ func mockCMS(t *testing.T) {
 			},
 		}),
 	)
+}
+
+func TestMetadataList_PlateauProjects(t *testing.T) {
+	m := MetadataList{
+		{
+			DataCatalogProjectAlias: "plateau-2022",
+		},
+		{
+			DataCatalogProjectAlias: "plateau-aaaa",
+		},
+		{
+			DataCatalogProjectAlias: "plateau-2023",
+		},
+	}
+	ps := m.PlateauProjects()
+	assert.Equal(t, MetadataList{
+		{
+			DataCatalogProjectAlias: "plateau-2023",
+		},
+		{
+			DataCatalogProjectAlias: "plateau-2022",
+		},
+	}, ps)
 }

@@ -11,6 +11,7 @@ import (
 	"strings"
 
 	"github.com/eukarya-inc/reearth-plateauview/server/putil"
+	"github.com/eukarya-inc/reearth-plateauview/server/tool"
 	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -27,7 +28,10 @@ func main() {
 	conf := lo.Must(NewConfig())
 
 	if len(os.Args) > 1 && os.Args[1] != "" {
-		tool(conf, os.Args[1:])
+		tool.Main(&tool.Config{
+			CMS_BaseURL: conf.CMS_BaseURL,
+			CMS_Token:   conf.CMS_Token,
+		}, os.Args[1:])
 		return
 	}
 

@@ -169,11 +169,13 @@ type FeatureItem struct {
 	Dic         string             `json:"dic,omitempty" cms:"dic,textarea"`
 	MaxLOD      string             `json:"maxlod,omitempty" cms:"maxlod,asset"`
 	// metadata
-	SkipQC           bool     `json:"skip_qc,omitempty" cms:"skip_qc,bool,metadata"`
-	SkipConvert      bool     `json:"skip_conv,omitempty" cms:"skip_conv,bool,metadata"`
+	SkipQCConv       *cms.Tag `json:"skip_qc_conv,omitempty" cms:"skip_qc_conv,tag,metadata"`
 	Status           *cms.Tag `json:"status,omitempty" cms:"status,select,metadata"`
 	ConvertionStatus *cms.Tag `json:"conv_status,omitempty" cms:"conv_status,tag,metadata"`
 	QCStatus         *cms.Tag `json:"qc_status,omitempty" cms:"qc_status,tag,metadata"`
+	// compat
+	SkipQC      bool `json:"skip_qc,omitempty" cms:"skip_qc,bool,metadata"`
+	SkipConvert bool `json:"skip_conv,omitempty" cms:"skip_conv,bool,metadata"`
 }
 
 type FeatureItemDatum struct {

@@ -3,6 +3,10 @@ package datacatalogv3
 import "github.com/eukarya-inc/reearth-plateauview/server/datacatalog/plateauapi"
 
 func (city *CityItem) ToPrefecture() *plateauapi.Prefecture {
+	if city == nil || len(city.CityCode) < 2 {
+		return nil
+	}
+
 	prefCode := city.CityCode[:2]
 	if prefCode == "" {
 		return nil

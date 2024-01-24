@@ -2,6 +2,7 @@ package plateauapi
 
 import (
 	"context"
+	"fmt"
 	"slices"
 
 	"github.com/reearth/reearthx/util"
@@ -10,6 +11,7 @@ import (
 )
 
 type InMemoryRepoContext struct {
+	Name         string
 	Areas        Areas
 	DatasetTypes DatasetTypes
 	Datasets     Datasets
@@ -32,6 +34,13 @@ func NewInMemoryRepo(ctx *InMemoryRepoContext) *InMemoryRepo {
 	r := &InMemoryRepo{}
 	r.SetContext(ctx)
 	return r
+}
+
+func (c *InMemoryRepo) Name() string {
+	if c.ctx == nil || c.ctx.Name == "" {
+		return "inmemory"
+	}
+	return fmt.Sprintf("inmemory(%s)", c.ctx.Name)
 }
 
 func (c *InMemoryRepo) SetContext(ctx *InMemoryRepoContext) {
@@ -68,7 +77,9 @@ func (c *InMemoryRepo) Node(ctx context.Context, id ID) (Node, error) {
 		}
 	case TypeDataset:
 		if d := c.ctx.Datasets.Dataset(id); d != nil {
-			return removeAdminFromDataset(d, c.admin), nil
+			if filterDataset(d, DatasetsInput{}, c.includedStages) {
+				return removeAdminFromDataset(d, c.admin), nil
+			}
 		}
 	case TypeDatasetItem:
 		if i := c.ctx.Datasets.Item(id); i != nil {
@@ -145,6 +156,7 @@ func (c *InMemoryRepo) Datasets(ctx context.Context, input *DatasetsInput) (res 
 	if input == nil {
 		input = &DatasetsInput{}
 	}
+
 	return removeAdminFromDatasets(c.ctx.Datasets.Filter(func(t Dataset) bool {
 		return filterDataset(t, *input, c.includedStages)
 	}), c.admin), nil

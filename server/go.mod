@@ -16,7 +16,7 @@ require (
 	github.com/oklog/ulid/v2 v2.1.0
 	github.com/paulmach/go.geojson v1.5.0
 	github.com/reearth/go3dtiles v0.0.0-20230612053146-a6d07c1ab855
-	github.com/reearth/reearth-cms-api/go v0.0.0-20231222104419-9d47b68b37ab
+	github.com/reearth/reearth-cms-api/go v0.0.0-20240122053845-b8e81556b2e4
 	github.com/reearth/reearthx v0.0.0-20231120063001-5beb5d648a57
 	github.com/samber/lo v1.39.0
 	github.com/sendgrid/sendgrid-go v3.14.0+incompatible
@@ -27,8 +27,8 @@ require (
 	github.com/thanhpk/randstr v1.0.6
 	github.com/vektah/gqlparser/v2 v2.5.10
 	github.com/vincent-petithory/dataurl v1.0.0
-	golang.org/x/net v0.19.0
-	golang.org/x/sync v0.5.0
+	golang.org/x/net v0.20.0
+	golang.org/x/sync v0.6.0
 	gonum.org/v1/gonum v0.14.0
 )
 
@@ -100,7 +100,7 @@ require (
 	golang.org/x/image v0.14.0 // indirect
 	golang.org/x/mod v0.14.0 // indirect
 	golang.org/x/oauth2 v0.15.0 // indirect
-	golang.org/x/tools v0.16.1 // indirect
+	golang.org/x/tools v0.17.0 // indirect
 	golang.org/x/xerrors v0.0.0-20231012003039-104605ab7028 // indirect
 	gonum.org/v1/plot v0.14.0 // indirect
 	google.golang.org/api v0.154.0 // indirect
@@ -140,9 +140,9 @@ require (
 	go.uber.org/atomic v1.11.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	go.uber.org/zap v1.26.0 // indirect
-	golang.org/x/crypto v0.17.0 // indirect
-	golang.org/x/exp v0.0.0-20231226003508-02704c960a9b
-	golang.org/x/sys v0.15.0 // indirect
+	golang.org/x/crypto v0.18.0 // indirect
+	golang.org/x/exp v0.0.0-20240119083558-1b970713d09a
+	golang.org/x/sys v0.16.0 // indirect
 	golang.org/x/text v0.14.0
 	golang.org/x/time v0.5.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
