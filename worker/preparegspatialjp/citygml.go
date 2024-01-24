@@ -11,7 +11,6 @@ import (
 )
 
 func PrepareCityGML(ctx context.Context, cms *cms.CMS, cityItem *CityItem, allFeatureItems map[string]FeatureItem) (string, string, error) {
-	// return "", "", nil // TODO: remove this line
 	tmpDir := "tmp"
 	downloadPath := filepath.Join(tmpDir, cityItem.CityCode+"_"+cityItem.CityNameEn+"_citygml")
 	_ = os.MkdirAll(downloadPath, os.ModePerm)
