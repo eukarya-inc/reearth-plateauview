@@ -237,7 +237,7 @@ type GenericItem struct {
 	Desc        string               `json:"desc,omitempty" cms:"desc,textarea"`
 	Type        string               `json:"type,omitempty" cms:"type,text"`
 	TypeEn      string               `json:"type_en,omitempty" cms:"type_en,text"`
-	Data        []GenericItemDataset `json:"data,omitempty" cms:"data,group"`
+	Items       []GenericItemDataset `json:"items,omitempty" cms:"items,group"`
 	OpenDataUrl string               `json:"open-data-url,omitempty" cms:"open_data_url,url"`
 	Category    string               `json:"category,omitempty" cms:"category,select"`
 	// metadata
@@ -261,17 +261,17 @@ type GenericItemDataset struct {
 	Name       string `json:"name,omitempty" cms:"name,text"`
 	Data       string `json:"data,omitempty" cms:"data,-"`
 	Desc       string `json:"desc,omitempty" cms:"desc,textarea"`
-	DataURL    string `json:"url,omitempty" cms:"data_url,url"`
-	DataFormat string `json:"data-format,omitempty" cms:"data_format,select"`
-	LayerName  string `json:"layer-name,omitempty" cms:"layer_name,text"`
+	DataURL    string `json:"url,omitempty" cms:"url,url"`
+	DataFormat string `json:"format,omitempty" cms:"format,select"`
+	LayerName  string `json:"layer,omitempty" cms:"layer,text"`
 }
 
 func GenericItemFrom(item *cms.Item) (i *GenericItem) {
 	i = &GenericItem{}
 	item.Unmarshal(i)
 
-	for ind, d := range i.Data {
-		i.Data[ind].Data = valueToAssetURL(item.FieldByKeyAndGroup("data", d.ID).GetValue())
+	for ind, d := range i.Items {
+		i.Items[ind].Data = valueToAssetURL(item.FieldByKeyAndGroup("data", d.ID).GetValue())
 	}
 
 	return

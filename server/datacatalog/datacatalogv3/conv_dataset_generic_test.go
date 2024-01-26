@@ -13,7 +13,7 @@ func Test_GenericItem_ToDatasets(t *testing.T) {
 		ID:   "id",
 		Name: "name",
 		Desc: "desc",
-		Data: []GenericItemDataset{
+		Items: []GenericItemDataset{
 			{
 				ID:         "id1",
 				Name:       "name1",
