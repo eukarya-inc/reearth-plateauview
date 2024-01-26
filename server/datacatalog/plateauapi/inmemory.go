@@ -136,10 +136,6 @@ func (c *InMemoryRepo) Areas(ctx context.Context, input *AreasInput) (res []Area
 			return false
 		}
 
-		if inp.ParentCode != nil && lo.IsNotEmpty(inp.ParentCode) && ParentAreaCode(a) != *inp.ParentCode {
-			return false
-		}
-
 		return true
 	})
 	return
