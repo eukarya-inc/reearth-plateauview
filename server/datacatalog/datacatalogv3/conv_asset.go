@@ -280,11 +280,13 @@ type RelatedAssetName struct {
 	Name     string
 	Year     int
 	Provider string
+	WardCode string
+	WardName string
 	Type     string
 	Format   string
 }
 
-var reRelatedAssetName = regexp.MustCompile(`^(\d{5})_([a-zA-Z0-9-]+)_([a-zA-Z0-9-]+)_(\d+)_([a-zA-Z0-9-]+)\.([a-z0-9]+)$`)
+var reRelatedAssetName = regexp.MustCompile(`^(\d{5})_([a-zA-Z0-9-]+)_([a-zA-Z0-9-]+)_(\d+)_(?:(\d+)_([a-zA-Z0-9-]+?)_)?([a-zA-Z0-9-_]+)\.([a-z0-9]+)$`)
 
 func ParseRelatedAssetName(name string) *RelatedAssetName {
 	if name == "" {
@@ -297,13 +299,14 @@ func ParseRelatedAssetName(name string) *RelatedAssetName {
 	}
 
 	y, _ := strconv.Atoi(m[4])
-
 	return &RelatedAssetName{
 		Code:     m[1],
 		Name:     m[2],
 		Provider: m[3],
 		Year:     y,
-		Type:     m[5],
-		Format:   m[6],
+		WardCode: m[5],
+		WardName: m[6],
+		Type:     m[7],
+		Format:   m[8],
 	}
 }

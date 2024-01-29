@@ -313,13 +313,13 @@ func TestParseAssetURLs(t *testing.T) {
 
 func TestParseRelatedAssetName(t *testing.T) {
 	assert.Equal(t, &RelatedAssetName{
-		Code:     "13101",
-		Name:     "chiyoda-ku",
+		Code:     "41423",
+		Name:     "omachi-cho",
 		Provider: "city",
-		Year:     2023,
-		Type:     "shelter",
+		Year:     2022,
+		Type:     "emergency_route",
 		Format:   "geojson",
-	}, ParseRelatedAssetName("13101_chiyoda-ku_city_2023_shelter.geojson"))
+	}, ParseRelatedAssetName("41423_omachi-cho_city_2022_emergency_route.geojson"))
 	assert.Equal(t, &RelatedAssetName{
 		Code:     "13101",
 		Name:     "chiyoda-ku",
@@ -328,5 +328,15 @@ func TestParseRelatedAssetName(t *testing.T) {
 		Type:     "border",
 		Format:   "czml",
 	}, ParseRelatedAssetName("13101_chiyoda-ku_city_2023_border.czml"))
+	assert.Equal(t, &RelatedAssetName{
+		Code:     "43100",
+		Name:     "kumamoto-shi",
+		Provider: "city",
+		Year:     2022,
+		WardCode: "43100",
+		WardName: "higashi-ku",
+		Type:     "landmark",
+		Format:   "czml",
+	}, ParseRelatedAssetName("43100_kumamoto-shi_city_2022_43100_higashi-ku_landmark.czml"))
 	assert.Nil(t, ParseRelatedAssetName("invalid"))
 }

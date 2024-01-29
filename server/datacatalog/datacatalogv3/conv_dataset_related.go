@@ -130,7 +130,7 @@ func assetUrlsToRelatedDatasetSeeds(orig, conv []string, city *plateauapi.City, 
 		}
 
 		// city
-		if assetNameConv.Code == city.Code.String() {
+		if assetNameConv.Code == city.Code.String() && assetNameConv.WardCode == "" {
 			if wasCityAdded {
 				warning = append(warning, fmt.Sprintf("related %s: duplicated assets that have the same city code: %s", city.Code, nameConv))
 				continue
@@ -148,13 +148,18 @@ func assetUrlsToRelatedDatasetSeeds(orig, conv []string, city *plateauapi.City, 
 			continue
 		}
 
+		wardCode := assetNameConv.WardCode
+		if wardCode == "" {
+			wardCode = assetNameConv.Code
+		}
+
 		// wards
 		ward, _ := lo.Find(wards, func(w *plateauapi.Ward) bool {
-			return w.Code.String() == assetNameConv.Code
+			return w.Code.String() == wardCode
 		})
 
 		if ward == nil {
-			warning = append(warning, fmt.Sprintf("related %s: ward not found: %s", city.Code, nameConv))
+			warning = append(warning, fmt.Sprintf("related %s: ward not found: name=%s, ward=%s", city.Code, nameConv, wardCode))
 			continue
 		}
 

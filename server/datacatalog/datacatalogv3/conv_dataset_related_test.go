@@ -27,6 +27,10 @@ func TestRelatedItem_ToDatasets(t *testing.T) {
 				Asset:       []string{"https://example.com/11111_bar-shi_city_2023_border.geojson"},
 				Description: "desc2",
 			},
+			"emergency_route": {
+				Asset:       []string{"https://example.com/11111_bar-shi_city_2023_11112_hoge-ku_emergency_route.geojson"},
+				Description: "desc3",
+			},
 		},
 	}
 
@@ -114,6 +118,33 @@ func TestRelatedItem_ToDatasets(t *testing.T) {
 				},
 			},
 		},
+		&plateauapi.RelatedDataset{
+			ID:             plateauapi.NewID("11112_emergency_route", plateauapi.TypeDataset),
+			Name:           "緊急輸送道路情報（hoge区）",
+			Description:    toPtrIfPresent("desc3"),
+			Year:           2023,
+			PrefectureID:   lo.ToPtr(plateauapi.NewID("11", plateauapi.TypeArea)),
+			PrefectureCode: lo.ToPtr(plateauapi.AreaCode("11")),
+			CityID:         lo.ToPtr(plateauapi.NewID("11111", plateauapi.TypeArea)),
+			CityCode:       lo.ToPtr(plateauapi.AreaCode("11111")),
+			WardID:         lo.ToPtr(plateauapi.NewID("11112", plateauapi.TypeArea)),
+			WardCode:       lo.ToPtr(plateauapi.AreaCode("11112")),
+			TypeID:         plateauapi.NewID("emergency_route", plateauapi.TypeDatasetType),
+			TypeCode:       "emergency_route",
+			Admin: map[string]any{
+				"cmsUrl": "https://example.com/id",
+				"stage":  string(stageAlpha),
+			},
+			Items: []*plateauapi.RelatedDatasetItem{
+				{
+					ID:       plateauapi.NewID("11112_emergency_route", plateauapi.TypeDatasetItem),
+					Format:   plateauapi.DatasetFormatGeojson,
+					Name:     "緊急輸送道路情報",
+					URL:      "https://example.com/11111_bar-shi_city_2023_11112_hoge-ku_emergency_route.geojson",
+					ParentID: plateauapi.NewID("11112_emergency_route", plateauapi.TypeDataset),
+				},
+			},
+		},
 	}
 
 	area := &areaContext{
@@ -154,6 +185,11 @@ func TestRelatedItem_ToDatasets(t *testing.T) {
 			ID:   plateauapi.NewID("border", plateauapi.TypeDatasetType),
 			Code: "border",
 			Name: "行政界情報",
+		},
+		&plateauapi.RelatedDatasetType{
+			ID:   plateauapi.NewID("emergency_route", plateauapi.TypeDatasetType),
+			Code: "emergency_route",
+			Name: "緊急輸送道路情報",
 		},
 	}
 
