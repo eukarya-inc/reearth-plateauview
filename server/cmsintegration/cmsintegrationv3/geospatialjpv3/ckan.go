@@ -14,9 +14,9 @@ type CityInfo struct {
 	NameJa string
 }
 
-func (s *handler) findOrCreatePackage(ctx context.Context, cityCode, cityName string, year int, city CityInfo) (*ckan.Package, error) {
+func (s *handler) findOrCreatePackage(ctx context.Context, cityCode, cityNameEn string, year int, city CityInfo) (*ckan.Package, error) {
 	// find
-	pkg, pkgName, err := s.findPackage(ctx, cityCode, cityName, year)
+	pkg, pkgName, err := s.findPackage(ctx, cityCode, cityNameEn, year)
 	if err != nil {
 		return nil, fmt.Errorf("G空間情報センターからデータセットを検索できませんでした: %w", err)
 	}

@@ -106,7 +106,7 @@ func (h *handler) Webhook(conf Config) (cmswebhook.Handler, error) {
 			log.Debugfc(ctx, "geospatialjpv3 webhook: publish field not found")
 		}
 
-		// TODO: make resources private when unpublished
+		// TODO: make package private when unpublished
 
 		return nil
 	}, nil
