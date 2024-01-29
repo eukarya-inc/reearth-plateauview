@@ -53,14 +53,14 @@ func (ex AssetNameEx) Key() string {
 	return ""
 }
 
-func (ex AssetNameEx) ItemKey() string {
+func (ex AssetNameEx) DatasetKey() string {
 	switch {
 	case ex.Normal != nil:
-		return ex.Normal.ItemKey()
+		return ex.Normal.DatasetKey()
 	case ex.Urf != nil:
-		return ex.Urf.ItemKey()
+		return ex.Urf.DatasetKey()
 	case ex.Fld != nil:
-		return ex.Fld.ItemKey()
+		return ex.Fld.DatasetKey()
 	}
 	return ""
 }
@@ -90,7 +90,7 @@ func (ex AssetNameExNormal) Key() string {
 	return ""
 }
 
-func (ex AssetNameExNormal) ItemKey() string {
+func (ex AssetNameExNormal) DatasetKey() string {
 	return ""
 }
 
@@ -110,7 +110,7 @@ func (ex AssetNameExUrf) Key() string {
 	return ex.Name
 }
 
-func (ex AssetNameExUrf) ItemKey() string {
+func (ex AssetNameExUrf) DatasetKey() string {
 	return ex.Name
 }
 
@@ -124,19 +124,28 @@ type AssetNameExFld struct {
 	River     string
 	Format    string
 	L         int
+	Suffix    string
 	NoTexture bool
 }
 
 func (ex AssetNameExFld) Key() string {
-	return fmt.Sprintf("l%d", ex.L)
+	return fmt.Sprintf("l%d%s", ex.L, ex.scaleSuffix())
 }
 
-func (ex AssetNameExFld) ItemKey() string {
+func (ex AssetNameExFld) DatasetKey() string {
 	return fmt.Sprintf("%s_%s", ex.Admin, ex.River)
 }
 
 func (ex AssetNameExFld) DicKey() string {
-	return fmt.Sprintf("%s_l%d", ex.River, ex.L)
+	return fmt.Sprintf("%s_l%d%s", ex.River, ex.L, ex.scaleSuffix())
+}
+
+func (ex AssetNameExFld) scaleSuffix() string {
+	suffix := ""
+	if ex.Suffix != "" {
+		suffix = "-" + ex.Suffix
+	}
+	return suffix
 }
 
 var reAssetName = regexp.MustCompile(`^(\d{5})_([a-z0-9-]+)_([a-z0-9-]+)_(\d{4})_(.+?)_(\d+)(?:_op$?)?(?:_(.+))?$`)
@@ -235,7 +244,7 @@ func ParseAssetNameExUrf(name string) *AssetNameExUrf {
 	}
 }
 
-var reAssetNameExFld = regexp.MustCompile(`^fld_(natl|pref)_([a-z0-9-_]+)_3dtiles_(l\d+)(_no_texture)?$`)
+var reAssetNameExFld = regexp.MustCompile(`^fld_(natl|pref)_([a-z0-9-_]+)_3dtiles_(l\d+)(?:-(.+?))?(_no_texture)?$`)
 
 func ParseAssetNameExFld(name string) *AssetNameExFld {
 	if name == "" {
@@ -255,7 +264,8 @@ func ParseAssetNameExFld(name string) *AssetNameExFld {
 		River:     m[2],
 		Format:    "3dtiles",
 		L:         l,
-		NoTexture: m[4] != "",
+		Suffix:    m[4],
+		NoTexture: m[5] != "",
 	}
 }
 

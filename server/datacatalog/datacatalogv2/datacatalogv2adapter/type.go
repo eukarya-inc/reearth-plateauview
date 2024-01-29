@@ -434,12 +434,13 @@ func cityFrom(d datacatalogv2.DataCatalogItem) *plateauapi.City {
 	}
 
 	return &plateauapi.City{
-		ID:             *id,
-		Type:           plateauapi.AreaTypeCity,
-		Code:           *code,
-		Name:           d.City,
-		PrefectureID:   *prefectureIDFrom(d),
-		PrefectureCode: *prefectureCodeFrom(d),
+		ID:                *id,
+		Type:              plateauapi.AreaTypeCity,
+		Code:              *code,
+		Name:              d.City,
+		PrefectureID:      *prefectureIDFrom(d),
+		PrefectureCode:    *prefectureCodeFrom(d),
+		PlanarCrsEpsgCode: lo.EmptyableToPtr(d.PRCS.EPSGCode()),
 	}
 }
 

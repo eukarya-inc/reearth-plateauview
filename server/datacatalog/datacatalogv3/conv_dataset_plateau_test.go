@@ -360,7 +360,7 @@ func TestPlateauDataset_ToDatasets_Fld(t *testing.T) {
 			{
 				ID: "id3",
 				Data: []string{
-					"https://example.com/11111_bar-shi_city_2023_citygml_1_op_fld_pref_yodogawa_ujigawa_3dtiles_l1.zip",
+					"https://example.com/11111_bar-shi_city_2023_citygml_1_op_fld_pref_yodogawa_ujigawa_3dtiles_l1-p1-0001.zip",
 				},
 				Desc: "desc3",
 			},
@@ -370,7 +370,7 @@ func TestPlateauDataset_ToDatasets_Fld(t *testing.T) {
 				{ "name": "yabegawa_haegawa_l1", "description": "矢部川水系八重川", "scale": "計画規模", "admin": "国" },
 				{ "name": "yabegawa_haegawa_l2", "description": "矢部川水系八重川", "scale": "想定最大規模", "admin": "国" },
 				{ "name": "yodogawa_ujigawa_l1", "description": "淀川水系宇治川", "scale": "計画規模", "admin": "国" },
-				{ "name": "yodogawa_ujigawa_l1", "description": "淀川水系宇治川", "scale": "計画規模", "admin": "都道府県" }
+				{ "name": "yodogawa_ujigawa_l1-p1-0001", "description": "淀川水系宇治川", "scale": "計画規模", "admin": "都道府県", "suffix": "p1-0001" }
 			]
 		}`,
 	}
@@ -393,28 +393,31 @@ func TestPlateauDataset_ToDatasets_Fld(t *testing.T) {
 			},
 			Items: []*plateauapi.PlateauDatasetItem{
 				{
-					ID:       plateauapi.NewID("11111_fld_natl_yabegawa_haegawa_l1", plateauapi.TypeDatasetItem),
-					Format:   plateauapi.DatasetFormatCesium3dtiles,
-					Name:     "計画規模",
-					URL:      "https://example.com/11111_bar-shi_city_2023_citygml_1_op_fld_natl_yabegawa_haegawa_3dtiles_l1/tileset.json",
-					Texture:  lo.ToPtr(plateauapi.TextureTexture),
-					ParentID: plateauapi.NewID("11111_fld_natl_yabegawa_haegawa", plateauapi.TypeDataset),
+					ID:            plateauapi.NewID("11111_fld_natl_yabegawa_haegawa_l1", plateauapi.TypeDatasetItem),
+					Format:        plateauapi.DatasetFormatCesium3dtiles,
+					Name:          "計画規模",
+					URL:           "https://example.com/11111_bar-shi_city_2023_citygml_1_op_fld_natl_yabegawa_haegawa_3dtiles_l1/tileset.json",
+					Texture:       lo.ToPtr(plateauapi.TextureTexture),
+					ParentID:      plateauapi.NewID("11111_fld_natl_yabegawa_haegawa", plateauapi.TypeDataset),
+					FloodingScale: lo.ToPtr(plateauapi.FloodingScalePlanned),
 				},
 				{
-					ID:       plateauapi.NewID("11111_fld_natl_yabegawa_haegawa_l1_no_texture", plateauapi.TypeDatasetItem),
-					Format:   plateauapi.DatasetFormatCesium3dtiles,
-					Name:     "計画規模（テクスチャなし）",
-					URL:      "https://example.com/11111_bar-shi_city_2023_citygml_1_op_fld_natl_yabegawa_haegawa_3dtiles_l1_no_texture/tileset.json",
-					Texture:  lo.ToPtr(plateauapi.TextureNone),
-					ParentID: plateauapi.NewID("11111_fld_natl_yabegawa_haegawa", plateauapi.TypeDataset),
+					ID:            plateauapi.NewID("11111_fld_natl_yabegawa_haegawa_l1_no_texture", plateauapi.TypeDatasetItem),
+					Format:        plateauapi.DatasetFormatCesium3dtiles,
+					Name:          "計画規模（テクスチャなし）",
+					URL:           "https://example.com/11111_bar-shi_city_2023_citygml_1_op_fld_natl_yabegawa_haegawa_3dtiles_l1_no_texture/tileset.json",
+					Texture:       lo.ToPtr(plateauapi.TextureNone),
+					ParentID:      plateauapi.NewID("11111_fld_natl_yabegawa_haegawa", plateauapi.TypeDataset),
+					FloodingScale: lo.ToPtr(plateauapi.FloodingScalePlanned),
 				},
 				{
-					ID:       plateauapi.NewID("11111_fld_natl_yabegawa_haegawa_l2", plateauapi.TypeDatasetItem),
-					Format:   plateauapi.DatasetFormatCesium3dtiles,
-					Name:     "想定最大規模",
-					URL:      "https://example.com/11111_bar-shi_city_2023_citygml_1_op_fld_natl_yabegawa_haegawa_3dtiles_l2/tileset.json",
-					Texture:  lo.ToPtr(plateauapi.TextureTexture),
-					ParentID: plateauapi.NewID("11111_fld_natl_yabegawa_haegawa", plateauapi.TypeDataset),
+					ID:            plateauapi.NewID("11111_fld_natl_yabegawa_haegawa_l2", plateauapi.TypeDatasetItem),
+					Format:        plateauapi.DatasetFormatCesium3dtiles,
+					Name:          "想定最大規模",
+					URL:           "https://example.com/11111_bar-shi_city_2023_citygml_1_op_fld_natl_yabegawa_haegawa_3dtiles_l2/tileset.json",
+					Texture:       lo.ToPtr(plateauapi.TextureTexture),
+					ParentID:      plateauapi.NewID("11111_fld_natl_yabegawa_haegawa", plateauapi.TypeDataset),
+					FloodingScale: lo.ToPtr(plateauapi.FloodingScaleExpectedMaximum),
 				},
 			},
 			River: &plateauapi.River{
@@ -439,12 +442,13 @@ func TestPlateauDataset_ToDatasets_Fld(t *testing.T) {
 			},
 			Items: []*plateauapi.PlateauDatasetItem{
 				{
-					ID:       plateauapi.NewID("11111_fld_natl_yodogawa_ujigawa_l1", plateauapi.TypeDatasetItem),
-					Format:   plateauapi.DatasetFormatCesium3dtiles,
-					Name:     "計画規模",
-					URL:      "https://example.com/11111_bar-shi_city_2023_citygml_1_op_fld_natl_yodogawa_ujigawa_3dtiles_l1/tileset.json",
-					Texture:  lo.ToPtr(plateauapi.TextureTexture),
-					ParentID: plateauapi.NewID("11111_fld_natl_yodogawa_ujigawa", plateauapi.TypeDataset),
+					ID:            plateauapi.NewID("11111_fld_natl_yodogawa_ujigawa_l1", plateauapi.TypeDatasetItem),
+					Format:        plateauapi.DatasetFormatCesium3dtiles,
+					Name:          "計画規模",
+					URL:           "https://example.com/11111_bar-shi_city_2023_citygml_1_op_fld_natl_yodogawa_ujigawa_3dtiles_l1/tileset.json",
+					Texture:       lo.ToPtr(plateauapi.TextureTexture),
+					ParentID:      plateauapi.NewID("11111_fld_natl_yodogawa_ujigawa", plateauapi.TypeDataset),
+					FloodingScale: lo.ToPtr(plateauapi.FloodingScalePlanned),
 				},
 			},
 			River: &plateauapi.River{
@@ -469,12 +473,13 @@ func TestPlateauDataset_ToDatasets_Fld(t *testing.T) {
 			},
 			Items: []*plateauapi.PlateauDatasetItem{
 				{
-					ID:       plateauapi.NewID("11111_fld_pref_yodogawa_ujigawa_l1", plateauapi.TypeDatasetItem),
-					Format:   plateauapi.DatasetFormatCesium3dtiles,
-					Name:     "計画規模",
-					URL:      "https://example.com/11111_bar-shi_city_2023_citygml_1_op_fld_pref_yodogawa_ujigawa_3dtiles_l1/tileset.json",
-					Texture:  lo.ToPtr(plateauapi.TextureTexture),
-					ParentID: plateauapi.NewID("11111_fld_pref_yodogawa_ujigawa", plateauapi.TypeDataset),
+					ID:            plateauapi.NewID("11111_fld_pref_yodogawa_ujigawa_l1-p1-0001", plateauapi.TypeDatasetItem),
+					Format:        plateauapi.DatasetFormatCesium3dtiles,
+					Name:          "計画規模（p1-0001）",
+					URL:           "https://example.com/11111_bar-shi_city_2023_citygml_1_op_fld_pref_yodogawa_ujigawa_3dtiles_l1-p1-0001/tileset.json",
+					Texture:       lo.ToPtr(plateauapi.TextureTexture),
+					ParentID:      plateauapi.NewID("11111_fld_pref_yodogawa_ujigawa", plateauapi.TypeDataset),
+					FloodingScale: lo.ToPtr(plateauapi.FloodingScalePlanned),
 				},
 			},
 			River: &plateauapi.River{

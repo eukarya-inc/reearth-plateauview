@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/eukarya-inc/reearth-plateauview/server/cmsintegration/cmsintegrationcommon"
 	"github.com/eukarya-inc/reearth-plateauview/server/datacatalog/datacatalogcommon"
 	cms "github.com/reearth/reearth-cms-api/go"
 	"github.com/samber/lo"
@@ -37,15 +38,16 @@ type FeatureType struct {
 }
 
 type CityItem struct {
-	ID             string            `json:"id,omitempty" cms:"id"`
-	Prefecture     string            `json:"prefecture,omitempty" cms:"prefecture,select"`
-	CityName       string            `json:"city_name,omitempty" cms:"city_name,text"`
-	CityNameEn     string            `json:"city_name_en,omitempty" cms:"city_name_en,text"`
-	CityCode       string            `json:"city_code,omitempty" cms:"city_code,text"`
-	Spec           string            `json:"spec,omitempty" cms:"spec,select"`
-	References     map[string]string `json:"references,omitempty" cms:"-"`
-	RelatedDataset string            `json:"related_dataset,omitempty" cms:"related_dataset,reference"`
-	Year           string            `json:"year,omitempty" cms:"year,select"`
+	ID             string                    `json:"id,omitempty" cms:"id"`
+	Prefecture     string                    `json:"prefecture,omitempty" cms:"prefecture,select"`
+	CityName       string                    `json:"city_name,omitempty" cms:"city_name,text"`
+	CityNameEn     string                    `json:"city_name_en,omitempty" cms:"city_name_en,text"`
+	CityCode       string                    `json:"city_code,omitempty" cms:"city_code,text"`
+	Spec           string                    `json:"spec,omitempty" cms:"spec,select"`
+	References     map[string]string         `json:"references,omitempty" cms:"-"`
+	RelatedDataset string                    `json:"related_dataset,omitempty" cms:"related_dataset,reference"`
+	Year           string                    `json:"year,omitempty" cms:"year,select"`
+	PRCS           cmsintegrationcommon.PRCS `json:"prcs,omitempty" cms:"prcs,select"`
 	// meatadata
 	PlateauDataStatus *cms.Tag        `json:"plateau_data_status,omitempty" cms:"plateau_data_status,select,metadata"`
 	RelatedDataStatus *cms.Tag        `json:"related_data_status,omitempty" cms:"related_data_status,select,metadata"`
@@ -82,6 +84,10 @@ func CityItemFrom(item *cms.Item, featureTypes []FeatureType) (i *CityItem) {
 
 func (i *CityItem) YearInt() int {
 	return datacatalogcommon.YearInt(i.Year)
+}
+
+func (c *CityItem) PlanarCrsEpsgCode() string {
+	return c.PRCS.EPSGCode()
 }
 
 func (i *CityItem) plateauStage(ft string) stage {
@@ -176,11 +182,13 @@ func (d Dic) FindEntry(key, name string) *DicEntry {
 }
 
 type DicEntry struct {
-	Name        *StringOrNumber `json:"name,omitempty"`
-	Description string          `json:"description,omitempty"`
-	Code        *StringOrNumber `json:"code,omitempty"`  // bldg only
-	Admin       string          `json:"admin,omitempty"` // fld only
-	Scale       string          `json:"scale,omitempty"` // fld only
+	Name              *StringOrNumber `json:"name,omitempty"`
+	Description       string          `json:"description,omitempty"`
+	Code              *StringOrNumber `json:"code,omitempty"`               // bldg only
+	Admin             string          `json:"admin,omitempty"`              // fld only
+	Scale             string          `json:"scale,omitempty"`              // fld only
+	Suffix            string          `json:"suffix,omitempty"`             // fld only (optional)
+	SuffixDescription string          `json:"suffix_description,omitempty"` // fld only (optional)
 }
 
 func PlateauFeatureItemFrom(item *cms.Item) (i *PlateauFeatureItem) {

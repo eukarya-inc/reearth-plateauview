@@ -149,6 +149,8 @@ type City struct {
 	Wards []*Ward `json:"wards"`
 	// 市区町村に属するデータセット（DatasetInput内のareasCodeの指定は無視されます）。
 	Datasets []Dataset `json:"datasets"`
+	// 平面直角座標系のEPSGコード。例えば、東京都の場合は "6677" です。
+	PlanarCrsEpsgCode *string `json:"planarCrsEpsgCode,omitempty"`
 }
 
 func (City) IsArea()        {}
@@ -583,6 +585,8 @@ type PlateauDatasetItem struct {
 	Texture *Texture `json:"texture,omitempty"`
 	// 浸水規模。地物型が洪水・高潮・津波・内水浸水想定区域モデル（fld・htd・tnm・ifld）の場合のみ存在します。
 	FloodingScale *FloodingScale `json:"floodingScale,omitempty"`
+	// 浸水規模の枝番。地物型が洪水・高潮・津波・内水浸水想定区域モデル（fld・htd・tnm・ifld）の場合のみ存在することがあります。
+	FloodingScaleSuffix *string `json:"floodingScaleSuffix,omitempty"`
 }
 
 func (PlateauDatasetItem) IsDatasetItem() {}
