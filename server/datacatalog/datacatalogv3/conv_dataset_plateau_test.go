@@ -243,6 +243,8 @@ func TestPlateauDataset_ToDatasets_Tnm(t *testing.T) {
 		&plateauapi.PlateauDataset{
 			ID:                 plateauapi.NewID("11111_tnm_AAA", plateauapi.TypeDataset),
 			Name:               "津波浸水想定区域モデル AAA!（bar市）",
+			Subname:            lo.ToPtr("AAA!"),
+			Subcode:            lo.ToPtr("AAA"),
 			Description:        lo.ToPtr("desc1"),
 			Year:               2023,
 			PrefectureID:       lo.ToPtr(plateauapi.NewID("11", plateauapi.TypeArea)),
@@ -274,6 +276,8 @@ func TestPlateauDataset_ToDatasets_Tnm(t *testing.T) {
 		&plateauapi.PlateauDataset{
 			ID:                 plateauapi.NewID("11111_tnm_BBB", plateauapi.TypeDataset),
 			Name:               "津波浸水想定区域モデル BBB!（bar市）",
+			Subname:            lo.ToPtr("BBB!"),
+			Subcode:            lo.ToPtr("BBB"),
 			Description:        lo.ToPtr("desc2"),
 			Year:               2023,
 			PrefectureID:       lo.ToPtr(plateauapi.NewID("11", plateauapi.TypeArea)),
@@ -379,6 +383,8 @@ func TestPlateauDataset_ToDatasets_Fld(t *testing.T) {
 		&plateauapi.PlateauDataset{
 			ID:                 plateauapi.NewID("11111_fld_natl_yabegawa_haegawa", plateauapi.TypeDataset),
 			Name:               "洪水浸水想定区域モデル 矢部川水系八重川（国管理区間）（bar市）",
+			Subname:            lo.ToPtr("矢部川水系八重川（国管理区間）"),
+			Subcode:            lo.ToPtr("natl_yabegawa_haegawa"),
 			Description:        lo.ToPtr("desc1"),
 			Year:               2023,
 			PrefectureID:       lo.ToPtr(plateauapi.NewID("11", plateauapi.TypeArea)),
@@ -428,6 +434,8 @@ func TestPlateauDataset_ToDatasets_Fld(t *testing.T) {
 		&plateauapi.PlateauDataset{
 			ID:                 plateauapi.NewID("11111_fld_natl_yodogawa_ujigawa", plateauapi.TypeDataset),
 			Name:               "洪水浸水想定区域モデル 淀川水系宇治川（国管理区間）（bar市）",
+			Subname:            lo.ToPtr("淀川水系宇治川（国管理区間）"),
+			Subcode:            lo.ToPtr("natl_yodogawa_ujigawa"),
 			Description:        lo.ToPtr("desc2"),
 			Year:               2023,
 			PrefectureID:       lo.ToPtr(plateauapi.NewID("11", plateauapi.TypeArea)),
@@ -459,6 +467,8 @@ func TestPlateauDataset_ToDatasets_Fld(t *testing.T) {
 		&plateauapi.PlateauDataset{
 			ID:                 plateauapi.NewID("11111_fld_pref_yodogawa_ujigawa", plateauapi.TypeDataset),
 			Name:               "洪水浸水想定区域モデル 淀川水系宇治川（都道府県管理区間）（bar市）",
+			Subname:            lo.ToPtr("淀川水系宇治川（都道府県管理区間）"),
+			Subcode:            lo.ToPtr("pref_yodogawa_ujigawa"),
 			Description:        lo.ToPtr("desc3"),
 			Year:               2023,
 			PrefectureID:       lo.ToPtr(plateauapi.NewID("11", plateauapi.TypeArea)),
