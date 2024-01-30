@@ -100,16 +100,6 @@ func (i *CityItem) plateauStage(ft string) stage {
 	return stageAlpha
 }
 
-func (i *CityItem) relatedStage() stage {
-	if i.RelatedPublic {
-		return stageGA
-	}
-	if i.RelatedDataStatus != nil && i.RelatedDataStatus.Name == string(ManagementStatusReady) {
-		return stageBeta
-	}
-	return stageAlpha
-}
-
 type PlateauFeatureItem struct {
 	ID      string                    `json:"id,omitempty" cms:"id"`
 	City    string                    `json:"city,omitempty" cms:"city,reference"`
@@ -290,6 +280,7 @@ type RelatedItem struct {
 	City   string                      `json:"city,omitempty" cms:"city,reference"`
 	Items  map[string]RelatedItemDatum `json:"items,omitempty" cms:"-"`
 	Merged string                      `json:"merged,omitempty" cms:"merged,asset"`
+	Status *cms.Tag                    `json:"status,omitempty" cms:"status,select,metadata"`
 }
 
 type RelatedItemDatum struct {

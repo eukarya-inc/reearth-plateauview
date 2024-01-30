@@ -73,7 +73,7 @@ func plateauDatasetSeedsFrom(i *PlateauFeatureItem, dt *plateauapi.PlateauDatase
 		res[i].Pref = area.Pref
 		res[i].City = area.City
 		res[i].Spec = spec
-		res[i].Admin = adminFrom(area.CityItem, cmsurl, dt.Code)
+		res[i].Admin = newAdmin(area.CityItem.ID, area.CityItem.plateauStage(dt.Code), cmsurl)
 		res[i].LayerNames = layerNames
 		res[i].Year = year
 		if res[i].TargetArea == nil {
