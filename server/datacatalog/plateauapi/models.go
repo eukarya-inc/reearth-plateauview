@@ -69,6 +69,24 @@ func (a *Areas) Area(id ID) Area {
 	return nil
 }
 
+func DatasetTypeCategoryFromDataset(d Dataset) DatasetTypeCategory {
+	switch d.(type) {
+	case PlateauDataset:
+		return DatasetTypeCategoryPlateau
+	case *PlateauDataset:
+		return DatasetTypeCategoryPlateau
+	case RelatedDataset:
+		return DatasetTypeCategoryRelated
+	case *RelatedDataset:
+		return DatasetTypeCategoryRelated
+	case GenericDataset:
+		return DatasetTypeCategoryGeneric
+	case *GenericDataset:
+		return DatasetTypeCategoryGeneric
+	}
+	return ""
+}
+
 type Datasets map[DatasetTypeCategory][]Dataset
 
 func (d Datasets) Append(cat DatasetTypeCategory, ds []Dataset) {

@@ -37,13 +37,29 @@ func filterDataset(d Dataset, input DatasetsInput, stages []string) bool {
 		return false
 	}
 
-	dataType := d.GetTypeCode()
+	if len(input.AreaCodes) > 0 {
+		var areaCodes []AreaCode
+		if lo.FromPtr(input.Shallow) {
+			areaCodes = util.DerefSlice([]*AreaCode{areaCodeFrom(d)})
+		} else {
+			areaCodes = areaCodesFrom(d)
+		}
+
+		if lo.EveryBy(input.AreaCodes, func(code AreaCode) bool {
+			return !slices.Contains(areaCodes, code)
+		}) {
+			return false
+		}
+	}
+
+	if input.Year != nil && *input.Year != d.GetYear() {
+		return false
+	}
+
 	text := []string{
 		d.GetName(),
 		lo.FromPtr(d.GetDescription()),
 	}
-	year := d.GetYear()
-
 	var spec string
 	switch d2 := d.(type) {
 	case *PlateauDataset:
@@ -60,30 +76,11 @@ func filterDataset(d Dataset, input DatasetsInput, stages []string) bool {
 		spec = string(d2.PlateauSpecMinorID)
 	}
 
-	if len(input.AreaCodes) > 0 {
-		var areaCodes []AreaCode
-		if lo.FromPtr(input.Shallow) {
-			areaCodes = util.DerefSlice([]*AreaCode{areaCodeFrom(d)})
-		} else {
-			areaCodes = areaCodesFrom(d)
-		}
-
-		if lo.EveryBy(input.AreaCodes, func(code AreaCode) bool {
-			return !slices.Contains(areaCodes, code)
-		}) {
-			return false
-		}
-	}
-
-	if input.Year != nil && *input.Year != year {
-		return false
-	}
-
 	if !filterByPlateauSpec(input.PlateauSpec, spec) {
 		return false
 	}
 
-	if !filterByCode(dataType, input.IncludeTypes, input.ExcludeTypes) {
+	if !filterByCode(d.GetTypeCode(), DatasetTypeCategoryFromDataset(d), input.IncludeTypes, input.ExcludeTypes) {
 		return false
 	}
 
@@ -114,12 +111,14 @@ func filterByPlateauSpec(querySpec *string, datasetSpec string) bool {
 	return s1 == s2 || s1 == MajorVersion(s2)
 }
 
-func filterByCode(code string, includes []string, excludes []string) bool {
+func filterByCode(code string, category DatasetTypeCategory, includes []string, excludes []string) bool {
 	code = strings.ToLower(code)
+	cat := strings.ToLower(category.String())
 
 	if len(excludes) > 0 {
 		if lo.SomeBy(excludes, func(t string) bool {
-			return strings.ToLower(t) == code
+			s := strings.ToLower(t)
+			return code != "" && s == code || cat != "" && s == cat
 		}) {
 			return false
 		}
@@ -127,7 +126,8 @@ func filterByCode(code string, includes []string, excludes []string) bool {
 
 	if len(includes) > 0 {
 		if lo.EveryBy(includes, func(t string) bool {
-			return strings.ToLower(t) != code
+			s := strings.ToLower(t)
+			return (code == "" || s != code) && (cat == "" || s != cat)
 		}) {
 			return false
 		}
