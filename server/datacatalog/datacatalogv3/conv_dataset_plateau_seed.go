@@ -341,7 +341,7 @@ func plateauDatasetItemSeedFromUrf(url string, ex *AssetNameExUrf, dic Dic, laye
 		Name:      entry.Description,
 		URL:       assetURLFromFormat(url, format),
 		Format:    format,
-		LOD:       toPtrIfPresent(ex.LOD),
+		LOD:       lo.EmptyableToPtr(ex.LOD),
 		NoTexture: notexture,
 		Layers:    layerNames.LayerName([]string{key}, ex.LOD, format),
 	}, w

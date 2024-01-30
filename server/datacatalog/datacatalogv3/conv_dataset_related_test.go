@@ -38,7 +38,7 @@ func TestRelatedItem_ToDatasets(t *testing.T) {
 		&plateauapi.RelatedDataset{
 			ID:             plateauapi.NewID("11112_landmark", plateauapi.TypeDataset),
 			Name:           "ランドマーク情報（hoge区）",
-			Description:    toPtrIfPresent("desc1"),
+			Description:    lo.EmptyableToPtr("desc1"),
 			Year:           2023,
 			PrefectureID:   lo.ToPtr(plateauapi.NewID("11", plateauapi.TypeArea)),
 			PrefectureCode: lo.ToPtr(plateauapi.AreaCode("11")),
@@ -67,7 +67,7 @@ func TestRelatedItem_ToDatasets(t *testing.T) {
 		&plateauapi.RelatedDataset{
 			ID:             plateauapi.NewID("11113_landmark", plateauapi.TypeDataset),
 			Name:           "ランドマーク情報（foo区）",
-			Description:    toPtrIfPresent("desc1"),
+			Description:    lo.EmptyableToPtr("desc1"),
 			Year:           2023,
 			PrefectureID:   lo.ToPtr(plateauapi.NewID("11", plateauapi.TypeArea)),
 			PrefectureCode: lo.ToPtr(plateauapi.AreaCode("11")),
@@ -96,7 +96,7 @@ func TestRelatedItem_ToDatasets(t *testing.T) {
 		&plateauapi.RelatedDataset{
 			ID:             plateauapi.NewID("11111_border", plateauapi.TypeDataset),
 			Name:           "行政界情報（bar市）",
-			Description:    toPtrIfPresent("desc2"),
+			Description:    lo.EmptyableToPtr("desc2"),
 			Year:           2023,
 			PrefectureID:   lo.ToPtr(plateauapi.NewID("11", plateauapi.TypeArea)),
 			PrefectureCode: lo.ToPtr(plateauapi.AreaCode("11")),
@@ -121,7 +121,7 @@ func TestRelatedItem_ToDatasets(t *testing.T) {
 		&plateauapi.RelatedDataset{
 			ID:             plateauapi.NewID("11112_emergency_route", plateauapi.TypeDataset),
 			Name:           "緊急輸送道路情報（hoge区）",
-			Description:    toPtrIfPresent("desc3"),
+			Description:    lo.EmptyableToPtr("desc3"),
 			Year:           2023,
 			PrefectureID:   lo.ToPtr(plateauapi.NewID("11", plateauapi.TypeArea)),
 			PrefectureCode: lo.ToPtr(plateauapi.AreaCode("11")),

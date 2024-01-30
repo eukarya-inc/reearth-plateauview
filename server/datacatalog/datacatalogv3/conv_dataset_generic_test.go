@@ -41,7 +41,7 @@ func Test_GenericItem_ToDatasets(t *testing.T) {
 		&plateauapi.GenericDataset{
 			ID:             plateauapi.NewID("id", plateauapi.TypeDataset),
 			Name:           "name",
-			Description:    toPtrIfPresent("desc"),
+			Description:    lo.EmptyableToPtr("desc"),
 			Year:           2023,
 			PrefectureID:   lo.ToPtr(plateauapi.NewID("11", plateauapi.TypeArea)),
 			PrefectureCode: lo.ToPtr(plateauapi.AreaCode("11")),

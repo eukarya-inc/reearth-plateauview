@@ -181,7 +181,6 @@ func relatedDatasetFrom(d datacatalogv2.DataCatalogItem) (plateauapi.RelatedData
 	return plateauapi.RelatedDataset{
 		ID:             id,
 		Name:           d.Name,
-		Subname:        nil,
 		Description:    lo.ToPtr(d.Description),
 		PrefectureID:   prefectureIDFrom(d),
 		PrefectureCode: prefectureCodeFrom(d),
@@ -230,7 +229,6 @@ func genericDatasetFrom(d datacatalogv2.DataCatalogItem) (plateauapi.GenericData
 	return plateauapi.GenericDataset{
 		ID:             id,
 		Name:           d.Name,
-		Subname:        nil,
 		Description:    lo.ToPtr(d.Description),
 		PrefectureID:   prefectureIDFrom(d),
 		PrefectureCode: prefectureCodeFrom(d),

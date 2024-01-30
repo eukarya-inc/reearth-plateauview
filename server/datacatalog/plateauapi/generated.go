@@ -85,7 +85,6 @@ type ComplexityRoot struct {
 		Prefecture     func(childComplexity int) int
 		PrefectureCode func(childComplexity int) int
 		PrefectureID   func(childComplexity int) int
-		Subname        func(childComplexity int) int
 		Type           func(childComplexity int) int
 		TypeCode       func(childComplexity int) int
 		TypeID         func(childComplexity int) int
@@ -129,6 +128,7 @@ type ComplexityRoot struct {
 		PrefectureCode     func(childComplexity int) int
 		PrefectureID       func(childComplexity int) int
 		River              func(childComplexity int) int
+		Subcode            func(childComplexity int) int
 		Subname            func(childComplexity int) int
 		Type               func(childComplexity int) int
 		TypeCode           func(childComplexity int) int
@@ -217,7 +217,6 @@ type ComplexityRoot struct {
 		Prefecture     func(childComplexity int) int
 		PrefectureCode func(childComplexity int) int
 		PrefectureID   func(childComplexity int) int
-		Subname        func(childComplexity int) int
 		Type           func(childComplexity int) int
 		TypeCode       func(childComplexity int) int
 		TypeID         func(childComplexity int) int
@@ -517,13 +516,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.GenericDataset.PrefectureID(childComplexity), true
 
-	case "GenericDataset.subname":
-		if e.complexity.GenericDataset.Subname == nil {
-			break
-		}
-
-		return e.complexity.GenericDataset.Subname(childComplexity), true
-
 	case "GenericDataset.type":
 		if e.complexity.GenericDataset.Type == nil {
 			break
@@ -766,6 +758,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.PlateauDataset.River(childComplexity), true
+
+	case "PlateauDataset.subcode":
+		if e.complexity.PlateauDataset.Subcode == nil {
+			break
+		}
+
+		return e.complexity.PlateauDataset.Subcode(childComplexity), true
 
 	case "PlateauDataset.subname":
 		if e.complexity.PlateauDataset.Subname == nil {
@@ -1280,13 +1279,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.RelatedDataset.PrefectureID(childComplexity), true
-
-	case "RelatedDataset.subname":
-		if e.complexity.RelatedDataset.Subname == nil {
-			break
-		}
-
-		return e.complexity.RelatedDataset.Subname(childComplexity), true
 
 	case "RelatedDataset.type":
 		if e.complexity.RelatedDataset.Type == nil {
@@ -2467,47 +2459,6 @@ func (ec *executionContext) fieldContext_GenericDataset_name(ctx context.Context
 	return fc, nil
 }
 
-func (ec *executionContext) _GenericDataset_subname(ctx context.Context, field graphql.CollectedField, obj *GenericDataset) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_GenericDataset_subname(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Subname, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*string)
-	fc.Result = res
-	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_GenericDataset_subname(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "GenericDataset",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _GenericDataset_description(ctx context.Context, field graphql.CollectedField, obj *GenericDataset) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_GenericDataset_description(ctx, field)
 	if err != nil {
@@ -3609,8 +3560,6 @@ func (ec *executionContext) fieldContext_GenericDatasetItem_parent(ctx context.C
 				return ec.fieldContext_GenericDataset_id(ctx, field)
 			case "name":
 				return ec.fieldContext_GenericDataset_name(ctx, field)
-			case "subname":
-				return ec.fieldContext_GenericDataset_subname(ctx, field)
 			case "description":
 				return ec.fieldContext_GenericDataset_description(ctx, field)
 			case "year":
@@ -3871,8 +3820,6 @@ func (ec *executionContext) fieldContext_GenericDatasetType_datasets(ctx context
 				return ec.fieldContext_GenericDataset_id(ctx, field)
 			case "name":
 				return ec.fieldContext_GenericDataset_name(ctx, field)
-			case "subname":
-				return ec.fieldContext_GenericDataset_subname(ctx, field)
 			case "description":
 				return ec.fieldContext_GenericDataset_description(ctx, field)
 			case "year":
@@ -4042,6 +3989,47 @@ func (ec *executionContext) _PlateauDataset_subname(ctx context.Context, field g
 }
 
 func (ec *executionContext) fieldContext_PlateauDataset_subname(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PlateauDataset",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PlateauDataset_subcode(ctx context.Context, field graphql.CollectedField, obj *PlateauDataset) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_PlateauDataset_subcode(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Subcode, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_PlateauDataset_subcode(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "PlateauDataset",
 		Field:      field,
@@ -5326,6 +5314,8 @@ func (ec *executionContext) fieldContext_PlateauDatasetItem_parent(ctx context.C
 				return ec.fieldContext_PlateauDataset_name(ctx, field)
 			case "subname":
 				return ec.fieldContext_PlateauDataset_subname(ctx, field)
+			case "subcode":
+				return ec.fieldContext_PlateauDataset_subcode(ctx, field)
 			case "description":
 				return ec.fieldContext_PlateauDataset_description(ctx, field)
 			case "year":
@@ -5943,6 +5933,8 @@ func (ec *executionContext) fieldContext_PlateauDatasetType_datasets(ctx context
 				return ec.fieldContext_PlateauDataset_name(ctx, field)
 			case "subname":
 				return ec.fieldContext_PlateauDataset_subname(ctx, field)
+			case "subcode":
+				return ec.fieldContext_PlateauDataset_subcode(ctx, field)
 			case "description":
 				return ec.fieldContext_PlateauDataset_description(ctx, field)
 			case "year":
@@ -7572,47 +7564,6 @@ func (ec *executionContext) fieldContext_RelatedDataset_name(ctx context.Context
 	return fc, nil
 }
 
-func (ec *executionContext) _RelatedDataset_subname(ctx context.Context, field graphql.CollectedField, obj *RelatedDataset) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_RelatedDataset_subname(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Subname, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*string)
-	fc.Result = res
-	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_RelatedDataset_subname(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "RelatedDataset",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _RelatedDataset_description(ctx context.Context, field graphql.CollectedField, obj *RelatedDataset) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_RelatedDataset_description(ctx, field)
 	if err != nil {
@@ -8800,8 +8751,6 @@ func (ec *executionContext) fieldContext_RelatedDatasetItem_parent(ctx context.C
 				return ec.fieldContext_RelatedDataset_id(ctx, field)
 			case "name":
 				return ec.fieldContext_RelatedDataset_name(ctx, field)
-			case "subname":
-				return ec.fieldContext_RelatedDataset_subname(ctx, field)
 			case "description":
 				return ec.fieldContext_RelatedDataset_description(ctx, field)
 			case "year":
@@ -9062,8 +9011,6 @@ func (ec *executionContext) fieldContext_RelatedDatasetType_datasets(ctx context
 				return ec.fieldContext_RelatedDataset_id(ctx, field)
 			case "name":
 				return ec.fieldContext_RelatedDataset_name(ctx, field)
-			case "subname":
-				return ec.fieldContext_RelatedDataset_subname(ctx, field)
 			case "description":
 				return ec.fieldContext_RelatedDataset_description(ctx, field)
 			case "year":
@@ -12114,8 +12061,6 @@ func (ec *executionContext) _GenericDataset(ctx context.Context, sel ast.Selecti
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
-		case "subname":
-			out.Values[i] = ec._GenericDataset_subname(ctx, field, obj)
 		case "description":
 			out.Values[i] = ec._GenericDataset_description(ctx, field, obj)
 		case "year":
@@ -12519,6 +12464,8 @@ func (ec *executionContext) _PlateauDataset(ctx context.Context, sel ast.Selecti
 			}
 		case "subname":
 			out.Values[i] = ec._PlateauDataset_subname(ctx, field, obj)
+		case "subcode":
+			out.Values[i] = ec._PlateauDataset_subcode(ctx, field, obj)
 		case "description":
 			out.Values[i] = ec._PlateauDataset_description(ctx, field, obj)
 		case "year":
@@ -13591,8 +13538,6 @@ func (ec *executionContext) _RelatedDataset(ctx context.Context, sel ast.Selecti
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
-		case "subname":
-			out.Values[i] = ec._RelatedDataset_subname(ctx, field, obj)
 		case "description":
 			out.Values[i] = ec._RelatedDataset_description(ctx, field, obj)
 		case "year":

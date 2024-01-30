@@ -250,10 +250,6 @@ interface Dataset implements Node {
   """
   name: String!
   """
-  データセットのサブ名
-  """
-  subname: String
-  """
   データセットの説明
   """
   description: String
@@ -454,9 +450,13 @@ type PlateauDataset implements Dataset & Node {
   """
   name: String!
   """
-  データセットのサブ名
+  データセットのサブ名。都市計画決定情報の○○区域や洪水浸水想定区域の河川名などが含まれます。
   """
   subname: String
+  """
+  データセットのサブコード。都市計画決定情報の○○区域や洪水浸水想定区域の河川名などのコード表現が含まれます。
+  """
+  subcode: String
   """
   データセットの説明
   """
@@ -695,10 +695,6 @@ type RelatedDataset implements Dataset & Node {
   """
   name: String!
   """
-  データセットのサブ名
-  """
-  subname: String
-  """
   データセットの説明
   """
   description: String
@@ -844,10 +840,6 @@ type GenericDataset implements Dataset & Node {
   データセット名
   """
   name: String!
-  """
-  データセットのサブ名
-  """
-  subname: String
   """
   データセットの説明
   """

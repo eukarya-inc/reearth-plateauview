@@ -41,7 +41,6 @@ func filterDataset(d Dataset, input DatasetsInput, stages []string) bool {
 	text := []string{
 		d.GetName(),
 		lo.FromPtr(d.GetDescription()),
-		lo.FromPtr(d.GetSubname()),
 	}
 	year := d.GetYear()
 
@@ -50,6 +49,12 @@ func filterDataset(d Dataset, input DatasetsInput, stages []string) bool {
 	case *PlateauDataset:
 		if d2 != nil {
 			spec = string(d2.PlateauSpecMinorID)
+			if d2.Subname != nil {
+				text = append(text, *d2.Subname)
+			}
+			if d2.Subcode != nil {
+				text = append(text, *d2.Subcode)
+			}
 		}
 	case PlateauDataset:
 		spec = string(d2.PlateauSpecMinorID)

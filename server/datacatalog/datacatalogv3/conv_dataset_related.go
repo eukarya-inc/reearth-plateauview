@@ -45,7 +45,7 @@ func (i *RelatedItem) toDatasets(area *areaContext, dts []plateauapi.DatasetType
 			res = append(res, &plateauapi.RelatedDataset{
 				ID:             id,
 				Name:           standardItemName(ftname, "", seed.Area),
-				Description:    toPtrIfPresent(d.Description),
+				Description:    lo.EmptyableToPtr(d.Description),
 				Year:           area.CityItem.YearInt(),
 				PrefectureID:   area.PrefID,
 				PrefectureCode: area.PrefCode,
