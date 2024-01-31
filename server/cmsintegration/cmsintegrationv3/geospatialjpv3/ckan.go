@@ -27,6 +27,7 @@ func (s *handler) findOrCreatePackage(ctx context.Context, cityCode, cityNameEn 
 			Name:     pkgName,
 			OwnerOrg: s.ckanOrg,
 			Title:    fmt.Sprintf("3D都市モデル（Project PLATEAU）%s（%d年度）", city.NameJa, year),
+			Private:  true,
 			// TODO: use CityInfo
 		}
 		log.Infofc(ctx, "geospartialjp: package %s not found so new package will be created", pkgName)

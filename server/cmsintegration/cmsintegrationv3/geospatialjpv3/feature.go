@@ -4,57 +4,53 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/k0kubun/pp/v3"
 	cms "github.com/reearth/reearth-cms-api/go"
 	"github.com/reearth/reearthx/log"
 )
 
-type GeospatialItem struct {
-	CityGML string `json:"citygml,omitempty"`
-	Plateau string `json:"plateau,omitempty"`
-	Related string `json:"related,omitempty"`
+type Seed struct {
+	CityGML string
+	Plateau string
+	Related string
+	Version int
 }
 
-func getGeospatialItems(ctx context.Context, c cms.Interface, cityItem *CityItem) (GeospatialItem, error) {
-	res := GeospatialItem{}
+const defaultVersion = 3
 
-	item, err := c.GetItem(ctx, cityItem.GeospatialjpData, true)
+func getSeed(ctx context.Context, c cms.Interface, cityItem *CityItem) (Seed, error) {
+	seed := Seed{
+		Version: defaultVersion,
+	}
+
+	rawDataItem, err := c.GetItem(ctx, cityItem.GeospatialjpData, true)
 	if err != nil {
-		return res, fmt.Errorf("failed to get item: %w", err)
+		return seed, fmt.Errorf("failed to get item: %w", err)
 	}
 
-	{
-		pp := pp.New()
-		pp.SetColoringEnabled(false)
-		s := pp.Sprint(item)
-		log.Debugfc(ctx, "geospatialjpv3: geoItem: %s", s)
+	var dataItem GspatialjpItem
+	rawDataItem.Unmarshal(&dataItem)
+
+	if dataItem.CityGML != nil {
+		seed.CityGML = valueToAsset(dataItem.CityGML)
+	}
+	if dataItem.Plateau != nil {
+		seed.Plateau = valueToAsset(dataItem.Plateau)
+	}
+	if dataItem.Related != nil {
+		seed.Related = valueToAsset(dataItem.Related)
 	}
 
-	for _, field := range item.Fields {
-		if field.Key == "citygml" {
-			if field.Value != nil {
-				res.CityGML = field.Value.(string)
-			} else {
-				res.CityGML = ""
-			}
-		}
+	log.Debugfc(ctx, "geospatialjpv3: seed: %s", ppp.Sprint(dataItem))
+	return seed, nil
+}
 
-		if field.Key == "plateau" {
-			if field.Value != nil {
-				res.Plateau = field.Value.(string)
-			} else {
-				res.Plateau = ""
-			}
-		}
-
-		if field.Key == "related" {
-			if field.Value != nil {
-				res.Related = field.Value.(string)
-			} else {
-				res.Related = ""
-			}
-		}
+func valueToAsset(v *cms.Value) string {
+	vv := map[string]any{}
+	if err := v.JSON(&vv); err != nil {
+		return ""
 	}
-
-	return res, nil
+	if url, ok := vv["url"].(string); ok {
+		return url
+	}
+	return ""
 }

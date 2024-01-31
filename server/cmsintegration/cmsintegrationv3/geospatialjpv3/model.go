@@ -1,6 +1,9 @@
 package geospatialjpv3
 
-import cms "github.com/reearth/reearth-cms-api/go"
+import (
+	"github.com/eukarya-inc/reearth-plateauview/server/datacatalog/datacatalogcommon"
+	cms "github.com/reearth/reearth-cms-api/go"
+)
 
 var featureTypes = []string{
 	// *: データカタログ上で複数の項目に分かれて存在
@@ -41,6 +44,7 @@ type CityItem struct {
 	Metadata          string            `json:"metadata,omitempty" cms:"metadata,asset"`
 	Specification     string            `json:"specification,omitempty" cms:"specification,asset"`
 	Misc              string            `json:"misc,omitempty" cms:"misc,asset"`
+	Year              string            `json:"year,omitempty" cms:"year,select"`
 	References        map[string]string `json:"references,omitempty" cms:"-"`
 	RelatedDataset    string            `json:"related_dataset,omitempty" cms:"related_dataset,reference"`
 	GeospatialjpIndex string            `json:"geospatialjp-index,omitempty" cms:"geospatialjp-index,reference"`
@@ -62,12 +66,16 @@ func CityItemFrom(item *cms.Item) (i *CityItem) {
 	return
 }
 
+func (i *CityItem) YearInt() int {
+	return datacatalogcommon.YearInt(i.Year)
+}
+
 type GspatialjpItem struct {
-	ID                 string   `json:"id,omitempty" cms:"id"`
-	CityGML            string   `json:"citygml,omitempty" cms:"citygml,asset"`
-	Plateau            string   `json:"plateau,omitempty" cms:"plateau,asset"`
-	Related            string   `json:"related,omitempty" cms:"related,asset"`
-	Generic            []string `json:"generic,omitempty" cms:"generic,asset"`
+	ID      string     `json:"id,omitempty" cms:"id"`
+	CityGML *cms.Value `json:"citygml,omitempty" cms:"citygml,asset"`
+	Plateau *cms.Value `json:"plateau,omitempty" cms:"plateau,asset"`
+	Related *cms.Value `json:"related,omitempty" cms:"related,asset"`
+	// Generic            []string `json:"generic,omitempty" cms:"generic,asset"`
 	MergeCityGMLStatus *cms.Tag `json:"merge_citygml_status" cms:"merge_citygml_status,tag,metadata"`
 	MergePlateauStatus *cms.Tag `json:"merge_plateau_status" cms:"merge_plateau_status,tag,metadata"`
 	MergeRelatedStatus *cms.Tag `json:"merge_related_status" cms:"merge_related_status,tag,metadata"`

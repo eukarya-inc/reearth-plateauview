@@ -4,28 +4,23 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/k0kubun/pp/v3"
 	"github.com/reearth/reearth-cms-api/go/cmswebhook"
 	"github.com/reearth/reearthx/log"
 )
 
 func (h *handler) Publish(ctx context.Context, w *cmswebhook.Payload) error {
-	const pkgYear = 2023
 	cms := h.cms
 	log.Infofc(ctx, "geospatialjpv3: publish: %+v", w)
 
-	cityItemRaw, err := cms.GetItem(ctx, w.ItemData.Item.ID, false)
-	if err != nil {
-		return fmt.Errorf("failed to get city item: %w", err)
+	cityItemRaw := w.ItemData.Item
+	cityItem := CityItemFrom(cityItemRaw)
+	pkgYear := cityItem.YearInt()
+
+	if cityItem.CityCode == "" || cityItem.CityName == "" || cityItem.CityNameEn == "" || pkgYear == 0 {
+		return fmt.Errorf("invalid city item")
 	}
 
-	cityItem := CityItemFrom(cityItemRaw)
-	{
-		pp := pp.New()
-		pp.SetColoringEnabled(false)
-		s := pp.Sprint(cityItem)
-		log.Debugfc(ctx, "geospatialjpv3: cityItem: %s", s)
-	}
+	log.Debugfc(ctx, "geospatialjpv3: cityItem: %s", ppp.Sprint(cityItem))
 
 	pkg, err := h.findOrCreatePackage(
 		ctx,
@@ -37,39 +32,45 @@ func (h *handler) Publish(ctx context.Context, w *cmswebhook.Payload) error {
 	if err != nil {
 		return fmt.Errorf("failed to find or create package: %w", err)
 	}
-	log.Debugfc(ctx, "geospatialjpv3: pkg: %+v", pkg)
 
-	geoItem, err := getGeospatialItems(ctx, cms, cityItem)
+	log.Debugfc(ctx, "geospatialjpv3: pkg: %s", ppp.Sprint(pkg))
+	seed, err := getSeed(ctx, cms, cityItem)
 	if err != nil {
-		return fmt.Errorf("failed to get all feature items: %w", err)
+		return fmt.Errorf("failed to get seed: %w", err)
 	}
 
-	if geoItem.CityGML != "" {
-		log.Debugfc(ctx, "geospatialjpv3: citygml: %s", geoItem.CityGML)
-		h.createOrUpdateResource(ctx, pkg, ResourceInfo{
-			Name:        "CityGML（v3）",
-			URL:         geoItem.CityGML,
+	if seed.CityGML != "" {
+		log.Debugfc(ctx, "geospatialjpv3: citygml: %s", seed.CityGML)
+		if err := h.createOrUpdateResource(ctx, pkg, ResourceInfo{
+			Name:        fmt.Sprintf("CityGML（v%d）", seed.Version),
+			URL:         seed.CityGML,
 			Description: "",
-		})
+		}); err != nil {
+			return fmt.Errorf("failed to create or update resource (citygml): %w", err)
+		}
 	}
 
-	if geoItem.Plateau != "" {
-		log.Debugfc(ctx, "geospatialjpv3: plateau: %s", geoItem.Plateau)
-		h.createOrUpdateResource(ctx, pkg, ResourceInfo{
-			Name:        "3D Tiles, MVT（v3）",
-			URL:         geoItem.Plateau,
+	if seed.Plateau != "" {
+		log.Debugfc(ctx, "geospatialjpv3: plateau: %s", seed.Plateau)
+		if err := h.createOrUpdateResource(ctx, pkg, ResourceInfo{
+			Name:        fmt.Sprintf("3D Tiles, MVT（%d）", seed.Version),
+			URL:         seed.Plateau,
 			Description: "",
-		})
+		}); err != nil {
+			return fmt.Errorf("failed to create or update resource (plateau): %w", err)
+		}
 	}
 
-	// if geoItem.Related != "" {
-	// 	log.Debugfc(ctx, "geospatialjpv3: related: %s", geoItem.Related)
-	// 	h.createOrUpdateResource(ctx, pkg, ResourceInfo{
-	// 		Name:        "関連データ",
-	// 		URL:         geoItem.Related,
-	// 		Description: "",
-	// 	})
-	// }
+	if seed.Related != "" {
+		log.Debugfc(ctx, "geospatialjpv3: related: %s", seed.Related)
+		if err := h.createOrUpdateResource(ctx, pkg, ResourceInfo{
+			Name:        fmt.Sprintf(("関連データセット（%d）"), seed.Version),
+			URL:         seed.Related,
+			Description: "",
+		}); err != nil {
+			return fmt.Errorf("failed to create or update resource (related): %w", err)
+		}
+	}
 
 	return nil
 }
