@@ -148,6 +148,30 @@ func TestParseAssetName(t *testing.T) {
 			},
 		},
 		{
+			name: "fld with suffix",
+			args: "28201_himeji-shi_city_2023_citygml_1_op_fld_natl_ibogawa_hayashidagawa_3dtiles_l2-p1-0001_no_texture",
+			want: &AssetName{
+				CityCode:    "28201",
+				CityName:    "himeji-shi",
+				Provider:    "city",
+				Year:        2023,
+				Format:      "citygml",
+				UpdateCount: 1,
+				Ex: AssetNameEx{
+					Fld: &AssetNameExFld{
+						Type:      "fld",
+						Admin:     "natl",
+						River:     "ibogawa_hayashidagawa",
+						Format:    "3dtiles",
+						L:         2,
+						Suffix:    "p1-0001",
+						NoTexture: true,
+					},
+					Ex: "fld_natl_ibogawa_hayashidagawa_3dtiles_l2-p1-0001_no_texture",
+				},
+			},
+		},
+		{
 			name: "tnm",
 			args: "40202_omuta-shi_city_2023_citygml_1_op_tnm_40_1_3dtiles",
 			want: &AssetName{
@@ -289,13 +313,13 @@ func TestParseAssetURLs(t *testing.T) {
 
 func TestParseRelatedAssetName(t *testing.T) {
 	assert.Equal(t, &RelatedAssetName{
-		Code:     "13101",
-		Name:     "chiyoda-ku",
+		Code:     "41423",
+		Name:     "omachi-cho",
 		Provider: "city",
-		Year:     2023,
-		Type:     "shelter",
+		Year:     2022,
+		Type:     "emergency_route",
 		Format:   "geojson",
-	}, ParseRelatedAssetName("13101_chiyoda-ku_city_2023_shelter.geojson"))
+	}, ParseRelatedAssetName("41423_omachi-cho_city_2022_emergency_route.geojson"))
 	assert.Equal(t, &RelatedAssetName{
 		Code:     "13101",
 		Name:     "chiyoda-ku",
@@ -304,5 +328,15 @@ func TestParseRelatedAssetName(t *testing.T) {
 		Type:     "border",
 		Format:   "czml",
 	}, ParseRelatedAssetName("13101_chiyoda-ku_city_2023_border.czml"))
+	assert.Equal(t, &RelatedAssetName{
+		Code:     "43100",
+		Name:     "kumamoto-shi",
+		Provider: "city",
+		Year:     2022,
+		WardCode: "43100",
+		WardName: "higashi-ku",
+		Type:     "landmark",
+		Format:   "czml",
+	}, ParseRelatedAssetName("43100_kumamoto-shi_city_2022_43100_higashi-ku_landmark.czml"))
 	assert.Nil(t, ParseRelatedAssetName("invalid"))
 }

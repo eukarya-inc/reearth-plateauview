@@ -91,7 +91,9 @@ func seedToDataset(seed plateauDatasetSeed) (res *plateauapi.PlateauDataset, war
 	res = &plateauapi.PlateauDataset{
 		ID:                 id,
 		Name:               standardItemName(seed.DatasetType.Name, seed.SubName, seed.TargetArea),
-		Description:        toPtrIfPresent(seed.Desc),
+		Subname:            lo.EmptyableToPtr(seed.SubName),
+		Subcode:            lo.EmptyableToPtr(seed.IDEx),
+		Description:        lo.EmptyableToPtr(seed.Desc),
 		Year:               seed.Area.CityItem.YearInt(),
 		PrefectureID:       seed.Area.PrefID,
 		PrefectureCode:     seed.Area.PrefCode,
@@ -112,13 +114,15 @@ func seedToDataset(seed plateauDatasetSeed) (res *plateauapi.PlateauDataset, war
 
 func seedToDatasetItem(i plateauDatasetItemSeed, parentID string) *plateauapi.PlateauDatasetItem {
 	return &plateauapi.PlateauDatasetItem{
-		ID:       plateauapi.NewID(i.GetID(parentID), plateauapi.TypeDatasetItem),
-		Name:     i.GetName(),
-		URL:      i.URL,
-		Layers:   i.Layers,
-		Format:   i.Format,
-		Lod:      i.LOD,
-		Texture:  textureFrom(i.NoTexture),
-		ParentID: plateauapi.NewID(parentID, plateauapi.TypeDataset),
+		ID:                  plateauapi.NewID(i.GetID(parentID), plateauapi.TypeDatasetItem),
+		Name:                i.GetName(),
+		URL:                 i.URL,
+		Layers:              i.Layers,
+		Format:              i.Format,
+		Lod:                 i.LOD,
+		Texture:             textureFrom(i.NoTexture),
+		ParentID:            plateauapi.NewID(parentID, plateauapi.TypeDataset),
+		FloodingScale:       i.FloodingScale,
+		FloodingScaleSuffix: i.FloodingScaleSuffix,
 	}
 }

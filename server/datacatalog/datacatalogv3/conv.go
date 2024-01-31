@@ -34,11 +34,11 @@ func (all *AllData) Into() (res *plateauapi.InMemoryRepoContext, warning []strin
 
 		ic.Add(cityItem, pref, city)
 
-		if !ic.HasPref(pref.Code.String()) {
+		if res.Areas.FindByCodeAndType(pref.Code, plateauapi.AreaTypePrefecture) == nil {
 			res.Areas.Append(plateauapi.AreaTypePrefecture, []plateauapi.Area{pref})
 		}
 
-		if !ic.HasCity(city.Code.String()) {
+		if res.Areas.FindByCodeAndType(city.Code, plateauapi.AreaTypeCity) == nil {
 			res.Areas.Append(plateauapi.AreaTypeCity, []plateauapi.Area{city})
 		}
 	}

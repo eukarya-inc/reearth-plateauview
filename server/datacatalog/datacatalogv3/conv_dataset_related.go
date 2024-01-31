@@ -16,11 +16,12 @@ func (i *RelatedItem) toDatasets(area *areaContext, dts []plateauapi.DatasetType
 		return
 	}
 
+	cityCode := string(area.City.Code)
 	for _, dt := range dts {
 		ftname, ftcode := dt.GetName(), dt.GetCode()
 		d := i.Items[ftcode]
 		if len(d.Asset) == 0 && len(d.Converted) == 0 {
-			// warning = append(warning, fmt.Sprintf("related %s: no data for %s", area.CityCode, ftcode))
+			warning = append(warning, fmt.Sprintf("related %s: no data for %s", cityCode, ftcode))
 			continue
 		}
 
@@ -30,6 +31,7 @@ func (i *RelatedItem) toDatasets(area *areaContext, dts []plateauapi.DatasetType
 
 		seeds, w := assetUrlsToRelatedDatasetSeeds(d.Asset, d.Converted, area.City, area.Wards, area.CityItem.YearInt())
 		warning = append(warning, w...)
+		admin := newAdmin(area.CityItem.ID, relatedStage(i, area.CityItem), cmsurl)
 
 		for _, seed := range seeds {
 			sid := standardItemID(ftcode, seed.Area, "")
@@ -43,7 +45,7 @@ func (i *RelatedItem) toDatasets(area *areaContext, dts []plateauapi.DatasetType
 			res = append(res, &plateauapi.RelatedDataset{
 				ID:             id,
 				Name:           standardItemName(ftname, "", seed.Area),
-				Description:    toPtrIfPresent(d.Description),
+				Description:    lo.EmptyableToPtr(d.Description),
 				Year:           area.CityItem.YearInt(),
 				PrefectureID:   area.PrefID,
 				PrefectureCode: area.PrefCode,
@@ -53,7 +55,7 @@ func (i *RelatedItem) toDatasets(area *areaContext, dts []plateauapi.DatasetType
 				WardCode:       seed.WardCode,
 				TypeID:         dt.GetID(),
 				TypeCode:       ftcode,
-				Admin:          adminFrom(area.CityItem, cmsurl, "related"),
+				Admin:          admin,
 				Items: []*plateauapi.RelatedDatasetItem{
 					{
 						ID:             plateauapi.NewID(sid, plateauapi.TypeDatasetItem),
@@ -130,7 +132,7 @@ func assetUrlsToRelatedDatasetSeeds(orig, conv []string, city *plateauapi.City, 
 		}
 
 		// city
-		if assetNameConv.Code == city.Code.String() {
+		if assetNameConv.Code == city.Code.String() && assetNameConv.WardCode == "" {
 			if wasCityAdded {
 				warning = append(warning, fmt.Sprintf("related %s: duplicated assets that have the same city code: %s", city.Code, nameConv))
 				continue
@@ -148,13 +150,18 @@ func assetUrlsToRelatedDatasetSeeds(orig, conv []string, city *plateauapi.City, 
 			continue
 		}
 
+		wardCode := assetNameConv.WardCode
+		if wardCode == "" {
+			wardCode = assetNameConv.Code
+		}
+
 		// wards
 		ward, _ := lo.Find(wards, func(w *plateauapi.Ward) bool {
-			return w.Code.String() == assetNameConv.Code
+			return w.Code.String() == wardCode
 		})
 
 		if ward == nil {
-			warning = append(warning, fmt.Sprintf("related %s: ward not found: %s", city.Code, nameConv))
+			warning = append(warning, fmt.Sprintf("related %s: ward not found: name=%s, ward=%s", city.Code, nameConv, wardCode))
 			continue
 		}
 
@@ -170,4 +177,14 @@ func assetUrlsToRelatedDatasetSeeds(orig, conv []string, city *plateauapi.City, 
 	}
 
 	return
+}
+
+func relatedStage(i *RelatedItem, city *CityItem) stage {
+	if city != nil && city.RelatedPublic {
+		return stageGA
+	}
+	if i.Status != nil && i.Status.Name == string(ManagementStatusReady) {
+		return stageBeta
+	}
+	return stageAlpha
 }

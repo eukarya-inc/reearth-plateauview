@@ -28,13 +28,16 @@ func TestRepos(t *testing.T) {
 	assertRes := func(t *testing.T, r plateauapi.Repo, cityName, cityCode string, stage *string, found bool) {
 		t.Helper()
 
+		prefCode := cityCode[:2]
 		area, err := r.Area(ctx, plateauapi.AreaCode(cityCode))
 		assert.NoError(t, err)
 		assert.Equal(t, &plateauapi.City{
-			ID:   plateauapi.ID("a_" + cityCode),
-			Type: plateauapi.AreaTypeCity,
-			Code: plateauapi.AreaCode(cityCode),
-			Name: cityName,
+			ID:             plateauapi.ID("a_" + cityCode),
+			Type:           plateauapi.AreaTypeCity,
+			Code:           plateauapi.AreaCode(cityCode),
+			Name:           cityName,
+			PrefectureID:   plateauapi.ID("a_" + prefCode),
+			PrefectureCode: plateauapi.AreaCode(prefCode),
 		}, area)
 
 		dataset, err := r.Datasets(ctx, &plateauapi.DatasetsInput{

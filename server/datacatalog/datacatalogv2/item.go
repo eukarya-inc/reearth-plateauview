@@ -1,6 +1,7 @@
 package datacatalogv2
 
 import (
+	"github.com/eukarya-inc/reearth-plateauview/server/cmsintegration/cmsintegrationcommon"
 	"github.com/eukarya-inc/reearth-plateauview/server/datacatalog/datacatalogv2/datacatalogutil"
 	"github.com/samber/lo"
 )
@@ -32,6 +33,7 @@ type DataCatalogItem struct {
 	Description    string                                 `json:"desc,omitempty"`
 	SearchIndex    string                                 `json:"search_index,omitempty"`
 	Year           int                                    `json:"year,omitempty"`
+	PRCS           cmsintegrationcommon.PRCS              `json:"prcs,omitempty"`
 	OpenDataURL    string                                 `json:"openDataUrl,omitempty"`
 	Config         *datacatalogutil.DataCatalogItemConfig `json:"config,omitempty"`
 	Order          *int                                   `json:"order,omitempty"`

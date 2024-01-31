@@ -132,13 +132,15 @@ func TestFilterArea(t *testing.T) {
 }
 
 func TestFilterByCode(t *testing.T) {
-	assert.True(t, filterByCode("a_a", []string{"a_a"}, nil))
-	assert.True(t, filterByCode("a", []string{"a", "b"}, nil))
-	assert.True(t, filterByCode("b", []string{"a", "b"}, nil))
-	assert.False(t, filterByCode("b", []string{"a"}, nil))
-	assert.False(t, filterByCode("a", nil, []string{"a"}))
-	assert.False(t, filterByCode("a", nil, []string{"a", "b"}))
-	assert.False(t, filterByCode("a", []string{"a"}, []string{"a", "b"}))
+	assert.True(t, filterByCode("a_a", DatasetTypeCategoryGeneric, []string{"a_a"}, nil))
+	assert.True(t, filterByCode("a", DatasetTypeCategoryGeneric, []string{"a", "b"}, nil))
+	assert.True(t, filterByCode("b", DatasetTypeCategoryGeneric, []string{"a", "b"}, nil))
+	assert.True(t, filterByCode("a", DatasetTypeCategoryGeneric, []string{"generic"}, nil))
+	assert.False(t, filterByCode("b", DatasetTypeCategoryGeneric, []string{"a"}, nil))
+	assert.False(t, filterByCode("a", DatasetTypeCategoryGeneric, nil, []string{"a"}))
+	assert.False(t, filterByCode("a", DatasetTypeCategoryGeneric, nil, []string{"a", "b"}))
+	assert.False(t, filterByCode("a", DatasetTypeCategoryGeneric, []string{"a"}, []string{"a", "b"}))
+	assert.False(t, filterByCode("a", DatasetTypeCategoryGeneric, nil, []string{"generic"}))
 }
 
 func TestFilterByPlateauSpec(t *testing.T) {

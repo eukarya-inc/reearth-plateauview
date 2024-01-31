@@ -10,7 +10,9 @@ type PRCS string
 
 var prcsRegexp = regexp.MustCompile(`([0-9]+)系`)
 
-func (s PRCS) ESPGCode() string {
+const epsgStart = 6668
+
+func (s PRCS) EPSGCode() string {
 	m := prcsRegexp.FindStringSubmatch(string(s))
 	if len(m) != 2 {
 		return ""
@@ -21,5 +23,5 @@ func (s PRCS) ESPGCode() string {
 		return ""
 	}
 
-	return fmt.Sprintf("%d", 6668+c)
+	return fmt.Sprintf("%d", epsgStart+c)
 }

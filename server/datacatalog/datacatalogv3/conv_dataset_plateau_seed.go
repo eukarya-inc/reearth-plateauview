@@ -73,7 +73,7 @@ func plateauDatasetSeedsFrom(i *PlateauFeatureItem, dt *plateauapi.PlateauDatase
 		res[i].Pref = area.Pref
 		res[i].City = area.City
 		res[i].Spec = spec
-		res[i].Admin = adminFrom(area.CityItem, cmsurl, dt.Code)
+		res[i].Admin = newAdmin(area.CityItem.ID, area.CityItem.plateauStage(dt.Code), cmsurl)
 		res[i].LayerNames = layerNames
 		res[i].Year = year
 		if res[i].TargetArea == nil {
@@ -99,7 +99,7 @@ func plateauDatasetSeedsFromItem(i *PlateauFeatureItem, item PlateauFeatureItemD
 	}
 
 	assetName := assets[0]
-	key, dickey := assetName.Ex.ItemKey(), assetName.Ex.DicKey()
+	key, dickey := assetName.Ex.DatasetKey(), assetName.Ex.DicKey()
 	var e *DicEntry
 
 	if dickey != "" {
@@ -204,13 +204,15 @@ func plateauDatasetSeedsFromBldg(i *PlateauFeatureItem, dt *plateauapi.PlateauDa
 }
 
 type plateauDatasetItemSeed struct {
-	ID        string
-	Name      string
-	URL       string
-	Format    plateauapi.DatasetFormat
-	LOD       *int
-	NoTexture *bool
-	Layers    []string
+	ID                  string
+	Name                string
+	URL                 string
+	Format              plateauapi.DatasetFormat
+	LOD                 *int
+	NoTexture           *bool
+	Layers              []string
+	FloodingScale       *plateauapi.FloodingScale
+	FloodingScaleSuffix *string
 }
 
 func (i plateauDatasetItemSeed) GetID(parentID string) string {
@@ -339,7 +341,7 @@ func plateauDatasetItemSeedFromUrf(url string, ex *AssetNameExUrf, dic Dic, laye
 		Name:      entry.Description,
 		URL:       assetURLFromFormat(url, format),
 		Format:    format,
-		LOD:       toPtrIfPresent(ex.LOD),
+		LOD:       lo.EmptyableToPtr(ex.LOD),
 		NoTexture: notexture,
 		Layers:    layerNames.LayerName([]string{key}, ex.LOD, format),
 	}, w
@@ -362,10 +364,43 @@ func plateauDatasetItemSeedFromFld(url string, ex *AssetNameExFld, dic Dic, city
 	}
 
 	return &plateauDatasetItemSeed{
-		ID:        key,
-		Name:      entry.Scale,
-		URL:       assetURLFromFormat(url, format),
-		Format:    format,
-		NoTexture: &ex.NoTexture,
+		ID:                  key,
+		Name:                fldItemName(entry),
+		URL:                 assetURLFromFormat(url, format),
+		Format:              format,
+		NoTexture:           &ex.NoTexture,
+		FloodingScale:       toFloodingScale(entry.Scale),
+		FloodingScaleSuffix: lo.EmptyableToPtr(entry.SuffixDescription),
 	}, w
+}
+
+func fldItemName(e *DicEntry) string {
+	suffix := ""
+	if e.SuffixDescription != "" {
+		suffix = e.SuffixDescription
+	} else if e.Suffix != "" {
+		suffix = e.Suffix
+	}
+	if suffix != "" {
+		suffix = fmt.Sprintf("（%s）", suffix)
+	}
+	return e.Scale + suffix
+}
+
+func toFloodingScale(s string) *plateauapi.FloodingScale {
+	switch s {
+	case "計画規模":
+		fallthrough
+	case "l1":
+		fallthrough
+	case "L1":
+		return lo.ToPtr(plateauapi.FloodingScalePlanned)
+	case "想定最大規模":
+		fallthrough
+	case "l2":
+		fallthrough
+	case "L2":
+		return lo.ToPtr(plateauapi.FloodingScaleExpectedMaximum)
+	}
+	return nil
 }

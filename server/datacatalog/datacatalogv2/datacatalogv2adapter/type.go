@@ -181,7 +181,6 @@ func relatedDatasetFrom(d datacatalogv2.DataCatalogItem) (plateauapi.RelatedData
 	return plateauapi.RelatedDataset{
 		ID:             id,
 		Name:           d.Name,
-		Subname:        nil,
 		Description:    lo.ToPtr(d.Description),
 		PrefectureID:   prefectureIDFrom(d),
 		PrefectureCode: prefectureCodeFrom(d),
@@ -230,7 +229,6 @@ func genericDatasetFrom(d datacatalogv2.DataCatalogItem) (plateauapi.GenericData
 	return plateauapi.GenericDataset{
 		ID:             id,
 		Name:           d.Name,
-		Subname:        nil,
 		Description:    lo.ToPtr(d.Description),
 		PrefectureID:   prefectureIDFrom(d),
 		PrefectureCode: prefectureCodeFrom(d),
@@ -434,12 +432,13 @@ func cityFrom(d datacatalogv2.DataCatalogItem) *plateauapi.City {
 	}
 
 	return &plateauapi.City{
-		ID:             *id,
-		Type:           plateauapi.AreaTypeCity,
-		Code:           *code,
-		Name:           d.City,
-		PrefectureID:   *prefectureIDFrom(d),
-		PrefectureCode: *prefectureCodeFrom(d),
+		ID:                *id,
+		Type:              plateauapi.AreaTypeCity,
+		Code:              *code,
+		Name:              d.City,
+		PrefectureID:      *prefectureIDFrom(d),
+		PrefectureCode:    *prefectureCodeFrom(d),
+		PlanarCrsEpsgCode: lo.EmptyableToPtr(d.PRCS.EPSGCode()),
 	}
 }
 

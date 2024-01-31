@@ -33,8 +33,6 @@ type Dataset interface {
 	GetID() ID
 	// データセット名
 	GetName() string
-	// データセットのサブ名
-	GetSubname() *string
 	// データセットの説明
 	GetDescription() *string
 	// データセットの公開年度（西暦）
@@ -149,6 +147,8 @@ type City struct {
 	Wards []*Ward `json:"wards"`
 	// 市区町村に属するデータセット（DatasetInput内のareasCodeの指定は無視されます）。
 	Datasets []Dataset `json:"datasets"`
+	// 平面直角座標系のEPSGコード。例えば、東京都の場合は "6677" です。
+	PlanarCrsEpsgCode *string `json:"planarCrsEpsgCode,omitempty"`
 }
 
 func (City) IsArea()        {}
@@ -216,8 +216,6 @@ type GenericDataset struct {
 	ID ID `json:"id"`
 	// データセット名
 	Name string `json:"name"`
-	// データセットのサブ名
-	Subname *string `json:"subname,omitempty"`
 	// データセットの説明
 	Description *string `json:"description,omitempty"`
 	// データセットの公開年度（西暦）
@@ -259,9 +257,6 @@ func (this GenericDataset) GetID() ID { return this.ID }
 
 // データセット名
 func (this GenericDataset) GetName() string { return this.Name }
-
-// データセットのサブ名
-func (this GenericDataset) GetSubname() *string { return this.Subname }
 
 // データセットの説明
 func (this GenericDataset) GetDescription() *string { return this.Description }
@@ -435,8 +430,10 @@ type PlateauDataset struct {
 	ID ID `json:"id"`
 	// データセット名
 	Name string `json:"name"`
-	// データセットのサブ名
+	// データセットのサブ名。都市計画決定情報の○○区域や洪水浸水想定区域の河川名などが含まれます。
 	Subname *string `json:"subname,omitempty"`
+	// データセットのサブコード。都市計画決定情報の○○区域や洪水浸水想定区域の河川名などのコード表現が含まれます。
+	Subcode *string `json:"subcode,omitempty"`
 	// データセットの説明
 	Description *string `json:"description,omitempty"`
 	// データセットの公開年度（西暦）
@@ -484,9 +481,6 @@ func (this PlateauDataset) GetID() ID { return this.ID }
 
 // データセット名
 func (this PlateauDataset) GetName() string { return this.Name }
-
-// データセットのサブ名
-func (this PlateauDataset) GetSubname() *string { return this.Subname }
 
 // データセットの説明
 func (this PlateauDataset) GetDescription() *string { return this.Description }
@@ -583,6 +577,8 @@ type PlateauDatasetItem struct {
 	Texture *Texture `json:"texture,omitempty"`
 	// 浸水規模。地物型が洪水・高潮・津波・内水浸水想定区域モデル（fld・htd・tnm・ifld）の場合のみ存在します。
 	FloodingScale *FloodingScale `json:"floodingScale,omitempty"`
+	// 浸水規模の枝番。地物型が洪水・高潮・津波・内水浸水想定区域モデル（fld・htd・tnm・ifld）の場合のみ存在することがあります。
+	FloodingScaleSuffix *string `json:"floodingScaleSuffix,omitempty"`
 }
 
 func (PlateauDatasetItem) IsDatasetItem() {}
@@ -762,8 +758,6 @@ type RelatedDataset struct {
 	ID ID `json:"id"`
 	// データセット名
 	Name string `json:"name"`
-	// データセットのサブ名
-	Subname *string `json:"subname,omitempty"`
 	// データセットの説明
 	Description *string `json:"description,omitempty"`
 	// データセットの公開年度（西暦）
@@ -805,9 +799,6 @@ func (this RelatedDataset) GetID() ID { return this.ID }
 
 // データセット名
 func (this RelatedDataset) GetName() string { return this.Name }
-
-// データセットのサブ名
-func (this RelatedDataset) GetSubname() *string { return this.Subname }
 
 // データセットの説明
 func (this RelatedDataset) GetDescription() *string { return this.Description }

@@ -112,7 +112,7 @@ func sendRequestToFME(ctx context.Context, s *Services, conf *Config, w *cmswebh
 			Type:        string(ty),
 		}.String(conf.Secret),
 		Target:    cityGMLAsset.URL,
-		PRCS:      cityItem.PRCS.ESPGCode(),
+		PRCS:      cityItem.PRCS.EPSGCode(),
 		Codelists: codelistAsset.URL,
 		ResultURL: resultURL(conf),
 		Type:      ty,

@@ -69,7 +69,7 @@ func TestGenericItemFrom(t *testing.T) {
 		ID: "id",
 		Fields: []*cms.Field{
 			{
-				Key:   "data",
+				Key:   "items",
 				Type:  "group",
 				Value: []any{"item1"},
 			},
@@ -88,7 +88,7 @@ func TestGenericItemFrom(t *testing.T) {
 
 	expected := &GenericItem{
 		ID: "id",
-		Data: []GenericItemDataset{
+		Items: []GenericItemDataset{
 			{
 				ID:   "item1",
 				Data: "url1",

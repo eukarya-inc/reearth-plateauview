@@ -43,6 +43,23 @@ func (a Areas) Find(f func(a Area) bool) Area {
 	return res
 }
 
+func (a Areas) FindByCode(code AreaCode) Area {
+	return a.Find(func(a Area) bool {
+		return a.GetCode() == code
+	})
+}
+
+func (a Areas) FindByCodeAndType(code AreaCode, ty AreaType) Area {
+	areas := a[ty]
+	if areas == nil {
+		return nil
+	}
+	res, _ := lo.Find(areas, func(a Area) bool {
+		return a.GetCode() == code
+	})
+	return res
+}
+
 func (a *Areas) Area(id ID) Area {
 	for _, area := range a.All() {
 		if area.GetID() == id {
@@ -50,6 +67,24 @@ func (a *Areas) Area(id ID) Area {
 		}
 	}
 	return nil
+}
+
+func DatasetTypeCategoryFromDataset(d Dataset) DatasetTypeCategory {
+	switch d.(type) {
+	case PlateauDataset:
+		return DatasetTypeCategoryPlateau
+	case *PlateauDataset:
+		return DatasetTypeCategoryPlateau
+	case RelatedDataset:
+		return DatasetTypeCategoryRelated
+	case *RelatedDataset:
+		return DatasetTypeCategoryRelated
+	case GenericDataset:
+		return DatasetTypeCategoryGeneric
+	case *GenericDataset:
+		return DatasetTypeCategoryGeneric
+	}
+	return ""
 }
 
 type Datasets map[DatasetTypeCategory][]Dataset

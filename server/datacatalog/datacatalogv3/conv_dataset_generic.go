@@ -22,7 +22,7 @@ func (i *GenericItem) toDatasets(area *areaContext, dts []plateauapi.DatasetType
 		return
 	}
 
-	items := lo.FilterMap(i.Data, func(datum GenericItemDataset, ind int) (*plateauapi.GenericDatasetItem, bool) {
+	items := lo.FilterMap(i.Items, func(datum GenericItemDataset, ind int) (*plateauapi.GenericDatasetItem, bool) {
 		url := datum.DataURL
 		if url == "" {
 			url = datum.Data
@@ -34,7 +34,7 @@ func (i *GenericItem) toDatasets(area *areaContext, dts []plateauapi.DatasetType
 		}
 
 		var inds string
-		if len(i.Data) > 1 {
+		if len(i.Items) > 1 {
 			inds = fmt.Sprintf(" %d", ind+1)
 		}
 
@@ -56,7 +56,7 @@ func (i *GenericItem) toDatasets(area *areaContext, dts []plateauapi.DatasetType
 	res := plateauapi.GenericDataset{
 		ID:             id,
 		Name:           i.Name,
-		Description:    toPtrIfPresent(i.Desc),
+		Description:    lo.EmptyableToPtr(i.Desc),
 		Year:           area.CityItem.YearInt(),
 		PrefectureID:   area.PrefID,
 		PrefectureCode: area.PrefCode,

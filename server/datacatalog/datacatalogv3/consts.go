@@ -86,7 +86,7 @@ var plateauFeatureTypes = []FeatureType{
 	},
 	{
 		Code:         "lsld",
-		Name:         "土砂災害モデル",
+		Name:         "土砂災害警戒区域モデル",
 		SpecMajor:    3,
 		MVTLayerName: []string{"lsld"},
 	},

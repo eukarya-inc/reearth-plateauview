@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/eukarya-inc/reearth-plateauview/server/cmsintegration/cmsintegrationcommon"
 	"github.com/eukarya-inc/reearth-plateauview/server/datacatalog/datacatalogcommon"
 	cms "github.com/reearth/reearth-cms-api/go"
 	"github.com/samber/lo"
@@ -37,15 +38,16 @@ type FeatureType struct {
 }
 
 type CityItem struct {
-	ID             string            `json:"id,omitempty" cms:"id"`
-	Prefecture     string            `json:"prefecture,omitempty" cms:"prefecture,select"`
-	CityName       string            `json:"city_name,omitempty" cms:"city_name,text"`
-	CityNameEn     string            `json:"city_name_en,omitempty" cms:"city_name_en,text"`
-	CityCode       string            `json:"city_code,omitempty" cms:"city_code,text"`
-	Spec           string            `json:"spec,omitempty" cms:"spec,select"`
-	References     map[string]string `json:"references,omitempty" cms:"-"`
-	RelatedDataset string            `json:"related_dataset,omitempty" cms:"related_dataset,reference"`
-	Year           string            `json:"year,omitempty" cms:"year,select"`
+	ID             string                    `json:"id,omitempty" cms:"id"`
+	Prefecture     string                    `json:"prefecture,omitempty" cms:"prefecture,select"`
+	CityName       string                    `json:"city_name,omitempty" cms:"city_name,text"`
+	CityNameEn     string                    `json:"city_name_en,omitempty" cms:"city_name_en,text"`
+	CityCode       string                    `json:"city_code,omitempty" cms:"city_code,text"`
+	Spec           string                    `json:"spec,omitempty" cms:"spec,select"`
+	References     map[string]string         `json:"references,omitempty" cms:"-"`
+	RelatedDataset string                    `json:"related_dataset,omitempty" cms:"related_dataset,reference"`
+	Year           string                    `json:"year,omitempty" cms:"year,select"`
+	PRCS           cmsintegrationcommon.PRCS `json:"prcs,omitempty" cms:"prcs,select"`
 	// meatadata
 	PlateauDataStatus *cms.Tag        `json:"plateau_data_status,omitempty" cms:"plateau_data_status,select,metadata"`
 	RelatedDataStatus *cms.Tag        `json:"related_data_status,omitempty" cms:"related_data_status,select,metadata"`
@@ -84,21 +86,15 @@ func (i *CityItem) YearInt() int {
 	return datacatalogcommon.YearInt(i.Year)
 }
 
+func (c *CityItem) PlanarCrsEpsgCode() string {
+	return c.PRCS.EPSGCode()
+}
+
 func (i *CityItem) plateauStage(ft string) stage {
 	if i.Public[ft] {
 		return stageGA
 	}
 	if i.PlateauDataStatus != nil && i.PlateauDataStatus.Name == string(ManagementStatusReady) {
-		return stageBeta
-	}
-	return stageAlpha
-}
-
-func (i *CityItem) relatedStage() stage {
-	if i.RelatedPublic {
-		return stageGA
-	}
-	if i.RelatedDataStatus != nil && i.RelatedDataStatus.Name == string(ManagementStatusReady) {
 		return stageBeta
 	}
 	return stageAlpha
@@ -176,11 +172,13 @@ func (d Dic) FindEntry(key, name string) *DicEntry {
 }
 
 type DicEntry struct {
-	Name        *StringOrNumber `json:"name,omitempty"`
-	Description string          `json:"description,omitempty"`
-	Code        *StringOrNumber `json:"code,omitempty"`  // bldg only
-	Admin       string          `json:"admin,omitempty"` // fld only
-	Scale       string          `json:"scale,omitempty"` // fld only
+	Name              *StringOrNumber `json:"name,omitempty"`
+	Description       string          `json:"description,omitempty"`
+	Code              *StringOrNumber `json:"code,omitempty"`               // bldg only
+	Admin             string          `json:"admin,omitempty"`              // fld only
+	Scale             string          `json:"scale,omitempty"`              // fld only
+	Suffix            string          `json:"suffix,omitempty"`             // fld only (optional)
+	SuffixDescription string          `json:"suffix_description,omitempty"` // fld only (optional)
 }
 
 func PlateauFeatureItemFrom(item *cms.Item) (i *PlateauFeatureItem) {
@@ -237,7 +235,7 @@ type GenericItem struct {
 	Desc        string               `json:"desc,omitempty" cms:"desc,textarea"`
 	Type        string               `json:"type,omitempty" cms:"type,text"`
 	TypeEn      string               `json:"type_en,omitempty" cms:"type_en,text"`
-	Data        []GenericItemDataset `json:"data,omitempty" cms:"data,group"`
+	Items       []GenericItemDataset `json:"items,omitempty" cms:"items,group"`
 	OpenDataUrl string               `json:"open-data-url,omitempty" cms:"open_data_url,url"`
 	Category    string               `json:"category,omitempty" cms:"category,select"`
 	// metadata
@@ -261,17 +259,17 @@ type GenericItemDataset struct {
 	Name       string `json:"name,omitempty" cms:"name,text"`
 	Data       string `json:"data,omitempty" cms:"data,-"`
 	Desc       string `json:"desc,omitempty" cms:"desc,textarea"`
-	DataURL    string `json:"url,omitempty" cms:"data_url,url"`
-	DataFormat string `json:"data-format,omitempty" cms:"data_format,select"`
-	LayerName  string `json:"layer-name,omitempty" cms:"layer_name,text"`
+	DataURL    string `json:"url,omitempty" cms:"url,url"`
+	DataFormat string `json:"format,omitempty" cms:"format,select"`
+	LayerName  string `json:"layer,omitempty" cms:"layer,text"`
 }
 
 func GenericItemFrom(item *cms.Item) (i *GenericItem) {
 	i = &GenericItem{}
 	item.Unmarshal(i)
 
-	for ind, d := range i.Data {
-		i.Data[ind].Data = valueToAssetURL(item.FieldByKeyAndGroup("data", d.ID).GetValue())
+	for ind, d := range i.Items {
+		i.Items[ind].Data = valueToAssetURL(item.FieldByKeyAndGroup("data", d.ID).GetValue())
 	}
 
 	return
@@ -282,6 +280,7 @@ type RelatedItem struct {
 	City   string                      `json:"city,omitempty" cms:"city,reference"`
 	Items  map[string]RelatedItemDatum `json:"items,omitempty" cms:"-"`
 	Merged string                      `json:"merged,omitempty" cms:"merged,asset"`
+	Status *cms.Tag                    `json:"status,omitempty" cms:"status,select,metadata"`
 }
 
 type RelatedItemDatum struct {

@@ -131,17 +131,6 @@ func layerNamesFrom(layer string) []string {
 	})
 }
 
-func adminFrom(cityItem *CityItem, cmsurl string, ft string) any {
-	var stage stage
-	if ft == "related" {
-		stage = cityItem.relatedStage()
-	} else {
-		stage = cityItem.plateauStage(ft)
-	}
-
-	return newAdmin(cityItem.ID, stage, cmsurl)
-}
-
 func newAdmin(id string, stage stage, cmsurl string) any {
 	a := map[string]any{}
 

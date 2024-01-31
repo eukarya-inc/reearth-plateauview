@@ -37,24 +37,6 @@ func filterDataset(d Dataset, input DatasetsInput, stages []string) bool {
 		return false
 	}
 
-	dataType := d.GetTypeCode()
-	text := []string{
-		d.GetName(),
-		lo.FromPtr(d.GetDescription()),
-		lo.FromPtr(d.GetSubname()),
-	}
-	year := d.GetYear()
-
-	var spec string
-	switch d2 := d.(type) {
-	case *PlateauDataset:
-		if d2 != nil {
-			spec = string(d2.PlateauSpecMinorID)
-		}
-	case PlateauDataset:
-		spec = string(d2.PlateauSpecMinorID)
-	}
-
 	if len(input.AreaCodes) > 0 {
 		var areaCodes []AreaCode
 		if lo.FromPtr(input.Shallow) {
@@ -70,15 +52,35 @@ func filterDataset(d Dataset, input DatasetsInput, stages []string) bool {
 		}
 	}
 
-	if input.Year != nil && *input.Year != year {
+	if input.Year != nil && *input.Year != d.GetYear() {
 		return false
+	}
+
+	text := []string{
+		d.GetName(),
+		lo.FromPtr(d.GetDescription()),
+	}
+	var spec string
+	switch d2 := d.(type) {
+	case *PlateauDataset:
+		if d2 != nil {
+			spec = string(d2.PlateauSpecMinorID)
+			if d2.Subname != nil {
+				text = append(text, *d2.Subname)
+			}
+			if d2.Subcode != nil {
+				text = append(text, *d2.Subcode)
+			}
+		}
+	case PlateauDataset:
+		spec = string(d2.PlateauSpecMinorID)
 	}
 
 	if !filterByPlateauSpec(input.PlateauSpec, spec) {
 		return false
 	}
 
-	if !filterByCode(dataType, input.IncludeTypes, input.ExcludeTypes) {
+	if !filterByCode(d.GetTypeCode(), DatasetTypeCategoryFromDataset(d), input.IncludeTypes, input.ExcludeTypes) {
 		return false
 	}
 
@@ -109,12 +111,14 @@ func filterByPlateauSpec(querySpec *string, datasetSpec string) bool {
 	return s1 == s2 || s1 == MajorVersion(s2)
 }
 
-func filterByCode(code string, includes []string, excludes []string) bool {
+func filterByCode(code string, category DatasetTypeCategory, includes []string, excludes []string) bool {
 	code = strings.ToLower(code)
+	cat := strings.ToLower(category.String())
 
 	if len(excludes) > 0 {
 		if lo.SomeBy(excludes, func(t string) bool {
-			return strings.ToLower(t) == code
+			s := strings.ToLower(t)
+			return code != "" && s == code || cat != "" && s == cat
 		}) {
 			return false
 		}
@@ -122,7 +126,8 @@ func filterByCode(code string, includes []string, excludes []string) bool {
 
 	if len(includes) > 0 {
 		if lo.EveryBy(includes, func(t string) bool {
-			return strings.ToLower(t) != code
+			s := strings.ToLower(t)
+			return (code == "" || s != code) && (cat == "" || s != cat)
 		}) {
 			return false
 		}

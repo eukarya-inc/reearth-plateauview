@@ -95,7 +95,7 @@ func WebhookHandler(conf Config) (cmswebhook.Handler, error) {
 				ProjectID: w.ItemData.Schema.ProjectID,
 			}.String(conf.Secret),
 			Target:             asset.URL,
-			PRCS:               item.PRCS.ESPGCode(),
+			PRCS:               item.PRCS.EPSGCode(),
 			DevideODC:          item.DevideODC.Enabled(),
 			QualityCheckParams: item.QualityCheckParams,
 			QualityCheck:       !conf.FMESkipQualityCheck,
