@@ -141,3 +141,8 @@ func (c *Mock) SaveResource(ctx context.Context, resource Resource) (Resource, e
 	}
 	return c.PatchResource(ctx, resource)
 }
+
+func (c *Mock) ReorderResource(ctx context.Context, pkg *Package, resources []Resource) error {
+	// TODO
+	return nil
+}

@@ -77,25 +77,26 @@ func (resInfo ResourceInfo) Into(pkgID, resID string) ckan.Resource {
 	}
 }
 
-func (s *handler) createOrUpdateResource(ctx context.Context, pkg *ckan.Package, resInfo ResourceInfo) error {
+func (s *handler) createOrUpdateResource(ctx context.Context, pkg *ckan.Package, resInfo ResourceInfo) (ckan.Resource, error) {
 	// find
-	res := findResource(pkg, resInfo.Name)
-	if res != nil {
-		if _, err := s.ckan.PatchResource(ctx, resInfo.Into(pkg.ID, res.ID)); err != nil {
-			return fmt.Errorf("G空間情報センターのリソース %s を更新できませんでした: %w", resInfo.Name, err)
+	res1 := findResource(pkg, resInfo.Name)
+	if res1 != nil {
+		res, err := s.ckan.PatchResource(ctx, resInfo.Into(pkg.ID, res1.ID))
+		if err != nil {
+			return res, fmt.Errorf("G空間情報センターのリソース %s を更新できませんでした: %w", resInfo.Name, err)
 		}
 
 		log.Infofc(ctx, "geospartialjpv3: resource %s updated", resInfo.Name)
-		return nil
+		return res, nil
 	}
 
-	_, err := s.ckan.CreateResource(ctx, resInfo.Into(pkg.ID, ""))
+	res2, err := s.ckan.CreateResource(ctx, resInfo.Into(pkg.ID, ""))
 	if err != nil {
-		return fmt.Errorf("G空間情報センターにリソース %s を作成できませんでした: %w", resInfo.Name, err)
+		return res2, fmt.Errorf("G空間情報センターにリソース %s を作成できませんでした: %w", resInfo.Name, err)
 	}
 
 	log.Infofc(ctx, "geospartialjpv3: resource %s created", resInfo.Name)
-	return nil
+	return res2, nil
 }
 
 func findResource(pkg *ckan.Package, resourceName string) *ckan.Resource {
@@ -131,3 +132,16 @@ var (
 	citygmlTokyo23ku    = "tokyo23-ku"
 	citygmlTokyo23ku2   = "tokyo-23ku"
 )
+
+func (s *handler) reorderResources(ctx context.Context, pkg *ckan.Package, order []ckan.Resource) error {
+	if len(order) == 0 {
+		return nil
+	}
+
+	err := s.ckan.ReorderResource(ctx, pkg, order)
+	if err != nil {
+		return fmt.Errorf("G空間情報センターにリソースの順序を変更できませんでした: %w", err)
+	}
+
+	return nil
+}

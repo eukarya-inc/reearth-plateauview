@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/eukarya-inc/reearth-plateauview/server/cmsintegration/ckan"
 	"github.com/reearth/reearth-cms-api/go/cmswebhook"
 	"github.com/reearth/reearthx/log"
 )
@@ -39,38 +40,52 @@ func (h *handler) Publish(ctx context.Context, w *cmswebhook.Payload) error {
 		return fmt.Errorf("failed to get seed: %w", err)
 	}
 
+	orders := []ckan.Resource{}
+
 	log.Debugfc(ctx, "geospatialjpv3: seed: %s", ppp.Sprint(seed))
 	if seed.CityGML != "" {
 		log.Debugfc(ctx, "geospatialjpv3: citygml: %s", seed.CityGML)
-		if err := h.createOrUpdateResource(ctx, pkg, ResourceInfo{
+		r, err := h.createOrUpdateResource(ctx, pkg, ResourceInfo{
 			Name:        fmt.Sprintf("CityGML（v%d）", seed.Version),
 			URL:         seed.CityGML,
 			Description: "",
-		}); err != nil {
+		})
+		if err != nil {
 			return fmt.Errorf("failed to create or update resource (citygml): %w", err)
 		}
+		orders = append(orders, r)
 	}
 
 	if seed.Plateau != "" {
 		log.Debugfc(ctx, "geospatialjpv3: plateau: %s", seed.Plateau)
-		if err := h.createOrUpdateResource(ctx, pkg, ResourceInfo{
+		r, err := h.createOrUpdateResource(ctx, pkg, ResourceInfo{
 			Name:        fmt.Sprintf("3D Tiles, MVT（v%d）", seed.Version),
 			URL:         seed.Plateau,
 			Description: "",
-		}); err != nil {
+		})
+		if err != nil {
 			return fmt.Errorf("failed to create or update resource (plateau): %w", err)
 		}
+		orders = append(orders, r)
 	}
 
 	if seed.Related != "" {
 		log.Debugfc(ctx, "geospatialjpv3: related: %s", seed.Related)
-		if err := h.createOrUpdateResource(ctx, pkg, ResourceInfo{
+		r, err := h.createOrUpdateResource(ctx, pkg, ResourceInfo{
 			Name:        fmt.Sprintf(("関連データセット（v%d）"), seed.Version),
 			URL:         seed.Related,
 			Description: "",
-		}); err != nil {
+		})
+		if err != nil {
 			return fmt.Errorf("failed to create or update resource (related): %w", err)
 		}
+		orders = append(orders, r)
+	}
+
+	log.Debugfc(ctx, "geospatialjpv3: orders: %s", ppp.Sprint(orders))
+	err = h.reorderResources(ctx, pkg, orders)
+	if err != nil {
+		return fmt.Errorf("failed to reorder resources: %w", err)
 	}
 
 	return nil
