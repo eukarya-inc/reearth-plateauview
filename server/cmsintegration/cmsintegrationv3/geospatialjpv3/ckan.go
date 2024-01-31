@@ -10,7 +10,7 @@ import (
 	"github.com/samber/lo"
 )
 
-func (s *handler) findOrCreatePackage(ctx context.Context, seed PackageSeed) (*ckan.Package, error) {
+func (s *handler) createOrUpdatePackage(ctx context.Context, seed PackageSeed) (*ckan.Package, error) {
 	// find
 	pkg, pkgName, err := s.findPackage(ctx, seed.Name)
 	if err != nil {
@@ -30,11 +30,10 @@ func (s *handler) findOrCreatePackage(ctx context.Context, seed PackageSeed) (*c
 	}
 
 	// update
-	if pkg.Notes != seed.Description {
-		pkg2, err := s.ckan.PatchPackage(ctx, ckan.Package{
-			ID:    pkg.ID,
-			Notes: seed.Description,
-		})
+	if pkg.Notes != seed.Description || pkg.ThumbnailURL != seed.ThumbnailURL || pkg.Area != seed.Area {
+		newpkg := seed.ToPackage()
+		newpkg.ID = pkg.ID
+		pkg2, err := s.ckan.PatchPackage(ctx, newpkg)
 		if err != nil {
 			return nil, fmt.Errorf("G空間情報センターにデータセット %s を更新できませんでした: %w", pkgName, err)
 		}

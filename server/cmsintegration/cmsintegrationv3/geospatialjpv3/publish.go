@@ -36,13 +36,15 @@ func (h *handler) Publish(ctx context.Context, w *cmswebhook.Payload) error {
 		Year:       pkgYear,
 	}
 	pkgSeed := PackageSeed{
-		Name:        pkgName,
-		NameJa:      cityItem.CityName,
-		OwnerOrg:    h.ckanOrg,
-		Description: seed.Desc,
+		Name:         pkgName,
+		NameJa:       cityItem.CityName,
+		OwnerOrg:     h.ckanOrg,
+		Description:  seed.Desc,
+		Area:         seed.Area,
+		ThumbnailURL: seed.ThumbnailURL,
 	}
 
-	pkg, err := h.findOrCreatePackage(ctx, pkgSeed)
+	pkg, err := h.createOrUpdatePackage(ctx, pkgSeed)
 	if err != nil {
 		return fmt.Errorf("failed to find or create package: %w", err)
 	}

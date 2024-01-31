@@ -83,7 +83,7 @@ type CMSDataItem struct {
 
 type CMSIndexItem struct {
 	ID          string         `json:"id,omitempty" cms:"id"`
-	Thumnail    map[string]any `json:"thumnail,omitempty" cms:"thumnail,asset"`
+	Thumbnail   map[string]any `json:"thumbnail,omitempty" cms:"thumbnail,asset"`
 	Region      string         `json:"region,omitempty" cms:"region,text"`
 	Desc        string         `json:"desc,omitempty" cms:"desc,markdown"`
 	DescCityGML string         `json:"desc_citygml,omitempty" cms:"desc_citygml,markdown"`
@@ -108,10 +108,12 @@ func (p PackageName) String() string {
 }
 
 type PackageSeed struct {
-	Name        PackageName
-	NameJa      string
-	Description string
-	OwnerOrg    string
+	Name         PackageName
+	NameJa       string
+	Description  string
+	OwnerOrg     string
+	Area         string
+	ThumbnailURL string
 }
 
 func (p PackageSeed) Title() string {
@@ -120,10 +122,12 @@ func (p PackageSeed) Title() string {
 
 func (p PackageSeed) ToPackage() ckan.Package {
 	return ckan.Package{
-		Name:     p.Name.String(),
-		Title:    p.Title(),
-		OwnerOrg: p.OwnerOrg,
-		Notes:    p.Description,
-		Private:  true,
+		Name:         p.Name.String(),
+		Title:        p.Title(),
+		OwnerOrg:     p.OwnerOrg,
+		Notes:        p.Description,
+		Private:      true,
+		Area:         p.Area,
+		ThumbnailURL: p.ThumbnailURL,
 	}
 }
