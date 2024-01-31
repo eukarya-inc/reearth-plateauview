@@ -8,6 +8,33 @@ import (
 	cms "github.com/reearth/reearth-cms-api/go"
 )
 
+const (
+	urlDefault          = "https://www.mlit.go.jp/plateau/"
+	licenseDefaultID    = "plateau"
+	licenseDefaultTitle = "PLATEAU Site Policy 「３．著作権について」に拠る"
+	licenseDefaultURL   = "https://www.mlit.go.jp/plateau/site-policy/"
+	restriction         = "利用規約による"
+	licenseAgreement    = "Project PLATEAUのサイトポリシーに従って、どなたでも、複製、公衆送信、翻訳・変形等の翻案等、自由に利用できます。商用利用も可能です。（https://www.mlit.go.jp/plateau/site-policy/）	"
+	fee                 = "無償"
+	emergency           = "無償提供"
+)
+
+var defaultTags = []ckan.Tag{
+	{Name: "3Dモデル"},
+	{Name: "3D都市モデル"},
+	{Name: "CityGML"},
+	{Name: "DX"},
+	{Name: "PLATEAU"},
+	{Name: "まちづくり"},
+	{Name: "シミュレーション"},
+	{Name: "デジタルトランスフォーメーション"},
+	{Name: "マップ"},
+	{Name: "人流"},
+	{Name: "国交DPF"},
+	{Name: "都市計画"},
+	{Name: "防災"},
+}
+
 var featureTypes = []string{
 	// *: データカタログ上で複数の項目に分かれて存在
 	"bldg", // 建築物モデル
@@ -54,6 +81,10 @@ type CityItem struct {
 	GeospatialjpData  string            `json:"geospatialjp-data,omitempty" cms:"geospatialjp-data,reference"`
 }
 
+func (c *CityItem) SpecVersion() string {
+	return "3.4.0" // TODO
+}
+
 func CityItemFrom(item *cms.Item) (i *CityItem) {
 	i = &CityItem{}
 	item.Unmarshal(i)
@@ -82,14 +113,19 @@ type CMSDataItem struct {
 }
 
 type CMSIndexItem struct {
-	ID          string         `json:"id,omitempty" cms:"id"`
-	Thumbnail   map[string]any `json:"thumbnail,omitempty" cms:"thumbnail,asset"`
-	Region      string         `json:"region,omitempty" cms:"region,text"`
-	Desc        string         `json:"desc,omitempty" cms:"desc,markdown"`
-	DescCityGML string         `json:"desc_citygml,omitempty" cms:"desc_citygml,markdown"`
-	DescPlateau string         `json:"desc_plateau,omitempty" cms:"desc_plateau,markdown"`
-	DescRelated string         `json:"desc_related,omitempty" cms:"desc_related,markdown"`
-	Items       []CMSItem      `json:"items,omitempty" cms:"items,items,group"`
+	ID              string         `json:"id,omitempty" cms:"id"`
+	Thumbnail       map[string]any `json:"thumbnail,omitempty" cms:"thumbnail,asset"`
+	Region          string         `json:"region,omitempty" cms:"region,text"`
+	Desc            string         `json:"desc,omitempty" cms:"desc,markdown"`
+	DescCityGML     string         `json:"desc_citygml,omitempty" cms:"desc_citygml,markdown"`
+	DescPlateau     string         `json:"desc_plateau,omitempty" cms:"desc_plateau,markdown"`
+	DescRelated     string         `json:"desc_related,omitempty" cms:"desc_related,markdown"`
+	Items           []CMSItem      `json:"items,omitempty" cms:"items,items,group"`
+	Author          string         `json:"author,omitempty" cms:"author,text"`
+	AuthorEmail     string         `json:"author_email,omitempty" cms:"author_email,text"`
+	Maintainer      string         `json:"maintainer,omitempty" cms:"maintainer,text"`
+	MaintainerEmail string         `json:"maintainer_email,omitempty" cms:"maintainer_email,text"`
+	Quality         string         `json:"quality,omitempty" cms:"quality,text"`
 }
 
 type CMSItem struct {
@@ -108,12 +144,18 @@ func (p PackageName) String() string {
 }
 
 type PackageSeed struct {
-	Name         PackageName
-	NameJa       string
-	Description  string
-	OwnerOrg     string
-	Area         string
-	ThumbnailURL string
+	Name            PackageName
+	NameJa          string
+	Description     string
+	OwnerOrg        string
+	Area            string
+	ThumbnailURL    string
+	Author          string
+	AuthorEmail     string
+	Maintainer      string
+	MaintainerEmail string
+	Quality         string
+	Version         string
 }
 
 func (p PackageSeed) Title() string {
@@ -122,12 +164,35 @@ func (p PackageSeed) Title() string {
 
 func (p PackageSeed) ToPackage() ckan.Package {
 	return ckan.Package{
-		Name:         p.Name.String(),
-		Title:        p.Title(),
-		OwnerOrg:     p.OwnerOrg,
 		Notes:        p.Description,
-		Private:      true,
 		Area:         p.Area,
 		ThumbnailURL: p.ThumbnailURL,
+	}
+}
+
+func (p PackageSeed) ToNewPackage() ckan.Package {
+	tags := append([]ckan.Tag{}, defaultTags...)
+	tags = append(tags, ckan.Tag{
+		Name: p.NameJa,
+	})
+
+	return ckan.Package{
+		Name:             p.Name.String(),
+		Title:            p.Title(),
+		OwnerOrg:         p.OwnerOrg,
+		Notes:            p.Description,
+		Private:          true,
+		Area:             p.Area,
+		ThumbnailURL:     p.ThumbnailURL,
+		URL:              urlDefault,
+		LicenseID:        licenseDefaultID,
+		LicenseTitle:     licenseDefaultTitle,
+		LicenseURL:       licenseDefaultURL,
+		Restriction:      restriction,
+		LicenseAgreement: licenseAgreement,
+		Fee:              fee,
+		Emergency:        emergency,
+		Tags:             tags,
+		Version:          p.Version,
 	}
 }

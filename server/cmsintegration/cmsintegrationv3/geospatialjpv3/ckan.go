@@ -19,7 +19,7 @@ func (s *handler) createOrUpdatePackage(ctx context.Context, seed PackageSeed) (
 
 	// create
 	if pkg == nil {
-		newpkg := seed.ToPackage()
+		newpkg := seed.ToNewPackage()
 		log.Infofc(ctx, "geospartialjp: package %s not found so new package will be created", pkgName)
 
 		pkg2, err := s.ckan.CreatePackage(ctx, newpkg)

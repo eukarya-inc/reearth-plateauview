@@ -36,12 +36,18 @@ func (h *handler) Publish(ctx context.Context, w *cmswebhook.Payload) error {
 		Year:       pkgYear,
 	}
 	pkgSeed := PackageSeed{
-		Name:         pkgName,
-		NameJa:       cityItem.CityName,
-		OwnerOrg:     h.ckanOrg,
-		Description:  seed.Desc,
-		Area:         seed.Area,
-		ThumbnailURL: seed.ThumbnailURL,
+		Name:            pkgName,
+		NameJa:          cityItem.CityName,
+		OwnerOrg:        h.ckanOrg,
+		Description:     seed.Desc,
+		Area:            seed.Area,
+		ThumbnailURL:    seed.ThumbnailURL,
+		Author:          seed.Author,
+		AuthorEmail:     seed.AuthorEmail,
+		Maintainer:      seed.Maintainer,
+		MaintainerEmail: seed.MaintainerEmail,
+		Quality:         seed.Quality,
+		Version:         cityItem.SpecVersion(),
 	}
 
 	pkg, err := h.createOrUpdatePackage(ctx, pkgSeed)

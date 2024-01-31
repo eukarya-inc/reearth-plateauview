@@ -23,6 +23,11 @@ type Seed struct {
 	Area               string
 	ThumbnailURL       string `pp:"-"`
 	Version            int
+	Author             string
+	AuthorEmail        string
+	Maintainer         string
+	MaintainerEmail    string
+	Quality            string
 }
 
 const defaultVersion = 3
