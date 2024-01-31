@@ -133,7 +133,7 @@ var (
 	citygmlTokyo23ku2   = "tokyo-23ku"
 )
 
-func (s *handler) reorderResources(ctx context.Context, pkg *ckan.Package, order []ckan.Resource) error {
+func (s *handler) reorderResources(ctx context.Context, pkg string, order []string) error {
 	if len(order) == 0 {
 		return nil
 	}

@@ -3,10 +3,12 @@ package geospatialjpv3
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/eukarya-inc/reearth-plateauview/server/cmsintegration/ckan"
 	"github.com/reearth/reearth-cms-api/go/cmswebhook"
 	"github.com/reearth/reearthx/log"
+	"github.com/samber/lo"
 )
 
 func (h *handler) Publish(ctx context.Context, w *cmswebhook.Payload) error {
@@ -40,7 +42,7 @@ func (h *handler) Publish(ctx context.Context, w *cmswebhook.Payload) error {
 		return fmt.Errorf("failed to get seed: %w", err)
 	}
 
-	orders := []ckan.Resource{}
+	resources := []ckan.Resource{}
 
 	log.Debugfc(ctx, "geospatialjpv3: seed: %s", ppp.Sprint(seed))
 	if seed.CityGML != "" {
@@ -53,7 +55,7 @@ func (h *handler) Publish(ctx context.Context, w *cmswebhook.Payload) error {
 		if err != nil {
 			return fmt.Errorf("failed to create or update resource (citygml): %w", err)
 		}
-		orders = append(orders, r)
+		resources = append(resources, r)
 	}
 
 	if seed.Plateau != "" {
@@ -66,7 +68,7 @@ func (h *handler) Publish(ctx context.Context, w *cmswebhook.Payload) error {
 		if err != nil {
 			return fmt.Errorf("failed to create or update resource (plateau): %w", err)
 		}
-		orders = append(orders, r)
+		resources = append(resources, r)
 	}
 
 	if seed.Related != "" {
@@ -79,14 +81,29 @@ func (h *handler) Publish(ctx context.Context, w *cmswebhook.Payload) error {
 		if err != nil {
 			return fmt.Errorf("failed to create or update resource (related): %w", err)
 		}
-		orders = append(orders, r)
+		resources = append(resources, r)
 	}
 
-	log.Debugfc(ctx, "geospatialjpv3: orders: %s", ppp.Sprint(orders))
-	err = h.reorderResources(ctx, pkg, orders)
-	if err != nil {
-		return fmt.Errorf("failed to reorder resources: %w", err)
+	if (seed.CityGML != "" || seed.Plateau != "" || seed.Related != "") && shouldReorder(pkg, seed.Version) {
+		log.Debugfc(ctx, "geospatialjpv3: reorder: %v", resources)
+		resourceIDs := lo.Map(resources, func(r ckan.Resource, _ int) string {
+			return r.ID
+		})
+
+		if err := h.reorderResources(ctx, pkg.ID, resourceIDs); err != nil {
+			return fmt.Errorf("failed to reorder resources: %w", err)
+		}
 	}
 
 	return nil
+}
+
+func shouldReorder(pkg *ckan.Package, currentVersion int) bool {
+	for _, res := range pkg.Resources {
+		if strings.Contains(res.Name, fmt.Sprintf("(v%d)", currentVersion)) ||
+			strings.Contains(res.Name, fmt.Sprintf("（v%d）", currentVersion)) {
+			return false
+		}
+	}
+	return true
 }
