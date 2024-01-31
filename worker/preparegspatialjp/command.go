@@ -46,7 +46,11 @@ func Command(conf *Config) (err error) {
 
 	var citygmlError, plateauError bool
 	defer func() {
-		if err := notifyError(ctx, cms, cityItem.GeospatialjpData, citygmlError, plateauError, err.Error()); err != nil {
+		var errmsg string
+		if err != nil {
+			errmsg = err.Error()
+		}
+		if err := notifyError(ctx, cms, cityItem.GeospatialjpData, citygmlError, plateauError, errmsg); err != nil {
 			log.Errorfc(ctx, "failed to notify error: %w", err)
 		}
 	}()
@@ -292,8 +296,8 @@ func notifyRunning(ctx context.Context, c *cms.CMS, cityItemID string, citygmlRu
 		}
 	}
 
-	var rawItem *cms.Item
-	cms.Marshal(item, rawItem)
+	var rawItem cms.Item
+	cms.Marshal(item, &rawItem)
 
 	if _, err := c.UpdateItem(ctx, rawItem.ID, rawItem.Fields, rawItem.MetadataFields); err != nil {
 		return fmt.Errorf("failed to update item: %w", err)

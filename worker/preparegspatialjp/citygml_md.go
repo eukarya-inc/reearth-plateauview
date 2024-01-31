@@ -47,7 +47,11 @@ func GenerateCityGMLMarkdown(ctx context.Context, zipFileName, zipPath string) (
 		return "", err
 	}
 
-	destFile.WriteString(md)
+	_, err = destFile.WriteString(md)
+	if err != nil {
+		return "", fmt.Errorf("failed to write file: %v", err)
+	}
+
 	return md, nil
 }
 
