@@ -1,6 +1,9 @@
 package geospatialjpv3
 
 import (
+	"fmt"
+
+	"github.com/eukarya-inc/reearth-plateauview/server/cmsintegration/ckan"
 	"github.com/eukarya-inc/reearth-plateauview/server/datacatalog/datacatalogcommon"
 	cms "github.com/reearth/reearth-cms-api/go"
 )
@@ -70,10 +73,57 @@ func (i *CityItem) YearInt() int {
 	return datacatalogcommon.YearInt(i.Year)
 }
 
-type GspatialjpItem struct {
-	ID      string         `json:"id,omitempty" cms:"id"`
-	CityGML map[string]any `json:"citygml,omitempty" cms:"citygml,asset"`
-	Plateau map[string]any `json:"plateau,omitempty" cms:"plateau,asset"`
-	Related map[string]any `json:"related,omitempty" cms:"related,asset"`
-	// Generic            []map[string]any `json:"generic,omitempty" cms:"generic,asset"`
+type CMSDataItem struct {
+	ID        string         `json:"id,omitempty" cms:"id"`
+	CityGML   map[string]any `json:"citygml,omitempty" cms:"citygml,asset"`
+	Plateau   map[string]any `json:"plateau,omitempty" cms:"plateau,asset"`
+	Related   map[string]any `json:"related,omitempty" cms:"related,asset"`
+	DescIndex string         `json:"desc_index,omitempty" cms:"desc_index,markdown"`
+}
+
+type CMSIndexItem struct {
+	ID          string         `json:"id,omitempty" cms:"id"`
+	Thumnail    map[string]any `json:"thumnail,omitempty" cms:"thumnail,asset"`
+	Region      string         `json:"region,omitempty" cms:"region,text"`
+	Desc        string         `json:"desc,omitempty" cms:"desc,markdown"`
+	DescCityGML string         `json:"desc_citygml,omitempty" cms:"desc_citygml,markdown"`
+	DescPlateau string         `json:"desc_plateau,omitempty" cms:"desc_plateau,markdown"`
+	DescRelated string         `json:"desc_related,omitempty" cms:"desc_related,markdown"`
+	Items       []CMSItem      `json:"items,omitempty" cms:"items,items,group"`
+}
+
+type CMSItem struct {
+	Name  string         `json:"name,omitempty" cms:"name,text"`
+	Desc  string         `json:"desc,omitempty" cms:"desc,markdown"`
+	Asset map[string]any `json:"asset,omitempty" cms:"asset,asset"`
+}
+
+type PackageName struct {
+	CityCode, CityNameEn string
+	Year                 int
+}
+
+func (p PackageName) String() string {
+	return datasetName(p.CityCode, p.CityNameEn, p.Year)
+}
+
+type PackageSeed struct {
+	Name        PackageName
+	NameJa      string
+	Description string
+	OwnerOrg    string
+}
+
+func (p PackageSeed) Title() string {
+	return fmt.Sprintf("3D都市モデル（Project PLATEAU）%s（%d年度）", p.NameJa, p.Name.Year)
+}
+
+func (p PackageSeed) ToPackage() ckan.Package {
+	return ckan.Package{
+		Name:     p.Name.String(),
+		Title:    p.Title(),
+		OwnerOrg: p.OwnerOrg,
+		Notes:    p.Description,
+		Private:  true,
+	}
 }

@@ -25,22 +25,29 @@ func (h *handler) Publish(ctx context.Context, w *cmswebhook.Payload) error {
 
 	log.Debugfc(ctx, "geospatialjpv3: cityItem: %s", ppp.Sprint(cityItem))
 
-	pkg, err := h.findOrCreatePackage(
-		ctx,
-		cityItem.CityCode,
-		cityItem.CityNameEn,
-		pkgYear,
-		CityInfo{NameJa: cityItem.CityName},
-	)
+	seed, err := getSeed(ctx, cms, cityItem)
+	if err != nil {
+		return fmt.Errorf("failed to get seed: %w", err)
+	}
+
+	pkgName := PackageName{
+		CityCode:   cityItem.CityCode,
+		CityNameEn: cityItem.CityNameEn,
+		Year:       pkgYear,
+	}
+	pkgSeed := PackageSeed{
+		Name:        pkgName,
+		NameJa:      cityItem.CityName,
+		OwnerOrg:    h.ckanOrg,
+		Description: seed.Desc,
+	}
+
+	pkg, err := h.findOrCreatePackage(ctx, pkgSeed)
 	if err != nil {
 		return fmt.Errorf("failed to find or create package: %w", err)
 	}
 
 	log.Debugfc(ctx, "geospatialjpv3: pkg: %s", ppp.Sprint(pkg))
-	seed, err := getSeed(ctx, cms, cityItem)
-	if err != nil {
-		return fmt.Errorf("failed to get seed: %w", err)
-	}
 
 	resources := []ckan.Resource{}
 
@@ -50,7 +57,7 @@ func (h *handler) Publish(ctx context.Context, w *cmswebhook.Payload) error {
 		r, err := h.createOrUpdateResource(ctx, pkg, ResourceInfo{
 			Name:        fmt.Sprintf("CityGML（v%d）", seed.Version),
 			URL:         seed.CityGML,
-			Description: "",
+			Description: seed.CityGMLDescription,
 		})
 		if err != nil {
 			return fmt.Errorf("failed to create or update resource (citygml): %w", err)
@@ -63,7 +70,7 @@ func (h *handler) Publish(ctx context.Context, w *cmswebhook.Payload) error {
 		r, err := h.createOrUpdateResource(ctx, pkg, ResourceInfo{
 			Name:        fmt.Sprintf("3D Tiles, MVT（v%d）", seed.Version),
 			URL:         seed.Plateau,
-			Description: "",
+			Description: seed.PlateauDescription,
 		})
 		if err != nil {
 			return fmt.Errorf("failed to create or update resource (plateau): %w", err)
@@ -76,7 +83,7 @@ func (h *handler) Publish(ctx context.Context, w *cmswebhook.Payload) error {
 		r, err := h.createOrUpdateResource(ctx, pkg, ResourceInfo{
 			Name:        fmt.Sprintf(("関連データセット（v%d）"), seed.Version),
 			URL:         seed.Related,
-			Description: "",
+			Description: seed.RelatedDescription,
 		})
 		if err != nil {
 			return fmt.Errorf("failed to create or update resource (related): %w", err)

@@ -10,26 +10,16 @@ import (
 	"github.com/samber/lo"
 )
 
-type CityInfo struct {
-	NameJa string
-}
-
-func (s *handler) findOrCreatePackage(ctx context.Context, cityCode, cityNameEn string, year int, city CityInfo) (*ckan.Package, error) {
+func (s *handler) findOrCreatePackage(ctx context.Context, seed PackageSeed) (*ckan.Package, error) {
 	// find
-	pkg, pkgName, err := s.findPackage(ctx, cityCode, cityNameEn, year)
+	pkg, pkgName, err := s.findPackage(ctx, seed.Name)
 	if err != nil {
 		return nil, fmt.Errorf("G空間情報センターからデータセットを検索できませんでした: %w", err)
 	}
 
 	// create
 	if pkg == nil {
-		newpkg := ckan.Package{
-			Name:     pkgName,
-			OwnerOrg: s.ckanOrg,
-			Title:    fmt.Sprintf("3D都市モデル（Project PLATEAU）%s（%d年度）", city.NameJa, year),
-			Private:  true,
-			// TODO: use CityInfo
-		}
+		newpkg := seed.ToPackage()
 		log.Infofc(ctx, "geospartialjp: package %s not found so new package will be created", pkgName)
 
 		pkg2, err := s.ckan.CreatePackage(ctx, newpkg)
@@ -39,19 +29,31 @@ func (s *handler) findOrCreatePackage(ctx context.Context, cityCode, cityNameEn 
 		return &pkg2, nil
 	}
 
+	// update
+	if pkg.Notes != seed.Description {
+		pkg2, err := s.ckan.PatchPackage(ctx, ckan.Package{
+			ID:    pkg.ID,
+			Notes: seed.Description,
+		})
+		if err != nil {
+			return nil, fmt.Errorf("G空間情報センターにデータセット %s を更新できませんでした: %w", pkgName, err)
+		}
+		return &pkg2, nil
+	}
+
 	return pkg, nil
 }
 
-func (s *handler) findPackage(ctx context.Context, cityCode, cityName string, year int) (_ *ckan.Package, n string, err error) {
+func (s *handler) findPackage(ctx context.Context, pkgname PackageName) (_ *ckan.Package, n string, err error) {
 	// pattern1 -shi
-	name := datasetName(cityCode, cityName, year)
+	name := pkgname.String()
 	p, _ := s.ckan.ShowPackage(ctx, name)
 	if p.Name != "" {
 		return &p, p.Name, nil
 	}
 
 	// pattern2 -city
-	name2 := datasetName(cityCode, strings.Replace(cityName, "-shi", "-city", 1), year)
+	name2 := strings.Replace(name, "-shi", "-city", 1)
 	if name != name2 {
 		p, _ = s.ckan.ShowPackage(ctx, name2)
 		if p.Name != "" {
@@ -70,10 +72,11 @@ type ResourceInfo struct {
 
 func (resInfo ResourceInfo) Into(pkgID, resID string) ckan.Resource {
 	return ckan.Resource{
-		ID:        resID,
-		PackageID: pkgID,
-		Name:      resInfo.Name,
-		URL:       resInfo.URL,
+		ID:          resID,
+		PackageID:   pkgID,
+		Name:        resInfo.Name,
+		URL:         resInfo.URL,
+		Description: resInfo.Description,
 	}
 }
 
