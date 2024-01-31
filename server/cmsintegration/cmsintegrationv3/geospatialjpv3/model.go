@@ -188,7 +188,6 @@ func (p PackageSeed) Title() string {
 func (p PackageSeed) ToPackage() ckan.Package {
 	return ckan.Package{
 		Notes:        p.Description,
-		Area:         p.Area,
 		ThumbnailURL: p.ThumbnailURL,
 	}
 }

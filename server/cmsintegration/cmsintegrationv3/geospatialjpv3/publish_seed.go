@@ -18,6 +18,7 @@ type Seed struct {
 	Related            string
 	Desc               string
 	Index              string
+	IndexURL           string
 	CityGMLDescription string
 	PlateauDescription string
 	RelatedDescription string
@@ -29,8 +30,12 @@ type Seed struct {
 	MaintainerEmail    string
 	Quality            string
 	SpecVersion        string
-	Version            int
+	V                  int
 	Year               int
+}
+
+func (s Seed) Valid() bool {
+	return s.CityGML != "" || s.Plateau != "" || s.Related != ""
 }
 
 func getSeed(ctx context.Context, c cms.Interface, cityItem *CityItem) (Seed, error) {
@@ -71,6 +76,10 @@ func getSeed(ctx context.Context, c cms.Interface, cityItem *CityItem) (Seed, er
 	}
 
 	seed.Index = indexItem.DescIndex
+	if seed.Index != "" {
+		seed.IndexURL = dataurl.New([]byte(seed.Index), "text/markdown").String()
+	}
+
 	seed.CityGMLDescription = indexItem.DescCityGML
 	seed.PlateauDescription = indexItem.DescPlateau
 	seed.RelatedDescription = indexItem.DescRelated
@@ -82,7 +91,7 @@ func getSeed(ctx context.Context, c cms.Interface, cityItem *CityItem) (Seed, er
 	seed.Quality = indexItem.Quality
 	seed.Year = cityItem.YearInt()
 	seed.SpecVersion = cityItem.SpecVersionFull()
-	seed.Version = cityItem.SpecVersionMajorInt()
+	seed.V = cityItem.SpecVersionMajorInt()
 
 	if thumnailURL := valueToAsset(indexItem.Thumbnail); thumnailURL != "" {
 		seed.ThumbnailURL, err = fetchAndGetDataURL(thumnailURL)

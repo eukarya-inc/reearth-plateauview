@@ -30,7 +30,7 @@ func (s *handler) createOrUpdatePackage(ctx context.Context, seed PackageSeed) (
 	}
 
 	// update
-	if pkg.Notes != seed.Description || pkg.ThumbnailURL != seed.ThumbnailURL || pkg.Area != seed.Area {
+	if shouldUpdatePackage(pkg, seed) {
 		newpkg := seed.ToPackage()
 		newpkg.ID = pkg.ID
 		pkg2, err := s.ckan.PatchPackage(ctx, newpkg)
@@ -61,6 +61,10 @@ func (s *handler) findPackage(ctx context.Context, pkgname PackageName) (_ *ckan
 	}
 
 	return nil, name, nil
+}
+
+func shouldUpdatePackage(pkg *ckan.Package, seed PackageSeed) bool {
+	return pkg.Notes != seed.Description || pkg.ThumbnailURL != seed.ThumbnailURL
 }
 
 type ResourceInfo struct {

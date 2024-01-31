@@ -24,10 +24,14 @@ func (h *handler) Publish(ctx context.Context, w *cmswebhook.Payload) error {
 	}
 
 	log.Debugfc(ctx, "geospatialjpv3: cityItem: %s", ppp.Sprint(cityItem))
-
 	seed, err := getSeed(ctx, cms, cityItem)
 	if err != nil {
 		return fmt.Errorf("failed to get seed: %w", err)
+	}
+
+	log.Debugfc(ctx, "geospatialjpv3: seed: %s", ppp.Sprint(seed))
+	if !seed.Valid() {
+		return fmt.Errorf("there are no items that can be uploaded")
 	}
 
 	pkgName := PackageName{
@@ -56,14 +60,25 @@ func (h *handler) Publish(ctx context.Context, w *cmswebhook.Payload) error {
 	}
 
 	log.Debugfc(ctx, "geospatialjpv3: pkg: %s", ppp.Sprint(pkg))
-
 	resources := []ckan.Resource{}
 
-	log.Debugfc(ctx, "geospatialjpv3: seed: %s", ppp.Sprint(seed))
+	if seed.Index != "" {
+		log.Debugfc(ctx, "geospatialjpv3: index: %s", seed.Index)
+		r, err := h.createOrUpdateResource(ctx, pkg, ResourceInfo{
+			Name:        fmt.Sprintf("データ目録（v%d）", seed.V),
+			URL:         seed.IndexURL,
+			Description: seed.Index,
+		})
+		if err != nil {
+			return fmt.Errorf("failed to create or update resource (index): %w", err)
+		}
+		resources = append(resources, r)
+	}
+
 	if seed.CityGML != "" {
 		log.Debugfc(ctx, "geospatialjpv3: citygml: %s", seed.CityGML)
 		r, err := h.createOrUpdateResource(ctx, pkg, ResourceInfo{
-			Name:        fmt.Sprintf("CityGML（v%d）", seed.Version),
+			Name:        fmt.Sprintf("CityGML（v%d）", seed.V),
 			URL:         seed.CityGML,
 			Description: seed.CityGMLDescription,
 		})
@@ -76,7 +91,7 @@ func (h *handler) Publish(ctx context.Context, w *cmswebhook.Payload) error {
 	if seed.Plateau != "" {
 		log.Debugfc(ctx, "geospatialjpv3: plateau: %s", seed.Plateau)
 		r, err := h.createOrUpdateResource(ctx, pkg, ResourceInfo{
-			Name:        fmt.Sprintf("3D Tiles, MVT（v%d）", seed.Version),
+			Name:        fmt.Sprintf("3D Tiles, MVT（v%d）", seed.V),
 			URL:         seed.Plateau,
 			Description: seed.PlateauDescription,
 		})
@@ -89,7 +104,7 @@ func (h *handler) Publish(ctx context.Context, w *cmswebhook.Payload) error {
 	if seed.Related != "" {
 		log.Debugfc(ctx, "geospatialjpv3: related: %s", seed.Related)
 		r, err := h.createOrUpdateResource(ctx, pkg, ResourceInfo{
-			Name:        fmt.Sprintf(("関連データセット（v%d）"), seed.Version),
+			Name:        fmt.Sprintf(("関連データセット（v%d）"), seed.V),
 			URL:         seed.Related,
 			Description: seed.RelatedDescription,
 		})
@@ -99,7 +114,7 @@ func (h *handler) Publish(ctx context.Context, w *cmswebhook.Payload) error {
 		resources = append(resources, r)
 	}
 
-	if (seed.CityGML != "" || seed.Plateau != "" || seed.Related != "") && shouldReorder(pkg, seed.Version) {
+	if (seed.CityGML != "" || seed.Plateau != "" || seed.Related != "") && shouldReorder(pkg, seed.V) {
 		log.Debugfc(ctx, "geospatialjpv3: reorder: %v", resources)
 		resourceIDs := lo.Map(resources, func(r ckan.Resource, _ int) string {
 			return r.ID
