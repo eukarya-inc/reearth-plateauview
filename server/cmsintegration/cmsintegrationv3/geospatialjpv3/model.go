@@ -71,12 +71,9 @@ func (i *CityItem) YearInt() int {
 }
 
 type GspatialjpItem struct {
-	ID      string     `json:"id,omitempty" cms:"id"`
-	CityGML *cms.Value `json:"citygml,omitempty" cms:"citygml,asset"`
-	Plateau *cms.Value `json:"plateau,omitempty" cms:"plateau,asset"`
-	Related *cms.Value `json:"related,omitempty" cms:"related,asset"`
-	// Generic            []string `json:"generic,omitempty" cms:"generic,asset"`
-	MergeCityGMLStatus *cms.Tag `json:"merge_citygml_status" cms:"merge_citygml_status,tag,metadata"`
-	MergePlateauStatus *cms.Tag `json:"merge_plateau_status" cms:"merge_plateau_status,tag,metadata"`
-	MergeRelatedStatus *cms.Tag `json:"merge_related_status" cms:"merge_related_status,tag,metadata"`
+	ID      string         `json:"id,omitempty" cms:"id"`
+	CityGML map[string]any `json:"citygml,omitempty" cms:"citygml,asset"`
+	Plateau map[string]any `json:"plateau,omitempty" cms:"plateau,asset"`
+	Related map[string]any `json:"related,omitempty" cms:"related,asset"`
+	// Generic            []map[string]any `json:"generic,omitempty" cms:"generic,asset"`
 }

@@ -15,24 +15,47 @@ import (
 
 func TestPublish(t *testing.T) {
 	t.Skip()
+
 	lo.Must0(godotenv.Load("../../../.env"))
 
 	var (
 		itemID      = ""
-		projectID   = ""
 		cmsURL      = os.Getenv("REEARTH_PLATEAUVIEW_CMS_BASEURL")
 		cmsToken    = os.Getenv("REEARTH_PLATEAUVIEW_CMS_TOKEN")
-		ckanOrg     = ""
-		ckanBaseURL = ""
-		ckanToken   = ""
+		ckanOrg     = os.Getenv("REEARTH_PLATEAUVIEW_CKAN_ORG")
+		ckanBaseURL = os.Getenv("REEARTH_PLATEAUVIEW_CKAN_BASEURL")
+		ckanToken   = os.Getenv("REEARTH_PLATEAUVIEW_CKAN_TOKEN")
 	)
 
 	ctx := context.Background()
 
 	w := &cmswebhook.Payload{
 		ItemData: &cmswebhook.ItemData{
-			Item:   &cms.Item{ID: itemID},
-			Schema: &cms.Schema{ProjectID: projectID},
+			Item: &cms.Item{
+				// ID: itemID,
+				Fields: []*cms.Field{
+					{
+						Key:   "city_code",
+						Value: "99999",
+					},
+					{
+						Key:   "city_name",
+						Value: "テスト市",
+					},
+					{
+						Key:   "city_name_en",
+						Value: "test-shi",
+					},
+					{
+						Key:   "year",
+						Value: "2023",
+					},
+					{
+						Key:   "geospatialjp-data",
+						Value: itemID,
+					},
+				},
+			},
 		},
 	}
 
@@ -50,5 +73,4 @@ func TestPublish(t *testing.T) {
 
 	err = h.Publish(ctx, w)
 	assert.NoError(t, err)
-
 }

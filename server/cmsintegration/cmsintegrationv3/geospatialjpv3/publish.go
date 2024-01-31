@@ -39,6 +39,7 @@ func (h *handler) Publish(ctx context.Context, w *cmswebhook.Payload) error {
 		return fmt.Errorf("failed to get seed: %w", err)
 	}
 
+	log.Debugfc(ctx, "geospatialjpv3: seed: %s", ppp.Sprint(seed))
 	if seed.CityGML != "" {
 		log.Debugfc(ctx, "geospatialjpv3: citygml: %s", seed.CityGML)
 		if err := h.createOrUpdateResource(ctx, pkg, ResourceInfo{
@@ -53,7 +54,7 @@ func (h *handler) Publish(ctx context.Context, w *cmswebhook.Payload) error {
 	if seed.Plateau != "" {
 		log.Debugfc(ctx, "geospatialjpv3: plateau: %s", seed.Plateau)
 		if err := h.createOrUpdateResource(ctx, pkg, ResourceInfo{
-			Name:        fmt.Sprintf("3D Tiles, MVT（%d）", seed.Version),
+			Name:        fmt.Sprintf("3D Tiles, MVT（v%d）", seed.Version),
 			URL:         seed.Plateau,
 			Description: "",
 		}); err != nil {
@@ -64,7 +65,7 @@ func (h *handler) Publish(ctx context.Context, w *cmswebhook.Payload) error {
 	if seed.Related != "" {
 		log.Debugfc(ctx, "geospatialjpv3: related: %s", seed.Related)
 		if err := h.createOrUpdateResource(ctx, pkg, ResourceInfo{
-			Name:        fmt.Sprintf(("関連データセット（%d）"), seed.Version),
+			Name:        fmt.Sprintf(("関連データセット（v%d）"), seed.Version),
 			URL:         seed.Related,
 			Description: "",
 		}); err != nil {

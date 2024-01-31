@@ -27,6 +27,8 @@ func getSeed(ctx context.Context, c cms.Interface, cityItem *CityItem) (Seed, er
 		return seed, fmt.Errorf("failed to get item: %w", err)
 	}
 
+	log.Debugfc(ctx, "geospatialjpv3: rawDataItem: %s", ppp.Sprint(rawDataItem))
+
 	var dataItem GspatialjpItem
 	rawDataItem.Unmarshal(&dataItem)
 
@@ -40,16 +42,14 @@ func getSeed(ctx context.Context, c cms.Interface, cityItem *CityItem) (Seed, er
 		seed.Related = valueToAsset(dataItem.Related)
 	}
 
-	log.Debugfc(ctx, "geospatialjpv3: seed: %s", ppp.Sprint(dataItem))
 	return seed, nil
 }
 
-func valueToAsset(v *cms.Value) string {
-	vv := map[string]any{}
-	if err := v.JSON(&vv); err != nil {
+func valueToAsset(v map[string]any) string {
+	if v == nil {
 		return ""
 	}
-	if url, ok := vv["url"].(string); ok {
+	if url, ok := v["url"].(string); ok {
 		return url
 	}
 	return ""
