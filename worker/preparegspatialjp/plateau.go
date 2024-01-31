@@ -17,7 +17,7 @@ func PreparePlateau(ctx context.Context, cms *cms.CMS, cityItem *CityItem, allFe
 	downloadPath := filepath.Join(tmpDir, cityItem.CityCode+"_"+cityItem.CityNameEn+"_plateau")
 	_ = os.MkdirAll(downloadPath, os.ModePerm)
 
-	zipFileName := cityItem.CityCode + "_" + cityItem.CityNameEn + "_city_2023_3dtiles_mvt.zip"
+	zipFileName := fmt.Sprintf("%s_%s_city_%d_3dtiles_mvt.zip", cityItem.CityCode, cityItem.CityNameEn, cityItem.YearInt())
 	zipFilePath := filepath.Join(tmpDir, zipFileName)
 
 	for _, ft := range featureTypes {

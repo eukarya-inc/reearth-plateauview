@@ -15,7 +15,7 @@ func PrepareCityGML(ctx context.Context, cms *cms.CMS, cityItem *CityItem, allFe
 	downloadPath := filepath.Join(tmpDir, cityItem.CityCode+"_"+cityItem.CityNameEn+"_citygml")
 	_ = os.MkdirAll(downloadPath, os.ModePerm)
 
-	zipFileName := cityItem.CityCode + "_" + cityItem.CityNameEn + "_city_2023_citygml_1_op.zip"
+	zipFileName := fmt.Sprintf("%s_%s_city_%d_citygml.zip", cityItem.CityCode, cityItem.CityNameEn, cityItem.YearInt())
 	zipFilePath := filepath.Join(tmpDir, zipFileName)
 
 	if err := getAssets(ctx, cms, cityItem, downloadPath); err != nil {

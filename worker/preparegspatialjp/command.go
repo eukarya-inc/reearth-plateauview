@@ -34,12 +34,7 @@ func Command(conf *Config) (err error) {
 	}
 
 	cityItem := CityItemFrom(cityItemRaw)
-	{
-		pp := pp.New()
-		pp.SetColoringEnabled(false)
-		s := pp.Sprint(cityItem)
-		log.Infofc(ctx, "city item: %s", s)
-	}
+	log.Infofc(ctx, "city item: %s", ppp.Sprint(cityItem))
 
 	cityName := cityItem.CityName
 	log.Infofc(ctx, "city name: %s", cityName)

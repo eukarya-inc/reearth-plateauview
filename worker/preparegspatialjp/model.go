@@ -1,6 +1,12 @@
 package preparegspatialjp
 
-import cms "github.com/reearth/reearth-cms-api/go"
+import (
+	"regexp"
+	"strconv"
+	"strings"
+
+	cms "github.com/reearth/reearth-cms-api/go"
+)
 
 var featureTypes = []string{
 	// *: データカタログ上で複数の項目に分かれて存在
@@ -41,6 +47,7 @@ type CityItem struct {
 	Metadata          string            `json:"metadata,omitempty" cms:"metadata,asset"`
 	Specification     string            `json:"specification,omitempty" cms:"specification,asset"`
 	Misc              string            `json:"misc,omitempty" cms:"misc,asset"`
+	Year              string            `json:"year,omitempty" cms:"year,select"`
 	References        map[string]string `json:"references,omitempty" cms:"-"`
 	RelatedDataset    string            `json:"related_dataset,omitempty" cms:"related_dataset,reference"`
 	GeospatialjpIndex string            `json:"geospatialjp-index,omitempty" cms:"geospatialjp-index,reference"`
@@ -58,8 +65,16 @@ func CityItemFrom(item *cms.Item) (i *CityItem) {
 		}
 	}
 
+	if i.Year == "" {
+		i.Year = "2023年度"
+	}
+
 	i.References = references
 	return
+}
+
+func (c *CityItem) YearInt() int {
+	return YearInt(c.Year)
 }
 
 type GspatialjpItem struct {
@@ -71,4 +86,22 @@ type GspatialjpItem struct {
 	MergeCityGMLStatus *cms.Tag `json:"merge_citygml_status" cms:"merge_citygml_status,tag,metadata"`
 	MergePlateauStatus *cms.Tag `json:"merge_plateau_status" cms:"merge_plateau_status,tag,metadata"`
 	MergeRelatedStatus *cms.Tag `json:"merge_related_status" cms:"merge_related_status,tag,metadata"`
+}
+
+var reReiwa = regexp.MustCompile(`令和([0-9]+?)年度?`)
+
+func YearInt(y string) (year int) {
+	if ym := reReiwa.FindStringSubmatch(y); len(ym) > 1 {
+		yy, _ := strconv.Atoi(ym[1])
+		if yy > 0 {
+			year = yy + 2018
+		}
+	} else if yy, err := strconv.Atoi(strings.TrimSuffix(strings.TrimSuffix(y, "度"), "年")); err == nil {
+		year = yy
+	}
+	return year
+}
+
+func SpecVersion(version string) string {
+	return strings.TrimSuffix(strings.TrimPrefix(version, "第"), "版")
 }

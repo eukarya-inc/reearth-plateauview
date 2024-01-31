@@ -2,9 +2,10 @@ package geospatialjpv3
 
 import (
 	"fmt"
+	"strconv"
+	"strings"
 
 	"github.com/eukarya-inc/reearth-plateauview/server/cmsintegration/ckan"
-	"github.com/eukarya-inc/reearth-plateauview/server/datacatalog/datacatalogcommon"
 	cms "github.com/reearth/reearth-cms-api/go"
 )
 
@@ -82,7 +83,28 @@ type CityItem struct {
 }
 
 func (c *CityItem) SpecVersion() string {
-	return "3.4.0" // TODO
+	return SpecVersion(c.Specification)
+}
+
+func (c *CityItem) SpecVersionFull() string {
+	v := SpecVersion(c.Specification)
+	if v == "" {
+		return ""
+	}
+	return v + ".0"
+}
+
+func (c *CityItem) SpecVersionMajorInt() int {
+	v := SpecVersion(c.Specification)
+	first, _, _ := strings.Cut(v, ".")
+	if i, err := strconv.Atoi(first); err == nil {
+		return i
+	}
+	return 0
+}
+
+func (c *CityItem) YearInt() int {
+	return YearInt(c.Year)
 }
 
 func CityItemFrom(item *cms.Item) (i *CityItem) {
@@ -96,12 +118,12 @@ func CityItemFrom(item *cms.Item) (i *CityItem) {
 		}
 	}
 
+	if i.Year == "" {
+		i.Year = "2023年度"
+	}
+
 	i.References = references
 	return
-}
-
-func (i *CityItem) YearInt() int {
-	return datacatalogcommon.YearInt(i.Year)
 }
 
 type CMSDataItem struct {
@@ -117,6 +139,7 @@ type CMSIndexItem struct {
 	Thumbnail       map[string]any `json:"thumbnail,omitempty" cms:"thumbnail,asset"`
 	Region          string         `json:"region,omitempty" cms:"region,text"`
 	Desc            string         `json:"desc,omitempty" cms:"desc,markdown"`
+	DescIndex       string         `json:"desc_index,omitempty" cms:"desc_index,markdown"`
 	DescCityGML     string         `json:"desc_citygml,omitempty" cms:"desc_citygml,markdown"`
 	DescPlateau     string         `json:"desc_plateau,omitempty" cms:"desc_plateau,markdown"`
 	DescRelated     string         `json:"desc_related,omitempty" cms:"desc_related,markdown"`

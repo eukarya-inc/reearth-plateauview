@@ -17,25 +17,24 @@ type Seed struct {
 	Plateau            string
 	Related            string
 	Desc               string
+	Index              string
 	CityGMLDescription string
 	PlateauDescription string
 	RelatedDescription string
 	Area               string
 	ThumbnailURL       string `pp:"-"`
-	Version            int
 	Author             string
 	AuthorEmail        string
 	Maintainer         string
 	MaintainerEmail    string
 	Quality            string
+	SpecVersion        string
+	Version            int
+	Year               int
 }
 
-const defaultVersion = 3
-
 func getSeed(ctx context.Context, c cms.Interface, cityItem *CityItem) (Seed, error) {
-	seed := Seed{
-		Version: defaultVersion,
-	}
+	seed := Seed{}
 
 	rawDataItem, err := c.GetItem(ctx, cityItem.GeospatialjpData, true)
 	if err != nil {
@@ -71,10 +70,19 @@ func getSeed(ctx context.Context, c cms.Interface, cityItem *CityItem) (Seed, er
 		seed.Desc = indexItem.Desc
 	}
 
+	seed.Index = indexItem.DescIndex
 	seed.CityGMLDescription = indexItem.DescCityGML
 	seed.PlateauDescription = indexItem.DescPlateau
 	seed.RelatedDescription = indexItem.DescRelated
 	seed.Area = indexItem.Region
+	seed.Author = indexItem.Author
+	seed.AuthorEmail = indexItem.AuthorEmail
+	seed.Maintainer = indexItem.Maintainer
+	seed.MaintainerEmail = indexItem.MaintainerEmail
+	seed.Quality = indexItem.Quality
+	seed.Year = cityItem.YearInt()
+	seed.SpecVersion = cityItem.SpecVersionFull()
+	seed.Version = cityItem.SpecVersionMajorInt()
 
 	if thumnailURL := valueToAsset(indexItem.Thumbnail); thumnailURL != "" {
 		seed.ThumbnailURL, err = fetchAndGetDataURL(thumnailURL)
