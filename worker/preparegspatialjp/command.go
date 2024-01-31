@@ -83,7 +83,7 @@ func Command(conf *Config) (err error) {
 	}
 
 	go func(c chan result) {
-		citygmlZipName, citygmlZipPath, err := PrepareCityGML(ctx, cms, cityItem, allFeatureItems)
+		citygmlZipName, citygmlZipPath, _, _, err := PrepareCityGML(ctx, cms, cityItem, allFeatureItems)
 		c <- result{
 			zipName: citygmlZipName,
 			zipPath: citygmlZipPath,
