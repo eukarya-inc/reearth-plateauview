@@ -30,7 +30,7 @@ func TestIsInvalidFile(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		result := isInvalidFile(test.filePath)
+		result := isInvalid(test.filePath)
 		assert.Equal(t, test.expectedBool, result)
 	}
 }

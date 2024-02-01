@@ -57,7 +57,7 @@ func Unzip(ctx context.Context, zipFile *bytes.Reader, targetDir string, trimPat
 		// filePath = filepath.ToSlash(filePath)
 		filePath = strings.ReplaceAll(filePath, `\`, `/`)
 
-		if isInvalidFile(filePath) {
+		if isInvalid(filePath) {
 			return fmt.Errorf("invalid file path: %s", filePath)
 		}
 
@@ -114,7 +114,7 @@ func Unzip(ctx context.Context, zipFile *bytes.Reader, targetDir string, trimPat
 	return nil
 }
 
-func isInvalidFile(filePath string) bool {
+func isInvalid(filePath string) bool {
 	return strings.HasPrefix(filePath, "udx/") || (!strings.Contains(filePath, "/") && strings.HasSuffix(filePath, ".gml"))
 }
 
