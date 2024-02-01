@@ -132,7 +132,7 @@ func (c *InMemoryRepo) Areas(ctx context.Context, input *AreasInput) (res []Area
 			return false
 		}
 
-		if len(codes) > 0 && !lo.Contains(codes, a.GetCode()) {
+		if inp.DatasetTypes != nil && !lo.Contains(codes, a.GetCode()) {
 			return false
 		}
 
@@ -190,11 +190,11 @@ func areasForDatasetTypes(ds []Dataset) map[string]map[AreaCode]struct{} {
 	for _, d := range ds {
 		datasetTypeCode := d.GetTypeCode()
 
-		for _, code := range areaCodesFrom(d) {
+		if code := mostDetailedAreaCodeFrom(d); code != nil {
 			if _, ok := res[datasetTypeCode]; !ok {
 				res[datasetTypeCode] = make(map[AreaCode]struct{})
 			}
-			res[datasetTypeCode][code] = struct{}{}
+			res[datasetTypeCode][*code] = struct{}{}
 		}
 	}
 
