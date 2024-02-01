@@ -160,3 +160,6 @@ jobs:
   deploy-worker-dev:
     needs: build-worker
     uses: ./.github/workflows/deploy-worker-dev.yml
+  deploy-worker-prodv:
+    needs: build-worker
+    uses: ./.github/workflows/deploy-worker-prod.yml
