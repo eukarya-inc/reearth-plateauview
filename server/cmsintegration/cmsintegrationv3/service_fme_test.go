@@ -768,7 +768,6 @@ func TestReceiveResultFromFME(t *testing.T) {
 		assert.NoError(t, err)
 	})
 
-	// test case 5: notify
 	t.Run("notify", func(t *testing.T) {
 		commneted := []string{}
 		r := *res
@@ -795,6 +794,65 @@ func TestReceiveResultFromFME(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, []string{"message ログ： log"}, commneted)
 		assert.Equal(t, []string{"qc_result"}, uploaded)
+	})
+
+	t.Run("failed to upload asset", func(t *testing.T) {
+		c.reset()
+		uploaded := []string{}
+		c.getItem = func(ctx context.Context, id string, asset bool) (*cms.Item, error) {
+			assert.Equal(t, id, "itemID")
+			return &cms.Item{
+				ID: "itemID",
+			}, nil
+		}
+		c.uploadAsset = func(ctx context.Context, projectID, url string) (string, error) {
+			assert.Equal(t, projectID, "projectID")
+			uploaded = append(uploaded, url)
+			return url, nil
+		}
+		c.updateItem = func(ctx context.Context, id string, fields []*cms.Field, metadataFields []*cms.Field) (*cms.Item, error) {
+			assert.Equal(t, id, "itemID")
+			assert.Equal(t, []*cms.Field{
+				{
+					Key:   "data",
+					Type:  "asset",
+					Value: []string{"bldg"},
+				},
+				{
+					Key:   "qc_result",
+					Type:  "asset",
+					Value: "qc_result",
+				},
+				{
+					Key:   "dic",
+					Type:  "textarea",
+					Value: "dic!!",
+				},
+				{
+					Key:   "maxlod",
+					Type:  "asset",
+					Value: "maxlod",
+				},
+			}, fields)
+			assert.Equal(t, []*cms.Field{
+				{
+					Key:   "conv_status",
+					Type:  "tag",
+					Value: string(ConvertionStatusSuccess),
+				},
+				{
+					Key:   "qc_status",
+					Type:  "tag",
+					Value: string(ConvertionStatusSuccess),
+				},
+			}, metadataFields)
+			return nil, nil
+		}
+		c.uploadAsset = func(ctx context.Context, projectID, url string) (string, error) {
+			return "", fmt.Errorf("ERR!")
+		}
+		err := receiveResultFromFME(ctx, s, conf, *res)
+		assert.NoError(t, err)
 	})
 }
 
