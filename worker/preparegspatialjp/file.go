@@ -56,6 +56,11 @@ func Unzip(ctx context.Context, zipFile *bytes.Reader, targetDir string, trimPat
 		filePath = strings.TrimSuffix(filePath, `\`)
 		// filePath = filepath.ToSlash(filePath)
 		filePath = strings.ReplaceAll(filePath, `\`, `/`)
+
+		if isInvalidFile(filePath) {
+			return fmt.Errorf("invalid file path: %s", filePath)
+		}
+
 		log.Infofc(ctx, "unzipping %s -> %s", f.Name, filePath)
 
 		if trimPathSuffix != "" {
@@ -107,6 +112,10 @@ func Unzip(ctx context.Context, zipFile *bytes.Reader, targetDir string, trimPat
 		_ = srcFile.Close()
 	}
 	return nil
+}
+
+func isInvalidFile(filePath string) bool {
+	return strings.HasPrefix(filePath, "udx/") || (!strings.Contains(filePath, "/") && strings.HasSuffix(filePath, ".gml"))
 }
 
 func ZipDir(ctx context.Context, srcDir string, destZip string) error {
