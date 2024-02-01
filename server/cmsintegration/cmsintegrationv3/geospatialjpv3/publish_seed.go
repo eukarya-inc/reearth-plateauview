@@ -32,6 +32,7 @@ type Seed struct {
 	SpecVersion        string
 	V                  int
 	Year               int
+	Generics           []CMSGenericItem
 }
 
 func (s Seed) Valid() bool {
@@ -92,6 +93,7 @@ func getSeed(ctx context.Context, c cms.Interface, cityItem *CityItem) (Seed, er
 	seed.Year = cityItem.YearInt()
 	seed.SpecVersion = cityItem.SpecVersionFull()
 	seed.V = cityItem.SpecVersionMajorInt()
+	seed.Generics = indexItem.Generics
 
 	if thumnailURL := valueToAsset(indexItem.Thumbnail); thumnailURL != "" {
 		seed.ThumbnailURL, err = fetchAndGetDataURL(thumnailURL)

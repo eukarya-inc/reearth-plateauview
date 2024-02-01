@@ -51,6 +51,10 @@ func TestPublish(t *testing.T) {
 						Value: "2023",
 					},
 					{
+						Key:   "specification",
+						Value: "4",
+					},
+					{
 						Key:   "geospatialjp-index",
 						Value: indexItemID,
 					},

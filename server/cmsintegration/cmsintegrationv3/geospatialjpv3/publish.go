@@ -114,7 +114,26 @@ func (h *handler) Publish(ctx context.Context, w *cmswebhook.Payload) error {
 		resources = append(resources, r)
 	}
 
-	if (seed.CityGML != "" || seed.Plateau != "" || seed.Related != "") && shouldReorder(pkg, seed.V) {
+	if seed.Generics != nil {
+		log.Debugfc(ctx, "geospatialjpv3: generics: %s", ppp.Sprint(seed.Generics))
+		for _, g := range seed.Generics {
+			url, ok := g.Asset["url"].(string)
+			if !ok {
+				return fmt.Errorf("failed to get url from generic: %v", g)
+			}
+			r, err := h.createOrUpdateResource(ctx, pkg, ResourceInfo{
+				Name:        g.Name,
+				URL:         url,
+				Description: g.Desc,
+			})
+			if err != nil {
+				return fmt.Errorf("failed to create or update resource (generic): %w", err)
+			}
+			resources = append(resources, r)
+		}
+	}
+
+	if (seed.CityGML != "" || seed.Plateau != "" || seed.Related != "" || seed.Generics != nil) && shouldReorder(pkg, seed.V) {
 		log.Debugfc(ctx, "geospatialjpv3: reorder: %v", resources)
 		resourceIDs := lo.Map(resources, func(r ckan.Resource, _ int) string {
 			return r.ID
