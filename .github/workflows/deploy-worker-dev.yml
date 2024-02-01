@@ -1,16 +1,16 @@
 name: ⭐️ Deploy PLATEAU worker dev
 on:
   workflow_dispatch:
-  repository_dispatch:
-    types: [deploy-worker-dev]
 env:
   IMAGE: ghcr.io/eukarya-inc/reearth-plateauview/plateauview-api-worker:latest
   IMAGE_GCP: asia.gcr.io/reearth-plateau-dev/plateauview-api-worker:latest
   GCP_SERVICE_ACCOUNT: github-cicd-oidc@reearth-plateau-dev.iam.gserviceaccount.com
   GCP_WORKLOAD_IDENTITY_PROVIDER: projects/383489516390/locations/global/workloadIdentityPools/github-actions-oidc/providers/github-provider
   GCP_REGION: asia-northeast1
+concurrency:
+  group: ${{ github.workflow }}
 jobs:
-  deploy_server:
+  deploy_worker:
     runs-on: ubuntu-latest
     if: github.event.repository.full_name == 'eukarya-inc/reearth-plateauview'
     permissions:

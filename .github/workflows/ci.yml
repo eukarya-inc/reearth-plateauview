@@ -10,6 +10,7 @@ jobs:
       plugin: ${{ steps.plugin.outputs.any_changed }}
       server: ${{ steps.server.outputs.any_changed }}
       tools: ${{ steps.tools.outputs.any_changed }}
+      worker: ${{ steps.worker.outputs.any_changed }}
     steps:
       - uses: actions/checkout@v3
         with:
@@ -40,6 +41,16 @@ jobs:
           files: |
             tools
             .github/workflows/ci-tools.yml
+      - name: changed files for worker
+        id: worker
+        uses: tj-actions/changed-files@v36
+        with:
+          files: |
+            worker
+            .github/workflows/ci-worker.yml
+            .github/workflows/build-worker.yml
+            .github/workflows/deploy-worker-dev.yml
+            .github/workflows/deploy-worker-prod.yml
   ci-plugin:
     needs: prepare
     if: ${{ !failure() && needs.prepare.outputs.plugin == 'true' }}
@@ -48,6 +59,10 @@ jobs:
     needs: prepare
     if: ${{ !failure() && needs.prepare.outputs.server == 'true' }}
     uses: ./.github/workflows/ci-server.yml
+  ci-worker:
+    needs: prepare
+    if: ${{ !failure() && needs.prepare.outputs.worker == 'true' }}
+    uses: ./.github/workflows/ci-worker.yml
   ci-tools:
     needs: prepare
     if: ${{ !failure() && needs.prepare.outputs.tools == 'true' }}
@@ -60,7 +75,7 @@ jobs:
       - ci-plugin
       - ci-server
       - ci-tools
-      # - ci-worker //TODO: implement
+      - ci-worker
     if: '!failure()'
     steps:
       - run: echo OK
@@ -69,7 +84,7 @@ jobs:
     if: ${{ success() && github.event_name == 'push' && github.ref_name == 'main' }}
     uses: ./.github/workflows/build-server.yml
   build-worker:
-    # needs: ci-worker
+    needs: ci-worker
     if: ${{ success() && github.event_name == 'push' && github.ref_name == 'geospatialjpv3' }}
     uses: ./.github/workflows/build-worker.yml
   ci-collect-info:
@@ -142,11 +157,6 @@ jobs:
         uses: peter-evans/repository-dispatch@v2
         with:
           event-type: deploy-server-dev
-  deploy-woker-dev:
-    needs: build-worker
-    runs-on: ubuntu-latest
-    steps:
-      - name: Dispatch deployment
-        uses: peter-evans/repository-dispatch@v2
-        with:
-          event-type: deploy-worker-dev
+  # deploy-worker-dev:
+  #   needs: build-worker
+  #   uses: ./.github/workflows/deploy-worker-dev.yml
