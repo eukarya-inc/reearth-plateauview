@@ -19,7 +19,8 @@ func TestPublish(t *testing.T) {
 	lo.Must0(godotenv.Load("../../../.env"))
 
 	var (
-		itemID      = ""
+		indexItemID = ""
+		dataItemID  = ""
 		cmsURL      = os.Getenv("REEARTH_PLATEAUVIEW_CMS_BASEURL")
 		cmsToken    = os.Getenv("REEARTH_PLATEAUVIEW_CMS_TOKEN")
 		ckanOrg     = os.Getenv("REEARTH_PLATEAUVIEW_CKAN_ORG")
