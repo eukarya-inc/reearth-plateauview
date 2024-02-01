@@ -202,7 +202,9 @@ func areasForDatasetTypes(ds []Dataset) map[string]map[AreaCode]bool {
 			if _, ok := res[datasetTypeCode]; !ok {
 				res[datasetTypeCode] = make(map[AreaCode]bool)
 			}
-			res[datasetTypeCode][c] = mostDetailed
+			if _, ok := res[datasetTypeCode][c]; !ok || mostDetailed {
+				res[datasetTypeCode][c] = mostDetailed
+			}
 		}
 	}
 
