@@ -117,6 +117,9 @@ func (h *handler) Publish(ctx context.Context, w *cmswebhook.Payload) error {
 	if seed.Generics != nil {
 		log.Debugfc(ctx, "geospatialjpv3: generics: %s", ppp.Sprint(seed.Generics))
 		for _, g := range seed.Generics {
+			if g.Name == "" || g.Asset == nil {
+				return fmt.Errorf("invalid generic: %v", g)
+			}
 			url, ok := g.Asset["url"].(string)
 			if !ok {
 				return fmt.Errorf("failed to get url from generic: %v", g)
