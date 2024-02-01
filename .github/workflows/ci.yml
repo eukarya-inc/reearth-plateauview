@@ -157,6 +157,6 @@ jobs:
         uses: peter-evans/repository-dispatch@v2
         with:
           event-type: deploy-server-dev
-  # deploy-worker-dev:
-  #   needs: build-worker
-  #   uses: ./.github/workflows/deploy-worker-dev.yml
+  deploy-worker-dev:
+    needs: build-worker
+    uses: ./.github/workflows/deploy-worker-dev.yml
