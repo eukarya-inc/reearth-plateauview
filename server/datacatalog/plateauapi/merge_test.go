@@ -78,22 +78,22 @@ func TestMergeResults(t *testing.T) {
 			{ID: "1", Year: 2020, Name: "a"},
 			{ID: "1", Year: 2020},
 			{ID: "2", Year: 2019},
-			{ID: "2", Year: 2021, Order: 10},
+			{ID: "2", Year: 2021},
 			{ID: "3", Year: 2021},
 		}
 		expected1 := []*PlateauDatasetType{
 			{ID: "1", Year: 2020, Name: "a"},
+			{ID: "2", Year: 2021},
 			{ID: "3", Year: 2021},
-			{ID: "2", Year: 2021, Order: 10},
 		}
-		res1 := mergeResults(results1)
+		res1 := mergeResults(results1, true)
 		assert.Equal(t, expected1, res1)
 	})
 
 	t.Run("empty", func(t *testing.T) {
 		results3 := []*PlateauDataset{}
 		expected3 := []*PlateauDataset{}
-		res3 := mergeResults(results3)
+		res3 := mergeResults(results3, true)
 		assert.Equal(t, expected3, res3)
 	})
 }
@@ -131,6 +131,30 @@ func TestSortNodes(t *testing.T) {
 			{ID: "3", Year: 2020},
 		}
 		assert.Equal(t, expected, nodes)
+	})
+}
+
+func TestSortDatasetTypes(t *testing.T) {
+	t.Run("empty", func(t *testing.T) {
+		nodes := []*PlateauDatasetType{}
+		sortDatasetTypes(nodes)
+		assert.Empty(t, nodes)
+	})
+
+	t.Run("ok", func(t *testing.T) {
+		nodes := []DatasetType{
+			&PlateauDatasetType{ID: "1", Year: 2020},
+			&RelatedDatasetType{ID: "2"},
+			&PlateauDatasetType{ID: "3", Year: 2021, Order: 50},
+			&PlateauDatasetType{ID: "4", Year: 2021, Order: 10},
+		}
+
+		expected := []ID{"4", "3", "1", "2"}
+
+		sortDatasetTypes(nodes)
+		assert.Equal(t, expected, lo.Map(nodes, func(n DatasetType, _ int) ID {
+			return n.GetID()
+		}))
 	})
 }
 

@@ -62,6 +62,7 @@ func TestNewCache(t *testing.T) {
 					PlateauSpecID: "ps_2",
 					Year:          2022,
 					Flood:         false,
+					Order:         1,
 				},
 			},
 		},
