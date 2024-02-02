@@ -62,7 +62,7 @@ func TestRepos(t *testing.T) {
 					PrefectureCode:     lo.ToPtr(plateauapi.AreaCode("00")),
 					CityID:             lo.ToPtr(plateauapi.ID("a_" + cityCode)),
 					CityCode:           lo.ToPtr(plateauapi.AreaCode(cityCode)),
-					TypeID:             plateauapi.NewID("bldg", plateauapi.TypeDatasetType),
+					TypeID:             plateauapi.NewID("bldg_3", plateauapi.TypeDatasetType),
 					TypeCode:           "bldg",
 					PlateauSpecMinorID: plateauapi.ID("ps_3.2"),
 					Items: []*plateauapi.PlateauDatasetItem{
