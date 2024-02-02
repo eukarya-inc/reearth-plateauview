@@ -494,6 +494,10 @@ type PlateauDataset implements Dataset & Node {
   """
   subcode: String
   """
+  データセットのサブコードの順番。大きいほど後に表示されます。
+  """
+  suborder: Int
+  """
   データセットの説明
   """
   description: String

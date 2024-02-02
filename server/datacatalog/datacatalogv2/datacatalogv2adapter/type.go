@@ -108,6 +108,8 @@ func plateauDatasetFrom(d datacatalogv2.DataCatalogItem) (plateauapi.PlateauData
 		ID:                 id,
 		Name:               d.Name,
 		Subname:            subname,
+		Subcode:            nil,
+		Suborder:           nil,
 		Description:        lo.ToPtr(d.Description),
 		PrefectureID:       prefectureIDFrom(d),
 		PrefectureCode:     prefectureCodeFrom(d),

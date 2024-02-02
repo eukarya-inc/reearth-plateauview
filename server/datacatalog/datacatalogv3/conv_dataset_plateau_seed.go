@@ -9,10 +9,11 @@ import (
 )
 
 type plateauDatasetSeed struct {
-	IDEx       string
 	AssetURLs  []string
 	Assets     []*AssetName
-	SubName    string
+	Subname    string
+	Subcode    string
+	Suborder   *int
 	Desc       string
 	TargetArea plateauapi.Area
 	WardID     *plateauapi.ID
@@ -31,7 +32,7 @@ type plateauDatasetSeed struct {
 }
 
 func (seed plateauDatasetSeed) GetID() string {
-	return standardItemID(seed.DatasetType.Code, seed.TargetArea, seed.IDEx)
+	return standardItemID(seed.DatasetType.Code, seed.TargetArea, seed.Subcode)
 }
 
 func plateauDatasetSeedsFrom(i *PlateauFeatureItem, dt *plateauapi.PlateauDatasetType, area *areaContext, spec *plateauapi.PlateauSpecMinor, layerNames LayerNames, cmsurl string) (res []plateauDatasetSeed, warning []string) {
@@ -140,11 +141,17 @@ func plateauDatasetSeedsFromItem(i *PlateauFeatureItem, item PlateauFeatureItemD
 		warning = append(warning, fmt.Sprintf("plateau %s %s: invalid dic entry: %s", cityCode, dt.Code, key))
 	}
 
+	var suborder *int
+	if e != nil {
+		suborder = e.Order
+	}
+
 	res = plateauDatasetSeed{
-		IDEx:      key,
+		Subcode:   key,
+		Suborder:  suborder,
 		AssetURLs: item.Data,
 		Assets:    assets,
-		SubName:   subname,
+		Subname:   subname,
 		Desc:      item.Desc,
 		River:     river,
 	}

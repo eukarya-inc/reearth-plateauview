@@ -185,7 +185,7 @@ var genericFeatureTypes = []FeatureType{
 func init() {
 	le := 1
 	for i, t := range plateauFeatureTypes {
-		t.Order = i
+		t.Order = i + le
 		t.SpecMajor = 3
 		plateauFeatureTypes[i] = t
 	}

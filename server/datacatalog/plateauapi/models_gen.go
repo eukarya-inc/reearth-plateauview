@@ -457,6 +457,8 @@ type PlateauDataset struct {
 	Subname *string `json:"subname,omitempty"`
 	// データセットのサブコード。都市計画決定情報の○○区域や洪水浸水想定区域の河川名などのコード表現が含まれます。
 	Subcode *string `json:"subcode,omitempty"`
+	// データセットのサブコードの順番。大きいほど後に表示されます。
+	Suborder *int `json:"suborder,omitempty"`
 	// データセットの説明
 	Description *string `json:"description,omitempty"`
 	// データセットの公開年度（西暦）

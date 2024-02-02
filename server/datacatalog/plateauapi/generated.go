@@ -133,6 +133,7 @@ type ComplexityRoot struct {
 		River              func(childComplexity int) int
 		Subcode            func(childComplexity int) int
 		Subname            func(childComplexity int) int
+		Suborder           func(childComplexity int) int
 		Type               func(childComplexity int) int
 		TypeCode           func(childComplexity int) int
 		TypeID             func(childComplexity int) int
@@ -808,6 +809,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.PlateauDataset.Subname(childComplexity), true
+
+	case "PlateauDataset.suborder":
+		if e.complexity.PlateauDataset.Suborder == nil {
+			break
+		}
+
+		return e.complexity.PlateauDataset.Suborder(childComplexity), true
 
 	case "PlateauDataset.type":
 		if e.complexity.PlateauDataset.Type == nil {
@@ -4289,6 +4297,47 @@ func (ec *executionContext) fieldContext_PlateauDataset_subcode(ctx context.Cont
 	return fc, nil
 }
 
+func (ec *executionContext) _PlateauDataset_suborder(ctx context.Context, field graphql.CollectedField, obj *PlateauDataset) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_PlateauDataset_suborder(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Suborder, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*int)
+	fc.Result = res
+	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_PlateauDataset_suborder(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PlateauDataset",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _PlateauDataset_description(ctx context.Context, field graphql.CollectedField, obj *PlateauDataset) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_PlateauDataset_description(ctx, field)
 	if err != nil {
@@ -5577,6 +5626,8 @@ func (ec *executionContext) fieldContext_PlateauDatasetItem_parent(ctx context.C
 				return ec.fieldContext_PlateauDataset_subname(ctx, field)
 			case "subcode":
 				return ec.fieldContext_PlateauDataset_subcode(ctx, field)
+			case "suborder":
+				return ec.fieldContext_PlateauDataset_suborder(ctx, field)
 			case "description":
 				return ec.fieldContext_PlateauDataset_description(ctx, field)
 			case "year":
@@ -6240,6 +6291,8 @@ func (ec *executionContext) fieldContext_PlateauDatasetType_datasets(ctx context
 				return ec.fieldContext_PlateauDataset_subname(ctx, field)
 			case "subcode":
 				return ec.fieldContext_PlateauDataset_subcode(ctx, field)
+			case "suborder":
+				return ec.fieldContext_PlateauDataset_suborder(ctx, field)
 			case "description":
 				return ec.fieldContext_PlateauDataset_description(ctx, field)
 			case "year":
@@ -13086,6 +13139,8 @@ func (ec *executionContext) _PlateauDataset(ctx context.Context, sel ast.Selecti
 			out.Values[i] = ec._PlateauDataset_subname(ctx, field, obj)
 		case "subcode":
 			out.Values[i] = ec._PlateauDataset_subcode(ctx, field, obj)
+		case "suborder":
+			out.Values[i] = ec._PlateauDataset_suborder(ctx, field, obj)
 		case "description":
 			out.Values[i] = ec._PlateauDataset_description(ctx, field, obj)
 		case "year":
