@@ -98,12 +98,14 @@ type DatasetType interface {
 	IsNode()
 	IsDatasetType()
 	GetID() ID
-	// データセットの種類コード。「bldg」など。
+	// データセットの種類コード。 "bldg" など。
 	GetCode() string
 	// データセットの種類名。
 	GetName() string
 	// データセットの種類のカテゴリ。
 	GetCategory() DatasetTypeCategory
+	// データセットの種類の順番を示す数字。大きいほど後に表示されます。
+	GetOrder() int
 	// データセット（DatasetInput内のincludeTypesとexcludeTypesの指定は無視されます）。
 	GetDatasets() []Dataset
 }
@@ -409,6 +411,8 @@ type GenericDatasetType struct {
 	Name string `json:"name"`
 	// データセットの種類のカテゴリ。
 	Category DatasetTypeCategory `json:"category"`
+	// データセットの種類の順番を示す数字。大きいほど後に表示されます。
+	Order int `json:"order"`
 	// データセット（DatasetInput内のincludeTypesとexcludeTypesの指定は無視されます）。
 	Datasets []*GenericDataset `json:"datasets"`
 }
@@ -416,7 +420,7 @@ type GenericDatasetType struct {
 func (GenericDatasetType) IsDatasetType() {}
 func (this GenericDatasetType) GetID() ID { return this.ID }
 
-// データセットの種類コード。「bldg」など。
+// データセットの種類コード。 "bldg" など。
 func (this GenericDatasetType) GetCode() string { return this.Code }
 
 // データセットの種類名。
@@ -424,6 +428,9 @@ func (this GenericDatasetType) GetName() string { return this.Name }
 
 // データセットの種類のカテゴリ。
 func (this GenericDatasetType) GetCategory() DatasetTypeCategory { return this.Category }
+
+// データセットの種類の順番を示す数字。大きいほど後に表示されます。
+func (this GenericDatasetType) GetOrder() int { return this.Order }
 
 // データセット（DatasetInput内のincludeTypesとexcludeTypesの指定は無視されます）。
 func (this GenericDatasetType) GetDatasets() []Dataset {
@@ -641,6 +648,8 @@ type PlateauDatasetType struct {
 	Name string `json:"name"`
 	// データセットの種類のカテゴリ。
 	Category DatasetTypeCategory `json:"category"`
+	// データセットの種類の順番を示す数字。大きいほど後に表示されます。
+	Order int `json:"order"`
 	// データセットの種類が属するPLATEAU都市モデルの仕様のID。
 	PlateauSpecID ID `json:"plateauSpecId"`
 	// データセットの種類が属するPLATEAU都市モデルの仕様。
@@ -656,7 +665,7 @@ type PlateauDatasetType struct {
 func (PlateauDatasetType) IsDatasetType() {}
 func (this PlateauDatasetType) GetID() ID { return this.ID }
 
-// データセットの種類コード。「bldg」など。
+// データセットの種類コード。 "bldg" など。
 func (this PlateauDatasetType) GetCode() string { return this.Code }
 
 // データセットの種類名。
@@ -664,6 +673,9 @@ func (this PlateauDatasetType) GetName() string { return this.Name }
 
 // データセットの種類のカテゴリ。
 func (this PlateauDatasetType) GetCategory() DatasetTypeCategory { return this.Category }
+
+// データセットの種類の順番を示す数字。大きいほど後に表示されます。
+func (this PlateauDatasetType) GetOrder() int { return this.Order }
 
 // データセット（DatasetInput内のincludeTypesとexcludeTypesの指定は無視されます）。
 func (this PlateauDatasetType) GetDatasets() []Dataset {
@@ -967,6 +979,8 @@ type RelatedDatasetType struct {
 	Name string `json:"name"`
 	// データセットの種類のカテゴリ。
 	Category DatasetTypeCategory `json:"category"`
+	// データセットの種類の順番を示す数字。大きいほど後に表示されます。
+	Order int `json:"order"`
 	// データセット（DatasetInput内のincludeTypesとexcludeTypesの指定は無視されます）。
 	Datasets []*RelatedDataset `json:"datasets"`
 }
@@ -974,7 +988,7 @@ type RelatedDatasetType struct {
 func (RelatedDatasetType) IsDatasetType() {}
 func (this RelatedDatasetType) GetID() ID { return this.ID }
 
-// データセットの種類コード。「bldg」など。
+// データセットの種類コード。 "bldg" など。
 func (this RelatedDatasetType) GetCode() string { return this.Code }
 
 // データセットの種類名。
@@ -982,6 +996,9 @@ func (this RelatedDatasetType) GetName() string { return this.Name }
 
 // データセットの種類のカテゴリ。
 func (this RelatedDatasetType) GetCategory() DatasetTypeCategory { return this.Category }
+
+// データセットの種類の順番を示す数字。大きいほど後に表示されます。
+func (this RelatedDatasetType) GetOrder() int { return this.Order }
 
 // データセット（DatasetInput内のincludeTypesとexcludeTypesの指定は無視されます）。
 func (this RelatedDatasetType) GetDatasets() []Dataset {

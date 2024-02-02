@@ -164,7 +164,17 @@ func mergeResults[T IDNode](results []T) []T {
 
 func sortNodes[T IDNode](nodes []T) {
 	sort.Slice(nodes, func(i, j int) bool {
-		return nodes[i].GetID() < nodes[j].GetID() || (nodes[i].GetID() == nodes[j].GetID() && getYear(nodes[i]) > getYear(nodes[j]))
+		o1, o2 := getOrder(nodes[i]), getOrder(nodes[j])
+		if o1 != o2 {
+			return o1 < o2
+		}
+
+		i1, i2 := nodes[i].GetID(), nodes[j].GetID()
+		if i1 != i2 {
+			return i1 < i2
+		}
+
+		return getYear(nodes[i]) > getYear(nodes[j])
 	})
 }
 
@@ -203,6 +213,10 @@ type YearNode interface {
 	GetYear() int
 }
 
+type OrderNode interface {
+	GetOrder() int
+}
+
 func isPresent(n any) bool {
 	v := reflect.ValueOf(n)
 	return v.Kind() != reflect.Ptr || !v.IsNil()
@@ -211,6 +225,13 @@ func isPresent(n any) bool {
 func getYear(n any) int {
 	if yn, ok := n.(YearNode); ok {
 		return yn.GetYear()
+	}
+	return 0
+}
+
+func getOrder(n any) int {
+	if yn, ok := n.(OrderNode); ok {
+		return yn.GetOrder()
 	}
 	return 0
 }

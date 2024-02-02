@@ -28,8 +28,10 @@ const (
 )
 
 type FeatureType struct {
-	Code string `json:"code,omitempty" cms:"code,text"`
-	Name string `json:"name,omitempty" cms:"name,text"`
+	Code      string `json:"code,omitempty" cms:"code,text"`
+	Name      string `json:"name,omitempty" cms:"name,text"`
+	Order     int    `json:"order,omitempty" cms:"order,integer"`
+	GroupName string `json:"group_name,omitempty" cms:"group_name,text"`
 	// for plateau
 	SpecMajor           int              `json:"spec_major,omitempty" cms:"spec_major,integer"`
 	Flood               bool             `json:"flood,omitempty" cms:"flood,bool"`

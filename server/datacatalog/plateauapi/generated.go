@@ -112,6 +112,7 @@ type ComplexityRoot struct {
 		Datasets func(childComplexity int, input *DatasetsInput) int
 		ID       func(childComplexity int) int
 		Name     func(childComplexity int) int
+		Order    func(childComplexity int) int
 	}
 
 	PlateauDataset struct {
@@ -162,6 +163,7 @@ type ComplexityRoot struct {
 		Flood         func(childComplexity int) int
 		ID            func(childComplexity int) int
 		Name          func(childComplexity int) int
+		Order         func(childComplexity int) int
 		PlateauSpec   func(childComplexity int) int
 		PlateauSpecID func(childComplexity int) int
 		Year          func(childComplexity int) int
@@ -248,6 +250,7 @@ type ComplexityRoot struct {
 		Datasets func(childComplexity int, input *DatasetsInput) int
 		ID       func(childComplexity int) int
 		Name     func(childComplexity int) int
+		Order    func(childComplexity int) int
 	}
 
 	River struct {
@@ -680,6 +683,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.GenericDatasetType.Name(childComplexity), true
 
+	case "GenericDatasetType.order":
+		if e.complexity.GenericDatasetType.Order == nil {
+			break
+		}
+
+		return e.complexity.GenericDatasetType.Order(childComplexity), true
+
 	case "PlateauDataset.admin":
 		if e.complexity.PlateauDataset.Admin == nil {
 			break
@@ -971,6 +981,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.PlateauDatasetType.Name(childComplexity), true
+
+	case "PlateauDatasetType.order":
+		if e.complexity.PlateauDatasetType.Order == nil {
+			break
+		}
+
+		return e.complexity.PlateauDatasetType.Order(childComplexity), true
 
 	case "PlateauDatasetType.plateauSpec":
 		if e.complexity.PlateauDatasetType.PlateauSpec == nil {
@@ -1471,6 +1488,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.RelatedDatasetType.Name(childComplexity), true
+
+	case "RelatedDatasetType.order":
+		if e.complexity.RelatedDatasetType.Order == nil {
+			break
+		}
+
+		return e.complexity.RelatedDatasetType.Order(childComplexity), true
 
 	case "River.admin":
 		if e.complexity.River.Admin == nil {
@@ -3326,6 +3350,8 @@ func (ec *executionContext) fieldContext_GenericDataset_type(ctx context.Context
 				return ec.fieldContext_GenericDatasetType_name(ctx, field)
 			case "category":
 				return ec.fieldContext_GenericDatasetType_category(ctx, field)
+			case "order":
+				return ec.fieldContext_GenericDatasetType_order(ctx, field)
 			case "datasets":
 				return ec.fieldContext_GenericDatasetType_datasets(ctx, field)
 			}
@@ -3949,6 +3975,50 @@ func (ec *executionContext) fieldContext_GenericDatasetType_category(ctx context
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type DatasetTypeCategory does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _GenericDatasetType_order(ctx context.Context, field graphql.CollectedField, obj *GenericDatasetType) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_GenericDatasetType_order(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Order, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_GenericDatasetType_order(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "GenericDatasetType",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
 		},
 	}
 	return fc, nil
@@ -4921,6 +4991,8 @@ func (ec *executionContext) fieldContext_PlateauDataset_type(ctx context.Context
 				return ec.fieldContext_PlateauDatasetType_name(ctx, field)
 			case "category":
 				return ec.fieldContext_PlateauDatasetType_category(ctx, field)
+			case "order":
+				return ec.fieldContext_PlateauDatasetType_order(ctx, field)
 			case "plateauSpecId":
 				return ec.fieldContext_PlateauDatasetType_plateauSpecId(ctx, field)
 			case "plateauSpec":
@@ -5892,6 +5964,50 @@ func (ec *executionContext) fieldContext_PlateauDatasetType_category(ctx context
 	return fc, nil
 }
 
+func (ec *executionContext) _PlateauDatasetType_order(ctx context.Context, field graphql.CollectedField, obj *PlateauDatasetType) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_PlateauDatasetType_order(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Order, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_PlateauDatasetType_order(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PlateauDatasetType",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _PlateauDatasetType_plateauSpecId(ctx context.Context, field graphql.CollectedField, obj *PlateauDatasetType) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_PlateauDatasetType_plateauSpecId(ctx, field)
 	if err != nil {
@@ -6361,6 +6477,8 @@ func (ec *executionContext) fieldContext_PlateauSpec_datasetTypes(ctx context.Co
 				return ec.fieldContext_PlateauDatasetType_name(ctx, field)
 			case "category":
 				return ec.fieldContext_PlateauDatasetType_category(ctx, field)
+			case "order":
+				return ec.fieldContext_PlateauDatasetType_order(ctx, field)
 			case "plateauSpecId":
 				return ec.fieldContext_PlateauDatasetType_plateauSpecId(ctx, field)
 			case "plateauSpec":
@@ -8541,6 +8659,8 @@ func (ec *executionContext) fieldContext_RelatedDataset_type(ctx context.Context
 				return ec.fieldContext_RelatedDatasetType_name(ctx, field)
 			case "category":
 				return ec.fieldContext_RelatedDatasetType_category(ctx, field)
+			case "order":
+				return ec.fieldContext_RelatedDatasetType_order(ctx, field)
 			case "datasets":
 				return ec.fieldContext_RelatedDatasetType_datasets(ctx, field)
 			}
@@ -9250,6 +9370,50 @@ func (ec *executionContext) fieldContext_RelatedDatasetType_category(ctx context
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type DatasetTypeCategory does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _RelatedDatasetType_order(ctx context.Context, field graphql.CollectedField, obj *RelatedDatasetType) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RelatedDatasetType_order(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Order, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_RelatedDatasetType_order(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "RelatedDatasetType",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
 		},
 	}
 	return fc, nil
@@ -12833,6 +12997,11 @@ func (ec *executionContext) _GenericDatasetType(ctx context.Context, sel ast.Sel
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
+		case "order":
+			out.Values[i] = ec._GenericDatasetType_order(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
 		case "datasets":
 			field := field
 
@@ -13286,6 +13455,11 @@ func (ec *executionContext) _PlateauDatasetType(ctx context.Context, sel ast.Sel
 			}
 		case "category":
 			out.Values[i] = ec._PlateauDatasetType_category(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "order":
+			out.Values[i] = ec._PlateauDatasetType_order(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
@@ -14346,6 +14520,11 @@ func (ec *executionContext) _RelatedDatasetType(ctx context.Context, sel ast.Sel
 			}
 		case "category":
 			out.Values[i] = ec._RelatedDatasetType_category(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "order":
+			out.Values[i] = ec._RelatedDatasetType_order(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}

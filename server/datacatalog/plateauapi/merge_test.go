@@ -74,15 +74,17 @@ func TestMerger_Nodes(t *testing.T) {
 
 func TestMergeResults(t *testing.T) {
 	t.Run("ok", func(t *testing.T) {
-		results1 := []*PlateauDataset{
+		results1 := []*PlateauDatasetType{
 			{ID: "1", Year: 2020, Name: "a"},
 			{ID: "1", Year: 2020},
 			{ID: "2", Year: 2019},
-			{ID: "2", Year: 2021},
+			{ID: "2", Year: 2021, Order: 10},
+			{ID: "3", Year: 2021},
 		}
-		expected1 := []*PlateauDataset{
+		expected1 := []*PlateauDatasetType{
 			{ID: "1", Year: 2020, Name: "a"},
-			{ID: "2", Year: 2021},
+			{ID: "3", Year: 2021},
+			{ID: "2", Year: 2021, Order: 10},
 		}
 		res1 := mergeResults(results1)
 		assert.Equal(t, expected1, res1)
@@ -204,9 +206,10 @@ func TestZip(t *testing.T) {
 }
 
 type n struct {
-	ID   string
-	Year int
-	Name string
+	ID    string
+	Name  string
+	Year  int
+	Order int
 }
 
 func (n n) IsNode() {}
@@ -217,6 +220,10 @@ func (n n) GetID() ID {
 
 func (n n) GetYear() int {
 	return n.Year
+}
+
+func (n n) GetOder() int {
+	return n.Order
 }
 
 type r struct {
