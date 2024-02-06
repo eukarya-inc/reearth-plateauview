@@ -6,16 +6,15 @@ import (
 	"strings"
 
 	"github.com/eukarya-inc/reearth-plateauview/server/cmsintegration/ckan"
-	"github.com/reearth/reearth-cms-api/go/cmswebhook"
+	cms "github.com/reearth/reearth-cms-api/go"
 	"github.com/reearth/reearthx/log"
 	"github.com/samber/lo"
 )
 
-func (h *handler) Publish(ctx context.Context, w *cmswebhook.Payload) error {
+func (h *handler) Publish(ctx context.Context, cityItemRaw *cms.Item) error {
 	cms := h.cms
-	log.Infofc(ctx, "geospatialjpv3: publish: %+v", w)
+	log.Infofc(ctx, "geospatialjpv3: publish")
 
-	cityItemRaw := w.ItemData.Item
 	cityItem := CityItemFrom(cityItemRaw)
 	pkgYear := cityItem.YearInt()
 

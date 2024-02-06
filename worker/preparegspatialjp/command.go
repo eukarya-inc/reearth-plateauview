@@ -32,12 +32,14 @@ func Command(conf *Config) (err error) {
 	if err != nil {
 		return fmt.Errorf("failed to get city item: %w", err)
 	}
+	log.Infofc(ctx, "city item raw: %s", ppp.Sprint(cityItemRaw))
 
 	cityItem := CityItemFrom(cityItemRaw)
 	log.Infofc(ctx, "city item: %s", ppp.Sprint(cityItem))
 
-	cityName := cityItem.CityName
-	log.Infofc(ctx, "city name: %s", cityName)
+	if cityItem == nil || cityItem.CityCode == "" || cityItem.CityName == "" || cityItem.CityNameEn == "" || cityItem.GeospatialjpData == "" {
+		return fmt.Errorf("invalid city item: %s", conf.CityItemID)
+	}
 
 	var citygmlError, plateauError bool
 	defer func() {

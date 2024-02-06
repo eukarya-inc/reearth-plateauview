@@ -47,7 +47,7 @@ jobs:
           branch: geospatialjpv3
           name: plateauview-api-worker
           check_artifacts: true
-      - name: Download worker arfiacts
+      - name: Download worker arfiacts from local
         if: inputs.use_local == 'true'
         uses: actions/download-artifact@v2
         with:

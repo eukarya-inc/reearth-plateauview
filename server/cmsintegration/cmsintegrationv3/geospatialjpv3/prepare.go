@@ -4,15 +4,15 @@ import (
 	"context"
 
 	run "cloud.google.com/go/run/apiv2"
-	"github.com/reearth/reearth-cms-api/go/cmswebhook"
 
 	runpb "cloud.google.com/go/run/apiv2/runpb"
+	cms "github.com/reearth/reearth-cms-api/go"
 	"github.com/reearth/reearthx/log"
 )
 
 // jobName: "projects/" + gcpProjectID + "/locations/" + gcpLocation + "/jobs/plateauview-api-worker"
 
-func Prepare(ctx context.Context, w *cmswebhook.Payload, jobName string) error {
+func Prepare(ctx context.Context, item *cms.Item, projectID, jobName string) error {
 	log.Debugfc(ctx, "geospatialjp webhook: Prepare: %s", jobName)
 
 	client, err := run.NewJobsClient(ctx)
@@ -26,8 +26,8 @@ func Prepare(ctx context.Context, w *cmswebhook.Payload, jobName string) error {
 		ContainerOverrides: []*runpb.RunJobRequest_Overrides_ContainerOverride{
 			{Args: []string{
 				"prepare-gspatialjp",
-				"--city=" + w.ItemData.Item.ID,
-				"--project=" + w.ProjectID(),
+				"--city=" + item.ID,
+				"--project=" + projectID,
 				"--wetrun",
 			}},
 		}}

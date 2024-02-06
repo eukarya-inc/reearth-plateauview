@@ -5,7 +5,6 @@ import (
 	"testing"
 
 	cms "github.com/reearth/reearth-cms-api/go"
-	"github.com/reearth/reearth-cms-api/go/cmswebhook"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -17,13 +16,6 @@ func TestPrepare_RequestZip(t *testing.T) {
 	t.Skip()
 
 	ctx := context.Background()
-	w := &cmswebhook.Payload{
-		ItemData: &cmswebhook.ItemData{
-			Item:   &cms.Item{ID: itemID},
-			Schema: &cms.Schema{ProjectID: projectID},
-		},
-	}
-
-	err := Prepare(ctx, w, jobName)
+	err := Prepare(ctx, &cms.Item{ID: itemID}, projectID, jobName)
 	assert.NoError(t, err)
 }

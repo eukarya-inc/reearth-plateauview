@@ -76,10 +76,16 @@ func (h *handler) Webhook(conf Config) (cmswebhook.Handler, error) {
 			return nil
 		}
 
+		item, err := GetMainItemWithMetadata(ctx, h.cms, w.ItemData.Item)
+		if err != nil {
+			log.Errorfc(ctx, "geospatialjpv3 webhook: failed to get main item: %v", err)
+			return nil
+		}
+
 		log.Debugfc(ctx, "geospatialjpv3 webhook")
 
 		if getChangedBool(ctx, w, prepareFieldKey) {
-			if err := Prepare(ctx, w, conf.JobName); err != nil {
+			if err := Prepare(ctx, item, w.ProjectID(), conf.JobName); err != nil {
 				log.Errorfc(ctx, "geospatialjpv3 webhook: failed to prepare: %v", err)
 			}
 		} else {
@@ -87,7 +93,7 @@ func (h *handler) Webhook(conf Config) (cmswebhook.Handler, error) {
 		}
 
 		if getChangedBool(ctx, w, publishFieldKey) {
-			if err := h.Publish(ctx, w); err != nil {
+			if err := h.Publish(ctx, item); err != nil {
 				log.Errorfc(ctx, "geospatialjpv3 webhook: failed to publish: %v", err)
 			}
 		} else {
@@ -102,7 +108,7 @@ func (h *handler) Webhook(conf Config) (cmswebhook.Handler, error) {
 }
 
 func getChangedBool(ctx context.Context, w *cmswebhook.Payload, key string) bool {
-	if f := w.ItemData.Item.FieldByKey(key); f != nil {
+	if f := w.ItemData.Item.MetadataFieldByKey(key); f != nil {
 		changed, ok := lo.Find(w.ItemData.Changes, func(c cms.FieldChange) bool {
 			return c.ID == f.ID
 		})
