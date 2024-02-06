@@ -45,17 +45,13 @@ func WebhookHandler(conf Config) (cmswebhook.Handler, error) {
 			err = handleRelatedDataset(ctx, s, w)
 		} else if slices.Contains(featureTypes, modelName) {
 			err = sendRequestToFME(ctx, s, &conf, w)
-		} else if modelName == cityModel {
-			err = preparePackagesForGeospatialjp(ctx, s, w)
-			if err == nil {
-				err = publishPackagesForGeospatialjp(ctx, s, w)
-			}
 		}
 
 		if err != nil {
 			log.Errorfc(ctx, "cmsintegrationv3 webhook: failed to process event: %v", err)
 		}
 
+		log.Debugfc(ctx, "cmsintegrationv3 webhook: done: %s", modelName)
 		return nil
 	}, nil
 }

@@ -80,7 +80,7 @@ func (h *handler) Webhook(conf Config) (cmswebhook.Handler, error) {
 
 			if ok && lo.FromPtr(changed.GetCurrentValue().Bool()) {
 				if err := Prepare(ctx, w, conf.JobName); err != nil {
-					return err
+					log.Errorfc(ctx, "geospatialjpv3 webhook: failed to prepare: %v", err)
 				}
 			} else {
 				log.Debugfc(ctx, "geospatialjpv3 webhook: prepare field not changed or not true")
@@ -89,7 +89,7 @@ func (h *handler) Webhook(conf Config) (cmswebhook.Handler, error) {
 			log.Debugfc(ctx, "geospatialjpv3 webhook: prepare field not found")
 		}
 
-		// TODO: create resources to ckan and publish
+		// publish
 		if publishField := w.ItemData.Item.MetadataFieldByKey(publishFieldKey); publishField != nil {
 			changed, ok := lo.Find(w.ItemData.Changes, func(c cms.FieldChange) bool {
 				return c.ID == publishField.ID
@@ -97,7 +97,7 @@ func (h *handler) Webhook(conf Config) (cmswebhook.Handler, error) {
 
 			if ok && lo.FromPtr(changed.GetCurrentValue().Bool()) {
 				if err := h.Publish(ctx, w); err != nil {
-					return err
+					log.Errorfc(ctx, "geospatialjpv3 webhook: failed to publish: %v", err)
 				}
 			} else {
 				log.Debugfc(ctx, "geospatialjpv3 webhook: publish field not changed or not true")
@@ -108,6 +108,7 @@ func (h *handler) Webhook(conf Config) (cmswebhook.Handler, error) {
 
 		// TODO: make package private when unpublished
 
+		log.Debugfc(ctx, "geospatialjpv3 webhook: done")
 		return nil
 	}, nil
 }
