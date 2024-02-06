@@ -29,24 +29,40 @@ var plateauFeatureTypes = []FeatureType{
 		},
 	},
 	{
-		Code:         "rwy",
-		Name:         "交通（鉄道）モデル",
-		MVTLayerName: []string{"Railway"},
+		Code: "rwy",
+		Name: "交通（鉄道）モデル",
+		MVTLayerNamesForLOD: map[int][]string{
+			0: {"Railway"},
+			1: {"Railway"},
+			2: {"TrafficArea", "AuxiliaryTrafficArea"},
+		},
 	},
 	{
-		Code:         "trk",
-		Name:         "交通（徒歩道）モデル",
-		MVTLayerName: []string{"trk"},
+		Code: "trk",
+		Name: "交通（徒歩道）モデル",
+		MVTLayerNamesForLOD: map[int][]string{
+			0: {"Track"},
+			1: {"Track"},
+			2: {"TrafficArea", "AuxiliaryTrafficArea"},
+		},
 	},
 	{
-		Code:         "squr",
-		Name:         "交通（広場）モデル",
-		MVTLayerName: []string{"squr"},
+		Code: "squr",
+		Name: "交通（広場）モデル",
+		MVTLayerNamesForLOD: map[int][]string{
+			0: {"Square"},
+			1: {"Square"},
+			2: {"TrafficArea", "AuxiliaryTrafficArea"},
+		},
 	},
 	{
-		Code:         "wwy",
-		Name:         "交通（航路）モデル",
-		MVTLayerName: []string{"wwy"},
+		Code: "wwy",
+		Name: "交通（航路）モデル",
+		MVTLayerNamesForLOD: map[int][]string{
+			0: {"Waterway"},
+			1: {"Waterway"},
+			2: {"TrafficArea"},
+		},
 	},
 	{
 		Code:         "luse",
@@ -88,17 +104,17 @@ var plateauFeatureTypes = []FeatureType{
 		Name: "都市計画決定情報モデル",
 	},
 	{
-		Code:         "brid",
-		Name:         "橋梁モデル",
-		MVTLayerName: []string{"brid"},
+		Code: "brid",
+		Name: "橋梁モデル",
 	},
 	{
 		Code: "tun",
 		Name: "トンネルモデル",
 	},
 	{
-		Code: "cons",
-		Name: "その他の構造物モデル",
+		Code:         "cons",
+		Name:         "その他の構造物モデル",
+		MVTLayerName: []string{"OtherConstruction"},
 	},
 	{
 		Code: "frn",
@@ -119,7 +135,7 @@ var plateauFeatureTypes = []FeatureType{
 	{
 		Code:         "wtr",
 		Name:         "水部モデル",
-		MVTLayerName: []string{"wtr"},
+		MVTLayerName: []string{"WaterBody"},
 	},
 	{
 		Code: "dem",
@@ -128,7 +144,7 @@ var plateauFeatureTypes = []FeatureType{
 	{
 		Code:         "area",
 		Name:         "区域モデル",
-		MVTLayerName: []string{"area"},
+		MVTLayerName: []string{"Zone"},
 	},
 	{
 		Code: "gen",
