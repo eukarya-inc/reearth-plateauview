@@ -22,6 +22,8 @@ type Config struct {
 	FMEMock bool
 	// FME v3
 	FMEURLV3 string
+	// geospatial.jp v3
+	GeospatialjpJobName string
 
 	// compat
 	// geospatial.jp v2

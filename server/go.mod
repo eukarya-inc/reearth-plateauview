@@ -33,8 +33,11 @@ require (
 )
 
 require (
+	cloud.google.com/go v0.111.0 // indirect
 	cloud.google.com/go/compute v1.23.3 // indirect
 	cloud.google.com/go/compute/metadata v0.2.3 // indirect
+	cloud.google.com/go/iam v1.1.5 // indirect
+	cloud.google.com/go/longrunning v0.5.4 // indirect
 	cloud.google.com/go/trace v1.10.4 // indirect
 	github.com/ByteArena/poly2tri-go v0.0.0-20170716161910-d102ad91854f // indirect
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/trace v1.21.0 // indirect
@@ -113,6 +116,7 @@ require (
 )
 
 require (
+	cloud.google.com/go/run v1.3.3
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/go-playground/locales v0.14.1 // indirect
 	github.com/go-playground/universal-translator v0.18.1 // indirect

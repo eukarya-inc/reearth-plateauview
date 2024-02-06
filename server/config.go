@@ -59,6 +59,7 @@ type Config struct {
 	Share_Disable                     bool     `pp:",omitempty"`
 	Geospatialjp_Publication_Disable  bool     `pp:",omitempty"`
 	Geospatialjp_CatalocCheck_Disable bool     `pp:",omitempty"`
+	Geospatialjp_JobName              string   `pp:",omitempty"`
 	DataConv_Disable                  bool     `pp:",omitempty"`
 	Indexer_Delegate                  bool     `pp:",omitempty"`
 	DataCatalog_DisableCache          bool     `pp:",omitempty"`
@@ -110,6 +111,7 @@ func (c *Config) CMSIntegration() cmsintegration.Config {
 		DisableGeospatialjpCatalogCheck: c.Geospatialjp_CatalocCheck_Disable,
 		DisableDataConv:                 c.DataConv_Disable,
 		APIToken:                        c.Sidebar_Token,
+		GeospatialjpJobName:             c.Geospatialjp_JobName,
 	}
 }
 

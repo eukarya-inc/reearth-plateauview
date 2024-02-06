@@ -1,6 +1,7 @@
 package geospatialjpv3
 
 import (
+	"net/http/httptest"
 	"testing"
 
 	"github.com/eukarya-inc/reearth-plateauview/server/cmsintegration/ckan"
@@ -29,9 +30,14 @@ func TestHandler_Webhook(t *testing.T) {
 	payload := &cmswebhook.Payload{
 		// TODO
 	}
+	t.Run("invalid request", func(t *testing.T) {
+		err = wh(nil, payload)
+		assert.NoError(t, err)
+	})
 
-	err = wh(nil, payload)
-	assert.NoError(t, err)
+	t.Run("success", func(t *testing.T) {
+		assert.NoError(t, wh(httptest.NewRequest("POST", "/", nil), payload)) // first
+	})
 
 	// TODO: assert ckan packages and resources
 }

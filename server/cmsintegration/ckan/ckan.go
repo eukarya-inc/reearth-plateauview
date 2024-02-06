@@ -26,6 +26,7 @@ type Interface interface {
 	PatchResource(ctx context.Context, resource Resource) (Resource, error)
 	UploadResource(ctx context.Context, resource Resource, filename string, data []byte) (Resource, error)
 	SaveResource(ctx context.Context, resource Resource) (Resource, error)
+	ReorderResource(ctx context.Context, pkgID string, resourceIDs []string) error
 }
 
 type Ckan struct {
@@ -359,6 +360,28 @@ func (c *Ckan) SaveResource(ctx context.Context, resource Resource) (Resource, e
 		return c.CreateResource(ctx, resource)
 	}
 	return c.PatchResource(ctx, resource)
+}
+
+func (c *Ckan) ReorderResource(ctx context.Context, pkgID string, resourceIDs []string) error {
+	if pkgID == "" {
+		return fmt.Errorf("failed to reorder resources: package id missing")
+	}
+
+	rawBody := map[string]any{
+		"id":    pkgID,
+		"order": resourceIDs,
+	}
+	b, err := json.Marshal(rawBody)
+	if err != nil {
+		return fmt.Errorf("failed to reorder resources: %w", err)
+	}
+
+	err = c.send(ctx, "POST", []string{"api", "3", "action", "package_resource_reorder"}, nil, "", 0, bytes.NewReader(b), nil)
+	if err != nil {
+		return fmt.Errorf("failed to send reordering resources: %w", err)
+	}
+
+	return nil
 }
 
 func (c *Ckan) send(
