@@ -5,13 +5,8 @@ import (
 	"os"
 
 	"github.com/eukarya-inc/reearth-plateauview/worker/preparegspatialjp"
-	"github.com/reearth/reearthx/log"
 	"github.com/samber/lo"
 )
-
-func init() {
-	log.GCPEnv = "CLOUD_RUN_JOB"
-}
 
 func main() {
 	config := lo.Must(NewConfig())
