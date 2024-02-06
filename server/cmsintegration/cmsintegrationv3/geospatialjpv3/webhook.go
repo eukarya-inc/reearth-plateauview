@@ -1,6 +1,7 @@
 package geospatialjpv3
 
 import (
+	"context"
 	"net/http"
 
 	"github.com/eukarya-inc/reearth-plateauview/server/cmsintegration/ckan"
@@ -77,38 +78,20 @@ func (h *handler) Webhook(conf Config) (cmswebhook.Handler, error) {
 
 		log.Debugfc(ctx, "geospatialjpv3 webhook")
 
-		// prepare
-		if prepareField := w.ItemData.Item.FieldByKey(prepareFieldKey); prepareField != nil {
-			changed, ok := lo.Find(w.ItemData.Changes, func(c cms.FieldChange) bool {
-				return c.ID == prepareField.ID
-			})
-
-			if ok && lo.FromPtr(changed.GetCurrentValue().Bool()) {
-				if err := Prepare(ctx, w, conf.JobName); err != nil {
-					log.Errorfc(ctx, "geospatialjpv3 webhook: failed to prepare: %v", err)
-				}
-			} else {
-				log.Debugfc(ctx, "geospatialjpv3 webhook: prepare field not changed or not true")
+		if getChangedBool(ctx, w, prepareFieldKey) {
+			if err := Prepare(ctx, w, conf.JobName); err != nil {
+				log.Errorfc(ctx, "geospatialjpv3 webhook: failed to prepare: %v", err)
 			}
 		} else {
-			log.Debugfc(ctx, "geospatialjpv3 webhook: prepare field not found")
+			log.Debugfc(ctx, "geospatialjpv3 webhook: prepare field not changed or not true")
 		}
 
-		// publish
-		if publishField := w.ItemData.Item.FieldByKey(publishFieldKey); publishField != nil {
-			changed, ok := lo.Find(w.ItemData.Changes, func(c cms.FieldChange) bool {
-				return c.ID == publishField.ID
-			})
-
-			if ok && lo.FromPtr(changed.GetCurrentValue().Bool()) {
-				if err := h.Publish(ctx, w); err != nil {
-					log.Errorfc(ctx, "geospatialjpv3 webhook: failed to publish: %v", err)
-				}
-			} else {
-				log.Debugfc(ctx, "geospatialjpv3 webhook: publish field not changed or not true")
+		if getChangedBool(ctx, w, publishFieldKey) {
+			if err := h.Publish(ctx, w); err != nil {
+				log.Errorfc(ctx, "geospatialjpv3 webhook: failed to publish: %v", err)
 			}
 		} else {
-			log.Debugfc(ctx, "geospatialjpv3 webhook: publish field not found")
+			log.Debugfc(ctx, "geospatialjpv3 webhook: publish field not changed or not true")
 		}
 
 		// TODO: make package private when unpublished
@@ -116,4 +99,25 @@ func (h *handler) Webhook(conf Config) (cmswebhook.Handler, error) {
 		log.Debugfc(ctx, "geospatialjpv3 webhook: done")
 		return nil
 	}, nil
+}
+
+func getChangedBool(ctx context.Context, w *cmswebhook.Payload, key string) bool {
+	if f := w.ItemData.Item.FieldByKey(key); f != nil {
+		changed, ok := lo.Find(w.ItemData.Changes, func(c cms.FieldChange) bool {
+			return c.ID == f.ID
+		})
+
+		if ok {
+			if lo.FromPtr(changed.GetCurrentValue().Bool()) {
+				return true
+			}
+
+			// workaround for bool array
+			if res := changed.GetCurrentValue().Bools(); len(res) > 0 && res[0] {
+				return true
+			}
+		}
+	}
+
+	return false
 }
