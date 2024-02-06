@@ -31,7 +31,7 @@ var plateauFeatureTypes = []FeatureType{
 	{
 		Code:         "rwy",
 		Name:         "交通（鉄道）モデル",
-		MVTLayerName: []string{"rwy"},
+		MVTLayerName: []string{"Railway"},
 	},
 	{
 		Code:         "trk",
