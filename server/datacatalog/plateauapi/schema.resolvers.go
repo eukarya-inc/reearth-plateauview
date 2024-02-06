@@ -42,6 +42,11 @@ func (r *cityResolver) Datasets(ctx context.Context, obj *City, input *DatasetsI
 	return r.Repo.Datasets(ctx, input)
 }
 
+// Parent is the resolver for the parent field.
+func (r *cityResolver) Parent(ctx context.Context, obj *City) (*Prefecture, error) {
+	return r.Prefecture(ctx, obj)
+}
+
 // Prefecture is the resolver for the prefecture field.
 func (r *genericDatasetResolver) Prefecture(ctx context.Context, obj *GenericDataset) (*Prefecture, error) {
 	if obj.PrefectureID == nil {
@@ -217,6 +222,11 @@ func (r *prefectureResolver) Datasets(ctx context.Context, obj *Prefecture, inpu
 	return r.Repo.Datasets(ctx, input)
 }
 
+// Parent is the resolver for the parent field.
+func (r *prefectureResolver) Parent(ctx context.Context, obj *Prefecture) (Area, error) {
+	return nil, nil
+}
+
 // Node is the resolver for the node field.
 func (r *queryResolver) Node(ctx context.Context, id ID) (Node, error) {
 	return r.Repo.Node(ctx, id)
@@ -328,6 +338,11 @@ func (r *wardResolver) Datasets(ctx context.Context, obj *Ward, input *DatasetsI
 	}
 	input.AreaCodes = []AreaCode{obj.Code}
 	return r.Repo.Datasets(ctx, input)
+}
+
+// Parent is the resolver for the parent field.
+func (r *wardResolver) Parent(ctx context.Context, obj *Ward) (*City, error) {
+	return r.City(ctx, obj)
 }
 
 // City returns CityResolver implementation.

@@ -80,6 +80,20 @@ func (s *Services) UpdateFeatureItemStatus(ctx context.Context, itemID string, c
 	return err
 }
 
+func (s *Services) UploadAsset(ctx context.Context, pid, url string) (_ string, err error) {
+	const max = 3
+	var errs []error
+	for i := 0; i < max; i++ {
+		asset, err2 := s.CMS.UploadAsset(ctx, pid, url)
+		if err2 == nil {
+			return asset, nil
+		}
+		log.Debugfc(ctx, "cmsintegrationv3: failed to upload asset (retry %d/%d): %v", i, max-1, err2)
+		errs = append(errs, err2)
+	}
+	return "", fmt.Errorf("failed to upload asset (retried %d): %w", max-1, errors.Join(errs...))
+}
+
 func (s *Services) DownloadAsset(ctx context.Context, assetID string) (io.ReadCloser, error) {
 	asset, err := s.CMS.Asset(ctx, assetID)
 	if err != nil {

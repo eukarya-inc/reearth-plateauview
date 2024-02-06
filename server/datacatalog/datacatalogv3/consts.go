@@ -4,7 +4,7 @@ import (
 	"github.com/eukarya-inc/reearth-plateauview/server/datacatalog/plateauapi"
 )
 
-var plateauSpecVersions3 = []string{"3.0", "3.1", "3.2", "3.3"}
+var plateauSpecVersions3 = []string{"3.0", "3.1", "3.2", "3.3", "3.4", "3.5"}
 
 var plateauSpecs = []plateauapi.PlateauSpecSimple{
 	{
@@ -16,14 +16,12 @@ var plateauSpecs = []plateauapi.PlateauSpecSimple{
 
 var plateauFeatureTypes = []FeatureType{
 	{
-		Code:      "bldg",
-		Name:      "建築物モデル",
-		SpecMajor: 3,
+		Code: "bldg",
+		Name: "建築物モデル",
 	},
 	{
-		Code:      "tran",
-		Name:      "交通（道路）モデル",
-		SpecMajor: 3,
+		Code: "tran",
+		Name: "交通（道路）モデル",
 		MVTLayerNamesForLOD: map[int][]string{
 			0: {"Road"},
 			1: {"Road"},
@@ -31,127 +29,126 @@ var plateauFeatureTypes = []FeatureType{
 		},
 	},
 	{
-		Code:         "rwy",
-		Name:         "交通（鉄道）モデル",
-		SpecMajor:    3,
-		MVTLayerName: []string{"rwy"},
+		Code: "rwy",
+		Name: "交通（鉄道）モデル",
+		MVTLayerNamesForLOD: map[int][]string{
+			0: {"Railway"},
+			1: {"Railway"},
+			2: {"TrafficArea", "AuxiliaryTrafficArea"},
+		},
 	},
 	{
-		Code:         "trk",
-		Name:         "交通（徒歩道）モデル",
-		SpecMajor:    3,
-		MVTLayerName: []string{"trk"},
+		Code: "trk",
+		Name: "交通（徒歩道）モデル",
+		MVTLayerNamesForLOD: map[int][]string{
+			0: {"Track"},
+			1: {"Track"},
+			2: {"TrafficArea", "AuxiliaryTrafficArea"},
+		},
 	},
 	{
-		Code:         "squr",
-		Name:         "交通（広場）モデル",
-		SpecMajor:    3,
-		MVTLayerName: []string{"squr"},
+		Code: "squr",
+		Name: "交通（広場）モデル",
+		MVTLayerNamesForLOD: map[int][]string{
+			0: {"Square"},
+			1: {"Square"},
+			2: {"TrafficArea", "AuxiliaryTrafficArea"},
+		},
 	},
 	{
-		Code:         "wwy",
-		Name:         "交通（航路）モデル",
-		SpecMajor:    3,
-		MVTLayerName: []string{"wwy"},
+		Code: "wwy",
+		Name: "交通（航路）モデル",
+		MVTLayerNamesForLOD: map[int][]string{
+			0: {"Waterway"},
+			1: {"Waterway"},
+			2: {"TrafficArea"},
+		},
 	},
 	{
 		Code:         "luse",
 		Name:         "土地利用モデル",
-		SpecMajor:    3,
 		MVTLayerName: []string{"luse"},
 	},
 	{
 		Code:      "fld",
 		Name:      "洪水浸水想定区域モデル",
-		SpecMajor: 3,
+		GroupName: "災害リスク（浸水）モデル",
 		Flood:     true,
 	},
 	{
 		Code:      "tnm",
 		Name:      "津波浸水想定区域モデル",
-		SpecMajor: 3,
+		GroupName: "災害リスク（浸水）モデル",
 		Flood:     true,
 	},
 	{
 		Code:      "htd",
 		Name:      "高潮浸水想定区域モデル",
-		SpecMajor: 3,
+		GroupName: "災害リスク（浸水）モデル",
 		Flood:     true,
 	},
 	{
 		Code:      "ifld",
 		Name:      "内水浸水想定区域モデル",
-		SpecMajor: 3,
+		GroupName: "災害リスク（浸水）モデル",
 		Flood:     true,
 	},
 	{
 		Code:         "lsld",
 		Name:         "土砂災害警戒区域モデル",
-		SpecMajor:    3,
+		GroupName:    "災害リスク（土砂災害）モデル",
 		MVTLayerName: []string{"lsld"},
 	},
 	{
-		Code:      "urf",
-		Name:      "都市計画決定情報モデル",
-		SpecMajor: 3,
+		Code: "urf",
+		Name: "都市計画決定情報モデル",
 	},
 	{
-		Code:      "unf",
-		Name:      "地下埋設物モデル",
-		SpecMajor: 3,
+		Code: "brid",
+		Name: "橋梁モデル",
 	},
 	{
-		Code:         "brid",
-		Name:         "橋梁モデル",
-		SpecMajor:    3,
-		MVTLayerName: []string{"brid"},
+		Code: "tun",
+		Name: "トンネルモデル",
 	},
 	{
-		Code:      "tun",
-		Name:      "トンネルモデル",
-		SpecMajor: 3,
+		Code:         "cons",
+		Name:         "その他の構造物モデル",
+		MVTLayerName: []string{"OtherConstruction"},
 	},
 	{
-		Code:      "cons",
-		Name:      "その他の構造物モデル",
-		SpecMajor: 3,
+		Code: "frn",
+		Name: "都市設備モデル",
 	},
 	{
-		Code:      "frn",
-		Name:      "都市設備モデル",
-		SpecMajor: 3,
+		Code: "unf",
+		Name: "地下埋設物モデル",
 	},
 	{
-		Code:      "ubld",
-		Name:      "地下街モデル",
-		SpecMajor: 3,
+		Code: "ubld",
+		Name: "地下街モデル",
 	},
 	{
-		Code:      "veg",
-		Name:      "植生モデル",
-		SpecMajor: 3,
-	},
-	{
-		Code:      "dem",
-		Name:      "地形モデル",
-		SpecMajor: 3,
+		Code: "veg",
+		Name: "植生モデル",
 	},
 	{
 		Code:         "wtr",
 		Name:         "水部モデル",
-		SpecMajor:    3,
-		MVTLayerName: []string{"wtr"},
+		MVTLayerName: []string{"WaterBody"},
+	},
+	{
+		Code: "dem",
+		Name: "地形モデル",
 	},
 	{
 		Code:         "area",
 		Name:         "区域モデル",
-		SpecMajor:    3,
-		MVTLayerName: []string{"area"},
+		MVTLayerName: []string{"Zone"},
 	},
 	{
-		Code:      "gen",
-		Name:      "汎用都市オブジェクトモデル",
-		SpecMajor: 3,
+		Code: "gen",
+		Name: "汎用都市オブジェクトモデル",
 	},
 }
 
@@ -159,10 +156,6 @@ var relatedFeatureTypes = []FeatureType{
 	{
 		Code: "shelter",
 		Name: "避難施設情報",
-	},
-	{
-		Code: "park",
-		Name: "公園情報",
 	},
 	{
 		Code: "landmark",
@@ -173,12 +166,16 @@ var relatedFeatureTypes = []FeatureType{
 		Name: "鉄道駅情報",
 	},
 	{
+		Code: "emergency_route",
+		Name: "緊急輸送道路情報",
+	},
+	{
 		Code: "railway",
 		Name: "鉄道情報",
 	},
 	{
-		Code: "emergency_route",
-		Name: "緊急輸送道路情報",
+		Code: "park",
+		Name: "公園情報",
 	},
 	{
 		Code: "border",
@@ -188,15 +185,36 @@ var relatedFeatureTypes = []FeatureType{
 
 var genericFeatureTypes = []FeatureType{
 	{
-		Code: "usecase",
-		Name: "ユースケース",
-	},
-	{
 		Code: "global",
 		Name: "全球データ",
+	},
+	{
+		Code: "usecase",
+		Name: "ユースケース",
 	},
 	{
 		Code: "sample",
 		Name: "サンプルデータ",
 	},
+}
+
+func init() {
+	le := 1
+	for i, t := range plateauFeatureTypes {
+		t.Order = i + le
+		t.SpecMajor = 3
+		plateauFeatureTypes[i] = t
+	}
+
+	le += len(plateauFeatureTypes)
+	for i, t := range relatedFeatureTypes {
+		t.Order = i + le
+		relatedFeatureTypes[i] = t
+	}
+
+	le += len(relatedFeatureTypes)
+	for i, t := range genericFeatureTypes {
+		t.Order = i + le
+		genericFeatureTypes[i] = t
+	}
 }

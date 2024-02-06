@@ -90,9 +90,10 @@ func seedToDataset(seed plateauDatasetSeed) (res *plateauapi.PlateauDataset, war
 
 	res = &plateauapi.PlateauDataset{
 		ID:                 id,
-		Name:               standardItemName(seed.DatasetType.Name, seed.SubName, seed.TargetArea),
-		Subname:            lo.EmptyableToPtr(seed.SubName),
-		Subcode:            lo.EmptyableToPtr(seed.IDEx),
+		Name:               standardItemName(seed.DatasetType.Name, seed.Subname, seed.TargetArea),
+		Subname:            lo.EmptyableToPtr(seed.Subname),
+		Subcode:            lo.EmptyableToPtr(seed.Subcode),
+		Suborder:           seed.Suborder,
 		Description:        lo.EmptyableToPtr(seed.Desc),
 		Year:               seed.Area.CityItem.YearInt(),
 		PrefectureID:       seed.Area.PrefID,

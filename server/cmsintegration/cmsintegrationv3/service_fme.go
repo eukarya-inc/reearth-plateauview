@@ -162,7 +162,7 @@ func receiveResultFromFME(ctx context.Context, s *Services, conf *Config, f fmeR
 				if qcResultStr, ok := qcResult.(string); ok {
 					log.Debugfc(ctx, "cmsintegrationv3: upload qc result: %s", qcResultStr)
 					var err error
-					qcResultAsset, err := s.CMS.UploadAsset(ctx, id.ProjectID, qcResultStr)
+					qcResultAsset, err := s.UploadAsset(ctx, id.ProjectID, qcResultStr)
 					if err != nil {
 						return fmt.Errorf("failed to upload maxlod: %w", err)
 					}
@@ -215,7 +215,7 @@ func receiveResultFromFME(ctx context.Context, s *Services, conf *Config, f fmeR
 		for _, key := range assets.Keys {
 			urls := assets.DataMap[key]
 			for _, url := range urls {
-				aid, err := s.CMS.UploadAsset(ctx, id.ProjectID, url)
+				aid, err := s.UploadAsset(ctx, id.ProjectID, url)
 				if err != nil {
 					log.Errorfc(ctx, "cmsintegrationv3: failed to upload asset (%s): %v", url, err)
 					return nil
@@ -244,7 +244,7 @@ func receiveResultFromFME(ctx context.Context, s *Services, conf *Config, f fmeR
 	if assets.MaxLOD != "" {
 		log.Debugfc(ctx, "cmsintegrationv3: upload maxlod: %s", assets.MaxLOD)
 		var err error
-		maxlodAssetID, err = s.CMS.UploadAsset(ctx, id.ProjectID, assets.MaxLOD)
+		maxlodAssetID, err = s.UploadAsset(ctx, id.ProjectID, assets.MaxLOD)
 		if err != nil {
 			return fmt.Errorf("failed to upload maxlod: %w", err)
 		}
@@ -255,7 +255,7 @@ func receiveResultFromFME(ctx context.Context, s *Services, conf *Config, f fmeR
 	if assets.QCResult != "" {
 		log.Debugfc(ctx, "cmsintegrationv3: upload qc result: %s", assets.QCResult)
 		var err error
-		qcResult, err = s.CMS.UploadAsset(ctx, id.ProjectID, assets.QCResult)
+		qcResult, err = s.UploadAsset(ctx, id.ProjectID, assets.QCResult)
 		if err != nil {
 			return fmt.Errorf("failed to upload qc result: %w", err)
 		}

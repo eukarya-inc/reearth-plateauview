@@ -3,6 +3,7 @@ package datacatalogv3
 import (
 	"encoding/json"
 	"fmt"
+	"slices"
 
 	"github.com/eukarya-inc/reearth-plateauview/server/cmsintegration/cmsintegrationcommon"
 	"github.com/eukarya-inc/reearth-plateauview/server/datacatalog/datacatalogcommon"
@@ -28,8 +29,10 @@ const (
 )
 
 type FeatureType struct {
-	Code string `json:"code,omitempty" cms:"code,text"`
-	Name string `json:"name,omitempty" cms:"name,text"`
+	Code      string `json:"code,omitempty" cms:"code,text"`
+	Name      string `json:"name,omitempty" cms:"name,text"`
+	Order     int    `json:"order,omitempty" cms:"order,integer"`
+	GroupName string `json:"group_name,omitempty" cms:"group_name,text"`
 	// for plateau
 	SpecMajor           int              `json:"spec_major,omitempty" cms:"spec_major,integer"`
 	Flood               bool             `json:"flood,omitempty" cms:"flood,bool"`
@@ -119,7 +122,10 @@ func (c PlateauFeatureItem) IsPublicForAdmin() bool {
 
 func (c PlateauFeatureItem) ReadDic() (d Dic, _ error) {
 	err := json.Unmarshal([]byte(c.Dic), &d)
-	return d, err
+	if err != nil {
+		return nil, fmt.Errorf("failed to unmarshal dic: %w", err)
+	}
+	return d, nil
 }
 
 type PlateauFeatureItemDatum struct {
@@ -134,16 +140,21 @@ type Dic map[string][]DicEntry // admin, fld. htd, tnm, urf, gen
 
 func (d Dic) FindEntryOrDefault(key, name string) (*DicEntry, bool) {
 	if e := d.FindEntry(key, name); e != nil {
+		// attach order
+		if key == "urf" && e.Order == nil {
+			e.Order = lo.ToPtr(slices.Index(UrfFeatureTypes, name) + 1)
+		}
 		return e, true
 	}
 
 	// urf
 	if key == "urf" {
-		if desc, ok := datacatalogcommon.UrfFeatureTypeMap[name]; ok {
+		if urfType, ok := UrfFeatureTypeMap[name]; ok {
 			return &DicEntry{
 				Name:        &StringOrNumber{Value: name},
 				Code:        &StringOrNumber{Value: name},
-				Description: desc,
+				Description: urfType.Name,
+				Order:       lo.ToPtr(slices.Index(UrfFeatureTypes, name) + 1),
 			}, true
 		}
 	}
@@ -179,6 +190,7 @@ type DicEntry struct {
 	Scale             string          `json:"scale,omitempty"`              // fld only
 	Suffix            string          `json:"suffix,omitempty"`             // fld only (optional)
 	SuffixDescription string          `json:"suffix_description,omitempty"` // fld only (optional)
+	Order             *int            `json:"order"`
 }
 
 func PlateauFeatureItemFrom(item *cms.Item) (i *PlateauFeatureItem) {

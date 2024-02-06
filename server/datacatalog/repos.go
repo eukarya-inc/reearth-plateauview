@@ -212,7 +212,13 @@ func (h *reposHandler) prepareAndGetMergedRepo(ctx context.Context, admin bool, 
 		return repos[0]
 	}
 
-	return plateauapi.NewMerger(repos...)
+	merged := plateauapi.NewMerger(repos...)
+	if err := merged.Init(ctx); err != nil {
+		log.Errorfc(ctx, "datacatalogv3: failed to initialize merged repo: %w", err)
+		return nil
+	}
+
+	return merged
 }
 
 func (h *reposHandler) getRepo(ctx context.Context, admin bool, md plateaucms.Metadata) (repo plateauapi.Repo) {

@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"reflect"
+	"slices"
 	"sort"
 	"strings"
 
@@ -13,7 +14,8 @@ import (
 
 // Merger is a repository that merges multiple repositories. It returns the latest year data.
 type Merger struct {
-	repos []Repo
+	repos              []Repo
+	mergedDatasetTypes []ID
 }
 
 func NewMerger(repos ...Repo) *Merger {
@@ -21,6 +23,20 @@ func NewMerger(repos ...Repo) *Merger {
 }
 
 var _ Repo = (*Merger)(nil)
+
+func (m *Merger) Init(ctx context.Context) error {
+	datasetTypes, err := m.datasetTypes(ctx, nil)
+	if err != nil {
+		return err
+	}
+
+	sortDatasetTypes(datasetTypes)
+	m.mergedDatasetTypes = lo.Map(datasetTypes, func(dt DatasetType, _ int) ID {
+		return dt.GetID()
+	})
+
+	return nil
+}
 
 func (m *Merger) Name() string {
 	names := lo.Map(m.repos, func(r Repo, _ int) string {
@@ -54,6 +70,7 @@ func (m *Merger) Nodes(ctx context.Context, ids []ID) ([]Node, error) {
 	res := lo.Map(zip(nodes...), func(n []Node, _ int) Node {
 		return getLatestYearNode(n)
 	})
+	setOrderToNodes(res, m.mergedDatasetTypes)
 	return res, nil
 }
 
@@ -76,18 +93,18 @@ func (m *Merger) Areas(ctx context.Context, input *AreasInput) ([]Area, error) {
 		return nil, err
 	}
 
-	return mergeResults(areas), nil
+	return mergeResults(areas, true), nil
 }
 
 func (m *Merger) DatasetTypes(ctx context.Context, input *DatasetTypesInput) ([]DatasetType, error) {
-	dts, err := getFlattenRepoResults(m.repos, func(r Repo) ([]DatasetType, error) {
-		return r.DatasetTypes(ctx, input)
-	})
+	res, err := m.datasetTypes(ctx, input)
 	if err != nil {
 		return nil, err
 	}
 
-	return mergeResults(dts), nil
+	sortDatasetTypes(res)
+	setOrderToNodes(res, m.mergedDatasetTypes)
+	return res, nil
 }
 
 func (m *Merger) Datasets(ctx context.Context, input *DatasetsInput) ([]Dataset, error) {
@@ -98,7 +115,7 @@ func (m *Merger) Datasets(ctx context.Context, input *DatasetsInput) ([]Dataset,
 		return nil, err
 	}
 
-	return mergeResults(datasets), nil
+	return mergeResults(datasets, true), nil
 }
 
 func (m *Merger) PlateauSpecs(ctx context.Context) ([]*PlateauSpec, error) {
@@ -126,6 +143,31 @@ func (m *Merger) Years(ctx context.Context) ([]int, error) {
 	return res, nil
 }
 
+func (m *Merger) datasetTypes(ctx context.Context, input *DatasetTypesInput) ([]DatasetType, error) {
+	dts, err := getFlattenRepoResults(m.repos, func(r Repo) ([]DatasetType, error) {
+		return r.DatasetTypes(ctx, input)
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	res := mergeResults(dts, false)
+	return res, nil
+}
+
+func setOrderToNodes[T Node](nodes []T, mergedDatasetTypes []ID) {
+	if mergedDatasetTypes == nil {
+		return
+	}
+
+	for i, r := range nodes {
+		if order := slices.Index(mergedDatasetTypes, r.GetID()); order >= 0 {
+			setOrder(r, order+1)
+			nodes[i] = r
+		}
+	}
+}
+
 func getRepoResults[T any](repos []Repo, f func(r Repo) (T, error)) ([]T, error) {
 	return util.TryMap(repos, func(r Repo) (_ T, _ error) {
 		if r == nil {
@@ -148,7 +190,7 @@ func getFlattenRepoResults[T any](repos []Repo, f func(r Repo) ([]T, error)) ([]
 	return lo.Flatten(res), nil
 }
 
-func mergeResults[T IDNode](results []T) []T {
+func mergeResults[T IDNode](results []T, sort bool) []T {
 	groups := lo.GroupBy(results, func(n T) string {
 		return string(n.GetID())
 	})
@@ -158,13 +200,36 @@ func mergeResults[T IDNode](results []T) []T {
 		res = append(res, getLatestYearNode(g))
 	}
 
-	sortNodes(res)
+	if sort {
+		sortNodes(res)
+	}
 	return res
 }
 
 func sortNodes[T IDNode](nodes []T) {
 	sort.Slice(nodes, func(i, j int) bool {
-		return nodes[i].GetID() < nodes[j].GetID() || (nodes[i].GetID() == nodes[j].GetID() && getYear(nodes[i]) > getYear(nodes[j]))
+		i1, i2 := nodes[i].GetID(), nodes[j].GetID()
+		if i1 != i2 {
+			return i1 < i2
+		}
+
+		return getYear(nodes[i]) > getYear(nodes[j])
+	})
+}
+
+func sortDatasetTypes[T DatasetType](nodes []T) {
+	slices.SortStableFunc(nodes, func(a, b T) int {
+		y1, y2 := getYear(a), getYear(b)
+		if y1 != y2 {
+			return y2 - y1
+		}
+
+		o1, o2 := getOrder(a), getOrder(b)
+		if o1 != nil && o2 != nil {
+			return *o1 - *o2
+		}
+
+		return 0
 	})
 }
 
@@ -203,6 +268,10 @@ type YearNode interface {
 	GetYear() int
 }
 
+type OrderNode interface {
+	GetOrder() int
+}
+
 func isPresent(n any) bool {
 	v := reflect.ValueOf(n)
 	return v.Kind() != reflect.Ptr || !v.IsNil()
@@ -213,4 +282,22 @@ func getYear(n any) int {
 		return yn.GetYear()
 	}
 	return 0
+}
+
+func getOrder(n any) *int {
+	if yn, ok := n.(OrderNode); ok {
+		return lo.ToPtr(yn.GetOrder())
+	}
+	return nil
+}
+
+func setOrder(n any, order int) {
+	switch v := n.(type) {
+	case *PlateauDatasetType:
+		v.Order = order
+	case *RelatedDatasetType:
+		v.Order = order
+	case *GenericDatasetType:
+		v.Order = order
+	}
 }

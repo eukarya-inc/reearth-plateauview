@@ -7,7 +7,6 @@ import (
 
 	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
-	"golang.org/x/exp/maps"
 )
 
 type InMemoryRepoContext struct {
@@ -23,7 +22,7 @@ type InMemoryRepoContext struct {
 // Note that it is not thread-safe.
 type InMemoryRepo struct {
 	ctx               *InMemoryRepoContext
-	areasForDataTypes map[string]map[AreaCode]struct{}
+	areasForDataTypes map[string]map[AreaCode]bool
 	admin             bool
 	includedStages    []string
 }
@@ -123,7 +122,11 @@ func (c *InMemoryRepo) Areas(ctx context.Context, input *AreasInput) (res []Area
 	var codes []AreaCode
 	if inp.DatasetTypes != nil {
 		for _, t := range types {
-			codes = append(codes, maps.Keys(c.areasForDataTypes[t])...)
+			for k, v := range c.areasForDataTypes[t] {
+				if input.IncludeParents != nil && *input.IncludeParents || v {
+					codes = append(codes, k)
+				}
+			}
 		}
 	}
 
@@ -132,7 +135,7 @@ func (c *InMemoryRepo) Areas(ctx context.Context, input *AreasInput) (res []Area
 			return false
 		}
 
-		if len(codes) > 0 && !lo.Contains(codes, a.GetCode()) {
+		if inp.DatasetTypes != nil && !lo.Contains(codes, a.GetCode()) {
 			return false
 		}
 
@@ -184,17 +187,24 @@ func (c *InMemoryRepo) getDatasetTypeCodes(types []string, categories []DatasetT
 	return res
 }
 
-func areasForDatasetTypes(ds []Dataset) map[string]map[AreaCode]struct{} {
-	res := make(map[string]map[AreaCode]struct{})
+func areasForDatasetTypes(ds []Dataset) map[string]map[AreaCode]bool {
+	// true -> most detailed, false -> not most detailed
+	res := make(map[string]map[AreaCode]bool)
 
 	for _, d := range ds {
 		datasetTypeCode := d.GetTypeCode()
 
-		for _, code := range areaCodesFrom(d) {
+		codes := areaCodesFrom(d)
+		code := mostDetailedAreaCodeFrom(d)
+
+		for _, c := range codes {
+			mostDetailed := code != nil && c == *code
 			if _, ok := res[datasetTypeCode]; !ok {
-				res[datasetTypeCode] = make(map[AreaCode]struct{})
+				res[datasetTypeCode] = make(map[AreaCode]bool)
 			}
-			res[datasetTypeCode][code] = struct{}{}
+			if _, ok := res[datasetTypeCode][c]; !ok || mostDetailed {
+				res[datasetTypeCode][c] = mostDetailed
+			}
 		}
 	}
 

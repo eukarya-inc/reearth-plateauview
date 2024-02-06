@@ -32,6 +32,23 @@ var landmarkTypes = map[string]string{
 	"ランドマーク":  "landmark",
 }
 
+var types = []string{
+	"bldg",
+	"tran",
+	"brid",
+	"rail",
+	"veg",
+	"frn",
+	"luse",
+	"lsld",
+	"urf",
+	"fld",
+	"tnm",
+	"htd",
+	"ifld",
+	"gen",
+}
+
 var plateauSpecs = []plateauapi.PlateauSpec{
 	{
 		ID:           plateauSpecIDFrom("2"),
@@ -108,6 +125,8 @@ func plateauDatasetFrom(d datacatalogv2.DataCatalogItem) (plateauapi.PlateauData
 		ID:                 id,
 		Name:               d.Name,
 		Subname:            subname,
+		Subcode:            nil,
+		Suborder:           nil,
 		Description:        lo.ToPtr(d.Description),
 		PrefectureID:       prefectureIDFrom(d),
 		PrefectureCode:     prefectureCodeFrom(d),
@@ -480,14 +499,20 @@ func plateauDatasetTypeFrom(d datacatalogv2.DataCatalogItem) plateauapi.PlateauD
 	}
 
 	year, _ := strconv.Atoi(d.Edition)
+	code := datasetTypeCodeFrom(d)
+	order := slices.Index(types, code) + 1
+	if order <= 0 {
+		order = len(types) + 1
+	}
 	return plateauapi.PlateauDatasetType{
 		ID:            datasetTypeIDFrom(d),
 		Name:          name,
-		Code:          datasetTypeCodeFrom(d),
+		Code:          code,
 		Year:          year,
 		Category:      plateauapi.DatasetTypeCategoryPlateau,
 		PlateauSpecID: plateauSpecMajorIDFrom(spec),
 		Flood:         slices.Contains(floodingTypes, d.TypeEn),
+		Order:         order,
 	}
 }
 

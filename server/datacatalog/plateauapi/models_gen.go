@@ -24,6 +24,10 @@ type Area interface {
 	GetName() string
 	// 地域に属するデータセット（DatasetInput内のareasCodeの指定は無視されます）。
 	GetDatasets() []Dataset
+	// 地域の親となる地域のID。市区町村の親は都道府県です。政令指定都市の区の親は市です。
+	GetParentID() *ID
+	// 地域の親となる地域。
+	GetParent() Area
 }
 
 // データセット。
@@ -94,12 +98,14 @@ type DatasetType interface {
 	IsNode()
 	IsDatasetType()
 	GetID() ID
-	// データセットの種類コード。「bldg」など。
+	// データセットの種類コード。 "bldg" など。
 	GetCode() string
 	// データセットの種類名。
 	GetName() string
 	// データセットの種類のカテゴリ。
 	GetCategory() DatasetTypeCategory
+	// データセットの種類の順番を示す数字。大きいほど後に表示されます。
+	GetOrder() int
 	// データセット（DatasetInput内のincludeTypesとexcludeTypesの指定は無視されます）。
 	GetDatasets() []Dataset
 }
@@ -126,6 +132,8 @@ type AreasInput struct {
 	AreaTypes []AreaType `json:"areaTypes,omitempty"`
 	// 検索文字列。複数指定するとAND条件で絞り込み検索が行えます。
 	SearchTokens []string `json:"searchTokens,omitempty"`
+	// 検索結果にその地域の親も含めるかどうか。デフォルトは false です。
+	IncludeParents *bool `json:"includeParents,omitempty"`
 }
 
 // 市区町村
@@ -147,6 +155,10 @@ type City struct {
 	Wards []*Ward `json:"wards"`
 	// 市区町村に属するデータセット（DatasetInput内のareasCodeの指定は無視されます）。
 	Datasets []Dataset `json:"datasets"`
+	// 地域の親となる地域のID。市区町村の親は都道府県です。政令指定都市の区の親は市です。
+	ParentID *ID `json:"parentId,omitempty"`
+	// 地域の親となる地域。
+	Parent *Prefecture `json:"parent"`
 	// 平面直角座標系のEPSGコード。例えば、東京都の場合は "6677" です。
 	PlanarCrsEpsgCode *string `json:"planarCrsEpsgCode,omitempty"`
 }
@@ -177,6 +189,12 @@ func (this City) GetDatasets() []Dataset {
 	return interfaceSlice
 }
 
+// 地域の親となる地域のID。市区町村の親は都道府県です。政令指定都市の区の親は市です。
+func (this City) GetParentID() *ID { return this.ParentID }
+
+// 地域の親となる地域。
+func (this City) GetParent() Area { return *this.Parent }
+
 func (City) IsNode() {}
 
 // オブジェクトのID
@@ -199,9 +217,9 @@ type DatasetsInput struct {
 	PlateauSpec *string `json:"plateauSpec,omitempty"`
 	// データの整備年度または公開年度（西暦）。
 	Year *int `json:"year,omitempty"`
-	// 検索結果から除外するデータセットの種類コード。
+	// 検索結果から除外するデータセットの種類コード。種類コードは例えば "bldg"（建築物モデル）の他、"plateau"（PLATEAU都市モデルデータセット）、"related"（関連データセット）、"generic"（その他のデータセット）が使用可能です。
 	ExcludeTypes []string `json:"excludeTypes,omitempty"`
-	// 検索結果に含めるデータセットの種類コード。未指定の場合、全てのデータセットの種類を対象に検索し、指定するとその種類で検索結果を絞り込みます。
+	// 検索結果に含めるデータセットの種類コード。未指定の場合、全てのデータセットの種類を対象に検索し、指定するとその種類で検索結果を絞り込みます。種類コードは例えば "bldg"（建築物モデル）の他、"plateau"（PLATEAU都市モデルデータセット）、"related"（関連データセット）、"generic"（その他のデータセット）が使用可能です。
 	IncludeTypes []string `json:"includeTypes,omitempty"`
 	// 検索文字列。複数指定するとAND条件で絞り込み検索が行えます。
 	SearchTokens []string `json:"searchTokens,omitempty"`
@@ -393,6 +411,8 @@ type GenericDatasetType struct {
 	Name string `json:"name"`
 	// データセットの種類のカテゴリ。
 	Category DatasetTypeCategory `json:"category"`
+	// データセットの種類の順番を示す数字。大きいほど後に表示されます。
+	Order int `json:"order"`
 	// データセット（DatasetInput内のincludeTypesとexcludeTypesの指定は無視されます）。
 	Datasets []*GenericDataset `json:"datasets"`
 }
@@ -400,7 +420,7 @@ type GenericDatasetType struct {
 func (GenericDatasetType) IsDatasetType() {}
 func (this GenericDatasetType) GetID() ID { return this.ID }
 
-// データセットの種類コード。「bldg」など。
+// データセットの種類コード。 "bldg" など。
 func (this GenericDatasetType) GetCode() string { return this.Code }
 
 // データセットの種類名。
@@ -408,6 +428,9 @@ func (this GenericDatasetType) GetName() string { return this.Name }
 
 // データセットの種類のカテゴリ。
 func (this GenericDatasetType) GetCategory() DatasetTypeCategory { return this.Category }
+
+// データセットの種類の順番を示す数字。大きいほど後に表示されます。
+func (this GenericDatasetType) GetOrder() int { return this.Order }
 
 // データセット（DatasetInput内のincludeTypesとexcludeTypesの指定は無視されます）。
 func (this GenericDatasetType) GetDatasets() []Dataset {
@@ -434,6 +457,8 @@ type PlateauDataset struct {
 	Subname *string `json:"subname,omitempty"`
 	// データセットのサブコード。都市計画決定情報の○○区域や洪水浸水想定区域の河川名などのコード表現が含まれます。
 	Subcode *string `json:"subcode,omitempty"`
+	// データセットのサブコードの順番。大きいほど後に表示されます。
+	Suborder *int `json:"suborder,omitempty"`
 	// データセットの説明
 	Description *string `json:"description,omitempty"`
 	// データセットの公開年度（西暦）
@@ -625,6 +650,8 @@ type PlateauDatasetType struct {
 	Name string `json:"name"`
 	// データセットの種類のカテゴリ。
 	Category DatasetTypeCategory `json:"category"`
+	// データセットの種類の順番を示す数字。大きいほど後に表示されます。
+	Order int `json:"order"`
 	// データセットの種類が属するPLATEAU都市モデルの仕様のID。
 	PlateauSpecID ID `json:"plateauSpecId"`
 	// データセットの種類が属するPLATEAU都市モデルの仕様。
@@ -640,7 +667,7 @@ type PlateauDatasetType struct {
 func (PlateauDatasetType) IsDatasetType() {}
 func (this PlateauDatasetType) GetID() ID { return this.ID }
 
-// データセットの種類コード。「bldg」など。
+// データセットの種類コード。 "bldg" など。
 func (this PlateauDatasetType) GetCode() string { return this.Code }
 
 // データセットの種類名。
@@ -648,6 +675,9 @@ func (this PlateauDatasetType) GetName() string { return this.Name }
 
 // データセットの種類のカテゴリ。
 func (this PlateauDatasetType) GetCategory() DatasetTypeCategory { return this.Category }
+
+// データセットの種類の順番を示す数字。大きいほど後に表示されます。
+func (this PlateauDatasetType) GetOrder() int { return this.Order }
 
 // データセット（DatasetInput内のincludeTypesとexcludeTypesの指定は無視されます）。
 func (this PlateauDatasetType) GetDatasets() []Dataset {
@@ -720,6 +750,10 @@ type Prefecture struct {
 	Cities []*City `json:"cities"`
 	// 都道府県に属するデータセット（DatasetInput内のareasCodeの指定は無視されます）。
 	Datasets []Dataset `json:"datasets"`
+	// 地域の親となる地域のID。市区町村の親は都道府県です。政令指定都市の区の親は市です。
+	ParentID *ID `json:"parentId,omitempty"`
+	// 地域の親となる地域。
+	Parent Area `json:"parent,omitempty"`
 }
 
 func (Prefecture) IsArea()        {}
@@ -747,6 +781,12 @@ func (this Prefecture) GetDatasets() []Dataset {
 	}
 	return interfaceSlice
 }
+
+// 地域の親となる地域のID。市区町村の親は都道府県です。政令指定都市の区の親は市です。
+func (this Prefecture) GetParentID() *ID { return this.ParentID }
+
+// 地域の親となる地域。
+func (this Prefecture) GetParent() Area { return this.Parent }
 
 func (Prefecture) IsNode() {}
 
@@ -941,6 +981,8 @@ type RelatedDatasetType struct {
 	Name string `json:"name"`
 	// データセットの種類のカテゴリ。
 	Category DatasetTypeCategory `json:"category"`
+	// データセットの種類の順番を示す数字。大きいほど後に表示されます。
+	Order int `json:"order"`
 	// データセット（DatasetInput内のincludeTypesとexcludeTypesの指定は無視されます）。
 	Datasets []*RelatedDataset `json:"datasets"`
 }
@@ -948,7 +990,7 @@ type RelatedDatasetType struct {
 func (RelatedDatasetType) IsDatasetType() {}
 func (this RelatedDatasetType) GetID() ID { return this.ID }
 
-// データセットの種類コード。「bldg」など。
+// データセットの種類コード。 "bldg" など。
 func (this RelatedDatasetType) GetCode() string { return this.Code }
 
 // データセットの種類名。
@@ -956,6 +998,9 @@ func (this RelatedDatasetType) GetName() string { return this.Name }
 
 // データセットの種類のカテゴリ。
 func (this RelatedDatasetType) GetCategory() DatasetTypeCategory { return this.Category }
+
+// データセットの種類の順番を示す数字。大きいほど後に表示されます。
+func (this RelatedDatasetType) GetOrder() int { return this.Order }
 
 // データセット（DatasetInput内のincludeTypesとexcludeTypesの指定は無視されます）。
 func (this RelatedDatasetType) GetDatasets() []Dataset {
@@ -1004,6 +1049,10 @@ type Ward struct {
 	City *City `json:"city,omitempty"`
 	// 区に属するデータセット（DatasetInput内のareasCodeの指定は無視されます）。
 	Datasets []Dataset `json:"datasets"`
+	// 地域の親となる地域のID。市区町村の親は都道府県です。政令指定都市の区の親は市です。
+	ParentID *ID `json:"parentId,omitempty"`
+	// 地域の親となる地域。
+	Parent *City `json:"parent"`
 }
 
 func (Ward) IsArea()        {}
@@ -1031,6 +1080,12 @@ func (this Ward) GetDatasets() []Dataset {
 	}
 	return interfaceSlice
 }
+
+// 地域の親となる地域のID。市区町村の親は都道府県です。政令指定都市の区の親は市です。
+func (this Ward) GetParentID() *ID { return this.ParentID }
+
+// 地域の親となる地域。
+func (this Ward) GetParent() Area { return *this.Parent }
 
 func (Ward) IsNode() {}
 

@@ -1,6 +1,8 @@
 package datacatalogv3
 
 import (
+	"fmt"
+
 	"github.com/eukarya-inc/reearth-plateauview/server/datacatalog/plateauapi"
 	"github.com/samber/lo"
 )
@@ -25,12 +27,13 @@ func (ft FeatureTypes) ToDatasetTypes(specs []plateauapi.PlateauSpec) plateauapi
 func (f *FeatureType) ToPlateauDatasetType(spec plateauapi.PlateauSpec) *plateauapi.PlateauDatasetType {
 	return &plateauapi.PlateauDatasetType{
 		Category:      plateauapi.DatasetTypeCategoryPlateau,
-		ID:            plateauapi.NewID(f.Code, plateauapi.TypeDatasetType),
+		ID:            plateauDatasetTypeID(f.Code, spec.MajorVersion),
 		Name:          f.Name,
 		Code:          f.Code,
 		Flood:         f.Flood,
 		PlateauSpecID: spec.ID,
 		Year:          spec.Year,
+		Order:         f.Order,
 	}
 }
 
@@ -40,6 +43,7 @@ func (f *FeatureType) ToRelatedDatasetType() *plateauapi.RelatedDatasetType {
 		ID:       plateauapi.NewID(f.Code, plateauapi.TypeDatasetType),
 		Name:     f.Name,
 		Code:     f.Code,
+		Order:    f.Order,
 	}
 }
 
@@ -49,6 +53,7 @@ func (f *FeatureType) ToGenericDatasetType() *plateauapi.GenericDatasetType {
 		ID:       plateauapi.NewID(f.Code, plateauapi.TypeDatasetType),
 		Name:     f.Name,
 		Code:     f.Code,
+		Order:    f.Order,
 	}
 }
 
@@ -66,4 +71,8 @@ func (ft FeatureTypes) LayerNames() map[string]LayerNames {
 		}
 	}
 	return res
+}
+
+func plateauDatasetTypeID(code string, specMajorVersion int) plateauapi.ID {
+	return plateauapi.NewID(fmt.Sprintf("%s_%d", code, specMajorVersion), plateauapi.TypeDatasetType)
 }

@@ -149,6 +149,11 @@ func convertRelated(items []*RelatedItem, datasetTypes []plateauapi.DatasetType,
 func convertGeneric(items []*GenericItem, datasetTypes []plateauapi.DatasetType, ic *internalContext) (res []plateauapi.Dataset, warning []string) {
 	for _, ds := range items {
 		area := ic.AreaContext(ds.City)
+		if area == nil {
+			warning = append(warning, fmt.Sprintf("generic %s: invalid city: %s", ds.ID, ds.City))
+			continue
+		}
+
 		ds, w := ds.toDatasets(area, datasetTypes, ic.genericCMSURL)
 		warning = append(warning, w...)
 		if ds != nil {

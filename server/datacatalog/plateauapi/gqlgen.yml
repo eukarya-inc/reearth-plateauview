@@ -64,6 +64,8 @@ models:
         resolver: true
       datasets:
         resolver: true
+      parent:
+        resolver: true
   City:
     fields:
       prefecture:
@@ -72,6 +74,8 @@ models:
         resolver: true
       datasets:
         resolver: true
+      parent:
+        resolver: true
   Ward:
     fields:
       prefecture:
@@ -79,6 +83,8 @@ models:
       city:
         resolver: true
       datasets:
+        resolver: true
+      parent:
         resolver: true
   PlateauDataset:
     fields:

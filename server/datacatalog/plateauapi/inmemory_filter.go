@@ -232,9 +232,29 @@ func areaCodesFrom(d Dataset) []AreaCode {
 	return nil
 }
 
+func mostDetailedAreaCodeFrom(d Dataset) *AreaCode {
+	if c := d.GetWardCode(); c != nil {
+		return util.CloneRef(c)
+	}
+	if c := d.GetCityCode(); c != nil {
+		return util.CloneRef(c)
+	}
+	if c := d.GetPrefectureCode(); c != nil {
+		return util.CloneRef(c)
+	}
+	return nil
+}
+
 func filterArea(area Area, input AreasInput) bool {
 	if area == nil {
 		return false
+	}
+
+	if len(input.AreaTypes) > 0 {
+		ty := area.GetType()
+		if ty == "" || !slices.Contains(input.AreaTypes, ty) {
+			return false
+		}
 	}
 
 	testName := func(name string) bool {
