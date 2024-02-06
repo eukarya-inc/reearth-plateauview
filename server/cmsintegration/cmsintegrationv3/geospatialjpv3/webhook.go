@@ -11,7 +11,7 @@ import (
 )
 
 const (
-	modelKey = "plateau"
+	modelKey = "plateau-city"
 )
 
 func WebhookHandler(conf Config) (cmswebhook.Handler, error) {
