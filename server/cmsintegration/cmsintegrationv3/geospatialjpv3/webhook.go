@@ -70,10 +70,15 @@ func (h *handler) Webhook(conf Config) (cmswebhook.Handler, error) {
 			return nil
 		}
 
+		if !w.ItemData.Item.IsMetadata {
+			log.Debugfc(ctx, "geospatialjpv3 webhook: not metadata item")
+			return nil
+		}
+
 		log.Debugfc(ctx, "geospatialjpv3 webhook")
 
 		// prepare
-		if prepareField := w.ItemData.Item.MetadataFieldByKey(prepareFieldKey); prepareField != nil {
+		if prepareField := w.ItemData.Item.FieldByKey(prepareFieldKey); prepareField != nil {
 			changed, ok := lo.Find(w.ItemData.Changes, func(c cms.FieldChange) bool {
 				return c.ID == prepareField.ID
 			})
@@ -90,7 +95,7 @@ func (h *handler) Webhook(conf Config) (cmswebhook.Handler, error) {
 		}
 
 		// publish
-		if publishField := w.ItemData.Item.MetadataFieldByKey(publishFieldKey); publishField != nil {
+		if publishField := w.ItemData.Item.FieldByKey(publishFieldKey); publishField != nil {
 			changed, ok := lo.Find(w.ItemData.Changes, func(c cms.FieldChange) bool {
 				return c.ID == publishField.ID
 			})
