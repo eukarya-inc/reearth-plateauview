@@ -1,5 +1,6 @@
 name: ⭐️ Deploy PLATEAU worker dev
 on:
+  workflow_dispatch:
   workflow_call:
 env:
   IMAGE: ghcr.io/eukarya-inc/reearth-plateauview/plateauview-api-worker:latest
