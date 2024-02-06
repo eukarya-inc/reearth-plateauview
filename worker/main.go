@@ -31,7 +31,7 @@ func prepareGspatialjp(conf *Config) {
 	flag := flag.NewFlagSet("prepare-gspatialjp", flag.ExitOnError)
 	flag.StringVar(&config.ProjectID, "project", "", "CMS project id")
 	flag.StringVar(&config.CityItemID, "city", "", "CMS city item id")
-	flag.BoolVar(&config.WetRun, "wet", false, "wet run")
+	flag.BoolVar(&config.WetRun, "wetrun", false, "wet run")
 
 	if err := flag.Parse(os.Args[2:]); err != nil {
 		panic(err)
