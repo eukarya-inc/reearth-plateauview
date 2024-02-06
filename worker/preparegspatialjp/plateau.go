@@ -36,7 +36,7 @@ func PreparePlateau(ctx context.Context, cms *cms.CMS, cityItem *CityItem, allFe
 				continue
 			}
 
-			data, err := DownloadFile(ctx, url)
+			data, err := downloadFileAsByteReader(ctx, url)
 			if err != nil {
 				return "", "", fmt.Errorf("failed to download data for %s: %w", ft, err)
 			}

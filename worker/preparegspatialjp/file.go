@@ -14,7 +14,34 @@ import (
 	"github.com/reearth/reearthx/log"
 )
 
-func DownloadFile(ctx context.Context, url string) (*bytes.Reader, error) {
+func downloadFileAsByteReader(ctx context.Context, url string) (*bytes.Reader, error) {
+	b, err := downloadFileAsBytes(ctx, url)
+	if err != nil {
+		return nil, err
+	}
+
+	return bytes.NewReader(b), nil
+}
+
+func downloadFileAsBytes(ctx context.Context, url string) ([]byte, error) {
+	r, err := downloadFile(ctx, url)
+	if err != nil {
+		return nil, err
+	}
+	defer func() {
+		_ = r.Close()
+	}()
+
+	b := &bytes.Buffer{}
+	_, err = io.Copy(b, r)
+	if err != nil {
+		return nil, err
+	}
+
+	return b.Bytes(), nil
+}
+
+func downloadFile(ctx context.Context, url string) (io.ReadCloser, error) {
 	log.Infofc(ctx, "downloading %s...", url)
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
@@ -27,19 +54,18 @@ func DownloadFile(ctx context.Context, url string) (*bytes.Reader, error) {
 		return nil, err
 	}
 
-	defer resp.Body.Close()
-
 	if resp.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("failed to download %s: %s", url, resp.Status)
 	}
 
-	b := &bytes.Buffer{}
-	_, err = io.Copy(b, resp.Body)
-	if err != nil {
-		return nil, err
-	}
+	return resp.Body, nil
+	// b := &bytes.Buffer{}
+	// _, err = io.Copy(b, resp.Body)
+	// if err != nil {
+	// 	return nil, err
+	// }
 
-	return bytes.NewReader(b.Bytes()), nil
+	// return bytes.NewReader(b.Bytes()), nil
 }
 
 func Unzip(ctx context.Context, zipFile *bytes.Reader, targetDir string, trimPathSuffix string) error {

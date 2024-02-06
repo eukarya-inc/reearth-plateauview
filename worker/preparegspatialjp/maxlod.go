@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 
 	cms "github.com/reearth/reearth-cms-api/go"
 	"github.com/reearth/reearthx/log"
@@ -31,17 +32,18 @@ func MergeMaxLOD(ctx context.Context, cms *cms.CMS, cityItem *CityItem, allFeatu
 			continue
 		}
 
-		log.Infofc(ctx, "downloading maxlod data for %s...", ft)
-
-		data, err := DownloadFile(ctx, fi.MaxLOD)
+		log.Infofc(ctx, "downloading maxlod data for %s: %s", ft, fi.MaxLOD)
+		data, err := downloadFile(ctx, fi.MaxLOD)
 		if err != nil {
 			return "", "", fmt.Errorf("failed to download data for %s: %w", ft, err)
 		}
 
 		b := bufio.NewReader(data)
 		if first {
-			if _, err := b.ReadString('\n'); err != nil { // skip the first line
+			if line, err := b.ReadString('\n'); err != nil { // skip the first line
 				return "", "", fmt.Errorf("failed to read first line: %w", err)
+			} else if line == "" || isNumeric(rune(line[0])) {
+				return "", "", fmt.Errorf("invalid maxlod data for %s", ft)
 			}
 		} else {
 			first = true
@@ -52,7 +54,7 @@ func MergeMaxLOD(ctx context.Context, cms *cms.CMS, cityItem *CityItem, allFeatu
 		}
 	}
 
-	if len(allData.Bytes()) == 0 {
+	if allData.Len() == 0 {
 		return "", "", fmt.Errorf("no maxlod data")
 	}
 
@@ -61,4 +63,8 @@ func MergeMaxLOD(ctx context.Context, cms *cms.CMS, cityItem *CityItem, allFeatu
 	}
 
 	return fileName, filePath, nil
+}
+
+func isNumeric(s rune) bool {
+	return strings.ContainsRune("0123456789", s)
 }

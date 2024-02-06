@@ -7,7 +7,7 @@ import (
 
 	cms "github.com/reearth/reearth-cms-api/go"
 	"github.com/reearth/reearthx/log"
-	"github.com/samber/lo"
+	"golang.org/x/sync/errgroup"
 )
 
 type Config struct {
@@ -65,64 +65,66 @@ func Command(conf *Config) (err error) {
 	log.Infofc(ctx, "preparing citygml and plateau...")
 
 	type result struct {
-		zipName string
-		zipPath string
-		err     error
+		Name string
+		Path string
 	}
-
-	citygmlCh := make(chan result)
-	plateauCh := make(chan result)
 
 	if err := notifyRunning(ctx, cms, cityItem.GeospatialjpData, true, true); err != nil {
 		return fmt.Errorf("failed to notify running: %w", err)
 	}
 
-	go func(c chan result) {
-		citygmlZipName, citygmlZipPath, _, _, err := PrepareCityGML(ctx, cms, cityItem, allFeatureItems)
-		c <- result{
-			zipName: citygmlZipName,
-			zipPath: citygmlZipPath,
-			err:     err,
-		}
-	}(citygmlCh)
+	errg, ctx2 := errgroup.WithContext(ctx)
+	citygmlCh := make(chan result)
+	plateauCh := make(chan result)
+	maxlodCh := make(chan result)
 
-	go func(c chan result) {
-		plateauZipName, plateauZipPath, err := PreparePlateau(ctx, cms, cityItem, allFeatureItems)
-		c <- result{
-			zipName: plateauZipName,
-			zipPath: plateauZipPath,
-			err:     err,
+	errg.Go(func() error {
+		name, path, _, _, err := PrepareCityGML(ctx2, cms, cityItem, allFeatureItems)
+		if err != nil {
+			citygmlError = true
+			return fmt.Errorf("failed to prepare citygml: %w", err)
 		}
-	}(plateauCh)
-
-	maxlodCh := lo.Async(func() result {
-		name, path, err := MergeMaxLOD(ctx, cms, cityItem, allFeatureItems)
-		return result{
-			zipName: name,
-			zipPath: path,
-			err:     err,
+		citygmlCh <- result{
+			Name: name,
+			Path: path,
 		}
+		return nil
 	})
 
+	errg.Go(func() error {
+		name, path, err := PreparePlateau(ctx2, cms, cityItem, allFeatureItems)
+		if err != nil {
+			plateauError = true
+			return fmt.Errorf("failed to prepare plateau: %w", err)
+		}
+		plateauCh <- result{
+			Name: name,
+			Path: path,
+		}
+		return nil
+	})
+
+	errg.Go(func() error {
+		name, path, err := MergeMaxLOD(ctx2, cms, cityItem, allFeatureItems)
+		if err != nil {
+			citygmlError = true
+			plateauError = true
+			return fmt.Errorf("failed to merge maxlod: %w", err)
+		}
+		maxlodCh <- result{
+			Name: name,
+			Path: path,
+		}
+		return nil
+	})
+
+	if err := errg.Wait(); err != nil {
+		return err
+	}
+
 	citygmlResult := <-citygmlCh
-	citygmlZipPath, citygmlZipName, err := citygmlResult.zipPath, citygmlResult.zipName, citygmlResult.err
-	if err != nil {
-		citygmlError = true
-		return fmt.Errorf("failed to prepare citygml: %w", err)
-	}
-
 	plateauResult := <-plateauCh
-	plateauZipPath, plateauZipName, err := plateauResult.zipPath, plateauResult.zipName, plateauResult.err
-	if err != nil {
-		plateauError = true
-		return fmt.Errorf("failed to prepare plateau: %w", err)
-	}
-
 	maxlodResult := <-maxlodCh
-	if maxlodResult.err != nil {
-		plateauError = true
-		return fmt.Errorf("failed to merge maxlod: %w", err)
-	}
 
 	var citygmlZipAssetID, plateauZipAssetID, maxlodAssetID string
 
@@ -134,15 +136,15 @@ func Command(conf *Config) (err error) {
 	if conf.WetRun {
 		log.Infofc(ctx, "uploading zips...")
 
-		if citygmlZipAssetID, err = uploadZip(ctx, cms, conf.ProjectID, citygmlZipName, citygmlZipPath); err != nil {
+		if citygmlZipAssetID, err = upload(ctx, cms, conf.ProjectID, citygmlResult.Name, citygmlResult.Path); err != nil {
 			return fmt.Errorf("failed to upload citygml zip: %w", err)
 		}
 
-		if plateauZipAssetID, err = uploadZip(ctx, cms, conf.ProjectID, plateauZipName, plateauZipPath); err != nil {
+		if plateauZipAssetID, err = upload(ctx, cms, conf.ProjectID, plateauResult.Name, plateauResult.Path); err != nil {
 			return fmt.Errorf("failed to upload plateau zip: %w", err)
 		}
 
-		if maxlodAssetID, err = uploadZip(ctx, cms, conf.ProjectID, maxlodResult.zipName, maxlodResult.zipPath); err != nil {
+		if maxlodAssetID, err = upload(ctx, cms, conf.ProjectID, maxlodResult.Name, maxlodResult.Path); err != nil {
 			return fmt.Errorf("failed to upload maxlod: %w", err)
 		}
 	}
@@ -181,7 +183,7 @@ func Command(conf *Config) (err error) {
 	return nil
 }
 
-func uploadZip(ctx context.Context, cms *cms.CMS, project, name, path string) (string, error) {
+func upload(ctx context.Context, cms *cms.CMS, project, name, path string) (string, error) {
 	file, err := os.Open(path)
 	if err != nil {
 		return "", fmt.Errorf("failed to open file: %w", err)

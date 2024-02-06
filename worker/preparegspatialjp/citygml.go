@@ -62,7 +62,7 @@ func getUdx(ctx context.Context, allFeatureItems map[string]FeatureItem, downloa
 
 		log.Infofc(ctx, "downloading citygml for %s...", ft)
 
-		data, err := DownloadFile(ctx, fi.CityGML)
+		data, err := downloadFileAsByteReader(ctx, fi.CityGML)
 		if err != nil {
 			return fmt.Errorf("failed to download citygml for %s: %w", ft, err)
 		}
@@ -84,7 +84,7 @@ func getAssets(ctx context.Context, cms *cms.CMS, cityItem *CityItem, downloadPa
 			return fmt.Errorf("failed to get assets codeLists: %w", err)
 		}
 
-		data, err := DownloadFile(ctx, assets.URL)
+		data, err := downloadFileAsByteReader(ctx, assets.URL)
 		if err != nil {
 			return fmt.Errorf("failed to download assets codeLists: %w", err)
 		}
@@ -103,7 +103,7 @@ func getAssets(ctx context.Context, cms *cms.CMS, cityItem *CityItem, downloadPa
 			return fmt.Errorf("failed to get assets schemas: %w", err)
 		}
 
-		data, err := DownloadFile(ctx, assets.URL)
+		data, err := downloadFileAsByteReader(ctx, assets.URL)
 		if err != nil {
 			return fmt.Errorf("failed to download assets schemas: %w", err)
 		}
@@ -122,7 +122,7 @@ func getAssets(ctx context.Context, cms *cms.CMS, cityItem *CityItem, downloadPa
 			return fmt.Errorf("failed to get assets metadata: %w", err)
 		}
 
-		data, err := DownloadFile(ctx, assets.URL)
+		data, err := downloadFileAsByteReader(ctx, assets.URL)
 		if err != nil {
 			return fmt.Errorf("failed to download assets metadata: %w", err)
 		}
@@ -141,7 +141,7 @@ func getAssets(ctx context.Context, cms *cms.CMS, cityItem *CityItem, downloadPa
 			return fmt.Errorf("failed to get assets specification: %w", err)
 		}
 
-		data, err := DownloadFile(ctx, assets.URL)
+		data, err := downloadFileAsByteReader(ctx, assets.URL)
 		if err != nil {
 			return fmt.Errorf("failed to download assets specification: %w", err)
 		}
@@ -160,7 +160,7 @@ func getAssets(ctx context.Context, cms *cms.CMS, cityItem *CityItem, downloadPa
 			return fmt.Errorf("failed to get assets misc: %w", err)
 		}
 
-		data, err := DownloadFile(ctx, assets.URL)
+		data, err := downloadFileAsByteReader(ctx, assets.URL)
 		if err != nil {
 			return fmt.Errorf("failed to download assets misc: %w", err)
 		}

@@ -10,6 +10,7 @@ require (
 	github.com/reearth/reearthx v0.0.0-20231229083423-e753246e6e10
 	github.com/samber/lo v1.38.1
 	github.com/stretchr/testify v1.8.4
+	golang.org/x/sync v0.4.0
 )
 
 require (
