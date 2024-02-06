@@ -160,3 +160,5 @@ jobs:
   deploy-worker-dev:
     needs: build-worker
     uses: ./.github/workflows/deploy-worker-dev.yml
+    with:
+      use_local: true
