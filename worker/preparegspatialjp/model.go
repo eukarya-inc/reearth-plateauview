@@ -83,6 +83,7 @@ type GspatialjpItem struct {
 	Plateau            string   `json:"plateau,omitempty" cms:"plateau,asset"`
 	Related            string   `json:"related,omitempty" cms:"related,asset"`
 	Generic            []string `json:"generic,omitempty" cms:"generic,asset"`
+	MaxLOD             string   `json:"maxlod,omitempty" cms:"maxlod,asset"`
 	MergeCityGMLStatus *cms.Tag `json:"merge_citygml_status" cms:"merge_citygml_status,tag,metadata"`
 	MergePlateauStatus *cms.Tag `json:"merge_plateau_status" cms:"merge_plateau_status,tag,metadata"`
 	MergeRelatedStatus *cms.Tag `json:"merge_related_status" cms:"merge_related_status,tag,metadata"`

@@ -1,0 +1,64 @@
+package preparegspatialjp
+
+import (
+	"bufio"
+	"bytes"
+	"context"
+	"fmt"
+	"os"
+	"path/filepath"
+
+	cms "github.com/reearth/reearth-cms-api/go"
+	"github.com/reearth/reearthx/log"
+)
+
+func MergeMaxLOD(ctx context.Context, cms *cms.CMS, cityItem *CityItem, allFeatureItems map[string]FeatureItem) (string, string, error) {
+	log.Infofc(ctx, "preparing plateau...")
+
+	tmpDir := "tmp"
+	_ = os.MkdirAll("tmp", os.ModePerm)
+
+	fileName := fmt.Sprintf("%s_%s_%d_maxlod.csv", cityItem.CityCode, cityItem.CityNameEn, cityItem.YearInt())
+	filePath := filepath.Join(tmpDir, fileName)
+
+	allData := bytes.NewBuffer(nil)
+
+	first := false
+	for _, ft := range featureTypes {
+		fi, ok := allFeatureItems[ft]
+		if !ok || fi.MaxLOD == "" {
+			log.Infofc(ctx, "no maxlod for %s", ft)
+			continue
+		}
+
+		log.Infofc(ctx, "downloading maxlod data for %s...", ft)
+
+		data, err := DownloadFile(ctx, fi.MaxLOD)
+		if err != nil {
+			return "", "", fmt.Errorf("failed to download data for %s: %w", ft, err)
+		}
+
+		b := bufio.NewReader(data)
+		if first {
+			if _, err := b.ReadString('\n'); err != nil { // skip the first line
+				return "", "", fmt.Errorf("failed to read first line: %w", err)
+			}
+		} else {
+			first = true
+		}
+
+		if _, err := allData.ReadFrom(b); err != nil {
+			return "", "", fmt.Errorf("failed to read data for %s: %w", ft, err)
+		}
+	}
+
+	if len(allData.Bytes()) == 0 {
+		return "", "", fmt.Errorf("no maxlod data")
+	}
+
+	if err := os.WriteFile(filePath, allData.Bytes(), os.ModePerm); err != nil {
+		return "", "", fmt.Errorf("failed to write data to file: %w", err)
+	}
+
+	return fileName, filePath, nil
+}

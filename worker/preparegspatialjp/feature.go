@@ -11,6 +11,7 @@ type FeatureItem struct {
 	ID      string   `json:"id,omitempty"`
 	CityGML string   `json:"citygml,omitempty"`
 	Data    []string `json:"data,omitempty"`
+	MaxLOD  string   `json:"maxlod,omitempty"`
 }
 
 func getAllFeatureItems(ctx context.Context, c *cms.CMS, cityItem *CityItem) (map[string]FeatureItem, error) {
@@ -44,6 +45,7 @@ func FeatureItemFrom(item *cms.Item) FeatureItem {
 		CityGML any             `cms:"citygml"`
 		Data    []any           `cms:"data"`
 		Items   []internalGroup `cms:"items,group"`
+		MaxLOD  any             `cms:"maxlod"`
 	}
 
 	fi := internalItem{}
@@ -56,6 +58,14 @@ func FeatureItemFrom(item *cms.Item) FeatureItem {
 		if ok {
 			url, _ := asset["url"].(string)
 			res.CityGML = url
+		}
+	}
+
+	if fi.MaxLOD != nil {
+		asset, ok := fi.MaxLOD.(map[string]any)
+		if ok {
+			url, _ := asset["url"].(string)
+			res.MaxLOD = url
 		}
 	}
 

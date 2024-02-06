@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/k0kubun/pp/v3"
 	cms "github.com/reearth/reearth-cms-api/go"
 	"github.com/reearth/reearthx/log"
+	"github.com/samber/lo"
 )
 
 type Config struct {
@@ -59,13 +59,7 @@ func Command(conf *Config) (err error) {
 		return fmt.Errorf("failed to get all feature items: %w", err)
 	}
 
-	{
-		pp := pp.New()
-		pp.SetColoringEnabled(false)
-		s := pp.Sprint(allFeatureItems)
-		log.Infofc(ctx, "feature items: %s", s)
-	}
-
+	log.Infofc(ctx, "feature items: %s", ppp.Sprint(allFeatureItems))
 	log.Infofc(ctx, "preparing citygml and plateau...")
 
 	type result struct {
@@ -99,6 +93,15 @@ func Command(conf *Config) (err error) {
 		}
 	}(plateauCh)
 
+	maxlodCh := lo.Async(func() result {
+		name, path, err := MergeMaxLOD(ctx, cms, cityItem, allFeatureItems)
+		return result{
+			zipName: name,
+			zipPath: path,
+			err:     err,
+		}
+	})
+
 	citygmlResult := <-citygmlCh
 	citygmlZipPath, citygmlZipName, err := citygmlResult.zipPath, citygmlResult.zipName, citygmlResult.err
 	if err != nil {
@@ -113,7 +116,13 @@ func Command(conf *Config) (err error) {
 		return fmt.Errorf("failed to prepare plateau: %w", err)
 	}
 
-	var citygmlZipAssetID, plateauZipAssetID string
+	maxlodResult := <-maxlodCh
+	if maxlodResult.err != nil {
+		plateauError = true
+		return fmt.Errorf("failed to merge maxlod: %w", err)
+	}
+
+	var citygmlZipAssetID, plateauZipAssetID, maxlodAssetID string
 
 	relatedZipAssetID, err := GetRelatedZipAssetID(ctx, cms, cityItem)
 	if err != nil {
@@ -129,6 +138,10 @@ func Command(conf *Config) (err error) {
 
 		if plateauZipAssetID, err = uploadZip(ctx, cms, conf.ProjectID, plateauZipName, plateauZipPath); err != nil {
 			return fmt.Errorf("failed to upload plateau zip: %w", err)
+		}
+
+		if maxlodAssetID, err = uploadZip(ctx, cms, conf.ProjectID, maxlodResult.zipName, maxlodResult.zipPath); err != nil {
+			return fmt.Errorf("failed to upload maxlod: %w", err)
 		}
 	}
 
@@ -150,9 +163,15 @@ func Command(conf *Config) (err error) {
 		log.Infofc(ctx, "related zip asset id: (not uploaded)")
 	}
 
+	if maxlodAssetID != "" {
+		log.Infofc(ctx, "maxlod asset id: %s", maxlodAssetID)
+	} else {
+		log.Infofc(ctx, "maxlod asset id: (not uploaded)")
+	}
+
 	if conf.WetRun {
 		log.Infofc(ctx, "attaching assets...")
-		if err := attachAssets(ctx, cms, cityItem, citygmlZipAssetID, plateauZipAssetID, relatedZipAssetID); err != nil {
+		if err := attachAssets(ctx, cms, cityItem, citygmlZipAssetID, plateauZipAssetID, relatedZipAssetID, maxlodAssetID); err != nil {
 			return fmt.Errorf("failed to attach assets: %w", err)
 		}
 	}
@@ -178,7 +197,7 @@ func uploadZip(ctx context.Context, cms *cms.CMS, project, name, path string) (s
 	return assetID, nil
 }
 
-func attachAssets(ctx context.Context, c *cms.CMS, cityItem *CityItem, citygmlZipAssetID, plateauZipAssetID, relatedZipAssetID string) error {
+func attachAssets(ctx context.Context, c *cms.CMS, cityItem *CityItem, citygmlZipAssetID, plateauZipAssetID, relatedZipAssetID, maxlodAssetID string) error {
 	if citygmlZipAssetID == "" && plateauZipAssetID == "" && relatedZipAssetID == "" {
 		return nil
 	}
@@ -206,6 +225,10 @@ func attachAssets(ctx context.Context, c *cms.CMS, cityItem *CityItem, citygmlZi
 		item.MergeRelatedStatus = &cms.Tag{
 			Name: "成功",
 		}
+	}
+
+	if maxlodAssetID != "" {
+		item.MaxLOD = maxlodAssetID
 	}
 
 	if relatedZipAssetID != "" {
