@@ -2,23 +2,33 @@ package preparegspatialjp
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"os"
+	"strings"
 
 	cms "github.com/reearth/reearth-cms-api/go"
 	"github.com/reearth/reearthx/log"
-	"golang.org/x/sync/errgroup"
+	"github.com/samber/lo"
 )
 
 type Config struct {
-	CMSURL     string
-	CMSToken   string
-	ProjectID  string
-	CityItemID string
-	WetRun     bool
+	CMSURL      string
+	CMSToken    string
+	ProjectID   string
+	CityItemID  string
+	SkipCityGML bool
+	SkipPlateau bool
+	SkipMaxLOD  bool
+	SkipRelated bool
+	WetRun      bool
 }
 
 func Command(conf *Config) (err error) {
+	if conf == nil || conf.SkipCityGML && conf.SkipPlateau && conf.SkipMaxLOD && conf.SkipRelated {
+		return fmt.Errorf("no command to run")
+	}
+
 	ctx := context.Background()
 
 	cms, err := cms.New(conf.CMSURL, conf.CMSToken)
@@ -41,13 +51,19 @@ func Command(conf *Config) (err error) {
 		return fmt.Errorf("invalid city item: %s", conf.CityItemID)
 	}
 
+	var comment string
 	var citygmlError, plateauError bool
 	defer func() {
-		var errmsg string
 		if err != nil {
-			errmsg = err.Error()
+			comment = err.Error()
 		}
-		if err := notifyError(ctx, cms, cityItem.GeospatialjpData, citygmlError, plateauError, errmsg); err != nil {
+		if err := notifyError(
+			ctx, cms,
+			cityItem.GeospatialjpData,
+			err != nil,
+			citygmlError, plateauError,
+			strings.TrimSpace(comment),
+		); err != nil {
 			log.Errorfc(ctx, "failed to notify error: %w", err)
 		}
 	}()
@@ -67,85 +83,103 @@ func Command(conf *Config) (err error) {
 	type result struct {
 		Name string
 		Path string
+		Err  error
 	}
 
 	if err := notifyRunning(ctx, cms, cityItem.GeospatialjpData, true, true); err != nil {
 		return fmt.Errorf("failed to notify running: %w", err)
 	}
 
-	errg, ctx2 := errgroup.WithContext(ctx)
-	citygmlCh := make(chan result)
-	plateauCh := make(chan result)
-	maxlodCh := make(chan result)
-
-	errg.Go(func() error {
-		name, path, _, _, err := PrepareCityGML(ctx2, cms, cityItem, allFeatureItems)
-		if err != nil {
-			citygmlError = true
-			return fmt.Errorf("failed to prepare citygml: %w", err)
+	citygmlCh := lo.Async(func() result {
+		if conf.SkipCityGML {
+			return result{}
 		}
-		citygmlCh <- result{
+		name, path, _, _, err := PrepareCityGML(ctx, cms, cityItem, allFeatureItems)
+		return result{
 			Name: name,
 			Path: path,
+			Err:  err,
 		}
-		return nil
 	})
 
-	errg.Go(func() error {
-		name, path, err := PreparePlateau(ctx2, cms, cityItem, allFeatureItems)
-		if err != nil {
-			plateauError = true
-			return fmt.Errorf("failed to prepare plateau: %w", err)
+	plateauCh := lo.Async(func() result {
+		if conf.SkipPlateau {
+			return result{}
 		}
-		plateauCh <- result{
+
+		name, path, err := PreparePlateau(ctx, cms, cityItem, allFeatureItems)
+		return result{
 			Name: name,
 			Path: path,
+			Err:  err,
 		}
-		return nil
 	})
 
-	errg.Go(func() error {
-		name, path, err := MergeMaxLOD(ctx2, cms, cityItem, allFeatureItems)
-		if err != nil {
-			citygmlError = true
-			plateauError = true
-			return fmt.Errorf("failed to merge maxlod: %w", err)
+	maxlodCh := lo.Async(func() result {
+		if conf.SkipMaxLOD {
+			return result{}
 		}
-		maxlodCh <- result{
+
+		name, path, err := MergeMaxLOD(ctx, cms, cityItem, allFeatureItems)
+		return result{
 			Name: name,
 			Path: path,
+			Err:  err,
 		}
-		return nil
 	})
-
-	if err := errg.Wait(); err != nil {
-		return err
-	}
 
 	citygmlResult := <-citygmlCh
 	plateauResult := <-plateauCh
 	maxlodResult := <-maxlodCh
 
-	var citygmlZipAssetID, plateauZipAssetID, maxlodAssetID string
+	if citygmlResult.Err != nil {
+		citygmlError = true
+	}
 
-	relatedZipAssetID, err := GetRelatedZipAssetID(ctx, cms, cityItem)
-	if err != nil {
-		log.Errorfc(ctx, "failed to get related zip asset id: %w", err)
+	if plateauResult.Err != nil {
+		plateauError = true
+	}
+
+	if citygmlResult.Err != nil || plateauResult.Err != nil {
+		err = errors.Join(citygmlResult.Err, plateauResult.Err)
+		return err
+	}
+
+	if maxlodResult.Err != nil {
+		log.Errorfc(ctx, "failed to merge maxlod: %w", maxlodResult.Err)
+		comment += fmt.Sprintf("\n最大LODのマージ処理に失敗しました。: %s", maxlodResult.Err)
+	}
+
+	var citygmlZipAssetID, plateauZipAssetID, maxlodAssetID, relatedZipAssetID string
+
+	if !conf.SkipCityGML {
+		var err2 error
+		relatedZipAssetID, err2 = GetRelatedZipAssetID(ctx, cms, cityItem)
+		if err2 != nil {
+			log.Errorfc(ctx, "failed to get related zip asset id: %w", err2)
+			comment += fmt.Sprintf("\n関連ファイルの取得に失敗しました。: %s", err2)
+		}
 	}
 
 	if conf.WetRun {
 		log.Infofc(ctx, "uploading zips...")
 
-		if citygmlZipAssetID, err = upload(ctx, cms, conf.ProjectID, citygmlResult.Name, citygmlResult.Path); err != nil {
-			return fmt.Errorf("failed to upload citygml zip: %w", err)
+		if citygmlResult.Name != "" && citygmlResult.Err == nil {
+			if citygmlZipAssetID, err = upload(ctx, cms, conf.ProjectID, citygmlResult.Name, citygmlResult.Path); err != nil {
+				return fmt.Errorf("failed to upload citygml zip: %w", err)
+			}
 		}
 
-		if plateauZipAssetID, err = upload(ctx, cms, conf.ProjectID, plateauResult.Name, plateauResult.Path); err != nil {
-			return fmt.Errorf("failed to upload plateau zip: %w", err)
+		if plateauResult.Name != "" && plateauResult.Err == nil {
+			if plateauZipAssetID, err = upload(ctx, cms, conf.ProjectID, plateauResult.Name, plateauResult.Path); err != nil {
+				return fmt.Errorf("failed to upload plateau zip: %w", err)
+			}
 		}
 
-		if maxlodAssetID, err = upload(ctx, cms, conf.ProjectID, maxlodResult.Name, maxlodResult.Path); err != nil {
-			return fmt.Errorf("failed to upload maxlod: %w", err)
+		if maxlodResult.Name != "" && maxlodResult.Err == nil {
+			if maxlodAssetID, err = upload(ctx, cms, conf.ProjectID, maxlodResult.Name, maxlodResult.Path); err != nil {
+				return fmt.Errorf("failed to upload maxlod: %w", err)
+			}
 		}
 	}
 
@@ -173,14 +207,14 @@ func Command(conf *Config) (err error) {
 		log.Infofc(ctx, "maxlod asset id: (not uploaded)")
 	}
 
-	if conf.WetRun {
+	if conf.WetRun && err == nil {
 		log.Infofc(ctx, "attaching assets...")
 		if err := attachAssets(ctx, cms, cityItem, citygmlZipAssetID, plateauZipAssetID, relatedZipAssetID, maxlodAssetID); err != nil {
 			return fmt.Errorf("failed to attach assets: %w", err)
 		}
 	}
 
-	return nil
+	return
 }
 
 func upload(ctx context.Context, cms *cms.CMS, project, name, path string) (string, error) {
@@ -252,9 +286,15 @@ func attachAssets(ctx context.Context, c *cms.CMS, cityItem *CityItem, citygmlZi
 	return nil
 }
 
-func notifyError(ctx context.Context, c *cms.CMS, cityItemID string, citygmlError, plateauError bool, comment string) error {
+func notifyError(ctx context.Context, c *cms.CMS, cityItemID string, isErr bool, citygmlError, plateauError bool, comment string) error {
 	if comment != "" {
-		if err := c.CommentToItem(ctx, cityItemID, fmt.Sprintf("マージ処理に失敗しました。%s", comment)); err != nil {
+		msgPrefix := ""
+		if isErr {
+			msgPrefix = "マージ処理に失敗しました。"
+		} else {
+			msgPrefix = "マージ処理が完了しました。"
+		}
+		if err := c.CommentToItem(ctx, cityItemID, msgPrefix+comment); err != nil {
 			return fmt.Errorf("failed to comment to item: %w", err)
 		}
 	}
