@@ -285,8 +285,11 @@ func notifyError(ctx context.Context, c *cms.CMS, cityItemID string, citygmlErro
 		}
 	}
 
-	var rawItem *cms.Item
-	cms.Marshal(item, rawItem)
+	var rawItem cms.Item
+	cms.Marshal(item, &rawItem)
+	if rawItem.ID == "" {
+		return fmt.Errorf("failed to marshal item")
+	}
 
 	if _, err := c.UpdateItem(ctx, rawItem.ID, rawItem.Fields, rawItem.MetadataFields); err != nil {
 		return fmt.Errorf("failed to update item: %w", err)

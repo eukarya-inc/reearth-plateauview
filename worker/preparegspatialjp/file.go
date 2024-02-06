@@ -61,6 +61,15 @@ func Unzip(ctx context.Context, zipFile *bytes.Reader, targetDir string, trimPat
 			return fmt.Errorf("invalid file path: %s", filePath)
 		}
 
+		if strings.HasPrefix(filePath, "__MACOSX/") ||
+			strings.HasPrefix(filePath, "/__MACOSX/") ||
+			strings.HasSuffix(filePath, "/.DS_Store") ||
+			strings.HasSuffix(filePath, "/Thumb.db") ||
+			filePath == ".DS_Store" || filePath == "Thumbs.db" {
+			log.Debugf("skipping %s...", f.Name)
+			continue
+		}
+
 		log.Infofc(ctx, "unzipping %s -> %s", f.Name, filePath)
 
 		if trimPathSuffix != "" {
