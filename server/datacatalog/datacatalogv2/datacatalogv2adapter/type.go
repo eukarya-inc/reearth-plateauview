@@ -195,6 +195,13 @@ func relatedDatasetFrom(d datacatalogv2.DataCatalogItem) (plateauapi.RelatedData
 		return plateauapi.RelatedDataset{}, false
 	}
 
+	year := d.Year
+	if year == 2021 {
+		// 2021年のデータは2020年のデータとして扱うことで
+		// マージ後のデータカタログではPLATEAU-2023以降のデータが優先表示されるようにする
+		year = 2020
+	}
+
 	id := datasetIDFrom(d, nil)
 	items := d.MainOrConfigItems()
 	return plateauapi.RelatedDataset{
@@ -207,7 +214,7 @@ func relatedDatasetFrom(d datacatalogv2.DataCatalogItem) (plateauapi.RelatedData
 		CityCode:       cityCodeFrom(d),
 		WardID:         wardIDFrom(d),
 		WardCode:       wardCodeFrom(d),
-		Year:           d.Year,
+		Year:           year,
 		TypeID:         datasetTypeIDFrom(d),
 		TypeCode:       datasetTypeCodeFrom(d),
 		Groups:         groupsFrom(d),
