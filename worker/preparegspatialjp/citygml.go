@@ -133,7 +133,7 @@ func getAssets(ctx context.Context, cms *cms.CMS, cityItem *CityItem, downloadPa
 		}
 	}
 
-	specification := cityItem.Specification
+	specification := cityItem.Spec
 	if specification != "" {
 		log.Infofc(ctx, "downloading specification: %s...", specification)
 

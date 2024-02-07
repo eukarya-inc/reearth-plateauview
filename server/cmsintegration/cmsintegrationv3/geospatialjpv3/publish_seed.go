@@ -13,34 +13,36 @@ import (
 )
 
 type Seed struct {
-	CityGML            string
-	Plateau            string
-	Related            string
-	Desc               string
-	Index              string
-	IndexURL           string
-	CityGMLDescription string
-	PlateauDescription string
-	RelatedDescription string
-	Area               string
-	ThumbnailURL       string `pp:"-"`
-	Author             string
-	AuthorEmail        string
-	Maintainer         string
-	MaintainerEmail    string
-	Quality            string
-	SpecVersion        string
-	V                  int
-	Year               int
-	Generics           []CMSGenericItem
+	CityGML              string
+	Plateau              string
+	Related              string
+	Desc                 string
+	Index                string
+	IndexURL             string
+	CityGMLDescription   string
+	PlateauDescription   string
+	RelatedDescription   string
+	Area                 string
+	ThumbnailURL         string `pp:"-"`
+	Author               string
+	AuthorEmail          string
+	Maintainer           string
+	MaintainerEmail      string
+	Quality              string
+	SpecVersion          string
+	V                    int
+	Year                 int
+	Generics             []CMSGenericItem
+	GspatialjpDataItemID string
+	Org                  string
 }
 
 func (s Seed) Valid() bool {
 	return s.CityGML != "" || s.Plateau != "" || s.Related != ""
 }
 
-func getSeed(ctx context.Context, c cms.Interface, cityItem *CityItem) (Seed, error) {
-	seed := Seed{}
+func getSeed(ctx context.Context, c cms.Interface, cityItem *CityItem, org string) (seed Seed, err error) {
+	seed.Org = org
 
 	rawDataItem, err := c.GetItem(ctx, cityItem.GeospatialjpData, true)
 	if err != nil {
@@ -63,6 +65,14 @@ func getSeed(ctx context.Context, c cms.Interface, cityItem *CityItem) (Seed, er
 	log.Debugfc(ctx, "geospatialjpv3: dataItem: %s", ppp.Sprint(dataItem))
 	log.Debugfc(ctx, "geospatialjpv3: indexItem: %s", ppp.Sprint(indexItem))
 
+	if thumnailURL := valueToAsset(indexItem.Thumbnail); thumnailURL != "" {
+		seed.ThumbnailURL, err = fetchAndGetDataURL(thumnailURL)
+		if err != nil {
+			return seed, fmt.Errorf("failed to fetch thumnail: %w", err)
+		}
+	}
+
+	seed.GspatialjpDataItemID = dataItem.ID
 	if dataItem.CityGML != nil {
 		seed.CityGML = valueToAsset(dataItem.CityGML)
 	}
@@ -90,17 +100,10 @@ func getSeed(ctx context.Context, c cms.Interface, cityItem *CityItem) (Seed, er
 	seed.Maintainer = indexItem.Maintainer
 	seed.MaintainerEmail = indexItem.MaintainerEmail
 	seed.Quality = indexItem.Quality
-	seed.Year = cityItem.YearInt()
-	seed.SpecVersion = cityItem.SpecVersionFull()
-	seed.V = cityItem.SpecVersionMajorInt()
 	seed.Generics = indexItem.Generics
-
-	if thumnailURL := valueToAsset(indexItem.Thumbnail); thumnailURL != "" {
-		seed.ThumbnailURL, err = fetchAndGetDataURL(thumnailURL)
-		if err != nil {
-			return seed, fmt.Errorf("failed to fetch thumnail: %w", err)
-		}
-	}
+	seed.Year = cityItem.YearInt()
+	seed.V = cityItem.SpecVersionMajorInt()
+	seed.SpecVersion = cityItem.SpecVersionFull()
 
 	return seed, nil
 }

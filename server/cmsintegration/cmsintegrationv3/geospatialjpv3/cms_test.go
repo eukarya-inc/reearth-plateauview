@@ -15,7 +15,7 @@ func TestCityItem_YearInt(t *testing.T) {
 
 func TestCityItem_SpecVersion(t *testing.T) {
 	c := CityItem{
-		Specification: "第3.4版",
+		Spec: "第3.4版",
 	}
 	assert.Equal(t, "3.4", c.SpecVersion())
 	c = CityItem{}
@@ -24,7 +24,7 @@ func TestCityItem_SpecVersion(t *testing.T) {
 
 func TestCityItem_SpecVersionFull(t *testing.T) {
 	c := CityItem{
-		Specification: "第3.4版",
+		Spec: "第3.4版",
 	}
 	assert.Equal(t, "3.4.0", c.SpecVersionFull())
 	c = CityItem{}
@@ -33,7 +33,7 @@ func TestCityItem_SpecVersionFull(t *testing.T) {
 
 func TestCityItem_SpecVersionMajorInt(t *testing.T) {
 	c := CityItem{
-		Specification: "第3.4版",
+		Spec: "第3.4版",
 	}
 	assert.Equal(t, 3, c.SpecVersionMajorInt())
 	c = CityItem{}

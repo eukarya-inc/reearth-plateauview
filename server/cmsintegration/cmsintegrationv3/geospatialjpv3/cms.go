@@ -74,7 +74,7 @@ type CityItem struct {
 	CodeLists           string            `json:"codelists,omitempty" cms:"codelists,asset"`
 	Schemas             string            `json:"schemas,omitempty" cms:"schemas,asset"`
 	Metadata            string            `json:"metadata,omitempty" cms:"metadata,asset"`
-	Specification       string            `json:"specification,omitempty" cms:"specification,asset"`
+	Spec                string            `json:"spec,omitempty" cms:"spec,asset"`
 	Misc                string            `json:"misc,omitempty" cms:"misc,asset"`
 	Year                string            `json:"year,omitempty" cms:"year,select"`
 	References          map[string]string `json:"references,omitempty" cms:"-"`
@@ -86,19 +86,22 @@ type CityItem struct {
 }
 
 func (c *CityItem) SpecVersion() string {
-	return SpecVersion(c.Specification)
+	return SpecVersion(c.Spec)
 }
 
 func (c *CityItem) SpecVersionFull() string {
-	v := SpecVersion(c.Specification)
+	v := SpecVersion(c.Spec)
 	if v == "" {
 		return ""
+	}
+	if strings.Count(v, ".") >= 3 {
+		return v
 	}
 	return v + ".0"
 }
 
 func (c *CityItem) SpecVersionMajorInt() int {
-	v := SpecVersion(c.Specification)
+	v := SpecVersion(c.Spec)
 	first, _, _ := strings.Cut(v, ".")
 	if i, err := strconv.Atoi(first); err == nil {
 		return i
@@ -158,68 +161,6 @@ type CMSGenericItem struct {
 	Name  string         `json:"name,omitempty" cms:"name,text"`
 	Desc  string         `json:"desc,omitempty" cms:"desc,markdown"`
 	Asset map[string]any `json:"asset,omitempty" cms:"asset,asset"`
-}
-
-type PackageName struct {
-	CityCode, CityNameEn string
-	Year                 int
-}
-
-func (p PackageName) String() string {
-	return datasetName(p.CityCode, p.CityNameEn, p.Year)
-}
-
-type PackageSeed struct {
-	Name            PackageName
-	NameJa          string
-	Description     string
-	OwnerOrg        string
-	Area            string
-	ThumbnailURL    string
-	Author          string
-	AuthorEmail     string
-	Maintainer      string
-	MaintainerEmail string
-	Quality         string
-	Version         string
-}
-
-func (p PackageSeed) Title() string {
-	return fmt.Sprintf("3D都市モデル（Project PLATEAU）%s（%d年度）", p.NameJa, p.Name.Year)
-}
-
-func (p PackageSeed) ToPackage() ckan.Package {
-	return ckan.Package{
-		Notes:        p.Description,
-		ThumbnailURL: p.ThumbnailURL,
-	}
-}
-
-func (p PackageSeed) ToNewPackage() ckan.Package {
-	tags := append([]ckan.Tag{}, defaultTags...)
-	tags = append(tags, ckan.Tag{
-		Name: p.NameJa,
-	})
-
-	return ckan.Package{
-		Name:             p.Name.String(),
-		Title:            p.Title(),
-		OwnerOrg:         p.OwnerOrg,
-		Notes:            p.Description,
-		Private:          true,
-		Area:             p.Area,
-		ThumbnailURL:     p.ThumbnailURL,
-		URL:              urlDefault,
-		LicenseID:        licenseDefaultID,
-		LicenseTitle:     licenseDefaultTitle,
-		LicenseURL:       licenseDefaultURL,
-		Restriction:      restriction,
-		LicenseAgreement: licenseAgreement,
-		Fee:              fee,
-		Emergency:        emergency,
-		Tags:             tags,
-		Version:          p.Version,
-	}
 }
 
 func GetMainItemWithMetadata(ctx context.Context, c cms.Interface, i *cms.Item) (_ *cms.Item, err error) {

@@ -27,16 +27,18 @@ func WebhookHandler(conf Config) (cmswebhook.Handler, error) {
 	}
 
 	return (&handler{
-		cms:     c,
-		ckan:    ck,
-		ckanOrg: conf.CkanOrg,
+		cms:      c,
+		ckan:     ck,
+		ckanOrg:  conf.CkanOrg,
+		ckanBase: conf.CkanBase,
 	}).Webhook(conf)
 }
 
 type handler struct {
-	cms     cms.Interface
-	ckan    ckan.Interface
-	ckanOrg string
+	cms      cms.Interface
+	ckan     ckan.Interface
+	ckanOrg  string
+	ckanBase string
 }
 
 const prepareFieldKey = "geospatialjp_prepare"
@@ -82,10 +84,22 @@ func (h *handler) Webhook(conf Config) (cmswebhook.Handler, error) {
 			return nil
 		}
 
-		log.Debugfc(ctx, "geospatialjpv3 webhook")
+		cityItem := CityItemFrom(item)
+
+		if cityItem.ID == "" || cityItem.CityCode == "" || cityItem.CityName == "" || cityItem.CityNameEn == "" {
+			log.Debugfc(ctx, "geospatialjpv3 webhook: invalid city item")
+			return nil
+		}
+
+		if cityItem.GeospatialjpData == "" || cityItem.GeospatialjpIndex == "" {
+			log.Debugfc(ctx, "geospatialjpv3 webhook: no data and index id in city")
+			return nil
+		}
+
+		log.Debugfc(ctx, "geospatialjpv3 webhook: %s", ppp.Sprint(cityItem))
 
 		if b := getChangedBool(ctx, w, prepareFieldKey); b != nil && *b {
-			if err := Prepare(ctx, item, w.ProjectID(), conf.JobName); err != nil {
+			if err := Prepare(ctx, cityItem.ID, w.ProjectID(), conf.JobName); err != nil {
 				log.Errorfc(ctx, "geospatialjpv3 webhook: failed to prepare: %v", err)
 			}
 		} else {
@@ -93,14 +107,16 @@ func (h *handler) Webhook(conf Config) (cmswebhook.Handler, error) {
 		}
 
 		if b := getChangedBool(ctx, w, publishFieldKey); b != nil && *b {
-			if err := h.Publish(ctx, item); err != nil {
+			if err := h.Publish(ctx, cityItem); err != nil {
 				log.Errorfc(ctx, "geospatialjpv3 webhook: failed to publish: %v", err)
+			}
+		} else if b != nil && !*b {
+			if err := h.Unpublish(ctx, cityItem); err != nil {
+				log.Errorfc(ctx, "geospatialjpv3 webhook: failed to unpublish: %v", err)
 			}
 		} else {
 			log.Debugfc(ctx, "geospatialjpv3 webhook: publish field not changed or not true")
 		}
-
-		// TODO: make package private when unpublished
 
 		log.Debugfc(ctx, "geospatialjpv3 webhook: done")
 		return nil

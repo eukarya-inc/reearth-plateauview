@@ -10,11 +10,11 @@ import (
 	"github.com/samber/lo"
 )
 
-func (s *handler) createOrUpdatePackage(ctx context.Context, seed PackageSeed) (*ckan.Package, error) {
+func (s *handler) createOrUpdatePackage(ctx context.Context, seed PackageSeed) (*ckan.Package, bool, error) {
 	// find
 	pkg, pkgName, err := s.findPackage(ctx, seed.Name)
 	if err != nil {
-		return nil, fmt.Errorf("G空間情報センターからデータセットを検索できませんでした: %w", err)
+		return nil, false, fmt.Errorf("G空間情報センターからデータセットを検索できませんでした: %w", err)
 	}
 
 	// create
@@ -24,9 +24,9 @@ func (s *handler) createOrUpdatePackage(ctx context.Context, seed PackageSeed) (
 
 		pkg2, err := s.ckan.CreatePackage(ctx, newpkg)
 		if err != nil {
-			return nil, fmt.Errorf("G空間情報センターにデータセット %s を作成できませんでした: %w", pkgName, err)
+			return nil, false, fmt.Errorf("G空間情報センターにデータセット %s を作成できませんでした: %w", pkgName, err)
 		}
-		return &pkg2, nil
+		return &pkg2, true, nil
 	}
 
 	// update
@@ -35,12 +35,12 @@ func (s *handler) createOrUpdatePackage(ctx context.Context, seed PackageSeed) (
 		newpkg.ID = pkg.ID
 		pkg2, err := s.ckan.PatchPackage(ctx, newpkg)
 		if err != nil {
-			return nil, fmt.Errorf("G空間情報センターにデータセット %s を更新できませんでした: %w", pkgName, err)
+			return nil, false, fmt.Errorf("G空間情報センターにデータセット %s を更新できませんでした: %w", pkgName, err)
 		}
-		return &pkg2, nil
+		return &pkg2, false, nil
 	}
 
-	return pkg, nil
+	return pkg, false, nil
 }
 
 func (s *handler) findPackage(ctx context.Context, pkgname PackageName) (_ *ckan.Package, n string, err error) {

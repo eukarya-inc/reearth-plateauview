@@ -29,38 +29,14 @@ func TestPublish(t *testing.T) {
 
 	ctx := context.Background()
 
-	item := &cms.Item{
-		// ID: itemID,
-		Fields: []*cms.Field{
-			{
-				Key:   "city_code",
-				Value: "99999",
-			},
-			{
-				Key:   "city_name",
-				Value: "テスト市",
-			},
-			{
-				Key:   "city_name_en",
-				Value: "test-shi",
-			},
-			{
-				Key:   "year",
-				Value: "2023",
-			},
-			{
-				Key:   "specification",
-				Value: "4",
-			},
-			{
-				Key:   "geospatialjp-index",
-				Value: indexItemID,
-			},
-			{
-				Key:   "geospatialjp-data",
-				Value: dataItemID,
-			},
-		},
+	item := &CityItem{
+		CityCode:          "99999",
+		CityName:          "テスト市",
+		CityNameEn:        "test-shi",
+		Year:              "2023",
+		Spec:              "4",
+		GeospatialjpIndex: indexItemID,
+		GeospatialjpData:  dataItemID,
 	}
 
 	ckan, err := ckan.New(ckanBaseURL, ckanToken)
@@ -99,4 +75,18 @@ func TestShouldReorder(t *testing.T) {
 
 	result = shouldReorder(pkg, 2)
 	assert.False(t, result)
+}
+
+func TestExtractVersionFromResourceName(t *testing.T) {
+	name := "Resource 1（v1）"
+	version := extractVersionFromResourceName(name)
+	assert.Equal(t, lo.ToPtr(1), version)
+
+	name = "Resource 2 (v20)"
+	version = extractVersionFromResourceName(name)
+	assert.Equal(t, lo.ToPtr(20), version)
+
+	name = "Resource 3"
+	version = extractVersionFromResourceName(name)
+	assert.Nil(t, version)
 }

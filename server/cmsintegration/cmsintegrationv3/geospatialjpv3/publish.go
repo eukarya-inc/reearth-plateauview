@@ -3,27 +3,44 @@ package geospatialjpv3
 import (
 	"context"
 	"fmt"
+	"regexp"
+	"strconv"
 	"strings"
 
 	"github.com/eukarya-inc/reearth-plateauview/server/cmsintegration/ckan"
-	cms "github.com/reearth/reearth-cms-api/go"
 	"github.com/reearth/reearthx/log"
 	"github.com/samber/lo"
 )
 
-func (h *handler) Publish(ctx context.Context, cityItemRaw *cms.Item) error {
+func (h *handler) Publish(ctx context.Context, cityItem *CityItem) (err error) {
 	cms := h.cms
+
+	defer func() {
+		if err != nil {
+			errmsg := err.Error()
+			comment := fmt.Sprintf("G空間情報センターのデータセットの公開に失敗しました: %s", errmsg)
+
+			if err2 := cms.CommentToItem(ctx, cityItem.ID, comment); err2 != nil {
+				log.Errorfc(ctx, "geospatialjpv3: failed to comment to city item: %v", err2)
+			}
+
+			if err2 := cms.CommentToItem(ctx, cityItem.GeospatialjpData, comment); err2 != nil {
+				log.Errorfc(ctx, "geospatialjpv3: failed to comment to data item: %v", err2)
+			}
+		}
+	}()
+
 	log.Infofc(ctx, "geospatialjpv3: publish")
 
-	cityItem := CityItemFrom(cityItemRaw)
-	pkgYear := cityItem.YearInt()
-
-	if cityItem.CityCode == "" || cityItem.CityName == "" || cityItem.CityNameEn == "" || pkgYear == 0 {
-		return fmt.Errorf("invalid city item")
+	if cityItem.YearInt() == 0 {
+		return fmt.Errorf("整備年度が正しく設定されていません")
 	}
 
-	log.Debugfc(ctx, "geospatialjpv3: cityItem: %s", ppp.Sprint(cityItem))
-	seed, err := getSeed(ctx, cms, cityItem)
+	if v := cityItem.SpecVersionMajorInt(); v == 0 {
+		return fmt.Errorf("仕様書バージョンが正しく設定されていません。")
+	}
+
+	seed, err := getSeed(ctx, cms, cityItem, h.ckanOrg)
 	if err != nil {
 		return fmt.Errorf("failed to get seed: %w", err)
 	}
@@ -33,27 +50,9 @@ func (h *handler) Publish(ctx context.Context, cityItemRaw *cms.Item) error {
 		return fmt.Errorf("there are no items that can be uploaded")
 	}
 
-	pkgName := PackageName{
-		CityCode:   cityItem.CityCode,
-		CityNameEn: cityItem.CityNameEn,
-		Year:       pkgYear,
-	}
-	pkgSeed := PackageSeed{
-		Name:            pkgName,
-		NameJa:          cityItem.CityName,
-		OwnerOrg:        h.ckanOrg,
-		Description:     seed.Desc,
-		Area:            seed.Area,
-		ThumbnailURL:    seed.ThumbnailURL,
-		Author:          seed.Author,
-		AuthorEmail:     seed.AuthorEmail,
-		Maintainer:      seed.Maintainer,
-		MaintainerEmail: seed.MaintainerEmail,
-		Quality:         seed.Quality,
-		Version:         cityItem.SpecVersion(),
-	}
+	pkgSeed := PackageSeedFrom(cityItem, seed)
 
-	pkg, err := h.createOrUpdatePackage(ctx, pkgSeed)
+	pkg, pkgCreated, err := h.createOrUpdatePackage(ctx, pkgSeed)
 	if err != nil {
 		return fmt.Errorf("failed to find or create package: %w", err)
 	}
@@ -146,15 +145,51 @@ func (h *handler) Publish(ctx context.Context, cityItemRaw *cms.Item) error {
 		}
 	}
 
+	var comment string
+	if pkgCreated {
+		comment = fmt.Sprintf("G空間情報センターにデータセットを新規作成しました。 \n%s", h.packageURL(pkg))
+	} else {
+		comment = fmt.Sprintf("G空間情報センターのデータセットを更新しました。 \n%s", h.packageURL(pkg))
+	}
+
+	if err := h.cms.CommentToItem(ctx, seed.GspatialjpDataItemID, comment); err != nil {
+		log.Errorfc(ctx, "geospatialjpv3: failed to comment to data item: %v", err)
+	}
+
+	if err := h.cms.CommentToItem(ctx, cityItem.ID, comment); err != nil {
+		log.Errorfc(ctx, "geospatialjpv3: failed to comment to city item: %v", err)
+	}
+
 	return nil
+}
+
+func (h *handler) packageURL(pkg *ckan.Package) string {
+	return fmt.Sprintf("%s/dataset/%s", strings.TrimSuffix(h.ckanBase, "/"), pkg.Name)
 }
 
 func shouldReorder(pkg *ckan.Package, currentVersion int) bool {
 	for _, res := range pkg.Resources {
-		if strings.Contains(res.Name, fmt.Sprintf("(v%d)", currentVersion)) ||
-			strings.Contains(res.Name, fmt.Sprintf("（v%d）", currentVersion)) {
+		// if there is already a resource with a higher version, we should not reorder
+		v := extractVersionFromResourceName(res.Name)
+		if v != nil && *v > currentVersion {
 			return false
 		}
 	}
 	return true
+}
+
+var reResourceVersion = regexp.MustCompile(`(?:\(|（)v(\d+)(?:\)|）)$`)
+
+func extractVersionFromResourceName(name string) *int {
+	m := reResourceVersion.FindStringSubmatch(name)
+	if len(m) < 2 {
+		return nil
+	}
+
+	i, err := strconv.Atoi(m[1])
+	if err != nil {
+		return nil
+	}
+
+	return &i
 }
