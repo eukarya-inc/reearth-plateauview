@@ -43,6 +43,7 @@ func MergeMaxLOD(ctx context.Context, cms *cms.CMS, cityItem *CityItem, allFeatu
 			if line, err := b.ReadString('\n'); err != nil { // skip the first line
 				return "", "", fmt.Errorf("failed to read first line: %w", err)
 			} else if line == "" || isNumeric(rune(line[0])) {
+				// the first line shold be header (code,type,maxlod,filename)
 				return "", "", fmt.Errorf("invalid maxlod data for %s", ft)
 			}
 		} else {

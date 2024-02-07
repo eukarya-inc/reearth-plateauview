@@ -52,7 +52,7 @@ func Command(conf *Config) (err error) {
 	}
 
 	var comment string
-	var citygmlError, plateauError bool
+	var citygmlError, plateauError, maxlodError bool
 	defer func() {
 		if err != nil {
 			comment = err.Error()
@@ -61,7 +61,7 @@ func Command(conf *Config) (err error) {
 			ctx, cms,
 			cityItem.GeospatialjpData,
 			err != nil,
-			citygmlError, plateauError,
+			citygmlError, plateauError, maxlodError,
 			strings.TrimSpace(comment),
 		); err != nil {
 			log.Errorfc(ctx, "failed to notify error: %w", err)
@@ -74,6 +74,7 @@ func Command(conf *Config) (err error) {
 	if err != nil {
 		citygmlError = true
 		plateauError = true
+		maxlodError = true
 		return fmt.Errorf("failed to get all feature items: %w", err)
 	}
 
@@ -132,27 +133,27 @@ func Command(conf *Config) (err error) {
 	plateauResult := <-plateauCh
 	maxlodResult := <-maxlodCh
 
-	if citygmlResult.Err != nil {
-		citygmlError = true
-	}
-
-	if plateauResult.Err != nil {
-		plateauError = true
-	}
-
-	if citygmlResult.Err != nil || plateauResult.Err != nil {
-		err = errors.Join(citygmlResult.Err, plateauResult.Err)
+	if citygmlResult.Err != nil || plateauResult.Err != nil || maxlodResult.Err != nil {
+		var errs []error
+		if citygmlResult.Err != nil {
+			citygmlError = true
+			errs = append(errs, fmt.Errorf("CityGMLのマージに失敗しました: %w\n", citygmlResult.Err))
+		}
+		if plateauResult.Err != nil {
+			plateauError = true
+			errs = append(errs, fmt.Errorf("3D Tiles,MVTのマージに失敗しました: %w\n", plateauResult.Err))
+		}
+		if maxlodResult.Err != nil {
+			maxlodError = true
+			errs = append(errs, fmt.Errorf("最大LODのマージに失敗しました: %w", maxlodResult.Err))
+		}
+		err = errors.Join(errs...)
 		return err
-	}
-
-	if maxlodResult.Err != nil {
-		log.Errorfc(ctx, "failed to merge maxlod: %w", maxlodResult.Err)
-		comment += fmt.Sprintf("\n最大LODのマージ処理に失敗しました。: %s", maxlodResult.Err)
 	}
 
 	var citygmlZipAssetID, plateauZipAssetID, maxlodAssetID, relatedZipAssetID string
 
-	if !conf.SkipCityGML {
+	if !conf.SkipRelated {
 		var err2 error
 		relatedZipAssetID, err2 = GetRelatedZipAssetID(ctx, cms, cityItem)
 		if err2 != nil {
@@ -267,6 +268,9 @@ func attachAssets(ctx context.Context, c *cms.CMS, cityItem *CityItem, citygmlZi
 
 	if maxlodAssetID != "" {
 		item.MaxLOD = maxlodAssetID
+		item.MergeMaxLODStatus = &cms.Tag{
+			Name: "成功",
+		}
 	}
 
 	if relatedZipAssetID != "" {
@@ -286,7 +290,7 @@ func attachAssets(ctx context.Context, c *cms.CMS, cityItem *CityItem, citygmlZi
 	return nil
 }
 
-func notifyError(ctx context.Context, c *cms.CMS, cityItemID string, isErr bool, citygmlError, plateauError bool, comment string) error {
+func notifyError(ctx context.Context, c *cms.CMS, cityItemID string, isErr bool, citygmlError, plateauError, maxLODError bool, comment string) error {
 	if comment != "" {
 		msgPrefix := ""
 		if isErr {
@@ -323,6 +327,16 @@ func notifyError(ctx context.Context, c *cms.CMS, cityItemID string, isErr bool,
 		}
 	} else {
 		item.MergePlateauStatus = &cms.Tag{
+			Name: "未実行",
+		}
+	}
+
+	if maxLODError {
+		item.MergeMaxLODStatus = &cms.Tag{
+			Name: "エラー",
+		}
+	} else {
+		item.MergeMaxLODStatus = &cms.Tag{
 			Name: "未実行",
 		}
 	}

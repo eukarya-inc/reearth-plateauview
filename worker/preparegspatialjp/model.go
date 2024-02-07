@@ -48,8 +48,8 @@ type CityItem struct {
 	Specification     string            `json:"specification,omitempty" cms:"specification,asset"`
 	Misc              string            `json:"misc,omitempty" cms:"misc,asset"`
 	Year              string            `json:"year,omitempty" cms:"year,select"`
+	RelatedDataset    string            `json:"related,omitempty" cms:"related,reference"`
 	References        map[string]string `json:"references,omitempty" cms:"-"`
-	RelatedDataset    string            `json:"related_dataset,omitempty" cms:"related_dataset,reference"`
 	GeospatialjpIndex string            `json:"geospatialjp-index,omitempty" cms:"geospatialjp-index,reference"`
 	GeospatialjpData  string            `json:"geospatialjp-data,omitempty" cms:"geospatialjp-data,reference"`
 }
@@ -87,6 +87,7 @@ type GspatialjpItem struct {
 	MergeCityGMLStatus *cms.Tag `json:"merge_citygml_status" cms:"merge_citygml_status,tag,metadata"`
 	MergePlateauStatus *cms.Tag `json:"merge_plateau_status" cms:"merge_plateau_status,tag,metadata"`
 	MergeRelatedStatus *cms.Tag `json:"merge_related_status" cms:"merge_related_status,tag,metadata"`
+	MergeMaxLODStatus  *cms.Tag `json:"merge_maxlod_status" cms:"merge_maxlod_status,tag,metadata"`
 }
 
 var reReiwa = regexp.MustCompile(`令和([0-9]+?)年度?`)
