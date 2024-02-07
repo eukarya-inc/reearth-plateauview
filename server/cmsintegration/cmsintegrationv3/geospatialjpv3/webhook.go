@@ -84,7 +84,7 @@ func (h *handler) Webhook(conf Config) (cmswebhook.Handler, error) {
 
 		log.Debugfc(ctx, "geospatialjpv3 webhook")
 
-		if getChangedBool(ctx, w, prepareFieldKey) {
+		if b := getChangedBool(ctx, w, prepareFieldKey); b != nil && *b {
 			if err := Prepare(ctx, item, w.ProjectID(), conf.JobName); err != nil {
 				log.Errorfc(ctx, "geospatialjpv3 webhook: failed to prepare: %v", err)
 			}
@@ -92,7 +92,7 @@ func (h *handler) Webhook(conf Config) (cmswebhook.Handler, error) {
 			log.Debugfc(ctx, "geospatialjpv3 webhook: prepare field not changed or not true")
 		}
 
-		if getChangedBool(ctx, w, publishFieldKey) {
+		if b := getChangedBool(ctx, w, publishFieldKey); b != nil && *b {
 			if err := h.Publish(ctx, item); err != nil {
 				log.Errorfc(ctx, "geospatialjpv3 webhook: failed to publish: %v", err)
 			}
@@ -107,23 +107,25 @@ func (h *handler) Webhook(conf Config) (cmswebhook.Handler, error) {
 	}, nil
 }
 
-func getChangedBool(ctx context.Context, w *cmswebhook.Payload, key string) bool {
-	if f := w.ItemData.Item.MetadataFieldByKey(key); f != nil {
+func getChangedBool(ctx context.Context, w *cmswebhook.Payload, key string) *bool {
+	// w.ItemData.Item is a metadata item, so we need to use FieldByKey instead of MetadataFieldByKey
+	if f := w.ItemData.Item.FieldByKey(key); f != nil {
 		changed, ok := lo.Find(w.ItemData.Changes, func(c cms.FieldChange) bool {
 			return c.ID == f.ID
 		})
 
 		if ok {
-			if lo.FromPtr(changed.GetCurrentValue().Bool()) {
-				return true
+			b := changed.GetCurrentValue().Bool()
+			if b != nil {
+				return b
 			}
 
-			// workaround for bool array
-			if res := changed.GetCurrentValue().Bools(); len(res) > 0 && res[0] {
-				return true
+			// workaround for bool array: value is [true]
+			if res := changed.GetCurrentValue().Bools(); len(res) > 0 {
+				return lo.ToPtr(res[0])
 			}
 		}
 	}
 
-	return false
+	return nil
 }
