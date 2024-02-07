@@ -86,13 +86,44 @@ func (h *handler) Webhook(conf Config) (cmswebhook.Handler, error) {
 
 		cityItem := CityItemFrom(item)
 
-		if cityItem.ID == "" || cityItem.CityCode == "" || cityItem.CityName == "" || cityItem.CityNameEn == "" {
+		if cityItem.ID == "" {
+			log.Debugfc(ctx, "geospatialjpv3 webhook: invalid city item id")
+			return nil
+		}
+
+		if cityItem.CityCode == "" || cityItem.CityName == "" || cityItem.CityNameEn == "" {
 			log.Debugfc(ctx, "geospatialjpv3 webhook: invalid city item")
+
+			comment := "この都市は都市名、都市コード、都市英名が入力されてないため、G空間情報センター公開に関する処理が行えません。"
+			if h.cms.CommentToItem(ctx, cityItem.ID, comment) != nil {
+				log.Errorfc(ctx, "geospatialjpv3 webhook: failed to comment to city item: %v", err)
+			}
 			return nil
 		}
 
 		if cityItem.GeospatialjpData == "" || cityItem.GeospatialjpIndex == "" {
 			log.Debugfc(ctx, "geospatialjpv3 webhook: no data and index id in city")
+
+			comment := "この都市はG空間情報センターに関するアイテムが正しくリンクされていないため、G空間情報センター公開に関する処理が行えません。"
+			if h.cms.CommentToItem(ctx, cityItem.ID, comment) != nil {
+				log.Errorfc(ctx, "geospatialjpv3 webhook: failed to comment to city item: %v", err)
+			}
+			return nil
+		}
+
+		if cityItem.SpecVersionMajorInt() == 0 {
+			comment := "この都市は仕様書バージョンが正しく設定されていないため、G空間情報センター公開に関する処理が行えません。"
+			if h.cms.CommentToItem(ctx, cityItem.ID, comment) != nil {
+				log.Errorfc(ctx, "geospatialjpv3 webhook: failed to comment to city item: %v", err)
+			}
+			return nil
+		}
+
+		if cityItem.YearInt() == 0 {
+			comment := "この都市は整備年度が正しく設定されていないため、G空間情報センター公開に関する処理が行えません。"
+			if h.cms.CommentToItem(ctx, cityItem.ID, comment) != nil {
+				log.Errorfc(ctx, "geospatialjpv3 webhook: failed to comment to city item: %v", err)
+			}
 			return nil
 		}
 

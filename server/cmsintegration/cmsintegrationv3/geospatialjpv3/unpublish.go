@@ -2,7 +2,6 @@ package geospatialjpv3
 
 import (
 	"context"
-	"errors"
 	"fmt"
 
 	"github.com/eukarya-inc/reearth-plateauview/server/cmsintegration/ckan"
@@ -28,8 +27,10 @@ func (h *handler) Unpublish(ctx context.Context, cityItem *CityItem) (err error)
 		}
 	}()
 
-	if cityItem.YearInt() == 0 {
-		return errors.New("整備年度が正しく設定されていません")
+	log.Infofc(ctx, "geospatialjpv3: unpublish")
+
+	if !cityItem.GeospatialjpPrepare {
+		return fmt.Errorf("この都市はまだG空間情報センターへの公開準備ができていないようです。データを揃えて「公開準備」をONにしてください。")
 	}
 
 	name := PackageNameFrom(cityItem)

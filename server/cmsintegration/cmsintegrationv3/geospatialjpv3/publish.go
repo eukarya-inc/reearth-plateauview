@@ -32,12 +32,8 @@ func (h *handler) Publish(ctx context.Context, cityItem *CityItem) (err error) {
 
 	log.Infofc(ctx, "geospatialjpv3: publish")
 
-	if cityItem.YearInt() == 0 {
-		return fmt.Errorf("整備年度が正しく設定されていません")
-	}
-
-	if v := cityItem.SpecVersionMajorInt(); v == 0 {
-		return fmt.Errorf("仕様書バージョンが正しく設定されていません。")
+	if !cityItem.GeospatialjpPrepare {
+		return fmt.Errorf("この都市はまだG空間情報センターへの公開準備ができていないようです。データを揃えて「公開準備」をONにしてください。")
 	}
 
 	seed, err := getSeed(ctx, cms, cityItem, h.ckanOrg)
