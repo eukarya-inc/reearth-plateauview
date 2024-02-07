@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 
 	cms "github.com/reearth/reearth-cms-api/go"
 	"github.com/reearth/reearthx/log"
@@ -67,7 +68,7 @@ func getUdx(ctx context.Context, allFeatureItems map[string]FeatureItem, downloa
 			return fmt.Errorf("failed to download citygml for %s: %w", ft, err)
 		}
 
-		if err := Unzip(ctx, data, outPath, ""); err != nil {
+		if err := Unzip(ctx, data, outPath, "", checkCityGMLZip); err != nil {
 			return fmt.Errorf("failed to unzip citygml for %s: %w", ft, err)
 		}
 	}
@@ -89,7 +90,7 @@ func getAssets(ctx context.Context, cms *cms.CMS, cityItem *CityItem, downloadPa
 			return fmt.Errorf("failed to download assets codeLists: %w", err)
 		}
 
-		if err := Unzip(ctx, data, downloadPath, ""); err != nil {
+		if err := Unzip(ctx, data, downloadPath, "", nil); err != nil {
 			return fmt.Errorf("failed to unzip assets codeLists: %w", err)
 		}
 	}
@@ -108,7 +109,7 @@ func getAssets(ctx context.Context, cms *cms.CMS, cityItem *CityItem, downloadPa
 			return fmt.Errorf("failed to download assets schemas: %w", err)
 		}
 
-		if err := Unzip(ctx, data, downloadPath, ""); err != nil {
+		if err := Unzip(ctx, data, downloadPath, "", nil); err != nil {
 			return fmt.Errorf("failed to unzip assets schemas: %w", err)
 		}
 	}
@@ -127,7 +128,7 @@ func getAssets(ctx context.Context, cms *cms.CMS, cityItem *CityItem, downloadPa
 			return fmt.Errorf("failed to download assets metadata: %w", err)
 		}
 
-		if err := Unzip(ctx, data, downloadPath, ""); err != nil {
+		if err := Unzip(ctx, data, downloadPath, "", nil); err != nil {
 			return fmt.Errorf("failed to unzip assets metadata: %w", err)
 		}
 	}
@@ -146,7 +147,7 @@ func getAssets(ctx context.Context, cms *cms.CMS, cityItem *CityItem, downloadPa
 			return fmt.Errorf("failed to download assets specification: %w", err)
 		}
 
-		if err := Unzip(ctx, data, downloadPath, ""); err != nil {
+		if err := Unzip(ctx, data, downloadPath, "", nil); err != nil {
 			return fmt.Errorf("failed to unzip assets specification: %w", err)
 		}
 	}
@@ -165,10 +166,19 @@ func getAssets(ctx context.Context, cms *cms.CMS, cityItem *CityItem, downloadPa
 			return fmt.Errorf("failed to download assets misc: %w", err)
 		}
 
-		if err := Unzip(ctx, data, downloadPath, "misc"); err != nil {
+		if err := Unzip(ctx, data, downloadPath, "misc/", nil); err != nil {
 			return fmt.Errorf("failed to unzip assets misc: %w", err)
 		}
 	}
 
+	return nil
+}
+
+func checkCityGMLZip(p string) error {
+	if strings.HasPrefix(p, "udx/") ||
+		strings.HasPrefix(p, "/udx/") ||
+		(!strings.Contains(p, "/") && strings.HasSuffix(p, ".gml")) {
+		return fmt.Errorf("invalid citygml zip: %s", p)
+	}
 	return nil
 }

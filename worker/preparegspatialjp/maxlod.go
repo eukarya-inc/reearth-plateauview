@@ -58,6 +58,8 @@ func MergeMaxLOD(ctx context.Context, cms *cms.CMS, cityItem *CityItem, allFeatu
 		if err := os.WriteFile(filePath, allData.Bytes(), os.ModePerm); err != nil {
 			return "", "", fmt.Errorf("failed to write data to file: %w", err)
 		}
+	} else {
+		return "", "", nil
 	}
 
 	return fileName, filePath, nil

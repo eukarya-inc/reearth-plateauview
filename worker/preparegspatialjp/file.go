@@ -68,7 +68,7 @@ func downloadFile(ctx context.Context, url string) (io.ReadCloser, error) {
 	// return bytes.NewReader(b.Bytes()), nil
 }
 
-func Unzip(ctx context.Context, zipFile *bytes.Reader, targetDir string, trimPathSuffix string) error {
+func Unzip(ctx context.Context, zipFile *bytes.Reader, targetDir, prefix string, checkFile func(string) error) error {
 	// Open the zip archive for reading.
 	r, err := zip.NewReader(zipFile, int64(zipFile.Len()))
 	if err != nil {
@@ -77,43 +77,48 @@ func Unzip(ctx context.Context, zipFile *bytes.Reader, targetDir string, trimPat
 
 	// Iterate through the files in the archive.
 	for _, f := range r.File {
-		// Determine the file path ensuring it's within targetDir.
-		filePath := filepath.Join(targetDir, strings.TrimPrefix(f.Name, trimPathSuffix))
-		filePath = strings.TrimSuffix(filePath, `\`)
-		// filePath = filepath.ToSlash(filePath)
-		filePath = strings.ReplaceAll(filePath, `\`, `/`)
+		filename := f.Name
+		filename = strings.ReplaceAll(filename, `\`, "/")
+		filename = strings.TrimSuffix(filename, "/")
 
-		if isInvalid(filePath) {
-			return fmt.Errorf("invalid file path: %s", filePath)
+		if prefix != "" {
+			if strings.HasPrefix(filename, prefix) {
+				filename = strings.TrimPrefix(filename, prefix)
+			} else {
+				log.Debugf("skip %s (no prefix: %s)", f.Name, prefix)
+				continue
+			}
 		}
 
-		if strings.HasPrefix(filePath, "__MACOSX/") ||
-			strings.HasPrefix(filePath, "/__MACOSX/") ||
-			strings.HasSuffix(filePath, "/.DS_Store") ||
-			strings.HasSuffix(filePath, "/Thumb.db") ||
-			filePath == ".DS_Store" || filePath == "Thumbs.db" {
-			log.Debugf("skipping %s...", f.Name)
+		if strings.HasPrefix(filename, "__MACOSX/") ||
+			strings.HasSuffix(filename, "/.DS_Store") ||
+			strings.HasSuffix(filename, "/Thumb.db") ||
+			filename == ".DS_Store" || filename == "Thumbs.db" {
+			log.Debugf("skip %s (%s)", f.Name, filename)
 			continue
 		}
 
-		log.Infofc(ctx, "unzipping %s -> %s", f.Name, filePath)
-
-		if trimPathSuffix != "" {
-			filePath = strings.Trim(filePath, trimPathSuffix)
+		if checkFile != nil {
+			if err := checkFile(filename); err != nil {
+				return err
+			}
 		}
 
-		if !strings.HasPrefix(filePath, filepath.Clean(targetDir)) {
-			return fmt.Errorf("invalid file path: %s", filePath)
-		}
+		// Determine the file path ensuring it's within targetDir.
+		filePath := filepath.Join(targetDir,
+			strings.ReplaceAll(filename, "/", string(os.PathSeparator)))
 
 		// If it's a directory, create it.
 		if f.FileInfo().IsDir() {
-			log.Infofc(ctx, "creating dir %s...", f.Name)
+			log.Infofc(ctx, "create dir %s -> %s", f.Name, filePath)
 			if err := os.MkdirAll(filePath, os.ModePerm); err != nil {
 				return fmt.Errorf("failed to create dir: %v", err)
 			}
 			continue
 		}
+
+		log.Infofc(ctx, "extract %s -> %s", f.Name, filePath)
+
 		// Create the enclosing directory if needed.
 		if err := os.MkdirAll(filepath.Dir(filePath), os.ModePerm); err != nil {
 			return fmt.Errorf("failed to create dir: %v", err)
@@ -146,11 +151,8 @@ func Unzip(ctx context.Context, zipFile *bytes.Reader, targetDir string, trimPat
 		_ = destFile.Close()
 		_ = srcFile.Close()
 	}
-	return nil
-}
 
-func isInvalid(filePath string) bool {
-	return strings.HasPrefix(filePath, "udx/") || (!strings.Contains(filePath, "/") && strings.HasSuffix(filePath, ".gml"))
+	return nil
 }
 
 func ZipDir(ctx context.Context, srcDir string, destZip string) error {
