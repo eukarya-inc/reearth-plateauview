@@ -106,17 +106,17 @@ func detectDatasetFormatFromURL(url string) plateauapi.DatasetFormat {
 	return ""
 }
 
-func standardItemID(name string, area plateauapi.Area, ex string) string {
+func standardItemID(name string, areaCode plateauapi.AreaCode, ex string) string {
 	if ex != "" {
 		ex = fmt.Sprintf("_%s", ex)
 	}
-	return fmt.Sprintf("%s_%s%s", area.GetCode(), name, ex)
+	return fmt.Sprintf("%s_%s%s", areaCode, name, ex)
 }
 
-func standardItemName(name, subname string, area plateauapi.Area) string {
+func standardItemName(name, subname, areaName string) string {
 	var suffix string
-	if area != nil {
-		suffix = fmt.Sprintf("（%s）", area.GetName())
+	if areaName != "" {
+		suffix = fmt.Sprintf("（%s）", areaName)
 		name = strings.TrimSuffix(name, suffix)
 	}
 

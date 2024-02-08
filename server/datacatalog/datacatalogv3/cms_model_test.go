@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"testing"
 
-	"github.com/k0kubun/pp/v3"
 	cms "github.com/reearth/reearth-cms-api/go"
 	"github.com/stretchr/testify/assert"
 )
@@ -194,10 +193,4 @@ func TestStringOrNumber(t *testing.T) {
 	stringOrNumber = &StringOrNumber{}
 	assert.NoError(t, json.Unmarshal([]byte(`123.456`), stringOrNumber))
 	assert.Equal(t, "123.456000", stringOrNumber.String())
-}
-
-func TestUrf(t *testing.T) {
-	ppp := pp.New()
-	ppp.SetColoringEnabled(false)
-	t.Log(ppp.Sprint(UrfFeatureTypeMap))
 }

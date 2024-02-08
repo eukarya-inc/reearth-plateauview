@@ -34,7 +34,7 @@ func (i *RelatedItem) toDatasets(area *areaContext, dts []plateauapi.DatasetType
 		admin := newAdmin(area.CityItem.ID, relatedStage(i, area.CityItem), cmsurl)
 
 		for _, seed := range seeds {
-			sid := standardItemID(ftcode, seed.Area, "")
+			sid := standardItemID(ftcode, seed.Area.GetCode(), "")
 			id := plateauapi.NewID(sid, plateauapi.TypeDataset)
 
 			var ou *string
@@ -44,7 +44,7 @@ func (i *RelatedItem) toDatasets(area *areaContext, dts []plateauapi.DatasetType
 
 			res = append(res, &plateauapi.RelatedDataset{
 				ID:             id,
-				Name:           standardItemName(ftname, "", seed.Area),
+				Name:           standardItemName(ftname, "", seed.Area.GetName()),
 				Description:    lo.EmptyableToPtr(d.Description),
 				Year:           area.CityItem.YearInt(),
 				PrefectureID:   area.PrefID,

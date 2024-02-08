@@ -538,3 +538,104 @@ func TestPlateauDataset_ToDatasets_Fld(t *testing.T) {
 	assert.Nil(t, warning)
 	assert.Equal(t, expected, res)
 }
+
+func TestPlateauDataset_ToDatasets_Veg(t *testing.T) {
+	item := &PlateauFeatureItem{
+		ID:   "id",
+		Desc: "desc",
+		Data: []string{
+			"https://example.com/11111_bar-shi_city_2023_citygml_1_op_veg_PlantCover_3dtiles_lod3.zip",
+			"https://example.com/11111_bar-shi_city_2023_citygml_1_op_veg_SolitaryVegetationObject_3dtiles_lod3.zip",
+		},
+		Dic: `{
+			"veg" : [
+				{
+					"name" : "PlantCover",
+					"description" : "植被"
+				},
+				{
+					"name" : "SolitaryVegetationObject",
+					"description" : "単独木"
+				}
+			]
+		}`,
+	}
+
+	expected := []plateauapi.Dataset{
+		&plateauapi.PlateauDataset{
+			ID:                 plateauapi.NewID("11111_veg", plateauapi.TypeDataset),
+			Name:               "植生モデル（bar市）",
+			Description:        lo.ToPtr("desc"),
+			Year:               2023,
+			PrefectureID:       lo.ToPtr(plateauapi.NewID("11", plateauapi.TypeArea)),
+			PrefectureCode:     lo.ToPtr(plateauapi.AreaCode("11")),
+			CityID:             lo.ToPtr(plateauapi.NewID("11111", plateauapi.TypeArea)),
+			CityCode:           lo.ToPtr(plateauapi.AreaCode("11111")),
+			TypeID:             plateauapi.NewID("veg", plateauapi.TypeDatasetType),
+			TypeCode:           "veg",
+			PlateauSpecMinorID: plateauapi.NewID("3.2", plateauapi.TypePlateauSpec),
+			Admin: map[string]any{
+				"stage": string(stageBeta),
+			},
+			Items: []*plateauapi.PlateauDatasetItem{
+				{
+					ID:       plateauapi.NewID("11111_veg_PlantCover_lod3", plateauapi.TypeDatasetItem),
+					Format:   plateauapi.DatasetFormatCesium3dtiles,
+					Name:     "植被 LOD3",
+					URL:      "https://example.com/11111_bar-shi_city_2023_citygml_1_op_veg_PlantCover_3dtiles_lod3/tileset.json",
+					Texture:  lo.ToPtr(plateauapi.TextureTexture),
+					Lod:      lo.ToPtr(3),
+					ParentID: plateauapi.NewID("11111_veg", plateauapi.TypeDataset),
+				},
+				{
+					ID:       plateauapi.NewID("11111_veg_SolitaryVegetationObject_lod3", plateauapi.TypeDatasetItem),
+					Format:   plateauapi.DatasetFormatCesium3dtiles,
+					Name:     "単独木 LOD3",
+					URL:      "https://example.com/11111_bar-shi_city_2023_citygml_1_op_veg_SolitaryVegetationObject_3dtiles_lod3/tileset.json",
+					Texture:  lo.ToPtr(plateauapi.TextureTexture),
+					Lod:      lo.ToPtr(3),
+					ParentID: plateauapi.NewID("11111_veg", plateauapi.TypeDataset),
+				},
+			},
+		},
+	}
+
+	area := &areaContext{
+		Pref: &plateauapi.Prefecture{},
+		City: &plateauapi.City{
+			Name: "bar市",
+			Code: "11111",
+		},
+		PrefID:   lo.ToPtr(plateauapi.NewID("11", plateauapi.TypeArea)),
+		CityID:   lo.ToPtr(plateauapi.NewID("11111", plateauapi.TypeArea)),
+		PrefCode: lo.ToPtr(plateauapi.AreaCode("11")),
+		CityCode: lo.ToPtr(plateauapi.AreaCode("11111")),
+		CityItem: &CityItem{
+			Year: "2023年",
+			PlateauDataStatus: &cms.Tag{
+				Name: string(ManagementStatusReady),
+			},
+		},
+	}
+
+	dts := &plateauapi.PlateauDatasetType{
+		ID:   plateauapi.NewID("veg", plateauapi.TypeDatasetType),
+		Code: "veg",
+		Name: "植生モデル",
+	}
+
+	spec := &plateauapi.PlateauSpecMinor{
+		ID:           plateauapi.NewID("3.2", plateauapi.TypePlateauSpec),
+		Name:         "第3.2版",
+		MajorVersion: 3,
+		Version:      "3.2",
+		Year:         2023,
+		ParentID:     plateauapi.NewID("3", plateauapi.TypePlateauSpec),
+	}
+
+	layerNames := LayerNames{}
+
+	res, warning := item.toDatasets(area, dts, spec, layerNames, "")
+	assert.Nil(t, warning)
+	assert.Equal(t, expected, res)
+}

@@ -134,6 +134,8 @@ type PlateauFeatureItemDatum struct {
 	Name string   `json:"name,omitempty" cms:"name,text"`
 	Desc string   `json:"desc,omitempty" cms:"desc,textarea"`
 	Key  string   `json:"key,omitempty" cms:"key,text"`
+	// Simple indicates that this item should not use subcode and subname
+	Simple bool `json:"simple,omitempty" cms:"-"`
 }
 
 type Dic map[string][]DicEntry // admin, fld. htd, tnm, urf, gen

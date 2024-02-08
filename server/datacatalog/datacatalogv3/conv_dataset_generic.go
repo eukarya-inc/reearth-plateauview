@@ -55,7 +55,7 @@ func (i *GenericItem) toDatasets(area *areaContext, dts []plateauapi.DatasetType
 
 	res := plateauapi.GenericDataset{
 		ID:             id,
-		Name:           standardItemName(i.Name, "", area.City),
+		Name:           standardItemName(i.Name, "", area.Name()),
 		Description:    lo.EmptyableToPtr(i.Desc),
 		Year:           area.CityItem.YearInt(),
 		PrefectureID:   area.PrefID,

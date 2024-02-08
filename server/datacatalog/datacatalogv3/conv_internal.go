@@ -105,6 +105,23 @@ func (c *areaContext) IsValid() bool {
 	return c.Pref != nil && c.City != nil && c.CityItem != nil && c.PrefID != nil && c.CityID != nil && c.PrefCode != nil && c.CityCode != nil
 }
 
+func (c *areaContext) Code() *plateauapi.AreaCode {
+	if c.CityCode != nil {
+		return c.CityCode
+	}
+	return c.PrefCode
+}
+
+func (c *areaContext) Name() string {
+	if c.City != nil {
+		return c.City.Name
+	}
+	if c.Pref != nil {
+		return c.Pref.Name
+	}
+	return ""
+}
+
 func (c *internalContext) AreaContext(cityItemID string) *areaContext {
 	var prefID, cityID *plateauapi.ID
 	var prefCode, cityCode *plateauapi.AreaCode
