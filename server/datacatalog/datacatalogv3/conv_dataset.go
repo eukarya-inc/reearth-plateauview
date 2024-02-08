@@ -113,12 +113,19 @@ func standardItemID(name string, area plateauapi.Area, ex string) string {
 	return fmt.Sprintf("%s_%s%s", area.GetCode(), name, ex)
 }
 
-func standardItemName(dtname, subname string, area plateauapi.Area) string {
+func standardItemName(name, subname string, area plateauapi.Area) string {
+	var suffix string
+	if area != nil {
+		suffix = fmt.Sprintf("（%s）", area.GetName())
+		name = strings.TrimSuffix(name, suffix)
+	}
+
 	space := ""
 	if subname != "" {
 		space = " "
 	}
-	return fmt.Sprintf("%s%s%s（%s）", dtname, space, subname, area.GetName())
+
+	return fmt.Sprintf("%s%s%s%s", name, space, subname, suffix)
 }
 
 func layerNamesFrom(layer string) []string {

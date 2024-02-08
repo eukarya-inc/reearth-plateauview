@@ -22,3 +22,12 @@ func TestAssetURLFromFormat(t *testing.T) {
 func TestAssetRootPath(t *testing.T) {
 	assert.Equal(t, "/example.com/1111/a", assetRootPath("/example.com/1111/a.zip"))
 }
+
+func TestStandardItemName(t *testing.T) {
+	assert.Equal(t, "name（area）", standardItemName("name", "", &plateauapi.City{Name: "area"}))
+	assert.Equal(t, "name name2（area）", standardItemName("name", "name2", &plateauapi.City{Name: "area"}))
+	assert.Equal(t, "name", standardItemName("name", "", nil))
+	assert.Equal(t, "name name2", standardItemName("name", "name2", nil))
+	assert.Equal(t, "name（area）", standardItemName("name（area）", "", &plateauapi.City{Name: "area"}))
+	assert.Equal(t, "name name2（area）", standardItemName("name（area）", "name2", &plateauapi.City{Name: "area"}))
+}
