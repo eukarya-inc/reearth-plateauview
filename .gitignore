@@ -8,4 +8,4 @@ node_modules
 /server/server
 /plugin/dist
 target
-/worker/*/tmp
+/worker/*/plateau-api-worker-tmp

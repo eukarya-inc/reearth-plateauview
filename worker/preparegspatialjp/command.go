@@ -5,14 +5,16 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"path/filepath"
 	"strings"
 
+	"github.com/google/uuid"
 	cms "github.com/reearth/reearth-cms-api/go"
 	"github.com/reearth/reearthx/log"
 	"github.com/samber/lo"
 )
 
-const tmpDir = "tmp"
+const tmpDirBase = "plateau-api-worker-tmp"
 
 type Config struct {
 	CMSURL      string
@@ -96,6 +98,9 @@ func Command(conf *Config) (err error) {
 		return fmt.Errorf("no command to run")
 	}
 
+	tmpDir := filepath.Join(tmpDirBase, uuid.NewString())
+	log.Infofc(ctx, "tmp dir: %s", tmpDir)
+
 	// do merging
 	var comment string
 	var citygmlError, plateauError, maxlodError bool
@@ -105,6 +110,7 @@ func Command(conf *Config) (err error) {
 		}
 		if err := notifyError(
 			ctx, cms,
+			cityItem.ID,
 			cityItem.GeospatialjpData,
 			err != nil,
 			citygmlError, plateauError, maxlodError,
@@ -140,7 +146,7 @@ func Command(conf *Config) (err error) {
 			return lo.Tuple3[string, string, error]{}
 		}
 
-		name, path, err := PrepareCityGML(ctx, cms, cityItem, allFeatureItems)
+		name, path, err := PrepareCityGML(ctx, cms, tmpDir, cityItem, allFeatureItems)
 		if err != nil {
 			return lo.Tuple3[string, string, error]{
 				C: err,
@@ -158,7 +164,7 @@ func Command(conf *Config) (err error) {
 			return lo.Tuple3[string, string, error]{}
 		}
 
-		name, path, err := PreparePlateau(ctx, cms, cityItem, allFeatureItems)
+		name, path, err := PreparePlateau(ctx, cms, tmpDir, cityItem, allFeatureItems)
 		return lo.Tuple3[string, string, error]{
 			A: name,
 			B: path,
@@ -171,7 +177,7 @@ func Command(conf *Config) (err error) {
 			return lo.Tuple3[string, string, error]{}
 		}
 
-		name, path, err := MergeMaxLOD(ctx, cms, cityItem, allFeatureItems)
+		name, path, err := MergeMaxLOD(ctx, cms, tmpDir, cityItem, allFeatureItems)
 		return lo.Tuple3[string, string, error]{
 			A: name,
 			B: path,
@@ -394,7 +400,7 @@ func attachAssets(ctx context.Context, c *cms.CMS, cityItem *CityItem, result fi
 	return nil
 }
 
-func notifyError(ctx context.Context, c *cms.CMS, cityItemID string, isErr bool, citygmlError, plateauError, maxLODError bool, comment string) error {
+func notifyError(ctx context.Context, c *cms.CMS, cityItemID, gdataItemID string, isErr bool, citygmlError, plateauError, maxLODError bool, comment string) error {
 	if comment != "" {
 		msgPrefix := ""
 		if isErr {
@@ -402,7 +408,12 @@ func notifyError(ctx context.Context, c *cms.CMS, cityItemID string, isErr bool,
 		} else {
 			msgPrefix = "マージ処理が完了しました。"
 		}
+
 		if err := c.CommentToItem(ctx, cityItemID, msgPrefix+comment); err != nil {
+			return fmt.Errorf("failed to comment to item: %w", err)
+		}
+
+		if err := c.CommentToItem(ctx, gdataItemID, msgPrefix+comment); err != nil {
 			return fmt.Errorf("failed to comment to item: %w", err)
 		}
 	}

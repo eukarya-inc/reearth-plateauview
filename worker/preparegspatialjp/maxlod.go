@@ -13,7 +13,7 @@ import (
 	"github.com/reearth/reearthx/log"
 )
 
-func MergeMaxLOD(ctx context.Context, cms *cms.CMS, cityItem *CityItem, allFeatureItems map[string]FeatureItem) (string, string, error) {
+func MergeMaxLOD(ctx context.Context, cms *cms.CMS, tmpDir string, cityItem *CityItem, allFeatureItems map[string]FeatureItem) (string, string, error) {
 	log.Infofc(ctx, "preparing plateau...")
 
 	_ = os.MkdirAll(tmpDir, os.ModePerm)
