@@ -37,17 +37,22 @@ func walk(f fs.FS, path, pathsep string, fn walker) (*IndexItem, error) {
 		if item == nil {
 			return fs.SkipDir
 		}
+		if path == "/" {
+			return nil
+		}
 
-		lastItem := items[len(items)-1]
 		depth := strings.Count(path, pathsep) + 1
 
+		if depth < lastDepth {
+			diff := lastDepth - depth
+			items = items[:len(items)-diff-1]
+			lastDepth -= diff + 1
+		}
+
+		lastItem := items[len(items)-1]
 		if depth == lastDepth {
 			items[len(items)-1] = item
 			lastItem = items[len(items)-2]
-		} else if depth < lastDepth {
-			diff := lastDepth - depth
-			items = items[:len(items)-diff-1]
-			lastItem = items[len(items)-1]
 		} else if depth == lastDepth+1 {
 			items = append(items, item)
 		} else if depth != lastDepth {
