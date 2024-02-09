@@ -12,6 +12,8 @@ import (
 	"github.com/samber/lo"
 )
 
+const tmpDir = "tmp"
+
 type Config struct {
 	CMSURL      string
 	CMSToken    string
@@ -20,6 +22,7 @@ type Config struct {
 	SkipCityGML bool
 	SkipPlateau bool
 	SkipMaxLOD  bool
+	SkipIndex   bool
 	SkipRelated bool
 	WetRun      bool
 }
@@ -30,13 +33,13 @@ func Command(conf *Config) (err error) {
 	}
 
 	ctx := context.Background()
-
 	cms, err := cms.New(conf.CMSURL, conf.CMSToken)
 	if err != nil {
 		return fmt.Errorf("failed to initialize CMS client: %w", err)
 	}
 
-	log.Infofc(ctx, "getting city item...")
+	// get items fron CNS
+	log.Infofc(ctx, "getting item from CMS...")
 
 	cityItemRaw, err := cms.GetItem(ctx, conf.CityItemID, false)
 	if err != nil {
@@ -51,6 +54,44 @@ func Command(conf *Config) (err error) {
 		return fmt.Errorf("invalid city item: %s", conf.CityItemID)
 	}
 
+	if cityItem.YearInt() == 0 {
+		return fmt.Errorf("invalid year: %s", cityItem.Year)
+	}
+
+	if cityItem.SpecVersionMajorInt() == 0 {
+		return fmt.Errorf("invalid spec version: %s", cityItem.Spec)
+	}
+
+	indexItemRaw, err := cms.GetItem(ctx, cityItem.GeospatialjpIndex, false)
+	if err != nil {
+		return fmt.Errorf("failed to get index item: %w", err)
+	}
+
+	indexItem := GspatialjpIndexItemFrom(indexItemRaw)
+	log.Infofc(ctx, "geospatialjp index item: %s", ppp.Sprint(indexItem))
+
+	gdataItemRaw, err := cms.GetItem(ctx, cityItem.GeospatialjpData, false)
+	if err != nil {
+		return fmt.Errorf("failed to get geospatialjp data item: %w", err)
+	}
+
+	gdataItem := GspatialjpDataItemFrom(gdataItemRaw)
+	log.Infofc(ctx, "geospatialjp data item: %s", ppp.Sprint(gdataItem))
+
+	if !gdataItem.ShouldMergeCityGML() {
+		conf.SkipCityGML = true
+	}
+	if !gdataItem.ShouldMergePlateau() {
+		conf.SkipPlateau = true
+	}
+	if !gdataItem.ShouldMergeMaxLOD() {
+		conf.SkipMaxLOD = true
+	}
+	if conf.SkipCityGML && conf.SkipPlateau && conf.SkipMaxLOD && conf.SkipRelated {
+		return fmt.Errorf("no command to run")
+	}
+
+	// do merging
 	var comment string
 	var citygmlError, plateauError, maxlodError bool
 	defer func() {
@@ -81,51 +122,51 @@ func Command(conf *Config) (err error) {
 	log.Infofc(ctx, "feature items: %s", ppp.Sprint(allFeatureItems))
 	log.Infofc(ctx, "preparing citygml and plateau...")
 
-	type result struct {
-		Name string
-		Path string
-		Err  error
-	}
-
 	if err := notifyRunning(ctx, cms, cityItem.GeospatialjpData, true, true); err != nil {
 		return fmt.Errorf("failed to notify running: %w", err)
 	}
 
-	citygmlCh := lo.Async(func() result {
+	citygmlCh := lo.Async(func() lo.Tuple3[string, string, error] {
 		if conf.SkipCityGML {
-			return result{}
+			return lo.Tuple3[string, string, error]{}
 		}
+
 		name, path, _, _, err := PrepareCityGML(ctx, cms, cityItem, allFeatureItems)
-		return result{
-			Name: name,
-			Path: path,
-			Err:  err,
+		if err != nil {
+			return lo.Tuple3[string, string, error]{
+				C: err,
+			}
+		}
+
+		return lo.Tuple3[string, string, error]{
+			A: name,
+			B: path,
 		}
 	})
 
-	plateauCh := lo.Async(func() result {
+	plateauCh := lo.Async(func() lo.Tuple3[string, string, error] {
 		if conf.SkipPlateau {
-			return result{}
+			return lo.Tuple3[string, string, error]{}
 		}
 
 		name, path, err := PreparePlateau(ctx, cms, cityItem, allFeatureItems)
-		return result{
-			Name: name,
-			Path: path,
-			Err:  err,
+		return lo.Tuple3[string, string, error]{
+			A: name,
+			B: path,
+			C: err,
 		}
 	})
 
-	maxlodCh := lo.Async(func() result {
+	maxlodCh := lo.Async(func() lo.Tuple3[string, string, error] {
 		if conf.SkipMaxLOD {
-			return result{}
+			return lo.Tuple3[string, string, error]{}
 		}
 
 		name, path, err := MergeMaxLOD(ctx, cms, cityItem, allFeatureItems)
-		return result{
-			Name: name,
-			Path: path,
-			Err:  err,
+		return lo.Tuple3[string, string, error]{
+			A: name,
+			B: path,
+			C: err,
 		}
 	})
 
@@ -133,71 +174,92 @@ func Command(conf *Config) (err error) {
 	plateauResult := <-plateauCh
 	maxlodResult := <-maxlodCh
 
-	if citygmlResult.Err != nil || plateauResult.Err != nil || maxlodResult.Err != nil {
+	// check errors
+	if citygmlResult.C != nil || plateauResult.C != nil || maxlodResult.C != nil {
 		var errs []error
-		if citygmlResult.Err != nil {
+		if citygmlResult.C != nil {
 			citygmlError = true
-			errs = append(errs, fmt.Errorf("CityGMLのマージに失敗しました: %w\n", citygmlResult.Err))
+			errs = append(errs, fmt.Errorf("CityGMLのマージに失敗しました: %w\n", citygmlResult.C))
 		}
-		if plateauResult.Err != nil {
+		if plateauResult.C != nil {
 			plateauError = true
-			errs = append(errs, fmt.Errorf("3D Tiles,MVTのマージに失敗しました: %w\n", plateauResult.Err))
+			errs = append(errs, fmt.Errorf("3D Tiles,MVTのマージに失敗しました: %w\n", plateauResult.C))
 		}
-		if maxlodResult.Err != nil {
+		if maxlodResult.C != nil {
 			maxlodError = true
-			errs = append(errs, fmt.Errorf("最大LODのマージに失敗しました: %w", maxlodResult.Err))
+			errs = append(errs, fmt.Errorf("最大LODのマージに失敗しました: %w", maxlodResult.C))
 		}
 		err = errors.Join(errs...)
 		return err
 	}
 
-	var citygmlZipAssetID, plateauZipAssetID, maxlodAssetID, relatedZipAssetID string
+	// generate index
+	var index string
+	if !conf.SkipIndex {
+		index, err = GenerateIndex(ctx, &IndexSeed{
+			CityName:       cityItem.CityName,
+			Year:           cityItem.YearInt(),
+			V:              cityItem.SpecVersionMajorInt(),
+			CityGMLZipPath: citygmlResult.B,
+			PlateuaZipPath: plateauResult.B,
+			RelatedZipPath: "",  //TODO
+			Generic:        nil, //TODO
+		})
+		if err != nil {
+			return fmt.Errorf("目録の生成に失敗しました: %w", err)
+		}
+	}
 
+	var citygmlAssetID, plateauAssetID, maxlodAssetID, relatedAssetID string
+
+	// get related data asset ID
 	if !conf.SkipRelated {
 		var err2 error
-		relatedZipAssetID, err2 = GetRelatedZipAssetID(ctx, cms, cityItem)
+		relatedAssetID, err2 = GetRelatedZipAssetID(ctx, cms, cityItem)
 		if err2 != nil {
 			log.Errorfc(ctx, "failed to get related zip asset id: %w", err2)
 			comment += fmt.Sprintf("\n関連ファイルの取得に失敗しました。: %s", err2)
 		}
 	}
 
+	// upload zips
 	if conf.WetRun {
 		log.Infofc(ctx, "uploading zips...")
 
-		if citygmlResult.Name != "" && citygmlResult.Err == nil {
-			if citygmlZipAssetID, err = upload(ctx, cms, conf.ProjectID, citygmlResult.Name, citygmlResult.Path); err != nil {
+		if citygmlResult.A != "" && citygmlResult.C == nil {
+			if citygmlAssetID, err = upload(ctx, cms, conf.ProjectID, citygmlResult.A, citygmlResult.B); err != nil {
 				return fmt.Errorf("failed to upload citygml zip: %w", err)
 			}
 		}
 
-		if plateauResult.Name != "" && plateauResult.Err == nil {
-			if plateauZipAssetID, err = upload(ctx, cms, conf.ProjectID, plateauResult.Name, plateauResult.Path); err != nil {
+		if plateauResult.A != "" && plateauResult.C == nil {
+			if plateauAssetID, err = upload(ctx, cms, conf.ProjectID, plateauResult.A, plateauResult.B); err != nil {
 				return fmt.Errorf("failed to upload plateau zip: %w", err)
 			}
 		}
 
-		if maxlodResult.Name != "" && maxlodResult.Err == nil {
-			if maxlodAssetID, err = upload(ctx, cms, conf.ProjectID, maxlodResult.Name, maxlodResult.Path); err != nil {
+		if maxlodResult.A != "" && maxlodResult.C == nil {
+			if maxlodAssetID, err = upload(ctx, cms, conf.ProjectID, maxlodResult.A, maxlodResult.B); err != nil {
 				return fmt.Errorf("failed to upload maxlod: %w", err)
 			}
 		}
 	}
 
-	if citygmlZipAssetID != "" {
-		log.Infofc(ctx, "citygml zip asset id: %s", citygmlZipAssetID)
+	// logging
+	if citygmlAssetID != "" {
+		log.Infofc(ctx, "citygml zip asset id: %s", citygmlAssetID)
 	} else {
 		log.Infofc(ctx, "citygml zip asset id: (not uploaded)")
 	}
 
-	if plateauZipAssetID != "" {
-		log.Infofc(ctx, "plateau zip asset id: %s", plateauZipAssetID)
+	if plateauAssetID != "" {
+		log.Infofc(ctx, "plateau zip asset id: %s", plateauAssetID)
 	} else {
 		log.Infofc(ctx, "plateau zip asset id: (not uploaded)")
 	}
 
-	if relatedZipAssetID != "" {
-		log.Infofc(ctx, "related zip asset id: %s", relatedZipAssetID)
+	if relatedAssetID != "" {
+		log.Infofc(ctx, "related zip asset id: %s", relatedAssetID)
 	} else {
 		log.Infofc(ctx, "related zip asset id: (not uploaded)")
 	}
@@ -208,9 +270,17 @@ func Command(conf *Config) (err error) {
 		log.Infofc(ctx, "maxlod asset id: (not uploaded)")
 	}
 
+	// attach assets
 	if conf.WetRun && err == nil {
 		log.Infofc(ctx, "attaching assets...")
-		if err := attachAssets(ctx, cms, cityItem, citygmlZipAssetID, plateauZipAssetID, relatedZipAssetID, maxlodAssetID); err != nil {
+		result := finalResult{
+			CityGMLAssetID: citygmlAssetID,
+			PlateauAssetID: plateauAssetID,
+			RelatedAssetID: relatedAssetID,
+			MaxLODAssetID:  maxlodAssetID,
+			Index:          index,
+		}
+		if err := attachAssets(ctx, cms, cityItem, result); err != nil {
 			return fmt.Errorf("failed to attach assets: %w", err)
 		}
 	}
@@ -236,45 +306,61 @@ func upload(ctx context.Context, cms *cms.CMS, project, name, path string) (stri
 	return assetID, nil
 }
 
-func attachAssets(ctx context.Context, c *cms.CMS, cityItem *CityItem, citygmlZipAssetID, plateauZipAssetID, relatedZipAssetID, maxlodAssetID string) error {
-	if citygmlZipAssetID == "" && plateauZipAssetID == "" && relatedZipAssetID == "" {
+type finalResult struct {
+	CityGMLAssetID string
+	PlateauAssetID string
+	RelatedAssetID string
+	MaxLODAssetID  string
+	Index          string
+}
+
+func (f finalResult) IsEmpty() bool {
+	return f.CityGMLAssetID == "" && f.PlateauAssetID == "" && f.RelatedAssetID == "" && f.MaxLODAssetID == ""
+}
+
+func attachAssets(ctx context.Context, c *cms.CMS, cityItem *CityItem, result finalResult) error {
+	if cityItem == nil || result.IsEmpty() {
 		return nil
 	}
 
-	item := GspatialjpItem{
+	item := GspatialjpDataItem{
 		ID: cityItem.GeospatialjpData,
 	}
 
-	if citygmlZipAssetID != "" {
-		item.CityGML = citygmlZipAssetID
+	if result.CityGMLAssetID != "" {
+		item.CityGML = result.CityGMLAssetID
 		item.MergeCityGMLStatus = &cms.Tag{
 			Name: "成功",
 		}
 	}
 
-	if plateauZipAssetID != "" {
-		item.Plateau = plateauZipAssetID
+	if result.PlateauAssetID != "" {
+		item.Plateau = result.PlateauAssetID
 		item.MergePlateauStatus = &cms.Tag{
 			Name: "成功",
 		}
 	}
 
-	if relatedZipAssetID != "" {
-		item.Related = plateauZipAssetID
+	if result.RelatedAssetID != "" {
+		item.Related = result.RelatedAssetID
 		item.MergeRelatedStatus = &cms.Tag{
 			Name: "成功",
 		}
 	}
 
-	if maxlodAssetID != "" {
-		item.MaxLOD = maxlodAssetID
+	if result.MaxLODAssetID != "" {
+		item.MaxLOD = result.MaxLODAssetID
 		item.MergeMaxLODStatus = &cms.Tag{
 			Name: "成功",
 		}
 	}
 
-	if relatedZipAssetID != "" {
-		item.Related = relatedZipAssetID
+	if result.Index != "" {
+		item.Index = result.Index
+	}
+
+	if result.RelatedAssetID != "" {
+		item.Related = result.RelatedAssetID
 	}
 
 	var rawItem cms.Item
@@ -307,7 +393,7 @@ func notifyError(ctx context.Context, c *cms.CMS, cityItemID string, isErr bool,
 		return nil
 	}
 
-	item := GspatialjpItem{
+	item := GspatialjpDataItem{
 		ID: cityItemID,
 	}
 
@@ -359,7 +445,7 @@ func notifyRunning(ctx context.Context, c *cms.CMS, cityItemID string, citygmlRu
 		return nil
 	}
 
-	item := GspatialjpItem{
+	item := GspatialjpDataItem{
 		ID: cityItemID,
 	}
 

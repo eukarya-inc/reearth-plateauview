@@ -35,7 +35,7 @@ var DirMap = map[string]string{
 }
 
 func GenerateCityGMLMarkdown(ctx context.Context, zipFileName, zipPath string) (string, error) {
-	indexPath := filepath.Join("tmp", "citygml.md")
+	indexPath := filepath.Join(tmpDir, "citygml.md")
 
 	destFile, err := os.OpenFile(indexPath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, os.ModePerm)
 	if err != nil {

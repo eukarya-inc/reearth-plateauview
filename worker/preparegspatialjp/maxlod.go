@@ -16,8 +16,7 @@ import (
 func MergeMaxLOD(ctx context.Context, cms *cms.CMS, cityItem *CityItem, allFeatureItems map[string]FeatureItem) (string, string, error) {
 	log.Infofc(ctx, "preparing plateau...")
 
-	tmpDir := "tmp"
-	_ = os.MkdirAll("tmp", os.ModePerm)
+	_ = os.MkdirAll(tmpDir, os.ModePerm)
 
 	fileName := fmt.Sprintf("%s_%s_%d_maxlod.csv", cityItem.CityCode, cityItem.CityNameEn, cityItem.YearInt())
 	filePath := filepath.Join(tmpDir, fileName)

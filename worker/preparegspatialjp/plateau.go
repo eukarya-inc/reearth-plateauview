@@ -13,7 +13,6 @@ import (
 func PreparePlateau(ctx context.Context, cms *cms.CMS, cityItem *CityItem, allFeatureItems map[string]FeatureItem) (string, string, error) {
 	log.Infofc(ctx, "preparing plateau...")
 
-	tmpDir := "tmp"
 	downloadPath := filepath.Join(tmpDir, cityItem.CityCode+"_"+cityItem.CityNameEn+"_plateau")
 	_ = os.MkdirAll(downloadPath, os.ModePerm)
 

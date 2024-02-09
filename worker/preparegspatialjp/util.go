@@ -1,6 +1,8 @@
 package preparegspatialjp
 
-import "github.com/k0kubun/pp/v3"
+import (
+	"github.com/k0kubun/pp/v3"
+)
 
 var ppp *pp.PrettyPrinter
 
