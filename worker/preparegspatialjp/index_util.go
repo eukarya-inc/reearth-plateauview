@@ -25,17 +25,23 @@ func walk(f fs.FS, path, pathsep string, fn walker) (*IndexItem, error) {
 
 	items := []*IndexItem{}
 	lastDepth := 0
+	prevNilPath := ""
 	err := fs.WalkDir(f, path, func(path string, d fs.DirEntry, err error) error {
+		if strings.HasPrefix(path, prevNilPath+"/") {
+			return fs.SkipDir
+		}
+
+		prevNilPath = ""
 		item, err := fn(path, d, err)
 		if path == "" {
 			items = append(items, item)
-			lastDepth = 0
 			return err
 		}
 		if err != nil && (err != fs.SkipDir || err != fs.SkipAll) {
 			return err
 		}
 		if item == nil {
+			prevNilPath = path
 			return err
 		}
 
