@@ -124,6 +124,10 @@ func Command(conf *Config) (err error) {
 		return fmt.Errorf("failed to get all feature items: %w", err)
 	}
 
+	dic := mergeDics(lo.MapToSlice(allFeatureItems, func(k string, v FeatureItem) string {
+		return v.Dic
+	})...)
+
 	log.Infofc(ctx, "feature items: %s", ppp.Sprint(allFeatureItems))
 	log.Infofc(ctx, "preparing citygml and plateau...")
 
@@ -227,6 +231,7 @@ func Command(conf *Config) (err error) {
 			PlateuaZipPath: plateauResult.B,
 			RelatedZipPath: relatedResult.A,
 			Generic:        indexItem.Generic,
+			Dic:            dic,
 		})
 		if err != nil {
 			return fmt.Errorf("目録の生成に失敗しました: %w", err)

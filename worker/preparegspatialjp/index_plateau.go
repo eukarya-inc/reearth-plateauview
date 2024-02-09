@@ -11,7 +11,6 @@ import (
 	"github.com/dustin/go-humanize"
 )
 
-// TODO: get dic data for fld
 func generatePlateauIndexItem(seed *IndexSeed, name string, size uint64, f fs.FS) (*IndexItem, error) {
 	data := map[string]plateauItemSeed{}
 
