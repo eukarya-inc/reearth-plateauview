@@ -64,6 +64,16 @@ func Command(conf *Config) (err error) {
 		return fmt.Errorf("invalid spec version: %s", cityItem.Spec)
 	}
 
+	codelists, err := cms.Asset(ctx, cityItem.CodeLists)
+	if err != nil {
+		return fmt.Errorf("failed to get codelists: %w", err)
+	}
+
+	uc := UpdateCount(codelists.URL)
+	if uc == 0 {
+		return fmt.Errorf("invalid update count: %s", codelists.URL)
+	}
+
 	indexItemRaw, err := cms.GetItem(ctx, cityItem.GeospatialjpIndex, false)
 	if err != nil {
 		return fmt.Errorf("failed to get index item: %w", err)
@@ -146,7 +156,7 @@ func Command(conf *Config) (err error) {
 			return lo.Tuple3[string, string, error]{}
 		}
 
-		name, path, err := PrepareCityGML(ctx, cms, tmpDir, cityItem, allFeatureItems)
+		name, path, err := PrepareCityGML(ctx, cms, tmpDir, cityItem, allFeatureItems, uc)
 		if err != nil {
 			return lo.Tuple3[string, string, error]{
 				C: err,
@@ -164,7 +174,7 @@ func Command(conf *Config) (err error) {
 			return lo.Tuple3[string, string, error]{}
 		}
 
-		name, path, err := PreparePlateau(ctx, cms, tmpDir, cityItem, allFeatureItems)
+		name, path, err := PreparePlateau(ctx, cms, tmpDir, cityItem, allFeatureItems, uc)
 		return lo.Tuple3[string, string, error]{
 			A: name,
 			B: path,

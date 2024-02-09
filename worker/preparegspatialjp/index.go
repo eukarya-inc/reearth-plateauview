@@ -70,24 +70,24 @@ func GenerateIndex(ctx context.Context, seed *IndexSeed) (string, error) {
 	citygmlName := filepath.Base(seed.CityGMLZipPath)
 	citygml, err := generateCityGMLIndexItem(seed, citygmlName, citygmlSize, citygmlFS)
 	if err != nil {
-		return "", fmt.Errorf("failed to generate index items: %w", err)
+		return "", fmt.Errorf("failed to generate citygml index items: %w", err)
 	}
 
 	plateauName := filepath.Base(seed.PlateuaZipPath)
 	plateau, err := generatePlateauIndexItem(seed, plateauName, plateauSize, plateauFS)
 	if err != nil {
-		return "", fmt.Errorf("failed to generate index items: %w", err)
+		return "", fmt.Errorf("failed to generate plateau index items: %w", err)
 	}
 
 	relatedName := filepath.Base(seed.RelatedZipPath)
 	related, err := generateRelatedIndexItem(seed, relatedName, relatedSize, relatedFS)
 	if err != nil {
-		return "", fmt.Errorf("failed to generate index items: %w", err)
+		return "", fmt.Errorf("failed to generate related index items: %w", err)
 	}
 
 	generics, err := generateGenericdIndexItems(seed, seed.Generic)
 	if err != nil {
-		return "", fmt.Errorf("failed to generate index items: %w", err)
+		return "", fmt.Errorf("failed to generate generic index items: %w", err)
 	}
 
 	items := append([]*IndexItem{citygml, plateau, related}, generics...)

@@ -2,7 +2,6 @@ package preparegspatialjp
 
 import (
 	"fmt"
-	"io/fs"
 
 	"github.com/dustin/go-humanize"
 )
@@ -36,6 +35,5 @@ func generateGenericdIndexItems(seed *IndexSeed, data []GspatialjpIndexItemGroup
 			},
 		})
 	}
-	err = fs.SkipDir
 	return
 }

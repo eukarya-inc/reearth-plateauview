@@ -86,20 +86,6 @@ func (c *CityItem) SpecVersionMajorInt() int {
 	return 0
 }
 
-var reUpdateCount = regexp.MustCompile(`_(\d+)_op(?:$|_|\.)`)
-
-func (c *CityItem) UpdateCount() int {
-	t := []string{c.Metadata, c.Schemas, c.CodeLists, c.Misc, c.Specification}
-	for _, s := range t {
-		if m := reUpdateCount.FindStringSubmatch(s); len(m) > 1 {
-			if i, err := strconv.Atoi(m[1]); err == nil {
-				return i
-			}
-		}
-	}
-	return 0
-}
-
 type GspatialjpDataItem struct {
 	ID                 string   `json:"id,omitempty" cms:"id"`
 	CityGML            string   `json:"citygml,omitempty" cms:"citygml,asset"`
@@ -189,4 +175,15 @@ func YearInt(y string) (year int) {
 
 func SpecVersion(version string) string {
 	return strings.TrimSuffix(strings.TrimPrefix(version, "第"), "版")
+}
+
+var reUpdateCount = regexp.MustCompile(`_(\d+)_op_`)
+
+func UpdateCount(u string) int {
+	if m := reUpdateCount.FindStringSubmatch(u); len(m) > 1 {
+		if i, err := strconv.Atoi(m[1]); err == nil {
+			return i
+		}
+	}
+	return 0
 }
