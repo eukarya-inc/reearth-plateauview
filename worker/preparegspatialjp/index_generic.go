@@ -2,9 +2,17 @@ package preparegspatialjp
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/dustin/go-humanize"
 )
+
+const ortho = "オルソ"
+
+var itemsForOrtho = []*IndexItem{
+	{Name: "**metadata** (PDF)"},
+	{Name: "**images** (GeoTIFF)"},
+}
 
 func generateGenericdIndexItems(seed *IndexSeed, data []GspatialjpIndexItemGroup) (res []*IndexItem, err error) {
 	for _, d := range data {
@@ -21,6 +29,17 @@ func generateGenericdIndexItems(seed *IndexSeed, data []GspatialjpIndexItemGroup
 			return nil, fmt.Errorf("%s からファイルをダウンロードできませんでした。: %w", u, err)
 		}
 
+		var children []*IndexItem
+		if strings.Contains(d.Type, ortho) {
+			children = itemsForOrtho
+		} else {
+			children = []*IndexItem{
+				{
+					Name: d.Name,
+				},
+			}
+		}
+
 		res = append(res, &IndexItem{
 			Name: fmt.Sprintf(
 				"**%s**：%s (%s)",
@@ -28,11 +47,7 @@ func generateGenericdIndexItems(seed *IndexSeed, data []GspatialjpIndexItemGroup
 				d.Type,
 				humanize.Bytes(size),
 			),
-			Children: []*IndexItem{
-				{
-					Name: d.Name,
-				},
-			},
+			Children: children,
 		})
 	}
 	return
