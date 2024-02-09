@@ -16,6 +16,11 @@ func generatePlateauIndexItem(seed *IndexSeed, name string, size uint64, f fs.FS
 
 	if err := fs.WalkDir(f, "", func(p string, d fs.DirEntry, err error) error {
 		base := path.Base(p)
+		_, name, _ := strings.Cut(base, "_op_")
+		if name == "" {
+			return nil
+		}
+
 		featureType := extractFeatureType(base)
 		if featureType == "" {
 			return nil
@@ -26,14 +31,16 @@ func generatePlateauIndexItem(seed *IndexSeed, name string, size uint64, f fs.FS
 		if _, ok := data[featureType]; !ok {
 			data[featureType] = plateauItemSeed{
 				Type:  featureType,
-				Name:  base,
+				Name:  name,
 				Title: featureTypees[featureType],
 				LOD:   nil,
 			}
 		}
 		if lod > -1 {
 			d := data[featureType]
-			d.LOD = append(d.LOD, lod)
+			if !slices.Contains(d.LOD, lod) {
+				d.LOD = append(d.LOD, lod)
+			}
 			data[featureType] = d
 		}
 		return nil
@@ -105,6 +112,7 @@ func (p plateauItemSeed) Item() *IndexItem {
 		}
 	}
 
+	sort.Ints(p.LOD)
 	children := make([]*IndexItem, len(p.LOD))
 	for i, l := range p.LOD {
 		children[i] = &IndexItem{
