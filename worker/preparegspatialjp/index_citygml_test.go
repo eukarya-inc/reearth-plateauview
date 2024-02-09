@@ -9,7 +9,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestGeneratePlateauIndexItem(t *testing.T) {
+func TestGenerateCityGMLIndexItem(t *testing.T) {
 	zipPath := ""
 
 	if zipPath == "" {
@@ -22,7 +22,7 @@ func TestGeneratePlateauIndexItem(t *testing.T) {
 	assert.NoError(t, err)
 	f := afero.NewIOFS(zipfs.New(&zr.Reader))
 
-	res, err := generatePlateauIndexItem(seed, name, size, f)
+	res, err := generateCityGMLIndexItem(seed, name, size, f)
 	assert.NoError(t, err)
 
 	text := renderIndexItem(res, 0)

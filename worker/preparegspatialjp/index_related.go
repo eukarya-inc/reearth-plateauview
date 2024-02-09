@@ -3,6 +3,7 @@ package preparegspatialjp
 import (
 	"fmt"
 	"io/fs"
+	"slices"
 	"strings"
 
 	"github.com/dustin/go-humanize"
@@ -17,7 +18,9 @@ func generateRelatedIndexItem(seed *IndexSeed, name string, size uint64, f fs.FS
 		}
 
 		if t := detectRelatedDataType(p); t != "" {
-			items = append(items, t)
+			if !slices.Contains(items, t) {
+				items = append(items, t)
+			}
 		}
 
 		return nil
@@ -25,10 +28,17 @@ func generateRelatedIndexItem(seed *IndexSeed, name string, size uint64, f fs.FS
 		return nil, fmt.Errorf("failed to walk related zip: %w", err)
 	}
 
+	sortedItems := []string{}
+	for _, t := range relatedDataTypes {
+		if slices.Contains(items, t) {
+			sortedItems = append(sortedItems, t)
+		}
+	}
+
 	children := []*IndexItem{}
-	for _, d := range items {
+	for _, d := range sortedItems {
 		children = append(children, &IndexItem{
-			Name: fmt.Sprintf("**%s**", relatedDataTypeMap[d]),
+			Name: fmt.Sprintf("**%s**：%s（GeoJSON）", d, relatedDataTypeMap[d]),
 		})
 	}
 
