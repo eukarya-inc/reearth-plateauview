@@ -41,6 +41,34 @@ func downloadFileAsBytes(ctx context.Context, url string) ([]byte, error) {
 	return b.Bytes(), nil
 }
 
+func downloadFileTo(ctx context.Context, url, dir string) (string, error) {
+	r, err := downloadFile(ctx, url)
+	if err != nil {
+		return "", err
+	}
+	defer func() {
+		_ = r.Close()
+	}()
+
+	name := fileNameFromURL(url)
+	dest := filepath.Join(dir, name)
+	_ = os.MkdirAll(dir, os.ModePerm)
+	f, err := os.Create(dest)
+	if err != nil {
+		return "", err
+	}
+
+	defer func() {
+		_ = f.Close()
+	}()
+
+	_, err = io.Copy(f, r)
+	if err != nil {
+		return "", err
+	}
+	return dest, nil
+}
+
 func downloadFile(ctx context.Context, url string) (io.ReadCloser, error) {
 	log.Infofc(ctx, "downloading %s...", url)
 

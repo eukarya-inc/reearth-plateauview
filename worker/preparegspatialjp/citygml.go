@@ -11,44 +11,26 @@ import (
 	"github.com/reearth/reearthx/log"
 )
 
-func PrepareCityGML(ctx context.Context, cms *cms.CMS, cityItem *CityItem, allFeatureItems map[string]FeatureItem) (string, string, string, string, error) {
-	tmpDir := "tmp"
+func PrepareCityGML(ctx context.Context, cms *cms.CMS, tmpDir string, cityItem *CityItem, allFeatureItems map[string]FeatureItem, uc int) (string, string, error) {
 	downloadPath := filepath.Join(tmpDir, cityItem.CityCode+"_"+cityItem.CityNameEn+"_citygml")
 	_ = os.MkdirAll(downloadPath, os.ModePerm)
 
-	zipFileName := fmt.Sprintf("%s_%s_city_%d_citygml.zip", cityItem.CityCode, cityItem.CityNameEn, cityItem.YearInt())
+	zipFileName := fmt.Sprintf("%s_%s_city_%d_citygml_%d_op.zip", cityItem.CityCode, cityItem.CityNameEn, cityItem.YearInt(), uc)
 	zipFilePath := filepath.Join(tmpDir, zipFileName)
 
 	if err := getAssets(ctx, cms, cityItem, downloadPath); err != nil {
-		return "", "", "", "", fmt.Errorf("failed to get assets: %w", err)
+		return "", "", fmt.Errorf("failed to get assets: %w", err)
 	}
 
 	if err := getUdx(ctx, allFeatureItems, downloadPath); err != nil {
-		return "", "", "", "", fmt.Errorf("failed to get udx: %w", err)
+		return "", "", fmt.Errorf("failed to get udx: %w", err)
 	}
 
 	if err := ZipDir(ctx, downloadPath, zipFilePath); err != nil {
-		return "", "", "", "", fmt.Errorf("failed to zip citygml: %w", err)
+		return "", "", fmt.Errorf("failed to zip citygml: %w", err)
 	}
 
-	md, err := ZipToMarkdownTree(ctx, zipFileName, zipFilePath)
-	if err != nil {
-		return "", "", "", "", fmt.Errorf("failed to generate markdown: %w", err)
-	}
-
-	mdFileName := "citygml.md"
-	mdFilePath := filepath.Join(tmpDir, mdFileName)
-
-	mdFile, err := os.OpenFile(mdFilePath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, os.ModePerm)
-	if err != nil {
-		return "", "", "", "", fmt.Errorf("failed to create file: %v", err)
-	}
-	_, err = mdFile.WriteString(md)
-	if err != nil {
-		return "", "", "", "", fmt.Errorf("failed to write file: %v", err)
-	}
-
-	return zipFileName, zipFilePath, mdFileName, mdFilePath, nil
+	return zipFileName, zipFilePath, nil
 }
 
 func getUdx(ctx context.Context, allFeatureItems map[string]FeatureItem, downloadPath string) error {

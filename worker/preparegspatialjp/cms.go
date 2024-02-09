@@ -9,7 +9,6 @@ import (
 )
 
 var featureTypes = []string{
-	// *: データカタログ上で複数の項目に分かれて存在
 	"bldg", // 建築物モデル
 	"tran", // 交通（道路）モデル
 	"rwy",  // 交通（鉄道）モデル
@@ -17,12 +16,12 @@ var featureTypes = []string{
 	"squr", // 交通（広場）モデル
 	"wwy",  // 交通（航路）モデル
 	"luse", // 土地利用モデル
-	"fld",  // 洪水浸水想定区域モデル*
-	"tnm",  // 津波浸水想定区域モデル*
-	"htd",  // 高潮浸水想定区域モデル*
-	"ifld", // 内水浸水想定区域モデル*
+	"fld",  // 洪水浸水想定区域モデル
+	"tnm",  // 津波浸水想定区域モデル
+	"htd",  // 高潮浸水想定区域モデル
+	"ifld", // 内水浸水想定区域モデル
 	"lsld", // 土砂災害モデル
-	"urf",  // 都市計画決定情報モデル*
+	"urf",  // 都市計画決定情報モデル
 	"unf",  // 地下埋設物モデル
 	"brid", // 橋梁モデル
 	"tun",  // トンネルモデル
@@ -32,8 +31,8 @@ var featureTypes = []string{
 	"veg",  // 植生モデル
 	"dem",  // 地形モデル
 	"wtr",  // 水部モデル
-	"area", // 区域モデル*
-	"gen",  // 汎用都市オブジェクトモデル*
+	"area", // 区域モデル
+	"gen",  // 汎用都市オブジェクトモデル
 }
 
 type CityItem struct {
@@ -78,17 +77,86 @@ func (c *CityItem) YearInt() int {
 	return YearInt(c.Year)
 }
 
-type GspatialjpItem struct {
+func (c *CityItem) SpecVersionMajorInt() int {
+	v := SpecVersion(c.Spec)
+	first, _, _ := strings.Cut(v, ".")
+	if i, err := strconv.Atoi(first); err == nil {
+		return i
+	}
+	return 0
+}
+
+type GspatialjpDataItem struct {
 	ID                 string   `json:"id,omitempty" cms:"id"`
 	CityGML            string   `json:"citygml,omitempty" cms:"citygml,asset"`
 	Plateau            string   `json:"plateau,omitempty" cms:"plateau,asset"`
 	Related            string   `json:"related,omitempty" cms:"related,asset"`
 	Generic            []string `json:"generic,omitempty" cms:"generic,asset"`
 	MaxLOD             string   `json:"maxlod,omitempty" cms:"maxlod,asset"`
+	Index              string   `json:"desc_index,omitempty" cms:"desc_index,markdown"`
 	MergeCityGMLStatus *cms.Tag `json:"merge_citygml_status" cms:"merge_citygml_status,tag,metadata"`
 	MergePlateauStatus *cms.Tag `json:"merge_plateau_status" cms:"merge_plateau_status,tag,metadata"`
 	MergeRelatedStatus *cms.Tag `json:"merge_related_status" cms:"merge_related_status,tag,metadata"`
 	MergeMaxLODStatus  *cms.Tag `json:"merge_maxlod_status" cms:"merge_maxlod_status,tag,metadata"`
+}
+
+func (g *GspatialjpDataItem) ShouldMergeCityGML() bool {
+	return g.MergeCityGMLStatus == nil || g.MergeCityGMLStatus.Name != "未実行"
+}
+
+func (g *GspatialjpDataItem) ShouldMergePlateau() bool {
+	return g.MergePlateauStatus == nil || g.MergePlateauStatus.Name != "未実行"
+}
+
+func (g *GspatialjpDataItem) ShouldMergeRelated() bool {
+	return g.MergeRelatedStatus == nil || g.MergeRelatedStatus.Name != "未実行"
+}
+
+func (g *GspatialjpDataItem) ShouldMergeMaxLOD() bool {
+	return g.MergeMaxLODStatus == nil || g.MergeMaxLODStatus.Name != "未実行"
+}
+
+func GspatialjpDataItemFrom(item *cms.Item) (i *GspatialjpDataItem) {
+	i = &GspatialjpDataItem{}
+	item.Unmarshal(i)
+	return
+}
+
+type GspatialjpIndexItem struct {
+	ID      string                     `json:"id,omitempty" cms:"id"`
+	Generic []GspatialjpIndexItemGroup `json:"generic,omitempty" cms:"generic,group"`
+}
+
+func (g *GspatialjpIndexItem) GenericMap() map[string]string {
+	m := map[string]string{}
+	for _, g := range g.Generic {
+		if u := g.AssetURL(); u != "" {
+			m[g.Name] = u
+		}
+	}
+	return m
+}
+
+func GspatialjpIndexItemFrom(item *cms.Item) (i *GspatialjpIndexItem) {
+	i = &GspatialjpIndexItem{}
+	item.Unmarshal(i)
+	return
+}
+
+type GspatialjpIndexItemGroup struct {
+	Name  string         `cms:"name,text"`
+	Type  string         `cms:"type,select"`
+	Asset map[string]any `cms:"asset,asset"`
+}
+
+func (g *GspatialjpIndexItemGroup) AssetURL() string {
+	if g == nil || g.Asset == nil {
+		return ""
+	}
+	if url, ok := g.Asset["url"].(string); ok {
+		return url
+	}
+	return ""
 }
 
 var reReiwa = regexp.MustCompile(`令和([0-9]+?)年度?`)
@@ -107,4 +175,15 @@ func YearInt(y string) (year int) {
 
 func SpecVersion(version string) string {
 	return strings.TrimSuffix(strings.TrimPrefix(version, "第"), "版")
+}
+
+var reUpdateCount = regexp.MustCompile(`_(\d+)_op_`)
+
+func UpdateCount(u string) int {
+	if m := reUpdateCount.FindStringSubmatch(u); len(m) > 1 {
+		if i, err := strconv.Atoi(m[1]); err == nil {
+			return i
+		}
+	}
+	return 0
 }

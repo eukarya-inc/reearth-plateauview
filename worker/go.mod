@@ -3,12 +3,15 @@ module github.com/eukarya-inc/reearth-plateauview/worker
 go 1.21
 
 require (
+	github.com/dustin/go-humanize v1.0.1
+	github.com/google/uuid v1.6.0
 	github.com/joho/godotenv v1.5.1
 	github.com/k0kubun/pp/v3 v3.2.0
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/reearth/reearth-cms-api/go v0.0.0-20240122053845-b8e81556b2e4
 	github.com/reearth/reearthx v0.0.0-20240206154804-13a660b86aad
 	github.com/samber/lo v1.39.0
+	github.com/spf13/afero v1.11.0
 	github.com/stretchr/testify v1.8.4
 )
 

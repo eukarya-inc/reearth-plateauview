@@ -2,6 +2,7 @@ package preparegspatialjp
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 
 	cms "github.com/reearth/reearth-cms-api/go"
@@ -12,6 +13,7 @@ type FeatureItem struct {
 	CityGML string   `json:"citygml,omitempty"`
 	Data    []string `json:"data,omitempty"`
 	MaxLOD  string   `json:"maxlod,omitempty"`
+	Dic     string   `json:"dic,omitempty"`
 }
 
 func getAllFeatureItems(ctx context.Context, c *cms.CMS, cityItem *CityItem) (map[string]FeatureItem, error) {
@@ -46,12 +48,14 @@ func FeatureItemFrom(item *cms.Item) FeatureItem {
 		Data    []any           `cms:"data"`
 		Items   []internalGroup `cms:"items,group"`
 		MaxLOD  any             `cms:"maxlod"`
+		Dic     string          `cms:"dic"`
 	}
 
 	fi := internalItem{}
 	item.Unmarshal(&fi)
 
 	res.ID = fi.ID
+	res.Dic = fi.Dic
 
 	if fi.CityGML != nil {
 		asset, ok := fi.CityGML.(map[string]any)
@@ -92,4 +96,42 @@ func FeatureItemFrom(item *cms.Item) FeatureItem {
 	}
 
 	return res
+}
+
+func mergeDics(dics ...string) (res map[string]string) {
+	type dicEntry struct {
+		Name        *StringOrNumber `json:"name"`
+		Code        *StringOrNumber `json:"code"`
+		Description string          `json:"description"`
+	}
+
+	res = map[string]string{}
+	for _, dic := range dics {
+		if dic == "" {
+			continue
+		}
+
+		var data map[string][]dicEntry
+		if err := json.Unmarshal([]byte(dic), &data); err != nil {
+			continue
+		}
+
+		for _, v := range data {
+			for _, e := range v {
+				if e.Description == "" {
+					continue
+				}
+
+				if e.Name != nil {
+					res[e.Name.String()] = e.Description
+				}
+
+				if e.Code != nil {
+					res[e.Code.String()] = e.Description
+				}
+			}
+		}
+	}
+
+	return
 }
