@@ -140,7 +140,7 @@ func Command(conf *Config) (err error) {
 			return lo.Tuple3[string, string, error]{}
 		}
 
-		name, path, _, _, err := PrepareCityGML(ctx, cms, cityItem, allFeatureItems)
+		name, path, err := PrepareCityGML(ctx, cms, cityItem, allFeatureItems)
 		if err != nil {
 			return lo.Tuple3[string, string, error]{
 				C: err,
