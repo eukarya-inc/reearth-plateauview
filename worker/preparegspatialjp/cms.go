@@ -45,7 +45,8 @@ type CityItem struct {
 	CodeLists         string            `json:"codelists,omitempty" cms:"codelists,asset"`
 	Schemas           string            `json:"schemas,omitempty" cms:"schemas,asset"`
 	Metadata          string            `json:"metadata,omitempty" cms:"metadata,asset"`
-	Spec              string            `json:"spec,omitempty" cms:"spec,asset"`
+	Specification     string            `json:"specification,omitempty" cms:"specification,asset"`
+	Spec              string            `json:"spec,omitempty" cms:"spec,select"`
 	Misc              string            `json:"misc,omitempty" cms:"misc,asset"`
 	Year              string            `json:"year,omitempty" cms:"year,select"`
 	RelatedDataset    string            `json:"related,omitempty" cms:"related,reference"`
