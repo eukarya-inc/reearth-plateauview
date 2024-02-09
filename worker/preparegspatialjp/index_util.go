@@ -3,6 +3,7 @@ package preparegspatialjp
 import (
 	"archive/zip"
 	"fmt"
+	"io"
 	"io/fs"
 	"net/http"
 	"os"
@@ -110,16 +111,29 @@ func fileSize(path string) (uint64, error) {
 }
 
 func httpSize(url string) (uint64, error) {
-	resp, err := http.Head(url)
+	resp, err := http.Get(url)
 	if err != nil {
 		return 0, err
 	}
+
+	defer func() {
+		_ = resp.Body.Close()
+	}()
 
 	if resp.StatusCode != http.StatusOK {
 		return 0, fmt.Errorf("http status code: %d", resp.StatusCode)
 	}
 
-	return uint64(resp.ContentLength), nil
+	if resp.ContentLength > 0 {
+		return uint64(resp.ContentLength), nil
+	}
+
+	size, err := io.Copy(io.Discard, resp.Body)
+	if err != nil {
+		return 0, err
+	}
+
+	return uint64(size), nil
 }
 
 func fileNameFromURL(url string) string {
