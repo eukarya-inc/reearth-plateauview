@@ -177,6 +177,9 @@ func ZipDir(ctx context.Context, srcDir string, destZip string) error {
 
 		log.Infofc(ctx, "zipping %s...", path)
 		if info.IsDir() {
+			if destPath == "" {
+				return nil
+			}
 			// ensure directory ends with /
 			if !strings.HasSuffix(destPath, "/") {
 				destPath += "/"
