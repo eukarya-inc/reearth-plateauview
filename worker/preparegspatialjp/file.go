@@ -172,14 +172,16 @@ func ZipDir(ctx context.Context, srcDir string, destZip string) error {
 			return err
 		}
 
+		destPath := strings.TrimPrefix(path, srcDir)
+		destPath = strings.ReplaceAll(destPath, `\`, "/")
+
 		log.Infofc(ctx, "zipping %s...", path)
 		if info.IsDir() {
-			path2 := strings.ReplaceAll(path, `\`, "/")
 			// ensure directory ends with /
-			if !strings.HasSuffix(path2, "/") {
-				path2 += "/"
+			if !strings.HasSuffix(destPath, "/") {
+				destPath += "/"
 			}
-			_, err := w.Create(path2)
+			_, err := w.Create(destPath)
 			return err
 		}
 
@@ -189,9 +191,8 @@ func ZipDir(ctx context.Context, srcDir string, destZip string) error {
 		}
 
 		defer file.Close()
-		path = strings.TrimPrefix(path, srcDir)
 
-		f, err := w.Create(path)
+		f, err := w.Create(destPath)
 		if err != nil {
 			return err
 		}
