@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/dustin/go-humanize"
+	"golang.org/x/exp/maps"
 )
 
 func generatePlateauIndexItem(seed *IndexSeed, name string, size uint64, f fs.FS) (*IndexItem, error) {
@@ -30,17 +31,17 @@ func generatePlateauIndexItem(seed *IndexSeed, name string, size uint64, f fs.FS
 
 		if _, ok := data[featureType]; !ok {
 			data[featureType] = plateauItemSeed{
-				Type:  featureType,
-				Name:  name,
-				Title: featureTypees[featureType],
-				LOD:   nil,
+				Type: featureType,
+				Name: name,
+				LOD:  nil,
 			}
 		}
 		if lod > -1 {
 			d := data[featureType]
-			if !slices.Contains(d.LOD, lod) {
-				d.LOD = append(d.LOD, lod)
+			if d.LOD == nil {
+				d.LOD = map[int]string{}
 			}
+			d.LOD[lod] = name
 			data[featureType] = d
 		}
 		return nil
@@ -92,36 +93,42 @@ func extractLOD(name string) int {
 }
 
 type plateauItemSeed struct {
-	Type  string
-	Name  string
-	Title string
-	LOD   []int
+	Type string
+	Name string
+	LOD  map[int]string
 }
 
 func (p plateauItemSeed) Item() *IndexItem {
+	title := featureTypees[p.Type]
 	format := extractDataFormat(p.Name)
 
 	if len(p.LOD) == 0 {
 		return &IndexItem{
-			Name: fmt.Sprintf("**%s**：%s（%s）", p.Name, p.Title, format),
+			Name: fmt.Sprintf("**%s**：%s（%s）", p.Type, title, format),
 		}
 	}
 	if len(p.LOD) == 1 {
+		firstKey := maps.Keys(p.LOD)[0]
+		name := p.LOD[firstKey]
+		format := extractDataFormat(name)
 		return &IndexItem{
-			Name: fmt.Sprintf("**%s**：%s（LOD%d, %s）", p.Name, p.Title, p.LOD[0], format),
+			Name: fmt.Sprintf("**%s**：%s（LOD%d, %s）", p.Type, title, firstKey, format),
 		}
 	}
 
-	sort.Ints(p.LOD)
-	children := make([]*IndexItem, len(p.LOD))
-	for i, l := range p.LOD {
-		children[i] = &IndexItem{
-			Name: fmt.Sprintf("%s（LOD%d, %s）", p.Title, l, format),
-		}
+	lods := maps.Keys(p.LOD)
+	sort.Ints(lods)
+	children := make([]*IndexItem, 0, len(lods))
+	for _, lod := range lods {
+		name := p.LOD[lod]
+		format := extractDataFormat(name)
+		children = append(children, &IndexItem{
+			Name: fmt.Sprintf("%s（LOD%d, %s）", title, lod, format),
+		})
 	}
 
 	return &IndexItem{
-		Name:     fmt.Sprintf("**%s**：%s（%s）", p.Name, p.Title, format),
+		Name:     fmt.Sprintf("**%s**：%s", p.Type, title),
 		Children: children,
 	}
 }
