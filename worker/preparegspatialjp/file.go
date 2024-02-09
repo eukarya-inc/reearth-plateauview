@@ -168,13 +168,19 @@ func ZipDir(ctx context.Context, srcDir string, destZip string) error {
 	defer w.Close()
 
 	walker := func(path string, info os.FileInfo, err error) error {
-		log.Infofc(ctx, "zipping %s...", path)
 		if err != nil {
 			return err
 		}
 
+		log.Infofc(ctx, "zipping %s...", path)
 		if info.IsDir() {
-			return nil
+			path2 := strings.ReplaceAll(path, `\`, "/")
+			// ensure directory ends with /
+			if !strings.HasSuffix(path2, "/") {
+				path2 += "/"
+			}
+			_, err := w.Create(path2)
+			return err
 		}
 
 		file, err := os.Open(path)
