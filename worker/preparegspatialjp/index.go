@@ -3,21 +3,20 @@ package preparegspatialjp
 import (
 	"context"
 	"fmt"
-	"io/fs"
+	"path/filepath"
 	"strings"
-
-	"github.com/dustin/go-humanize"
 )
 
 type IndexSeed struct {
 	CityName       string
+	CityCode       string
 	Year           int
 	V              int
 	CityGMLZipPath string
 	PlateuaZipPath string
 	RelatedZipPath string
-	// name: path
-	Generic map[string]string
+	Generic        []GspatialjpIndexItemGroup
+	Dic            map[string]string
 }
 
 type IndexItem struct {
@@ -26,6 +25,21 @@ type IndexItem struct {
 }
 
 func GenerateIndex(ctx context.Context, seed *IndexSeed) (string, error) {
+	citygmlSize, err := fileSize(seed.CityGMLZipPath)
+	if err != nil {
+		return "", fmt.Errorf("failed to get citygml zip size: %w", err)
+	}
+
+	plateauSize, err := fileSize(seed.PlateuaZipPath)
+	if err != nil {
+		return "", fmt.Errorf("failed to get plateau zip size: %w", err)
+	}
+
+	relatedSize, err := fileSize(seed.RelatedZipPath)
+	if err != nil {
+		return "", fmt.Errorf("failed to get related zip size: %w", err)
+	}
+
 	citygmlFS, citygmlFSCloser, err := openZip(seed.CityGMLZipPath)
 	if err != nil {
 		return "", fmt.Errorf("failed to open citygml zip: %w", err)
@@ -53,22 +67,25 @@ func GenerateIndex(ctx context.Context, seed *IndexSeed) (string, error) {
 		}
 	}()
 
-	citygml, err := generateCityGMLIndexItem(ctx, seed, citygmlFS)
+	citygmlName := filepath.Base(seed.CityGMLZipPath)
+	citygml, err := generateCityGMLIndexItem(seed, citygmlName, citygmlSize, citygmlFS)
 	if err != nil {
 		return "", fmt.Errorf("failed to generate index items: %w", err)
 	}
 
-	plateau, err := generatePlateauIndexItem(ctx, seed, plateauFS)
+	plateauName := filepath.Base(seed.PlateuaZipPath)
+	plateau, err := generatePlateauIndexItem(seed, plateauName, plateauSize, plateauFS)
 	if err != nil {
 		return "", fmt.Errorf("failed to generate index items: %w", err)
 	}
 
-	related, err := generateRelatedIndexItem(ctx, seed, relatedFS)
+	relatedName := filepath.Base(seed.RelatedZipPath)
+	related, err := generateRelatedIndexItem(seed, relatedName, relatedSize, relatedFS)
 	if err != nil {
 		return "", fmt.Errorf("failed to generate index items: %w", err)
 	}
 
-	generics, err := generateGenericdIndexItems(ctx, seed, seed.Generic)
+	generics, err := generateGenericdIndexItems(seed, seed.Generic)
 	if err != nil {
 		return "", fmt.Errorf("failed to generate index items: %w", err)
 	}
@@ -93,43 +110,6 @@ func renderIndexItem(t *IndexItem, depth int) (res string) {
 	res = fmt.Sprintf("%s- %s\n", strings.Repeat("  ", depth*2), t.Name)
 	for _, c := range t.Children {
 		res += renderIndexItem(c, depth+1)
-	}
-	return
-}
-
-func generateCityGMLIndexItem(ctx context.Context, seed *IndexSeed, f fs.FS) (*IndexItem, error) {
-	return walk(f, "", "/", func(path string, d fs.DirEntry, err error) (*IndexItem, error) {
-		panic("not implemented") // TODO: Implement
-	})
-}
-
-func generatePlateauIndexItem(ctx context.Context, seed *IndexSeed, f fs.FS) (*IndexItem, error) {
-	return walk(f, "", "/", func(path string, d fs.DirEntry, err error) (*IndexItem, error) {
-		panic("not implemented") // TODO: Implement
-	})
-}
-
-func generateRelatedIndexItem(ctx context.Context, seed *IndexSeed, f fs.FS) (*IndexItem, error) {
-	return walk(f, "", "/", func(path string, d fs.DirEntry, err error) (*IndexItem, error) {
-		panic("not implemented") // TODO: Implement
-	})
-}
-
-func generateGenericdIndexItems(ctx context.Context, seed *IndexSeed, urls map[string]string) (res []*IndexItem, err error) {
-	for name, url := range urls {
-		size, err := httpSize(url)
-		if err != nil {
-			return nil, fmt.Errorf("%s からファイルをダウンロードできませんでした。: %w", url, err)
-		}
-
-		res = append(res, &IndexItem{
-			Name: fmt.Sprintf("**%s**：ユースケースデータ (%s)", fileNameFromURL(url), humanize.Bytes(uint64(size))),
-			Children: []*IndexItem{
-				{
-					Name: name,
-				},
-			},
-		})
 	}
 	return
 }

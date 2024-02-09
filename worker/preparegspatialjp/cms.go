@@ -9,7 +9,6 @@ import (
 )
 
 var featureTypes = []string{
-	// *: データカタログ上で複数の項目に分かれて存在
 	"bldg", // 建築物モデル
 	"tran", // 交通（道路）モデル
 	"rwy",  // 交通（鉄道）モデル
@@ -17,12 +16,12 @@ var featureTypes = []string{
 	"squr", // 交通（広場）モデル
 	"wwy",  // 交通（航路）モデル
 	"luse", // 土地利用モデル
-	"fld",  // 洪水浸水想定区域モデル*
-	"tnm",  // 津波浸水想定区域モデル*
-	"htd",  // 高潮浸水想定区域モデル*
-	"ifld", // 内水浸水想定区域モデル*
+	"fld",  // 洪水浸水想定区域モデル
+	"tnm",  // 津波浸水想定区域モデル
+	"htd",  // 高潮浸水想定区域モデル
+	"ifld", // 内水浸水想定区域モデル
 	"lsld", // 土砂災害モデル
-	"urf",  // 都市計画決定情報モデル*
+	"urf",  // 都市計画決定情報モデル
 	"unf",  // 地下埋設物モデル
 	"brid", // 橋梁モデル
 	"tun",  // トンネルモデル
@@ -32,8 +31,8 @@ var featureTypes = []string{
 	"veg",  // 植生モデル
 	"dem",  // 地形モデル
 	"wtr",  // 水部モデル
-	"area", // 区域モデル*
-	"gen",  // 汎用都市オブジェクトモデル*
+	"area", // 区域モデル
+	"gen",  // 汎用都市オブジェクトモデル
 }
 
 type CityItem struct {
@@ -145,8 +144,9 @@ func GspatialjpIndexItemFrom(item *cms.Item) (i *GspatialjpIndexItem) {
 }
 
 type GspatialjpIndexItemGroup struct {
-	Name  string
-	Asset map[string]any
+	Name  string         `cms:"name,text"`
+	Type  string         `cms:"type,select"`
+	Asset map[string]any `cms:"asset,asset"`
 }
 
 func (g *GspatialjpIndexItemGroup) AssetURL() string {

@@ -70,6 +70,11 @@ func Command(conf *Config) (err error) {
 	indexItem := GspatialjpIndexItemFrom(indexItemRaw)
 	log.Infofc(ctx, "geospatialjp index item: %s", ppp.Sprint(indexItem))
 
+	relatedAssetID, relatedAssetURL, err := GetRelatedZipAssetIDAndURL(ctx, cms, cityItem)
+	if err != nil {
+		return fmt.Errorf("failed to get related zip asset id and url: %w", err)
+	}
+
 	gdataItemRaw, err := cms.GetItem(ctx, cityItem.GeospatialjpData, false)
 	if err != nil {
 		return fmt.Errorf("failed to get geospatialjp data item: %w", err)
@@ -170,12 +175,25 @@ func Command(conf *Config) (err error) {
 		}
 	})
 
+	relatedCh := lo.Async(func() lo.Tuple2[string, error] {
+		if conf.SkipRelated || relatedAssetURL == "" {
+			return lo.Tuple2[string, error]{}
+		}
+
+		p, err := downloadFileTo(ctx, relatedAssetURL, tmpDir)
+		return lo.Tuple2[string, error]{
+			A: p,
+			B: err,
+		}
+	})
+
 	citygmlResult := <-citygmlCh
 	plateauResult := <-plateauCh
 	maxlodResult := <-maxlodCh
+	relatedResult := <-relatedCh
 
 	// check errors
-	if citygmlResult.C != nil || plateauResult.C != nil || maxlodResult.C != nil {
+	if citygmlResult.C != nil || plateauResult.C != nil || maxlodResult.C != nil || relatedResult.B != nil {
 		var errs []error
 		if citygmlResult.C != nil {
 			citygmlError = true
@@ -189,6 +207,10 @@ func Command(conf *Config) (err error) {
 			maxlodError = true
 			errs = append(errs, fmt.Errorf("最大LODのマージに失敗しました: %w", maxlodResult.C))
 		}
+		if relatedResult.B != nil {
+			errs = append(errs, fmt.Errorf("関連ファイルのダウンロードに失敗しました: %w", relatedResult.B))
+		}
+
 		err = errors.Join(errs...)
 		return err
 	}
@@ -198,29 +220,20 @@ func Command(conf *Config) (err error) {
 	if !conf.SkipIndex {
 		index, err = GenerateIndex(ctx, &IndexSeed{
 			CityName:       cityItem.CityName,
+			CityCode:       cityItem.CityCode,
 			Year:           cityItem.YearInt(),
 			V:              cityItem.SpecVersionMajorInt(),
 			CityGMLZipPath: citygmlResult.B,
 			PlateuaZipPath: plateauResult.B,
-			RelatedZipPath: "",  //TODO
-			Generic:        nil, //TODO
+			RelatedZipPath: relatedResult.A,
+			Generic:        indexItem.Generic,
 		})
 		if err != nil {
 			return fmt.Errorf("目録の生成に失敗しました: %w", err)
 		}
 	}
 
-	var citygmlAssetID, plateauAssetID, maxlodAssetID, relatedAssetID string
-
-	// get related data asset ID
-	if !conf.SkipRelated {
-		var err2 error
-		relatedAssetID, err2 = GetRelatedZipAssetID(ctx, cms, cityItem)
-		if err2 != nil {
-			log.Errorfc(ctx, "failed to get related zip asset id: %w", err2)
-			comment += fmt.Sprintf("\n関連ファイルの取得に失敗しました。: %s", err2)
-		}
-	}
+	var citygmlAssetID, plateauAssetID, maxlodAssetID string
 
 	// upload zips
 	if conf.WetRun {

@@ -31,14 +31,11 @@ func walk(f fs.FS, path, pathsep string, fn walker) (*IndexItem, error) {
 			lastDepth = 0
 			return err
 		}
-		if err != nil {
+		if err != nil && (err != fs.SkipDir || err != fs.SkipAll) {
 			return err
 		}
 		if item == nil {
-			return fs.SkipDir
-		}
-		if path == "/" {
-			return nil
+			return err
 		}
 
 		depth := strings.Count(path, pathsep) + 1
@@ -56,12 +53,12 @@ func walk(f fs.FS, path, pathsep string, fn walker) (*IndexItem, error) {
 		} else if depth == lastDepth+1 {
 			items = append(items, item)
 		} else if depth != lastDepth {
-			return fmt.Errorf("unexpected depth: %d -> %d: %s", lastDepth, depth, path)
+			return nil // skip
 		}
 
 		lastItem.Children = append(lastItem.Children, item)
 		lastDepth = depth
-		return nil
+		return err
 	})
 
 	if err != nil {
@@ -101,7 +98,18 @@ func openZip(path string) (fs.FS, func() error, error) {
 	return afero.NewIOFS(f), closer, nil
 }
 
-func httpSize(url string) (int64, error) {
+func fileSize(path string) (uint64, error) {
+	if path == "" {
+		return uint64(0), nil
+	}
+	stat, err := os.Stat(path)
+	if err != nil {
+		return 0, err
+	}
+	return uint64(stat.Size()), nil
+}
+
+func httpSize(url string) (uint64, error) {
 	resp, err := http.Head(url)
 	if err != nil {
 		return 0, err
@@ -111,7 +119,7 @@ func httpSize(url string) (int64, error) {
 		return 0, fmt.Errorf("http status code: %d", resp.StatusCode)
 	}
 
-	return resp.ContentLength, nil
+	return uint64(resp.ContentLength), nil
 }
 
 func fileNameFromURL(url string) string {
