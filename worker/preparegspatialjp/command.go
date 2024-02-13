@@ -4,11 +4,12 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"math/rand"
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
-	"github.com/google/uuid"
 	cms "github.com/reearth/reearth-cms-api/go"
 	"github.com/reearth/reearthx/log"
 	"github.com/samber/lo"
@@ -108,7 +109,8 @@ func Command(conf *Config) (err error) {
 		return fmt.Errorf("no command to run")
 	}
 
-	tmpDir := filepath.Join(tmpDirBase, uuid.NewString())
+	tmpDirName := fmt.Sprintf("%s-%d", time.Now().Format("20060102-150405"), rand.Intn(1000))
+	tmpDir := filepath.Join(tmpDirBase, tmpDirName)
 	log.Infofc(ctx, "tmp dir: %s", tmpDir)
 
 	// do merging
