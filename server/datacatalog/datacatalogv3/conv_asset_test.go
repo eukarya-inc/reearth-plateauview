@@ -295,6 +295,27 @@ func TestParseAssetName(t *testing.T) {
 			},
 		},
 		{
+			name: "gen",
+			args: "00000_xxx_city_2023_citygml_1_op_gen_00_mvt_lod0",
+			want: &AssetName{
+				CityCode:    "00000",
+				CityName:    "xxx",
+				Provider:    "city",
+				Year:        2023,
+				Format:      "citygml",
+				UpdateCount: 1,
+				Ex: AssetNameEx{
+					Urf: &AssetNameExUrf{
+						Type:   "gen",
+						Name:   "00",
+						Format: "mvt",
+						LOD:    0,
+					},
+					Ex: "gen_00_mvt_lod0",
+				},
+			},
+		},
+		{
 			name: "invalid ex",
 			args: "26100_kyoto-shi_city_2023_citygml_1_op_exex",
 			want: &AssetName{

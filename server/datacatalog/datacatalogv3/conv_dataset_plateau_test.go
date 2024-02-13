@@ -639,3 +639,97 @@ func TestPlateauDataset_ToDatasets_Veg(t *testing.T) {
 	assert.Nil(t, warning)
 	assert.Equal(t, expected, res)
 }
+
+func TestPlateauDataset_ToDatasets_Gen(t *testing.T) {
+	item := &PlateauFeatureItem{
+		ID:   "id",
+		Desc: "desc",
+		Items: []PlateauFeatureItemDatum{
+			{
+				Data: []string{
+					"https://example.com/11111_bar-shi_city_2023_citygml_1_op_gen_99_mvt_lod0.zip",
+				},
+				Desc: "desc!",
+			},
+		},
+		Dic: `{
+			"gen" : [
+				{
+					"code" : "99",
+					"description" : "GEN"
+				}
+			]
+		}`,
+	}
+
+	expected := []plateauapi.Dataset{
+		&plateauapi.PlateauDataset{
+			ID:                 plateauapi.NewID("11111_gen_99", plateauapi.TypeDataset),
+			Name:               "汎用都市オブジェクトモデル GEN（bar市）",
+			Subname:            lo.ToPtr("GEN"),
+			Subcode:            lo.ToPtr("99"),
+			Description:        lo.ToPtr("desc!"),
+			Year:               2023,
+			PrefectureID:       lo.ToPtr(plateauapi.NewID("11", plateauapi.TypeArea)),
+			PrefectureCode:     lo.ToPtr(plateauapi.AreaCode("11")),
+			CityID:             lo.ToPtr(plateauapi.NewID("11111", plateauapi.TypeArea)),
+			CityCode:           lo.ToPtr(plateauapi.AreaCode("11111")),
+			TypeID:             plateauapi.NewID("gen", plateauapi.TypeDatasetType),
+			TypeCode:           "gen",
+			PlateauSpecMinorID: plateauapi.NewID("3.2", plateauapi.TypePlateauSpec),
+			Admin: map[string]any{
+				"stage": string(stageBeta),
+			},
+			Items: []*plateauapi.PlateauDatasetItem{
+				{
+					ID:     plateauapi.NewID("11111_gen_99", plateauapi.TypeDatasetItem),
+					Format: plateauapi.DatasetFormatMvt,
+					Name:   "GEN",
+					URL:    "https://example.com/11111_bar-shi_city_2023_citygml_1_op_gen_99_mvt_lod0/{z}/{x}/{y}.mvt",
+					// Lod:      lo.ToPtr(0),
+					Layers:   []string{"99"},
+					ParentID: plateauapi.NewID("11111_gen_99", plateauapi.TypeDataset),
+				},
+			},
+		},
+	}
+
+	area := &areaContext{
+		Pref: &plateauapi.Prefecture{},
+		City: &plateauapi.City{
+			Name: "bar市",
+			Code: "11111",
+		},
+		PrefID:   lo.ToPtr(plateauapi.NewID("11", plateauapi.TypeArea)),
+		CityID:   lo.ToPtr(plateauapi.NewID("11111", plateauapi.TypeArea)),
+		PrefCode: lo.ToPtr(plateauapi.AreaCode("11")),
+		CityCode: lo.ToPtr(plateauapi.AreaCode("11111")),
+		CityItem: &CityItem{
+			Year: "2023年",
+			PlateauDataStatus: &cms.Tag{
+				Name: string(ManagementStatusReady),
+			},
+		},
+	}
+
+	dts := &plateauapi.PlateauDatasetType{
+		ID:   plateauapi.NewID("gen", plateauapi.TypeDatasetType),
+		Code: "gen",
+		Name: "汎用都市オブジェクトモデル",
+	}
+
+	spec := &plateauapi.PlateauSpecMinor{
+		ID:           plateauapi.NewID("3.2", plateauapi.TypePlateauSpec),
+		Name:         "第3.2版",
+		MajorVersion: 3,
+		Version:      "3.2",
+		Year:         2023,
+		ParentID:     plateauapi.NewID("3", plateauapi.TypePlateauSpec),
+	}
+
+	layerNames := LayerNames{}
+
+	res, warning := item.toDatasets(area, dts, spec, layerNames, "")
+	assert.Nil(t, warning)
+	assert.Equal(t, expected, res)
+}
