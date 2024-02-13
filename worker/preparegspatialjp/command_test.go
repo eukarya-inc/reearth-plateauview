@@ -5,11 +5,10 @@ import (
 	"testing"
 
 	"github.com/joho/godotenv"
-	"github.com/samber/lo"
 )
 
 func TestCommand(t *testing.T) {
-	lo.Must0(godotenv.Load("../.env"))
+	_ = godotenv.Load("../.env")
 
 	conf := Config{
 		CMSURL:     os.Getenv("REEARTH_CMS_URL"),
