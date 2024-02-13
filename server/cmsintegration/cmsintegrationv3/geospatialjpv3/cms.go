@@ -143,13 +143,14 @@ type CMSDataItem struct {
 type CMSIndexItem struct {
 	ID              string           `json:"id,omitempty" cms:"id"`
 	Thumbnail       map[string]any   `json:"thumbnail,omitempty" cms:"thumbnail,asset"`
-	Region          string           `json:"region,omitempty" cms:"region,text"`
+	IndexData       map[string]any   `json:"index_data,omitempty" cms:"index_data,asset"`
 	Desc            string           `json:"desc,omitempty" cms:"desc,markdown"`
 	DescIndex       string           `json:"desc_index,omitempty" cms:"desc_index,markdown"`
 	DescCityGML     string           `json:"desc_citygml,omitempty" cms:"desc_citygml,markdown"`
 	DescPlateau     string           `json:"desc_plateau,omitempty" cms:"desc_plateau,markdown"`
 	DescRelated     string           `json:"desc_related,omitempty" cms:"desc_related,markdown"`
 	Generics        []CMSGenericItem `json:"items,omitempty" cms:"generic,group"`
+	Region          string           `json:"region,omitempty" cms:"region,text"`
 	Author          string           `json:"author,omitempty" cms:"author,text"`
 	AuthorEmail     string           `json:"author_email,omitempty" cms:"author_email,text"`
 	Maintainer      string           `json:"maintainer,omitempty" cms:"maintainer,text"`

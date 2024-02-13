@@ -87,7 +87,11 @@ func getSeed(ctx context.Context, c cms.Interface, cityItem *CityItem, org strin
 	}
 
 	seed.Index = indexItem.DescIndex
-	if seed.Index != "" {
+	if seed.Index == "" {
+		seed.Index = dataItem.DescIndex
+	}
+	seed.IndexURL = valueToAsset(indexItem.IndexData)
+	if seed.Index != "" && seed.IndexURL == "" {
 		seed.IndexURL = dataurl.New([]byte(seed.Index), "text/markdown").String()
 	}
 
