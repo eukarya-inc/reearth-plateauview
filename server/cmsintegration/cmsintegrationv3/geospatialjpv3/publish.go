@@ -32,10 +32,6 @@ func (h *handler) Publish(ctx context.Context, cityItem *CityItem) (err error) {
 
 	log.Infofc(ctx, "geospatialjpv3: publish")
 
-	if !cityItem.GeospatialjpPrepare {
-		return fmt.Errorf("この都市はまだG空間情報センターへの公開準備ができていないようです。データを揃えて「公開準備」をONにしてください。")
-	}
-
 	seed, err := getSeed(ctx, cms, cityItem, h.ckanOrg)
 	if err != nil {
 		return fmt.Errorf("failed to get seed: %w", err)
