@@ -147,6 +147,7 @@ func Command(conf *Config) (err error) {
 	})...)
 
 	log.Infofc(ctx, "feature items: %s", ppp.Sprint(allFeatureItems))
+	log.Infofc(ctx, "dic: %s", ppp.Sprint(dic))
 	log.Infofc(ctx, "preparing citygml and plateau...")
 
 	if err := notifyRunning(ctx, cms, cityItem.GeospatialjpData, true, true); err != nil {
