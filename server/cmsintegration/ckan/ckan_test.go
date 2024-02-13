@@ -259,3 +259,22 @@ func mockCkan(t *testing.T) {
 		})
 	})
 }
+
+func TestCkan2(t *testing.T) {
+	url := ""
+	token := ""
+	dataset := ""
+
+	if url == "" || token == "" || dataset == "" {
+		t.Skip("url, token, dataset are not set")
+	}
+
+	ctx := context.Background()
+	ckan, err := New(url, token)
+	assert.NoError(t, err)
+
+	p, err := ckan.ShowPackage(ctx, dataset)
+	assert.NoError(t, err)
+
+	t.Logf("%+v", p)
+}
