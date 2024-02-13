@@ -117,6 +117,9 @@ func Command(conf *Config) (err error) {
 	var comment string
 	var citygmlError, plateauError, maxlodError bool
 	defer func() {
+		if !conf.WetRun {
+			return
+		}
 		if err != nil {
 			comment = err.Error()
 		}
@@ -150,8 +153,10 @@ func Command(conf *Config) (err error) {
 	log.Infofc(ctx, "dic: %s", ppp.Sprint(dic))
 	log.Infofc(ctx, "preparing citygml and plateau...")
 
-	if err := notifyRunning(ctx, cms, cityItem.GeospatialjpData, true, true); err != nil {
-		return fmt.Errorf("failed to notify running: %w", err)
+	if conf.WetRun {
+		if err := notifyRunning(ctx, cms, cityItem.GeospatialjpData, !conf.SkipCityGML, !conf.SkipPlateau, !conf.SkipRelated, !conf.SkipMaxLOD); err != nil {
+			return fmt.Errorf("failed to notify running: %w", err)
+		}
 	}
 
 	citygmlCh := lo.Async(func() lo.Tuple3[string, string, error] {
@@ -482,8 +487,8 @@ func notifyError(ctx context.Context, c *cms.CMS, cityItemID, gdataItemID string
 	return nil
 }
 
-func notifyRunning(ctx context.Context, c *cms.CMS, cityItemID string, citygmlRunning, plateauRunning bool) error {
-	if !citygmlRunning && !plateauRunning {
+func notifyRunning(ctx context.Context, c *cms.CMS, cityItemID string, citygmlRunning, plateauRunning, relatedRunning, maxlodRunning bool) error {
+	if !citygmlRunning && !plateauRunning && !relatedRunning && !maxlodRunning {
 		return nil
 	}
 
@@ -493,13 +498,25 @@ func notifyRunning(ctx context.Context, c *cms.CMS, cityItemID string, citygmlRu
 
 	if citygmlRunning {
 		item.MergeCityGMLStatus = &cms.Tag{
-			Name: "実行中",
+			Name: running,
 		}
 	}
 
 	if plateauRunning {
 		item.MergePlateauStatus = &cms.Tag{
-			Name: "実行中",
+			Name: running,
+		}
+	}
+
+	if relatedRunning {
+		item.MergeRelatedStatus = &cms.Tag{
+			Name: running,
+		}
+	}
+
+	if maxlodRunning {
+		item.MergeMaxLODStatus = &cms.Tag{
+			Name: running,
 		}
 	}
 

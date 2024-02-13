@@ -8,10 +8,12 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"path"
 	"path/filepath"
 	"strings"
 
 	"github.com/reearth/reearthx/log"
+	"github.com/samber/lo"
 )
 
 func downloadFileAsByteReader(ctx context.Context, url string) (*bytes.Reader, error) {
@@ -87,16 +89,18 @@ func downloadFile(ctx context.Context, url string) (io.ReadCloser, error) {
 	}
 
 	return resp.Body, nil
-	// b := &bytes.Buffer{}
-	// _, err = io.Copy(b, resp.Body)
-	// if err != nil {
-	// 	return nil, err
-	// }
-
-	// return bytes.NewReader(b.Bytes()), nil
 }
 
-func Unzip(ctx context.Context, zipFile *bytes.Reader, targetDir, prefix string, checkFile func(string) error) error {
+type UnzipOptions struct {
+	Prefix string
+	Rename func(string) (string, error)
+}
+
+var SkipUnzip = fmt.Errorf("skip unzip")
+
+func Unzip(ctx context.Context, zipFile *bytes.Reader, targetDir string, options *UnzipOptions) error {
+	opts := lo.FromPtr(options)
+
 	// Open the zip archive for reading.
 	r, err := zip.NewReader(zipFile, int64(zipFile.Len()))
 	if err != nil {
@@ -109,11 +113,21 @@ func Unzip(ctx context.Context, zipFile *bytes.Reader, targetDir, prefix string,
 		filename = strings.ReplaceAll(filename, `\`, "/")
 		filename = strings.TrimSuffix(filename, "/")
 
-		if prefix != "" {
-			if strings.HasPrefix(filename, prefix) {
-				filename = strings.TrimPrefix(filename, prefix)
+		if opts.Prefix != "" {
+			skipped := false
+			if strings.HasPrefix(filename, opts.Prefix) {
+				filename = strings.TrimPrefix(filename, opts.Prefix)
 			} else {
-				log.Debugf("skip %s (no prefix: %s)", f.Name, prefix)
+				skipped = true
+			}
+
+			// if prefix is "xxx/", xxx/hoge is skipped, and xxx should be also skipped
+			if !skipped && len(opts.Prefix) > 1 && strings.HasSuffix(opts.Prefix, "/") && filename == opts.Prefix[:len(opts.Prefix)-1] {
+				skipped = true
+			}
+
+			if skipped {
+				log.Debugf("skip %s (no prefix: %s)", f.Name, opts.Prefix)
 				continue
 			}
 		}
@@ -126,9 +140,14 @@ func Unzip(ctx context.Context, zipFile *bytes.Reader, targetDir, prefix string,
 			continue
 		}
 
-		if checkFile != nil {
-			if err := checkFile(filename); err != nil {
+		if opts.Rename != nil {
+			if fn, err := opts.Rename(filename); err != nil && err != SkipUnzip {
 				return err
+			} else if err == SkipUnzip {
+				log.Debugf("skip %s", f.Name)
+				continue
+			} else if fn != "" {
+				filename = fn
 			}
 		}
 
@@ -183,10 +202,10 @@ func Unzip(ctx context.Context, zipFile *bytes.Reader, targetDir, prefix string,
 	return nil
 }
 
-func ZipDir(ctx context.Context, srcDir string, destZip string) error {
-	log.Infofc(ctx, "start zipping %s to %s...", srcDir, destZip)
+func ZipDir(ctx context.Context, src, dest string, destPrefix bool) error {
+	log.Infofc(ctx, "start zipping %s to %s...", src, dest)
 
-	file, err := os.Create(destZip)
+	file, err := os.Create(dest)
 	if err != nil {
 		return fmt.Errorf("failed to create zip file: %v", err)
 	}
@@ -195,15 +214,19 @@ func ZipDir(ctx context.Context, srcDir string, destZip string) error {
 	w := zip.NewWriter(file)
 	defer w.Close()
 
-	walker := func(path string, info os.FileInfo, err error) error {
+	walker := func(p string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
 		}
 
-		destPath := strings.TrimPrefix(path, srcDir)
+		destPath := strings.TrimPrefix(p, src)
 		destPath = strings.ReplaceAll(destPath, `\`, "/")
+		if destPrefix {
+			base := filepath.Base(src)
+			destPath = path.Join(base, destPath)
+		}
 
-		log.Infofc(ctx, "zipping %s...", path)
+		log.Infofc(ctx, "zipping %s -> %s ...", p, destPath)
 		if info.IsDir() {
 			if destPath == "" {
 				return nil
@@ -216,7 +239,7 @@ func ZipDir(ctx context.Context, srcDir string, destZip string) error {
 			return err
 		}
 
-		file, err := os.Open(path)
+		file, err := os.Open(p)
 		if err != nil {
 			return err
 		}
@@ -235,7 +258,7 @@ func ZipDir(ctx context.Context, srcDir string, destZip string) error {
 		return nil
 	}
 
-	if err := filepath.Walk(srcDir, walker); err != nil {
+	if err := filepath.Walk(src, walker); err != nil {
 		return fmt.Errorf("failed to walk dir: %v", err)
 	}
 
