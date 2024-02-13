@@ -9,7 +9,7 @@ import (
 	"github.com/reearth/reearthx/log"
 )
 
-// jobName: "projects/" + gcpProjectID + "/locations/" + gcpLocation + "/jobs/plateauview-api-worker"
+// jobName (Cloud Run Jobs): "projects/" + gcpProjectID + "/locations/" + gcpLocation + "/jobs/plateauview-api-worker"
 
 func Prepare(ctx context.Context, itemID, projectID, jobName string) error {
 	log.Debugfc(ctx, "geospatialjp webhook: Prepare: %s", jobName)

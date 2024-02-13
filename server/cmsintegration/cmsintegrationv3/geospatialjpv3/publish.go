@@ -39,14 +39,14 @@ func (h *handler) Publish(ctx context.Context, cityItem *CityItem) (err error) {
 
 	log.Debugfc(ctx, "geospatialjpv3: seed: %s", ppp.Sprint(seed))
 	if !seed.Valid() {
-		return fmt.Errorf("there are no items that can be uploaded")
+		return fmt.Errorf("アップロード可能なアイテムがありません。")
 	}
 
 	pkgSeed := PackageSeedFrom(cityItem, seed)
 
 	pkg, pkgCreated, err := h.createOrUpdatePackage(ctx, pkgSeed)
 	if err != nil {
-		return fmt.Errorf("failed to find or create package: %w", err)
+		return fmt.Errorf("G空間情報センターでパッケージの検索・作成に失敗しました: %w", err)
 	}
 
 	log.Debugfc(ctx, "geospatialjpv3: pkg: %s", ppp.Sprint(pkg))
@@ -73,7 +73,7 @@ func (h *handler) Publish(ctx context.Context, cityItem *CityItem) (err error) {
 			Description: seed.CityGMLDescription,
 		})
 		if err != nil {
-			return fmt.Errorf("failed to create or update resource (citygml): %w", err)
+			return fmt.Errorf("G空間情報センターでリソースの作成に失敗しました（CityGML）: %w", err)
 		}
 		resources = append(resources, r)
 	}
@@ -86,7 +86,7 @@ func (h *handler) Publish(ctx context.Context, cityItem *CityItem) (err error) {
 			Description: seed.PlateauDescription,
 		})
 		if err != nil {
-			return fmt.Errorf("failed to create or update resource (plateau): %w", err)
+			return fmt.Errorf("G空間情報センターでリソースの作成に失敗しました（3D Tiles,MVT）: %w", err)
 		}
 		resources = append(resources, r)
 	}
@@ -99,7 +99,7 @@ func (h *handler) Publish(ctx context.Context, cityItem *CityItem) (err error) {
 			Description: seed.RelatedDescription,
 		})
 		if err != nil {
-			return fmt.Errorf("failed to create or update resource (related): %w", err)
+			return fmt.Errorf("G空間情報センターでリソースの作成に失敗しました（関連データセット）: %w", err)
 		}
 		resources = append(resources, r)
 	}
@@ -108,11 +108,11 @@ func (h *handler) Publish(ctx context.Context, cityItem *CityItem) (err error) {
 		log.Debugfc(ctx, "geospatialjpv3: generics: %s", ppp.Sprint(seed.Generics))
 		for _, g := range seed.Generics {
 			if g.Name == "" || g.Asset == nil {
-				return fmt.Errorf("invalid generic: %v", g)
+				return fmt.Errorf("その他データセットのアセットURLを正しく取得できませんでした。アセットが存在していません。: %v", g)
 			}
 			url, ok := g.Asset["url"].(string)
 			if !ok {
-				return fmt.Errorf("failed to get url from generic: %v", g)
+				return fmt.Errorf("その他データセットのアセットURLを正しく取得できませんでした。アセットが存在していません。: %v", g)
 			}
 			r, err := h.createOrUpdateResource(ctx, pkg, ResourceInfo{
 				Name:        g.Name,
@@ -120,7 +120,7 @@ func (h *handler) Publish(ctx context.Context, cityItem *CityItem) (err error) {
 				Description: g.Desc,
 			})
 			if err != nil {
-				return fmt.Errorf("failed to create or update resource (generic): %w", err)
+				return fmt.Errorf("G空間情報センターでリソースの作成に失敗しました（その他データセット）: %w", err)
 			}
 			resources = append(resources, r)
 		}
@@ -133,7 +133,7 @@ func (h *handler) Publish(ctx context.Context, cityItem *CityItem) (err error) {
 		})
 
 		if err := h.reorderResources(ctx, pkg.ID, resourceIDs); err != nil {
-			return fmt.Errorf("failed to reorder resources: %w", err)
+			return fmt.Errorf("G空間情報センターでリソースの並び替えに失敗しました（登録更新は既にできています）: %w", err)
 		}
 	}
 
