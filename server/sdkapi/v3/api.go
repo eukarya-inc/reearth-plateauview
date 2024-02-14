@@ -3,21 +3,27 @@ package sdkapiv3
 import (
 	"context"
 	"fmt"
+	"net/url"
 
 	"github.com/hasura/go-graphql-client"
 )
 
-type Client struct {
+type GqlClient struct {
 	client *graphql.Client
 }
 
-func NewClient(conf Config) *Client {
-	return &Client{
-		client: graphql.NewClient(conf.CMSBaseURL+"/datacatalog/graphql", nil),
+func NewClient(conf Config) (*GqlClient, error) {
+	gqlURL, err := url.JoinPath(conf.BaseURL, "/datacatalog/graphql")
+	if err != nil {
+		return nil, fmt.Errorf("error joining base URL and graphql path: %w", err)
 	}
+
+	return &GqlClient{
+		client: graphql.NewClient(gqlURL, nil),
+	}, nil
 }
 
-func (c Client) QueryDatasets() (Query, error) {
+func (c *GqlClient) QueryDatasets() (Query, error) {
 	var q Query
 
 	err := c.client.Query(context.Background(), &q, nil)

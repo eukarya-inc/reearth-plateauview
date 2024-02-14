@@ -8,15 +8,15 @@ import (
 
 func TestQueryToDatasets(t *testing.T) {
 	query := &Query{
-		Areas: []QueryArea{
+		Areas: []*QueryArea{
 			{
 				Name: "Prefecture 1",
-				Prefecture: QueryPrefecture{
-					Cities: []QueryCity{
+				Prefecture: &QueryPrefecture{
+					Cities: []*QueryCity{
 						{
 							ID:   "City1",
 							Name: "City 1",
-							Datasets: []QueryCityDataset{
+							Datasets: []*QueryCityDataset{
 								{
 									TypeCode: "DatasetType1",
 								},
@@ -28,7 +28,7 @@ func TestQueryToDatasets(t *testing.T) {
 						{
 							ID:   "City2",
 							Name: "City 2",
-							Datasets: []QueryCityDataset{
+							Datasets: []*QueryCityDataset{
 								{
 									TypeCode: "DatasetType3",
 								},
@@ -40,11 +40,11 @@ func TestQueryToDatasets(t *testing.T) {
 		},
 	}
 
-	expected := Datasets{
-		Data: []DatasetPrefecture{
+	expected := &DatasetsResponse{
+		Data: []*DatasetPrefectureResponse{
 			{
 				Title: "Prefecture 1",
-				Data: []DatasetCity{
+				Data: []*DatasetCityResponse{
 					{
 						ID:           "City1",
 						Title:        "City 1",
@@ -65,6 +65,5 @@ func TestQueryToDatasets(t *testing.T) {
 	}
 
 	datasets := query.ToDatasets()
-
 	assert.Equal(t, expected, datasets)
 }

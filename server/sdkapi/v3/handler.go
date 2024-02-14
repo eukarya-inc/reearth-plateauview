@@ -7,9 +7,14 @@ import (
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	"github.com/reearth/reearthx/log"
 )
 
-func Handler(conf Config, g *echo.Group) {
+func Handler(conf Config, g *echo.Group) error {
+	client, err := NewClient(conf)
+	if err != nil {
+		return fmt.Errorf("error creating client: %w", err)
+	}
 
 	g.Use(
 		auth(conf.Token),
@@ -17,17 +22,16 @@ func Handler(conf Config, g *echo.Group) {
 	)
 
 	g.GET("/datasets", func(c echo.Context) error {
-		client := NewClient(conf)
-
-		_, err := client.QueryDatasets()
+		res, err := client.QueryDatasets()
 		if err != nil {
-			return fmt.Errorf("error querying datasets: %w", err)
+			log.Errorfc(c.Request().Context(), "sdkapiv3: error querying datasets: %v", err)
+			return c.JSON(http.StatusBadGateway, map[string]any{"error": "bad gateway"})
 		}
 
-		return c.JSON(http.StatusOK, nil)
-
+		return c.JSON(http.StatusOK, res)
 	}, nil)
 
+	return nil
 }
 
 func auth(expected string) echo.MiddlewareFunc {

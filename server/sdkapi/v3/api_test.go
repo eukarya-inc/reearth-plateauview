@@ -9,7 +9,8 @@ import (
 func TestQueryDatasets(t *testing.T) {
 	t.Skip()
 
-	client := NewClient(Config{CMSBaseURL: ""})
+	client, err := NewClient(Config{BaseURL: ""})
+	assert.NoError(t, err)
 
 	q, err := client.QueryDatasets()
 	assert.NoError(t, err)
