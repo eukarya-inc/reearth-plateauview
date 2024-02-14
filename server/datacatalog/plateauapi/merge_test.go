@@ -200,6 +200,15 @@ func TestGetLatestYearNode(t *testing.T) {
 		res := getLatestYearNode(results)
 		assert.Equal(t, PlateauDataset{ID: "3", Year: 2021}, res)
 	})
+
+	t.Run("multiple nodes 3", func(t *testing.T) {
+		results := []*PlateauSpecMinor{
+			nil,
+			{ID: "1", Year: 2019},
+		}
+		res := getLatestYearNode(results)
+		assert.Equal(t, &PlateauSpecMinor{ID: "1", Year: 2019}, res)
+	})
 }
 
 func TestZip(t *testing.T) {
@@ -227,6 +236,13 @@ func TestZip(t *testing.T) {
 		res := zip(input1, input2, input3)
 		assert.Equal(t, expected, res)
 	})
+}
+
+func TestIsPresent(t *testing.T) {
+	assert.False(t, isPresent(nil), "nil")
+	assert.False(t, isPresent((Node)(nil)), "typed nil")
+	assert.True(t, isPresent(PlateauDatasetType{ID: "1"}), "struct")
+	assert.True(t, isPresent(&PlateauDatasetType{ID: "1"}), "ptr")
 }
 
 type n struct {

@@ -126,8 +126,7 @@ func (m *Merger) PlateauSpecs(ctx context.Context) ([]*PlateauSpec, error) {
 		return nil, err
 	}
 
-	sortNodes(res)
-	return res, nil
+	return mergeResults(res, true), nil
 }
 
 func (m *Merger) Years(ctx context.Context) ([]int, error) {
@@ -273,6 +272,9 @@ type OrderNode interface {
 }
 
 func isPresent(n any) bool {
+	if n == nil {
+		return false
+	}
 	v := reflect.ValueOf(n)
 	return v.Kind() != reflect.Ptr || !v.IsNil()
 }
