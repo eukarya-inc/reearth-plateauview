@@ -47,6 +47,7 @@ func (i *RelatedItem) toDatasets(area *areaContext, dts []plateauapi.DatasetType
 				Name:           standardItemName(ftname, "", seed.Area.GetName()),
 				Description:    lo.EmptyableToPtr(d.Description),
 				Year:           area.CityItem.YearInt(),
+				OpenDataURL:    lo.EmptyableToPtr(area.CityItem.GetOpenDataURL()),
 				PrefectureID:   area.PrefID,
 				PrefectureCode: area.PrefCode,
 				CityID:         area.CityID,

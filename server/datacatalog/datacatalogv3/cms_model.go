@@ -52,6 +52,7 @@ type CityItem struct {
 	RelatedDataset string                    `json:"related_dataset,omitempty" cms:"related_dataset,reference"`
 	Year           string                    `json:"year,omitempty" cms:"year,select"`
 	PRCS           cmsintegrationcommon.PRCS `json:"prcs,omitempty" cms:"prcs,select"`
+	OpenDataURL    string                    `json:"open_data_url,omitempty" cms:"open_data_url,text"`
 	// meatadata
 	PlateauDataStatus *cms.Tag        `json:"plateau_data_status,omitempty" cms:"plateau_data_status,select,metadata"`
 	RelatedDataStatus *cms.Tag        `json:"related_data_status,omitempty" cms:"related_data_status,select,metadata"`
@@ -92,6 +93,16 @@ func (i *CityItem) YearInt() int {
 
 func (c *CityItem) PlanarCrsEpsgCode() string {
 	return c.PRCS.EPSGCode()
+}
+
+func (c *CityItem) GetOpenDataURL() string {
+	if c == nil {
+		return ""
+	}
+	if c.OpenDataURL != "" {
+		return c.OpenDataURL
+	}
+	return geospatialjpURL(c.CityCode, c.CityNameEn, c.YearInt())
 }
 
 func (i *CityItem) plateauStage(ft string) stage {
@@ -251,7 +262,7 @@ type GenericItem struct {
 	Type        string               `json:"type,omitempty" cms:"type,text"`
 	TypeEn      string               `json:"type_en,omitempty" cms:"type_en,text"`
 	Items       []GenericItemDataset `json:"items,omitempty" cms:"items,group"`
-	OpenDataUrl string               `json:"open-data-url,omitempty" cms:"open_data_url,url"`
+	OpenDataURL string               `json:"open_data_url,omitempty" cms:"open_data_url,url"`
 	Category    string               `json:"category,omitempty" cms:"category,select"`
 	// metadata
 	Status *cms.Tag `json:"status,omitempty" cms:"status,select,metadata"`
@@ -384,4 +395,11 @@ func anyToAssetURL(v any) string {
 	}
 
 	return url
+}
+
+func geospatialjpURL(cityCode string, cityName string, year int) string {
+	if cityCode == "" || cityName == "" || year == 0 {
+		return ""
+	}
+	return fmt.Sprintf("%splateau-%s-%s-%d", gespatialjpDatasetURL, cityCode, cityName, year)
 }

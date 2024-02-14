@@ -84,6 +84,7 @@ type ComplexityRoot struct {
 		ID             func(childComplexity int) int
 		Items          func(childComplexity int) int
 		Name           func(childComplexity int) int
+		OpenDataURL    func(childComplexity int) int
 		Prefecture     func(childComplexity int) int
 		PrefectureCode func(childComplexity int) int
 		PrefectureID   func(childComplexity int) int
@@ -125,6 +126,7 @@ type ComplexityRoot struct {
 		ID                 func(childComplexity int) int
 		Items              func(childComplexity int) int
 		Name               func(childComplexity int) int
+		OpenDataURL        func(childComplexity int) int
 		PlateauSpecMinor   func(childComplexity int) int
 		PlateauSpecMinorID func(childComplexity int) int
 		Prefecture         func(childComplexity int) int
@@ -221,6 +223,7 @@ type ComplexityRoot struct {
 		ID             func(childComplexity int) int
 		Items          func(childComplexity int) int
 		Name           func(childComplexity int) int
+		OpenDataURL    func(childComplexity int) int
 		Prefecture     func(childComplexity int) int
 		PrefectureCode func(childComplexity int) int
 		PrefectureID   func(childComplexity int) int
@@ -525,6 +528,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.GenericDataset.Name(childComplexity), true
 
+	case "GenericDataset.openDataUrl":
+		if e.complexity.GenericDataset.OpenDataURL == nil {
+			break
+		}
+
+		return e.complexity.GenericDataset.OpenDataURL(childComplexity), true
+
 	case "GenericDataset.prefecture":
 		if e.complexity.GenericDataset.Prefecture == nil {
 			break
@@ -753,6 +763,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.PlateauDataset.Name(childComplexity), true
+
+	case "PlateauDataset.openDataUrl":
+		if e.complexity.PlateauDataset.OpenDataURL == nil {
+			break
+		}
+
+		return e.complexity.PlateauDataset.OpenDataURL(childComplexity), true
 
 	case "PlateauDataset.plateauSpecMinor":
 		if e.complexity.PlateauDataset.PlateauSpecMinor == nil {
@@ -1323,6 +1340,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.RelatedDataset.Name(childComplexity), true
+
+	case "RelatedDataset.openDataUrl":
+		if e.complexity.RelatedDataset.OpenDataURL == nil {
+			break
+		}
+
+		return e.complexity.RelatedDataset.OpenDataURL(childComplexity), true
 
 	case "RelatedDataset.prefecture":
 		if e.complexity.RelatedDataset.Prefecture == nil {
@@ -2782,6 +2806,47 @@ func (ec *executionContext) fieldContext_GenericDataset_groups(ctx context.Conte
 	return fc, nil
 }
 
+func (ec *executionContext) _GenericDataset_openDataUrl(ctx context.Context, field graphql.CollectedField, obj *GenericDataset) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_GenericDataset_openDataUrl(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.OpenDataURL, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_GenericDataset_openDataUrl(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "GenericDataset",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _GenericDataset_prefectureId(ctx context.Context, field graphql.CollectedField, obj *GenericDataset) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_GenericDataset_prefectureId(ctx, field)
 	if err != nil {
@@ -3777,6 +3842,8 @@ func (ec *executionContext) fieldContext_GenericDatasetItem_parent(ctx context.C
 				return ec.fieldContext_GenericDataset_year(ctx, field)
 			case "groups":
 				return ec.fieldContext_GenericDataset_groups(ctx, field)
+			case "openDataUrl":
+				return ec.fieldContext_GenericDataset_openDataUrl(ctx, field)
 			case "prefectureId":
 				return ec.fieldContext_GenericDataset_prefectureId(ctx, field)
 			case "prefectureCode":
@@ -4081,6 +4148,8 @@ func (ec *executionContext) fieldContext_GenericDatasetType_datasets(ctx context
 				return ec.fieldContext_GenericDataset_year(ctx, field)
 			case "groups":
 				return ec.fieldContext_GenericDataset_groups(ctx, field)
+			case "openDataUrl":
+				return ec.fieldContext_GenericDataset_openDataUrl(ctx, field)
 			case "prefectureId":
 				return ec.fieldContext_GenericDataset_prefectureId(ctx, field)
 			case "prefectureCode":
@@ -4452,6 +4521,47 @@ func (ec *executionContext) _PlateauDataset_groups(ctx context.Context, field gr
 }
 
 func (ec *executionContext) fieldContext_PlateauDataset_groups(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PlateauDataset",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PlateauDataset_openDataUrl(ctx context.Context, field graphql.CollectedField, obj *PlateauDataset) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_PlateauDataset_openDataUrl(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.OpenDataURL, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_PlateauDataset_openDataUrl(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "PlateauDataset",
 		Field:      field,
@@ -5634,6 +5744,8 @@ func (ec *executionContext) fieldContext_PlateauDatasetItem_parent(ctx context.C
 				return ec.fieldContext_PlateauDataset_year(ctx, field)
 			case "groups":
 				return ec.fieldContext_PlateauDataset_groups(ctx, field)
+			case "openDataUrl":
+				return ec.fieldContext_PlateauDataset_openDataUrl(ctx, field)
 			case "prefectureId":
 				return ec.fieldContext_PlateauDataset_prefectureId(ctx, field)
 			case "prefectureCode":
@@ -6299,6 +6411,8 @@ func (ec *executionContext) fieldContext_PlateauDatasetType_datasets(ctx context
 				return ec.fieldContext_PlateauDataset_year(ctx, field)
 			case "groups":
 				return ec.fieldContext_PlateauDataset_groups(ctx, field)
+			case "openDataUrl":
+				return ec.fieldContext_PlateauDataset_openDataUrl(ctx, field)
 			case "prefectureId":
 				return ec.fieldContext_PlateauDataset_prefectureId(ctx, field)
 			case "prefectureCode":
@@ -8136,6 +8250,47 @@ func (ec *executionContext) fieldContext_RelatedDataset_groups(ctx context.Conte
 	return fc, nil
 }
 
+func (ec *executionContext) _RelatedDataset_openDataUrl(ctx context.Context, field graphql.CollectedField, obj *RelatedDataset) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RelatedDataset_openDataUrl(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.OpenDataURL, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_RelatedDataset_openDataUrl(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "RelatedDataset",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _RelatedDataset_prefectureId(ctx context.Context, field graphql.CollectedField, obj *RelatedDataset) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_RelatedDataset_prefectureId(ctx, field)
 	if err != nil {
@@ -9217,6 +9372,8 @@ func (ec *executionContext) fieldContext_RelatedDatasetItem_parent(ctx context.C
 				return ec.fieldContext_RelatedDataset_year(ctx, field)
 			case "groups":
 				return ec.fieldContext_RelatedDataset_groups(ctx, field)
+			case "openDataUrl":
+				return ec.fieldContext_RelatedDataset_openDataUrl(ctx, field)
 			case "prefectureId":
 				return ec.fieldContext_RelatedDataset_prefectureId(ctx, field)
 			case "prefectureCode":
@@ -9521,6 +9678,8 @@ func (ec *executionContext) fieldContext_RelatedDatasetType_datasets(ctx context
 				return ec.fieldContext_RelatedDataset_year(ctx, field)
 			case "groups":
 				return ec.fieldContext_RelatedDataset_groups(ctx, field)
+			case "openDataUrl":
+				return ec.fieldContext_RelatedDataset_openDataUrl(ctx, field)
 			case "prefectureId":
 				return ec.fieldContext_RelatedDataset_prefectureId(ctx, field)
 			case "prefectureCode":
@@ -12372,11 +12531,13 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 	switch obj := (obj).(type) {
 	case nil:
 		return graphql.Null
-	case Area:
+	case RelatedDataset:
+		return ec._RelatedDataset(ctx, sel, &obj)
+	case *RelatedDataset:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._Area(ctx, sel, obj)
+		return ec._RelatedDataset(ctx, sel, obj)
 	case Prefecture:
 		return ec._Prefecture(ctx, sel, &obj)
 	case *Prefecture:
@@ -12398,35 +12559,41 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._Ward(ctx, sel, obj)
-	case PlateauSpec:
-		return ec._PlateauSpec(ctx, sel, &obj)
-	case *PlateauSpec:
+	case GenericDatasetType:
+		return ec._GenericDatasetType(ctx, sel, &obj)
+	case *GenericDatasetType:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._PlateauSpec(ctx, sel, obj)
-	case PlateauSpecMinor:
-		return ec._PlateauSpecMinor(ctx, sel, &obj)
-	case *PlateauSpecMinor:
+		return ec._GenericDatasetType(ctx, sel, obj)
+	case GenericDatasetItem:
+		return ec._GenericDatasetItem(ctx, sel, &obj)
+	case *GenericDatasetItem:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._PlateauSpecMinor(ctx, sel, obj)
-	case Dataset:
+		return ec._GenericDatasetItem(ctx, sel, obj)
+	case GenericDataset:
+		return ec._GenericDataset(ctx, sel, &obj)
+	case *GenericDataset:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._Dataset(ctx, sel, obj)
-	case DatasetItem:
+		return ec._GenericDataset(ctx, sel, obj)
+	case RelatedDatasetType:
+		return ec._RelatedDatasetType(ctx, sel, &obj)
+	case *RelatedDatasetType:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._DatasetItem(ctx, sel, obj)
-	case DatasetType:
+		return ec._RelatedDatasetType(ctx, sel, obj)
+	case RelatedDatasetItem:
+		return ec._RelatedDatasetItem(ctx, sel, &obj)
+	case *RelatedDatasetItem:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._DatasetType(ctx, sel, obj)
+		return ec._RelatedDatasetItem(ctx, sel, obj)
 	case PlateauDataset:
 		return ec._PlateauDataset(ctx, sel, &obj)
 	case *PlateauDataset:
@@ -12448,48 +12615,40 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._PlateauDatasetType(ctx, sel, obj)
-	case RelatedDataset:
-		return ec._RelatedDataset(ctx, sel, &obj)
-	case *RelatedDataset:
+	case PlateauSpec:
+		return ec._PlateauSpec(ctx, sel, &obj)
+	case *PlateauSpec:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._RelatedDataset(ctx, sel, obj)
-	case RelatedDatasetItem:
-		return ec._RelatedDatasetItem(ctx, sel, &obj)
-	case *RelatedDatasetItem:
+		return ec._PlateauSpec(ctx, sel, obj)
+	case DatasetType:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._RelatedDatasetItem(ctx, sel, obj)
-	case RelatedDatasetType:
-		return ec._RelatedDatasetType(ctx, sel, &obj)
-	case *RelatedDatasetType:
+		return ec._DatasetType(ctx, sel, obj)
+	case DatasetItem:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._RelatedDatasetType(ctx, sel, obj)
-	case GenericDataset:
-		return ec._GenericDataset(ctx, sel, &obj)
-	case *GenericDataset:
+		return ec._DatasetItem(ctx, sel, obj)
+	case Dataset:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._GenericDataset(ctx, sel, obj)
-	case GenericDatasetItem:
-		return ec._GenericDatasetItem(ctx, sel, &obj)
-	case *GenericDatasetItem:
+		return ec._Dataset(ctx, sel, obj)
+	case PlateauSpecMinor:
+		return ec._PlateauSpecMinor(ctx, sel, &obj)
+	case *PlateauSpecMinor:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._GenericDatasetItem(ctx, sel, obj)
-	case GenericDatasetType:
-		return ec._GenericDatasetType(ctx, sel, &obj)
-	case *GenericDatasetType:
+		return ec._PlateauSpecMinor(ctx, sel, obj)
+	case Area:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._GenericDatasetType(ctx, sel, obj)
+		return ec._Area(ctx, sel, obj)
 	default:
 		panic(fmt.Errorf("unexpected type %T", obj))
 	}
@@ -12738,6 +12897,8 @@ func (ec *executionContext) _GenericDataset(ctx context.Context, sel ast.Selecti
 			}
 		case "groups":
 			out.Values[i] = ec._GenericDataset_groups(ctx, field, obj)
+		case "openDataUrl":
+			out.Values[i] = ec._GenericDataset_openDataUrl(ctx, field, obj)
 		case "prefectureId":
 			out.Values[i] = ec._GenericDataset_prefectureId(ctx, field, obj)
 		case "prefectureCode":
@@ -13150,6 +13311,8 @@ func (ec *executionContext) _PlateauDataset(ctx context.Context, sel ast.Selecti
 			}
 		case "groups":
 			out.Values[i] = ec._PlateauDataset_groups(ctx, field, obj)
+		case "openDataUrl":
+			out.Values[i] = ec._PlateauDataset_openDataUrl(ctx, field, obj)
 		case "prefectureId":
 			out.Values[i] = ec._PlateauDataset_prefectureId(ctx, field, obj)
 		case "prefectureCode":
@@ -14262,6 +14425,8 @@ func (ec *executionContext) _RelatedDataset(ctx context.Context, sel ast.Selecti
 			}
 		case "groups":
 			out.Values[i] = ec._RelatedDataset_groups(ctx, field, obj)
+		case "openDataUrl":
+			out.Values[i] = ec._RelatedDataset_openDataUrl(ctx, field, obj)
 		case "prefectureId":
 			out.Values[i] = ec._RelatedDataset_prefectureId(ctx, field, obj)
 		case "prefectureCode":

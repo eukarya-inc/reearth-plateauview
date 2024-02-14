@@ -43,6 +43,8 @@ type Dataset interface {
 	GetYear() int
 	// データセットを分類するグループ。グループが階層構造になっている場合は、親から子の順番で複数のグループ名が存在することがあります。
 	GetGroups() []string
+	// データセットの公開データのURL。
+	GetOpenDataURL() *string
 	// データセットが属する都道府県のID。
 	GetPrefectureID() *ID
 	// データセットが属する都道府県コード。2桁の数字から成る文字列です。
@@ -240,6 +242,8 @@ type GenericDataset struct {
 	Year int `json:"year"`
 	// データセットを分類するグループ。グループが階層構造になっている場合は、親から子の順番で複数のグループ名が存在することがあります。
 	Groups []string `json:"groups,omitempty"`
+	// データセットの公開データのURL。
+	OpenDataURL *string `json:"openDataUrl,omitempty"`
 	// データセットが属する都道府県のID。
 	PrefectureID *ID `json:"prefectureId,omitempty"`
 	// データセットが属する都道府県コード。2桁の数字から成る文字列です。
@@ -293,6 +297,9 @@ func (this GenericDataset) GetGroups() []string {
 	}
 	return interfaceSlice
 }
+
+// データセットの公開データのURL。
+func (this GenericDataset) GetOpenDataURL() *string { return this.OpenDataURL }
 
 // データセットが属する都道府県のID。
 func (this GenericDataset) GetPrefectureID() *ID { return this.PrefectureID }
@@ -465,6 +472,8 @@ type PlateauDataset struct {
 	Year int `json:"year"`
 	// データセットを分類するグループ。グループが階層構造になっている場合は、親から子の順番で複数のグループ名が存在することがあります。
 	Groups []string `json:"groups,omitempty"`
+	// データセットの公開データのURL。
+	OpenDataURL *string `json:"openDataUrl,omitempty"`
 	// データセットが属する都道府県のID。
 	PrefectureID *ID `json:"prefectureId,omitempty"`
 	// データセットが属する都道府県コード。2桁の数字から成る文字列です。
@@ -524,6 +533,9 @@ func (this PlateauDataset) GetGroups() []string {
 	}
 	return interfaceSlice
 }
+
+// データセットの公開データのURL。
+func (this PlateauDataset) GetOpenDataURL() *string { return this.OpenDataURL }
 
 // データセットが属する都道府県のID。
 func (this PlateauDataset) GetPrefectureID() *ID { return this.PrefectureID }
@@ -792,6 +804,10 @@ func (Prefecture) IsNode() {}
 
 // オブジェクトのID
 
+// PLATEAU GraphQL API のクエリルート。
+type Query struct {
+}
+
 // PLATEAU都市モデルデータセットと併せて表示することで情報を補完できる、関連データセット。
 // 避難施設・ランドマーク・鉄道駅・鉄道・緊急輸送道路・公園・行政界などのデータセット。
 type RelatedDataset struct {
@@ -804,6 +820,8 @@ type RelatedDataset struct {
 	Year int `json:"year"`
 	// データセットを分類するグループ。グループが階層構造になっている場合は、親から子の順番で複数のグループ名が存在することがあります。
 	Groups []string `json:"groups,omitempty"`
+	// データセットの公開データのURL。
+	OpenDataURL *string `json:"openDataUrl,omitempty"`
 	// データセットが属する都道府県のID。
 	PrefectureID *ID `json:"prefectureId,omitempty"`
 	// データセットが属する都道府県コード。2桁の数字から成る文字列です。
@@ -857,6 +875,9 @@ func (this RelatedDataset) GetGroups() []string {
 	}
 	return interfaceSlice
 }
+
+// データセットの公開データのURL。
+func (this RelatedDataset) GetOpenDataURL() *string { return this.OpenDataURL }
 
 // データセットが属する都道府県のID。
 func (this RelatedDataset) GetPrefectureID() *ID { return this.PrefectureID }

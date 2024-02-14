@@ -10,9 +10,10 @@ import (
 
 func Test_GenericItem_ToDatasets(t *testing.T) {
 	item := &GenericItem{
-		ID:   "id",
-		Name: "name",
-		Desc: "desc",
+		ID:          "id",
+		Name:        "name",
+		Desc:        "desc",
+		OpenDataURL: "https://example.com",
 		Items: []GenericItemDataset{
 			{
 				ID:         "id1",
@@ -43,6 +44,7 @@ func Test_GenericItem_ToDatasets(t *testing.T) {
 			Name:           "name",
 			Description:    lo.EmptyableToPtr("desc"),
 			Year:           2023,
+			OpenDataURL:    lo.EmptyableToPtr("https://example.com"),
 			PrefectureID:   lo.ToPtr(plateauapi.NewID("11", plateauapi.TypeArea)),
 			PrefectureCode: lo.ToPtr(plateauapi.AreaCode("11")),
 			CityID:         lo.ToPtr(plateauapi.NewID("11111", plateauapi.TypeArea)),

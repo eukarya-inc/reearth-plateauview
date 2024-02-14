@@ -58,6 +58,7 @@ func (i *GenericItem) toDatasets(area *areaContext, dts []plateauapi.DatasetType
 		Name:           standardItemName(i.Name, "", area.Name()),
 		Description:    lo.EmptyableToPtr(i.Desc),
 		Year:           area.CityItem.YearInt(),
+		OpenDataURL:    lo.EmptyableToPtr(i.OpenDataURL),
 		PrefectureID:   area.PrefID,
 		PrefectureCode: area.PrefCode,
 		CityID:         area.CityID,

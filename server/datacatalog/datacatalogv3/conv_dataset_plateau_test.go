@@ -85,6 +85,7 @@ func TestPlateauDataset_ToDatasets_Bldg(t *testing.T) {
 			Name:               "建築物モデル（hoge区）",
 			Description:        lo.ToPtr("desc"),
 			Year:               2023,
+			OpenDataURL:        lo.ToPtr("https://www.geospatial.jp/ckan/dataset/plateau-11111-bar-shi-2023"),
 			PrefectureID:       lo.ToPtr(plateauapi.NewID("11", plateauapi.TypeArea)),
 			PrefectureCode:     lo.ToPtr(plateauapi.AreaCode("11")),
 			CityID:             lo.ToPtr(plateauapi.NewID("11111", plateauapi.TypeArea)),
@@ -133,6 +134,7 @@ func TestPlateauDataset_ToDatasets_Bldg(t *testing.T) {
 			Name:               "建築物モデル（foo区）",
 			Description:        lo.ToPtr("desc"),
 			Year:               2023,
+			OpenDataURL:        lo.ToPtr("https://www.geospatial.jp/ckan/dataset/plateau-11111-bar-shi-2023"),
 			PrefectureID:       lo.ToPtr(plateauapi.NewID("11", plateauapi.TypeArea)),
 			PrefectureCode:     lo.ToPtr(plateauapi.AreaCode("11")),
 			CityID:             lo.ToPtr(plateauapi.NewID("11111", plateauapi.TypeArea)),
@@ -171,8 +173,10 @@ func TestPlateauDataset_ToDatasets_Bldg(t *testing.T) {
 		PrefCode: lo.ToPtr(plateauapi.AreaCode("11")),
 		CityCode: lo.ToPtr(plateauapi.AreaCode("11111")),
 		CityItem: &CityItem{
-			ID:   "cityid",
-			Year: "2023年",
+			ID:         "cityid",
+			Year:       "2023年",
+			CityNameEn: "bar-shi",
+			CityCode:   "11111",
 		},
 		Wards: []*plateauapi.Ward{
 			{
@@ -670,6 +674,7 @@ func TestPlateauDataset_ToDatasets_Gen(t *testing.T) {
 			Subcode:            lo.ToPtr("99"),
 			Description:        lo.ToPtr("desc!"),
 			Year:               2023,
+			OpenDataURL:        lo.ToPtr("open!"),
 			PrefectureID:       lo.ToPtr(plateauapi.NewID("11", plateauapi.TypeArea)),
 			PrefectureCode:     lo.ToPtr(plateauapi.AreaCode("11")),
 			CityID:             lo.ToPtr(plateauapi.NewID("11111", plateauapi.TypeArea)),
@@ -705,7 +710,8 @@ func TestPlateauDataset_ToDatasets_Gen(t *testing.T) {
 		PrefCode: lo.ToPtr(plateauapi.AreaCode("11")),
 		CityCode: lo.ToPtr(plateauapi.AreaCode("11111")),
 		CityItem: &CityItem{
-			Year: "2023年",
+			Year:        "2023年",
+			OpenDataURL: "open!",
 			PlateauDataStatus: &cms.Tag{
 				Name: string(ManagementStatusReady),
 			},

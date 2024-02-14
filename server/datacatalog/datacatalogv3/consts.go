@@ -4,6 +4,8 @@ import (
 	"github.com/eukarya-inc/reearth-plateauview/server/datacatalog/plateauapi"
 )
 
+const gespatialjpDatasetURL = "https://www.geospatial.jp/ckan/dataset/"
+
 var plateauSpecVersions3 = []string{"3.0", "3.1", "3.2", "3.3", "3.4", "3.5"}
 
 var plateauSpecs = []plateauapi.PlateauSpecSimple{

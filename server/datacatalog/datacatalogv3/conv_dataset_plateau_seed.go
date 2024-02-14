@@ -29,6 +29,7 @@ type plateauDatasetSeed struct {
 	Admin       any
 	LayerNames  LayerNames
 	Year        int
+	OpenDataURL string
 }
 
 func (seed plateauDatasetSeed) GetID() string {
@@ -78,6 +79,7 @@ func plateauDatasetSeedsFrom(i *PlateauFeatureItem, dt *plateauapi.PlateauDatase
 		res[i].Admin = newAdmin(area.CityItem.ID, area.CityItem.plateauStage(dt.Code), cmsurl)
 		res[i].LayerNames = layerNames
 		res[i].Year = year
+		res[i].OpenDataURL = area.CityItem.GetOpenDataURL()
 		if res[i].TargetArea == nil {
 			res[i].TargetArea = area.City
 		}
