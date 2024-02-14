@@ -38,6 +38,7 @@ type FeatureType struct {
 	Flood               bool             `json:"flood,omitempty" cms:"flood,bool"`
 	MVTLayerName        []string         `json:"layer_name,omitempty" cms:"layer_name,text"`
 	MVTLayerNamesForLOD map[int][]string `json:"layer_names_for_lod,omitempty" cms:"-"`
+	MVTLayerNamePrefix  string           `json:"layer_name_prefix,omitempty" cms:"layer_name_prefix,text"`
 }
 
 type CityItem struct {

@@ -687,7 +687,7 @@ func TestPlateauDataset_ToDatasets_Gen(t *testing.T) {
 					Name:   "GEN",
 					URL:    "https://example.com/11111_bar-shi_city_2023_citygml_1_op_gen_99_mvt_lod0/{z}/{x}/{y}.mvt",
 					// Lod:      lo.ToPtr(0),
-					Layers:   []string{"99"},
+					Layers:   []string{"gen_99"},
 					ParentID: plateauapi.NewID("11111_gen_99", plateauapi.TypeDataset),
 				},
 			},
@@ -727,7 +727,9 @@ func TestPlateauDataset_ToDatasets_Gen(t *testing.T) {
 		ParentID:     plateauapi.NewID("3", plateauapi.TypePlateauSpec),
 	}
 
-	layerNames := LayerNames{}
+	layerNames := LayerNames{
+		Prefix: "gen",
+	}
 
 	res, warning := item.toDatasets(area, dts, spec, layerNames, "")
 	assert.Nil(t, warning)

@@ -147,8 +147,9 @@ var plateauFeatureTypes = []FeatureType{
 		MVTLayerName: []string{"Zone"},
 	},
 	{
-		Code: "gen",
-		Name: "汎用都市オブジェクトモデル",
+		Code:               "gen",
+		Name:               "汎用都市オブジェクトモデル",
+		MVTLayerNamePrefix: "gen",
 	},
 }
 
