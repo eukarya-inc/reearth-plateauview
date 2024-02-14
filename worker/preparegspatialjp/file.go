@@ -2,7 +2,6 @@ package preparegspatialjp
 
 import (
 	"archive/zip"
-	"bytes"
 	"context"
 	"fmt"
 	"io"
@@ -16,31 +15,40 @@ import (
 	"github.com/samber/lo"
 )
 
-func downloadFileAsByteReader(ctx context.Context, url string) (*bytes.Reader, error) {
-	b, err := downloadFileAsBytes(ctx, url)
-	if err != nil {
-		return nil, err
-	}
-
-	return bytes.NewReader(b), nil
+type ReaderAtCloser interface {
+	io.ReaderAt
+	io.Closer
 }
 
-func downloadFileAsBytes(ctx context.Context, url string) ([]byte, error) {
-	r, err := downloadFile(ctx, url)
+func downloadAndUnzip(ctx context.Context, url, dir, tmpdir string, options *UnzipOptions) (string, error) {
+	r, le, p, err := downloadFileAsReaderAtCloser(ctx, url, tmpdir)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 	defer func() {
 		_ = r.Close()
 	}()
 
-	b := &bytes.Buffer{}
-	_, err = io.Copy(b, r)
+	return p, Unzip(ctx, r, le, dir, options)
+}
+
+func downloadFileAsReaderAtCloser(ctx context.Context, url, dir string) (ReaderAtCloser, int64, string, error) {
+	p, err := downloadFileTo(ctx, url, dir)
 	if err != nil {
-		return nil, err
+		return nil, 0, "", err
 	}
 
-	return b.Bytes(), nil
+	stat, err := os.Stat(p)
+	if err != nil {
+		return nil, 0, "", err
+	}
+
+	b, err := os.Open(p)
+	if err != nil {
+		return nil, 0, "", err
+	}
+
+	return b, stat.Size(), p, nil
 }
 
 func downloadFileTo(ctx context.Context, url, dir string) (string, error) {
@@ -98,11 +106,11 @@ type UnzipOptions struct {
 
 var SkipUnzip = fmt.Errorf("skip unzip")
 
-func Unzip(ctx context.Context, zipFile *bytes.Reader, targetDir string, options *UnzipOptions) error {
+func Unzip(ctx context.Context, zipFile io.ReaderAt, le int64, targetDir string, options *UnzipOptions) error {
 	opts := lo.FromPtr(options)
 
 	// Open the zip archive for reading.
-	r, err := zip.NewReader(zipFile, int64(zipFile.Len()))
+	r, err := zip.NewReader(zipFile, le)
 	if err != nil {
 		return fmt.Errorf("failed to open zip file: %v", err)
 	}

@@ -36,12 +36,7 @@ func PreparePlateau(ctx context.Context, cms *cms.CMS, tmpDir string, cityItem *
 				continue
 			}
 
-			data, err := downloadFileAsByteReader(ctx, url)
-			if err != nil {
-				return "", "", fmt.Errorf("failed to download data for %s: %w", ft, err)
-			}
-
-			if err := Unzip(ctx, data, downloadPath, nil); err != nil {
+			if _, err := downloadAndUnzip(ctx, url, downloadPath, tmpDir, nil); err != nil {
 				return "", "", fmt.Errorf("failed to unzip data for %s: %w", ft, err)
 			}
 		}

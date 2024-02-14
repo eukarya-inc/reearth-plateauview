@@ -21,11 +21,11 @@ func PrepareCityGML(ctx context.Context, cms *cms.CMS, tmpDir string, cityItem *
 	zipFilePath := filepath.Join(tmpDir, zipFileName)
 
 	log.Infofc(ctx, "preparing citygml: %s", dataName)
-	if err := getAssets(ctx, cms, cityItem, downloadPath); err != nil {
+	if err := getAssets(ctx, cms, cityItem, downloadPath, tmpDir); err != nil {
 		return "", "", fmt.Errorf("failed to get assets: %w", err)
 	}
 
-	if err := getUdx(ctx, allFeatureItems, downloadPath); err != nil {
+	if err := getUdx(ctx, allFeatureItems, downloadPath, tmpDir); err != nil {
 		return "", "", fmt.Errorf("failed to get udx: %w", err)
 	}
 
@@ -36,7 +36,7 @@ func PrepareCityGML(ctx context.Context, cms *cms.CMS, tmpDir string, cityItem *
 	return zipFileName, zipFilePath, nil
 }
 
-func getUdx(ctx context.Context, allFeatureItems map[string]FeatureItem, dest string) error {
+func getUdx(ctx context.Context, allFeatureItems map[string]FeatureItem, dest, tmpDir string) error {
 	outPath := filepath.Join(dest, "udx")
 	_ = os.MkdirAll(outPath, os.ModePerm)
 
@@ -48,12 +48,7 @@ func getUdx(ctx context.Context, allFeatureItems map[string]FeatureItem, dest st
 
 		log.Infofc(ctx, "downloading citygml for %s...", ft)
 
-		data, err := downloadFileAsByteReader(ctx, fi.CityGML)
-		if err != nil {
-			return fmt.Errorf("failed to download citygml for %s: %w", ft, err)
-		}
-
-		if err := Unzip(ctx, data, outPath, &UnzipOptions{
+		if _, err := downloadAndUnzip(ctx, fi.CityGML, outPath, tmpDir, &UnzipOptions{
 			Rename: renameCityGMLZip(ft, "udx/"),
 		}); err != nil {
 			return fmt.Errorf("failed to unzip citygml for %s: %w", ft, err)
@@ -62,7 +57,7 @@ func getUdx(ctx context.Context, allFeatureItems map[string]FeatureItem, dest st
 	return nil
 }
 
-func getAssets(ctx context.Context, cms *cms.CMS, cityItem *CityItem, downloadPath string) error {
+func getAssets(ctx context.Context, cms *cms.CMS, cityItem *CityItem, downloadPath, tmpDir string) error {
 	codeLists := cityItem.CodeLists
 	if codeLists != "" {
 		log.Infofc(ctx, "downloading codeLists: %s...", codeLists)
@@ -72,12 +67,7 @@ func getAssets(ctx context.Context, cms *cms.CMS, cityItem *CityItem, downloadPa
 			return fmt.Errorf("failed to get assets codeLists: %w", err)
 		}
 
-		data, err := downloadFileAsByteReader(ctx, assets.URL)
-		if err != nil {
-			return fmt.Errorf("failed to download assets codeLists: %w", err)
-		}
-
-		if err := Unzip(ctx, data, downloadPath, &UnzipOptions{
+		if _, err := downloadAndUnzip(ctx, assets.URL, downloadPath, tmpDir, &UnzipOptions{
 			Rename: renameCityGMLZip("codelists", ""),
 		}); err != nil {
 			return fmt.Errorf("failed to unzip assets codeLists: %w", err)
@@ -93,12 +83,7 @@ func getAssets(ctx context.Context, cms *cms.CMS, cityItem *CityItem, downloadPa
 			return fmt.Errorf("failed to get assets schemas: %w", err)
 		}
 
-		data, err := downloadFileAsByteReader(ctx, assets.URL)
-		if err != nil {
-			return fmt.Errorf("failed to download assets schemas: %w", err)
-		}
-
-		if err := Unzip(ctx, data, downloadPath, &UnzipOptions{
+		if _, err := downloadAndUnzip(ctx, assets.URL, downloadPath, tmpDir, &UnzipOptions{
 			Rename: renameCityGMLZip("schemas", ""),
 		}); err != nil {
 			return fmt.Errorf("failed to unzip assets schemas: %w", err)
@@ -114,12 +99,7 @@ func getAssets(ctx context.Context, cms *cms.CMS, cityItem *CityItem, downloadPa
 			return fmt.Errorf("failed to get assets metadata: %w", err)
 		}
 
-		data, err := downloadFileAsByteReader(ctx, assets.URL)
-		if err != nil {
-			return fmt.Errorf("failed to download assets metadata: %w", err)
-		}
-
-		if err := Unzip(ctx, data, downloadPath, &UnzipOptions{
+		if _, err := downloadAndUnzip(ctx, assets.URL, downloadPath, tmpDir, &UnzipOptions{
 			Rename: renameCityGMLZip("metadata", ""),
 		}); err != nil {
 			return fmt.Errorf("failed to unzip assets metadata: %w", err)
@@ -135,12 +115,7 @@ func getAssets(ctx context.Context, cms *cms.CMS, cityItem *CityItem, downloadPa
 			return fmt.Errorf("failed to get assets specification: %w", err)
 		}
 
-		data, err := downloadFileAsByteReader(ctx, assets.URL)
-		if err != nil {
-			return fmt.Errorf("failed to download assets specification: %w", err)
-		}
-
-		if err := Unzip(ctx, data, downloadPath, &UnzipOptions{
+		if _, err := downloadAndUnzip(ctx, assets.URL, downloadPath, tmpDir, &UnzipOptions{
 			Rename: renameCityGMLZip("specification", ""),
 		}); err != nil {
 			return fmt.Errorf("failed to unzip assets specification: %w", err)
@@ -156,12 +131,7 @@ func getAssets(ctx context.Context, cms *cms.CMS, cityItem *CityItem, downloadPa
 			return fmt.Errorf("failed to get assets misc: %w", err)
 		}
 
-		data, err := downloadFileAsByteReader(ctx, assets.URL)
-		if err != nil {
-			return fmt.Errorf("failed to download assets misc: %w", err)
-		}
-
-		if err := Unzip(ctx, data, downloadPath, &UnzipOptions{
+		if _, err := downloadAndUnzip(ctx, assets.URL, downloadPath, tmpDir, &UnzipOptions{
 			Rename: renameCityGMLZip("", "misc/"),
 		}); err != nil {
 			return fmt.Errorf("failed to unzip assets misc: %w", err)
@@ -177,7 +147,7 @@ func renameCityGMLZip(ty, prefix string) func(p string) (string, error) {
 		if prefix != "" {
 			if strings.HasPrefix(p, prefix) {
 				p = strings.TrimPrefix(p, prefix)
-			} else if strings.HasSuffix(p, "/") && rawPath == prefix[:len(prefix)-1] {
+			} else if strings.HasSuffix(prefix, "/") && rawPath == prefix[:len(prefix)-1] {
 				return "", SkipUnzip
 			}
 		}
