@@ -8,29 +8,40 @@ import (
 
 func TestQueryToDatasets(t *testing.T) {
 	query := &Query{
-		Areas: []*QueryArea{
+		Areas: []QueryArea{
 			{
 				Name: "Prefecture 1",
-				Prefecture: &QueryPrefecture{
-					Cities: []*QueryCity{
+				Prefecture: QueryPrefecture{
+					Cities: []QueryCity{
 						{
 							ID:   "City1",
 							Name: "City 1",
-							Datasets: []*QueryCityDataset{
+							Datasets: []QueryDataset{
 								{
-									TypeCode: "DatasetType1",
+									TypeCode:    "bldg",
+									Description: "Description",
+									PlateauDataset: QueryPlateauDataset{
+										PlateauSpecMinor: QueryPlateauSpecMinor{
+											Version: "3.4",
+										},
+									},
 								},
 								{
-									TypeCode: "DatasetType2",
+									TypeCode: "DatasetType1",
+									PlateauDataset: QueryPlateauDataset{
+										PlateauSpecMinor: QueryPlateauSpecMinor{
+											Version: "3.5",
+										},
+									},
 								},
 							},
 						},
 						{
 							ID:   "City2",
 							Name: "City 2",
-							Datasets: []*QueryCityDataset{
+							Datasets: []QueryDataset{
 								{
-									TypeCode: "DatasetType3",
+									TypeCode: "DatasetType2",
 								},
 							},
 						},
@@ -48,16 +59,16 @@ func TestQueryToDatasets(t *testing.T) {
 					{
 						ID:           "City1",
 						Title:        "City 1",
-						Spec:         "",
-						Description:  "",
-						FeatureTypes: []string{"DatasetType1", "DatasetType2"},
+						Spec:         "3.4",
+						Description:  "Description",
+						FeatureTypes: []string{"bldg", "DatasetType1"},
 					},
 					{
 						ID:           "City2",
 						Title:        "City 2",
 						Spec:         "",
 						Description:  "",
-						FeatureTypes: []string{"DatasetType3"},
+						FeatureTypes: []string{"DatasetType2"},
 					},
 				},
 			},

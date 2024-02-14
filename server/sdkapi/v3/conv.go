@@ -1,5 +1,7 @@
 package sdkapiv3
 
+const bldg = "bldg"
+
 func (d *Query) ToDatasets() *DatasetsResponse {
 	datasets := &DatasetsResponse{}
 
@@ -10,13 +12,15 @@ func (d *Query) ToDatasets() *DatasetsResponse {
 
 		for _, city := range prefecture.Prefecture.Cities {
 			c := &DatasetCityResponse{
-				ID:          string(city.ID),
-				Title:       string(city.Name),
-				Spec:        "", //TODO
-				Description: "", //TODO
+				ID:    string(city.ID),
+				Title: string(city.Name),
 			}
 
 			for _, dataset := range city.Datasets {
+				if dataset.TypeCode == bldg {
+					c.Description = string(dataset.Description)
+					c.Spec = string(dataset.PlateauDataset.PlateauSpecMinor.Version)
+				}
 				c.FeatureTypes = append(c.FeatureTypes, string(dataset.TypeCode))
 			}
 

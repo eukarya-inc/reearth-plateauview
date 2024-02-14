@@ -5,38 +5,37 @@ import (
 )
 
 type Query struct {
-	Areas        []*QueryArea `graphql:"areas(input: {areaTypes: PREFECTURE})"`
-	PlateauSpecs []*QueryPlateauSpec
+	Areas []QueryArea `graphql:"areas(input: {areaTypes: PREFECTURE})"`
 }
 
 type QueryArea struct {
 	ID         graphql.String
 	Name       graphql.String
-	Prefecture *QueryPrefecture `graphql:"... on Prefecture"`
+	Prefecture QueryPrefecture `graphql:"... on Prefecture"`
 }
 
 type QueryPrefecture struct {
-	Cities []*QueryCity
+	Cities []QueryCity
 }
 
 type QueryCity struct {
 	ID       graphql.String
 	Name     graphql.String
-	Datasets []*QueryCityDataset `graphql:"datasets(input: {includeTypes: [\"plateau\"]})"`
+	Datasets []QueryDataset `graphql:"datasets(input: {includeTypes: [\"plateau\"]})"`
 }
 
-type QueryCityDataset struct {
-	ID          graphql.String
-	Name        graphql.String
-	TypeCode    graphql.String
-	Description graphql.String
+type QueryDataset struct {
+	ID             graphql.String
+	Name           graphql.String
+	TypeCode       graphql.String
+	Description    graphql.String
+	PlateauDataset QueryPlateauDataset `graphql:"... on PlateauDataset"`
 }
 
-type QueryPlateauSpec struct {
-	MajorVersion  graphql.Int
-	MinorVersions []*QueryPlateauSpecMinorVersion
+type QueryPlateauDataset struct {
+	PlateauSpecMinor QueryPlateauSpecMinor
 }
 
-type QueryPlateauSpecMinorVersion struct {
+type QueryPlateauSpecMinor struct {
 	Version graphql.String
 }
