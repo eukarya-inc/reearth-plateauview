@@ -235,11 +235,11 @@ func sortDatasetTypes[T DatasetType](nodes []T) {
 	})
 }
 
-func getLatestYearNodes[T any](results []T) []T {
-	targets := make([]T, 0, len(results))
+func getLatestYearNodes[T any](nodes []T) []T {
+	targets := make([]T, 0, len(nodes))
 	maxYear := 0
 	found := false
-	for _, r := range results {
+	for _, r := range nodes {
 		if !isPresent(r) {
 			continue
 		}
@@ -252,13 +252,13 @@ func getLatestYearNodes[T any](results []T) []T {
 	}
 
 	if !found {
-		return results
+		return targets
 	}
 
-	results = lo.Filter(results, func(a T, i int) bool {
+	targets = lo.Filter(targets, func(a T, i int) bool {
 		return getYear(a) == maxYear
 	})
-	return results
+	return targets
 }
 
 func getLatestYearNode[T any](results []T) T {
