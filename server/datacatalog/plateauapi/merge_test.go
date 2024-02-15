@@ -83,6 +83,7 @@ func TestMergeResults(t *testing.T) {
 		}
 		expected1 := []*PlateauDatasetType{
 			{ID: "1", Year: 2020, Name: "a"},
+			{ID: "1", Year: 2020},
 			{ID: "2", Year: 2021},
 			{ID: "3", Year: 2021},
 		}

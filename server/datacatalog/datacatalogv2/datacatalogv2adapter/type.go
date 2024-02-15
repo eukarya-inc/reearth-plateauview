@@ -82,9 +82,9 @@ var plateauSpecs = []plateauapi.PlateauSpec{
 	},
 }
 
-func plateauDatasetFrom(d datacatalogv2.DataCatalogItem) (plateauapi.PlateauDataset, bool) {
+func plateauDatasetFrom(d datacatalogv2.DataCatalogItem) *plateauapi.PlateauDataset {
 	if d.Family != "plateau" {
-		return plateauapi.PlateauDataset{}, false
+		return nil
 	}
 
 	plateauSpecVersion := d.Spec
@@ -121,7 +121,7 @@ func plateauDatasetFrom(d datacatalogv2.DataCatalogItem) (plateauapi.PlateauData
 	}
 
 	id := datasetIDFrom(d, nil)
-	return plateauapi.PlateauDataset{
+	return &plateauapi.PlateauDataset{
 		ID:                 id,
 		Name:               d.Name,
 		Subname:            subname,
@@ -144,7 +144,7 @@ func plateauDatasetFrom(d datacatalogv2.DataCatalogItem) (plateauapi.PlateauData
 		Items: lo.Map(d.MainOrConfigItems(), func(c datacatalogutil.DataCatalogItemConfigItem, i int) *plateauapi.PlateauDatasetItem {
 			return plateauDatasetItemFrom(c, id)
 		}),
-	}, true
+	}
 }
 
 func plateauDatasetItemFrom(c datacatalogutil.DataCatalogItemConfigItem, parentID plateauapi.ID) *plateauapi.PlateauDatasetItem {
@@ -191,9 +191,9 @@ func plateauDatasetItemFrom(c datacatalogutil.DataCatalogItemConfigItem, parentI
 
 var reBrackets = regexp.MustCompile(`（[^（]*）`)
 
-func relatedDatasetFrom(d datacatalogv2.DataCatalogItem) (plateauapi.RelatedDataset, bool) {
+func relatedDatasetFrom(d datacatalogv2.DataCatalogItem) *plateauapi.RelatedDataset {
 	if d.Family != "related" {
-		return plateauapi.RelatedDataset{}, false
+		return nil
 	}
 
 	year := d.Year
@@ -205,7 +205,7 @@ func relatedDatasetFrom(d datacatalogv2.DataCatalogItem) (plateauapi.RelatedData
 
 	id := datasetIDFrom(d, nil)
 	items := d.MainOrConfigItems()
-	return plateauapi.RelatedDataset{
+	return &plateauapi.RelatedDataset{
 		ID:             id,
 		Name:           d.Name,
 		Description:    lo.ToPtr(d.Description),
@@ -245,16 +245,16 @@ func relatedDatasetFrom(d datacatalogv2.DataCatalogItem) (plateauapi.RelatedData
 				ParentID:       id,
 			}
 		}),
-	}, true
+	}
 }
 
-func genericDatasetFrom(d datacatalogv2.DataCatalogItem) (plateauapi.GenericDataset, bool) {
+func genericDatasetFrom(d datacatalogv2.DataCatalogItem) *plateauapi.GenericDataset {
 	if d.Family != "generic" {
-		return plateauapi.GenericDataset{}, false
+		return nil
 	}
 
 	id := datasetIDFrom(d, nil)
-	return plateauapi.GenericDataset{
+	return &plateauapi.GenericDataset{
 		ID:             id,
 		Name:           d.Name,
 		Description:    lo.ToPtr(d.Description),
@@ -279,7 +279,7 @@ func genericDatasetFrom(d datacatalogv2.DataCatalogItem) (plateauapi.GenericData
 				ParentID: id,
 			}
 		}),
-	}, true
+	}
 }
 
 func datasetFormatFrom(f string) plateauapi.DatasetFormat {

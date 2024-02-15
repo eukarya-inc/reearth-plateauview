@@ -68,7 +68,7 @@ func TestNewCache(t *testing.T) {
 		},
 		Datasets: plateauapi.Datasets{
 			plateauapi.DatasetTypeCategoryPlateau: []plateauapi.Dataset{
-				plateauapi.PlateauDataset{
+				&plateauapi.PlateauDataset{
 					ID:                 "d_13101_bldg",
 					Name:               "建築物モデル（東京都23区）",
 					Year:               2022,

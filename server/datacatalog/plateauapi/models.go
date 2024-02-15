@@ -1,6 +1,7 @@
 package plateauapi
 
 import (
+	"fmt"
 	"slices"
 	"sort"
 	"strings"
@@ -230,4 +231,19 @@ var _ YearNode = (*PlateauSpecMinor)(nil)
 
 func IsLayerSupported(format DatasetFormat) bool {
 	return datacatalogutil.IsLayerSupported(strings.ToLower(string(format)))
+}
+
+type VagueID interface {
+	VagueID() string
+}
+
+func (a *PlateauDataset) VagueID() string {
+	return fmt.Sprintf("d_%s_%s", mostDetailedAreaCodeFrom(a), a.TypeCode)
+}
+
+func getVagueID(n any) string {
+	if v, ok := n.(VagueID); ok && v != nil {
+		return v.VagueID()
+	}
+	return ""
 }

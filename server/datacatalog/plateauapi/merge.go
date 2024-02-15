@@ -189,14 +189,17 @@ func getFlattenRepoResults[T any](repos []Repo, f func(r Repo) ([]T, error)) ([]
 	return lo.Flatten(res), nil
 }
 
-func mergeResults[T IDNode](results []T, sort bool) []T {
+func mergeResults[T Node](results []T, sort bool) []T {
 	groups := lo.GroupBy(results, func(n T) string {
+		if vid := getVagueID(n); vid != "" {
+			return vid
+		}
 		return string(n.GetID())
 	})
 
 	res := make([]T, 0, len(groups))
 	for _, g := range groups {
-		res = append(res, getLatestYearNode(g))
+		res = append(res, getLatestYearNodes(g)...)
 	}
 
 	if sort {
@@ -205,7 +208,7 @@ func mergeResults[T IDNode](results []T, sort bool) []T {
 	return res
 }
 
-func sortNodes[T IDNode](nodes []T) {
+func sortNodes[T Node](nodes []T) {
 	sort.Slice(nodes, func(i, j int) bool {
 		i1, i2 := nodes[i].GetID(), nodes[j].GetID()
 		if i1 != i2 {
@@ -230,6 +233,32 @@ func sortDatasetTypes[T DatasetType](nodes []T) {
 
 		return 0
 	})
+}
+
+func getLatestYearNodes[T any](results []T) []T {
+	targets := make([]T, 0, len(results))
+	maxYear := 0
+	found := false
+	for _, r := range results {
+		if !isPresent(r) {
+			continue
+		}
+
+		targets = append(targets, r)
+		if y := getYear(r); y > maxYear {
+			maxYear = y
+			found = true
+		}
+	}
+
+	if !found {
+		return results
+	}
+
+	results = lo.Filter(results, func(a T, i int) bool {
+		return getYear(a) == maxYear
+	})
+	return results
 }
 
 func getLatestYearNode[T any](results []T) T {
@@ -257,10 +286,6 @@ func zip[T any](a ...[]T) [][]T {
 		}
 	}
 	return res
-}
-
-type IDNode interface {
-	GetID() ID
 }
 
 type YearNode interface {
