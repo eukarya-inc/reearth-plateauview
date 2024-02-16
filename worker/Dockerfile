@@ -14,6 +14,7 @@ FROM debian:bullseye
 
 RUN apt-get update && apt-get install -y ca-certificates && apt-get clean && rm -rf /var/lib/apt/lists/*
 
+RUN mkdir -p /app/plateau-api-worker-tmp
 COPY --from=build /app/worker /app/reearth-plateauview
 
 WORKDIR /app
