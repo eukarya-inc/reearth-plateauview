@@ -154,7 +154,7 @@ func Command(conf *Config) (err error) {
 	log.Infofc(ctx, "preparing citygml and plateau...")
 
 	if conf.WetRun {
-		if err := notifyRunning(ctx, cms, cityItem.GeospatialjpData, !conf.SkipCityGML, !conf.SkipPlateau, !conf.SkipRelated, !conf.SkipMaxLOD); err != nil {
+		if err := notifyRunning(ctx, cms, cityItem.ID, cityItem.GeospatialjpData, !conf.SkipCityGML, !conf.SkipPlateau, !conf.SkipRelated, !conf.SkipMaxLOD); err != nil {
 			return fmt.Errorf("failed to notify running: %w", err)
 		}
 	}
@@ -428,11 +428,11 @@ func notifyError(ctx context.Context, c *cms.CMS, cityItemID, gdataItemID string
 		}
 
 		if err := c.CommentToItem(ctx, cityItemID, msgPrefix+comment); err != nil {
-			return fmt.Errorf("failed to comment to item: %w", err)
+			return fmt.Errorf("failed to comment to citygml item: %w", err)
 		}
 
 		if err := c.CommentToItem(ctx, gdataItemID, msgPrefix+comment); err != nil {
-			return fmt.Errorf("failed to comment to item: %w", err)
+			return fmt.Errorf("failed to comment to data item: %w", err)
 		}
 	}
 
@@ -487,13 +487,13 @@ func notifyError(ctx context.Context, c *cms.CMS, cityItemID, gdataItemID string
 	return nil
 }
 
-func notifyRunning(ctx context.Context, c *cms.CMS, cityItemID string, citygmlRunning, plateauRunning, relatedRunning, maxlodRunning bool) error {
+func notifyRunning(ctx context.Context, c *cms.CMS, citygmlID, dataID string, citygmlRunning, plateauRunning, relatedRunning, maxlodRunning bool) error {
 	if !citygmlRunning && !plateauRunning && !relatedRunning && !maxlodRunning {
 		return nil
 	}
 
 	item := GspatialjpDataItem{
-		ID: cityItemID,
+		ID: dataID,
 	}
 
 	if citygmlRunning {
@@ -527,8 +527,14 @@ func notifyRunning(ctx context.Context, c *cms.CMS, cityItemID string, citygmlRu
 		return fmt.Errorf("failed to update item: %w", err)
 	}
 
-	if err := c.CommentToItem(ctx, rawItem.ID, "マージ処理を開始しました。"); err != nil {
-		return fmt.Errorf("failed to comment to item: %w", err)
+	comment := "マージ処理を開始しました。"
+
+	if err := c.CommentToItem(ctx, citygmlID, comment); err != nil {
+		return fmt.Errorf("failed to comment to city item: %w", err)
+	}
+
+	if err := c.CommentToItem(ctx, dataID, comment); err != nil {
+		return fmt.Errorf("failed to comment to data item: %w", err)
 	}
 
 	return nil
