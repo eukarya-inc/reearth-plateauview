@@ -97,13 +97,18 @@ func geospatialjpv2Config(conf Config) geospatialjpv2.Config {
 
 func geospatialjpv3Config(conf Config) geospatialjpv3.Config {
 	return geospatialjpv3.Config{
-		CMSBase:        conf.CMSBaseURL,
-		CMSToken:       conf.CMSToken,
-		CMSIntegration: conf.CMSIntegration,
-		CkanBase:       conf.CkanBaseURL,
-		CkanOrg:        conf.CkanOrg,
-		CkanToken:      conf.CkanToken,
-		JobName:        conf.GeospatialjpJobName,
+		CMSBase:               conf.CMSBaseURL,
+		CMSToken:              conf.CMSToken,
+		CMSIntegration:        conf.CMSIntegration,
+		CkanBase:              conf.CkanBaseURL,
+		CkanOrg:               conf.CkanOrg,
+		CkanToken:             conf.CkanToken,
+		BuildType:             conf.GeospatialjpBuildType,
+		CloudRunJobsJobName:   conf.GeospatialjpCloudRunJobsJobName,
+		CloudBuildImage:       conf.GeospatialjpCloudBuildImage,
+		CloudBuildMachineType: conf.GeospatialjpCloudBuildMachineType,
+		CloudBuildProject:     conf.GeospatialjpCloudBuildProject,
+		CloudBuildRegion:      conf.GeospatialjpCloudBuildRegion,
 	}
 }
 

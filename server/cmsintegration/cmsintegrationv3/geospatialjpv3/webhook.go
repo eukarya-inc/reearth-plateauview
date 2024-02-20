@@ -130,7 +130,7 @@ func (h *handler) Webhook(conf Config) (cmswebhook.Handler, error) {
 		log.Debugfc(ctx, "geospatialjpv3 webhook: %s", ppp.Sprint(cityItem))
 
 		if b := getChangedBool(ctx, w, prepareFieldKey); b != nil && *b {
-			if err := Prepare(ctx, cityItem.ID, w.ProjectID(), conf.JobName); err != nil {
+			if err := Prepare(ctx, cityItem.ID, w.ProjectID(), conf); err != nil {
 				log.Errorfc(ctx, "geospatialjpv3 webhook: failed to prepare: %v", err)
 			}
 		} else {
