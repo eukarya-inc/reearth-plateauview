@@ -154,9 +154,9 @@ type City implements Area & Node {
   """
   planarCrsEpsgCode: String
   """
-  市区町村に属するCityGMLデータ。
+  市区町村に属するCityGMLのデータセット。
   """
-  cityGML: CityGML
+  citygml: CityGMLDataset
 }
 
 """
@@ -1022,40 +1022,84 @@ type GenericDatasetType implements DatasetType & Node {
 }
 
 """
-PLATEAUの標準製品仕様書に対応させたCityGMLを含んだzip形式のデータです。
+PLATEAU標準製品仕様書に基づくCityGMLのデータセット。
 """
-type CityGML implements Node {
+type CityGMLDataset implements Node {
   id: ID!
   """
-  zip形式のファイルURLです。
+  データセットの公開年度（西暦）。
   """
-  file: String
+  year: Int!
   """
-  zipに含まれるCityGMLのデータセットです。
+  データセットが属する都道府県のID。
   """
-  cityGMLItems: [CityGMLItem]
+  prefectureId: ID!
+  """
+  データセットが属する都道府県コード。2桁の数字から成る文字列です。
+  """
+  prefectureCode: AreaCode!
+  """
+  データセットが属する市のID。
+  """
+  cityId: ID!
+  """
+  データセットが属する市コード。先頭に都道府県コードを含む5桁の数字から成る文字列です。
+  """
+  cityCode: AreaCode!
+  """
+  データセットが準拠するPLATEAU都市モデルの仕様のマイナーバージョンへのID。
+  """
+  plateauSpecMinorId: ID!
+  """
+  CityGMLのzip形式のファイルのURL。
+  """
+  url: String!
+  """
+  CityGMLのアイテム。
+  """
+  items: [CityGMLDatasetItem!]!
+  """
+  データセットが属する都道府県。
+  """
+  prefecture: Prefecture!
+  """
+  データセットが属する市。
+  """
+  city: City!
+  """
+  データセットが準拠するPLATEAU都市モデルの仕様。
+  """
+  plateauSpecMinor: PlateauSpecMinor!
 }
 
 """
-PLATEAUの標準製品仕様書に対応させたCityGML形式のデータです。。
+PLATEAU標準製品仕様書に基づくCityGMLのデータセットのアイテム。
 """
-type CityGMLItem {
+type CityGMLDatasetItem {
   """
-  gml形式のファイルURLです。
+  GML形式のファイルURL。
   """
-  file: String
+  url: String!
   """
-  //TODO
+  メッシュコード。
   """
-  code: String
+  code: String!
   """
-  データセットの種類コードです。"bldg"のような文字列です。
+  データセットの種類のID。
   """
-  typeCode: String
+  typeId: ID!
   """
-  gmlに含まれる地物のLOD最大値です。
+  データセットの種類コード。 "bldg" のような文字列です。
   """
-  maxLod: Int
+  typeCode: String!
+  """
+  GMLに含まれる地物のLOD最大値。
+  """
+  maxLod: Int!
+  """
+  データセットの種類。
+  """
+  type: RelatedDatasetType!
 }
 
 # Queries

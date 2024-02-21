@@ -161,6 +161,8 @@ type City struct {
 	Parent *Prefecture `json:"parent"`
 	// 平面直角座標系のEPSGコード。例えば、東京都の場合は "6677" です。
 	PlanarCrsEpsgCode *string `json:"planarCrsEpsgCode,omitempty"`
+	// 市区町村に属するCityGMLのデータセット。
+	Citygml *CityGMLDataset `json:"citygml,omitempty"`
 }
 
 func (City) IsArea()        {}
@@ -198,6 +200,54 @@ func (this City) GetParent() Area { return *this.Parent }
 func (City) IsNode() {}
 
 // オブジェクトのID
+
+// PLATEAU標準製品仕様書に基づくCityGMLのデータセット。
+type CityGMLDataset struct {
+	ID ID `json:"id"`
+	// データセットの公開年度（西暦）。
+	Year int `json:"year"`
+	// データセットが属する都道府県のID。
+	PrefectureID ID `json:"prefectureId"`
+	// データセットが属する都道府県コード。2桁の数字から成る文字列です。
+	PrefectureCode AreaCode `json:"prefectureCode"`
+	// データセットが属する市のID。
+	CityID ID `json:"cityId"`
+	// データセットが属する市コード。先頭に都道府県コードを含む5桁の数字から成る文字列です。
+	CityCode AreaCode `json:"cityCode"`
+	// データセットが準拠するPLATEAU都市モデルの仕様のマイナーバージョンへのID。
+	PlateauSpecMinorID ID `json:"plateauSpecMinorId"`
+	// CityGMLのzip形式のファイルのURL。
+	URL string `json:"url"`
+	// CityGMLのアイテム。
+	Items []*CityGMLDatasetItem `json:"items"`
+	// データセットが属する都道府県。
+	Prefecture *Prefecture `json:"prefecture"`
+	// データセットが属する市。
+	City *City `json:"city"`
+	// データセットが準拠するPLATEAU都市モデルの仕様。
+	PlateauSpecMinor *PlateauSpecMinor `json:"plateauSpecMinor"`
+}
+
+func (CityGMLDataset) IsNode() {}
+
+// オブジェクトのID
+func (this CityGMLDataset) GetID() ID { return this.ID }
+
+// PLATEAU標準製品仕様書に基づくCityGMLのデータセットのアイテム。
+type CityGMLDatasetItem struct {
+	// GML形式のファイルURL。
+	URL string `json:"url"`
+	// メッシュコード。
+	Code string `json:"code"`
+	// データセットの種類のID。
+	TypeID ID `json:"typeId"`
+	// データセットの種類コード。 "bldg" のような文字列です。
+	TypeCode string `json:"typeCode"`
+	// GMLに含まれる地物のLOD最大値。
+	MaxLod int `json:"maxLod"`
+	// データセットの種類。
+	Type *RelatedDatasetType `json:"type"`
+}
 
 // データセットの種類を検索するためのクエリ。
 type DatasetTypesInput struct {
@@ -791,6 +841,10 @@ func (this Prefecture) GetParent() Area { return this.Parent }
 func (Prefecture) IsNode() {}
 
 // オブジェクトのID
+
+// PLATEAU GraphQL API のクエリルート。
+type Query struct {
+}
 
 // PLATEAU都市モデルデータセットと併せて表示することで情報を補完できる、関連データセット。
 // 避難施設・ランドマーク・鉄道駅・鉄道・緊急輸送道路・公園・行政界などのデータセット。

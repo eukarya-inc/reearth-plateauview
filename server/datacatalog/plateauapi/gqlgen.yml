@@ -76,7 +76,7 @@ models:
         resolver: true
       parent:
         resolver: true
-      cityGML:
+      citygml:
         resolver: true
   Ward:
     fields:
@@ -171,4 +171,16 @@ models:
       parent:
         resolver: true
       datasets:
+        resolver: true
+  CityGMLDataset:
+    fields:
+      prefecture:
+        resolver: true
+      city:
+        resolver: true
+      plateauSpecMinor:
+        resolver: true
+  CityGMLDatasetItem:
+    fields:
+      type:
         resolver: true

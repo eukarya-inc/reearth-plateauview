@@ -221,3 +221,7 @@ var _ YearNode = (*PlateauDatasetType)(nil)
 func IsLayerSupported(format DatasetFormat) bool {
 	return datacatalogutil.IsLayerSupported(strings.ToLower(string(format)))
 }
+
+func CityGMLDatasetIDFrom(areaCode AreaCode) ID {
+	return NewID(areaCode.String(), TypeCityGML)
+}
