@@ -148,7 +148,7 @@ func (ex AssetNameExFld) scaleSuffix() string {
 	return suffix
 }
 
-var reAssetName = regexp.MustCompile(`^(\d{5})_([a-z0-9-]+)_([a-z0-9-]+)_(\d{4})_(.+?)_(\d+)(?:_op$?)?(?:_(.+))?$`)
+var reAssetName = regexp.MustCompile(`^(\d+)_([a-z0-9-]+)_([a-z0-9-]+)_(\d{4})_(.+?)_(\d+)(?:_op$?)?(?:_(.+))?$`)
 
 func ParseAssetName(name string) *AssetName {
 	m := reAssetName.FindStringSubmatch(name)
@@ -286,7 +286,7 @@ type RelatedAssetName struct {
 	Format   string
 }
 
-var reRelatedAssetName = regexp.MustCompile(`^(\d{5})_([a-zA-Z0-9-]+)_([a-zA-Z0-9-]+)_(\d+)_(?:(\d+)_([a-zA-Z0-9-]+?)_)?([a-zA-Z0-9-_]+)\.([a-z0-9]+)$`)
+var reRelatedAssetName = regexp.MustCompile(`^(\d+)_([a-zA-Z0-9-]+)_([a-zA-Z0-9-]+)_(\d+)_(?:(\d+)_([a-zA-Z0-9-]+?)_)?([a-zA-Z0-9-_]+)\.([a-z0-9]+)$`)
 
 func ParseRelatedAssetName(name string) *RelatedAssetName {
 	if name == "" {

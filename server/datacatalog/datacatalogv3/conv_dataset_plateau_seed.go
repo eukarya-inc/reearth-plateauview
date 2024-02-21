@@ -82,6 +82,9 @@ func plateauDatasetSeedsFrom(i *PlateauFeatureItem, dt *plateauapi.PlateauDatase
 		res[i].OpenDataURL = area.CityItem.GetOpenDataURL()
 		if res[i].TargetArea == nil {
 			res[i].TargetArea = area.City
+			if res[i].TargetArea == nil {
+				res[i].TargetArea = area.Pref
+			}
 		}
 	}
 
