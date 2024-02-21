@@ -31,7 +31,7 @@ func (i *RelatedItem) toDatasets(area *areaContext, dts []plateauapi.DatasetType
 
 		seeds, w := assetUrlsToRelatedDatasetSeeds(d.Asset, d.Converted, area.City, area.Wards, area.CityItem.YearInt())
 		warning = append(warning, w...)
-		admin := newAdmin(area.CityItem.ID, relatedStage(i, area.CityItem), cmsurl)
+		admin := newAdmin(area.CityItem.ID, relatedStage(i, area.CityItem), cmsurl, nil)
 
 		for _, seed := range seeds {
 			sid := standardItemID(ftcode, seed.Area.GetCode(), "")

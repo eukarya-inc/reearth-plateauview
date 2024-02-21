@@ -33,7 +33,7 @@ func filterDataset(d Dataset, input DatasetsInput, stages []string) bool {
 		return false
 	}
 
-	if s := stageFrom(d); s != "" && (len(stages) == 0 || !slices.Contains(stages, s)) {
+	if s := stageFromDataset(d); s != "" && (len(stages) == 0 || !slices.Contains(stages, s)) {
 		return false
 	}
 
@@ -131,6 +131,18 @@ func filterByCode(code string, category DatasetTypeCategory, includes []string, 
 		}) {
 			return false
 		}
+	}
+
+	return true
+}
+
+func filterCityGMLDataset(d *CityGMLDataset, stages []string) bool {
+	if d == nil {
+		return false
+	}
+
+	if s := stageFromCityGMLDataset(d); s != "" && (len(stages) == 0 || !slices.Contains(stages, s)) {
+		return false
 	}
 
 	return true

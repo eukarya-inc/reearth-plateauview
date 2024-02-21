@@ -2,11 +2,14 @@ package datacatalogv3
 
 import (
 	"context"
+	"encoding/csv"
 	"fmt"
+	"net/http"
 
 	"github.com/eukarya-inc/reearth-plateauview/server/datacatalog/plateauapi"
 	cms "github.com/reearth/reearth-cms-api/go"
 	"github.com/samber/lo"
+	"golang.org/x/sync/errgroup"
 )
 
 type CMS struct {
@@ -49,6 +52,10 @@ func (c *CMS) GetAll(ctx context.Context, project string) (*AllData, error) {
 		return c.GetGenericItems(ctx, project)
 	})
 
+	geospatialjpDataItemsChan := lo.Async2(func() ([]*GeospatialjpDataItem, error) {
+		return c.GetGeospatialjpDataItemsWithMaxLODContent(ctx, project)
+	})
+
 	featureItemsChans := make([]<-chan lo.Tuple3[string, []*PlateauFeatureItem, error], 0, len(all.FeatureTypes.Plateau))
 	for _, featureType := range all.FeatureTypes.Plateau {
 		featureType := featureType
@@ -75,6 +82,12 @@ func (c *CMS) GetAll(ctx context.Context, project string) (*AllData, error) {
 		return nil, fmt.Errorf("failed to get generic items: %w", res.B)
 	} else {
 		all.Generic = res.A
+	}
+
+	if res := <-geospatialjpDataItemsChan; res.B != nil {
+		return nil, fmt.Errorf("failed to get geospatialjp data items: %w", res.B)
+	} else {
+		all.GeospatialjpDataItems = res.A
 	}
 
 	all.Plateau = make(map[string][]*PlateauFeatureItem)
@@ -156,6 +169,67 @@ func (c *CMS) GetGenericItems(ctx context.Context, project string) ([]*GenericIt
 	}
 
 	return items, err
+}
+
+func (c *CMS) GetGeospatialjpDataItems(ctx context.Context, project string) ([]*GeospatialjpDataItem, error) {
+	items, err := getItemsAndConv[GeospatialjpDataItem](
+		c.cms, ctx, project, modelPrefix+geospatialjpDataModel,
+		func(i cms.Item) *GeospatialjpDataItem {
+			return GeospatialjpDataItemFrom(&i)
+		},
+	)
+
+	return items, err
+}
+
+func (c *CMS) GetGeospatialjpDataItemsWithMaxLODContent(ctx context.Context, project string) ([]*GeospatialjpDataItem, error) {
+	items, err := c.GetGeospatialjpDataItems(ctx, project)
+	if err != nil {
+		return nil, err
+	}
+
+	eg, ctx := errgroup.WithContext(ctx)
+	eg.SetLimit(10)
+
+	for i := 0; i < len(items); i++ {
+		i := i
+		url := items[i].MaxLOD
+		if url == "" {
+			continue
+		}
+
+		eg.Go(func() error {
+			req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
+			if err != nil {
+				return fmt.Errorf("items[%d]: failed to create request: %w", i, err)
+			}
+
+			resp, err := http.DefaultClient.Do(req)
+			if err != nil {
+				return fmt.Errorf("items[%d]: failed to get max LOD content: %w", i, err)
+			}
+
+			defer resp.Body.Close()
+			if resp.StatusCode != http.StatusOK {
+				return fmt.Errorf("items[%d]: failed to get max LOD content: status code %d", i, resp.StatusCode)
+			}
+
+			c := csv.NewReader(resp.Body)
+			records, err := c.ReadAll()
+			if err != nil {
+				return fmt.Errorf("items[%d]: failed to read max LOD content: %w", i, err)
+			}
+
+			items[i].MaxLODContent = records
+			return nil
+		})
+	}
+
+	if err := eg.Wait(); err != nil {
+		return nil, err
+	}
+
+	return items, nil
 }
 
 func getItemsAndConv[T any](cms cms.Interface, ctx context.Context, project, model string, conv func(cms.Item) *T) ([]*T, error) {

@@ -3,14 +3,15 @@ package datacatalogv3
 import "github.com/eukarya-inc/reearth-plateauview/server/datacatalog/plateauapi"
 
 type AllData struct {
-	Name         string
-	PlateauSpecs []plateauapi.PlateauSpecSimple
-	FeatureTypes FeatureTypes
-	City         []*CityItem
-	Related      []*RelatedItem
-	Generic      []*GenericItem
-	Plateau      map[string][]*PlateauFeatureItem
-	CMSInfo      CMSInfo
+	Name                  string
+	PlateauSpecs          []plateauapi.PlateauSpecSimple
+	FeatureTypes          FeatureTypes
+	City                  []*CityItem
+	Related               []*RelatedItem
+	Generic               []*GenericItem
+	GeospatialjpDataItems []*GeospatialjpDataItem
+	Plateau               map[string][]*PlateauFeatureItem
+	CMSInfo               CMSInfo
 }
 
 type FeatureTypes struct {

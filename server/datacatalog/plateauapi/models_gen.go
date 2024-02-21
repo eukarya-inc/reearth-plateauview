@@ -226,6 +226,8 @@ type CityGMLDataset struct {
 	City *City `json:"city"`
 	// データセットが準拠するPLATEAU都市モデルの仕様。
 	PlateauSpecMinor *PlateauSpecMinor `json:"plateauSpecMinor"`
+	// 管理者用
+	Admin interface{} `json:"admin,omitempty"`
 }
 
 func (CityGMLDataset) IsNode() {}
@@ -238,7 +240,7 @@ type CityGMLDatasetItem struct {
 	// GML形式のファイルURL。
 	URL string `json:"url"`
 	// メッシュコード。
-	Code string `json:"code"`
+	MeshCode string `json:"meshCode"`
 	// データセットの種類のID。
 	TypeID ID `json:"typeId"`
 	// データセットの種類コード。 "bldg" のような文字列です。
@@ -246,7 +248,7 @@ type CityGMLDatasetItem struct {
 	// GMLに含まれる地物のLOD最大値。
 	MaxLod int `json:"maxLod"`
 	// データセットの種類。
-	Type *RelatedDatasetType `json:"type"`
+	Type *PlateauDatasetType `json:"type"`
 }
 
 // データセットの種類を検索するためのクエリ。

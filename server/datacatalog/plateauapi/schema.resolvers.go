@@ -69,8 +69,8 @@ func (r *cityGMLDatasetResolver) PlateauSpecMinor(ctx context.Context, obj *City
 }
 
 // Type is the resolver for the type field.
-func (r *cityGMLDatasetItemResolver) Type(ctx context.Context, obj *CityGMLDatasetItem) (*RelatedDatasetType, error) {
-	return to[*RelatedDatasetType](r.Repo.Node(ctx, obj.TypeID))
+func (r *cityGMLDatasetItemResolver) Type(ctx context.Context, obj *CityGMLDatasetItem) (*PlateauDatasetType, error) {
+	return to[*PlateauDatasetType](r.Repo.Node(ctx, obj.TypeID))
 }
 
 // Prefecture is the resolver for the prefecture field.

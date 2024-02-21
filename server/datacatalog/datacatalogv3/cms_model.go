@@ -15,6 +15,7 @@ const modelPrefix = "plateau-"
 const cityModel = "city"
 const relatedModel = "related"
 const genericModel = "generic"
+const geospatialjpDataModel = "geospatialjp-data"
 const defaultSpec = "第3.2版"
 
 type ManagementStatus string
@@ -52,11 +53,12 @@ type CityItem struct {
 	Year           string                    `json:"year,omitempty" cms:"year,select"`
 	PRCS           cmsintegrationcommon.PRCS `json:"prcs,omitempty" cms:"prcs,select"`
 	// meatadata
-	PlateauDataStatus *cms.Tag        `json:"plateau_data_status,omitempty" cms:"plateau_data_status,select,metadata"`
-	RelatedDataStatus *cms.Tag        `json:"related_data_status,omitempty" cms:"related_data_status,select,metadata"`
-	SDKPublic         bool            `json:"sdk_public,omitempty" cms:"sdk_public,bool,metadata"`
-	RelatedPublic     bool            `json:"related_public,omitempty" cms:"related_public,bool,metadata"`
-	Public            map[string]bool `json:"public,omitempty" cms:"-"`
+	PlateauDataStatus   *cms.Tag        `json:"plateau_data_status,omitempty" cms:"plateau_data_status,select,metadata"`
+	RelatedDataStatus   *cms.Tag        `json:"related_data_status,omitempty" cms:"related_data_status,select,metadata"`
+	SDKPublic           bool            `json:"sdk_public,omitempty" cms:"sdk_public,bool,metadata"`
+	RelatedPublic       bool            `json:"related_public,omitempty" cms:"related_public,bool,metadata"`
+	Public              map[string]bool `json:"public,omitempty" cms:"-"`
+	GeospatialjpPublish bool            `json:"geospatialjp_publish,omitempty" cms:"geospatialjp_publish,bool,metadata"`
 }
 
 func CityItemFrom(item *cms.Item, featureTypes []FeatureType) (i *CityItem) {
@@ -101,6 +103,13 @@ func (i *CityItem) plateauStage(ft string) stage {
 		return stageBeta
 	}
 	return stageAlpha
+}
+
+func (i *CityItem) geospatialjpStage() stage {
+	if i.GeospatialjpPublish {
+		return stageGA
+	}
+	return stageBeta
 }
 
 type PlateauFeatureItem struct {
@@ -383,4 +392,33 @@ func anyToAssetURL(v any) string {
 	}
 
 	return url
+}
+
+type GeospatialjpDataItem struct {
+	ID            string     `json:"id,omitempty" cms:"id"`
+	City          string     `json:"city,omitempty" cms:"city,reference"`
+	CityGML       string     `json:"citygml,omitempty" cms:"citygml,asset"`
+	MaxLOD        string     `json:"maxlod,omitempty" cms:"maxlod,asset"`
+	MaxLODContent [][]string `json:"maxlod_content,omitempty" cms:"-"`
+}
+
+func GeospatialjpDataItemFrom(item *cms.Item) (i *GeospatialjpDataItem) {
+	type itemType struct {
+		ID      string `json:"id,omitempty" cms:"id"`
+		City    string `json:"city,omitempty" cms:"city,reference"`
+		CityGML any    `json:"citygml,omitempty" cms:"citygml,asset"`
+		MaxLOD  any    `json:"maxlod,omitempty" cms:"maxlod,asset"`
+	}
+
+	it := &itemType{}
+	item.Unmarshal(it)
+
+	i = &GeospatialjpDataItem{
+		ID:      it.ID,
+		City:    it.City,
+		CityGML: anyToAssetURL(it.CityGML),
+		MaxLOD:  anyToAssetURL(it.MaxLOD),
+	}
+
+	return
 }

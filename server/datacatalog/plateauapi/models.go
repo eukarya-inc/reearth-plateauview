@@ -188,8 +188,25 @@ func FindSpecMinorByName(specs []PlateauSpec, name string) *PlateauSpecMinor {
 	return nil
 }
 
-func stageFrom(ds Dataset) string {
+func stageFromDataset(ds Dataset) string {
 	admin := ds.GetAdmin()
+	if admin == nil {
+		return ""
+	}
+
+	return stageFrom(admin)
+}
+
+func stageFromCityGMLDataset(ds *CityGMLDataset) string {
+	admin := ds.Admin
+	if admin == nil {
+		return ""
+	}
+
+	return stageFrom(admin)
+}
+
+func stageFrom(admin any) string {
 	if admin == nil {
 		return ""
 	}

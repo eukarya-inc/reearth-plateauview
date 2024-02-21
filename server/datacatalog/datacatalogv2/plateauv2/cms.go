@@ -46,6 +46,7 @@ type CMSItem struct {
 	Dic              string             `json:"dic"`
 	SearchIndex      []*cms.PublicAsset `json:"search_index"`
 	OpenDataURL      string             `json:"opendata_url"`
+	MaxLOD           *cms.PublicAsset   `json:"maxlod"`
 }
 
 func (i CMSItem) Feature(ty string) []*cms.PublicAsset {

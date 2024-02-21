@@ -1070,6 +1070,10 @@ type CityGMLDataset implements Node {
   データセットが準拠するPLATEAU都市モデルの仕様。
   """
   plateauSpecMinor: PlateauSpecMinor!
+  """
+  管理者用
+  """
+  admin: Any
 }
 
 """
@@ -1083,7 +1087,7 @@ type CityGMLDatasetItem {
   """
   メッシュコード。
   """
-  code: String!
+  meshCode: String!
   """
   データセットの種類のID。
   """
@@ -1099,7 +1103,7 @@ type CityGMLDatasetItem {
   """
   データセットの種類。
   """
-  type: RelatedDatasetType!
+  type: PlateauDatasetType!
 }
 
 # Queries
