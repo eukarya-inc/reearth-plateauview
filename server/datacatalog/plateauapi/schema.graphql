@@ -153,6 +153,10 @@ type City implements Area & Node {
   平面直角座標系のEPSGコード。例えば、東京都の場合は "6677" です。
   """
   planarCrsEpsgCode: String
+  """
+  市区町村に属するCityGMLデータ。
+  """
+  cityGML: CityGML
 }
 
 """
@@ -1015,6 +1019,43 @@ type GenericDatasetType implements DatasetType & Node {
   データセット（DatasetInput内のincludeTypesとexcludeTypesの指定は無視されます）。
   """
   datasets(input: DatasetsInput): [GenericDataset!]!
+}
+
+"""
+PLATEAUの標準製品仕様書に対応させたCityGMLを含んだzip形式のデータです。
+"""
+type CityGML implements Node {
+  id: ID!
+  """
+  zip形式のファイルURLです。
+  """
+  file: String
+  """
+  zipに含まれるCityGMLのデータセットです。
+  """
+  cityGMLItems: [CityGMLItem]
+}
+
+"""
+PLATEAUの標準製品仕様書に対応させたCityGML形式のデータです。。
+"""
+type CityGMLItem {
+  """
+  gml形式のファイルURLです。
+  """
+  file: String
+  """
+  //TODO
+  """
+  code: String
+  """
+  データセットの種類コードです。"bldg"のような文字列です。
+  """
+  typeCode: String
+  """
+  gmlに含まれる地物のLOD最大値です。
+  """
+  maxLod: Int
 }
 
 # Queries
