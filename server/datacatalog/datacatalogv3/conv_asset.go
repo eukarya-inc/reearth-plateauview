@@ -244,7 +244,7 @@ func ParseAssetNameExUrf(name string) *AssetNameExUrf {
 	}
 }
 
-var reAssetNameExFld = regexp.MustCompile(`^fld_(natl|pref)_([a-z0-9-_]+)_3dtiles_(l\d+)(?:-(.+?))?(_no_texture)?$`)
+var reAssetNameExFld = regexp.MustCompile(`^fld_(natl|pref)_([A-Za-z0-9-_]+)_3dtiles_(l\d+)(?:-(.+?))?(_no_texture)?$`)
 
 func ParseAssetNameExFld(name string) *AssetNameExFld {
 	if name == "" {
