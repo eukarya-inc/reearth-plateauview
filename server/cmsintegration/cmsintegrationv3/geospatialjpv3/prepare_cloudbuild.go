@@ -32,6 +32,7 @@ func prepareOnCloudBuild(ctx context.Context, conf prepareOnCloudBuildConfig) er
 	return runCloudBuild(ctx, CloudBuildConfig{
 		Image: conf.CloudBuildImage,
 		Args: []string{
+			"prepare-gspatialjp",
 			"--city=" + conf.City,
 			"--project=" + conf.Project,
 			"--wetrun",
@@ -39,10 +40,12 @@ func prepareOnCloudBuild(ctx context.Context, conf prepareOnCloudBuildConfig) er
 		Env: []string{
 			"REEARTH_CMS_URL=" + conf.CMSURL,
 			"REEARTH_CMS_TOKEN=" + conf.CMSToken,
+			"NO_COLOR=true",
 		},
 		MachineType: conf.CloudBuildMachineType,
 		Project:     conf.CloudBuildProject,
 		Region:      conf.CloudBuildRegion,
+		Tags:        []string{"prepare-geospatialjp"},
 	})
 }
 
@@ -53,6 +56,7 @@ type CloudBuildConfig struct {
 	MachineType string
 	Region      string
 	Project     string
+	Tags        []string
 }
 
 func runCloudBuild(ctx context.Context, conf CloudBuildConfig) error {
@@ -79,6 +83,7 @@ func runCloudBuild(ctx context.Context, conf CloudBuildConfig) error {
 		Options: &cloudbuild.BuildOptions{
 			MachineType: machineType,
 		},
+		Tags: conf.Tags,
 	}
 
 	if conf.Region != "" {

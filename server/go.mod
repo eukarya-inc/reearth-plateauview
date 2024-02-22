@@ -17,7 +17,7 @@ require (
 	github.com/paulmach/go.geojson v1.5.0
 	github.com/reearth/go3dtiles v0.0.0-20230612053146-a6d07c1ab855
 	github.com/reearth/reearth-cms-api/go v0.0.0-20240122053845-b8e81556b2e4
-	github.com/reearth/reearthx v0.0.0-20240206154804-13a660b86aad
+	github.com/reearth/reearthx v0.0.0-20240222072751-402668db71a9
 	github.com/samber/lo v1.39.0
 	github.com/sendgrid/sendgrid-go v3.14.0+incompatible
 	github.com/spf13/afero v1.11.0

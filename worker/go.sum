@@ -49,8 +49,8 @@ github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZb
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/reearth/reearth-cms-api/go v0.0.0-20240122053845-b8e81556b2e4 h1:TpMrjPl2zdsL2xLjtRaQyZEPkVjobG/cxKg/ccBZw0c=
 github.com/reearth/reearth-cms-api/go v0.0.0-20240122053845-b8e81556b2e4/go.mod h1:vPQbmPuvx3/FIsdwi3gwrwf3VU4QQgovG2/wwFGltAs=
-github.com/reearth/reearthx v0.0.0-20240206154804-13a660b86aad h1:NsO9H6wNLxkKjh2Xz14u13hPz5tSOoFS+3M6PvPdxVo=
-github.com/reearth/reearthx v0.0.0-20240206154804-13a660b86aad/go.mod h1:8DSD6e+h1KhfhO4TceYDDPpLkhZJH2CLF6nHxyV8hts=
+github.com/reearth/reearthx v0.0.0-20240222072751-402668db71a9 h1:cjxdkXHqWWZER30P4zF0klV9Edeghx6a/ZP4fHh5ksw=
+github.com/reearth/reearthx v0.0.0-20240222072751-402668db71a9/go.mod h1:8DSD6e+h1KhfhO4TceYDDPpLkhZJH2CLF6nHxyV8hts=
 github.com/rogpeppe/go-internal v1.12.0 h1:exVL4IDcn6na9z1rAb56Vxr+CgyK3nn3O+epU5NdKM8=
 github.com/rogpeppe/go-internal v1.12.0/go.mod h1:E+RYuTGaKKdloAfM02xzb0FW3Paa99yedzYV+kq4uf4=
 github.com/samber/lo v1.39.0 h1:4gTz1wUhNYLhFSKl6O+8peW0v2F4BCY034GRpU9WnuA=

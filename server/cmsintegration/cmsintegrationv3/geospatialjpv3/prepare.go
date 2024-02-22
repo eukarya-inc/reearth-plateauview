@@ -5,7 +5,9 @@ import (
 )
 
 func Prepare(ctx context.Context, itemID, projectID string, conf Config) error {
-	if conf.BuildType == "cloudbuild" {
+	if conf.BuildType == "cloudrunjobs" {
+		return prepareWithCloudRunJobs(ctx, itemID, projectID, conf.CloudRunJobsJobName)
+	} else {
 		return prepareOnCloudBuild(ctx, prepareOnCloudBuildConfig{
 			City:                  itemID,
 			Project:               projectID,
@@ -16,7 +18,5 @@ func Prepare(ctx context.Context, itemID, projectID string, conf Config) error {
 			CloudBuildProject:     conf.CloudBuildProject,
 			CloudBuildRegion:      conf.CloudBuildRegion,
 		})
-	} else {
-		return prepareWithCloudRunJobs(ctx, itemID, projectID, conf.CloudRunJobsJobName)
 	}
 }
