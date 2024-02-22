@@ -21,4 +21,4 @@ COPY --from=build /app/worker /app/plateauview-worker
 
 WORKDIR /app
 
-ENTRYPOINT [ "./plateauview-worker" ]
+ENTRYPOINT [ "/app/plateauview-worker" ]
