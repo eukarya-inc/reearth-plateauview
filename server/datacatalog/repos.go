@@ -284,7 +284,7 @@ func (h *reposHandler) prepareV3(ctx context.Context, md plateaucms.Metadata) er
 		return fmt.Errorf("datacatalogv3: failed to create cms for %s: %w", md.DataCatalogProjectAlias, err)
 	}
 
-	if err := h.reposv3.Prepare(ctx, md.DataCatalogProjectAlias, cms); err != nil {
+	if err := h.reposv3.Prepare(ctx, md.DataCatalogProjectAlias, md.PlateauYear(), cms); err != nil {
 		return fmt.Errorf("datacatalogv3: failed to prepare repo for %s: %w", md.DataCatalogProjectAlias, err)
 	}
 

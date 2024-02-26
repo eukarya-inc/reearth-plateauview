@@ -3,8 +3,6 @@ package datacatalogv3
 import (
 	"context"
 	"fmt"
-	"strconv"
-	"strings"
 
 	"github.com/eukarya-inc/reearth-plateauview/server/datacatalog/plateauapi"
 	cms "github.com/reearth/reearth-cms-api/go"
@@ -12,17 +10,18 @@ import (
 )
 
 type CMS struct {
-	cms cms.Interface
+	cms  cms.Interface
+	year int
 }
 
-func NewCMS(cms cms.Interface) *CMS {
-	return &CMS{cms: cms}
+func NewCMS(cms cms.Interface, year int) *CMS {
+	return &CMS{cms: cms, year: year}
 }
 
 func (c *CMS) GetAll(ctx context.Context, project string) (*AllData, error) {
 	all := AllData{
 		Name: project,
-		Year: getYearFromProjectName(project),
+		Year: c.year,
 	}
 
 	// TODO: get CMSInfo
@@ -176,9 +175,4 @@ func getItemsAndConv[T any](cms cms.Interface, ctx context.Context, project, mod
 	}
 
 	return res, nil
-}
-
-func getYearFromProjectName(name string) int {
-	i, _ := strconv.Atoi(strings.TrimPrefix(name, "plateau-"))
-	return i
 }

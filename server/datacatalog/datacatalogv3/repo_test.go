@@ -21,7 +21,7 @@ func TestRepos(t *testing.T) {
 	cms := lo.Must(cms.New("https://example.com", "token"))
 
 	repos := NewRepos()
-	err := repos.Prepare(ctx, "prj", cms)
+	err := repos.Prepare(ctx, "prj", 2023, cms)
 	assert.NoError(t, err)
 	assert.Nil(t, repos.Warnings("prj"))
 
@@ -75,6 +75,7 @@ func TestRepos(t *testing.T) {
 					ID:                 plateauapi.ID("d_" + cityCode + "_bldg"),
 					Name:               "建築物モデル（" + cityName + "）",
 					Year:               2023,
+					RegisterationYear:  2023,
 					PrefectureID:       lo.ToPtr(plateauapi.ID("a_00")),
 					PrefectureCode:     lo.ToPtr(plateauapi.AreaCode("00")),
 					CityID:             cityID,
