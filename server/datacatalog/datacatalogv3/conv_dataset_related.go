@@ -10,7 +10,7 @@ import (
 
 var convIgnored = []string{"border"}
 
-func (i *RelatedItem) toDatasets(area *areaContext, dts []plateauapi.DatasetType, cmsurl string) (res []plateauapi.Dataset, warning []string) {
+func (i *RelatedItem) toDatasets(area *areaContext, dts []plateauapi.DatasetType, year int, cmsurl string) (res []plateauapi.Dataset, warning []string) {
 	if !area.IsValid() {
 		warning = append(warning, fmt.Sprintf("related %s: invalid area", i.ID))
 		return
@@ -43,20 +43,21 @@ func (i *RelatedItem) toDatasets(area *areaContext, dts []plateauapi.DatasetType
 			}
 
 			res = append(res, &plateauapi.RelatedDataset{
-				ID:             id,
-				Name:           standardItemName(ftname, "", seed.Area.GetName()),
-				Description:    lo.EmptyableToPtr(d.Description),
-				Year:           area.CityItem.YearInt(),
-				OpenDataURL:    lo.EmptyableToPtr(area.CityItem.GetOpenDataURL()),
-				PrefectureID:   area.PrefID,
-				PrefectureCode: area.PrefCode,
-				CityID:         area.CityID,
-				CityCode:       area.CityCode,
-				WardID:         seed.WardID,
-				WardCode:       seed.WardCode,
-				TypeID:         dt.GetID(),
-				TypeCode:       ftcode,
-				Admin:          admin,
+				ID:                id,
+				Name:              standardItemName(ftname, "", seed.Area.GetName()),
+				Description:       lo.EmptyableToPtr(d.Description),
+				Year:              area.CityItem.YearInt(),
+				RegisterationYear: year,
+				OpenDataURL:       lo.EmptyableToPtr(area.CityItem.GetOpenDataURL()),
+				PrefectureID:      area.PrefID,
+				PrefectureCode:    area.PrefCode,
+				CityID:            area.CityID,
+				CityCode:          area.CityCode,
+				WardID:            seed.WardID,
+				WardCode:          seed.WardCode,
+				TypeID:            dt.GetID(),
+				TypeCode:          ftcode,
+				Admin:             admin,
 				Items: []*plateauapi.RelatedDatasetItem{
 					{
 						ID:             plateauapi.NewID(sid, plateauapi.TypeDatasetItem),

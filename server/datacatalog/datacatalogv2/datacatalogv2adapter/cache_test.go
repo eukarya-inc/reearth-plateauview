@@ -72,6 +72,7 @@ func TestNewCache(t *testing.T) {
 					ID:                 "d_13101_bldg",
 					Name:               "建築物モデル（東京都23区）",
 					Year:               2022,
+					RegisterationYear:  2022,
 					OpenDataURL:        lo.ToPtr("https://www.geospatial.jp/ckan/dataset/plateau-13101-tokyo23ku-2022"),
 					Description:        lo.ToPtr("bldg_desc"),
 					PrefectureID:       lo.ToPtr(plateauapi.ID("a_13")),

@@ -9,6 +9,7 @@ import (
 )
 
 type internalContext struct {
+	year              int
 	years             map[int]struct{}
 	cityItems         map[string]*CityItem
 	prefs             map[string]*plateauapi.Prefecture

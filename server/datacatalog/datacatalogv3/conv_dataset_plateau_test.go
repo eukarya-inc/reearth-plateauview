@@ -85,6 +85,7 @@ func TestPlateauDataset_ToDatasets_Bldg(t *testing.T) {
 			Name:               "建築物モデル（hoge区）",
 			Description:        lo.ToPtr("desc"),
 			Year:               2023,
+			RegisterationYear:  2024,
 			OpenDataURL:        lo.ToPtr("https://www.geospatial.jp/ckan/dataset/plateau-11111-bar-shi-2023"),
 			PrefectureID:       lo.ToPtr(plateauapi.NewID("11", plateauapi.TypeArea)),
 			PrefectureCode:     lo.ToPtr(plateauapi.AreaCode("11")),
@@ -134,6 +135,7 @@ func TestPlateauDataset_ToDatasets_Bldg(t *testing.T) {
 			Name:               "建築物モデル（foo区）",
 			Description:        lo.ToPtr("desc"),
 			Year:               2023,
+			RegisterationYear:  2024,
 			OpenDataURL:        lo.ToPtr("https://www.geospatial.jp/ckan/dataset/plateau-11111-bar-shi-2023"),
 			PrefectureID:       lo.ToPtr(plateauapi.NewID("11", plateauapi.TypeArea)),
 			PrefectureCode:     lo.ToPtr(plateauapi.AreaCode("11")),
@@ -216,6 +218,7 @@ func TestPlateauDataset_ToDatasets_Bldg(t *testing.T) {
 		DatasetType: dts,
 		LayerNames:  layerNames,
 		FeatureType: &FeatureType{},
+		Year:        2024,
 	}
 	res, warning := item.toDatasets(opts)
 	assert.Nil(t, warning)
@@ -259,6 +262,7 @@ func TestPlateauDataset_ToDatasets_Tnm(t *testing.T) {
 			Subcode:            lo.ToPtr("AAA"),
 			Description:        lo.ToPtr("desc1"),
 			Year:               2023,
+			RegisterationYear:  2024,
 			PrefectureID:       lo.ToPtr(plateauapi.NewID("11", plateauapi.TypeArea)),
 			PrefectureCode:     lo.ToPtr(plateauapi.AreaCode("11")),
 			CityID:             lo.ToPtr(plateauapi.NewID("11111", plateauapi.TypeArea)),
@@ -292,6 +296,7 @@ func TestPlateauDataset_ToDatasets_Tnm(t *testing.T) {
 			Subcode:            lo.ToPtr("BBB"),
 			Description:        lo.ToPtr("desc2"),
 			Year:               2023,
+			RegisterationYear:  2024,
 			PrefectureID:       lo.ToPtr(plateauapi.NewID("11", plateauapi.TypeArea)),
 			PrefectureCode:     lo.ToPtr(plateauapi.AreaCode("11")),
 			CityID:             lo.ToPtr(plateauapi.NewID("11111", plateauapi.TypeArea)),
@@ -354,6 +359,7 @@ func TestPlateauDataset_ToDatasets_Tnm(t *testing.T) {
 		DatasetType: dts,
 		LayerNames:  layerNames,
 		FeatureType: &FeatureType{},
+		Year:        2024,
 	}
 	res, warning := item.toDatasets(opts)
 	assert.Nil(t, warning)
@@ -407,6 +413,7 @@ func TestPlateauDataset_ToDatasets_Fld(t *testing.T) {
 			Subcode:            lo.ToPtr("natl_yabegawa_haegawa"),
 			Description:        lo.ToPtr("desc1"),
 			Year:               2023,
+			RegisterationYear:  2023,
 			PrefectureID:       lo.ToPtr(plateauapi.NewID("11", plateauapi.TypeArea)),
 			PrefectureCode:     lo.ToPtr(plateauapi.AreaCode("11")),
 			CityID:             lo.ToPtr(plateauapi.NewID("11111", plateauapi.TypeArea)),
@@ -449,6 +456,7 @@ func TestPlateauDataset_ToDatasets_Fld(t *testing.T) {
 			Subcode:            lo.ToPtr("natl_yodogawa_ujigawa"),
 			Description:        lo.ToPtr("desc2"),
 			Year:               2023,
+			RegisterationYear:  2023,
 			PrefectureID:       lo.ToPtr(plateauapi.NewID("11", plateauapi.TypeArea)),
 			PrefectureCode:     lo.ToPtr(plateauapi.AreaCode("11")),
 			CityID:             lo.ToPtr(plateauapi.NewID("11111", plateauapi.TypeArea)),
@@ -482,6 +490,7 @@ func TestPlateauDataset_ToDatasets_Fld(t *testing.T) {
 			Subcode:            lo.ToPtr("pref_yodogawa_ujigawa"),
 			Description:        lo.ToPtr("desc3"),
 			Year:               2023,
+			RegisterationYear:  2023,
 			PrefectureID:       lo.ToPtr(plateauapi.NewID("11", plateauapi.TypeArea)),
 			PrefectureCode:     lo.ToPtr(plateauapi.AreaCode("11")),
 			CityID:             lo.ToPtr(plateauapi.NewID("11111", plateauapi.TypeArea)),
@@ -553,6 +562,7 @@ func TestPlateauDataset_ToDatasets_Fld(t *testing.T) {
 		FeatureType: &FeatureType{
 			HideTexture: true,
 		},
+		Year: 2023,
 	}
 	res, warning := item.toDatasets(opts)
 	assert.Nil(t, warning)
@@ -587,6 +597,7 @@ func TestPlateauDataset_ToDatasets_Veg(t *testing.T) {
 			Name:               "植生モデル（bar市）",
 			Description:        lo.ToPtr("desc"),
 			Year:               2023,
+			RegisterationYear:  2023,
 			PrefectureID:       lo.ToPtr(plateauapi.NewID("11", plateauapi.TypeArea)),
 			PrefectureCode:     lo.ToPtr(plateauapi.AreaCode("11")),
 			CityID:             lo.ToPtr(plateauapi.NewID("11111", plateauapi.TypeArea)),
@@ -661,6 +672,7 @@ func TestPlateauDataset_ToDatasets_Veg(t *testing.T) {
 		DatasetType: dts,
 		LayerNames:  layerNames,
 		FeatureType: &FeatureType{},
+		Year:        2023,
 	}
 	res, warning := item.toDatasets(opts)
 	assert.Nil(t, warning)
@@ -697,6 +709,7 @@ func TestPlateauDataset_ToDatasets_Gen(t *testing.T) {
 			Subcode:            lo.ToPtr("99"),
 			Description:        lo.ToPtr("desc!"),
 			Year:               2023,
+			RegisterationYear:  2023,
 			OpenDataURL:        lo.ToPtr("open!"),
 			PrefectureID:       lo.ToPtr(plateauapi.NewID("11", plateauapi.TypeArea)),
 			PrefectureCode:     lo.ToPtr(plateauapi.AreaCode("11")),
@@ -766,6 +779,7 @@ func TestPlateauDataset_ToDatasets_Gen(t *testing.T) {
 		DatasetType: dts,
 		LayerNames:  layerNames,
 		FeatureType: &FeatureType{},
+		Year:        2023,
 	}
 	res, warning := item.toDatasets(opts)
 	assert.Nil(t, warning)

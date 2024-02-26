@@ -17,6 +17,7 @@ func (all *AllData) Into() (res *plateauapi.InMemoryRepoContext, warning []strin
 	res.DatasetTypes = all.FeatureTypes.ToDatasetTypes(res.PlateauSpecs)
 
 	ic := newInternalContext()
+	ic.year = all.Year
 
 	// layer names
 	ic.layerNamesForType = all.FeatureTypes.LayerNames()
@@ -126,6 +127,7 @@ func convertPlateau(items []*PlateauFeatureItem, specs []plateauapi.PlateauSpec,
 			DatasetType: pdt,
 			LayerNames:  layerNames,
 			FeatureType: ft,
+			Year:        ic.year,
 		}
 		ds, w := ds.toDatasets(opts)
 		warning = append(warning, w...)
@@ -145,7 +147,7 @@ func convertRelated(items []*RelatedItem, datasetTypes []plateauapi.DatasetType,
 			continue
 		}
 
-		ds, w := ds.toDatasets(area, datasetTypes, ic.relatedCMSURL)
+		ds, w := ds.toDatasets(area, datasetTypes, ic.year, ic.relatedCMSURL)
 		warning = append(warning, w...)
 		if ds != nil {
 			res = append(res, ds...)
@@ -163,7 +165,7 @@ func convertGeneric(items []*GenericItem, datasetTypes []plateauapi.DatasetType,
 			continue
 		}
 
-		ds, w := ds.toDatasets(area, datasetTypes, ic.genericCMSURL)
+		ds, w := ds.toDatasets(area, datasetTypes, ic.year, ic.genericCMSURL)
 		warning = append(warning, w...)
 		if ds != nil {
 			res = append(res, ds...)

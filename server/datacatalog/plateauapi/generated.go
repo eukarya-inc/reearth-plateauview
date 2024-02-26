@@ -75,26 +75,27 @@ type ComplexityRoot struct {
 	}
 
 	GenericDataset struct {
-		Admin          func(childComplexity int) int
-		City           func(childComplexity int) int
-		CityCode       func(childComplexity int) int
-		CityID         func(childComplexity int) int
-		Description    func(childComplexity int) int
-		Groups         func(childComplexity int) int
-		ID             func(childComplexity int) int
-		Items          func(childComplexity int) int
-		Name           func(childComplexity int) int
-		OpenDataURL    func(childComplexity int) int
-		Prefecture     func(childComplexity int) int
-		PrefectureCode func(childComplexity int) int
-		PrefectureID   func(childComplexity int) int
-		Type           func(childComplexity int) int
-		TypeCode       func(childComplexity int) int
-		TypeID         func(childComplexity int) int
-		Ward           func(childComplexity int) int
-		WardCode       func(childComplexity int) int
-		WardID         func(childComplexity int) int
-		Year           func(childComplexity int) int
+		Admin             func(childComplexity int) int
+		City              func(childComplexity int) int
+		CityCode          func(childComplexity int) int
+		CityID            func(childComplexity int) int
+		Description       func(childComplexity int) int
+		Groups            func(childComplexity int) int
+		ID                func(childComplexity int) int
+		Items             func(childComplexity int) int
+		Name              func(childComplexity int) int
+		OpenDataURL       func(childComplexity int) int
+		Prefecture        func(childComplexity int) int
+		PrefectureCode    func(childComplexity int) int
+		PrefectureID      func(childComplexity int) int
+		RegisterationYear func(childComplexity int) int
+		Type              func(childComplexity int) int
+		TypeCode          func(childComplexity int) int
+		TypeID            func(childComplexity int) int
+		Ward              func(childComplexity int) int
+		WardCode          func(childComplexity int) int
+		WardID            func(childComplexity int) int
+		Year              func(childComplexity int) int
 	}
 
 	GenericDatasetItem struct {
@@ -132,6 +133,7 @@ type ComplexityRoot struct {
 		Prefecture         func(childComplexity int) int
 		PrefectureCode     func(childComplexity int) int
 		PrefectureID       func(childComplexity int) int
+		RegisterationYear  func(childComplexity int) int
 		River              func(childComplexity int) int
 		Subcode            func(childComplexity int) int
 		Subname            func(childComplexity int) int
@@ -214,26 +216,27 @@ type ComplexityRoot struct {
 	}
 
 	RelatedDataset struct {
-		Admin          func(childComplexity int) int
-		City           func(childComplexity int) int
-		CityCode       func(childComplexity int) int
-		CityID         func(childComplexity int) int
-		Description    func(childComplexity int) int
-		Groups         func(childComplexity int) int
-		ID             func(childComplexity int) int
-		Items          func(childComplexity int) int
-		Name           func(childComplexity int) int
-		OpenDataURL    func(childComplexity int) int
-		Prefecture     func(childComplexity int) int
-		PrefectureCode func(childComplexity int) int
-		PrefectureID   func(childComplexity int) int
-		Type           func(childComplexity int) int
-		TypeCode       func(childComplexity int) int
-		TypeID         func(childComplexity int) int
-		Ward           func(childComplexity int) int
-		WardCode       func(childComplexity int) int
-		WardID         func(childComplexity int) int
-		Year           func(childComplexity int) int
+		Admin             func(childComplexity int) int
+		City              func(childComplexity int) int
+		CityCode          func(childComplexity int) int
+		CityID            func(childComplexity int) int
+		Description       func(childComplexity int) int
+		Groups            func(childComplexity int) int
+		ID                func(childComplexity int) int
+		Items             func(childComplexity int) int
+		Name              func(childComplexity int) int
+		OpenDataURL       func(childComplexity int) int
+		Prefecture        func(childComplexity int) int
+		PrefectureCode    func(childComplexity int) int
+		PrefectureID      func(childComplexity int) int
+		RegisterationYear func(childComplexity int) int
+		Type              func(childComplexity int) int
+		TypeCode          func(childComplexity int) int
+		TypeID            func(childComplexity int) int
+		Ward              func(childComplexity int) int
+		WardCode          func(childComplexity int) int
+		WardID            func(childComplexity int) int
+		Year              func(childComplexity int) int
 	}
 
 	RelatedDatasetItem struct {
@@ -556,6 +559,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.GenericDataset.PrefectureID(childComplexity), true
 
+	case "GenericDataset.registerationYear":
+		if e.complexity.GenericDataset.RegisterationYear == nil {
+			break
+		}
+
+		return e.complexity.GenericDataset.RegisterationYear(childComplexity), true
+
 	case "GenericDataset.type":
 		if e.complexity.GenericDataset.Type == nil {
 			break
@@ -805,6 +815,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.PlateauDataset.PrefectureID(childComplexity), true
+
+	case "PlateauDataset.registerationYear":
+		if e.complexity.PlateauDataset.RegisterationYear == nil {
+			break
+		}
+
+		return e.complexity.PlateauDataset.RegisterationYear(childComplexity), true
 
 	case "PlateauDataset.river":
 		if e.complexity.PlateauDataset.River == nil {
@@ -1368,6 +1385,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.RelatedDataset.PrefectureID(childComplexity), true
+
+	case "RelatedDataset.registerationYear":
+		if e.complexity.RelatedDataset.RegisterationYear == nil {
+			break
+		}
+
+		return e.complexity.RelatedDataset.RegisterationYear(childComplexity), true
 
 	case "RelatedDataset.type":
 		if e.complexity.RelatedDataset.Type == nil {
@@ -2765,6 +2789,50 @@ func (ec *executionContext) fieldContext_GenericDataset_year(ctx context.Context
 	return fc, nil
 }
 
+func (ec *executionContext) _GenericDataset_registerationYear(ctx context.Context, field graphql.CollectedField, obj *GenericDataset) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_GenericDataset_registerationYear(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.RegisterationYear, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_GenericDataset_registerationYear(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "GenericDataset",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _GenericDataset_groups(ctx context.Context, field graphql.CollectedField, obj *GenericDataset) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_GenericDataset_groups(ctx, field)
 	if err != nil {
@@ -3840,6 +3908,8 @@ func (ec *executionContext) fieldContext_GenericDatasetItem_parent(ctx context.C
 				return ec.fieldContext_GenericDataset_description(ctx, field)
 			case "year":
 				return ec.fieldContext_GenericDataset_year(ctx, field)
+			case "registerationYear":
+				return ec.fieldContext_GenericDataset_registerationYear(ctx, field)
 			case "groups":
 				return ec.fieldContext_GenericDataset_groups(ctx, field)
 			case "openDataUrl":
@@ -4146,6 +4216,8 @@ func (ec *executionContext) fieldContext_GenericDatasetType_datasets(ctx context
 				return ec.fieldContext_GenericDataset_description(ctx, field)
 			case "year":
 				return ec.fieldContext_GenericDataset_year(ctx, field)
+			case "registerationYear":
+				return ec.fieldContext_GenericDataset_registerationYear(ctx, field)
 			case "groups":
 				return ec.fieldContext_GenericDataset_groups(ctx, field)
 			case "openDataUrl":
@@ -4480,6 +4552,50 @@ func (ec *executionContext) _PlateauDataset_year(ctx context.Context, field grap
 }
 
 func (ec *executionContext) fieldContext_PlateauDataset_year(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PlateauDataset",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PlateauDataset_registerationYear(ctx context.Context, field graphql.CollectedField, obj *PlateauDataset) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_PlateauDataset_registerationYear(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.RegisterationYear, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_PlateauDataset_registerationYear(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "PlateauDataset",
 		Field:      field,
@@ -5742,6 +5858,8 @@ func (ec *executionContext) fieldContext_PlateauDatasetItem_parent(ctx context.C
 				return ec.fieldContext_PlateauDataset_description(ctx, field)
 			case "year":
 				return ec.fieldContext_PlateauDataset_year(ctx, field)
+			case "registerationYear":
+				return ec.fieldContext_PlateauDataset_registerationYear(ctx, field)
 			case "groups":
 				return ec.fieldContext_PlateauDataset_groups(ctx, field)
 			case "openDataUrl":
@@ -6409,6 +6527,8 @@ func (ec *executionContext) fieldContext_PlateauDatasetType_datasets(ctx context
 				return ec.fieldContext_PlateauDataset_description(ctx, field)
 			case "year":
 				return ec.fieldContext_PlateauDataset_year(ctx, field)
+			case "registerationYear":
+				return ec.fieldContext_PlateauDataset_registerationYear(ctx, field)
 			case "groups":
 				return ec.fieldContext_PlateauDataset_groups(ctx, field)
 			case "openDataUrl":
@@ -8209,6 +8329,50 @@ func (ec *executionContext) fieldContext_RelatedDataset_year(ctx context.Context
 	return fc, nil
 }
 
+func (ec *executionContext) _RelatedDataset_registerationYear(ctx context.Context, field graphql.CollectedField, obj *RelatedDataset) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_RelatedDataset_registerationYear(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.RegisterationYear, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_RelatedDataset_registerationYear(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "RelatedDataset",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _RelatedDataset_groups(ctx context.Context, field graphql.CollectedField, obj *RelatedDataset) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_RelatedDataset_groups(ctx, field)
 	if err != nil {
@@ -9370,6 +9534,8 @@ func (ec *executionContext) fieldContext_RelatedDatasetItem_parent(ctx context.C
 				return ec.fieldContext_RelatedDataset_description(ctx, field)
 			case "year":
 				return ec.fieldContext_RelatedDataset_year(ctx, field)
+			case "registerationYear":
+				return ec.fieldContext_RelatedDataset_registerationYear(ctx, field)
 			case "groups":
 				return ec.fieldContext_RelatedDataset_groups(ctx, field)
 			case "openDataUrl":
@@ -9676,6 +9842,8 @@ func (ec *executionContext) fieldContext_RelatedDatasetType_datasets(ctx context
 				return ec.fieldContext_RelatedDataset_description(ctx, field)
 			case "year":
 				return ec.fieldContext_RelatedDataset_year(ctx, field)
+			case "registerationYear":
+				return ec.fieldContext_RelatedDataset_registerationYear(ctx, field)
 			case "groups":
 				return ec.fieldContext_RelatedDataset_groups(ctx, field)
 			case "openDataUrl":
@@ -12895,6 +13063,11 @@ func (ec *executionContext) _GenericDataset(ctx context.Context, sel ast.Selecti
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
+		case "registerationYear":
+			out.Values[i] = ec._GenericDataset_registerationYear(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
 		case "groups":
 			out.Values[i] = ec._GenericDataset_groups(ctx, field, obj)
 		case "openDataUrl":
@@ -13306,6 +13479,11 @@ func (ec *executionContext) _PlateauDataset(ctx context.Context, sel ast.Selecti
 			out.Values[i] = ec._PlateauDataset_description(ctx, field, obj)
 		case "year":
 			out.Values[i] = ec._PlateauDataset_year(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "registerationYear":
+			out.Values[i] = ec._PlateauDataset_registerationYear(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
@@ -14420,6 +14598,11 @@ func (ec *executionContext) _RelatedDataset(ctx context.Context, sel ast.Selecti
 			out.Values[i] = ec._RelatedDataset_description(ctx, field, obj)
 		case "year":
 			out.Values[i] = ec._RelatedDataset_year(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "registerationYear":
+			out.Values[i] = ec._RelatedDataset_registerationYear(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}

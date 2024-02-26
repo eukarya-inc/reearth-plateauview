@@ -40,17 +40,18 @@ func Test_GenericItem_ToDatasets(t *testing.T) {
 
 	expected := []plateauapi.Dataset{
 		&plateauapi.GenericDataset{
-			ID:             plateauapi.NewID("id", plateauapi.TypeDataset),
-			Name:           "name",
-			Description:    lo.EmptyableToPtr("desc"),
-			Year:           2023,
-			OpenDataURL:    lo.EmptyableToPtr("https://example.com"),
-			PrefectureID:   lo.ToPtr(plateauapi.NewID("11", plateauapi.TypeArea)),
-			PrefectureCode: lo.ToPtr(plateauapi.AreaCode("11")),
-			CityID:         lo.ToPtr(plateauapi.NewID("11111", plateauapi.TypeArea)),
-			CityCode:       lo.ToPtr(plateauapi.AreaCode("11111")),
-			TypeID:         plateauapi.NewID("usecase", plateauapi.TypeDatasetType),
-			TypeCode:       "usecase",
+			ID:                plateauapi.NewID("id", plateauapi.TypeDataset),
+			Name:              "name",
+			Description:       lo.EmptyableToPtr("desc"),
+			Year:              2023,
+			RegisterationYear: 2023,
+			OpenDataURL:       lo.EmptyableToPtr("https://example.com"),
+			PrefectureID:      lo.ToPtr(plateauapi.NewID("11", plateauapi.TypeArea)),
+			PrefectureCode:    lo.ToPtr(plateauapi.AreaCode("11")),
+			CityID:            lo.ToPtr(plateauapi.NewID("11111", plateauapi.TypeArea)),
+			CityCode:          lo.ToPtr(plateauapi.AreaCode("11111")),
+			TypeID:            plateauapi.NewID("usecase", plateauapi.TypeDatasetType),
+			TypeCode:          "usecase",
 			Admin: map[string]any{
 				"cmsUrl": "https://example.com/id",
 				"stage":  string(stageAlpha),
@@ -94,7 +95,7 @@ func Test_GenericItem_ToDatasets(t *testing.T) {
 		},
 	}
 
-	res, warning := item.toDatasets(area, dts, "https://example.com/")
+	res, warning := item.toDatasets(area, dts, 2023, "https://example.com/")
 	assert.Equal(t, []string{"generic id[2]: invalid url: "}, warning)
 	assert.Equal(t, expected, res)
 }

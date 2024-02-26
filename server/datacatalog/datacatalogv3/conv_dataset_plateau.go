@@ -51,6 +51,7 @@ type ToPlateauDatasetsOptions struct {
 	DatasetType *plateauapi.PlateauDatasetType
 	LayerNames  LayerNames
 	FeatureType *FeatureType
+	Year        int
 }
 
 func (i *PlateauFeatureItem) toDatasets(opts ToPlateauDatasetsOptions) (res []plateauapi.Dataset, warning []string) {
@@ -120,6 +121,7 @@ func seedToDataset(seed plateauDatasetSeed) (res *plateauapi.PlateauDataset, war
 		Suborder:           seed.Suborder,
 		Description:        lo.EmptyableToPtr(seed.Desc),
 		Year:               seed.Area.CityItem.YearInt(),
+		RegisterationYear:  seed.RegisterationYear,
 		OpenDataURL:        lo.EmptyableToPtr(seed.OpenDataURL),
 		PrefectureID:       seed.Area.PrefID,
 		PrefectureCode:     seed.Area.PrefCode,

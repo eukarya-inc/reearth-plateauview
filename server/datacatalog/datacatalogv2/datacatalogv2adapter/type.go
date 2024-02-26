@@ -15,6 +15,7 @@ import (
 
 const usecaseID = "usecase"
 const globalID = "global"
+const registrationYear = 2022
 
 var floodingTypes = []string{"fld", "htd", "tnm", "ifld"}
 
@@ -135,6 +136,7 @@ func plateauDatasetFrom(d datacatalogv2.DataCatalogItem) *plateauapi.PlateauData
 		WardID:             wardIDFrom(d),
 		WardCode:           wardCodeFrom(d),
 		Year:               d.Year,
+		RegisterationYear:  registrationYear,
 		TypeID:             datasetTypeIDFrom(d),
 		TypeCode:           datasetTypeCodeFrom(d),
 		Groups:             groupsFrom(d),
@@ -234,20 +236,21 @@ func relatedDatasetFrom(d datacatalogv2.DataCatalogItem) *plateauapi.RelatedData
 	id := datasetIDFrom(d)
 	items := d.MainOrConfigItems()
 	return &plateauapi.RelatedDataset{
-		ID:             id,
-		Name:           d.Name,
-		Description:    lo.ToPtr(d.Description),
-		OpenDataURL:    lo.EmptyableToPtr(d.OpenDataURL),
-		PrefectureID:   prefectureIDFrom(d),
-		PrefectureCode: prefectureCodeFrom(d),
-		CityID:         cityIDFrom(d),
-		CityCode:       cityCodeFrom(d),
-		WardID:         wardIDFrom(d),
-		WardCode:       wardCodeFrom(d),
-		Year:           year,
-		TypeID:         datasetTypeIDFrom(d),
-		TypeCode:       datasetTypeCodeFrom(d),
-		Groups:         groupsFrom(d),
+		ID:                id,
+		Name:              d.Name,
+		Description:       lo.ToPtr(d.Description),
+		OpenDataURL:       lo.EmptyableToPtr(d.OpenDataURL),
+		PrefectureID:      prefectureIDFrom(d),
+		PrefectureCode:    prefectureCodeFrom(d),
+		CityID:            cityIDFrom(d),
+		CityCode:          cityCodeFrom(d),
+		WardID:            wardIDFrom(d),
+		WardCode:          wardCodeFrom(d),
+		Year:              year,
+		RegisterationYear: registrationYear,
+		TypeID:            datasetTypeIDFrom(d),
+		TypeCode:          datasetTypeCodeFrom(d),
+		Groups:            groupsFrom(d),
 		Items: lo.Map(items, func(c datacatalogutil.DataCatalogItemConfigItem, i int) *plateauapi.RelatedDatasetItem {
 			ind := ""
 			if d.TypeEn == "landmark" && landmarkTypes[c.Name] != "" {
@@ -283,20 +286,21 @@ func genericDatasetFrom(d datacatalogv2.DataCatalogItem) *plateauapi.GenericData
 
 	id := datasetIDFrom(d)
 	return &plateauapi.GenericDataset{
-		ID:             id,
-		Name:           d.Name,
-		Description:    lo.ToPtr(d.Description),
-		OpenDataURL:    lo.EmptyableToPtr(d.OpenDataURL),
-		PrefectureID:   prefectureIDFrom(d),
-		PrefectureCode: prefectureCodeFrom(d),
-		CityID:         cityIDFrom(d),
-		CityCode:       cityCodeFrom(d),
-		WardID:         wardIDFrom(d),
-		WardCode:       wardCodeFrom(d),
-		Year:           d.Year,
-		TypeID:         datasetTypeIDFrom(d),
-		TypeCode:       datasetTypeCodeFrom(d),
-		Groups:         groupsFrom(d),
+		ID:                id,
+		Name:              d.Name,
+		Description:       lo.ToPtr(d.Description),
+		OpenDataURL:       lo.EmptyableToPtr(d.OpenDataURL),
+		PrefectureID:      prefectureIDFrom(d),
+		PrefectureCode:    prefectureCodeFrom(d),
+		CityID:            cityIDFrom(d),
+		CityCode:          cityCodeFrom(d),
+		WardID:            wardIDFrom(d),
+		WardCode:          wardCodeFrom(d),
+		Year:              d.Year,
+		RegisterationYear: registrationYear,
+		TypeID:            datasetTypeIDFrom(d),
+		TypeCode:          datasetTypeCodeFrom(d),
+		Groups:            groupsFrom(d),
 		Items: lo.Map(d.MainOrConfigItems(), func(c datacatalogutil.DataCatalogItemConfigItem, i int) *plateauapi.GenericDatasetItem {
 			return &plateauapi.GenericDatasetItem{
 				ID:       plateauapi.NewID(fmt.Sprintf("%s:%d", d.ID, i), plateauapi.TypeDatasetItem),

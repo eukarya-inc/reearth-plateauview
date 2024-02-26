@@ -286,9 +286,13 @@ interface Dataset implements Node {
   """
   description: String
   """
-  データセットの公開年度（西暦）
+  データセットの整備年度（西暦）
   """
   year: Int!
+  """
+  データセットの登録年度（西暦）
+  """
+  registerationYear: Int!
   """
   データセットを分類するグループ。グループが階層構造になっている場合は、親から子の順番で複数のグループ名が存在することがあります。
   """
@@ -506,9 +510,13 @@ type PlateauDataset implements Dataset & Node {
   """
   description: String
   """
-  データセットの公開年度（西暦）
+  データセットの整備年度（西暦）
   """
   year: Int!
+  """
+  データセットの公開年度（西暦）
+  """
+  registerationYear: Int!
   """
   データセットを分類するグループ。グループが階層構造になっている場合は、親から子の順番で複数のグループ名が存在することがあります。
   """
@@ -751,9 +759,13 @@ type RelatedDataset implements Dataset & Node {
   """
   description: String
   """
-  データセットの公開年度（西暦）
+  データセットの整備年度（西暦）
   """
   year: Int!
+  """
+  データセットの公開年度（西暦）
+  """
+  registerationYear: Int!
   """
   データセットを分類するグループ。グループが階層構造になっている場合は、親から子の順番で複数のグループ名が存在することがあります。
   """
@@ -905,9 +917,13 @@ type GenericDataset implements Dataset & Node {
   """
   description: String
   """
-  データセットの公開年度（西暦）
+  データセットの整備年度（西暦）
   """
   year: Int!
+  """
+  データセットの公開年度（西暦）
+  """
+  registerationYear: Int!
   """
   データセットを分類するグループ。グループが階層構造になっている場合は、親から子の順番で複数のグループ名が存在することがあります。
   """

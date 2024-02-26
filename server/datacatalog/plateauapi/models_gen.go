@@ -39,8 +39,10 @@ type Dataset interface {
 	GetName() string
 	// データセットの説明
 	GetDescription() *string
-	// データセットの公開年度（西暦）
+	// データセットの整備年度（西暦）
 	GetYear() int
+	// データセットの登録年度（西暦）
+	GetRegisterationYear() int
 	// データセットを分類するグループ。グループが階層構造になっている場合は、親から子の順番で複数のグループ名が存在することがあります。
 	GetGroups() []string
 	// データセットの公開データのURL。
@@ -238,8 +240,10 @@ type GenericDataset struct {
 	Name string `json:"name"`
 	// データセットの説明
 	Description *string `json:"description,omitempty"`
-	// データセットの公開年度（西暦）
+	// データセットの整備年度（西暦）
 	Year int `json:"year"`
+	// データセットの公開年度（西暦）
+	RegisterationYear int `json:"registerationYear"`
 	// データセットを分類するグループ。グループが階層構造になっている場合は、親から子の順番で複数のグループ名が存在することがあります。
 	Groups []string `json:"groups,omitempty"`
 	// データセットの公開データのURL。
@@ -283,8 +287,11 @@ func (this GenericDataset) GetName() string { return this.Name }
 // データセットの説明
 func (this GenericDataset) GetDescription() *string { return this.Description }
 
-// データセットの公開年度（西暦）
+// データセットの整備年度（西暦）
 func (this GenericDataset) GetYear() int { return this.Year }
+
+// データセットの登録年度（西暦）
+func (this GenericDataset) GetRegisterationYear() int { return this.RegisterationYear }
 
 // データセットを分類するグループ。グループが階層構造になっている場合は、親から子の順番で複数のグループ名が存在することがあります。
 func (this GenericDataset) GetGroups() []string {
@@ -468,8 +475,10 @@ type PlateauDataset struct {
 	Suborder *int `json:"suborder,omitempty"`
 	// データセットの説明
 	Description *string `json:"description,omitempty"`
-	// データセットの公開年度（西暦）
+	// データセットの整備年度（西暦）
 	Year int `json:"year"`
+	// データセットの公開年度（西暦）
+	RegisterationYear int `json:"registerationYear"`
 	// データセットを分類するグループ。グループが階層構造になっている場合は、親から子の順番で複数のグループ名が存在することがあります。
 	Groups []string `json:"groups,omitempty"`
 	// データセットの公開データのURL。
@@ -519,8 +528,11 @@ func (this PlateauDataset) GetName() string { return this.Name }
 // データセットの説明
 func (this PlateauDataset) GetDescription() *string { return this.Description }
 
-// データセットの公開年度（西暦）
+// データセットの整備年度（西暦）
 func (this PlateauDataset) GetYear() int { return this.Year }
+
+// データセットの登録年度（西暦）
+func (this PlateauDataset) GetRegisterationYear() int { return this.RegisterationYear }
 
 // データセットを分類するグループ。グループが階層構造になっている場合は、親から子の順番で複数のグループ名が存在することがあります。
 func (this PlateauDataset) GetGroups() []string {
@@ -816,8 +828,10 @@ type RelatedDataset struct {
 	Name string `json:"name"`
 	// データセットの説明
 	Description *string `json:"description,omitempty"`
-	// データセットの公開年度（西暦）
+	// データセットの整備年度（西暦）
 	Year int `json:"year"`
+	// データセットの公開年度（西暦）
+	RegisterationYear int `json:"registerationYear"`
 	// データセットを分類するグループ。グループが階層構造になっている場合は、親から子の順番で複数のグループ名が存在することがあります。
 	Groups []string `json:"groups,omitempty"`
 	// データセットの公開データのURL。
@@ -861,8 +875,11 @@ func (this RelatedDataset) GetName() string { return this.Name }
 // データセットの説明
 func (this RelatedDataset) GetDescription() *string { return this.Description }
 
-// データセットの公開年度（西暦）
+// データセットの整備年度（西暦）
 func (this RelatedDataset) GetYear() int { return this.Year }
+
+// データセットの登録年度（西暦）
+func (this RelatedDataset) GetRegisterationYear() int { return this.RegisterationYear }
 
 // データセットを分類するグループ。グループが階層構造になっている場合は、親から子の順番で複数のグループ名が存在することがあります。
 func (this RelatedDataset) GetGroups() []string {

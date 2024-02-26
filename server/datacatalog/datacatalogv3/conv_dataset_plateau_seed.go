@@ -21,18 +21,19 @@ type plateauDatasetSeed struct {
 	WardID     *plateauapi.ID
 	WardCode   *plateauapi.AreaCode
 	// common
-	DatasetType *plateauapi.PlateauDatasetType
-	Dic         Dic
-	Area        *areaContext
-	Pref        *plateauapi.Prefecture
-	City        *plateauapi.City
-	Spec        *plateauapi.PlateauSpecMinor
-	River       *plateauapi.River
-	Admin       any
-	LayerNames  LayerNames
-	Year        int
-	OpenDataURL string
-	HideTexture bool
+	DatasetType       *plateauapi.PlateauDatasetType
+	Dic               Dic
+	Area              *areaContext
+	Pref              *plateauapi.Prefecture
+	City              *plateauapi.City
+	Spec              *plateauapi.PlateauSpecMinor
+	River             *plateauapi.River
+	Admin             any
+	LayerNames        LayerNames
+	Year              int
+	OpenDataURL       string
+	HideTexture       bool
+	RegisterationYear int
 }
 
 func (seed plateauDatasetSeed) GetID() string {
@@ -84,6 +85,7 @@ func plateauDatasetSeedsFrom(i *PlateauFeatureItem, opts ToPlateauDatasetsOption
 		res[i].Year = year
 		res[i].OpenDataURL = opts.Area.CityItem.GetOpenDataURL()
 		res[i].HideTexture = opts.FeatureType.HideTexture
+		res[i].RegisterationYear = opts.Year
 		if res[i].TargetArea == nil {
 			res[i].TargetArea = opts.Area.City
 			if res[i].TargetArea == nil {

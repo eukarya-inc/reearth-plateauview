@@ -7,7 +7,7 @@ import (
 	"github.com/samber/lo"
 )
 
-func (i *GenericItem) toDatasets(area *areaContext, dts []plateauapi.DatasetType, cmsurl string) (_ []plateauapi.Dataset, warning []string) {
+func (i *GenericItem) toDatasets(area *areaContext, dts []plateauapi.DatasetType, year int, cmsurl string) (_ []plateauapi.Dataset, warning []string) {
 	if area == nil {
 		area = &areaContext{}
 	}
@@ -54,19 +54,20 @@ func (i *GenericItem) toDatasets(area *areaContext, dts []plateauapi.DatasetType
 	}
 
 	res := plateauapi.GenericDataset{
-		ID:             id,
-		Name:           standardItemName(i.Name, "", area.Name()),
-		Description:    lo.EmptyableToPtr(i.Desc),
-		Year:           area.CityItem.YearInt(),
-		OpenDataURL:    lo.EmptyableToPtr(i.OpenDataURL),
-		PrefectureID:   area.PrefID,
-		PrefectureCode: area.PrefCode,
-		CityID:         area.CityID,
-		CityCode:       area.CityCode,
-		TypeID:         dt.GetID(),
-		TypeCode:       dt.GetCode(),
-		Admin:          newAdmin(i.ID, i.Stage(), cmsurl),
-		Items:          items,
+		ID:                id,
+		Name:              standardItemName(i.Name, "", area.Name()),
+		Description:       lo.EmptyableToPtr(i.Desc),
+		Year:              area.CityItem.YearInt(),
+		RegisterationYear: year,
+		OpenDataURL:       lo.EmptyableToPtr(i.OpenDataURL),
+		PrefectureID:      area.PrefID,
+		PrefectureCode:    area.PrefCode,
+		CityID:            area.CityID,
+		CityCode:          area.CityCode,
+		TypeID:            dt.GetID(),
+		TypeCode:          dt.GetCode(),
+		Admin:             newAdmin(i.ID, i.Stage(), cmsurl),
+		Items:             items,
 	}
 
 	return []plateauapi.Dataset{&res}, warning

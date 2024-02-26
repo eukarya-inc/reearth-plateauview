@@ -4,6 +4,7 @@ import "github.com/eukarya-inc/reearth-plateauview/server/datacatalog/plateauapi
 
 type AllData struct {
 	Name         string
+	Year         int
 	PlateauSpecs []plateauapi.PlateauSpecSimple
 	FeatureTypes FeatureTypes
 	City         []*CityItem
