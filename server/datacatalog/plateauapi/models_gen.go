@@ -219,8 +219,10 @@ type DatasetsInput struct {
 	AreaCodes []AreaCode `json:"areaCodes,omitempty"`
 	// 仕様書のバージョン。「第2.3版」「2.3」「2」などの文字列が使用可能です。
 	PlateauSpec *string `json:"plateauSpec,omitempty"`
-	// データの整備年度または公開年度（西暦）。
+	// データの整備年度（西暦）。
 	Year *int `json:"year,omitempty"`
+	// データの公開年度（西暦）。
+	RegistrationYear *int `json:"registrationYear,omitempty"`
 	// 検索結果から除外するデータセットの種類コード。種類コードは例えば "bldg"（建築物モデル）の他、"plateau"（PLATEAU都市モデルデータセット）、"related"（関連データセット）、"generic"（その他のデータセット）が使用可能です。
 	ExcludeTypes []string `json:"excludeTypes,omitempty"`
 	// 検索結果に含めるデータセットの種類コード。未指定の場合、全てのデータセットの種類を対象に検索し、指定するとその種類で検索結果を絞り込みます。種類コードは例えば "bldg"（建築物モデル）の他、"plateau"（PLATEAU都市モデルデータセット）、"related"（関連データセット）、"generic"（その他のデータセット）が使用可能です。

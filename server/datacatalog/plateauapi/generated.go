@@ -12509,7 +12509,7 @@ func (ec *executionContext) unmarshalInputDatasetsInput(ctx context.Context, obj
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"areaCodes", "plateauSpec", "year", "excludeTypes", "includeTypes", "searchTokens", "shallow"}
+	fieldsInOrder := [...]string{"areaCodes", "plateauSpec", "year", "registrationYear", "excludeTypes", "includeTypes", "searchTokens", "shallow"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -12537,6 +12537,13 @@ func (ec *executionContext) unmarshalInputDatasetsInput(ctx context.Context, obj
 				return it, err
 			}
 			it.Year = data
+		case "registrationYear":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("registrationYear"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.RegistrationYear = data
 		case "excludeTypes":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("excludeTypes"))
 			data, err := ec.unmarshalOString2ᚕstringᚄ(ctx, v)

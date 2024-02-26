@@ -56,6 +56,10 @@ func filterDataset(d Dataset, input DatasetsInput, stages []string) bool {
 		return false
 	}
 
+	if input.RegistrationYear != nil && *input.RegistrationYear != d.GetRegisterationYear() {
+		return false
+	}
+
 	text := []string{
 		d.GetName(),
 		lo.FromPtr(d.GetDescription()),
