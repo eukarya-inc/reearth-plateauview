@@ -58,7 +58,8 @@ func (all *AllData) Into() (res *plateauapi.InMemoryRepoContext, warning []strin
 
 	// plateau
 	for _, dt := range res.DatasetTypes[plateauapi.DatasetTypeCategoryPlateau] {
-		datasets, w := convertPlateau(all.Plateau[dt.GetCode()], res.PlateauSpecs, dt, ic)
+		ft := all.FeatureTypes.FindPlateauByCode(dt.GetCode())
+		datasets, w := convertPlateau(all.Plateau[dt.GetCode()], res.PlateauSpecs, dt, ft, ic)
 		warning = append(warning, w...)
 		res.Datasets.Append(plateauapi.DatasetTypeCategoryPlateau, datasets)
 	}
@@ -95,7 +96,7 @@ func getWards(items []*PlateauFeatureItem, ic *internalContext) (res []*plateaua
 	return
 }
 
-func convertPlateau(items []*PlateauFeatureItem, specs []plateauapi.PlateauSpec, dt plateauapi.DatasetType, ic *internalContext) (res []plateauapi.Dataset, warning []string) {
+func convertPlateau(items []*PlateauFeatureItem, specs []plateauapi.PlateauSpec, dt plateauapi.DatasetType, ft *FeatureType, ic *internalContext) (res []plateauapi.Dataset, warning []string) {
 	pdt, ok := dt.(*plateauapi.PlateauDatasetType)
 	if !ok {
 		warning = append(warning, fmt.Sprintf("plateau %s: invalid dataset type: %s", dt.GetCode(), dt.GetName()))
@@ -118,7 +119,15 @@ func convertPlateau(items []*PlateauFeatureItem, specs []plateauapi.PlateauSpec,
 			continue
 		}
 
-		ds, w := ds.toDatasets(area, pdt, spec, layerNames, ic.plateauCMSURL)
+		opts := ToPlateauDatasetsOptions{
+			CMSURL:      ic.plateauCMSURL,
+			Area:        area,
+			Spec:        spec,
+			DatasetType: pdt,
+			LayerNames:  layerNames,
+			FeatureType: ft,
+		}
+		ds, w := ds.toDatasets(opts)
 		warning = append(warning, w...)
 		if ds != nil {
 			res = append(res, ds...)

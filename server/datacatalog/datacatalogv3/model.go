@@ -19,6 +19,15 @@ type FeatureTypes struct {
 	Generic []FeatureType
 }
 
+func (ft FeatureTypes) FindPlateauByCode(code string) *FeatureType {
+	for _, f := range ft.Plateau {
+		if f.Code == code {
+			return &f
+		}
+	}
+	return nil
+}
+
 type CMSInfo struct {
 	CMSURL         string
 	WorkspaceID    string

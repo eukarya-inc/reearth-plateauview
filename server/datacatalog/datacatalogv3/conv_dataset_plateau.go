@@ -44,13 +44,37 @@ func (i *PlateauFeatureItem) toWards(pref *plateauapi.Prefecture, city *plateaua
 	return
 }
 
-func (i *PlateauFeatureItem) toDatasets(area *areaContext, dt *plateauapi.PlateauDatasetType, spec *plateauapi.PlateauSpecMinor, layerNames LayerNames, cmsurl string) (res []plateauapi.Dataset, warning []string) {
-	if !area.IsValid() {
+type ToPlateauDatasetsOptions struct {
+	CMSURL      string
+	Area        *areaContext
+	Spec        *plateauapi.PlateauSpecMinor
+	DatasetType *plateauapi.PlateauDatasetType
+	LayerNames  LayerNames
+	FeatureType *FeatureType
+}
+
+func (i *PlateauFeatureItem) toDatasets(opts ToPlateauDatasetsOptions) (res []plateauapi.Dataset, warning []string) {
+	if !opts.Area.IsValid() {
 		warning = append(warning, fmt.Sprintf("plateau %s: invalid area", i.ID))
 		return
 	}
 
-	datasetSeeds, w := plateauDatasetSeedsFrom(i, dt, area, spec, layerNames, cmsurl)
+	if opts.DatasetType == nil {
+		warning = append(warning, fmt.Sprintf("plateau %s: invalid dataset type", i.ID))
+		return
+	}
+
+	if opts.FeatureType == nil {
+		warning = append(warning, fmt.Sprintf("plateau %s: invalid feature type: %s", i.ID, opts.DatasetType.GetCode()))
+		return
+	}
+
+	if opts.Spec == nil {
+		warning = append(warning, fmt.Sprintf("plateau %s: invalid spec", i.ID))
+		return
+	}
+
+	datasetSeeds, w := plateauDatasetSeedsFrom(i, opts)
 	warning = append(warning, w...)
 	for _, seed := range datasetSeeds {
 		dataset, w := seedToDataset(seed)

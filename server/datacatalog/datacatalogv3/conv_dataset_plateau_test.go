@@ -209,7 +209,15 @@ func TestPlateauDataset_ToDatasets_Bldg(t *testing.T) {
 
 	layerNames := LayerNames{}
 
-	res, warning := item.toDatasets(area, dts, spec, layerNames, "https://example.com/")
+	opts := ToPlateauDatasetsOptions{
+		CMSURL:      "https://example.com/",
+		Area:        area,
+		Spec:        spec,
+		DatasetType: dts,
+		LayerNames:  layerNames,
+		FeatureType: &FeatureType{},
+	}
+	res, warning := item.toDatasets(opts)
 	assert.Nil(t, warning)
 	assert.Equal(t, expected, res)
 }
@@ -339,7 +347,15 @@ func TestPlateauDataset_ToDatasets_Tnm(t *testing.T) {
 
 	layerNames := LayerNames{}
 
-	res, warning := item.toDatasets(area, dts, spec, layerNames, "https://example.com/")
+	opts := ToPlateauDatasetsOptions{
+		CMSURL:      "https://example.com/cityid",
+		Area:        area,
+		Spec:        spec,
+		DatasetType: dts,
+		LayerNames:  layerNames,
+		FeatureType: &FeatureType{},
+	}
+	res, warning := item.toDatasets(opts)
 	assert.Nil(t, warning)
 	assert.Equal(t, expected, res)
 }
@@ -354,21 +370,21 @@ func TestPlateauDataset_ToDatasets_Fld(t *testing.T) {
 				Data: []string{
 					"https://example.com/11111_bar-shi_city_2023_citygml_1_op_fld_natl_yabegawa_haegawa_3dtiles_l1.zip",
 					"https://example.com/11111_bar-shi_city_2023_citygml_1_op_fld_natl_yabegawa_haegawa_3dtiles_l1_no_texture.zip",
-					"https://example.com/11111_bar-shi_city_2023_citygml_1_op_fld_natl_yabegawa_haegawa_3dtiles_l2.zip",
+					"https://example.com/11111_bar-shi_city_2023_citygml_1_op_fld_natl_yabegawa_haegawa_3dtiles_l2_no_texture.zip",
 				},
 				Desc: "desc1",
 			},
 			{
 				ID: "id2",
 				Data: []string{
-					"https://example.com/11111_bar-shi_city_2023_citygml_1_op_fld_natl_yodogawa_ujigawa_3dtiles_l1.zip",
+					"https://example.com/11111_bar-shi_city_2023_citygml_1_op_fld_natl_yodogawa_ujigawa_3dtiles_l1_no_texture.zip",
 				},
 				Desc: "desc2",
 			},
 			{
 				ID: "id3",
 				Data: []string{
-					"https://example.com/11111_bar-shi_city_2023_citygml_1_op_fld_pref_yodogawa_ujigawa_3dtiles_l1-p1-0001.zip",
+					"https://example.com/11111_bar-shi_city_2023_citygml_1_op_fld_pref_yodogawa_ujigawa_3dtiles_l1-p1-0001_no_texture.zip",
 				},
 				Desc: "desc3",
 			},
@@ -406,15 +422,6 @@ func TestPlateauDataset_ToDatasets_Fld(t *testing.T) {
 					ID:            plateauapi.NewID("11111_fld_natl_yabegawa_haegawa_l1", plateauapi.TypeDatasetItem),
 					Format:        plateauapi.DatasetFormatCesium3dtiles,
 					Name:          "計画規模",
-					URL:           "https://example.com/11111_bar-shi_city_2023_citygml_1_op_fld_natl_yabegawa_haegawa_3dtiles_l1/tileset.json",
-					Texture:       lo.ToPtr(plateauapi.TextureTexture),
-					ParentID:      plateauapi.NewID("11111_fld_natl_yabegawa_haegawa", plateauapi.TypeDataset),
-					FloodingScale: lo.ToPtr(plateauapi.FloodingScalePlanned),
-				},
-				{
-					ID:            plateauapi.NewID("11111_fld_natl_yabegawa_haegawa_l1_no_texture", plateauapi.TypeDatasetItem),
-					Format:        plateauapi.DatasetFormatCesium3dtiles,
-					Name:          "計画規模（テクスチャなし）",
 					URL:           "https://example.com/11111_bar-shi_city_2023_citygml_1_op_fld_natl_yabegawa_haegawa_3dtiles_l1_no_texture/tileset.json",
 					Texture:       lo.ToPtr(plateauapi.TextureNone),
 					ParentID:      plateauapi.NewID("11111_fld_natl_yabegawa_haegawa", plateauapi.TypeDataset),
@@ -424,8 +431,8 @@ func TestPlateauDataset_ToDatasets_Fld(t *testing.T) {
 					ID:            plateauapi.NewID("11111_fld_natl_yabegawa_haegawa_l2", plateauapi.TypeDatasetItem),
 					Format:        plateauapi.DatasetFormatCesium3dtiles,
 					Name:          "想定最大規模",
-					URL:           "https://example.com/11111_bar-shi_city_2023_citygml_1_op_fld_natl_yabegawa_haegawa_3dtiles_l2/tileset.json",
-					Texture:       lo.ToPtr(plateauapi.TextureTexture),
+					URL:           "https://example.com/11111_bar-shi_city_2023_citygml_1_op_fld_natl_yabegawa_haegawa_3dtiles_l2_no_texture/tileset.json",
+					Texture:       lo.ToPtr(plateauapi.TextureNone),
 					ParentID:      plateauapi.NewID("11111_fld_natl_yabegawa_haegawa", plateauapi.TypeDataset),
 					FloodingScale: lo.ToPtr(plateauapi.FloodingScaleExpectedMaximum),
 				},
@@ -457,8 +464,8 @@ func TestPlateauDataset_ToDatasets_Fld(t *testing.T) {
 					ID:            plateauapi.NewID("11111_fld_natl_yodogawa_ujigawa_l1", plateauapi.TypeDatasetItem),
 					Format:        plateauapi.DatasetFormatCesium3dtiles,
 					Name:          "計画規模",
-					URL:           "https://example.com/11111_bar-shi_city_2023_citygml_1_op_fld_natl_yodogawa_ujigawa_3dtiles_l1/tileset.json",
-					Texture:       lo.ToPtr(plateauapi.TextureTexture),
+					URL:           "https://example.com/11111_bar-shi_city_2023_citygml_1_op_fld_natl_yodogawa_ujigawa_3dtiles_l1_no_texture/tileset.json",
+					Texture:       lo.ToPtr(plateauapi.TextureNone),
 					ParentID:      plateauapi.NewID("11111_fld_natl_yodogawa_ujigawa", plateauapi.TypeDataset),
 					FloodingScale: lo.ToPtr(plateauapi.FloodingScalePlanned),
 				},
@@ -490,8 +497,8 @@ func TestPlateauDataset_ToDatasets_Fld(t *testing.T) {
 					ID:            plateauapi.NewID("11111_fld_pref_yodogawa_ujigawa_l1-p1-0001", plateauapi.TypeDatasetItem),
 					Format:        plateauapi.DatasetFormatCesium3dtiles,
 					Name:          "計画規模（p1-0001）",
-					URL:           "https://example.com/11111_bar-shi_city_2023_citygml_1_op_fld_pref_yodogawa_ujigawa_3dtiles_l1-p1-0001/tileset.json",
-					Texture:       lo.ToPtr(plateauapi.TextureTexture),
+					URL:           "https://example.com/11111_bar-shi_city_2023_citygml_1_op_fld_pref_yodogawa_ujigawa_3dtiles_l1-p1-0001_no_texture/tileset.json",
+					Texture:       lo.ToPtr(plateauapi.TextureNone),
 					ParentID:      plateauapi.NewID("11111_fld_pref_yodogawa_ujigawa", plateauapi.TypeDataset),
 					FloodingScale: lo.ToPtr(plateauapi.FloodingScalePlanned),
 				},
@@ -538,7 +545,16 @@ func TestPlateauDataset_ToDatasets_Fld(t *testing.T) {
 
 	layerNames := LayerNames{}
 
-	res, warning := item.toDatasets(area, dts, spec, layerNames, "")
+	opts := ToPlateauDatasetsOptions{
+		Area:        area,
+		Spec:        spec,
+		DatasetType: dts,
+		LayerNames:  layerNames,
+		FeatureType: &FeatureType{
+			HideTexture: true,
+		},
+	}
+	res, warning := item.toDatasets(opts)
 	assert.Nil(t, warning)
 	assert.Equal(t, expected, res)
 }
@@ -639,7 +655,14 @@ func TestPlateauDataset_ToDatasets_Veg(t *testing.T) {
 
 	layerNames := LayerNames{}
 
-	res, warning := item.toDatasets(area, dts, spec, layerNames, "")
+	opts := ToPlateauDatasetsOptions{
+		Area:        area,
+		Spec:        spec,
+		DatasetType: dts,
+		LayerNames:  layerNames,
+		FeatureType: &FeatureType{},
+	}
+	res, warning := item.toDatasets(opts)
 	assert.Nil(t, warning)
 	assert.Equal(t, expected, res)
 }
@@ -737,7 +760,14 @@ func TestPlateauDataset_ToDatasets_Gen(t *testing.T) {
 		Prefix: "gen",
 	}
 
-	res, warning := item.toDatasets(area, dts, spec, layerNames, "")
+	opts := ToPlateauDatasetsOptions{
+		Area:        area,
+		Spec:        spec,
+		DatasetType: dts,
+		LayerNames:  layerNames,
+		FeatureType: &FeatureType{},
+	}
+	res, warning := item.toDatasets(opts)
 	assert.Nil(t, warning)
 	assert.Equal(t, expected, res)
 }
