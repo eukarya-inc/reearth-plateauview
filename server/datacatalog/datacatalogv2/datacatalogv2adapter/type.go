@@ -167,6 +167,10 @@ func getSubCode(d datacatalogv2.DataCatalogItem) string {
 
 	ids := strings.SplitN(d.ID, "_", 4)
 	if len(ids) > 3 {
+		if ids[2] != d.TypeEn {
+			return "" // e.g. 01100_sapporo-shi_01103_higashi-ku_bldg
+		}
+
 		return trimSuffixes(
 			strings.TrimSuffix(ids[3], "_no_texture"),
 			"_l1",
