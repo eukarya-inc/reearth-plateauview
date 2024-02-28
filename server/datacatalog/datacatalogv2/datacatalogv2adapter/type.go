@@ -2,6 +2,8 @@ package datacatalogv2adapter
 
 import (
 	"fmt"
+	"net/url"
+	"path"
 	"regexp"
 	"strconv"
 	"strings"
@@ -491,6 +493,47 @@ func cityFrom(d datacatalogv2.DataCatalogItem) *plateauapi.City {
 		PrefectureID:      *prefectureIDFrom(d),
 		PrefectureCode:    *prefectureCodeFrom(d),
 		PlanarCrsEpsgCode: lo.EmptyableToPtr(d.PRCS.EPSGCode()),
+	}
+}
+
+func citygmlFrom(d datacatalogv2.DataCatalogItem) *plateauapi.CityGMLDataset {
+	id, code := cityIDFrom(d), cityCodeFrom(d)
+	if id == nil || code == nil || d.CityGMLURL == "" || d.Spec == "" || len(d.CityGMLFeatureTypes) == 0 {
+		return nil
+	}
+
+	b := strings.TrimSuffix(d.CityGMLURL, path.Ext(d.CityGMLURL))
+	items := make([]*plateauapi.CityGMLDatasetItem, 0, len(d.MaxLODContent))
+	for _, item := range d.MaxLODContent {
+		u, _ := url.JoinPath(b, "udx", item[1], item[3])
+		if u == "" {
+			continue
+		}
+
+		maxlod, _ := strconv.Atoi(item[2])
+		items = append(items, &plateauapi.CityGMLDatasetItem{
+			MeshCode: item[0],
+			TypeCode: item[1],
+			MaxLod:   maxlod,
+			URL:      u,
+		})
+	}
+
+	return &plateauapi.CityGMLDataset{
+		ID:                 plateauapi.CityGMLDatasetIDFrom(plateauapi.AreaCode(d.CityCode)),
+		Year:               d.Year,
+		RegistrationYear:   registrationYear,
+		PrefectureID:       *prefectureIDFrom(d),
+		PrefectureCode:     *prefectureCodeFrom(d),
+		CityID:             *id,
+		CityCode:           *code,
+		PlateauSpecMinorID: plateauSpecIDFrom(d.Spec),
+		URL:                d.CityGMLURL,
+		FeatureTypes:       d.CityGMLFeatureTypes,
+		Admin: map[string]any{
+			"maxlod": d.MaxLODURL,
+		},
+		Items: items,
 	}
 }
 

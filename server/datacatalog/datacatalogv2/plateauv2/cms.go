@@ -6,6 +6,20 @@ import (
 	"github.com/samber/lo"
 )
 
+var citygmlFeatureTypes = []string{
+	"bldg",
+	"tran",
+	"frn",
+	"veg",
+	"luse",
+	"lsld",
+	"urf",
+	"fld",
+	"tnm",
+	"htd",
+	"ifld",
+}
+
 type CMSItem struct {
 	ID               string             `json:"id"`
 	Prefecture       string             `json:"prefecture"`
@@ -44,9 +58,25 @@ type CMSItem struct {
 	Extra            []*cms.PublicAsset `json:"extra"`
 	Dictionary       *cms.PublicAsset   `json:"dictionary"`
 	Dic              string             `json:"dic"`
+	Dem              string             `json:"dem"`
 	SearchIndex      []*cms.PublicAsset `json:"search_index"`
 	OpenDataURL      string             `json:"opendata_url"`
 	MaxLOD           *cms.PublicAsset   `json:"maxlod"`
+}
+
+func (i CMSItem) FeatureTypes() []string {
+	res := make([]string, 0, len(citygmlFeatureTypes)+1)
+	for _, ft := range citygmlFeatureTypes {
+		if len(i.Feature(ft)) > 0 {
+			res = append(res, ft)
+		}
+	}
+
+	if i.Dem != "" && i.Dem != "無し" {
+		res = append(res, "dem")
+	}
+
+	return res
 }
 
 func (i CMSItem) Feature(ty string) []*cms.PublicAsset {

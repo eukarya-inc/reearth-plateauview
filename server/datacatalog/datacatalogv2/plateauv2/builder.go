@@ -239,15 +239,18 @@ func (b DataCatalogItemBuilder) Build() []*DataCatalogItem {
 }
 
 type PlateauIntermediateItem struct {
-	ID          string
-	Prefecture  string
-	City        string
-	CityEn      string
-	CityCode    string
-	Dic         Dic
-	OpenDataURL string
-	Year        int
-	Spec        string
+	ID                  string
+	Prefecture          string
+	City                string
+	CityEn              string
+	CityCode            string
+	Dic                 Dic
+	OpenDataURL         string
+	Year                int
+	Spec                string
+	CityGMLURL          string
+	CityGMLFeatureTypes []string
+	MaxLODURL           string
 }
 
 func (i CMSItem) IntermediateItem() PlateauIntermediateItem {
@@ -267,16 +270,29 @@ func (i CMSItem) IntermediateItem() PlateauIntermediateItem {
 	_ = json.Unmarshal(bom.Clean([]byte(i.Dic)), &dic)
 	y, _ := strconv.Atoi(an.Year)
 
+	citygmlURL := ""
+	if i.CityGML != nil {
+		citygmlURL = i.CityGML.URL
+	}
+
+	maxlodURL := ""
+	if i.MaxLOD != nil {
+		maxlodURL = i.MaxLOD.URL
+	}
+
 	return PlateauIntermediateItem{
-		ID:          i.ID,
-		Prefecture:  i.Prefecture,
-		City:        i.CityName,
-		CityEn:      an.CityEn,
-		CityCode:    an.CityCode,
-		Dic:         dic,
-		OpenDataURL: i.OpenDataURL,
-		Year:        y,
-		Spec:        i.Specification,
+		ID:                  i.ID,
+		Prefecture:          i.Prefecture,
+		City:                i.CityName,
+		CityEn:              an.CityEn,
+		CityCode:            an.CityCode,
+		Dic:                 dic,
+		OpenDataURL:         i.OpenDataURL,
+		Year:                y,
+		Spec:                i.Specification,
+		CityGMLURL:          citygmlURL,
+		CityGMLFeatureTypes: i.FeatureTypes(),
+		MaxLODURL:           maxlodURL,
 	}
 }
 
@@ -348,37 +364,40 @@ func (b *DataCatalogItemBuilder) dataCatalogItem(a asset, g assetGroup, desc str
 	}
 
 	return &DataCatalogItem{
-		ID:          id,
-		ItemID:      itemID,
-		Type:        override.Type,
-		TypeEn:      override.TypeEn,
-		Type2:       override.Type2,
-		Type2En:     override.Type2En,
-		Name:        finalName,
-		Pref:        b.IntermediateItem.Prefecture,
-		PrefCode:    jpareacode.FormatPrefectureCode(prefCode),
-		City:        b.IntermediateItem.City,
-		CityEn:      b.IntermediateItem.CityEn,
-		CityCode:    datacatalogutil.CityCode(b.IntermediateItem.CityCode, b.IntermediateItem.City, prefCode),
-		Ward:        wardName,
-		WardEn:      a.Name.WardEn,
-		WardCode:    wardCode,
-		Description: desc,
-		URL:         a.AssetURL(),
-		Format:      a.Name.Format,
-		Year:        b.IntermediateItem.Year,
-		Layers:      override.LayersIfSupported(a.Name.Format),
-		OpenDataURL: opd,
-		Config:      config,
-		SearchIndex: searchIndex,
-		RootType:    b.Options.RootType,
-		Root:        override.Root,
-		Order:       override.Order,
-		Group:       override.Group,
-		Infobox:     true,
-		Spec:        b.IntermediateItem.Spec,
-		Family:      "plateau",
-		Edition:     "2022",
+		ID:                  id,
+		ItemID:              itemID,
+		Type:                override.Type,
+		TypeEn:              override.TypeEn,
+		Type2:               override.Type2,
+		Type2En:             override.Type2En,
+		Name:                finalName,
+		Pref:                b.IntermediateItem.Prefecture,
+		PrefCode:            jpareacode.FormatPrefectureCode(prefCode),
+		City:                b.IntermediateItem.City,
+		CityEn:              b.IntermediateItem.CityEn,
+		CityCode:            datacatalogutil.CityCode(b.IntermediateItem.CityCode, b.IntermediateItem.City, prefCode),
+		Ward:                wardName,
+		WardEn:              a.Name.WardEn,
+		WardCode:            wardCode,
+		Description:         desc,
+		URL:                 a.AssetURL(),
+		Format:              a.Name.Format,
+		Year:                b.IntermediateItem.Year,
+		Layers:              override.LayersIfSupported(a.Name.Format),
+		OpenDataURL:         opd,
+		Config:              config,
+		SearchIndex:         searchIndex,
+		RootType:            b.Options.RootType,
+		Root:                override.Root,
+		Order:               override.Order,
+		Group:               override.Group,
+		Infobox:             true,
+		Spec:                b.IntermediateItem.Spec,
+		Family:              "plateau",
+		Edition:             "2022",
+		CityGMLURL:          b.IntermediateItem.CityGMLURL,
+		CityGMLFeatureTypes: b.IntermediateItem.CityGMLFeatureTypes,
+		MaxLODURL:           b.IntermediateItem.MaxLODURL,
 	}
 }
 

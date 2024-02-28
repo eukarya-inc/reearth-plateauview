@@ -137,6 +137,17 @@ func newCache(r datacatalogv2.ResponseAll) *plateauapi.InMemoryRepoContext {
 		if !slices.Contains(cache.Years, d.Year) {
 			cache.Years = append(cache.Years, d.Year)
 		}
+
+		if citygml := citygmlFrom(d); citygml != nil {
+			if cache.CityGML == nil {
+				cache.CityGML = map[plateauapi.ID]*plateauapi.CityGMLDataset{}
+			}
+
+			cg := cache.CityGML[citygml.ID]
+			if cg == nil || cg.Year < citygml.Year {
+				cache.CityGML[citygml.ID] = citygml
+			}
+		}
 	}
 
 	slices.SortStableFunc(cache.Years, func(a, b int) int {
