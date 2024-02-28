@@ -10,14 +10,14 @@ import (
 	"github.com/reearth/reearthx/log"
 )
 
-func Handler(conf Config, g *echo.Group) error {
-	if conf.GQLBaseURL == "" || conf.GQLToken == "" {
-		return nil
+func Handler(conf Config, g *echo.Group) (bool, error) {
+	if conf.GQLBaseURL == "" {
+		return false, nil
 	}
 
 	client, err := NewClient(conf)
 	if err != nil {
-		return fmt.Errorf("error creating client: %w", err)
+		return false, fmt.Errorf("error creating client: %w", err)
 	}
 
 	g.Use(
@@ -47,7 +47,7 @@ func Handler(conf Config, g *echo.Group) error {
 	}, nil)
 
 	log.Infof("sdkapiv3: initialized")
-	return nil
+	return true, nil
 }
 
 func auth(expected string) echo.MiddlewareFunc {

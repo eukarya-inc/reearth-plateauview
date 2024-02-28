@@ -18,14 +18,18 @@ import (
 )
 
 func Handler(conf Config, g *echo.Group) error {
-	if err := HandlerV3(conf, g); err != nil {
+	v3init, err := HandlerV3(conf, g)
+	if err != nil {
 		return err
 	}
 
-	return HandlerV2(conf, g)
+	if !v3init {
+		return HandlerV2(conf, g)
+	}
+	return nil
 }
 
-func HandlerV3(conf Config, g *echo.Group) error {
+func HandlerV3(conf Config, g *echo.Group) (bool, error) {
 	return sdkapiv3.Handler(sdkapiv3.Config{
 		GQLBaseURL: conf.GQLBaseURL,
 		GQLToken:   conf.GQLToken,
