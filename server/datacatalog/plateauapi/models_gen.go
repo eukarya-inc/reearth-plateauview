@@ -247,14 +247,10 @@ type CityGMLDatasetItem struct {
 	URL string `json:"url"`
 	// メッシュコード。
 	MeshCode string `json:"meshCode"`
-	// データセットの種類のID。
-	TypeID ID `json:"typeId"`
 	// データセットの種類コード。 "bldg" のような文字列です。
 	TypeCode string `json:"typeCode"`
 	// GMLに含まれる地物のLOD最大値。
 	MaxLod int `json:"maxLod"`
-	// データセットの種類。
-	Type *PlateauDatasetType `json:"type"`
 }
 
 // データセットの種類を検索するためのクエリ。

@@ -8,11 +8,10 @@ import (
 	"strings"
 
 	"github.com/eukarya-inc/reearth-plateauview/server/datacatalog/plateauapi"
-	"github.com/samber/lo"
 	"golang.org/x/exp/maps"
 )
 
-func toCityGMLs(all *AllData, dts []plateauapi.DatasetType) (map[plateauapi.ID]*plateauapi.CityGMLDataset, []string) {
+func toCityGMLs(all *AllData) (map[plateauapi.ID]*plateauapi.CityGMLDataset, []string) {
 	cities := all.City
 	data := all.GeospatialjpDataItems
 	cmsurl := all.CMSInfo.CMSURL
@@ -28,7 +27,7 @@ func toCityGMLs(all *AllData, dts []plateauapi.DatasetType) (map[plateauapi.ID]*
 		featureTypesMap[d.City] = citygmlFeatureTypes(d)
 		dataMap[d.City] = &plateauapi.CityGMLDataset{
 			URL:   d.CityGML,
-			Items: toCityGMLItems(d, dts),
+			Items: toCityGMLItems(d),
 			Admin: map[string]any{
 				"maxlod": d.MaxLOD,
 			},
@@ -74,7 +73,7 @@ func citygmlFeatureTypes(d *GeospatialjpDataItem) []string {
 	return res
 }
 
-func toCityGMLItems(data *GeospatialjpDataItem, dts []plateauapi.DatasetType) (res []*plateauapi.CityGMLDatasetItem) {
+func toCityGMLItems(data *GeospatialjpDataItem) (res []*plateauapi.CityGMLDatasetItem) {
 	for _, d := range data.MaxLODContent {
 		if len(d) < 4 || len(d[0]) == 0 || !isNumeric(rune(d[0][0])) {
 			continue
@@ -82,17 +81,9 @@ func toCityGMLItems(data *GeospatialjpDataItem, dts []plateauapi.DatasetType) (r
 
 		// code,type,maxLod,file
 		maxlod, _ := strconv.Atoi(d[2])
-		ty, _ := lo.Find(dts, func(dt plateauapi.DatasetType) bool {
-			return dt.GetCode() == d[1]
-		})
-		if ty == nil {
-			continue
-		}
-
 		item := &plateauapi.CityGMLDatasetItem{
 			MeshCode: d[0],
-			TypeCode: ty.GetCode(),
-			TypeID:   ty.GetID(),
+			TypeCode: d[1],
 			MaxLod:   maxlod,
 			URL:      citygmlItemURLFrom(data.CityGML, d[3], d[1]),
 		}

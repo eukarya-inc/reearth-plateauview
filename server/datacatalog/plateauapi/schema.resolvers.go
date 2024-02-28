@@ -68,11 +68,6 @@ func (r *cityGMLDatasetResolver) PlateauSpecMinor(ctx context.Context, obj *City
 	return to[*PlateauSpecMinor](r.Repo.Node(ctx, obj.PlateauSpecMinorID))
 }
 
-// Type is the resolver for the type field.
-func (r *cityGMLDatasetItemResolver) Type(ctx context.Context, obj *CityGMLDatasetItem) (*PlateauDatasetType, error) {
-	return to[*PlateauDatasetType](r.Repo.Node(ctx, obj.TypeID))
-}
-
 // Prefecture is the resolver for the prefecture field.
 func (r *genericDatasetResolver) Prefecture(ctx context.Context, obj *GenericDataset) (*Prefecture, error) {
 	if obj.PrefectureID == nil {
@@ -377,11 +372,6 @@ func (r *Resolver) City() CityResolver { return &cityResolver{r} }
 // CityGMLDataset returns CityGMLDatasetResolver implementation.
 func (r *Resolver) CityGMLDataset() CityGMLDatasetResolver { return &cityGMLDatasetResolver{r} }
 
-// CityGMLDatasetItem returns CityGMLDatasetItemResolver implementation.
-func (r *Resolver) CityGMLDatasetItem() CityGMLDatasetItemResolver {
-	return &cityGMLDatasetItemResolver{r}
-}
-
 // GenericDataset returns GenericDatasetResolver implementation.
 func (r *Resolver) GenericDataset() GenericDatasetResolver { return &genericDatasetResolver{r} }
 
@@ -438,7 +428,6 @@ func (r *Resolver) Ward() WardResolver { return &wardResolver{r} }
 
 type cityResolver struct{ *Resolver }
 type cityGMLDatasetResolver struct{ *Resolver }
-type cityGMLDatasetItemResolver struct{ *Resolver }
 type genericDatasetResolver struct{ *Resolver }
 type genericDatasetItemResolver struct{ *Resolver }
 type genericDatasetTypeResolver struct{ *Resolver }

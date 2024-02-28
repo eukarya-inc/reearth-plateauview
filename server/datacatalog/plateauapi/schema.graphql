@@ -1125,10 +1125,6 @@ type CityGMLDatasetItem {
   """
   meshCode: String!
   """
-  データセットの種類のID。
-  """
-  typeId: ID!
-  """
   データセットの種類コード。 "bldg" のような文字列です。
   """
   typeCode: String!
@@ -1136,10 +1132,6 @@ type CityGMLDatasetItem {
   GMLに含まれる地物のLOD最大値。
   """
   maxLod: Int!
-  """
-  データセットの種類。
-  """
-  type: PlateauDatasetType!
 }
 
 # Queries

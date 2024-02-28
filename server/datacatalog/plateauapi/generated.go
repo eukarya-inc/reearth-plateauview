@@ -40,7 +40,6 @@ type Config struct {
 type ResolverRoot interface {
 	City() CityResolver
 	CityGMLDataset() CityGMLDatasetResolver
-	CityGMLDatasetItem() CityGMLDatasetItemResolver
 	GenericDataset() GenericDatasetResolver
 	GenericDatasetItem() GenericDatasetItemResolver
 	GenericDatasetType() GenericDatasetTypeResolver
@@ -97,9 +96,7 @@ type ComplexityRoot struct {
 	CityGMLDatasetItem struct {
 		MaxLod   func(childComplexity int) int
 		MeshCode func(childComplexity int) int
-		Type     func(childComplexity int) int
 		TypeCode func(childComplexity int) int
-		TypeID   func(childComplexity int) int
 		URL      func(childComplexity int) int
 	}
 
@@ -324,9 +321,6 @@ type CityGMLDatasetResolver interface {
 	Prefecture(ctx context.Context, obj *CityGMLDataset) (*Prefecture, error)
 	City(ctx context.Context, obj *CityGMLDataset) (*City, error)
 	PlateauSpecMinor(ctx context.Context, obj *CityGMLDataset) (*PlateauSpecMinor, error)
-}
-type CityGMLDatasetItemResolver interface {
-	Type(ctx context.Context, obj *CityGMLDatasetItem) (*PlateauDatasetType, error)
 }
 type GenericDatasetResolver interface {
 	Prefecture(ctx context.Context, obj *GenericDataset) (*Prefecture, error)
@@ -626,26 +620,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.CityGMLDatasetItem.MeshCode(childComplexity), true
 
-	case "CityGMLDatasetItem.type":
-		if e.complexity.CityGMLDatasetItem.Type == nil {
-			break
-		}
-
-		return e.complexity.CityGMLDatasetItem.Type(childComplexity), true
-
 	case "CityGMLDatasetItem.typeCode":
 		if e.complexity.CityGMLDatasetItem.TypeCode == nil {
 			break
 		}
 
 		return e.complexity.CityGMLDatasetItem.TypeCode(childComplexity), true
-
-	case "CityGMLDatasetItem.typeId":
-		if e.complexity.CityGMLDatasetItem.TypeID == nil {
-			break
-		}
-
-		return e.complexity.CityGMLDatasetItem.TypeID(childComplexity), true
 
 	case "CityGMLDatasetItem.url":
 		if e.complexity.CityGMLDatasetItem.URL == nil {
@@ -3268,14 +3248,10 @@ func (ec *executionContext) fieldContext_CityGMLDataset_items(ctx context.Contex
 				return ec.fieldContext_CityGMLDatasetItem_url(ctx, field)
 			case "meshCode":
 				return ec.fieldContext_CityGMLDatasetItem_meshCode(ctx, field)
-			case "typeId":
-				return ec.fieldContext_CityGMLDatasetItem_typeId(ctx, field)
 			case "typeCode":
 				return ec.fieldContext_CityGMLDatasetItem_typeCode(ctx, field)
 			case "maxLod":
 				return ec.fieldContext_CityGMLDatasetItem_maxLod(ctx, field)
-			case "type":
-				return ec.fieldContext_CityGMLDatasetItem_type(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type CityGMLDatasetItem", field.Name)
 		},
@@ -3652,50 +3628,6 @@ func (ec *executionContext) fieldContext_CityGMLDatasetItem_meshCode(ctx context
 	return fc, nil
 }
 
-func (ec *executionContext) _CityGMLDatasetItem_typeId(ctx context.Context, field graphql.CollectedField, obj *CityGMLDatasetItem) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_CityGMLDatasetItem_typeId(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.TypeID, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(ID)
-	fc.Result = res
-	return ec.marshalNID2githubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐID(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_CityGMLDatasetItem_typeId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "CityGMLDatasetItem",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ID does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _CityGMLDatasetItem_typeCode(ctx context.Context, field graphql.CollectedField, obj *CityGMLDatasetItem) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_CityGMLDatasetItem_typeCode(ctx, field)
 	if err != nil {
@@ -3779,72 +3711,6 @@ func (ec *executionContext) fieldContext_CityGMLDatasetItem_maxLod(ctx context.C
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type Int does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _CityGMLDatasetItem_type(ctx context.Context, field graphql.CollectedField, obj *CityGMLDatasetItem) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_CityGMLDatasetItem_type(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.CityGMLDatasetItem().Type(rctx, obj)
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(*PlateauDatasetType)
-	fc.Result = res
-	return ec.marshalNPlateauDatasetType2ᚖgithubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐPlateauDatasetType(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_CityGMLDatasetItem_type(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "CityGMLDatasetItem",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_PlateauDatasetType_id(ctx, field)
-			case "code":
-				return ec.fieldContext_PlateauDatasetType_code(ctx, field)
-			case "name":
-				return ec.fieldContext_PlateauDatasetType_name(ctx, field)
-			case "category":
-				return ec.fieldContext_PlateauDatasetType_category(ctx, field)
-			case "order":
-				return ec.fieldContext_PlateauDatasetType_order(ctx, field)
-			case "plateauSpecId":
-				return ec.fieldContext_PlateauDatasetType_plateauSpecId(ctx, field)
-			case "plateauSpec":
-				return ec.fieldContext_PlateauDatasetType_plateauSpec(ctx, field)
-			case "year":
-				return ec.fieldContext_PlateauDatasetType_year(ctx, field)
-			case "flood":
-				return ec.fieldContext_PlateauDatasetType_flood(ctx, field)
-			case "datasets":
-				return ec.fieldContext_PlateauDatasetType_datasets(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type PlateauDatasetType", field.Name)
 		},
 	}
 	return fc, nil
@@ -14536,64 +14402,23 @@ func (ec *executionContext) _CityGMLDatasetItem(ctx context.Context, sel ast.Sel
 		case "url":
 			out.Values[i] = ec._CityGMLDatasetItem_url(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
+				out.Invalids++
 			}
 		case "meshCode":
 			out.Values[i] = ec._CityGMLDatasetItem_meshCode(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
-			}
-		case "typeId":
-			out.Values[i] = ec._CityGMLDatasetItem_typeId(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
+				out.Invalids++
 			}
 		case "typeCode":
 			out.Values[i] = ec._CityGMLDatasetItem_typeCode(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
+				out.Invalids++
 			}
 		case "maxLod":
 			out.Values[i] = ec._CityGMLDatasetItem_maxLod(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
+				out.Invalids++
 			}
-		case "type":
-			field := field
-
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._CityGMLDatasetItem_type(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&fs.Invalids, 1)
-				}
-				return res
-			}
-
-			if field.Deferrable != nil {
-				dfs, ok := deferred[field.Deferrable.Label]
-				di := 0
-				if ok {
-					dfs.AddField(field)
-					di = len(dfs.Values) - 1
-				} else {
-					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
-					deferred[field.Deferrable.Label] = dfs
-				}
-				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
-					return innerFunc(ctx, dfs)
-				})
-
-				// don't run the out.Concurrently() call below
-				out.Values[i] = graphql.Null
-				continue
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}

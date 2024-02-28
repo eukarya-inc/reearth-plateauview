@@ -180,7 +180,3 @@ models:
         resolver: true
       plateauSpecMinor:
         resolver: true
-  CityGMLDatasetItem:
-    fields:
-      type:
-        resolver: true
