@@ -7,7 +7,6 @@ import (
 	"net/url"
 
 	"github.com/hasura/go-graphql-client"
-	"github.com/reearth/reearthx/log"
 )
 
 type GqlClient struct {
@@ -23,8 +22,6 @@ func NewClient(conf Config) (*GqlClient, error) {
 	c := graphql.NewClient(gqlURL, nil).WithRequestModifier(func(req *http.Request) {
 		req.Header.Set("Authorization", "Bearer "+conf.GQLToken)
 	})
-
-	log.Infof("NewClient: %v", c)
 
 	return &GqlClient{
 		client: c,
