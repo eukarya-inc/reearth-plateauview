@@ -100,7 +100,7 @@ func (c *InMemoryRepo) Node(ctx context.Context, id ID) (Node, error) {
 			return &p, nil
 		}
 	case TypeCityGML:
-		if d := c.ctx.CityGML[id]; c != nil && filterCityGMLDataset(d, c.includedStages) {
+		if d := c.ctx.CityGML[id]; d != nil && filterCityGMLDataset(d, c.includedStages) {
 			return removeAdminFromCityGMLDataset(d, c.admin), nil
 		}
 	}
