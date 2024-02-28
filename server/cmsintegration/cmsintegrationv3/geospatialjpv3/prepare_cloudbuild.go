@@ -5,7 +5,6 @@ import (
 	"path"
 
 	"github.com/reearth/reearthx/log"
-	"github.com/reearth/reearthx/rerror"
 	"google.golang.org/api/cloudbuild/v1"
 )
 
@@ -62,7 +61,7 @@ type CloudBuildConfig struct {
 func runCloudBuild(ctx context.Context, conf CloudBuildConfig) error {
 	cb, err := cloudbuild.NewService(ctx)
 	if err != nil {
-		return rerror.ErrInternalBy(err)
+		return err
 	}
 
 	machineType := ""
@@ -86,18 +85,14 @@ func runCloudBuild(ctx context.Context, conf CloudBuildConfig) error {
 		Tags: conf.Tags,
 	}
 
-	if conf.Region != "" {
-		call := cb.Projects.Locations.Builds.Create(
-			path.Join("projects", conf.Project, "locations", conf.Region),
-			build,
-		)
-		_, err = call.Do()
-	} else {
-		call := cb.Projects.Builds.Create(conf.Project, build)
-		_, err = call.Do()
-	}
+	call := cb.Projects.Locations.Builds.Create(
+		path.Join("projects", conf.Project, "locations", conf.Region),
+		build,
+	)
+	_, err = call.Do()
+
 	if err != nil {
-		return rerror.ErrInternalBy(err)
+		return err
 	}
 	return nil
 }

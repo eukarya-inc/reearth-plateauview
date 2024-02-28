@@ -28,6 +28,8 @@ const configPrefix = "REEARTH_PLATEAUVIEW"
 type Config struct {
 	Port                               uint     `default:"8080" envconfig:"PORT"`
 	Host                               string   `default:"http://localhost:8080"`
+	GOOGLE_CLOUD_PROJECT               string   `envconfig:"GOOGLE_CLOUD_PROJECT" pp:",omitempty"`
+	GOOGLE_CLOUD_REGION                string   `envconfig:"GOOGLE_CLOUD_REGION" pp:",omitempty"`
 	Debug                              bool     `pp:",omitempty"`
 	Origin                             []string `pp:",omitempty"`
 	Secret                             string   `pp:",omitempty"`
@@ -95,6 +97,16 @@ func (c *Config) Print() string {
 }
 
 func (c *Config) CMSIntegration() cmsintegration.Config {
+	cloudBuildProject := c.Geospatialjp_CloudBuildProject
+	if cloudBuildProject == "" {
+		cloudBuildProject = c.GOOGLE_CLOUD_PROJECT
+	}
+
+	cloudBuildRegion := c.Geospatialjp_CloudBuildRegion
+	if cloudBuildRegion == "" {
+		cloudBuildRegion = c.GOOGLE_CLOUD_REGION
+	}
+
 	return cmsintegration.Config{
 		Host:                              c.Host,
 		FMEMock:                           c.FME_Mock,
@@ -120,8 +132,8 @@ func (c *Config) CMSIntegration() cmsintegration.Config {
 		GeospatialjpCloudRunJobsJobName:   c.Geospatialjp_JobName,
 		GeospatialjpCloudBuildImage:       c.Geospatialjp_CloudBuildImage,
 		GeospatialjpCloudBuildMachineType: c.Geospatialjp_CloudBuildMachineType,
-		GeospatialjpCloudBuildProject:     c.Geospatialjp_CloudBuildProject,
-		GeospatialjpCloudBuildRegion:      c.Geospatialjp_CloudBuildRegion,
+		GeospatialjpCloudBuildProject:     cloudBuildProject,
+		GeospatialjpCloudBuildRegion:      cloudBuildRegion,
 	}
 }
 
