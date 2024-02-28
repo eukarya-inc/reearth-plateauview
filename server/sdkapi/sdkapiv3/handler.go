@@ -33,10 +33,10 @@ func Handler(conf Config, g *echo.Group) (bool, error) {
 		}
 
 		return c.JSON(http.StatusOK, res.ToDatasets())
-	}, nil)
+	})
 
 	g.GET("/datasets/:id/files", func(c echo.Context) error {
-		id := strings.TrimPrefix(c.Param("id"), "a_")
+		id := c.Param("id")
 		res, err := client.QueryDatasetFiles(id)
 		if err != nil {
 			log.Errorfc(c.Request().Context(), "sdkapiv3: error querying dataset files: %v", err)
@@ -44,7 +44,7 @@ func Handler(conf Config, g *echo.Group) (bool, error) {
 		}
 
 		return c.JSON(http.StatusOK, res.ToDatasetFiles())
-	}, nil)
+	})
 
 	log.Infof("sdkapiv3: initialized")
 	return true, nil

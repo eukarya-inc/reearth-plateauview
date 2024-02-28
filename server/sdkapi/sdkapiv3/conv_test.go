@@ -80,9 +80,9 @@ func TestQueryToDatasets(t *testing.T) {
 }
 func TestDatasetFilesQuery_ToDatasetFiles(t *testing.T) {
 	datasetFilesQuery := &DatasetFilesQuery{
-		City: QueryFilesCity{
-			City: QueryFilesCityGML{
-				Citygml: QueryFilesCityGMLItems{
+		Area: QueryFilesArea{
+			City: QueryFilesCity{
+				Citygml: QueryFilesCityGML{
 					Items: []QueryFilesCityGMLItem{
 						{
 							TypeCode: "bldg",

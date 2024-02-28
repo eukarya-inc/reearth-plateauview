@@ -1,5 +1,11 @@
 package sdkapiv3
 
+import (
+	"sort"
+
+	"golang.org/x/exp/maps"
+)
+
 const bldg = "bldg"
 
 func (d *DatasetsQuery) ToDatasets() *DatasetsResponse {
@@ -12,17 +18,22 @@ func (d *DatasetsQuery) ToDatasets() *DatasetsResponse {
 
 		for _, city := range prefecture.Prefecture.Cities {
 			c := &DatasetCityResponse{
-				ID:    string(city.ID),
+				ID:    string(city.Code),
 				Title: string(city.Name),
 			}
+
+			ft := map[string]struct{}{}
 
 			for _, dataset := range city.Datasets {
 				if dataset.TypeCode == bldg {
 					c.Description = string(dataset.Description)
 					c.Spec = string(dataset.PlateauDataset.PlateauSpecMinor.Version)
 				}
-				c.FeatureTypes = append(c.FeatureTypes, string(dataset.TypeCode))
+				ft[string(dataset.TypeCode)] = struct{}{}
 			}
+
+			c.FeatureTypes = maps.Keys(ft)
+			sort.Strings(c.FeatureTypes)
 
 			p.Data = append(p.Data, c)
 		}
@@ -36,7 +47,7 @@ func (d *DatasetsQuery) ToDatasets() *DatasetsResponse {
 func (d *DatasetFilesQuery) ToDatasetFiles() *map[string][]DatasetFilesResponse {
 	files := make(map[string][]DatasetFilesResponse)
 
-	for _, item := range d.City.City.Citygml.Items {
+	for _, item := range d.Area.City.Citygml.Items {
 		files[string(item.TypeCode)] = append(files[string(item.TypeCode)], DatasetFilesResponse{
 			Code:   string(item.MeshCode),
 			URL:    string(item.Url),

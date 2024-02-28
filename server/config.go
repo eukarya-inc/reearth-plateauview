@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/eukarya-inc/reearth-plateauview/server/cmsintegration"
@@ -134,8 +135,7 @@ func (c *Config) SDKAPI() sdkapi.Config {
 		Token: c.SDK_Token,
 
 		// v3
-		GQLBaseURL: c.Host + "/datacatalog/admin/graphql",
-		GQLToken:   c.Sidebar_Token,
+		GQLBaseURL: fmt.Sprintf("http://[::]:%d/datacatalog/graphql", c.Port),
 
 		// v2
 		CMSBaseURL: c.CMS_BaseURL,

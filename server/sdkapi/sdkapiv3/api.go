@@ -36,8 +36,8 @@ func (c *GqlClient) QueryDatasets() (DatasetsQuery, error) {
 func (c *GqlClient) QueryDatasetFiles(id string) (DatasetFilesQuery, error) {
 	var q DatasetFilesQuery
 
-	vars := map[string]interface{}{
-		"code": graphql.String(id),
+	vars := map[string]any{
+		"code": AreaCode(id),
 	}
 
 	err := c.client.Query(context.Background(), &q, vars)

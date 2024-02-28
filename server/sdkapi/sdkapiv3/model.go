@@ -21,6 +21,7 @@ type QueryPrefecture struct {
 type QueryCity struct {
 	ID       graphql.String
 	Name     graphql.String
+	Code     graphql.String
 	Datasets []QueryDataset `graphql:"datasets(input: {includeTypes: [\"plateau\"]})"`
 }
 
@@ -41,18 +42,19 @@ type QueryPlateauSpecMinor struct {
 }
 
 type DatasetFilesQuery struct {
-	City QueryFilesCity `graphql:"area(code: $code)"`
+	Area QueryFilesArea `graphql:"area(code: $code)"`
+}
+
+type QueryFilesArea struct {
+	City QueryFilesCity `graphql:"... on City"`
 }
 
 type QueryFilesCity struct {
-	City QueryFilesCityGML `graphql:"... on City"`
+	ID      graphql.String
+	Citygml QueryFilesCityGML
 }
 
 type QueryFilesCityGML struct {
-	Citygml QueryFilesCityGMLItems
-}
-
-type QueryFilesCityGMLItems struct {
 	Items []QueryFilesCityGMLItem
 }
 
@@ -62,3 +64,7 @@ type QueryFilesCityGMLItem struct {
 	MeshCode graphql.String
 	MaxLod   graphql.Int
 }
+
+type AreaCode string
+
+func (AreaCode) GetGraphQLType() string { return "AreaCode" }
