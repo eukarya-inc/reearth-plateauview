@@ -11,7 +11,7 @@ import (
 	"golang.org/x/exp/maps"
 )
 
-func toCityGMLs(all *AllData) (map[plateauapi.ID]*plateauapi.CityGMLDataset, []string) {
+func toCityGMLs(all *AllData, regYear int) (map[plateauapi.ID]*plateauapi.CityGMLDataset, []string) {
 	cities := all.City
 	data := all.GeospatialjpDataItems
 	cmsurl := all.CMSInfo.CMSURL
@@ -41,6 +41,7 @@ func toCityGMLs(all *AllData) (map[plateauapi.ID]*plateauapi.CityGMLDataset, []s
 
 		dataMap[city.ID].ID = plateauapi.CityGMLDatasetIDFrom(plateauapi.AreaCode(city.CityCode))
 		dataMap[city.ID].Year = city.YearInt()
+		dataMap[city.ID].RegistrationYear = regYear
 		dataMap[city.ID].PrefectureCode = plateauapi.AreaCode(plateauapi.AreaCode(city.CityCode).PrefectureCode())
 		dataMap[city.ID].PrefectureID = plateauapi.NewID(dataMap[city.ID].PrefectureCode.String(), plateauapi.TypeArea)
 		dataMap[city.ID].CityID = plateauapi.NewID(city.CityCode, plateauapi.TypeArea)

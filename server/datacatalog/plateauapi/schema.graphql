@@ -1059,9 +1059,13 @@ PLATEAU標準製品仕様書に基づくCityGMLのデータセット。
 type CityGMLDataset implements Node {
   id: ID!
   """
-  データセットの公開年度（西暦）。
+  データセットの整備年度（西暦）。
   """
   year: Int!
+  """
+  データセットの登録年度（西暦）。
+  """
+  registrationYear: Int!
   """
   データセットが属する都道府県のID。
   """

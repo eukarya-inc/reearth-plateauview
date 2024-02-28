@@ -208,8 +208,10 @@ func (City) IsNode() {}
 // PLATEAU標準製品仕様書に基づくCityGMLのデータセット。
 type CityGMLDataset struct {
 	ID ID `json:"id"`
-	// データセットの公開年度（西暦）。
+	// データセットの整備年度（西暦）。
 	Year int `json:"year"`
+	// データセットの登録年度（西暦）。
+	RegistrationYear int `json:"registrationYear"`
 	// データセットが属する都道府県のID。
 	PrefectureID ID `json:"prefectureId"`
 	// データセットが属する都道府県コード。2桁の数字から成る文字列です。

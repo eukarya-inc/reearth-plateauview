@@ -89,6 +89,7 @@ type ComplexityRoot struct {
 		Prefecture         func(childComplexity int) int
 		PrefectureCode     func(childComplexity int) int
 		PrefectureID       func(childComplexity int) int
+		RegistrationYear   func(childComplexity int) int
 		URL                func(childComplexity int) int
 		Year               func(childComplexity int) int
 	}
@@ -591,6 +592,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.CityGMLDataset.PrefectureID(childComplexity), true
+
+	case "CityGMLDataset.registrationYear":
+		if e.complexity.CityGMLDataset.RegistrationYear == nil {
+			break
+		}
+
+		return e.complexity.CityGMLDataset.RegistrationYear(childComplexity), true
 
 	case "CityGMLDataset.url":
 		if e.complexity.CityGMLDataset.URL == nil {
@@ -2822,6 +2830,8 @@ func (ec *executionContext) fieldContext_City_citygml(ctx context.Context, field
 				return ec.fieldContext_CityGMLDataset_id(ctx, field)
 			case "year":
 				return ec.fieldContext_CityGMLDataset_year(ctx, field)
+			case "registrationYear":
+				return ec.fieldContext_CityGMLDataset_registrationYear(ctx, field)
 			case "prefectureId":
 				return ec.fieldContext_CityGMLDataset_prefectureId(ctx, field)
 			case "prefectureCode":
@@ -2929,6 +2939,50 @@ func (ec *executionContext) _CityGMLDataset_year(ctx context.Context, field grap
 }
 
 func (ec *executionContext) fieldContext_CityGMLDataset_year(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "CityGMLDataset",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _CityGMLDataset_registrationYear(ctx context.Context, field graphql.CollectedField, obj *CityGMLDataset) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_CityGMLDataset_registrationYear(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.RegistrationYear, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_CityGMLDataset_registrationYear(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "CityGMLDataset",
 		Field:      field,
@@ -14212,6 +14266,11 @@ func (ec *executionContext) _CityGMLDataset(ctx context.Context, sel ast.Selecti
 			}
 		case "year":
 			out.Values[i] = ec._CityGMLDataset_year(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "registrationYear":
+			out.Values[i] = ec._CityGMLDataset_registrationYear(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
