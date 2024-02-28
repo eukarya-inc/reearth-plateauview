@@ -3,6 +3,7 @@ package datacatalogv3
 import (
 	"net/url"
 	"path"
+	"slices"
 	"sort"
 	"strconv"
 	"strings"
@@ -37,6 +38,12 @@ func toCityGMLs(all *AllData, regYear int) (map[plateauapi.ID]*plateauapi.CityGM
 	for _, city := range cities {
 		if _, ok := dataMap[city.ID]; !ok {
 			continue
+		}
+
+		if !slices.Contains(featureTypesMap[city.ID], "dem") {
+			if dem := all.FindPlateauFeatureItemByCityID("dem", city.ID); dem != nil && dem.CityGML != "" {
+				featureTypesMap[city.ID] = append(featureTypesMap[city.ID], "dem")
+			}
 		}
 
 		dataMap[city.ID].ID = plateauapi.CityGMLDatasetIDFrom(plateauapi.AreaCode(city.CityCode))

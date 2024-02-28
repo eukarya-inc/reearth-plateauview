@@ -15,6 +15,15 @@ type AllData struct {
 	CMSInfo               CMSInfo
 }
 
+func (d *AllData) FindPlateauFeatureItemByCityID(ft, cityID string) *PlateauFeatureItem {
+	for _, f := range d.Plateau[ft] {
+		if f != nil && f.City == cityID {
+			return f
+		}
+	}
+	return nil
+}
+
 type FeatureTypes struct {
 	Plateau []FeatureType
 	Related []FeatureType
