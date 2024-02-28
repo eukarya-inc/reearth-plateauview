@@ -103,19 +103,19 @@ type GspatialjpDataItem struct {
 const running = "実行中"
 
 func (g *GspatialjpDataItem) ShouldMergeCityGML() bool {
-	return g.MergeCityGMLStatus.Name != running
+	return g.MergeCityGMLStatus == nil || g.MergeCityGMLStatus.Name != running
 }
 
 func (g *GspatialjpDataItem) ShouldMergePlateau() bool {
-	return g.MergePlateauStatus.Name != running
+	return g.MergeCityGMLStatus == nil || g.MergePlateauStatus.Name != running
 }
 
 func (g *GspatialjpDataItem) ShouldMergeRelated() bool {
-	return g.MergeRelatedStatus.Name != running
+	return g.MergeCityGMLStatus == nil || g.MergeRelatedStatus.Name != running
 }
 
 func (g *GspatialjpDataItem) ShouldMergeMaxLOD() bool {
-	return g.MergeMaxLODStatus.Name != running
+	return g.MergeCityGMLStatus == nil || g.MergeMaxLODStatus.Name != running
 }
 
 func GspatialjpDataItemFrom(item *cms.Item) (i *GspatialjpDataItem) {
