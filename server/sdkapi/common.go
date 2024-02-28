@@ -24,11 +24,18 @@ const modelKey = "plateau"
 const tokyo = "東京都"
 
 type Config struct {
+	// common
+	Token string
+
+	// v3
+	GQLBaseURL string
+	GQLToken   string
+
+	// v2
 	CMSBaseURL   string
 	CMSToken     string
 	Project      string
 	Model        string
-	Token        string
 	DisableCache bool
 	CacheTTL     int
 }

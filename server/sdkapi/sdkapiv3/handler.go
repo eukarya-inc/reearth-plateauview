@@ -11,6 +11,10 @@ import (
 )
 
 func Handler(conf Config, g *echo.Group) error {
+	if conf.GQLBaseURL == "" || conf.GQLToken == "" {
+		return nil
+	}
+
 	client, err := NewClient(conf)
 	if err != nil {
 		return fmt.Errorf("error creating client: %w", err)
@@ -42,6 +46,7 @@ func Handler(conf Config, g *echo.Group) error {
 		return c.JSON(http.StatusOK, res.ToDatasetFiles())
 	}, nil)
 
+	log.Infof("sdkapiv3: initialized")
 	return nil
 }
 

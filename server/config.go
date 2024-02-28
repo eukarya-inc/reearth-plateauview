@@ -130,11 +130,18 @@ func (c *Config) SearchIndex() searchindex.Config {
 
 func (c *Config) SDKAPI() sdkapi.Config {
 	return sdkapi.Config{
+		// common
+		Token: c.SDK_Token,
+
+		// v3
+		GQLBaseURL: c.Host + "/datacatalog/admin/graphql",
+		GQLToken:   c.Sidebar_Token,
+
+		// v2
 		CMSBaseURL: c.CMS_BaseURL,
 		CMSToken:   c.CMS_Token,
 		Project:    c.CMS_PlateauProject,
 		// Model:      c.CMS_SDKModel,
-		Token:        c.SDK_Token,
 		DisableCache: c.SDKAPI_DisableCache,
 		CacheTTL:     c.SDKAPI_CacheTTL,
 	}

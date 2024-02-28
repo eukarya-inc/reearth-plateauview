@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"net/http"
-	"net/url"
 
 	"github.com/hasura/go-graphql-client"
 )
@@ -14,12 +13,7 @@ type GqlClient struct {
 }
 
 func NewClient(conf Config) (*GqlClient, error) {
-	gqlURL, err := url.JoinPath(conf.BaseURL, "/datacatalog/admin/graphql")
-	if err != nil {
-		return nil, fmt.Errorf("error joining base URL and graphql path: %w", err)
-	}
-
-	c := graphql.NewClient(gqlURL, nil).WithRequestModifier(func(req *http.Request) {
+	c := graphql.NewClient(conf.GQLBaseURL, nil).WithRequestModifier(func(req *http.Request) {
 		req.Header.Set("Authorization", "Bearer "+conf.GQLToken)
 	})
 

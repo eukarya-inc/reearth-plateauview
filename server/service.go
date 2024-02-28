@@ -83,9 +83,6 @@ func SearchIndex(conf *Config) (*Service, error) {
 
 func SDKAPI(conf *Config) (*Service, error) {
 	c := conf.SDKAPI()
-	if c.CMSBaseURL == "" || c.Project == "" {
-		return nil, nil
-	}
 
 	return &Service{
 		Name:           "sdkapi",

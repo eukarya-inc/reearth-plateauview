@@ -15,7 +15,7 @@ func TestQueryDatasets(t *testing.T) {
 		t.Skip("baseURL is not set")
 	}
 
-	client, err := NewClient(Config{BaseURL: baseURL, GQLToken: gqlToken})
+	client, err := NewClient(Config{GQLBaseURL: baseURL, GQLToken: gqlToken})
 	assert.NoError(t, err)
 
 	q, err := client.QueryDatasets()
@@ -39,7 +39,7 @@ func TestQueryDatasetFiles(t *testing.T) {
 		t.Skip("baseURL is not set")
 	}
 
-	client, err := NewClient(Config{BaseURL: baseURL, GQLToken: gqlToken})
+	client, err := NewClient(Config{GQLBaseURL: baseURL, GQLToken: gqlToken})
 	assert.NoError(t, err)
 
 	q, err := client.QueryDatasetFiles(cityId)

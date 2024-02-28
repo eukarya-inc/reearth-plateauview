@@ -10,6 +10,7 @@ import (
 	"unicode"
 
 	"github.com/eukarya-inc/reearth-plateauview/server/putil"
+	"github.com/eukarya-inc/reearth-plateauview/server/sdkapi/sdkapiv3"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	cms "github.com/reearth/reearth-cms-api/go"
@@ -17,8 +18,27 @@ import (
 )
 
 func Handler(conf Config, g *echo.Group) error {
-	conf.Default()
+	if err := HandlerV3(conf, g); err != nil {
+		return err
+	}
 
+	return HandlerV2(conf, g)
+}
+
+func HandlerV3(conf Config, g *echo.Group) error {
+	return sdkapiv3.Handler(sdkapiv3.Config{
+		GQLBaseURL: conf.GQLBaseURL,
+		GQLToken:   conf.GQLToken,
+		Token:      conf.Token,
+	}, g)
+}
+
+func HandlerV2(conf Config, g *echo.Group) error {
+	if conf.CMSBaseURL == "" || conf.CMSToken == "" || conf.Project == "" {
+		return nil
+	}
+
+	conf.Default()
 	icl, err := cms.New(conf.CMSBaseURL, conf.CMSToken)
 	if err != nil {
 		return err
@@ -68,6 +88,7 @@ func handler(conf Config, g *echo.Group, cms *CMS) error {
 		return c.JSON(http.StatusOK, data)
 	})
 
+	log.Infof("sdkapiv2: initialized")
 	return nil
 }
 
