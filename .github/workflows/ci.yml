@@ -19,6 +19,7 @@ jobs:
         id: plugin
         uses: tj-actions/changed-files@v36
         with:
+          since_last_remote_commit: true
           files: |
             plugin
             .github/workflows/ci-plugin.yml
@@ -28,6 +29,7 @@ jobs:
         id: server
         uses: tj-actions/changed-files@v36
         with:
+          since_last_remote_commit: true
           files: |
             server
             .github/workflows/ci-server.yml
@@ -38,6 +40,7 @@ jobs:
         id: tools
         uses: tj-actions/changed-files@v36
         with:
+          since_last_remote_commit: true
           files: |
             tools
             .github/workflows/ci-tools.yml
@@ -45,6 +48,7 @@ jobs:
         id: worker
         uses: tj-actions/changed-files@v36
         with:
+          since_last_remote_commit: true
           files: |
             worker
             .github/workflows/ci-worker.yml

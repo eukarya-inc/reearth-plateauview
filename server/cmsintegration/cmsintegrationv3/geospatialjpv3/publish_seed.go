@@ -46,12 +46,12 @@ func getSeed(ctx context.Context, c cms.Interface, cityItem *CityItem, org strin
 
 	rawDataItem, err := c.GetItem(ctx, cityItem.GeospatialjpData, true)
 	if err != nil {
-		return seed, fmt.Errorf("failed to get data item: %w", err)
+		return seed, fmt.Errorf("G空間センター用データアイテムが取得できません: %w", err)
 	}
 
 	rawIndexItem, err := c.GetItem(ctx, cityItem.GeospatialjpIndex, true)
 	if err != nil {
-		return seed, fmt.Errorf("failed to get index item: %w", err)
+		return seed, fmt.Errorf("G空間センター用目録アイテムが取得できません: %w", err)
 	}
 
 	var dataItem CMSDataItem
@@ -68,7 +68,7 @@ func getSeed(ctx context.Context, c cms.Interface, cityItem *CityItem, org strin
 	if thumnailURL := valueToAsset(indexItem.Thumbnail); thumnailURL != "" {
 		seed.ThumbnailURL, err = fetchAndGetDataURL(thumnailURL)
 		if err != nil {
-			return seed, fmt.Errorf("failed to fetch thumnail: %w", err)
+			return seed, fmt.Errorf("サムネイルが取得できませんでした: %w", err)
 		}
 	}
 
@@ -87,7 +87,11 @@ func getSeed(ctx context.Context, c cms.Interface, cityItem *CityItem, org strin
 	}
 
 	seed.Index = indexItem.DescIndex
-	if seed.Index != "" {
+	if seed.Index == "" {
+		seed.Index = dataItem.DescIndex
+	}
+	seed.IndexURL = valueToAsset(indexItem.IndexData)
+	if seed.Index != "" && seed.IndexURL == "" {
 		seed.IndexURL = dataurl.New([]byte(seed.Index), "text/markdown").String()
 	}
 
@@ -125,7 +129,7 @@ func fetchAndGetDataURL(url string) (string, error) {
 	}
 
 	if res.StatusCode != http.StatusOK {
-		return "", fmt.Errorf("failed to fetch thumnail: %s", res.Status)
+		return "", fmt.Errorf("サムネイルの取得に失敗しました。ステータスコード: %s", res.Status)
 	}
 
 	buf := bytes.NewBuffer(nil)
@@ -136,7 +140,7 @@ func fetchAndGetDataURL(url string) (string, error) {
 	data := buf.Bytes()
 	mediaType := http.DetectContentType(data)
 	if !strings.HasPrefix(mediaType, "image/") {
-		return "", fmt.Errorf("thumnail is not image")
+		return "", fmt.Errorf("サムネイルは正しい画像ファイルではないようです")
 	}
 
 	return dataurl.New(data, mediaType).String(), nil

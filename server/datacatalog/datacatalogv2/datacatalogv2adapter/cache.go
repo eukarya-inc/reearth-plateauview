@@ -116,19 +116,19 @@ func newCache(r datacatalogv2.ResponseAll) *plateauapi.InMemoryRepoContext {
 			}
 		}
 
-		if d, ok := plateauDatasetFrom(d); ok {
+		if d := plateauDatasetFrom(d); d != nil {
 			if cache.Datasets == nil {
 				cache.Datasets = make(plateauapi.Datasets)
 			}
 			cache.Datasets.Append(plateauapi.DatasetTypeCategoryPlateau, []plateauapi.Dataset{d})
 		}
-		if d, ok := relatedDatasetFrom(d); ok {
+		if d := relatedDatasetFrom(d); d != nil {
 			if cache.Datasets == nil {
 				cache.Datasets = make(plateauapi.Datasets)
 			}
 			cache.Datasets.Append(plateauapi.DatasetTypeCategoryRelated, []plateauapi.Dataset{d})
 		}
-		if d, ok := genericDatasetFrom(d); ok {
+		if d := genericDatasetFrom(d); d != nil {
 			if cache.Datasets == nil {
 				cache.Datasets = make(plateauapi.Datasets)
 			}

@@ -4,11 +4,12 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"math/rand"
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
-	"github.com/google/uuid"
 	cms "github.com/reearth/reearth-cms-api/go"
 	"github.com/reearth/reearthx/log"
 	"github.com/samber/lo"
@@ -95,26 +96,33 @@ func Command(conf *Config) (err error) {
 	gdataItem := GspatialjpDataItemFrom(gdataItemRaw)
 	log.Infofc(ctx, "geospatialjp data item: %s", ppp.Sprint(gdataItem))
 
-	if !gdataItem.ShouldMergeCityGML() {
-		conf.SkipCityGML = true
+	if gdataItem != nil {
+		if !gdataItem.ShouldMergeCityGML() {
+			conf.SkipCityGML = true
+		}
+		if !gdataItem.ShouldMergePlateau() {
+			conf.SkipPlateau = true
+		}
+		if !gdataItem.ShouldMergeMaxLOD() {
+			conf.SkipMaxLOD = true
+		}
 	}
-	if !gdataItem.ShouldMergePlateau() {
-		conf.SkipPlateau = true
-	}
-	if !gdataItem.ShouldMergeMaxLOD() {
-		conf.SkipMaxLOD = true
-	}
+
 	if conf.SkipCityGML && conf.SkipPlateau && conf.SkipMaxLOD && conf.SkipRelated {
 		return fmt.Errorf("no command to run")
 	}
 
-	tmpDir := filepath.Join(tmpDirBase, uuid.NewString())
+	tmpDirName := fmt.Sprintf("%s-%d", time.Now().Format("20060102-150405"), rand.Intn(1000))
+	tmpDir := filepath.Join(tmpDirBase, tmpDirName)
 	log.Infofc(ctx, "tmp dir: %s", tmpDir)
 
 	// do merging
 	var comment string
 	var citygmlError, plateauError, maxlodError bool
 	defer func() {
+		if !conf.WetRun {
+			return
+		}
 		if err != nil {
 			comment = err.Error()
 		}
@@ -126,7 +134,7 @@ func Command(conf *Config) (err error) {
 			citygmlError, plateauError, maxlodError,
 			strings.TrimSpace(comment),
 		); err != nil {
-			log.Errorfc(ctx, "failed to notify error: %w", err)
+			log.Errorfc(ctx, "failed to notify error: %v", err)
 		}
 	}()
 
@@ -145,10 +153,13 @@ func Command(conf *Config) (err error) {
 	})...)
 
 	log.Infofc(ctx, "feature items: %s", ppp.Sprint(allFeatureItems))
+	log.Infofc(ctx, "dic: %s", ppp.Sprint(dic))
 	log.Infofc(ctx, "preparing citygml and plateau...")
 
-	if err := notifyRunning(ctx, cms, cityItem.GeospatialjpData, true, true); err != nil {
-		return fmt.Errorf("failed to notify running: %w", err)
+	if conf.WetRun {
+		if err := notifyRunning(ctx, cms, cityItem.ID, cityItem.GeospatialjpData, !conf.SkipCityGML, !conf.SkipPlateau, !conf.SkipRelated, !conf.SkipMaxLOD); err != nil {
+			return fmt.Errorf("failed to notify running: %w", err)
+		}
 	}
 
 	citygmlCh := lo.Async(func() lo.Tuple3[string, string, error] {
@@ -414,21 +425,21 @@ func notifyError(ctx context.Context, c *cms.CMS, cityItemID, gdataItemID string
 	if comment != "" {
 		msgPrefix := ""
 		if isErr {
-			msgPrefix = "マージ処理に失敗しました。"
+			msgPrefix = "公開準備処理に失敗しました。"
 		} else {
-			msgPrefix = "マージ処理が完了しました。"
+			msgPrefix = "公開準備処理が完了しました。"
 		}
 
 		if err := c.CommentToItem(ctx, cityItemID, msgPrefix+comment); err != nil {
-			return fmt.Errorf("failed to comment to item: %w", err)
+			return fmt.Errorf("failed to comment to citygml item: %w", err)
 		}
 
 		if err := c.CommentToItem(ctx, gdataItemID, msgPrefix+comment); err != nil {
-			return fmt.Errorf("failed to comment to item: %w", err)
+			return fmt.Errorf("failed to comment to data item: %w", err)
 		}
 	}
 
-	if !citygmlError && !plateauError {
+	if !citygmlError && !plateauError && !maxLODError {
 		return nil
 	}
 
@@ -472,6 +483,10 @@ func notifyError(ctx context.Context, c *cms.CMS, cityItemID, gdataItemID string
 		return fmt.Errorf("failed to marshal item")
 	}
 
+	if rawItem.Fields == nil {
+		rawItem.Fields = []*cms.Field{}
+	}
+
 	if _, err := c.UpdateItem(ctx, rawItem.ID, rawItem.Fields, rawItem.MetadataFields); err != nil {
 		return fmt.Errorf("failed to update item: %w", err)
 	}
@@ -479,36 +494,58 @@ func notifyError(ctx context.Context, c *cms.CMS, cityItemID, gdataItemID string
 	return nil
 }
 
-func notifyRunning(ctx context.Context, c *cms.CMS, cityItemID string, citygmlRunning, plateauRunning bool) error {
-	if !citygmlRunning && !plateauRunning {
+func notifyRunning(ctx context.Context, c *cms.CMS, citygmlID, dataID string, citygmlRunning, plateauRunning, relatedRunning, maxlodRunning bool) error {
+	if !citygmlRunning && !plateauRunning && !relatedRunning && !maxlodRunning {
 		return nil
 	}
 
 	item := GspatialjpDataItem{
-		ID: cityItemID,
+		ID: dataID,
 	}
 
 	if citygmlRunning {
 		item.MergeCityGMLStatus = &cms.Tag{
-			Name: "実行中",
+			Name: running,
 		}
 	}
 
 	if plateauRunning {
 		item.MergePlateauStatus = &cms.Tag{
-			Name: "実行中",
+			Name: running,
+		}
+	}
+
+	if relatedRunning {
+		item.MergeRelatedStatus = &cms.Tag{
+			Name: running,
+		}
+	}
+
+	if maxlodRunning {
+		item.MergeMaxLODStatus = &cms.Tag{
+			Name: running,
 		}
 	}
 
 	var rawItem cms.Item
 	cms.Marshal(item, &rawItem)
 
+	if rawItem.Fields == nil {
+		rawItem.Fields = []*cms.Field{}
+	}
+
 	if _, err := c.UpdateItem(ctx, rawItem.ID, rawItem.Fields, rawItem.MetadataFields); err != nil {
 		return fmt.Errorf("failed to update item: %w", err)
 	}
 
-	if err := c.CommentToItem(ctx, rawItem.ID, "マージ処理を開始しました。"); err != nil {
-		return fmt.Errorf("failed to comment to item: %w", err)
+	comment := "G空間情報センターの公開準備処理を開始しました。"
+
+	if err := c.CommentToItem(ctx, citygmlID, comment); err != nil {
+		return fmt.Errorf("failed to comment to city item: %w", err)
+	}
+
+	if err := c.CommentToItem(ctx, dataID, comment); err != nil {
+		return fmt.Errorf("failed to comment to data item: %w", err)
 	}
 
 	return nil

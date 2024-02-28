@@ -15,7 +15,7 @@ import (
 func TestPublish(t *testing.T) {
 	t.Skip()
 
-	lo.Must0(godotenv.Load("../../../.env"))
+	_ = godotenv.Load("../../../.env")
 
 	var (
 		indexItemID = ""

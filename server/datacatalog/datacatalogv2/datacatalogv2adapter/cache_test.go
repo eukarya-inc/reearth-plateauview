@@ -68,10 +68,12 @@ func TestNewCache(t *testing.T) {
 		},
 		Datasets: plateauapi.Datasets{
 			plateauapi.DatasetTypeCategoryPlateau: []plateauapi.Dataset{
-				plateauapi.PlateauDataset{
+				&plateauapi.PlateauDataset{
 					ID:                 "d_13101_bldg",
 					Name:               "建築物モデル（東京都23区）",
 					Year:               2022,
+					RegisterationYear:  2022,
+					OpenDataURL:        lo.ToPtr("https://www.geospatial.jp/ckan/dataset/plateau-13101-tokyo23ku-2022"),
 					Description:        lo.ToPtr("bldg_desc"),
 					PrefectureID:       lo.ToPtr(plateauapi.ID("a_13")),
 					PrefectureCode:     lo.ToPtr(plateauapi.AreaCode("13")),

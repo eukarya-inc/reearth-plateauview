@@ -11,14 +11,15 @@ import (
 )
 
 func PreparePlateau(ctx context.Context, cms *cms.CMS, tmpDir string, cityItem *CityItem, allFeatureItems map[string]FeatureItem, uc int) (string, string, error) {
-	log.Infofc(ctx, "preparing plateau...")
 
-	downloadPath := filepath.Join(tmpDir, cityItem.CityCode+"_"+cityItem.CityNameEn+"_plateau")
+	dataName := fmt.Sprintf("%s_%s_city_%d_3dtiles_mvt_%d_op", cityItem.CityCode, cityItem.CityNameEn, cityItem.YearInt(), uc)
+	downloadPath := filepath.Join(tmpDir, dataName)
 	_ = os.MkdirAll(downloadPath, os.ModePerm)
 
-	zipFileName := fmt.Sprintf("%s_%s_city_%d_3dtiles_mvt_%d_op.zip", cityItem.CityCode, cityItem.CityNameEn, cityItem.YearInt(), uc)
+	zipFileName := dataName + ".zip"
 	zipFilePath := filepath.Join(tmpDir, zipFileName)
 
+	log.Infofc(ctx, "preparing plateau: %s", dataName)
 	for _, ft := range featureTypes {
 		fi, ok := allFeatureItems[ft]
 		if !ok || fi.Data == nil {
@@ -35,18 +36,13 @@ func PreparePlateau(ctx context.Context, cms *cms.CMS, tmpDir string, cityItem *
 				continue
 			}
 
-			data, err := downloadFileAsByteReader(ctx, url)
-			if err != nil {
-				return "", "", fmt.Errorf("failed to download data for %s: %w", ft, err)
-			}
-
-			if err := Unzip(ctx, data, downloadPath, "", nil); err != nil {
+			if _, err := downloadAndUnzip(ctx, url, downloadPath, tmpDir, nil); err != nil {
 				return "", "", fmt.Errorf("failed to unzip data for %s: %w", ft, err)
 			}
 		}
 	}
 
-	if err := ZipDir(ctx, downloadPath, zipFilePath); err != nil {
+	if err := ZipDir(ctx, downloadPath, zipFilePath, false); err != nil {
 		return "", "", fmt.Errorf("failed to zip plateau: %w", err)
 	}
 

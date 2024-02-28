@@ -241,6 +241,7 @@ type RelatedItem struct {
 	// metadata
 	ConvertStatus map[string]*cms.Tag `json:"conv_status,omitempty" cms:"-"`
 	MergeStatus   *cms.Tag            `json:"merge_status,omitempty" cms:"merge_status,tag,metadata"`
+	Merge         bool                `json:"merge,omitempty" cms:"merge,bool,metadata"`
 }
 
 type RelatedItemDatum struct {

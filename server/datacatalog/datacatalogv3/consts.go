@@ -4,6 +4,8 @@ import (
 	"github.com/eukarya-inc/reearth-plateauview/server/datacatalog/plateauapi"
 )
 
+const gespatialjpDatasetURL = "https://www.geospatial.jp/ckan/dataset/"
+
 var plateauSpecVersions3 = []string{"3.0", "3.1", "3.2", "3.3", "3.4", "3.5"}
 
 var plateauSpecs = []plateauapi.PlateauSpecSimple{
@@ -70,28 +72,32 @@ var plateauFeatureTypes = []FeatureType{
 		MVTLayerName: []string{"luse"},
 	},
 	{
-		Code:      "fld",
-		Name:      "洪水浸水想定区域モデル",
-		GroupName: "災害リスク（浸水）モデル",
-		Flood:     true,
+		Code:        "fld",
+		Name:        "洪水浸水想定区域モデル",
+		GroupName:   "災害リスク（浸水）モデル",
+		Flood:       true,
+		HideTexture: true,
 	},
 	{
-		Code:      "tnm",
-		Name:      "津波浸水想定区域モデル",
-		GroupName: "災害リスク（浸水）モデル",
-		Flood:     true,
+		Code:        "tnm",
+		Name:        "津波浸水想定区域モデル",
+		GroupName:   "災害リスク（浸水）モデル",
+		Flood:       true,
+		HideTexture: true,
 	},
 	{
-		Code:      "htd",
-		Name:      "高潮浸水想定区域モデル",
-		GroupName: "災害リスク（浸水）モデル",
-		Flood:     true,
+		Code:        "htd",
+		Name:        "高潮浸水想定区域モデル",
+		GroupName:   "災害リスク（浸水）モデル",
+		Flood:       true,
+		HideTexture: true,
 	},
 	{
-		Code:      "ifld",
-		Name:      "内水浸水想定区域モデル",
-		GroupName: "災害リスク（浸水）モデル",
-		Flood:     true,
+		Code:        "ifld",
+		Name:        "内水浸水想定区域モデル",
+		GroupName:   "災害リスク（浸水）モデル",
+		Flood:       true,
+		HideTexture: true,
 	},
 	{
 		Code:         "lsld",
@@ -147,8 +153,9 @@ var plateauFeatureTypes = []FeatureType{
 		MVTLayerName: []string{"Zone"},
 	},
 	{
-		Code: "gen",
-		Name: "汎用都市オブジェクトモデル",
+		Code:               "gen",
+		Name:               "汎用都市オブジェクトモデル",
+		MVTLayerNamePrefix: "gen",
 	},
 }
 

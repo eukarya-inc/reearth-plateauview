@@ -9,6 +9,7 @@ import (
 )
 
 type internalContext struct {
+	year              int
 	years             map[int]struct{}
 	cityItems         map[string]*CityItem
 	prefs             map[string]*plateauapi.Prefecture
@@ -102,7 +103,7 @@ type areaContext struct {
 }
 
 func (c *areaContext) IsValid() bool {
-	return c.Pref != nil && c.City != nil && c.CityItem != nil && c.PrefID != nil && c.CityID != nil && c.PrefCode != nil && c.CityCode != nil
+	return c.Pref != nil && c.City != nil && c.CityItem != nil && c.PrefID != nil && c.PrefCode != nil
 }
 
 func (c *areaContext) Code() *plateauapi.AreaCode {
@@ -132,7 +133,7 @@ func (c *internalContext) AreaContext(cityItemID string) *areaContext {
 	}
 
 	city := c.cities[cityItem.CityCode]
-	if city != nil {
+	if city != nil && city.Code != plateauapi.AreaCode(city.Code.PrefectureCode()) {
 		cityID = lo.ToPtr(city.ID)
 		cityCode = lo.ToPtr(city.Code)
 	}
@@ -158,6 +159,7 @@ func (c *internalContext) AreaContext(cityItemID string) *areaContext {
 type LayerNames struct {
 	Name        []string
 	NamesForLOD map[int][]string
+	Prefix      string
 }
 
 func (l LayerNames) LayerName(def []string, lod int, format plateauapi.DatasetFormat) []string {
@@ -169,11 +171,16 @@ func (l LayerNames) LayerName(def []string, lod int, format plateauapi.DatasetFo
 		return l.Name
 	}
 
-	if l.NamesForLOD == nil {
-		return def
+	if l.NamesForLOD != nil {
+		if l := l.NamesForLOD[lod]; l != nil {
+			return l
+		}
 	}
-	if l := l.NamesForLOD[lod]; l != nil {
-		return l
+
+	if l.Prefix != "" {
+		return lo.Map(def, func(s string, _ int) string {
+			return fmt.Sprintf("%s_%s", l.Prefix, s)
+		})
 	}
 
 	return def

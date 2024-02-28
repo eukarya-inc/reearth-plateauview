@@ -100,20 +100,22 @@ type GspatialjpDataItem struct {
 	MergeMaxLODStatus  *cms.Tag `json:"merge_maxlod_status" cms:"merge_maxlod_status,tag,metadata"`
 }
 
+const running = "実行中"
+
 func (g *GspatialjpDataItem) ShouldMergeCityGML() bool {
-	return g.MergeCityGMLStatus == nil || g.MergeCityGMLStatus.Name != "未実行"
+	return g.MergeCityGMLStatus == nil || g.MergeCityGMLStatus.Name != running
 }
 
 func (g *GspatialjpDataItem) ShouldMergePlateau() bool {
-	return g.MergePlateauStatus == nil || g.MergePlateauStatus.Name != "未実行"
+	return g.MergeCityGMLStatus == nil || g.MergePlateauStatus.Name != running
 }
 
 func (g *GspatialjpDataItem) ShouldMergeRelated() bool {
-	return g.MergeRelatedStatus == nil || g.MergeRelatedStatus.Name != "未実行"
+	return g.MergeCityGMLStatus == nil || g.MergeRelatedStatus.Name != running
 }
 
 func (g *GspatialjpDataItem) ShouldMergeMaxLOD() bool {
-	return g.MergeMaxLODStatus == nil || g.MergeMaxLODStatus.Name != "未実行"
+	return g.MergeCityGMLStatus == nil || g.MergeMaxLODStatus.Name != running
 }
 
 func GspatialjpDataItemFrom(item *cms.Item) (i *GspatialjpDataItem) {

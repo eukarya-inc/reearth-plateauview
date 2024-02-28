@@ -27,50 +27,58 @@ func init() {
 const configPrefix = "REEARTH_PLATEAUVIEW"
 
 type Config struct {
-	Port                              uint     `default:"8080" envconfig:"PORT"`
-	Host                              string   `default:"http://localhost:8080"`
-	Debug                             bool     `pp:",omitempty"`
-	Origin                            []string `pp:",omitempty"`
-	Secret                            string   `pp:",omitempty"`
-	Delegate_URL                      string   `pp:",omitempty"`
-	CMS_Webhook_Secret                string   `pp:",omitempty"`
-	CMS_BaseURL                       string   `pp:",omitempty"`
-	CMS_Token                         string   `pp:",omitempty"`
-	CMS_IntegrationID                 string   `pp:",omitempty"`
-	CMS_PlateauProject                string   `pp:",omitempty"`
-	CMS_SystemProject                 string   `pp:",omitempty"`
-	CMS_TokenProject                  string   `pp:",omitempty"`
-	FME_BaseURL                       string   `pp:",omitempty"`
-	FME_BaseURL_V2                    string   `pp:",omitempty"`
-	FME_URL_V3                        string   `pp:",omitempty"`
-	FME_Mock                          bool     `pp:",omitempty"`
-	FME_Token                         string   `pp:",omitempty"`
-	FME_SkipQualityCheck              bool     `pp:",omitempty"`
-	Ckan_BaseURL                      string   `pp:",omitempty"`
-	Ckan_Org                          string   `pp:",omitempty"`
-	Ckan_Token                        string   `pp:",omitempty"`
-	Ckan_Private                      bool     `pp:",omitempty"`
-	SDK_Token                         string   `pp:",omitempty"`
-	SendGrid_APIKey                   string   `pp:",omitempty"`
-	Opinion_From                      string   `pp:",omitempty"`
-	Opinion_FromName                  string   `pp:",omitempty"`
-	Opinion_To                        string   `pp:",omitempty"`
-	Opinion_ToName                    string   `pp:",omitempty"`
-	Sidebar_Token                     string   `pp:",omitempty"`
-	Share_Disable                     bool     `pp:",omitempty"`
-	Geospatialjp_Publication_Disable  bool     `pp:",omitempty"`
-	Geospatialjp_CatalocCheck_Disable bool     `pp:",omitempty"`
-	Geospatialjp_JobName              string   `pp:",omitempty"`
-	DataConv_Disable                  bool     `pp:",omitempty"`
-	Indexer_Delegate                  bool     `pp:",omitempty"`
-	DataCatalog_DisableCache          bool     `pp:",omitempty"`
-	DataCatalog_CacheUpdateKey        string   `pp:",omitempty"`
-	DataCatalog_PlaygroundEndpoint    string   `pp:",omitempty"`
-	DataCatalog_CacheTTL              int      `pp:",omitempty"`
-	DataCatalog_GQL_MaxComplexity     int      `pp:",omitempty"`
-	SDKAPI_DisableCache               bool     `pp:",omitempty"`
-	SDKAPI_CacheTTL                   int      `pp:",omitempty"`
-	GCParcent                         int      `pp:",omitempty"`
+	Port                               uint     `default:"8080" envconfig:"PORT"`
+	Host                               string   `default:"http://localhost:8080"`
+	GOOGLE_CLOUD_PROJECT               string   `envconfig:"GOOGLE_CLOUD_PROJECT" pp:",omitempty"`
+	GOOGLE_CLOUD_REGION                string   `envconfig:"GOOGLE_CLOUD_REGION" pp:",omitempty"`
+	Debug                              bool     `pp:",omitempty"`
+	Origin                             []string `pp:",omitempty"`
+	Secret                             string   `pp:",omitempty"`
+	Delegate_URL                       string   `pp:",omitempty"`
+	CMS_Webhook_Secret                 string   `pp:",omitempty"`
+	CMS_BaseURL                        string   `pp:",omitempty"`
+	CMS_Token                          string   `pp:",omitempty"`
+	CMS_IntegrationID                  string   `pp:",omitempty"`
+	CMS_PlateauProject                 string   `pp:",omitempty"`
+	CMS_SystemProject                  string   `pp:",omitempty"`
+	CMS_TokenProject                   string   `pp:",omitempty"`
+	FME_BaseURL                        string   `pp:",omitempty"`
+	FME_BaseURL_V2                     string   `pp:",omitempty"`
+	FME_URL_V3                         string   `pp:",omitempty"`
+	FME_Mock                           bool     `pp:",omitempty"`
+	FME_Token                          string   `pp:",omitempty"`
+	FME_SkipQualityCheck               bool     `pp:",omitempty"`
+	Ckan_BaseURL                       string   `pp:",omitempty"`
+	Ckan_Org                           string   `pp:",omitempty"`
+	Ckan_Token                         string   `pp:",omitempty"`
+	Ckan_Private                       bool     `pp:",omitempty"`
+	SDK_Token                          string   `pp:",omitempty"`
+	SendGrid_APIKey                    string   `pp:",omitempty"`
+	Opinion_From                       string   `pp:",omitempty"`
+	Opinion_FromName                   string   `pp:",omitempty"`
+	Opinion_To                         string   `pp:",omitempty"`
+	Opinion_ToName                     string   `pp:",omitempty"`
+	Sidebar_Token                      string   `pp:",omitempty"`
+	Share_Disable                      bool     `pp:",omitempty"`
+	Geospatialjp_Publication_Disable   bool     `pp:",omitempty"`
+	Geospatialjp_CatalocCheck_Disable  bool     `pp:",omitempty"`
+	Geospatialjp_BuildType             string   `pp:",omitempty"`
+	Geospatialjp_JobName               string   `pp:",omitempty"`
+	Geospatialjp_CloudBuildImage       string   `pp:",omitempty"`
+	Geospatialjp_CloudBuildMachineType string   `pp:",omitempty"`
+	Geospatialjp_CloudBuildProject     string   `pp:",omitempty"`
+	Geospatialjp_CloudBuildRegion      string   `pp:",omitempty"`
+	Geospatialjp_CloudBuildDiskSizeGb  int64    `pp:",omitempty"`
+	DataConv_Disable                   bool     `pp:",omitempty"`
+	Indexer_Delegate                   bool     `pp:",omitempty"`
+	DataCatalog_DisableCache           bool     `pp:",omitempty"`
+	DataCatalog_CacheUpdateKey         string   `pp:",omitempty"`
+	DataCatalog_PlaygroundEndpoint     string   `pp:",omitempty"`
+	DataCatalog_CacheTTL               int      `pp:",omitempty"`
+	DataCatalog_GQL_MaxComplexity      int      `pp:",omitempty"`
+	SDKAPI_DisableCache                bool     `pp:",omitempty"`
+	SDKAPI_CacheTTL                    int      `pp:",omitempty"`
+	GCParcent                          int      `pp:",omitempty"`
 }
 
 func NewConfig() (*Config, error) {
@@ -91,28 +99,44 @@ func (c *Config) Print() string {
 }
 
 func (c *Config) CMSIntegration() cmsintegration.Config {
+	cloudBuildProject := c.Geospatialjp_CloudBuildProject
+	if cloudBuildProject == "" {
+		cloudBuildProject = c.GOOGLE_CLOUD_PROJECT
+	}
+
+	cloudBuildRegion := c.Geospatialjp_CloudBuildRegion
+	if cloudBuildRegion == "" {
+		cloudBuildRegion = c.GOOGLE_CLOUD_REGION
+	}
+
 	return cmsintegration.Config{
-		Host:                            c.Host,
-		FMEMock:                         c.FME_Mock,
-		FMEBaseURL:                      c.FME_BaseURL,
-		FMEToken:                        c.FME_Token,
-		FMEBaseURLV2:                    c.FME_BaseURL_V2,
-		FMEURLV3:                        c.FME_URL_V3,
-		FMESkipQualityCheck:             c.FME_SkipQualityCheck,
-		CMSBaseURL:                      c.CMS_BaseURL,
-		CMSToken:                        c.CMS_Token,
-		CMSIntegration:                  c.CMS_IntegrationID,
-		Secret:                          c.Secret,
-		Debug:                           c.Debug,
-		CkanBaseURL:                     c.Ckan_BaseURL,
-		CkanOrg:                         c.Ckan_Org,
-		CkanToken:                       c.Ckan_Token,
-		CkanPrivate:                     c.Ckan_Private,
-		DisableGeospatialjpPublication:  c.Geospatialjp_Publication_Disable,
-		DisableGeospatialjpCatalogCheck: c.Geospatialjp_CatalocCheck_Disable,
-		DisableDataConv:                 c.DataConv_Disable,
-		APIToken:                        c.Sidebar_Token,
-		GeospatialjpJobName:             c.Geospatialjp_JobName,
+		Host:                              c.Host,
+		FMEMock:                           c.FME_Mock,
+		FMEBaseURL:                        c.FME_BaseURL,
+		FMEToken:                          c.FME_Token,
+		FMEBaseURLV2:                      c.FME_BaseURL_V2,
+		FMEURLV3:                          c.FME_URL_V3,
+		FMESkipQualityCheck:               c.FME_SkipQualityCheck,
+		CMSBaseURL:                        c.CMS_BaseURL,
+		CMSToken:                          c.CMS_Token,
+		CMSIntegration:                    c.CMS_IntegrationID,
+		Secret:                            c.Secret,
+		Debug:                             c.Debug,
+		CkanBaseURL:                       c.Ckan_BaseURL,
+		CkanOrg:                           c.Ckan_Org,
+		CkanToken:                         c.Ckan_Token,
+		CkanPrivate:                       c.Ckan_Private,
+		DisableGeospatialjpPublication:    c.Geospatialjp_Publication_Disable,
+		DisableGeospatialjpCatalogCheck:   c.Geospatialjp_CatalocCheck_Disable,
+		DisableDataConv:                   c.DataConv_Disable,
+		APIToken:                          c.Sidebar_Token,
+		GeospatialjpBuildType:             c.Geospatialjp_BuildType,
+		GeospatialjpCloudRunJobsJobName:   c.Geospatialjp_JobName,
+		GeospatialjpCloudBuildImage:       c.Geospatialjp_CloudBuildImage,
+		GeospatialjpCloudBuildMachineType: c.Geospatialjp_CloudBuildMachineType,
+		GeospatialjpCloudBuildProject:     cloudBuildProject,
+		GeospatialjpCloudBuildRegion:      cloudBuildRegion,
+		GeospatialjpCloudBuildDiskSizeGb:  c.Geospatialjp_CloudBuildDiskSizeGb,
 	}
 }
 

@@ -15,7 +15,7 @@ import (
 )
 
 func migrateV1(conf *Config, args []string) error {
-	var listFilePath, output, baseURL string
+	var listFilePath, output, baseURL, prefix string
 	var offset int
 	var wetrun bool
 
@@ -23,6 +23,7 @@ func migrateV1(conf *Config, args []string) error {
 	flags.StringVar(&listFilePath, "list", "", "list file path")
 	flags.StringVar(&output, "output", "", "output file path")
 	flags.StringVar(&baseURL, "base", "", "base URL")
+	flags.StringVar(&prefix, "prefix", "", "base URL")
 	flags.BoolVar(&wetrun, "wetrun", false, "wet run")
 	flags.IntVar(&offset, "offset", 0, "offset")
 	if err := flags.Parse(args); err != nil {
@@ -42,7 +43,7 @@ func migrateV1(conf *Config, args []string) error {
 		return fmt.Errorf("failed to read list file: %w", err)
 	}
 
-	list, err := parseList(listFile)
+	list, err := parseList(listFile, prefix)
 
 	if offset > 0 {
 		if len(list) < offset {
@@ -78,7 +79,7 @@ func migrateV1(conf *Config, args []string) error {
 			return nil
 		}
 
-		file, err = os.OpenFile(filepath.Join(output, "uc_"+g+".zip"), os.O_CREATE|os.O_WRONLY, 0644)
+		file, err = os.OpenFile(filepath.Join(output, "uc_pv1_"+g+".zip"), os.O_CREATE|os.O_WRONLY, 0644)
 		if err != nil {
 			return fmt.Errorf("failed to open file: %w", err)
 		}
@@ -101,6 +102,7 @@ func migrateV1(conf *Config, args []string) error {
 	for i, p := range list {
 		g := p[1]
 		filePath := path.Join(p[2:]...)
+
 		path := filepath.Join(p...)
 		u, err := url.JoinPath(baseURL, path)
 		if err != nil {
@@ -178,7 +180,7 @@ func downloadAndAddToZip(zw *zip.Writer, path, url, filePath string) error {
 	return nil
 }
 
-func parseList(b []byte) (res [][]string, err error) {
+func parseList(b []byte, prefix string) (res [][]string, err error) {
 	start := 0
 	for i, c := range b {
 		if c == '\n' {
@@ -193,6 +195,10 @@ func parseList(b []byte) (res [][]string, err error) {
 			if len(s) <= 3 {
 				err = fmt.Errorf("invalid line at %d: %s", i, r)
 				return
+			}
+
+			if prefix != "" && !strings.HasPrefix(s[3], prefix) {
+				continue
 			}
 
 			t := strings.Split(s[3], "/")

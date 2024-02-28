@@ -76,7 +76,7 @@ func packageFromCatalog(c *Catalog, org, pkgName string, private bool) ckan.Pack
 	return ckan.Package{
 		Name:            pkgName,
 		Title:           c.Title,
-		Private:         private || c.Public != "パブリック",
+		Private:         lo.ToPtr(private || c.Public != "パブリック"),
 		Author:          c.Author,
 		AuthorEmail:     c.AuthorEmail,
 		Maintainer:      c.Maintainer,

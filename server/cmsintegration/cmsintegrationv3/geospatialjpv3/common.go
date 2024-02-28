@@ -15,7 +15,15 @@ type Config struct {
 	CMSBase        string
 	CMSToken       string
 	CMSIntegration string
-	JobName        string
+	BuildType      string
+	// cloud run jobs
+	CloudRunJobsJobName string
+	// cloud build image
+	CloudBuildImage       string
+	CloudBuildMachineType string
+	CloudBuildProject     string
+	CloudBuildRegion      string
+	CloudBuildDiskSizeGb  int64
 }
 
 var ppp *pp.PrettyPrinter

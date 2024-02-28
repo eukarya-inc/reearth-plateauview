@@ -67,7 +67,7 @@ type Package struct {
 	// The title of the dataset (optional, default: same as name)
 	Title string `json:"title,omitempty"`
 	// If True creates a private dataset
-	Private bool `json:"private,omitempty"`
+	Private *bool `json:"private,omitempty"`
 	// The name of the dataset's author (optional)
 	Author string `json:"author,omitempty"`
 	// The email address of the dataset's author (optional)

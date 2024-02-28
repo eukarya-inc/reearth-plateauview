@@ -18,4 +18,4 @@ COPY --from=build /app/server /app/reearth-plateauview
 
 WORKDIR /app
 
-CMD [ "./reearth-plateauview" ]
+CMD [ "/app/reearth-plateauview" ]

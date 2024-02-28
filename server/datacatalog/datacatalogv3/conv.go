@@ -17,6 +17,7 @@ func (all *AllData) Into() (res *plateauapi.InMemoryRepoContext, warning []strin
 	res.DatasetTypes = all.FeatureTypes.ToDatasetTypes(res.PlateauSpecs)
 
 	ic := newInternalContext()
+	ic.year = all.Year
 
 	// layer names
 	ic.layerNamesForType = all.FeatureTypes.LayerNames()
@@ -58,7 +59,8 @@ func (all *AllData) Into() (res *plateauapi.InMemoryRepoContext, warning []strin
 
 	// plateau
 	for _, dt := range res.DatasetTypes[plateauapi.DatasetTypeCategoryPlateau] {
-		datasets, w := convertPlateau(all.Plateau[dt.GetCode()], res.PlateauSpecs, dt, ic)
+		ft := all.FeatureTypes.FindPlateauByCode(dt.GetCode())
+		datasets, w := convertPlateau(all.Plateau[dt.GetCode()], res.PlateauSpecs, dt, ft, ic)
 		warning = append(warning, w...)
 		res.Datasets.Append(plateauapi.DatasetTypeCategoryPlateau, datasets)
 	}
@@ -105,7 +107,7 @@ func getWards(items []*PlateauFeatureItem, ic *internalContext) (res []*plateaua
 	return
 }
 
-func convertPlateau(items []*PlateauFeatureItem, specs []plateauapi.PlateauSpec, dt plateauapi.DatasetType, ic *internalContext) (res []plateauapi.Dataset, warning []string) {
+func convertPlateau(items []*PlateauFeatureItem, specs []plateauapi.PlateauSpec, dt plateauapi.DatasetType, ft *FeatureType, ic *internalContext) (res []plateauapi.Dataset, warning []string) {
 	pdt, ok := dt.(*plateauapi.PlateauDatasetType)
 	if !ok {
 		warning = append(warning, fmt.Sprintf("plateau %s: invalid dataset type: %s", dt.GetCode(), dt.GetName()))
@@ -128,7 +130,16 @@ func convertPlateau(items []*PlateauFeatureItem, specs []plateauapi.PlateauSpec,
 			continue
 		}
 
-		ds, w := ds.toDatasets(area, pdt, spec, layerNames, ic.plateauCMSURL)
+		opts := ToPlateauDatasetsOptions{
+			CMSURL:      ic.plateauCMSURL,
+			Area:        area,
+			Spec:        spec,
+			DatasetType: pdt,
+			LayerNames:  layerNames,
+			FeatureType: ft,
+			Year:        ic.year,
+		}
+		ds, w := ds.toDatasets(opts)
 		warning = append(warning, w...)
 		if ds != nil {
 			res = append(res, ds...)
@@ -146,7 +157,7 @@ func convertRelated(items []*RelatedItem, datasetTypes []plateauapi.DatasetType,
 			continue
 		}
 
-		ds, w := ds.toDatasets(area, datasetTypes, ic.relatedCMSURL)
+		ds, w := ds.toDatasets(area, datasetTypes, ic.year, ic.relatedCMSURL)
 		warning = append(warning, w...)
 		if ds != nil {
 			res = append(res, ds...)
@@ -164,7 +175,7 @@ func convertGeneric(items []*GenericItem, datasetTypes []plateauapi.DatasetType,
 			continue
 		}
 
-		ds, w := ds.toDatasets(area, datasetTypes, ic.genericCMSURL)
+		ds, w := ds.toDatasets(area, datasetTypes, ic.year, ic.genericCMSURL)
 		warning = append(warning, w...)
 		if ds != nil {
 			res = append(res, ds...)

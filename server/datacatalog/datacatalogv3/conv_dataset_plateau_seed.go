@@ -8,6 +8,8 @@ import (
 	"github.com/samber/lo"
 )
 
+const bldgCode = "bldg"
+
 type plateauDatasetSeed struct {
 	AssetURLs  []string
 	Assets     []*AssetName
@@ -19,34 +21,37 @@ type plateauDatasetSeed struct {
 	WardID     *plateauapi.ID
 	WardCode   *plateauapi.AreaCode
 	// common
-	DatasetType *plateauapi.PlateauDatasetType
-	Dic         Dic
-	Area        *areaContext
-	Pref        *plateauapi.Prefecture
-	City        *plateauapi.City
-	Spec        *plateauapi.PlateauSpecMinor
-	River       *plateauapi.River
-	Admin       any
-	LayerNames  LayerNames
-	Year        int
+	DatasetType       *plateauapi.PlateauDatasetType
+	Dic               Dic
+	Area              *areaContext
+	Pref              *plateauapi.Prefecture
+	City              *plateauapi.City
+	Spec              *plateauapi.PlateauSpecMinor
+	River             *plateauapi.River
+	Admin             any
+	LayerNames        LayerNames
+	Year              int
+	OpenDataURL       string
+	HideTexture       bool
+	RegisterationYear int
 }
 
 func (seed plateauDatasetSeed) GetID() string {
 	return standardItemID(seed.DatasetType.Code, seed.TargetArea.GetCode(), seed.Subcode)
 }
 
-func plateauDatasetSeedsFrom(i *PlateauFeatureItem, dt *plateauapi.PlateauDatasetType, area *areaContext, spec *plateauapi.PlateauSpecMinor, layerNames LayerNames, cmsurl string) (res []plateauDatasetSeed, warning []string) {
-	cityCode := lo.FromPtr(area.CityCode).String()
-	year := area.CityItem.YearInt()
+func plateauDatasetSeedsFrom(i *PlateauFeatureItem, opts ToPlateauDatasetsOptions) (res []plateauDatasetSeed, warning []string) {
+	cityCode := lo.FromPtr(opts.Area.CityCode).String()
+	year := opts.Area.CityItem.YearInt()
 
 	dic, err := i.ReadDic()
 	if err != nil && i.Dic != "" {
-		warning = append(warning, fmt.Sprintf("plateau %s %s: invalid dic: %s", cityCode, dt.Code, err))
+		warning = append(warning, fmt.Sprintf("plateau %s %s: invalid dic: %s", cityCode, opts.DatasetType.Code, err))
 		return
 	}
 
-	if dt.Code == "bldg" {
-		seeds, w := plateauDatasetSeedsFromBldg(i, dt, cityCode, area.Wards)
+	if opts.DatasetType.Code == bldgCode {
+		seeds, w := plateauDatasetSeedsFromBldg(i, opts.DatasetType, cityCode, opts.Area.Wards)
 		warning = append(warning, w...)
 		res = append(res, seeds...)
 	} else {
@@ -62,24 +67,30 @@ func plateauDatasetSeedsFrom(i *PlateauFeatureItem, dt *plateauapi.PlateauDatase
 		}
 
 		for _, item := range items {
-			seeds, w := plateauDatasetSeedsFromItem(item, dt, dic, cityCode)
+			seeds, w := plateauDatasetSeedsFromItem(item, opts.DatasetType, dic, cityCode)
 			warning = append(warning, w...)
 			res = append(res, seeds)
 		}
 	}
 
 	for i := range res {
-		res[i].DatasetType = dt
+		res[i].DatasetType = opts.DatasetType
 		res[i].Dic = dic
-		res[i].Area = area
-		res[i].Pref = area.Pref
-		res[i].City = area.City
-		res[i].Spec = spec
-		res[i].Admin = newAdmin(area.CityItem.ID, area.CityItem.plateauStage(dt.Code), cmsurl, nil)
-		res[i].LayerNames = layerNames
+		res[i].Area = opts.Area
+		res[i].Pref = opts.Area.Pref
+		res[i].City = opts.Area.City
+		res[i].Spec = opts.Spec
+		res[i].Admin = newAdmin(opts.Area.CityItem.ID, opts.Area.CityItem.plateauStage(opts.DatasetType.Code), opts.CMSURL, nil)
+		res[i].LayerNames = opts.LayerNames
 		res[i].Year = year
+		res[i].OpenDataURL = opts.Area.CityItem.GetOpenDataURL()
+		res[i].HideTexture = opts.FeatureType.HideTexture
+		res[i].RegisterationYear = opts.Year
 		if res[i].TargetArea == nil {
-			res[i].TargetArea = area.City
+			res[i].TargetArea = opts.Area.City
+			if res[i].TargetArea == nil {
+				res[i].TargetArea = opts.Area.Pref
+			}
 		}
 	}
 
@@ -238,6 +249,7 @@ type plateauDatasetItemSeed struct {
 	Layers              []string
 	FloodingScale       *plateauapi.FloodingScale
 	FloodingScaleSuffix *string
+	HideTexture         bool
 }
 
 func (i plateauDatasetItemSeed) GetID(parentID string) string {
@@ -251,7 +263,7 @@ func (i plateauDatasetItemSeed) GetID(parentID string) string {
 		ids = append(ids, fmt.Sprintf("lod%d", *i.LOD))
 	}
 
-	if i.NoTexture != nil && *i.NoTexture {
+	if !i.HideTexture && i.NoTexture != nil && *i.NoTexture {
 		ids = append(ids, "no_texture")
 	}
 
@@ -268,7 +280,7 @@ func (i plateauDatasetItemSeed) GetName() string {
 		lod = fmt.Sprintf("LOD%d", *i.LOD)
 	}
 
-	if i.NoTexture != nil && *i.NoTexture {
+	if !i.HideTexture && i.NoTexture != nil && *i.NoTexture {
 		if name != "" || lod != "" {
 			tex += "（"
 		}
@@ -303,18 +315,17 @@ func plateauDatasetItemSeedFrom(seed plateauDatasetSeed) (items []plateauDataset
 
 		switch {
 		case assetName.Ex.Normal != nil:
-			item, w = plateauDatasetItemSeedFromNormal(url, assetName.Ex.Normal, seed.LayerNames, cityCode)
+			item, w = plateauDatasetItemSeedFromNormal(url, assetName.Ex.Normal, seed.LayerNames, cityCode, seed.HideTexture)
 		case assetName.Ex.Urf != nil:
-			item, w = plateauDatasetItemSeedFromUrf(url, assetName.Ex.Urf, seed.Dic, seed.LayerNames, cityCode)
+			item, w = plateauDatasetItemSeedFromUrf(url, assetName.Ex.Urf, seed.Dic, seed.LayerNames, cityCode, seed.HideTexture)
 		case assetName.Ex.Fld != nil:
-			item, w = plateauDatasetItemSeedFromFld(url, assetName.Ex.Fld, seed.Dic, cityCode)
+			item, w = plateauDatasetItemSeedFromFld(url, assetName.Ex.Fld, seed.Dic, cityCode, seed.HideTexture)
 		default:
 			warning = append(warning, fmt.Sprintf("plateau %s %s[%d]: invalid asset name ex: %s", cityCode, seed.DatasetType.Code, i, name))
 			return
 		}
 
 		if item == nil {
-			warning = append(warning, fmt.Sprintf("plateau %s %s: invalid asset name ex dic key: %s", cityCode, seed.DatasetType.Code, assetName.Ex.DicKey()))
 			continue
 		}
 
@@ -327,7 +338,11 @@ func plateauDatasetItemSeedFrom(seed plateauDatasetSeed) (items []plateauDataset
 	return
 }
 
-func plateauDatasetItemSeedFromNormal(url string, ex *AssetNameExNormal, layerNames LayerNames, cityCode string) (res *plateauDatasetItemSeed, w []string) {
+func plateauDatasetItemSeedFromNormal(url string, ex *AssetNameExNormal, layerNames LayerNames, cityCode string, hideTexture bool) (res *plateauDatasetItemSeed, w []string) {
+	if !ex.NoTexture && hideTexture {
+		return
+	}
+
 	format := datasetFormatFrom(ex.Format)
 	if format == "" {
 		w = append(w, fmt.Sprintf("plateau %s %s: invalid format: %s", cityCode, ex.Type, ex.Format))
@@ -335,17 +350,22 @@ func plateauDatasetItemSeedFromNormal(url string, ex *AssetNameExNormal, layerNa
 	}
 
 	return &plateauDatasetItemSeed{
-		ID:        "",
-		Name:      "", // use default
-		URL:       assetURLFromFormat(url, format),
-		Format:    format,
-		LOD:       lo.ToPtr(ex.LOD),
-		NoTexture: lo.ToPtr(ex.NoTexture),
-		Layers:    layerNames.LayerName(nil, ex.LOD, format),
+		ID:          "",
+		Name:        "", // use default
+		URL:         assetURLFromFormat(url, format),
+		Format:      format,
+		LOD:         &ex.LOD,
+		NoTexture:   &ex.NoTexture,
+		Layers:      layerNames.LayerName(nil, ex.LOD, format),
+		HideTexture: hideTexture,
 	}, nil
 }
 
-func plateauDatasetItemSeedFromUrf(url string, ex *AssetNameExUrf, dic Dic, layerNames LayerNames, cityCode string) (_ *plateauDatasetItemSeed, w []string) {
+func plateauDatasetItemSeedFromUrf(url string, ex *AssetNameExUrf, dic Dic, layerNames LayerNames, cityCode string, hideTexture bool) (_ *plateauDatasetItemSeed, w []string) {
+	if !ex.NoTexture && hideTexture {
+		return
+	}
+
 	format := datasetFormatFrom(ex.Format)
 	if format == "" {
 		w = append(w, fmt.Sprintf("plateau %s %s: unknown format: %s", cityCode, ex.Type, ex.Format))
@@ -368,17 +388,22 @@ func plateauDatasetItemSeedFromUrf(url string, ex *AssetNameExUrf, dic Dic, laye
 	}
 
 	return &plateauDatasetItemSeed{
-		ID:        key,
-		Name:      entry.Description,
-		URL:       assetURLFromFormat(url, format),
-		Format:    format,
-		LOD:       lo.EmptyableToPtr(ex.LOD),
-		NoTexture: notexture,
-		Layers:    layerNames.LayerName([]string{key}, ex.LOD, format),
+		ID:          key,
+		Name:        entry.Description,
+		URL:         assetURLFromFormat(url, format),
+		Format:      format,
+		LOD:         lo.EmptyableToPtr(ex.LOD),
+		NoTexture:   notexture,
+		Layers:      layerNames.LayerName([]string{key}, ex.LOD, format),
+		HideTexture: hideTexture,
 	}, w
 }
 
-func plateauDatasetItemSeedFromFld(url string, ex *AssetNameExFld, dic Dic, cityCode string) (_ *plateauDatasetItemSeed, w []string) {
+func plateauDatasetItemSeedFromFld(url string, ex *AssetNameExFld, dic Dic, cityCode string, hideTexture bool) (_ *plateauDatasetItemSeed, w []string) {
+	if !ex.NoTexture && hideTexture {
+		return
+	}
+
 	format := datasetFormatFrom(ex.Format)
 	if format == "" {
 		w = append(w, fmt.Sprintf("plateau %s %s: unknown format: %s", cityCode, ex.Type, ex.Format))
@@ -402,6 +427,7 @@ func plateauDatasetItemSeedFromFld(url string, ex *AssetNameExFld, dic Dic, city
 		NoTexture:           &ex.NoTexture,
 		FloodingScale:       toFloodingScale(entry.Scale),
 		FloodingScaleSuffix: lo.EmptyableToPtr(entry.SuffixDescription),
+		HideTexture:         hideTexture,
 	}, w
 }
 

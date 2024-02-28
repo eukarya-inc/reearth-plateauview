@@ -13,16 +13,18 @@ import (
 )
 
 type CMS struct {
-	cms cms.Interface
+	cms  cms.Interface
+	year int
 }
 
-func NewCMS(cms cms.Interface) *CMS {
-	return &CMS{cms: cms}
+func NewCMS(cms cms.Interface, year int) *CMS {
+	return &CMS{cms: cms, year: year}
 }
 
 func (c *CMS) GetAll(ctx context.Context, project string) (*AllData, error) {
 	all := AllData{
 		Name: project,
+		Year: c.year,
 	}
 
 	// TODO: get CMSInfo

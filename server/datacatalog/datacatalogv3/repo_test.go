@@ -21,27 +21,37 @@ func TestRepos(t *testing.T) {
 	cms := lo.Must(cms.New("https://example.com", "token"))
 
 	repos := NewRepos()
-	err := repos.Prepare(ctx, "prj", cms)
+	err := repos.Prepare(ctx, "prj", 2023, cms)
 	assert.NoError(t, err)
 	assert.Nil(t, repos.Warnings("prj"))
 
-	assertRes := func(t *testing.T, r plateauapi.Repo, cityName, cityCode string, stage *string, found bool) {
+	assertRes := func(t *testing.T, r plateauapi.Repo, cityName, cityCode string, stage *string, isPref, found bool) {
 		t.Helper()
 
 		prefCode := cityCode[:2]
 		area, err := r.Area(ctx, plateauapi.AreaCode(cityCode))
 		assert.NoError(t, err)
-		assert.Equal(t, &plateauapi.City{
-			ID:             plateauapi.ID("a_" + cityCode),
-			Type:           plateauapi.AreaTypeCity,
-			Code:           plateauapi.AreaCode(cityCode),
-			Name:           cityName,
-			PrefectureID:   plateauapi.ID("a_" + prefCode),
-			PrefectureCode: plateauapi.AreaCode(prefCode),
-		}, area)
+		if !isPref {
+			assert.Equal(t, &plateauapi.City{
+				ID:             plateauapi.ID("a_" + cityCode),
+				Type:           plateauapi.AreaTypeCity,
+				Code:           plateauapi.AreaCode(cityCode),
+				Name:           cityName,
+				PrefectureID:   plateauapi.ID("a_" + prefCode),
+				PrefectureCode: plateauapi.AreaCode(prefCode),
+			}, area)
+		} else {
+			assert.Equal(t, &plateauapi.Prefecture{
+				ID:   plateauapi.ID("a_" + cityCode),
+				Type: plateauapi.AreaTypePrefecture,
+				Code: plateauapi.AreaCode(cityCode),
+				Name: cityName,
+			}, area)
+		}
 
 		dataset, err := r.Datasets(ctx, &plateauapi.DatasetsInput{
 			AreaCodes: []plateauapi.AreaCode{plateauapi.AreaCode(cityCode)},
+			Shallow:   lo.ToPtr(true),
 		})
 		assert.NoError(t, err)
 
@@ -52,16 +62,24 @@ func TestRepos(t *testing.T) {
 			}
 		}
 
+		var cityID *plateauapi.ID
+		var cityCodeGQL *plateauapi.AreaCode
+		if !isPref {
+			cityID = lo.ToPtr(plateauapi.ID("a_" + cityCode))
+			cityCodeGQL = lo.ToPtr(plateauapi.AreaCode(cityCode))
+		}
+
 		if found {
 			assert.Equal(t, []plateauapi.Dataset{
 				&plateauapi.PlateauDataset{
 					ID:                 plateauapi.ID("d_" + cityCode + "_bldg"),
 					Name:               "建築物モデル（" + cityName + "）",
 					Year:               2023,
+					RegisterationYear:  2023,
 					PrefectureID:       lo.ToPtr(plateauapi.ID("a_00")),
 					PrefectureCode:     lo.ToPtr(plateauapi.AreaCode("00")),
-					CityID:             lo.ToPtr(plateauapi.ID("a_" + cityCode)),
-					CityCode:           lo.ToPtr(plateauapi.AreaCode(cityCode)),
+					CityID:             cityID,
+					CityCode:           cityCodeGQL,
 					TypeID:             plateauapi.NewID("bldg_3", plateauapi.TypeDatasetType),
 					TypeCode:           "bldg",
 					PlateauSpecMinorID: plateauapi.ID("ps_3.2"),
@@ -85,14 +103,14 @@ func TestRepos(t *testing.T) {
 	}
 
 	radmin := repos.Repo("prj", true)
-	assertRes(t, radmin, "hoge", "00000", lo.ToPtr(string(stageBeta)), true)
-	assertRes(t, radmin, "foo", "00001", nil, true)
-	assertRes(t, radmin, "bar", "00002", nil, false)
+	assertRes(t, radmin, "PREF", "00", lo.ToPtr(string(stageBeta)), true, true)
+	assertRes(t, radmin, "foo", "00001", nil, false, true)
+	assertRes(t, radmin, "bar", "00002", nil, false, false)
 
 	rpublic := repos.Repo("prj", false)
-	assertRes(t, rpublic, "hoge", "00000", nil, false)
-	assertRes(t, rpublic, "foo", "00001", nil, true)
-	assertRes(t, rpublic, "bar", "00002", nil, false)
+	assertRes(t, rpublic, "PREF", "00", nil, true, false)
+	assertRes(t, rpublic, "foo", "00001", nil, false, true)
+	assertRes(t, rpublic, "bar", "00002", nil, false, false)
 
 	assert.NoError(t, repos.UpdateAll(ctx))
 }
@@ -141,11 +159,11 @@ var cities = j(`{
 				},
 				{
 					"key": "city_name",
-					"value": "hoge"
+					"value": "PREF"
 				},
 				{
 					"key": "city_code",
-					"value": "00000"
+					"value": "00"
 				},
 				{
 					"key": "bldg",

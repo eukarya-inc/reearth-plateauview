@@ -290,13 +290,21 @@ interface Dataset implements Node {
   """
   description: String
   """
-  データセットの公開年度（西暦）
+  データセットの整備年度（西暦）
   """
   year: Int!
+  """
+  データセットの登録年度（西暦）
+  """
+  registerationYear: Int!
   """
   データセットを分類するグループ。グループが階層構造になっている場合は、親から子の順番で複数のグループ名が存在することがあります。
   """
   groups: [String!]
+  """
+  データセットの公開データのURL。
+  """
+  openDataUrl: String
   """
   データセットが属する都道府県のID。
   """
@@ -506,13 +514,21 @@ type PlateauDataset implements Dataset & Node {
   """
   description: String
   """
-  データセットの公開年度（西暦）
+  データセットの整備年度（西暦）
   """
   year: Int!
+  """
+  データセットの公開年度（西暦）
+  """
+  registerationYear: Int!
   """
   データセットを分類するグループ。グループが階層構造になっている場合は、親から子の順番で複数のグループ名が存在することがあります。
   """
   groups: [String!]
+  """
+  データセットの公開データのURL。
+  """
+  openDataUrl: String
   """
   データセットが属する都道府県のID。
   """
@@ -747,13 +763,21 @@ type RelatedDataset implements Dataset & Node {
   """
   description: String
   """
-  データセットの公開年度（西暦）
+  データセットの整備年度（西暦）
   """
   year: Int!
+  """
+  データセットの公開年度（西暦）
+  """
+  registerationYear: Int!
   """
   データセットを分類するグループ。グループが階層構造になっている場合は、親から子の順番で複数のグループ名が存在することがあります。
   """
   groups: [String!]
+  """
+  データセットの公開データのURL。
+  """
+  openDataUrl: String
   """
   データセットが属する都道府県のID。
   """
@@ -897,13 +921,21 @@ type GenericDataset implements Dataset & Node {
   """
   description: String
   """
-  データセットの公開年度（西暦）
+  データセットの整備年度（西暦）
   """
   year: Int!
+  """
+  データセットの公開年度（西暦）
+  """
+  registerationYear: Int!
   """
   データセットを分類するグループ。グループが階層構造になっている場合は、親から子の順番で複数のグループ名が存在することがあります。
   """
   groups: [String!]
+  """
+  データセットの公開データのURL。
+  """
+  openDataUrl: String
   """
   データセットが属する都道府県のID。
   """
@@ -1176,9 +1208,13 @@ input DatasetsInput {
   """
   plateauSpec: String
   """
-  データの整備年度または公開年度（西暦）。
+  データの整備年度（西暦）。
   """
   year: Int
+  """
+  データの公開年度（西暦）。
+  """
+  registrationYear: Int
   """
   検索結果から除外するデータセットの種類コード。種類コードは例えば "bldg"（建築物モデル）の他、"plateau"（PLATEAU都市モデルデータセット）、"related"（関連データセット）、"generic"（その他のデータセット）が使用可能です。
   """

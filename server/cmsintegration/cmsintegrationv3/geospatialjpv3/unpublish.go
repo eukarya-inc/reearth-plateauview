@@ -6,6 +6,7 @@ import (
 
 	"github.com/eukarya-inc/reearth-plateauview/server/cmsintegration/ckan"
 	"github.com/reearth/reearthx/log"
+	"github.com/samber/lo"
 )
 
 func (h *handler) Unpublish(ctx context.Context, cityItem *CityItem) (err error) {
@@ -42,14 +43,14 @@ func (h *handler) Unpublish(ctx context.Context, cityItem *CityItem) (err error)
 	if pkgName == "" || pkg == nil {
 		return nil
 	}
-	if pkg.Private {
+	if pkg.Private != nil && *pkg.Private {
 		comment = fmt.Sprintf("G空間情報センターのデータセットはすでに非公開です。 \n%s", h.packageURL(pkg))
 		return nil
 	}
 
 	if _, err := h.ckan.PatchPackage(ctx, ckan.Package{
 		ID:      pkg.ID,
-		Private: true,
+		Private: lo.ToPtr(true),
 	}); err != nil {
 		return fmt.Errorf("failed to delete package: %w", err)
 	}

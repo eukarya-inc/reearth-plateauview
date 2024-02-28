@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/eukarya-inc/reearth-plateauview/server/cmsintegration/ckan"
+	"github.com/samber/lo"
 )
 
 type PackageName struct {
@@ -43,10 +44,9 @@ func (p PackageSeed) Title() string {
 }
 
 func (p PackageSeed) ToPackage() ckan.Package {
-	return ckan.Package{
-		Notes:        p.Description,
-		ThumbnailURL: p.ThumbnailURL,
-	}
+	pkg := p.ToNewPackage()
+	pkg.Private = nil
+	return pkg
 }
 
 func (p PackageSeed) ToNewPackage() ckan.Package {
@@ -60,7 +60,7 @@ func (p PackageSeed) ToNewPackage() ckan.Package {
 		Title:            p.Title(),
 		OwnerOrg:         p.OwnerOrg,
 		Notes:            p.Description,
-		Private:          true,
+		Private:          lo.ToPtr(true),
 		Area:             p.Area,
 		ThumbnailURL:     p.ThumbnailURL,
 		URL:              urlDefault,
@@ -73,6 +73,11 @@ func (p PackageSeed) ToNewPackage() ckan.Package {
 		Emergency:        emergency,
 		Tags:             tags,
 		Version:          p.Version,
+		Author:           p.Author,
+		AuthorEmail:      p.AuthorEmail,
+		Maintainer:       p.Maintainer,
+		MaintainerEmail:  p.MaintainerEmail,
+		Quality:          p.Quality,
 	}
 }
 

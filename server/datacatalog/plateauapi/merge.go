@@ -126,8 +126,7 @@ func (m *Merger) PlateauSpecs(ctx context.Context) ([]*PlateauSpec, error) {
 		return nil, err
 	}
 
-	sortNodes(res)
-	return res, nil
+	return mergeResults(res, true), nil
 }
 
 func (m *Merger) Years(ctx context.Context) ([]int, error) {
@@ -190,14 +189,17 @@ func getFlattenRepoResults[T any](repos []Repo, f func(r Repo) ([]T, error)) ([]
 	return lo.Flatten(res), nil
 }
 
-func mergeResults[T IDNode](results []T, sort bool) []T {
+func mergeResults[T Node](results []T, sort bool) []T {
 	groups := lo.GroupBy(results, func(n T) string {
+		if vid := getVagueID(n); vid != "" {
+			return vid
+		}
 		return string(n.GetID())
 	})
 
 	res := make([]T, 0, len(groups))
 	for _, g := range groups {
-		res = append(res, getLatestYearNode(g))
+		res = append(res, getLatestYearNodes(g)...)
 	}
 
 	if sort {
@@ -206,7 +208,7 @@ func mergeResults[T IDNode](results []T, sort bool) []T {
 	return res
 }
 
-func sortNodes[T IDNode](nodes []T) {
+func sortNodes[T Node](nodes []T) {
 	sort.Slice(nodes, func(i, j int) bool {
 		i1, i2 := nodes[i].GetID(), nodes[j].GetID()
 		if i1 != i2 {
@@ -231,6 +233,51 @@ func sortDatasetTypes[T DatasetType](nodes []T) {
 
 		return 0
 	})
+}
+
+func getLatestYearNodes[T Node](nodes []T) []T {
+	targets := make([]T, 0, len(nodes))
+	maxYear := 0
+	found := false
+
+	for _, r := range nodes {
+		if !isPresent(r) {
+			continue
+		}
+
+		targets = append(targets, r)
+		if y := getYear(r); y > maxYear {
+			maxYear = y
+			found = true
+		}
+	}
+
+	if !found {
+		return uniqueByID(targets)
+	}
+
+	targets = lo.Filter(targets, func(a T, i int) bool {
+		return getYear(a) == maxYear
+	})
+	return uniqueByID(targets)
+}
+
+func uniqueByID[T Node](nodes []T) []T {
+	if len(nodes) <= 1 {
+		return nodes
+	}
+	ids := make(map[ID]struct{})
+	res := make([]T, 0, len(nodes))
+	for _, n := range nodes {
+		if id := n.GetID(); id != "" {
+			if _, ok := ids[id]; ok {
+				continue
+			}
+			ids[id] = struct{}{}
+		}
+		res = append(res, n)
+	}
+	return res
 }
 
 func getLatestYearNode[T any](results []T) T {
@@ -260,10 +307,6 @@ func zip[T any](a ...[]T) [][]T {
 	return res
 }
 
-type IDNode interface {
-	GetID() ID
-}
-
 type YearNode interface {
 	GetYear() int
 }
@@ -273,6 +316,9 @@ type OrderNode interface {
 }
 
 func isPresent(n any) bool {
+	if n == nil {
+		return false
+	}
 	v := reflect.ValueOf(n)
 	return v.Kind() != reflect.Ptr || !v.IsNil()
 }

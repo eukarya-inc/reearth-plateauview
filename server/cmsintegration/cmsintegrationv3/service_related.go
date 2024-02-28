@@ -218,16 +218,20 @@ func packRelatedDataset(ctx context.Context, s *Services, w *cmswebhook.Payload,
 		return nil
 	}
 
-	if tagIsNot(item.MergeStatus, ConvertionStatusNotStarted) {
+	doMerge := lo.FromPtr(getChangedBool(ctx, w, "merge"))
+
+	if !doMerge && tagIsNot(item.MergeStatus, ConvertionStatusNotStarted) {
 		log.Debugfc(ctx, "cmsintegrationv3: packRelatedDataset: already merged")
 		return nil
 	}
 
-	if missingTypes := lo.Filter(relatedDataTypes, func(t string, _ int) bool {
-		return len(item.Items[t].Asset) == 0
-	}); len(missingTypes) > 0 {
-		log.Debugfc(ctx, "cmsintegrationv3: packRelatedDataset: cannot pack because there are some missing assets: %v", missingTypes)
-		return nil
+	if !doMerge {
+		if missingTypes := lo.Filter(relatedDataTypes, func(t string, _ int) bool {
+			return len(item.Items[t].Asset) == 0
+		}); len(missingTypes) > 0 {
+			log.Debugfc(ctx, "cmsintegrationv3: packRelatedDataset: cannot pack because there are some missing assets: %v", missingTypes)
+			return nil
+		}
 	}
 
 	log.Infofc(ctx, "cmsintegrationv3: packRelatedDataset")
@@ -430,4 +434,27 @@ func parseRelatedAssetName(name string) *relatedAssetName {
 		Type:     m[5],
 		Ext:      m[6],
 	}
+}
+
+func getChangedBool(ctx context.Context, w *cmswebhook.Payload, key string) *bool {
+	// w.ItemData.Item is a metadata item, so we need to use FieldByKey instead of MetadataFieldByKey
+	if f := w.ItemData.Item.FieldByKey(key); f != nil {
+		changed, ok := lo.Find(w.ItemData.Changes, func(c cms.FieldChange) bool {
+			return c.ID == f.ID
+		})
+
+		if ok {
+			b := changed.GetCurrentValue().Bool()
+			if b != nil {
+				return b
+			}
+
+			// workaround for bool array: value is [true]
+			if res := changed.GetCurrentValue().Bools(); len(res) > 0 {
+				return lo.ToPtr(res[0])
+			}
+		}
+	}
+
+	return nil
 }

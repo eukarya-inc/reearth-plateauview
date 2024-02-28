@@ -23,7 +23,13 @@ type Config struct {
 	// FME v3
 	FMEURLV3 string
 	// geospatial.jp v3
-	GeospatialjpJobName string
+	GeospatialjpBuildType             string
+	GeospatialjpCloudRunJobsJobName   string
+	GeospatialjpCloudBuildImage       string
+	GeospatialjpCloudBuildMachineType string
+	GeospatialjpCloudBuildProject     string
+	GeospatialjpCloudBuildRegion      string
+	GeospatialjpCloudBuildDiskSizeGb  int64
 
 	// compat
 	// geospatial.jp v2

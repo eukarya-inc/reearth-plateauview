@@ -7,7 +7,7 @@ import (
 	"github.com/samber/lo"
 )
 
-func (i *GenericItem) toDatasets(area *areaContext, dts []plateauapi.DatasetType, cmsurl string) (_ []plateauapi.Dataset, warning []string) {
+func (i *GenericItem) toDatasets(area *areaContext, dts []plateauapi.DatasetType, year int, cmsurl string) (_ []plateauapi.Dataset, warning []string) {
 	if area == nil {
 		area = &areaContext{}
 	}

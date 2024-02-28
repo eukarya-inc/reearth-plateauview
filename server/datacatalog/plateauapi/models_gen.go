@@ -39,10 +39,14 @@ type Dataset interface {
 	GetName() string
 	// データセットの説明
 	GetDescription() *string
-	// データセットの公開年度（西暦）
+	// データセットの整備年度（西暦）
 	GetYear() int
+	// データセットの登録年度（西暦）
+	GetRegisterationYear() int
 	// データセットを分類するグループ。グループが階層構造になっている場合は、親から子の順番で複数のグループ名が存在することがあります。
 	GetGroups() []string
+	// データセットの公開データのURL。
+	GetOpenDataURL() *string
 	// データセットが属する都道府県のID。
 	GetPrefectureID() *ID
 	// データセットが属する都道府県コード。2桁の数字から成る文字列です。
@@ -269,8 +273,10 @@ type DatasetsInput struct {
 	AreaCodes []AreaCode `json:"areaCodes,omitempty"`
 	// 仕様書のバージョン。「第2.3版」「2.3」「2」などの文字列が使用可能です。
 	PlateauSpec *string `json:"plateauSpec,omitempty"`
-	// データの整備年度または公開年度（西暦）。
+	// データの整備年度（西暦）。
 	Year *int `json:"year,omitempty"`
+	// データの公開年度（西暦）。
+	RegistrationYear *int `json:"registrationYear,omitempty"`
 	// 検索結果から除外するデータセットの種類コード。種類コードは例えば "bldg"（建築物モデル）の他、"plateau"（PLATEAU都市モデルデータセット）、"related"（関連データセット）、"generic"（その他のデータセット）が使用可能です。
 	ExcludeTypes []string `json:"excludeTypes,omitempty"`
 	// 検索結果に含めるデータセットの種類コード。未指定の場合、全てのデータセットの種類を対象に検索し、指定するとその種類で検索結果を絞り込みます。種類コードは例えば "bldg"（建築物モデル）の他、"plateau"（PLATEAU都市モデルデータセット）、"related"（関連データセット）、"generic"（その他のデータセット）が使用可能です。
@@ -290,10 +296,14 @@ type GenericDataset struct {
 	Name string `json:"name"`
 	// データセットの説明
 	Description *string `json:"description,omitempty"`
-	// データセットの公開年度（西暦）
+	// データセットの整備年度（西暦）
 	Year int `json:"year"`
+	// データセットの公開年度（西暦）
+	RegisterationYear int `json:"registerationYear"`
 	// データセットを分類するグループ。グループが階層構造になっている場合は、親から子の順番で複数のグループ名が存在することがあります。
 	Groups []string `json:"groups,omitempty"`
+	// データセットの公開データのURL。
+	OpenDataURL *string `json:"openDataUrl,omitempty"`
 	// データセットが属する都道府県のID。
 	PrefectureID *ID `json:"prefectureId,omitempty"`
 	// データセットが属する都道府県コード。2桁の数字から成る文字列です。
@@ -333,8 +343,11 @@ func (this GenericDataset) GetName() string { return this.Name }
 // データセットの説明
 func (this GenericDataset) GetDescription() *string { return this.Description }
 
-// データセットの公開年度（西暦）
+// データセットの整備年度（西暦）
 func (this GenericDataset) GetYear() int { return this.Year }
+
+// データセットの登録年度（西暦）
+func (this GenericDataset) GetRegisterationYear() int { return this.RegisterationYear }
 
 // データセットを分類するグループ。グループが階層構造になっている場合は、親から子の順番で複数のグループ名が存在することがあります。
 func (this GenericDataset) GetGroups() []string {
@@ -347,6 +360,9 @@ func (this GenericDataset) GetGroups() []string {
 	}
 	return interfaceSlice
 }
+
+// データセットの公開データのURL。
+func (this GenericDataset) GetOpenDataURL() *string { return this.OpenDataURL }
 
 // データセットが属する都道府県のID。
 func (this GenericDataset) GetPrefectureID() *ID { return this.PrefectureID }
@@ -515,10 +531,14 @@ type PlateauDataset struct {
 	Suborder *int `json:"suborder,omitempty"`
 	// データセットの説明
 	Description *string `json:"description,omitempty"`
-	// データセットの公開年度（西暦）
+	// データセットの整備年度（西暦）
 	Year int `json:"year"`
+	// データセットの公開年度（西暦）
+	RegisterationYear int `json:"registerationYear"`
 	// データセットを分類するグループ。グループが階層構造になっている場合は、親から子の順番で複数のグループ名が存在することがあります。
 	Groups []string `json:"groups,omitempty"`
+	// データセットの公開データのURL。
+	OpenDataURL *string `json:"openDataUrl,omitempty"`
 	// データセットが属する都道府県のID。
 	PrefectureID *ID `json:"prefectureId,omitempty"`
 	// データセットが属する都道府県コード。2桁の数字から成る文字列です。
@@ -564,8 +584,11 @@ func (this PlateauDataset) GetName() string { return this.Name }
 // データセットの説明
 func (this PlateauDataset) GetDescription() *string { return this.Description }
 
-// データセットの公開年度（西暦）
+// データセットの整備年度（西暦）
 func (this PlateauDataset) GetYear() int { return this.Year }
+
+// データセットの登録年度（西暦）
+func (this PlateauDataset) GetRegisterationYear() int { return this.RegisterationYear }
 
 // データセットを分類するグループ。グループが階層構造になっている場合は、親から子の順番で複数のグループ名が存在することがあります。
 func (this PlateauDataset) GetGroups() []string {
@@ -578,6 +601,9 @@ func (this PlateauDataset) GetGroups() []string {
 	}
 	return interfaceSlice
 }
+
+// データセットの公開データのURL。
+func (this PlateauDataset) GetOpenDataURL() *string { return this.OpenDataURL }
 
 // データセットが属する都道府県のID。
 func (this PlateauDataset) GetPrefectureID() *ID { return this.PrefectureID }
@@ -858,10 +884,14 @@ type RelatedDataset struct {
 	Name string `json:"name"`
 	// データセットの説明
 	Description *string `json:"description,omitempty"`
-	// データセットの公開年度（西暦）
+	// データセットの整備年度（西暦）
 	Year int `json:"year"`
+	// データセットの公開年度（西暦）
+	RegisterationYear int `json:"registerationYear"`
 	// データセットを分類するグループ。グループが階層構造になっている場合は、親から子の順番で複数のグループ名が存在することがあります。
 	Groups []string `json:"groups,omitempty"`
+	// データセットの公開データのURL。
+	OpenDataURL *string `json:"openDataUrl,omitempty"`
 	// データセットが属する都道府県のID。
 	PrefectureID *ID `json:"prefectureId,omitempty"`
 	// データセットが属する都道府県コード。2桁の数字から成る文字列です。
@@ -901,8 +931,11 @@ func (this RelatedDataset) GetName() string { return this.Name }
 // データセットの説明
 func (this RelatedDataset) GetDescription() *string { return this.Description }
 
-// データセットの公開年度（西暦）
+// データセットの整備年度（西暦）
 func (this RelatedDataset) GetYear() int { return this.Year }
+
+// データセットの登録年度（西暦）
+func (this RelatedDataset) GetRegisterationYear() int { return this.RegisterationYear }
 
 // データセットを分類するグループ。グループが階層構造になっている場合は、親から子の順番で複数のグループ名が存在することがあります。
 func (this RelatedDataset) GetGroups() []string {
@@ -915,6 +948,9 @@ func (this RelatedDataset) GetGroups() []string {
 	}
 	return interfaceSlice
 }
+
+// データセットの公開データのURL。
+func (this RelatedDataset) GetOpenDataURL() *string { return this.OpenDataURL }
 
 // データセットが属する都道府県のID。
 func (this RelatedDataset) GetPrefectureID() *ID { return this.PrefectureID }

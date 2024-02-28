@@ -15,6 +15,7 @@ import (
 
 const usecaseID = "usecase"
 const globalID = "global"
+const registrationYear = 2022
 
 var floodingTypes = []string{"fld", "htd", "tnm", "ifld"}
 
@@ -82,9 +83,9 @@ var plateauSpecs = []plateauapi.PlateauSpec{
 	},
 }
 
-func plateauDatasetFrom(d datacatalogv2.DataCatalogItem) (plateauapi.PlateauDataset, bool) {
+func plateauDatasetFrom(d datacatalogv2.DataCatalogItem) *plateauapi.PlateauDataset {
 	if d.Family != "plateau" {
-		return plateauapi.PlateauDataset{}, false
+		return nil
 	}
 
 	plateauSpecVersion := d.Spec
@@ -92,7 +93,6 @@ func plateauDatasetFrom(d datacatalogv2.DataCatalogItem) (plateauapi.PlateauData
 		plateauSpecVersion = "3.0"
 	}
 
-	var subname *string
 	var river *plateauapi.River
 	if slices.Contains(floodingTypes, d.TypeEn) {
 		if d.TypeEn == "fld" {
@@ -112,21 +112,22 @@ func plateauDatasetFrom(d datacatalogv2.DataCatalogItem) (plateauapi.PlateauData
 				Name:  name,
 				Admin: admin,
 			}
-		} else {
-			names := strings.Split(d.Name, " ")
-			if len(names) > 1 {
-				subname = lo.ToPtr(names[1])
-			}
 		}
 	}
 
-	id := datasetIDFrom(d, nil)
-	return plateauapi.PlateauDataset{
+	name := d.Name
+	if !strings.Contains(name, d.Type) {
+		name = fmt.Sprintf("%s %s", d.Type, name)
+	}
+
+	id := datasetIDFrom(d)
+	return &plateauapi.PlateauDataset{
 		ID:                 id,
-		Name:               d.Name,
-		Subname:            subname,
-		Subcode:            nil,
+		Name:               name,
+		Subname:            lo.EmptyableToPtr(getSubName(d)),
+		Subcode:            lo.EmptyableToPtr(getSubCode(d)),
 		Suborder:           nil,
+		OpenDataURL:        lo.EmptyableToPtr(d.OpenDataURL),
 		Description:        lo.ToPtr(d.Description),
 		PrefectureID:       prefectureIDFrom(d),
 		PrefectureCode:     prefectureCodeFrom(d),
@@ -135,6 +136,7 @@ func plateauDatasetFrom(d datacatalogv2.DataCatalogItem) (plateauapi.PlateauData
 		WardID:             wardIDFrom(d),
 		WardCode:           wardCodeFrom(d),
 		Year:               d.Year,
+		RegisterationYear:  registrationYear,
 		TypeID:             datasetTypeIDFrom(d),
 		TypeCode:           datasetTypeCodeFrom(d),
 		Groups:             groupsFrom(d),
@@ -143,7 +145,40 @@ func plateauDatasetFrom(d datacatalogv2.DataCatalogItem) (plateauapi.PlateauData
 		Items: lo.Map(d.MainOrConfigItems(), func(c datacatalogutil.DataCatalogItemConfigItem, i int) *plateauapi.PlateauDatasetItem {
 			return plateauDatasetItemFrom(c, id)
 		}),
-	}, true
+	}
+}
+
+func getSubName(d datacatalogv2.DataCatalogItem) string {
+	if d.Type2 != "" {
+		return d.Type2
+	}
+
+	name := strings.TrimSpace(strings.TrimPrefix(
+		reBrackets.ReplaceAllString(d.Name, ""),
+		d.Type,
+	))
+	return name
+}
+
+func getSubCode(d datacatalogv2.DataCatalogItem) string {
+	if d.Type2En != "" {
+		return d.Type2En
+	}
+
+	ids := strings.SplitN(d.ID, "_", 4)
+	if len(ids) > 3 {
+		if ids[2] != d.TypeEn {
+			return "" // e.g. 01100_sapporo-shi_01103_higashi-ku_bldg
+		}
+
+		return trimSuffixes(
+			strings.TrimSuffix(ids[3], "_no_texture"),
+			"_l1",
+			"_l2",
+		)
+	}
+
+	return ""
 }
 
 func plateauDatasetItemFrom(c datacatalogutil.DataCatalogItemConfigItem, parentID plateauapi.ID) *plateauapi.PlateauDatasetItem {
@@ -190,9 +225,9 @@ func plateauDatasetItemFrom(c datacatalogutil.DataCatalogItemConfigItem, parentI
 
 var reBrackets = regexp.MustCompile(`（[^（]*）`)
 
-func relatedDatasetFrom(d datacatalogv2.DataCatalogItem) (plateauapi.RelatedDataset, bool) {
+func relatedDatasetFrom(d datacatalogv2.DataCatalogItem) *plateauapi.RelatedDataset {
 	if d.Family != "related" {
-		return plateauapi.RelatedDataset{}, false
+		return nil
 	}
 
 	year := d.Year
@@ -202,22 +237,24 @@ func relatedDatasetFrom(d datacatalogv2.DataCatalogItem) (plateauapi.RelatedData
 		year = 2020
 	}
 
-	id := datasetIDFrom(d, nil)
+	id := datasetIDFrom(d)
 	items := d.MainOrConfigItems()
-	return plateauapi.RelatedDataset{
-		ID:             id,
-		Name:           d.Name,
-		Description:    lo.ToPtr(d.Description),
-		PrefectureID:   prefectureIDFrom(d),
-		PrefectureCode: prefectureCodeFrom(d),
-		CityID:         cityIDFrom(d),
-		CityCode:       cityCodeFrom(d),
-		WardID:         wardIDFrom(d),
-		WardCode:       wardCodeFrom(d),
-		Year:           year,
-		TypeID:         datasetTypeIDFrom(d),
-		TypeCode:       datasetTypeCodeFrom(d),
-		Groups:         groupsFrom(d),
+	return &plateauapi.RelatedDataset{
+		ID:                id,
+		Name:              d.Name,
+		Description:       lo.ToPtr(d.Description),
+		OpenDataURL:       lo.EmptyableToPtr(d.OpenDataURL),
+		PrefectureID:      prefectureIDFrom(d),
+		PrefectureCode:    prefectureCodeFrom(d),
+		CityID:            cityIDFrom(d),
+		CityCode:          cityCodeFrom(d),
+		WardID:            wardIDFrom(d),
+		WardCode:          wardCodeFrom(d),
+		Year:              year,
+		RegisterationYear: registrationYear,
+		TypeID:            datasetTypeIDFrom(d),
+		TypeCode:          datasetTypeCodeFrom(d),
+		Groups:            groupsFrom(d),
 		Items: lo.Map(items, func(c datacatalogutil.DataCatalogItemConfigItem, i int) *plateauapi.RelatedDatasetItem {
 			ind := ""
 			if d.TypeEn == "landmark" && landmarkTypes[c.Name] != "" {
@@ -243,29 +280,31 @@ func relatedDatasetFrom(d datacatalogv2.DataCatalogItem) (plateauapi.RelatedData
 				ParentID:       id,
 			}
 		}),
-	}, true
+	}
 }
 
-func genericDatasetFrom(d datacatalogv2.DataCatalogItem) (plateauapi.GenericDataset, bool) {
+func genericDatasetFrom(d datacatalogv2.DataCatalogItem) *plateauapi.GenericDataset {
 	if d.Family != "generic" {
-		return plateauapi.GenericDataset{}, false
+		return nil
 	}
 
-	id := datasetIDFrom(d, nil)
-	return plateauapi.GenericDataset{
-		ID:             id,
-		Name:           d.Name,
-		Description:    lo.ToPtr(d.Description),
-		PrefectureID:   prefectureIDFrom(d),
-		PrefectureCode: prefectureCodeFrom(d),
-		CityID:         cityIDFrom(d),
-		CityCode:       cityCodeFrom(d),
-		WardID:         wardIDFrom(d),
-		WardCode:       wardCodeFrom(d),
-		Year:           d.Year,
-		TypeID:         datasetTypeIDFrom(d),
-		TypeCode:       datasetTypeCodeFrom(d),
-		Groups:         groupsFrom(d),
+	id := datasetIDFrom(d)
+	return &plateauapi.GenericDataset{
+		ID:                id,
+		Name:              d.Name,
+		Description:       lo.ToPtr(d.Description),
+		OpenDataURL:       lo.EmptyableToPtr(d.OpenDataURL),
+		PrefectureID:      prefectureIDFrom(d),
+		PrefectureCode:    prefectureCodeFrom(d),
+		CityID:            cityIDFrom(d),
+		CityCode:          cityCodeFrom(d),
+		WardID:            wardIDFrom(d),
+		WardCode:          wardCodeFrom(d),
+		Year:              d.Year,
+		RegisterationYear: registrationYear,
+		TypeID:            datasetTypeIDFrom(d),
+		TypeCode:          datasetTypeCodeFrom(d),
+		Groups:            groupsFrom(d),
 		Items: lo.Map(d.MainOrConfigItems(), func(c datacatalogutil.DataCatalogItemConfigItem, i int) *plateauapi.GenericDatasetItem {
 			return &plateauapi.GenericDatasetItem{
 				ID:       plateauapi.NewID(fmt.Sprintf("%s:%d", d.ID, i), plateauapi.TypeDatasetItem),
@@ -276,7 +315,7 @@ func genericDatasetFrom(d datacatalogv2.DataCatalogItem) (plateauapi.GenericData
 				ParentID: id,
 			}
 		}),
-	}, true
+	}
 }
 
 func datasetFormatFrom(f string) plateauapi.DatasetFormat {
@@ -351,7 +390,7 @@ func wardCodeFrom(d datacatalogv2.DataCatalogItem) *plateauapi.AreaCode {
 	return lo.ToPtr(plateauapi.AreaCode(d.WardCode))
 }
 
-func datasetIDFrom(d datacatalogv2.DataCatalogItem, subname *string) plateauapi.ID {
+func datasetIDFrom(d datacatalogv2.DataCatalogItem) plateauapi.ID {
 	if d.Family == "plateau" || d.Family == "related" {
 		invalid := false
 		areaCode := d.WardCode
@@ -363,25 +402,12 @@ func datasetIDFrom(d datacatalogv2.DataCatalogItem, subname *string) plateauapi.
 		}
 
 		sub := ""
-		typeCode := datasetTypeCodeFrom(d)
-		isFlood := slices.Contains(floodingTypes, d.TypeEn)
-
-		if isFlood || d.TypeEn == "gen" || isEx(d) {
-			if _, after, found := strings.Cut(d.ID, "_"+typeCode+"_"); found {
-				if isFlood {
-					after = strings.TrimSuffix(after, "_l1")
-					after = strings.TrimSuffix(after, "_l2")
-				}
-				sub = fmt.Sprintf("_%s", after)
-			} else {
-				invalid = true
-			}
-		} else if d.TypeEn == "urf" {
-			sub = fmt.Sprintf("_%s", d.Type2En)
+		if s := getSubCode(d); s != "" {
+			sub = fmt.Sprintf("_%s", s)
 		}
 
 		if !invalid {
-			return newDatasetID(fmt.Sprintf("%s_%s%s", areaCode, typeCode, sub))
+			return newDatasetID(fmt.Sprintf("%s_%s%s", areaCode, datasetTypeCodeFrom(d), sub))
 		}
 	}
 
@@ -585,4 +611,11 @@ func majorVersion(version string) string {
 
 func isEx(d datacatalogv2.DataCatalogItem) bool {
 	return strings.Contains(d.ID, "_ex_")
+}
+
+func trimSuffixes(s string, suffixes ...string) string {
+	for _, suffix := range suffixes {
+		s = strings.TrimSuffix(s, suffix)
+	}
+	return s
 }

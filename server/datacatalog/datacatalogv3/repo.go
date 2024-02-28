@@ -41,12 +41,12 @@ func NewRepos() *Repos {
 	}
 }
 
-func (r *Repos) Prepare(ctx context.Context, project string, cms cms.Interface) error {
+func (r *Repos) Prepare(ctx context.Context, project string, year int, cms cms.Interface) error {
 	if r.cms[project] != nil {
 		return nil
 	}
 
-	r.setCMS(project, cms)
+	r.setCMS(project, year, cms)
 	return r.Update(ctx, project)
 }
 
@@ -146,11 +146,11 @@ func (r *Repos) UpdatedAt(project string) time.Time {
 	return r.updatedAt[project]
 }
 
-func (r *Repos) setCMS(project string, cms cms.Interface) {
+func (r *Repos) setCMS(project string, year int, cms cms.Interface) {
 	r.locks.Lock(project)
 	defer r.locks.Unlock(project)
 
-	c := NewCMS(cms)
+	c := NewCMS(cms, year)
 	r.cms[project] = c
 }
 
