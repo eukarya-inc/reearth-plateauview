@@ -3,20 +3,29 @@ package datacatalogv3
 import (
 	"net/url"
 	"path"
+	"sort"
 	"strconv"
 	"strings"
 
 	"github.com/eukarya-inc/reearth-plateauview/server/datacatalog/plateauapi"
 	"github.com/samber/lo"
+	"golang.org/x/exp/maps"
 )
 
-func toCityGMLs(cities []*CityItem, data []*GeospatialjpDataItem, dts []plateauapi.DatasetType, cmsurl string) (map[plateauapi.ID]*plateauapi.CityGMLDataset, []string) {
+func toCityGMLs(all *AllData, dts []plateauapi.DatasetType) (map[plateauapi.ID]*plateauapi.CityGMLDataset, []string) {
+	cities := all.City
+	data := all.GeospatialjpDataItems
+	cmsurl := all.CMSInfo.CMSURL
+
 	dataMap := make(map[string]*plateauapi.CityGMLDataset)
+	featureTypesMap := make(map[string][]string)
+
 	for _, d := range data {
 		if d.CityGML == "" || d.MaxLODContent == nil {
 			continue
 		}
 
+		featureTypesMap[d.City] = citygmlFeatureTypes(d)
 		dataMap[d.City] = &plateauapi.CityGMLDataset{
 			URL:   d.CityGML,
 			Items: toCityGMLItems(d, dts),
@@ -37,6 +46,7 @@ func toCityGMLs(cities []*CityItem, data []*GeospatialjpDataItem, dts []plateaua
 		dataMap[city.ID].PrefectureID = plateauapi.NewID(dataMap[city.ID].PrefectureCode.String(), plateauapi.TypeArea)
 		dataMap[city.ID].CityID = plateauapi.NewID(city.CityCode, plateauapi.TypeArea)
 		dataMap[city.ID].CityCode = plateauapi.AreaCode(city.CityCode)
+		dataMap[city.ID].FeatureTypes = featureTypesMap[city.ID]
 		dataMap[city.ID].PlateauSpecMinorID = plateauapi.PlateauSpecIDFrom(city.Spec)
 		dataMap[city.ID].Admin = newAdmin(city.ID, city.geospatialjpStage(), cmsurl, dataMap[city.ID].Admin)
 	}
@@ -47,6 +57,21 @@ func toCityGMLs(cities []*CityItem, data []*GeospatialjpDataItem, dts []plateaua
 	}
 
 	return res, nil
+}
+
+func citygmlFeatureTypes(d *GeospatialjpDataItem) []string {
+	types := map[string]struct{}{}
+	for _, c := range d.MaxLODContent {
+		if len(c) == 0 {
+			continue
+		}
+
+		types[c[1]] = struct{}{}
+	}
+
+	res := maps.Keys(types)
+	sort.Strings(res)
+	return res
 }
 
 func toCityGMLItems(data *GeospatialjpDataItem, dts []plateauapi.DatasetType) (res []*plateauapi.CityGMLDatasetItem) {

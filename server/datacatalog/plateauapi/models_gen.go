@@ -226,6 +226,8 @@ type CityGMLDataset struct {
 	City *City `json:"city"`
 	// データセットが準拠するPLATEAU都市モデルの仕様。
 	PlateauSpecMinor *PlateauSpecMinor `json:"plateauSpecMinor"`
+	// CityGMLが含む地物型コードのリスト。
+	FeatureTypes []string `json:"featureTypes"`
 	// 管理者用
 	Admin interface{} `json:"admin,omitempty"`
 }

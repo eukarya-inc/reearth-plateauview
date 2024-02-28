@@ -22,18 +22,19 @@ type QueryCity struct {
 	ID       graphql.String
 	Name     graphql.String
 	Code     graphql.String
-	Datasets []QueryDataset `graphql:"datasets(input: {includeTypes: [\"plateau\"]})"`
+	Datasets []QueryDataset `graphql:"datasets(input: {includeTypes: [\"bldg\"]})"`
+	Citygml  *QueryCityCityGML
 }
 
 type QueryDataset struct {
-	ID             graphql.String
-	Name           graphql.String
-	TypeCode       graphql.String
-	Description    graphql.String
-	PlateauDataset QueryPlateauDataset `graphql:"... on PlateauDataset"`
+	ID          graphql.String
+	Name        graphql.String
+	TypeCode    graphql.String
+	Description graphql.String
 }
 
-type QueryPlateauDataset struct {
+type QueryCityCityGML struct {
+	FeatureTypes     []graphql.String
 	PlateauSpecMinor QueryPlateauSpecMinor
 }
 
@@ -68,3 +69,11 @@ type QueryFilesCityGMLItem struct {
 type AreaCode string
 
 func (AreaCode) GetGraphQLType() string { return "AreaCode" }
+
+func toStrings(s []graphql.String) []string {
+	res := make([]string, len(s))
+	for i, v := range s {
+		res[i] = string(v)
+	}
+	return res
+}

@@ -1,11 +1,5 @@
 package sdkapiv3
 
-import (
-	"sort"
-
-	"golang.org/x/exp/maps"
-)
-
 const bldg = "bldg"
 
 func (d *DatasetsQuery) ToDatasets() *DatasetsResponse {
@@ -17,27 +11,30 @@ func (d *DatasetsQuery) ToDatasets() *DatasetsResponse {
 		}
 
 		for _, city := range prefecture.Prefecture.Cities {
-			c := &DatasetCityResponse{
-				ID:    string(city.Code),
-				Title: string(city.Name),
+			if city.Citygml == nil || len(city.Datasets) == 0 {
+				continue
 			}
 
-			ft := map[string]struct{}{}
+			c := &DatasetCityResponse{
+				ID:           string(city.Code),
+				Title:        string(city.Name),
+				FeatureTypes: toStrings(city.Citygml.FeatureTypes),
+				Spec:         string(city.Citygml.PlateauSpecMinor.Version),
+			}
 
 			for _, dataset := range city.Datasets {
 				if dataset.TypeCode == bldg {
 					c.Description = string(dataset.Description)
-					c.Spec = string(dataset.PlateauDataset.PlateauSpecMinor.Version)
+					break
 				}
-				ft[string(dataset.TypeCode)] = struct{}{}
 			}
-
-			c.FeatureTypes = maps.Keys(ft)
-			sort.Strings(c.FeatureTypes)
 
 			p.Data = append(p.Data, c)
 		}
 
+		if p.Data == nil {
+			p.Data = []*DatasetCityResponse{}
+		}
 		datasets.Data = append(datasets.Data, p)
 	}
 

@@ -81,10 +81,9 @@ func (all *AllData) Into() (res *plateauapi.InMemoryRepoContext, warning []strin
 	{
 		var w []string
 		res.CityGML, w = toCityGMLs(
-			all.City,
-			all.GeospatialjpDataItems,
+			all,
 			res.DatasetTypes[plateauapi.DatasetTypeCategoryPlateau],
-			all.CMSInfo.CMSURL)
+		)
 		warning = append(warning, w...)
 	}
 

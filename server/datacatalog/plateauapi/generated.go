@@ -82,6 +82,7 @@ type ComplexityRoot struct {
 		City               func(childComplexity int) int
 		CityCode           func(childComplexity int) int
 		CityID             func(childComplexity int) int
+		FeatureTypes       func(childComplexity int) int
 		ID                 func(childComplexity int) int
 		Items              func(childComplexity int) int
 		PlateauSpecMinor   func(childComplexity int) int
@@ -534,6 +535,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.CityGMLDataset.CityID(childComplexity), true
+
+	case "CityGMLDataset.featureTypes":
+		if e.complexity.CityGMLDataset.FeatureTypes == nil {
+			break
+		}
+
+		return e.complexity.CityGMLDataset.FeatureTypes(childComplexity), true
 
 	case "CityGMLDataset.id":
 		if e.complexity.CityGMLDataset.ID == nil {
@@ -2806,6 +2814,8 @@ func (ec *executionContext) fieldContext_City_citygml(ctx context.Context, field
 				return ec.fieldContext_CityGMLDataset_city(ctx, field)
 			case "plateauSpecMinor":
 				return ec.fieldContext_CityGMLDataset_plateauSpecMinor(ctx, field)
+			case "featureTypes":
+				return ec.fieldContext_CityGMLDataset_featureTypes(ctx, field)
 			case "admin":
 				return ec.fieldContext_CityGMLDataset_admin(ctx, field)
 			}
@@ -3416,6 +3426,50 @@ func (ec *executionContext) fieldContext_CityGMLDataset_plateauSpecMinor(ctx con
 				return ec.fieldContext_PlateauSpecMinor_datasets(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type PlateauSpecMinor", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _CityGMLDataset_featureTypes(ctx context.Context, field graphql.CollectedField, obj *CityGMLDataset) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_CityGMLDataset_featureTypes(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.FeatureTypes, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]string)
+	fc.Result = res
+	return ec.marshalNString2ᚕstringᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_CityGMLDataset_featureTypes(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "CityGMLDataset",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
 		},
 	}
 	return fc, nil
@@ -14104,6 +14158,11 @@ func (ec *executionContext) _CityGMLDataset(ctx context.Context, sel ast.Selecti
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "featureTypes":
+			out.Values[i] = ec._CityGMLDataset_featureTypes(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
 		case "admin":
 			out.Values[i] = ec._CityGMLDataset_admin(ctx, field, obj)
 		default:
@@ -17773,6 +17832,38 @@ func (ec *executionContext) marshalNString2string(ctx context.Context, sel ast.S
 		}
 	}
 	return res
+}
+
+func (ec *executionContext) unmarshalNString2ᚕstringᚄ(ctx context.Context, v interface{}) ([]string, error) {
+	var vSlice []interface{}
+	if v != nil {
+		vSlice = graphql.CoerceList(v)
+	}
+	var err error
+	res := make([]string, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalNString2string(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) marshalNString2ᚕstringᚄ(ctx context.Context, sel ast.SelectionSet, v []string) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	for i := range v {
+		ret[i] = ec.marshalNString2string(ctx, sel, v[i])
+	}
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
 }
 
 func (ec *executionContext) marshalNWard2ᚕᚖgithubᚗcomᚋeukaryaᚑincᚋreearthᚑplateauviewᚋserverᚋdatacatalogᚋplateauapiᚐWardᚄ(ctx context.Context, sel ast.SelectionSet, v []*Ward) graphql.Marshaler {

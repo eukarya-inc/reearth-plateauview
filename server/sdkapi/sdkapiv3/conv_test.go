@@ -3,7 +3,8 @@ package sdkapiv3
 import (
 	"testing"
 
-	"github.com/go-playground/assert/v2"
+	"github.com/hasura/go-graphql-client"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestQueryToDatasets(t *testing.T) {
@@ -14,25 +15,21 @@ func TestQueryToDatasets(t *testing.T) {
 				Prefecture: QueryPrefecture{
 					Cities: []QueryCity{
 						{
-							ID:   "City1",
 							Name: "City 1",
+							Code: "City1",
+							Citygml: &QueryCityCityGML{
+								FeatureTypes: []graphql.String{"bldg"},
+								PlateauSpecMinor: QueryPlateauSpecMinor{
+									Version: "3.4",
+								},
+							},
 							Datasets: []QueryDataset{
 								{
 									TypeCode:    "bldg",
 									Description: "Description",
-									PlateauDataset: QueryPlateauDataset{
-										PlateauSpecMinor: QueryPlateauSpecMinor{
-											Version: "3.4",
-										},
-									},
 								},
 								{
 									TypeCode: "DatasetType1",
-									PlateauDataset: QueryPlateauDataset{
-										PlateauSpecMinor: QueryPlateauSpecMinor{
-											Version: "3.5",
-										},
-									},
 								},
 							},
 						},
@@ -61,14 +58,7 @@ func TestQueryToDatasets(t *testing.T) {
 						Title:        "City 1",
 						Spec:         "3.4",
 						Description:  "Description",
-						FeatureTypes: []string{"bldg", "DatasetType1"},
-					},
-					{
-						ID:           "City2",
-						Title:        "City 2",
-						Spec:         "",
-						Description:  "",
-						FeatureTypes: []string{"DatasetType2"},
+						FeatureTypes: []string{"bldg"},
 					},
 				},
 			},
@@ -78,6 +68,7 @@ func TestQueryToDatasets(t *testing.T) {
 	datasets := query.ToDatasets()
 	assert.Equal(t, expected, datasets)
 }
+
 func TestDatasetFilesQuery_ToDatasetFiles(t *testing.T) {
 	datasetFilesQuery := &DatasetFilesQuery{
 		Area: QueryFilesArea{

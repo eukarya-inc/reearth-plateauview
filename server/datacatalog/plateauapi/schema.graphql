@@ -1071,6 +1071,10 @@ type CityGMLDataset implements Node {
   """
   plateauSpecMinor: PlateauSpecMinor!
   """
+  CityGMLが含む地物型コードのリスト。
+  """
+  featureTypes: [String!]!
+  """
   管理者用
   """
   admin: Any
