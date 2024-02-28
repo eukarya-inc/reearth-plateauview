@@ -16,6 +16,10 @@ func GetRelatedZipAssetIDAndURL(ctx context.Context, cms *cms.CMS, cityItem *Cit
 		return "", "", err
 	}
 
+	if item == nil {
+		return "", "", nil
+	}
+
 	var mergedv any
 	if merged := item.FieldByKey("merged"); merged != nil {
 		mergedv = merged.Value
