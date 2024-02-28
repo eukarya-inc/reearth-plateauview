@@ -4,7 +4,7 @@ import (
 	"github.com/hasura/go-graphql-client"
 )
 
-type Query struct {
+type DatasetsQuery struct {
 	Areas []QueryArea `graphql:"areas(input: {areaTypes: PREFECTURE})"`
 }
 
@@ -38,4 +38,27 @@ type QueryPlateauDataset struct {
 
 type QueryPlateauSpecMinor struct {
 	Version graphql.String
+}
+
+type DatasetFilesQuery struct {
+	City QueryFilesCity `graphql:"area(code: $code)"`
+}
+
+type QueryFilesCity struct {
+	City QueryFilesCityGML `graphql:"... on City"`
+}
+
+type QueryFilesCityGML struct {
+	Citygml QueryFilesCityGMLItems
+}
+
+type QueryFilesCityGMLItems struct {
+	Items []QueryFilesCityGMLItem
+}
+
+type QueryFilesCityGMLItem struct {
+	Url      graphql.String
+	TypeCode graphql.String
+	MeshCode graphql.String
+	MaxLod   graphql.Int
 }

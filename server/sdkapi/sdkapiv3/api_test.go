@@ -9,12 +9,13 @@ import (
 
 func TestQueryDatasets(t *testing.T) {
 	baseURL := ""
+	gqlToken := ""
 
 	if baseURL == "" {
 		t.Skip("baseURL is not set")
 	}
 
-	client, err := NewClient(Config{BaseURL: baseURL})
+	client, err := NewClient(Config{BaseURL: baseURL, GQLToken: gqlToken})
 	assert.NoError(t, err)
 
 	q, err := client.QueryDatasets()
@@ -27,4 +28,22 @@ var ppp = pp.New()
 
 func init() {
 	ppp.SetColoringEnabled(false)
+}
+
+func TestQueryDatasetFiles(t *testing.T) {
+	baseURL := ""
+	gqlToken := ""
+	cityId := ""
+
+	if baseURL == "" {
+		t.Skip("baseURL is not set")
+	}
+
+	client, err := NewClient(Config{BaseURL: baseURL, GQLToken: gqlToken})
+	assert.NoError(t, err)
+
+	q, err := client.QueryDatasetFiles(cityId)
+	assert.NoError(t, err)
+
+	t.Log(ppp.Sprint(q))
 }

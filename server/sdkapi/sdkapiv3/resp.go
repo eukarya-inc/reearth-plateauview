@@ -15,4 +15,11 @@ type DatasetCityResponse struct {
 	Spec         string   `json:"spec"`
 	Description  string   `json:"description"`
 	FeatureTypes []string `json:"featureTypes"`
+	URL          string   `json:"url"`
+}
+
+type DatasetFilesResponse struct {
+	Code   string `json:"code"`
+	URL    string `json:"url"`
+	MaxLod int    `json:"maxLod"`
 }

@@ -7,7 +7,7 @@ import (
 )
 
 func TestQueryToDatasets(t *testing.T) {
-	query := &Query{
+	query := &DatasetsQuery{
 		Areas: []QueryArea{
 			{
 				Name: "Prefecture 1",
@@ -77,4 +77,59 @@ func TestQueryToDatasets(t *testing.T) {
 
 	datasets := query.ToDatasets()
 	assert.Equal(t, expected, datasets)
+}
+func TestDatasetFilesQuery_ToDatasetFiles(t *testing.T) {
+	datasetFilesQuery := &DatasetFilesQuery{
+		City: QueryFilesCity{
+			City: QueryFilesCityGML{
+				Citygml: QueryFilesCityGMLItems{
+					Items: []QueryFilesCityGMLItem{
+						{
+							TypeCode: "bldg",
+							MeshCode: "mesh1",
+							Url:      "http://example.com/mesh1",
+							MaxLod:   1,
+						},
+						{
+							TypeCode: "bldg",
+							MeshCode: "mesh2",
+							Url:      "http://example.com/mesh2",
+							MaxLod:   2,
+						},
+						{
+							TypeCode: "road",
+							MeshCode: "mesh3",
+							Url:      "http://example.com/mesh3",
+							MaxLod:   3,
+						},
+					},
+				},
+			},
+		},
+	}
+
+	expected := map[string][]DatasetFilesResponse{
+		"bldg": {
+			{
+				Code:   "mesh1",
+				URL:    "http://example.com/mesh1",
+				MaxLod: 1,
+			},
+			{
+				Code:   "mesh2",
+				URL:    "http://example.com/mesh2",
+				MaxLod: 2,
+			},
+		},
+		"road": {
+			{
+				Code:   "mesh3",
+				URL:    "http://example.com/mesh3",
+				MaxLod: 3,
+			},
+		},
+	}
+
+	result := datasetFilesQuery.ToDatasetFiles()
+	assert.Equal(t, &expected, result)
 }

@@ -28,7 +28,18 @@ func Handler(conf Config, g *echo.Group) error {
 			return c.JSON(http.StatusBadGateway, map[string]any{"error": "bad gateway"})
 		}
 
-		return c.JSON(http.StatusOK, res)
+		return c.JSON(http.StatusOK, res.ToDatasets())
+	}, nil)
+
+	g.GET("/datasets/:id/files", func(c echo.Context) error {
+		id := strings.TrimPrefix(c.Param("id"), "a_")
+		res, err := client.QueryDatasetFiles(id)
+		if err != nil {
+			log.Errorfc(c.Request().Context(), "sdkapiv3: error querying dataset files: %v", err)
+			return c.JSON(http.StatusBadGateway, map[string]any{"error": "bad gateway"})
+		}
+
+		return c.JSON(http.StatusOK, res.ToDatasetFiles())
 	}, nil)
 
 	return nil

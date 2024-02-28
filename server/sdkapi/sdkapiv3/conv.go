@@ -2,7 +2,7 @@ package sdkapiv3
 
 const bldg = "bldg"
 
-func (d *Query) ToDatasets() *DatasetsResponse {
+func (d *DatasetsQuery) ToDatasets() *DatasetsResponse {
 	datasets := &DatasetsResponse{}
 
 	for _, prefecture := range d.Areas {
@@ -31,4 +31,18 @@ func (d *Query) ToDatasets() *DatasetsResponse {
 	}
 
 	return datasets
+}
+
+func (d *DatasetFilesQuery) ToDatasetFiles() *map[string][]DatasetFilesResponse {
+	files := make(map[string][]DatasetFilesResponse)
+
+	for _, item := range d.City.City.Citygml.Items {
+		files[string(item.TypeCode)] = append(files[string(item.TypeCode)], DatasetFilesResponse{
+			Code:   string(item.MeshCode),
+			URL:    string(item.Url),
+			MaxLod: int(item.MaxLod),
+		})
+	}
+
+	return &files
 }
