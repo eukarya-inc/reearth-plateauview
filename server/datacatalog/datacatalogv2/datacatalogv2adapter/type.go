@@ -505,6 +505,10 @@ func citygmlFrom(d datacatalogv2.DataCatalogItem) *plateauapi.CityGMLDataset {
 	b := strings.TrimSuffix(d.CityGMLURL, path.Ext(d.CityGMLURL))
 	items := make([]*plateauapi.CityGMLDatasetItem, 0, len(d.MaxLODContent))
 	for _, item := range d.MaxLODContent {
+		if len(item) < 4 {
+			continue
+		}
+
 		u, _ := url.JoinPath(b, "udx", item[1], item[3])
 		if u == "" {
 			continue

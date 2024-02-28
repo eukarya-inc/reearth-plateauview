@@ -251,6 +251,7 @@ type PlateauIntermediateItem struct {
 	CityGMLURL          string
 	CityGMLFeatureTypes []string
 	MaxLODURL           string
+	SDKPublic           bool
 }
 
 func (i CMSItem) IntermediateItem() PlateauIntermediateItem {
@@ -293,6 +294,7 @@ func (i CMSItem) IntermediateItem() PlateauIntermediateItem {
 		CityGMLURL:          citygmlURL,
 		CityGMLFeatureTypes: i.FeatureTypes(),
 		MaxLODURL:           maxlodURL,
+		SDKPublic:           i.IsSDKPublic(),
 	}
 }
 
@@ -398,6 +400,7 @@ func (b *DataCatalogItemBuilder) dataCatalogItem(a asset, g assetGroup, desc str
 		CityGMLURL:          b.IntermediateItem.CityGMLURL,
 		CityGMLFeatureTypes: b.IntermediateItem.CityGMLFeatureTypes,
 		MaxLODURL:           b.IntermediateItem.MaxLODURL,
+		SDKPublic:           b.IntermediateItem.SDKPublic,
 	}
 }
 

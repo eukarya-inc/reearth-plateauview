@@ -61,7 +61,12 @@ type CMSItem struct {
 	Dem              string             `json:"dem"`
 	SearchIndex      []*cms.PublicAsset `json:"search_index"`
 	OpenDataURL      string             `json:"opendata_url"`
-	MaxLOD           *cms.PublicAsset   `json:"maxlod"`
+	MaxLOD           *cms.PublicAsset   `json:"max_lod"`
+	SDKPublication   string             `json:"sdk_publication"`
+}
+
+func (i CMSItem) IsSDKPublic() bool {
+	return i.SDKPublication == "公開する"
 }
 
 func (i CMSItem) FeatureTypes() []string {

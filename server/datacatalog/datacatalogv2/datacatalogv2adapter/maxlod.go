@@ -8,11 +8,15 @@ import (
 
 	"github.com/eukarya-inc/reearth-plateauview/server/datacatalog/datacatalogv2"
 	"github.com/samber/lo"
+	"github.com/spkg/bom"
 	"golang.org/x/sync/errgroup"
 )
 
 func fetchMaxLOD(ctx context.Context, all []datacatalogv2.DataCatalogItem) error {
 	urls := lo.Map(all, func(item datacatalogv2.DataCatalogItem, _ int) string {
+		if !item.SDKPublic {
+			return ""
+		}
 		return item.MaxLODURL
 	})
 
@@ -55,7 +59,7 @@ func fetchMaxLODContents(ctx context.Context, urls []string) ([][][]string, erro
 				return fmt.Errorf("items[%d]: failed to get max LOD content: status code %d", i, resp.StatusCode)
 			}
 
-			c := csv.NewReader(resp.Body)
+			c := csv.NewReader(bom.NewReader(resp.Body))
 			records, err := c.ReadAll()
 			if err != nil {
 				return fmt.Errorf("items[%d]: failed to read max LOD content: %w", i, err)
