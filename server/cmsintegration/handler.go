@@ -109,6 +109,7 @@ func geospatialjpv3Config(conf Config) geospatialjpv3.Config {
 		CloudBuildMachineType: conf.GeospatialjpCloudBuildMachineType,
 		CloudBuildProject:     conf.GeospatialjpCloudBuildProject,
 		CloudBuildRegion:      conf.GeospatialjpCloudBuildRegion,
+		CloudBuildDiskSizeGb:  conf.GeospatialjpCloudBuildDiskSizeGb,
 	}
 }
 

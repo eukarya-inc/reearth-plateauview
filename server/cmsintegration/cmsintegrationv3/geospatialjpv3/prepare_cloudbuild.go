@@ -17,13 +17,18 @@ type prepareOnCloudBuildConfig struct {
 	CloudBuildMachineType string
 	CloudBuildProject     string
 	CloudBuildRegion      string
+	CloudBuildDiskSizeGb  int64
 }
 
 const defaultDockerImage = "eukarya/plateauview2-sidecar-worker:latest"
+const defaultDiskSizeGb = 1000
 
 func prepareOnCloudBuild(ctx context.Context, conf prepareOnCloudBuildConfig) error {
 	if conf.CloudBuildImage == "" {
 		conf.CloudBuildImage = defaultDockerImage
+	}
+	if conf.CloudBuildDiskSizeGb == 0 {
+		conf.CloudBuildDiskSizeGb = defaultDiskSizeGb
 	}
 
 	log.Debugfc(ctx, "geospatialjp webhook: prepare (cloud build): %s", ppp.Sprint(conf))
@@ -45,6 +50,7 @@ func prepareOnCloudBuild(ctx context.Context, conf prepareOnCloudBuildConfig) er
 		Project:     conf.CloudBuildProject,
 		Region:      conf.CloudBuildRegion,
 		Tags:        []string{"prepare-geospatialjp"},
+		DiskSizeGb:  conf.CloudBuildDiskSizeGb,
 	})
 }
 
@@ -56,6 +62,7 @@ type CloudBuildConfig struct {
 	Region      string
 	Project     string
 	Tags        []string
+	DiskSizeGb  int64
 }
 
 func runCloudBuild(ctx context.Context, conf CloudBuildConfig) error {
@@ -81,6 +88,7 @@ func runCloudBuild(ctx context.Context, conf CloudBuildConfig) error {
 		},
 		Options: &cloudbuild.BuildOptions{
 			MachineType: machineType,
+			DiskSizeGb:  conf.DiskSizeGb,
 		},
 		Tags: conf.Tags,
 	}

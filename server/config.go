@@ -67,6 +67,7 @@ type Config struct {
 	Geospatialjp_CloudBuildMachineType string   `pp:",omitempty"`
 	Geospatialjp_CloudBuildProject     string   `pp:",omitempty"`
 	Geospatialjp_CloudBuildRegion      string   `pp:",omitempty"`
+	Geospatialjp_CloudBuildDiskSizeGb  int64    `pp:",omitempty"`
 	DataConv_Disable                   bool     `pp:",omitempty"`
 	Indexer_Delegate                   bool     `pp:",omitempty"`
 	DataCatalog_DisableCache           bool     `pp:",omitempty"`
@@ -134,6 +135,7 @@ func (c *Config) CMSIntegration() cmsintegration.Config {
 		GeospatialjpCloudBuildMachineType: c.Geospatialjp_CloudBuildMachineType,
 		GeospatialjpCloudBuildProject:     cloudBuildProject,
 		GeospatialjpCloudBuildRegion:      cloudBuildRegion,
+		GeospatialjpCloudBuildDiskSizeGb:  c.Geospatialjp_CloudBuildDiskSizeGb,
 	}
 }
 

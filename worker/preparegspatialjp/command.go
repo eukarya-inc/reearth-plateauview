@@ -134,7 +134,7 @@ func Command(conf *Config) (err error) {
 			citygmlError, plateauError, maxlodError,
 			strings.TrimSpace(comment),
 		); err != nil {
-			log.Errorfc(ctx, "failed to notify error: %w", err)
+			log.Errorfc(ctx, "failed to notify error: %v", err)
 		}
 	}()
 
@@ -425,9 +425,9 @@ func notifyError(ctx context.Context, c *cms.CMS, cityItemID, gdataItemID string
 	if comment != "" {
 		msgPrefix := ""
 		if isErr {
-			msgPrefix = "マージ処理に失敗しました。"
+			msgPrefix = "公開準備処理に失敗しました。"
 		} else {
-			msgPrefix = "マージ処理が完了しました。"
+			msgPrefix = "公開準備処理が完了しました。"
 		}
 
 		if err := c.CommentToItem(ctx, cityItemID, msgPrefix+comment); err != nil {
@@ -439,7 +439,7 @@ func notifyError(ctx context.Context, c *cms.CMS, cityItemID, gdataItemID string
 		}
 	}
 
-	if !citygmlError && !plateauError {
+	if !citygmlError && !plateauError && !maxLODError {
 		return nil
 	}
 
@@ -481,6 +481,10 @@ func notifyError(ctx context.Context, c *cms.CMS, cityItemID, gdataItemID string
 	cms.Marshal(item, &rawItem)
 	if rawItem.ID == "" {
 		return fmt.Errorf("failed to marshal item")
+	}
+
+	if rawItem.Fields == nil {
+		rawItem.Fields = []*cms.Field{}
 	}
 
 	if _, err := c.UpdateItem(ctx, rawItem.ID, rawItem.Fields, rawItem.MetadataFields); err != nil {
@@ -526,11 +530,15 @@ func notifyRunning(ctx context.Context, c *cms.CMS, citygmlID, dataID string, ci
 	var rawItem cms.Item
 	cms.Marshal(item, &rawItem)
 
+	if rawItem.Fields == nil {
+		rawItem.Fields = []*cms.Field{}
+	}
+
 	if _, err := c.UpdateItem(ctx, rawItem.ID, rawItem.Fields, rawItem.MetadataFields); err != nil {
 		return fmt.Errorf("failed to update item: %w", err)
 	}
 
-	comment := "マージ処理を開始しました。"
+	comment := "G空間情報センターの公開準備処理を開始しました。"
 
 	if err := c.CommentToItem(ctx, citygmlID, comment); err != nil {
 		return fmt.Errorf("failed to comment to city item: %w", err)

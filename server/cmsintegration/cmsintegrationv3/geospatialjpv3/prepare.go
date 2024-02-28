@@ -17,6 +17,7 @@ func Prepare(ctx context.Context, itemID, projectID string, conf Config) error {
 			CloudBuildMachineType: conf.CloudBuildMachineType,
 			CloudBuildProject:     conf.CloudBuildProject,
 			CloudBuildRegion:      conf.CloudBuildRegion,
+			CloudBuildDiskSizeGb:  conf.CloudBuildDiskSizeGb,
 		})
 	}
 }

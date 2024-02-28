@@ -23,6 +23,7 @@ type Config struct {
 	CloudBuildMachineType string
 	CloudBuildProject     string
 	CloudBuildRegion      string
+	CloudBuildDiskSizeGb  int64
 }
 
 var ppp *pp.PrettyPrinter
