@@ -407,6 +407,13 @@ func anyToAssetURL(v any) string {
 	return url
 }
 
+func geospatialjpURL(cityCode string, cityName string, year int) string {
+	if cityCode == "" || cityName == "" || year == 0 {
+		return ""
+	}
+	return fmt.Sprintf("%splateau-%s-%s-%d", gespatialjpDatasetURL, cityCode, cityName, year)
+}
+
 type GeospatialjpDataItem struct {
 	ID            string     `json:"id,omitempty" cms:"id"`
 	City          string     `json:"city,omitempty" cms:"city,reference"`

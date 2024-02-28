@@ -54,18 +54,20 @@ func (i *GenericItem) toDatasets(area *areaContext, dts []plateauapi.DatasetType
 	}
 
 	res := plateauapi.GenericDataset{
-		ID:             id,
-		Name:           standardItemName(i.Name, "", area.Name()),
-		Description:    lo.EmptyableToPtr(i.Desc),
-		Year:           area.CityItem.YearInt(),
-		PrefectureID:   area.PrefID,
-		PrefectureCode: area.PrefCode,
-		CityID:         area.CityID,
-		CityCode:       area.CityCode,
-		TypeID:         dt.GetID(),
-		TypeCode:       dt.GetCode(),
-		Admin:          newAdmin(i.ID, i.Stage(), cmsurl, nil),
-		Items:          items,
+		ID:                id,
+		Name:              standardItemName(i.Name, "", area.Name()),
+		Description:       lo.EmptyableToPtr(i.Desc),
+		Year:              area.CityItem.YearInt(),
+		RegisterationYear: year,
+		OpenDataURL:       lo.EmptyableToPtr(i.OpenDataURL),
+		PrefectureID:      area.PrefID,
+		PrefectureCode:    area.PrefCode,
+		CityID:            area.CityID,
+		CityCode:          area.CityCode,
+		TypeID:            dt.GetID(),
+		TypeCode:          dt.GetCode(),
+		Admin:             newAdmin(i.ID, i.Stage(), cmsurl, nil),
+		Items:             items,
 	}
 
 	return []plateauapi.Dataset{&res}, warning
