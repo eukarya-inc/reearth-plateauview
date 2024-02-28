@@ -190,12 +190,50 @@ func (c *CMS) GetGeospatialjpDataItemsWithMaxLODContent(ctx context.Context, pro
 		return nil, err
 	}
 
+	urls := lo.Map(items, func(i *GeospatialjpDataItem, _ int) string {
+		return i.MaxLOD
+	})
+
+	maxlods, err := fetchMaxLODContents(ctx, urls)
+	if err != nil {
+		return nil, err
+	}
+
+	for i, m := range maxlods {
+		if m == nil {
+			continue
+		}
+		items[i].MaxLODContent = m
+	}
+
+	return items, nil
+}
+
+func getItemsAndConv[T any](cms cms.Interface, ctx context.Context, project, model string, conv func(cms.Item) *T) ([]*T, error) {
+	items, err := cms.GetItemsByKeyInParallel(ctx, project, model, true, 100)
+	if err != nil {
+		return nil, err
+	}
+	if items == nil {
+		return nil, nil
+	}
+
+	res := make([]*T, 0, len(items.Items))
+	for _, item := range items.Items {
+		res = append(res, conv(item))
+	}
+
+	return res, nil
+}
+
+func fetchMaxLODContents(ctx context.Context, urls []string) ([][][]string, error) {
+	res := make([][][]string, len(urls))
 	eg, ctx := errgroup.WithContext(ctx)
 	eg.SetLimit(10)
 
-	for i := 0; i < len(items); i++ {
+	for i := 0; i < len(urls); i++ {
 		i := i
-		url := items[i].MaxLOD
+		url := urls[i]
 		if url == "" {
 			continue
 		}
@@ -222,30 +260,13 @@ func (c *CMS) GetGeospatialjpDataItemsWithMaxLODContent(ctx context.Context, pro
 				return fmt.Errorf("items[%d]: failed to read max LOD content: %w", i, err)
 			}
 
-			items[i].MaxLODContent = records
+			res[i] = records
 			return nil
 		})
 	}
 
 	if err := eg.Wait(); err != nil {
 		return nil, err
-	}
-
-	return items, nil
-}
-
-func getItemsAndConv[T any](cms cms.Interface, ctx context.Context, project, model string, conv func(cms.Item) *T) ([]*T, error) {
-	items, err := cms.GetItemsByKeyInParallel(ctx, project, model, true, 100)
-	if err != nil {
-		return nil, err
-	}
-	if items == nil {
-		return nil, nil
-	}
-
-	res := make([]*T, 0, len(items.Items))
-	for _, item := range items.Items {
-		res = append(res, conv(item))
 	}
 
 	return res, nil

@@ -40,15 +40,20 @@ func fetchAndCreateCache(ctx context.Context, project string, fetcher datacatalo
 		return nil, fmt.Errorf("failed to update datacatalog cache: %w", err)
 	}
 
-	return plateauapi.NewInMemoryRepo(newCache(r)), nil
+	all := r.All()
+
+	if err := fetchMaxLOD(ctx, all); err != nil {
+		return nil, fmt.Errorf("failed to fetch max lod: %w", err)
+	}
+
+	return plateauapi.NewInMemoryRepo(newCache(all)), nil
 }
 
-func newCache(r datacatalogv2.ResponseAll) *plateauapi.InMemoryRepoContext {
+func newCache(items []datacatalogv2.DataCatalogItem) *plateauapi.InMemoryRepoContext {
 	cache := &plateauapi.InMemoryRepoContext{
 		PlateauSpecs: plateauSpecs,
 	}
 
-	items := r.All()
 	areas := make(map[plateauapi.AreaCode]struct{})
 
 	for _, d := range items {

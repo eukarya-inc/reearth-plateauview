@@ -27,8 +27,16 @@ func TestNewCache(t *testing.T) {
 						URL: "https://example.com/13101_tokyo23ku_2022_3dtiles_0_bldg_lod1.zip",
 					},
 				},
+				MaxLOD: &cms.PublicAsset{
+					URL: "maxlod",
+				},
 			},
 		},
+	}
+
+	all := r.All()
+	all[0].MaxLODContent = [][]string{
+		{"000000", "bldg", "1", "test.gml"},
 	}
 
 	expectedCache := &plateauapi.InMemoryRepoContext{
@@ -96,12 +104,37 @@ func TestNewCache(t *testing.T) {
 				},
 			},
 		},
+		CityGML: map[plateauapi.ID]*plateauapi.CityGMLDataset{
+			"cg_13101": {
+				ID:                 "cg_13101",
+				Year:               2022,
+				RegistrationYear:   2022,
+				PrefectureID:       "a_13",
+				PrefectureCode:     "13",
+				CityID:             "a_13101",
+				CityCode:           "13101",
+				PlateauSpecMinorID: "ps_2.3",
+				URL:                "https://example.com/13101_tokyo23ku_2022_citygml_op.zip",
+				FeatureTypes:       []string{"bldg"},
+				Items: []*plateauapi.CityGMLDatasetItem{
+					{
+						URL:      "https://example.com/13101_tokyo23ku_2022_citygml_op/udx/bldg/test.gml",
+						MeshCode: "000000",
+						TypeCode: "bldg",
+						MaxLod:   1,
+					},
+				},
+				Admin: map[string]any{
+					"maxlod": "maxlod",
+				},
+			},
+		},
 		Years: []int{
 			2022,
 		},
 		PlateauSpecs: plateauSpecs,
 	}
 
-	cache := newCache(r)
+	cache := newCache(all)
 	assert.Equal(t, expectedCache, cache)
 }
