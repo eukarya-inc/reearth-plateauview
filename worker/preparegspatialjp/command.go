@@ -96,15 +96,18 @@ func Command(conf *Config) (err error) {
 	gdataItem := GspatialjpDataItemFrom(gdataItemRaw)
 	log.Infofc(ctx, "geospatialjp data item: %s", ppp.Sprint(gdataItem))
 
-	if !gdataItem.ShouldMergeCityGML() {
-		conf.SkipCityGML = true
+	if gdataItem != nil {
+		if !gdataItem.ShouldMergeCityGML() {
+			conf.SkipCityGML = true
+		}
+		if !gdataItem.ShouldMergePlateau() {
+			conf.SkipPlateau = true
+		}
+		if !gdataItem.ShouldMergeMaxLOD() {
+			conf.SkipMaxLOD = true
+		}
 	}
-	if !gdataItem.ShouldMergePlateau() {
-		conf.SkipPlateau = true
-	}
-	if !gdataItem.ShouldMergeMaxLOD() {
-		conf.SkipMaxLOD = true
-	}
+
 	if conf.SkipCityGML && conf.SkipPlateau && conf.SkipMaxLOD && conf.SkipRelated {
 		return fmt.Errorf("no command to run")
 	}
