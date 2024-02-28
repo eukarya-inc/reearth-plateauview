@@ -6,7 +6,6 @@ require (
 	github.com/99designs/gqlgen v0.17.43
 	github.com/dustin/go-humanize v1.0.1
 	github.com/eukarya-inc/jpareacode v1.0.0
-	github.com/go-playground/assert/v2 v2.2.0
 	github.com/go-playground/validator/v10 v10.16.0
 	github.com/hasura/go-graphql-client v0.11.0
 	github.com/jarcoal/httpmock v1.3.1
