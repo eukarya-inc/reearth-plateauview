@@ -97,7 +97,7 @@ func mergeCityGML(ctx context.Context, c MergeContext) (string, error) {
 
 		log.Infofc(ctx, "preparing citygml (%s)", ty)
 
-		if err := cz.DownloadAndWrite(ctx, url, tmpDir, ty, "", "udx/"); err != nil {
+		if err := cz.DownloadAndWrite(ctx, url, tmpDir, ty, "", "udx"); err != nil {
 			return "", fmt.Errorf("failed to download and write citygml for %s: %w", ty, err)
 		}
 	}
@@ -229,7 +229,7 @@ func cityGMLZipPath(ty, prefix, base string) func(string) (string, error) {
 		}
 
 		if base != "" {
-			dirs := strings.Split(base, "/")
+			dirs := strings.Split(strings.TrimSuffix(base, "/"), "/")
 			paths = append(dirs, paths...)
 		}
 
