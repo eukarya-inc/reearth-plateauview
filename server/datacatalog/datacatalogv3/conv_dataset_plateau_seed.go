@@ -330,9 +330,7 @@ func plateauDatasetItemSeedFrom(seed plateauDatasetSeed) (items []plateauDataset
 		}
 
 		warning = append(warning, w...)
-		if item != nil {
-			items = append(items, *item)
-		}
+		items = append(items, *item)
 	}
 
 	return
