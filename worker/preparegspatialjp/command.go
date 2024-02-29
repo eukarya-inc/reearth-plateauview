@@ -116,7 +116,7 @@ func Command(conf *Config) (err error) {
 	tmpDir := filepath.Join(tmpDirBase, tmpDirName)
 	log.Infofc(ctx, "tmp dir: %s", tmpDir)
 
-	// do merging
+	// prepare merging
 	var comment string
 	var citygmlError, plateauError, maxlodError bool
 	defer func() {
@@ -167,7 +167,7 @@ func Command(conf *Config) (err error) {
 			return lo.Tuple3[string, string, error]{}
 		}
 
-		name, path, err := PrepareCityGML(ctx, cms, tmpDir, cityItem, allFeatureItems, uc)
+		name, path, err := PrepareCityGML(ctx, tmpDir, cityItem, allFeatureItems, uc)
 		if err != nil {
 			return lo.Tuple3[string, string, error]{
 				C: err,
@@ -180,6 +180,7 @@ func Command(conf *Config) (err error) {
 		}
 	})
 
+	// do merging
 	plateauCh := lo.Async(func() lo.Tuple3[string, string, error] {
 		if conf.SkipPlateau {
 			return lo.Tuple3[string, string, error]{}
@@ -332,6 +333,8 @@ func Command(conf *Config) (err error) {
 
 	return
 }
+
+// upload
 
 func upload(ctx context.Context, cms *cms.CMS, project, name, path string) (string, error) {
 	file, err := os.Open(path)

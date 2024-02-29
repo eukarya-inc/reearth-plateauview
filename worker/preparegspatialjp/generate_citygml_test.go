@@ -67,7 +67,7 @@ func TestRenameCityGMLZip(t *testing.T) {
 	for _, test := range tests {
 		test := test
 		t.Run(test.path, func(t *testing.T) {
-			fn, err := renameCityGMLZip(test.ty, test.prefix)(test.path)
+			fn, err := cityGMLZipPath(test.ty, test.prefix)(test.path)
 			assert.Equal(t, test.expected, fn)
 			if !test.expectedError {
 				assert.NoError(t, err)
