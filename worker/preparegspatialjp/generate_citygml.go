@@ -20,7 +20,42 @@ var citygmlFiles = []string{
 	"misc",
 }
 
-func PrepareCityGML(ctx context.Context, tmpDir string, cityItem *CityItem, allFeatureItems map[string]FeatureItem, uc int) (string, string, error) {
+func PrepareCityGML(ctx context.Context, c *CMSWrapper, m MergeContext) (res string, err error) {
+	defer func() {
+		err = fmt.Errorf("CityGMLのマージに失敗しました: %w", err)
+		c.NotifyError(ctx, err, true, false, false)
+	}()
+
+	_, path, err := mergeCityGML(ctx, m)
+	if err != nil {
+		err = fmt.Errorf("failed to prepare citygml: %w", err)
+		return
+	}
+
+	aid, err := c.UploadFile(ctx, path)
+	if err != nil {
+		err = fmt.Errorf("failed to upload file: %w", err)
+		return
+	}
+
+	if err2 := c.UpdateDataItem(ctx, &GspatialjpDataItem{
+		MergeCityGMLStatus: successTag,
+		CityGML:            aid,
+	}); err2 != nil {
+		err = fmt.Errorf("failed to update data item: %w", err)
+		return
+	}
+
+	res = path
+	return
+}
+
+func mergeCityGML(ctx context.Context, c MergeContext) (string, string, error) {
+	tmpDir := c.TmpDir
+	cityItem := c.CityItem
+	allFeatureItems := c.AllFeatureItems
+	uc := c.UC
+
 	// create a zip file
 	rootName := fmt.Sprintf("%s_%s_city_%d_citygml_%d_op", cityItem.CityCode, cityItem.CityNameEn, cityItem.YearInt(), uc)
 	downloadPath := filepath.Join(tmpDir, rootName)

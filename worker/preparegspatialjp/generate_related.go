@@ -2,22 +2,33 @@ package preparegspatialjp
 
 import (
 	"context"
+	"fmt"
 
-	cms "github.com/reearth/reearth-cms-api/go"
+	"github.com/reearth/reearthx/log"
 )
 
-func GetRelatedZipAssetIDAndURL(ctx context.Context, cms *cms.CMS, cityItem *CityItem) (string, string, error) {
+func PrepareRelated(ctx context.Context, cw *CMSWrapper, mc MergeContext) (res string, err error) {
+	defer func() {
+		err = fmt.Errorf("関連データセットの設定に失敗しました: %w", err)
+		cw.NotifyError(ctx, err, false, false, false)
+	}()
+
+	log.Infofc(ctx, "downloading related dataset...")
+
+	cityItem := mc.CityItem
+	dir := mc.TmpDir
+
 	if cityItem.RelatedDataset == "" {
-		return "", "", nil
+		return "", nil
 	}
 
-	item, err := cms.GetItem(ctx, cityItem.RelatedDataset, true)
+	item, err := cw.CMS.GetItem(ctx, cityItem.RelatedDataset, true)
 	if err != nil {
-		return "", "", err
+		return "", err
 	}
 
 	if item == nil {
-		return "", "", nil
+		return "", nil
 	}
 
 	var mergedv any
@@ -27,18 +38,29 @@ func GetRelatedZipAssetIDAndURL(ctx context.Context, cms *cms.CMS, cityItem *Cit
 
 	v2, ok := mergedv.(map[string]any)
 	if !ok {
-		return "", "", nil
+		return "", nil
 	}
 
 	id, ok := v2["id"].(string)
 	if !ok {
-		return "", "", nil
+		return "", nil
 	}
 
 	url, ok := v2["url"].(string)
 	if !ok {
-		return "", "", nil
+		return "", nil
 	}
 
-	return id, url, nil
+	path, err := downloadFileTo(ctx, url, dir)
+	if err != nil {
+		return "", fmt.Errorf("failed to download related dataset: %w", err)
+	}
+
+	if err := cw.UpdateDataItem(ctx, &GspatialjpDataItem{
+		Related: id,
+	}); err != nil {
+		return "", fmt.Errorf("failed to update data item: %w", err)
+	}
+
+	return path, nil
 }

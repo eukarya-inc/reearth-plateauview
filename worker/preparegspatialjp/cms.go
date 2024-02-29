@@ -100,7 +100,15 @@ type GspatialjpDataItem struct {
 	MergeMaxLODStatus  *cms.Tag `json:"merge_maxlod_status" cms:"merge_maxlod_status,tag,metadata"`
 }
 
+const idle = "未実行"
 const running = "実行中"
+const failed = "エラー"
+const sucess = "完了"
+
+var idleTag = &cms.Tag{Name: idle}
+var runningTag = &cms.Tag{Name: running}
+var failedTag = &cms.Tag{Name: failed}
+var successTag = &cms.Tag{Name: sucess}
 
 func (g *GspatialjpDataItem) ShouldMergeCityGML() bool {
 	return g.MergeCityGMLStatus == nil || g.MergeCityGMLStatus.Name != running

@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"strconv"
+	"strings"
 
 	"github.com/dustin/go-humanize"
 	"github.com/k0kubun/pp/v3"
@@ -61,4 +62,8 @@ func reportDiskUsage(path string) {
 	used := humanize.Bytes(usage.Used())
 	size := humanize.Bytes(usage.Size())
 	log.Debugf("Disk usage: %s / %s (%s%)", used, size, strconv.FormatFloat(p, 'f', -1, 32))
+}
+
+func isNumeric(s rune) bool {
+	return strings.ContainsRune("0123456789", s)
 }
