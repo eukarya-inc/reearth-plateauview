@@ -22,6 +22,11 @@ func TestRenameCityGMLZip(t *testing.T) {
 		},
 		{
 			ty:       "bldg",
+			path:     "udx/bldg/file.txt",
+			expected: "bldg/file.txt",
+		},
+		{
+			ty:       "bldg",
 			prefix:   "udx/",
 			path:     "udx/bldg/file.txt",
 			expected: "bldg/file.txt",
@@ -51,11 +56,6 @@ func TestRenameCityGMLZip(t *testing.T) {
 		},
 		{
 			ty:            "bldg",
-			path:          "udx/bldg/file.txt",
-			expectedError: true,
-		},
-		{
-			ty:            "bldg",
 			path:          "file.gml",
 			expectedError: true,
 		},
@@ -64,8 +64,8 @@ func TestRenameCityGMLZip(t *testing.T) {
 	for _, test := range tests {
 		test := test
 		t.Run(test.path, func(t *testing.T) {
-			fn, err := cityGMLZipPath(test.ty, test.prefix, test.base)(test.path)
-			assert.Equal(t, test.expected, fn)
+			p, err := cityGMLZipPath(test.ty, test.prefix, test.base)(test.path)
+			assert.Equal(t, test.expected, p)
 			if !test.expectedError {
 				assert.NoError(t, err)
 			} else {

@@ -158,8 +158,9 @@ func (z *CityGMLZipWriter) DownloadAndWrite(ctx context.Context, url, tempdir, t
 }
 
 func (z *CityGMLZipWriter) Write(ctx context.Context, src *zip.Reader, ty, prefix, dir string) error {
+	e := false
 	fn := cityGMLZipPath(ty, prefix, dir)
-	return z.w.Run(src, func(f *zip.File) (string, error) {
+	if err := z.w.Run(src, func(f *zip.File) (string, error) {
 		p, err := fn(f.Name)
 		if err != nil {
 			return "", err
@@ -171,14 +172,23 @@ func (z *CityGMLZipWriter) Write(ctx context.Context, src *zip.Reader, ty, prefi
 		}
 
 		log.Debugfc(ctx, "zipping %s -> %s", f.Name, p)
+		e = true
 		return p, nil
-	})
+	}); err != nil {
+		return err
+	}
+
+	if !e {
+		return fmt.Errorf("no files found")
+	}
+
+	return nil
 }
 
 // ty: type of citygml file
-// prefix: filter zip files by it and trim prefix for new path
-// base: base directory for new path
-func cityGMLZipPath(ty, prefix, dir string) func(string) (string, error) {
+// prefix: filter target zip files and trim prefix from path
+// base: base directory added to new path
+func cityGMLZipPath(ty, prefix, base string) func(string) (string, error) {
 	return func(rawPath string) (string, error) {
 		p := normalizeZipFilePath(rawPath)
 		if p == "" {
@@ -193,35 +203,37 @@ func cityGMLZipPath(ty, prefix, dir string) func(string) (string, error) {
 			}
 		}
 
-		if ty != "" {
-			paths := strings.Split(p, "/")
-
-			if len(paths) > 0 {
-				if strings.HasSuffix(paths[0], "_"+ty) {
-					paths[0] = ty
-				} else if paths[0] != ty {
-					return "", fmt.Errorf("unexpected path: %s", p)
-				}
-				if len(paths) > 1 && paths[1] == ty {
-					// remove paths[1]
-					paths = append(paths[:1], paths[2:]...)
-				}
-			} else {
-				return "", fmt.Errorf("unexpected path: %s", p)
-			}
-
-			if dir != "" {
-				dirs := strings.Split(dir, "/")
-				paths = append(dirs, paths...)
-			}
-
-			res := strings.Join(paths, "/")
-			return res, nil
+		if base == "" && ty == "" {
+			return p, nil
 		}
 
-		if p == rawPath {
+		paths := strings.Split(p, "/")
+		if len(paths) == 0 {
 			return "", nil
 		}
-		return p, nil
+
+		if ty != "" {
+			if len(paths) > 1 && (paths[1] == ty || strings.HasSuffix(paths[1], "_"+ty)) {
+				// */ty/** || */*_ty/** -> ty/**
+				paths = paths[1:]
+			}
+
+			if strings.HasSuffix(paths[0], "_"+ty) {
+				// *_ty/** -> ty/**
+				paths[0] = ty
+			}
+
+			if paths[0] != ty {
+				return "", fmt.Errorf("unexpected path: %s", rawPath)
+			}
+		}
+
+		if base != "" {
+			dirs := strings.Split(base, "/")
+			paths = append(dirs, paths...)
+		}
+
+		res := strings.Join(paths, "/")
+		return res, nil
 	}
 }
