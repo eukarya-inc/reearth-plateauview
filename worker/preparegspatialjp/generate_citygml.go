@@ -12,21 +12,16 @@ import (
 	"github.com/reearth/reearthx/log"
 )
 
-var citygmlFiles = []string{
-	"codelists",
-	"schemas",
-	"metadata",
-	"specification",
-	"misc",
-}
-
 func PrepareCityGML(ctx context.Context, c *CMSWrapper, m MergeContext) (res string, err error) {
 	defer func() {
+		if err == nil {
+			return
+		}
 		err = fmt.Errorf("CityGMLのマージに失敗しました: %w", err)
 		c.NotifyError(ctx, err, true, false, false)
 	}()
 
-	_, path, err := mergeCityGML(ctx, m)
+	path, err := mergeCityGML(ctx, m)
 	if err != nil {
 		err = fmt.Errorf("failed to prepare citygml: %w", err)
 		return
@@ -47,10 +42,11 @@ func PrepareCityGML(ctx context.Context, c *CMSWrapper, m MergeContext) (res str
 	}
 
 	res = path
+	log.Infofc(ctx, "citygml prepared: %s", path)
 	return
 }
 
-func mergeCityGML(ctx context.Context, c MergeContext) (string, string, error) {
+func mergeCityGML(ctx context.Context, c MergeContext) (string, error) {
 	tmpDir := c.TmpDir
 	cityItem := c.CityItem
 	allFeatureItems := c.AllFeatureItems
@@ -58,13 +54,12 @@ func mergeCityGML(ctx context.Context, c MergeContext) (string, string, error) {
 
 	// create a zip file
 	rootName := fmt.Sprintf("%s_%s_city_%d_citygml_%d_op", cityItem.CityCode, cityItem.CityNameEn, cityItem.YearInt(), uc)
-	downloadPath := filepath.Join(tmpDir, rootName)
-	_ = os.MkdirAll(downloadPath, os.ModePerm)
 
 	zipFileName := rootName + ".zip"
-	f, err := os.Create(zipFileName)
+	zipFilePath := filepath.Join(tmpDir, zipFileName)
+	f, err := os.Create(zipFilePath)
 	if err != nil {
-		return "", "", fmt.Errorf("failed to create file: %w", err)
+		return "", fmt.Errorf("failed to create file: %w", err)
 	}
 
 	defer f.Close()
@@ -79,7 +74,7 @@ func mergeCityGML(ctx context.Context, c MergeContext) (string, string, error) {
 			continue
 		}
 
-		log.Infofc(ctx, "preparing citygml (%s): %s", ty, rootName)
+		log.Infofc(ctx, "preparing citygml (%s)...", ty)
 
 		prefix := ""
 		if ty == "misc" {
@@ -87,9 +82,9 @@ func mergeCityGML(ctx context.Context, c MergeContext) (string, string, error) {
 			prefix = "misc/"
 		}
 
-		err := cz.DownloadAndWrite(ctx, url, downloadPath, ty, prefix)
+		err := cz.DownloadAndWrite(ctx, url, tmpDir, ty, prefix, "")
 		if err != nil {
-			return "", "", fmt.Errorf("failed to download and write %s: %w", ty, err)
+			return "", fmt.Errorf("failed to download and write %s: %w", ty, err)
 		}
 	}
 
@@ -100,15 +95,14 @@ func mergeCityGML(ctx context.Context, c MergeContext) (string, string, error) {
 			continue
 		}
 
-		log.Infofc(ctx, "preparing citygml (%s): %s", ty, rootName)
+		log.Infofc(ctx, "preparing citygml (%s)", ty)
 
-		if err := cz.DownloadAndWrite(ctx, url, downloadPath, ty, "udx/"); err != nil {
-			return "", "", fmt.Errorf("failed to download and write citygml for %s: %w", ty, err)
+		if err := cz.DownloadAndWrite(ctx, url, tmpDir, ty, "", "udx/"); err != nil {
+			return "", fmt.Errorf("failed to download and write citygml for %s: %w", ty, err)
 		}
 	}
 
-	zipFilePath := filepath.Join(tmpDir, zipFileName)
-	return zipFileName, zipFilePath, nil
+	return zipFilePath, nil
 }
 
 func getCityGMLURL(item *CityItem, ty string) string {
@@ -143,7 +137,7 @@ func (z *CityGMLZipWriter) Close() error {
 	return z.w.Close()
 }
 
-func (z *CityGMLZipWriter) DownloadAndWrite(ctx context.Context, url, tempdir, ty, prefix string) error {
+func (z *CityGMLZipWriter) DownloadAndWrite(ctx context.Context, url, tempdir, ty, prefix, dir string) error {
 	if url == "" {
 		return nil
 	}
@@ -152,7 +146,7 @@ func (z *CityGMLZipWriter) DownloadAndWrite(ctx context.Context, url, tempdir, t
 		log.Debugfc(ctx, "downloaded %s (%s)", url, humanize.Bytes(uint64(fi.Size())))
 		reportDiskUsage(tempdir)
 
-		return z.Write(ctx, zr, ty, prefix)
+		return z.Write(ctx, zr, ty, prefix, dir)
 	})
 
 	if err != nil {
@@ -163,8 +157,8 @@ func (z *CityGMLZipWriter) DownloadAndWrite(ctx context.Context, url, tempdir, t
 	return nil
 }
 
-func (z *CityGMLZipWriter) Write(ctx context.Context, src *zip.Reader, ty, prefix string) error {
-	fn := cityGMLZipPath(ty, prefix)
+func (z *CityGMLZipWriter) Write(ctx context.Context, src *zip.Reader, ty, prefix, dir string) error {
+	fn := cityGMLZipPath(ty, prefix, dir)
 	return z.w.Run(src, func(f *zip.File) (string, error) {
 		p, err := fn(f.Name)
 		if err != nil {
@@ -172,16 +166,19 @@ func (z *CityGMLZipWriter) Write(ctx context.Context, src *zip.Reader, ty, prefi
 		}
 
 		if p == "" {
-			log.Debugfc(ctx, "zipping %s: %s -> [SKIP]", z.name, f.Name)
+			log.Debugfc(ctx, "zipping %s -> (skipped)", f.Name)
 			return "", nil
 		}
 
-		log.Debugfc(ctx, "zipping %s: %s -> %s", z.name, f.Name, p)
+		log.Debugfc(ctx, "zipping %s -> %s", f.Name, p)
 		return p, nil
 	})
 }
 
-func cityGMLZipPath(ty, prefix string) func(string) (string, error) {
+// ty: type of citygml file
+// prefix: filter zip files by it and trim prefix for new path
+// base: base directory for new path
+func cityGMLZipPath(ty, prefix, dir string) func(string) (string, error) {
 	return func(rawPath string) (string, error) {
 		p := normalizeZipFilePath(rawPath)
 		if p == "" {
@@ -191,7 +188,7 @@ func cityGMLZipPath(ty, prefix string) func(string) (string, error) {
 		if prefix != "" {
 			if strings.HasPrefix(p, prefix) {
 				p = strings.TrimPrefix(p, prefix)
-			} else if strings.HasSuffix(prefix, "/") && rawPath == prefix[:len(prefix)-1] {
+			} else if strings.HasSuffix(prefix, "/") && p == prefix {
 				return "", nil
 			}
 		}
@@ -213,11 +210,12 @@ func cityGMLZipPath(ty, prefix string) func(string) (string, error) {
 				return "", fmt.Errorf("unexpected path: %s", p)
 			}
 
-			res := strings.Join(paths, "/")
-			if res == rawPath {
-				return "", nil
+			if dir != "" {
+				dirs := strings.Split(dir, "/")
+				paths = append(dirs, paths...)
 			}
 
+			res := strings.Join(paths, "/")
 			return res, nil
 		}
 

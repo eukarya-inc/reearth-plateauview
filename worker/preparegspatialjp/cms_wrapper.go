@@ -20,23 +20,25 @@ type CMSWrapper struct {
 	SkipMaxLOD  bool
 	SkipIndex   bool
 	SkipRelated bool
+	WetRun      bool
 }
 
-func (c *CMSWrapper) NotifyRunning(ctx context.Context, citygml, plateau, maxlod bool) {
-	if c == nil {
+func (c *CMSWrapper) NotifyRunning(ctx context.Context) {
+	if c == nil || !c.WetRun {
+		log.Debugfc(ctx, "cms: notify running (skipped)")
 		return
 	}
 
 	c.Comment(ctx, "公開準備処理を開始しました。")
 
 	item := &GspatialjpDataItem{}
-	if citygml {
+	if !c.SkipCityGML {
 		item.MergeCityGMLStatus = runningTag
 	}
-	if plateau {
+	if !c.SkipPlateau {
 		item.MergePlateauStatus = runningTag
 	}
-	if maxlod {
+	if !c.SkipMaxLOD {
 		item.MergeMaxLODStatus = runningTag
 	}
 
@@ -46,7 +48,8 @@ func (c *CMSWrapper) NotifyRunning(ctx context.Context, citygml, plateau, maxlod
 }
 
 func (c *CMSWrapper) NotifyError(ctx context.Context, err error, citygml, plateau, maxlod bool) {
-	if c == nil || err == nil {
+	if c == nil || !c.WetRun || err == nil {
+		log.Debugfc(ctx, "cms: notify error (skipped): citygml=%v, plateau=%v, maxlod=%v", citygml, plateau, maxlod)
 		return
 	}
 
@@ -54,7 +57,8 @@ func (c *CMSWrapper) NotifyError(ctx context.Context, err error, citygml, platea
 }
 
 func (c *CMSWrapper) NotifyErrorMessage(ctx context.Context, msg string, citygml, plateau, maxlod bool) {
-	if c == nil {
+	if c == nil || !c.WetRun {
+		log.Debugfc(ctx, "cms: notify error message (skipped): citygml=%v, plateau=%v, maxlod=%v, msg=%s", citygml, plateau, maxlod, msg)
 		return
 	}
 
@@ -82,8 +86,17 @@ func (c *CMSWrapper) NotifyErrorMessage(ctx context.Context, msg string, citygml
 	}
 }
 
+func (c *CMSWrapper) GetItem(ctx context.Context, id string, asset bool) (*cms.Item, error) {
+	if c == nil || !c.WetRun {
+		log.Debugfc(ctx, "cms: get item (skipped): id=%s, asset=%v", id, asset)
+		return nil, nil
+	}
+	return c.CMS.GetItem(ctx, id, asset)
+}
+
 func (c *CMSWrapper) UpdateDataItem(ctx context.Context, item *GspatialjpDataItem) error {
-	if c == nil {
+	if c == nil || !c.WetRun {
+		log.Debugfc(ctx, "cms: update data item (skipped): item=%s", ppp.Sprint(item))
 		return nil
 	}
 
@@ -99,7 +112,8 @@ func (c *CMSWrapper) UpdateDataItem(ctx context.Context, item *GspatialjpDataIte
 }
 
 func (c *CMSWrapper) UploadFile(ctx context.Context, path string) (string, error) {
-	if c == nil {
+	if c == nil || !c.WetRun {
+		log.Debugfc(ctx, "cms: upload file (skipped): path=%s", path)
 		return "", nil
 	}
 
@@ -114,7 +128,8 @@ func (c *CMSWrapper) UploadFile(ctx context.Context, path string) (string, error
 }
 
 func (c *CMSWrapper) Upload(ctx context.Context, name string, body io.Reader) (string, error) {
-	if c == nil {
+	if c == nil || !c.WetRun {
+		log.Debugfc(ctx, "cms: upload (skipped): name=%s", name)
 		return "", nil
 	}
 
@@ -122,7 +137,8 @@ func (c *CMSWrapper) Upload(ctx context.Context, name string, body io.Reader) (s
 }
 
 func (c *CMSWrapper) Comment(ctx context.Context, comment string) {
-	if c == nil {
+	if c == nil || !c.WetRun {
+		log.Debugfc(ctx, "cms: comment (skipped): comment=%s", comment)
 		return
 	}
 

@@ -12,6 +12,9 @@ import (
 
 func PrepareMaxLOD(ctx context.Context, cw *CMSWrapper, mc MergeContext) (err error) {
 	defer func() {
+		if err == nil {
+			return
+		}
 		err = fmt.Errorf("最大LODのマージに失敗しました: %w", err)
 		cw.NotifyError(ctx, err, false, false, true)
 	}()
@@ -72,5 +75,6 @@ func PrepareMaxLOD(ctx context.Context, cw *CMSWrapper, mc MergeContext) (err er
 		return fmt.Errorf("failed to update data item: %w", err)
 	}
 
+	log.Infofc(ctx, "maxlod prepared: %s", fileName)
 	return nil
 }

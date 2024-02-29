@@ -11,63 +11,60 @@ func TestRenameCityGMLZip(t *testing.T) {
 		ty            string
 		prefix        string
 		path          string
+		base          string
 		expected      string
 		expectedError bool
 	}{
 		{
+			ty:       "bldg",
+			path:     "bldg/file.txt",
+			expected: "bldg/file.txt",
+		},
+		{
+			ty:       "bldg",
+			prefix:   "udx/",
+			path:     "udx/bldg/file.txt",
+			expected: "bldg/file.txt",
+		},
+		{
+			ty:       "bldg",
+			prefix:   "udx/",
+			path:     "udx/bldg/bldg/file.txt",
+			base:     "udx",
+			expected: "udx/bldg/file.txt",
+		},
+		{
+			ty:       "bldg",
+			prefix:   "udx/",
+			path:     "udx/xxx_bldg/file.txt",
+			expected: "bldg/file.txt",
+		},
+		{
+			ty:       "bldg",
+			path:     "xxx_bldg/file.txt",
+			expected: "bldg/file.txt",
+		},
+		{
+			ty:       "bldg",
+			path:     "xxx_bldg/bldg/file.txt",
+			expected: "bldg/file.txt",
+		},
+		{
 			ty:            "bldg",
 			path:          "udx/bldg/file.txt",
 			expectedError: true,
-		},
-		{
-			ty:            "bldg",
-			prefix:        "udx/",
-			path:          "udx/bldg/file.txt",
-			expected:      "bldg/file.txt",
-			expectedError: false,
-		},
-		{
-			ty:            "bldg",
-			prefix:        "udx/",
-			path:          "udx/bldg/bldg/file.txt",
-			expected:      "bldg/file.txt",
-			expectedError: false,
-		},
-		{
-			ty:            "bldg",
-			prefix:        "udx/",
-			path:          "udx/xxx_bldg/file.txt",
-			expected:      "bldg/file.txt",
-			expectedError: false,
 		},
 		{
 			ty:            "bldg",
 			path:          "file.gml",
 			expectedError: true,
 		},
-		{
-			ty:            "bldg",
-			path:          "bldg/file.txt",
-			expectedError: false,
-		},
-		{
-			ty:            "bldg",
-			path:          "xxx_bldg/file.txt",
-			expected:      "bldg/file.txt",
-			expectedError: false,
-		},
-		{
-			ty:            "bldg",
-			path:          "xxx_bldg/bldg/file.txt",
-			expected:      "bldg/file.txt",
-			expectedError: false,
-		},
 	}
 
 	for _, test := range tests {
 		test := test
 		t.Run(test.path, func(t *testing.T) {
-			fn, err := cityGMLZipPath(test.ty, test.prefix)(test.path)
+			fn, err := cityGMLZipPath(test.ty, test.prefix, test.base)(test.path)
 			assert.Equal(t, test.expected, fn)
 			if !test.expectedError {
 				assert.NoError(t, err)

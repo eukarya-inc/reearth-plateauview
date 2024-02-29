@@ -9,6 +9,9 @@ import (
 
 func PrepareRelated(ctx context.Context, cw *CMSWrapper, mc MergeContext) (res string, err error) {
 	defer func() {
+		if err == nil {
+			return
+		}
 		err = fmt.Errorf("関連データセットの設定に失敗しました: %w", err)
 		cw.NotifyError(ctx, err, false, false, false)
 	}()
@@ -22,7 +25,7 @@ func PrepareRelated(ctx context.Context, cw *CMSWrapper, mc MergeContext) (res s
 		return "", nil
 	}
 
-	item, err := cw.CMS.GetItem(ctx, cityItem.RelatedDataset, true)
+	item, err := cw.GetItem(ctx, cityItem.RelatedDataset, true)
 	if err != nil {
 		return "", err
 	}
@@ -62,5 +65,6 @@ func PrepareRelated(ctx context.Context, cw *CMSWrapper, mc MergeContext) (res s
 		return "", fmt.Errorf("failed to update data item: %w", err)
 	}
 
+	log.Infofc(ctx, "related dataset downloaded: %s", path)
 	return path, nil
 }

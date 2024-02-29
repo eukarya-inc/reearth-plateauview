@@ -52,6 +52,10 @@ func (s *StringOrNumber) String() string {
 	return s.Value
 }
 
+func isNumeric(s rune) bool {
+	return strings.ContainsRune("0123456789", s)
+}
+
 func reportDiskUsage(path string) {
 	usage := du.NewDiskUsage(path)
 	if usage == nil {
@@ -61,9 +65,5 @@ func reportDiskUsage(path string) {
 	p := float64(usage.Usage()) * 100
 	used := humanize.Bytes(usage.Used())
 	size := humanize.Bytes(usage.Size())
-	log.Debugf("Disk usage: %s / %s (%s%)", used, size, strconv.FormatFloat(p, 'f', -1, 32))
-}
-
-func isNumeric(s rune) bool {
-	return strings.ContainsRune("0123456789", s)
+	log.Debugf("Disk usage: %s / %s (%s %%)", used, size, strconv.FormatFloat(p, 'f', 2, 32))
 }

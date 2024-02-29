@@ -49,7 +49,7 @@ func Command(conf *Config) (err error) {
 	// get items fron CNS
 	log.Infofc(ctx, "getting item from CMS...")
 
-	cityItemRaw, err := cms.GetItem(ctx, conf.CityItemID, false)
+	cityItemRaw, err := cms.GetItem(ctx, conf.CityItemID, true)
 	if err != nil {
 		return fmt.Errorf("failed to get city item: %w", err)
 	}
@@ -70,14 +70,9 @@ func Command(conf *Config) (err error) {
 		return fmt.Errorf("invalid spec version: %s", cityItem.Spec)
 	}
 
-	codelists, err := cms.Asset(ctx, cityItem.CodeLists)
-	if err != nil {
-		return fmt.Errorf("failed to get codelists: %w", err)
-	}
-
-	uc := UpdateCount(codelists.URL)
+	uc := GetUpdateCount(cityItem.CodeLists)
 	if uc == 0 {
-		return fmt.Errorf("invalid update count: %s", codelists.URL)
+		return fmt.Errorf("invalid update count: %s", cityItem.CodeLists)
 	}
 
 	indexItemRaw, err := cms.GetItem(ctx, cityItem.GeospatialjpIndex, false)
@@ -112,35 +107,35 @@ func Command(conf *Config) (err error) {
 		return fmt.Errorf("no command to run")
 	}
 
-	var cw *CMSWrapper
-	if conf.WetRun {
-		cw = &CMSWrapper{
-			CMS:         cms,
-			ProjectID:   conf.ProjectID,
-			DataItemID:  cityItem.GeospatialjpData,
-			CityItemID:  conf.CityItemID,
-			SkipCityGML: conf.SkipCityGML,
-			SkipPlateau: conf.SkipPlateau,
-			SkipMaxLOD:  conf.SkipMaxLOD,
-			SkipIndex:   conf.SkipIndex,
-		}
+	cw := &CMSWrapper{
+		CMS:         cms,
+		ProjectID:   conf.ProjectID,
+		DataItemID:  cityItem.GeospatialjpData,
+		CityItemID:  conf.CityItemID,
+		SkipCityGML: conf.SkipCityGML,
+		SkipPlateau: conf.SkipPlateau,
+		SkipMaxLOD:  conf.SkipMaxLOD,
+		SkipIndex:   conf.SkipIndex,
+		WetRun:      conf.WetRun,
 	}
 
-	log.Infofc(ctx, "getting all feature items...")
+	tmpDirName := fmt.Sprintf("%s-%d", time.Now().Format("20060102-150405"), rand.Intn(1000))
+	tmpDir := filepath.Join(tmpDirBase, tmpDirName)
+	log.Infofc(ctx, "tmp dir: %s", tmpDir)
 
+	log.Infofc(ctx, "getting all feature items...")
 	allFeatureItems, err := getAllFeatureItems(ctx, cms, cityItem)
 	if err != nil {
 		cw.NotifyError(ctx, err, !conf.SkipCityGML, !conf.SkipPlateau, !conf.SkipMaxLOD)
 		return fmt.Errorf("failed to get all feature items: %w", err)
 	}
 
+	log.Infofc(ctx, "feature items: %s", ppp.Sprint(allFeatureItems))
+
 	dic := mergeDics(lo.MapToSlice(allFeatureItems, func(k string, v FeatureItem) string {
 		return v.Dic
 	})...)
-
-	tmpDirName := fmt.Sprintf("%s-%d", time.Now().Format("20060102-150405"), rand.Intn(1000))
-	tmpDir := filepath.Join(tmpDirBase, tmpDirName)
-	log.Infofc(ctx, "tmp dir: %s", tmpDir)
+	log.Infofc(ctx, "dic: %s", ppp.Sprint(dic))
 
 	mc := MergeContext{
 		TmpDir:          tmpDir,
@@ -150,10 +145,7 @@ func Command(conf *Config) (err error) {
 		WetRun:          conf.WetRun,
 	}
 
-	log.Infofc(ctx, "feature items: %s", ppp.Sprint(allFeatureItems))
-	log.Infofc(ctx, "dic: %s", ppp.Sprint(dic))
-
-	cw.NotifyRunning(ctx, !conf.SkipCityGML, !conf.SkipPlateau, !conf.SkipMaxLOD)
+	cw.NotifyRunning(ctx)
 
 	// prepare
 	if !conf.SkipMaxLOD {
@@ -207,5 +199,6 @@ func Command(conf *Config) (err error) {
 		}
 	}
 
+	log.Infofc(ctx, "done")
 	return
 }
