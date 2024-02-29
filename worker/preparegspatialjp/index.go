@@ -85,7 +85,7 @@ func GenerateIndex(ctx context.Context, seed *IndexSeed) (string, error) {
 		return "", fmt.Errorf("failed to generate related index items: %w", err)
 	}
 
-	generics, err := generateGenericdIndexItems(seed, seed.Generic)
+	generics, err := generateGenericdIndexItems(seed.Generic)
 	if err != nil {
 		return "", fmt.Errorf("failed to generate generic index items: %w", err)
 	}
