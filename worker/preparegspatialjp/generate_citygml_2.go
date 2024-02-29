@@ -165,9 +165,18 @@ func (z *CityGMLZipWriter) Write(ctx context.Context, src *zip.Reader, ty, prefi
 
 func cityGMLZipPath(ty, prefix string) func(*zip.File) (string, error) {
 	return func(f *zip.File) (string, error) {
-		rawPath := f.Name
 		p := f.Name
+		p = strings.ReplaceAll(p, `\`, "/")
+		p = strings.TrimSuffix(p, "/")
 
+		if strings.HasPrefix(p, "__MACOSX/") ||
+			strings.HasSuffix(p, "/.DS_Store") ||
+			strings.HasSuffix(p, "/Thumb.db") ||
+			p == ".DS_Store" || p == "Thumbs.db" {
+			return "", nil
+		}
+
+		rawPath := f.Name
 		if prefix != "" {
 			if strings.HasPrefix(p, prefix) {
 				p = strings.TrimPrefix(p, prefix)
