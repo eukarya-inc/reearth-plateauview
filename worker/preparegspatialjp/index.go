@@ -24,6 +24,26 @@ type IndexItem struct {
 	Children []*IndexItem
 }
 
+func PrepareIndex(ctx context.Context, cw *CMSWrapper, seed *IndexSeed) (err error) {
+	defer func() {
+		err = fmt.Errorf("目録の生成に失敗しました: %w", err)
+		cw.Comment(ctx, err.Error())
+	}()
+
+	index, err := GenerateIndex(ctx, seed)
+	if err != nil {
+		return fmt.Errorf("目録の生成に失敗しました: %w", err)
+	}
+
+	if err := cw.UpdateDataItem(ctx, &GspatialjpDataItem{
+		Index: index,
+	}); err != nil {
+		return fmt.Errorf("failed to update data item: %w", err)
+	}
+
+	return nil
+}
+
 func GenerateIndex(ctx context.Context, seed *IndexSeed) (string, error) {
 	citygmlSize, err := fileSize(seed.CityGMLZipPath)
 	if err != nil {
@@ -85,7 +105,7 @@ func GenerateIndex(ctx context.Context, seed *IndexSeed) (string, error) {
 		return "", fmt.Errorf("failed to generate related index items: %w", err)
 	}
 
-	generics, err := generateGenericdIndexItems(seed, seed.Generic)
+	generics, err := generateGenericdIndexItems(seed.Generic)
 	if err != nil {
 		return "", fmt.Errorf("failed to generate generic index items: %w", err)
 	}

@@ -35,6 +35,14 @@ var featureTypes = []string{
 	"gen",  // 汎用都市オブジェクトモデル
 }
 
+var citygmlFiles = []string{
+	"codelists",
+	"schemas",
+	"metadata",
+	"specification",
+	"misc",
+}
+
 type CityItem struct {
 	ID                string            `json:"id,omitempty" cms:"id"`
 	Prefecture        string            `json:"prefecture,omitempty" cms:"prefecture,select"`
@@ -63,6 +71,22 @@ func CityItemFrom(item *cms.Item) (i *CityItem) {
 		if ref := item.FieldByKey(ft).GetValue().String(); ref != nil {
 			references[ft] = *ref
 		}
+	}
+
+	if u := item.FieldByKey("codelists").GetValue().AssetURL(); u != "" {
+		i.CodeLists = u
+	}
+	if u := item.FieldByKey("schemas").GetValue().AssetURL(); u != "" {
+		i.Schemas = u
+	}
+	if u := item.FieldByKey("metadata").GetValue().AssetURL(); u != "" {
+		i.Metadata = u
+	}
+	if u := item.FieldByKey("specification").GetValue().AssetURL(); u != "" {
+		i.Specification = u
+	}
+	if u := item.FieldByKey("misc").GetValue().AssetURL(); u != "" {
+		i.Misc = u
 	}
 
 	if i.Year == "" {
@@ -100,7 +124,15 @@ type GspatialjpDataItem struct {
 	MergeMaxLODStatus  *cms.Tag `json:"merge_maxlod_status" cms:"merge_maxlod_status,tag,metadata"`
 }
 
+const idle = "未実行"
 const running = "実行中"
+const failed = "エラー"
+const sucess = "完了"
+
+var idleTag = &cms.Tag{Name: idle}
+var runningTag = &cms.Tag{Name: running}
+var failedTag = &cms.Tag{Name: failed}
+var successTag = &cms.Tag{Name: sucess}
 
 func (g *GspatialjpDataItem) ShouldMergeCityGML() bool {
 	return g.MergeCityGMLStatus == nil || g.MergeCityGMLStatus.Name != running
@@ -181,7 +213,7 @@ func SpecVersion(version string) string {
 
 var reUpdateCount = regexp.MustCompile(`_(\d+)_op_`)
 
-func UpdateCount(u string) int {
+func GetUpdateCount(u string) int {
 	if m := reUpdateCount.FindStringSubmatch(u); len(m) > 1 {
 		if i, err := strconv.Atoi(m[1]); err == nil {
 			return i
