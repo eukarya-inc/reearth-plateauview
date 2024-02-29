@@ -9,6 +9,7 @@ require (
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/reearth/reearth-cms-api/go v0.0.0-20240122053845-b8e81556b2e4
 	github.com/reearth/reearthx v0.0.0-20240222072751-402668db71a9
+	github.com/ricochet2200/go-disk-usage/du v0.0.0-20210707232629-ac9918953285
 	github.com/samber/lo v1.39.0
 	github.com/spf13/afero v1.11.0
 	github.com/stretchr/testify v1.8.4
@@ -31,7 +32,6 @@ require (
 	github.com/mohae/deepcopy v0.0.0-20170929034955-c48cc78d4826 // indirect
 	github.com/perimeterx/marshmallow v1.1.5 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
-	github.com/ricochet2200/go-disk-usage/du v0.0.0-20210707232629-ac9918953285 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasttemplate v1.2.2 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
