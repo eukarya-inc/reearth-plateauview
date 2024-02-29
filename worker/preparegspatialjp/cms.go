@@ -127,7 +127,7 @@ type GspatialjpDataItem struct {
 const idle = "未実行"
 const running = "実行中"
 const failed = "エラー"
-const sucess = "完了"
+const sucess = "成功"
 
 var idleTag = &cms.Tag{Name: idle}
 var runningTag = &cms.Tag{Name: running}
