@@ -283,7 +283,7 @@ func (c *GenericItem) Stage() stage {
 
 type GenericItemDataset struct {
 	ID         string `json:"id,omitempty" cms:"id"`
-	Name       string `json:"name,omitempty" cms:"name,text"`
+	Name       string `json:"name,omitempty" cms:"item_name,text"`
 	Data       string `json:"data,omitempty" cms:"data,-"`
 	Desc       string `json:"desc,omitempty" cms:"desc,textarea"`
 	DataURL    string `json:"url,omitempty" cms:"url,url"`
