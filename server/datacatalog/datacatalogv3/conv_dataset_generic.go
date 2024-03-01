@@ -48,11 +48,6 @@ func (i *GenericItem) toDatasets(area *areaContext, dts []plateauapi.DatasetType
 		}, true
 	})
 
-	if len(items) == 0 {
-		warning = append(warning, fmt.Sprintf("generic %s: no items", i.ID))
-		return
-	}
-
 	res := plateauapi.GenericDataset{
 		ID:                id,
 		Name:              standardItemName(i.Name, "", area.Name()),
