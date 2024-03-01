@@ -24,7 +24,7 @@ func (city *CityItem) ToPrefecture() *plateauapi.Prefecture {
 }
 
 func (city *CityItem) ToCity() *plateauapi.City {
-	if city == nil || city.CityName == "" || len(city.CityCode) < 2 {
+	if city == nil || city.CityName == "" || len(city.CityCode) < 3 {
 		return nil
 	}
 
