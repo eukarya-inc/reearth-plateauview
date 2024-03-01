@@ -26,6 +26,9 @@ type IndexItem struct {
 
 func PrepareIndex(ctx context.Context, cw *CMSWrapper, seed *IndexSeed) (err error) {
 	defer func() {
+		if err == nil {
+			return
+		}
 		err = fmt.Errorf("目録の生成に失敗しました: %w", err)
 		cw.Comment(ctx, err.Error())
 	}()
