@@ -20,7 +20,7 @@ func TestDatasetItem_DataCatalogs(t *testing.T) {
 		City:        "大阪市",
 		CityCode:    "27100",
 		Ward:        "北区",
-		WardCode:    "27146",
+		WardCode:    "27127",
 		Format:      "3dtiles",
 		Layers:      []string{"layers", "layers2"},
 		URL:         "https://example.com/aaaaa/tileset.json",
