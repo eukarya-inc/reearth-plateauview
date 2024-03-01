@@ -28,7 +28,7 @@ func (i *PlateauFeatureItem) toWards(pref *plateauapi.Prefecture, city *plateaua
 		}
 
 		ward := &plateauapi.Ward{
-			ID:             plateauapi.NewID(entry.Code.String(), plateauapi.TypeArea),
+			ID:             plateauapi.NewID(entry.Code.String(), plateauapi.TypeWard),
 			Name:           name,
 			Type:           plateauapi.AreaTypeWard,
 			Code:           plateauapi.AreaCode(entry.Code.String()),

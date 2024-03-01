@@ -33,16 +33,16 @@ func TestRepos(t *testing.T) {
 		assert.NoError(t, err)
 		if !isPref {
 			assert.Equal(t, &plateauapi.City{
-				ID:             plateauapi.ID("a_" + cityCode),
+				ID:             plateauapi.ID("c_" + cityCode),
 				Type:           plateauapi.AreaTypeCity,
 				Code:           plateauapi.AreaCode(cityCode),
 				Name:           cityName,
-				PrefectureID:   plateauapi.ID("a_" + prefCode),
+				PrefectureID:   plateauapi.ID("p_" + prefCode),
 				PrefectureCode: plateauapi.AreaCode(prefCode),
 			}, area)
 		} else {
 			assert.Equal(t, &plateauapi.Prefecture{
-				ID:   plateauapi.ID("a_" + cityCode),
+				ID:   plateauapi.ID("p_" + cityCode),
 				Type: plateauapi.AreaTypePrefecture,
 				Code: plateauapi.AreaCode(cityCode),
 				Name: cityName,
@@ -65,7 +65,7 @@ func TestRepos(t *testing.T) {
 		var cityID *plateauapi.ID
 		var cityCodeGQL *plateauapi.AreaCode
 		if !isPref {
-			cityID = lo.ToPtr(plateauapi.ID("a_" + cityCode))
+			cityID = lo.ToPtr(plateauapi.ID("c_" + cityCode))
 			cityCodeGQL = lo.ToPtr(plateauapi.AreaCode(cityCode))
 		}
 
@@ -76,7 +76,7 @@ func TestRepos(t *testing.T) {
 					Name:               "建築物モデル（" + cityName + "）",
 					Year:               2023,
 					RegisterationYear:  2023,
-					PrefectureID:       lo.ToPtr(plateauapi.ID("a_00")),
+					PrefectureID:       lo.ToPtr(plateauapi.ID("p_00")),
 					PrefectureCode:     lo.ToPtr(plateauapi.AreaCode("00")),
 					CityID:             cityID,
 					CityCode:           cityCodeGQL,

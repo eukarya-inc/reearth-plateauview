@@ -352,21 +352,21 @@ func prefectureIDFrom(d datacatalogv2.DataCatalogItem) *plateauapi.ID {
 	if d.PrefCode == "" {
 		return nil
 	}
-	return lo.ToPtr(plateauapi.NewID(d.PrefCode, plateauapi.TypeArea))
+	return lo.ToPtr(plateauapi.NewID(d.PrefCode, plateauapi.TypePrefecture))
 }
 
 func cityIDFrom(d datacatalogv2.DataCatalogItem) *plateauapi.ID {
 	if d.CityCode == "" {
 		return nil
 	}
-	return lo.ToPtr(plateauapi.NewID(d.CityCode, plateauapi.TypeArea))
+	return lo.ToPtr(plateauapi.NewID(d.CityCode, plateauapi.TypeCity))
 }
 
 func wardIDFrom(d datacatalogv2.DataCatalogItem) *plateauapi.ID {
 	if d.WardCode == "" {
 		return nil
 	}
-	return lo.ToPtr(plateauapi.NewID(d.WardCode, plateauapi.TypeArea))
+	return lo.ToPtr(plateauapi.NewID(d.WardCode, plateauapi.TypeWard))
 }
 
 func prefectureCodeFrom(d datacatalogv2.DataCatalogItem) *plateauapi.AreaCode {

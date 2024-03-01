@@ -431,14 +431,14 @@ func TestInMemoryRepo_Node(t *testing.T) {
 	a := NewInMemoryRepo(&InMemoryRepoContext{
 		Areas: Areas{
 			AreaTypePrefecture: []Area{
-				&Prefecture{ID: NewID("01", TypeArea), Name: "北海道"},
-				&Prefecture{ID: NewID("02", TypeArea), Name: "青森県"},
+				&Prefecture{ID: NewID("01", TypePrefecture), Name: "北海道"},
+				&Prefecture{ID: NewID("02", TypePrefecture), Name: "青森県"},
 			},
 			AreaTypeCity: []Area{
-				&City{ID: NewID("01100", TypeArea), Name: "札幌市", PrefectureCode: "01"},
+				&City{ID: NewID("01100", TypeCity), Name: "札幌市", PrefectureCode: "01"},
 			},
 			AreaTypeWard: []Area{
-				&Ward{ID: NewID("01101", TypeArea), Name: "中央区", CityCode: "01100", PrefectureCode: "01"},
+				&Ward{ID: NewID("01101", TypeWard), Name: "中央区", CityCode: "01100", PrefectureCode: "01"},
 			},
 		},
 		DatasetTypes: DatasetTypes{
@@ -475,23 +475,23 @@ func TestInMemoryRepo_Node(t *testing.T) {
 	}{
 		{
 			name:     "invalid id",
-			id:       NewID("99", TypeArea),
+			id:       NewID("99", TypePrefecture),
 			expected: nil,
 		},
 		{
 			name:     "prefecture",
-			id:       NewID("01", TypeArea),
-			expected: &Prefecture{ID: NewID("01", TypeArea), Name: "北海道"},
+			id:       NewID("01", TypePrefecture),
+			expected: &Prefecture{ID: NewID("01", TypePrefecture), Name: "北海道"},
 		},
 		{
 			name:     "city",
-			id:       NewID("01100", TypeArea),
-			expected: &City{ID: NewID("01100", TypeArea), Name: "札幌市", PrefectureCode: "01"},
+			id:       NewID("01100", TypeCity),
+			expected: &City{ID: NewID("01100", TypeCity), Name: "札幌市", PrefectureCode: "01"},
 		},
 		{
 			name:     "ward",
-			id:       NewID("01101", TypeArea),
-			expected: &Ward{ID: NewID("01101", TypeArea), Name: "中央区", CityCode: "01100", PrefectureCode: "01"},
+			id:       NewID("01101", TypeWard),
+			expected: &Ward{ID: NewID("01101", TypeWard), Name: "中央区", CityCode: "01100", PrefectureCode: "01"},
 		},
 		{
 			name:     "plateau dataset type",
@@ -549,8 +549,8 @@ func TestInMemoryRepo_Nodes(t *testing.T) {
 	a := NewInMemoryRepo(&InMemoryRepoContext{
 		Areas: Areas{
 			AreaTypePrefecture: []Area{
-				&Prefecture{ID: NewID("01", TypeArea), Name: "北海道"},
-				&Prefecture{ID: NewID("02", TypeArea), Name: "青森県"},
+				&Prefecture{ID: NewID("01", TypePrefecture), Name: "北海道"},
+				&Prefecture{ID: NewID("02", TypePrefecture), Name: "青森県"},
 			},
 		},
 	})
@@ -567,31 +567,31 @@ func TestInMemoryRepo_Nodes(t *testing.T) {
 		},
 		{
 			name: "single id",
-			ids:  []ID{NewID("01", TypeArea)},
+			ids:  []ID{NewID("01", TypePrefecture)},
 			expected: []Node{
-				&Prefecture{ID: NewID("01", TypeArea), Name: "北海道"},
+				&Prefecture{ID: NewID("01", TypePrefecture), Name: "北海道"},
 			},
 		},
 		{
 			name: "multiple ids",
 			ids: []ID{
-				NewID("01", TypeArea),
-				NewID("02", TypeArea),
+				NewID("01", TypePrefecture),
+				NewID("02", TypePrefecture),
 			},
 			expected: []Node{
-				&Prefecture{ID: NewID("01", TypeArea), Name: "北海道"},
-				&Prefecture{ID: NewID("02", TypeArea), Name: "青森県"},
+				&Prefecture{ID: NewID("01", TypePrefecture), Name: "北海道"},
+				&Prefecture{ID: NewID("02", TypePrefecture), Name: "青森県"},
 			},
 		},
 		{
 			name: "multiple ids with an invalid id",
 			ids: []ID{
-				NewID("99", TypeArea),
-				NewID("02", TypeArea),
+				NewID("99", TypePrefecture),
+				NewID("02", TypePrefecture),
 			},
 			expected: []Node{
 				nil,
-				&Prefecture{ID: NewID("02", TypeArea), Name: "青森県"},
+				&Prefecture{ID: NewID("02", TypePrefecture), Name: "青森県"},
 			},
 		},
 	}

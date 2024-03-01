@@ -36,7 +36,7 @@ func TestNewCache(t *testing.T) {
 			plateauapi.AreaTypePrefecture: []plateauapi.Area{
 				plateauapi.Prefecture{
 					Type: plateauapi.AreaTypePrefecture,
-					ID:   "a_13",
+					ID:   "p_13",
 					Name: "東京都",
 					Code: plateauapi.AreaCode("13"),
 				},
@@ -44,10 +44,10 @@ func TestNewCache(t *testing.T) {
 			plateauapi.AreaTypeCity: []plateauapi.Area{
 				plateauapi.City{
 					Type:           plateauapi.AreaTypeCity,
-					ID:             "a_13101",
+					ID:             "c_13101",
 					Name:           "東京都23区",
 					Code:           plateauapi.AreaCode("13101"),
-					PrefectureID:   plateauapi.ID("a_13"),
+					PrefectureID:   plateauapi.ID("p_13"),
 					PrefectureCode: plateauapi.AreaCode("13"),
 				},
 			},
@@ -75,9 +75,9 @@ func TestNewCache(t *testing.T) {
 					RegisterationYear:  2022,
 					OpenDataURL:        lo.ToPtr("https://www.geospatial.jp/ckan/dataset/plateau-13101-tokyo23ku-2022"),
 					Description:        lo.ToPtr("bldg_desc"),
-					PrefectureID:       lo.ToPtr(plateauapi.ID("a_13")),
+					PrefectureID:       lo.ToPtr(plateauapi.ID("p_13")),
 					PrefectureCode:     lo.ToPtr(plateauapi.AreaCode("13")),
-					CityID:             lo.ToPtr(plateauapi.ID("a_13101")),
+					CityID:             lo.ToPtr(plateauapi.ID("c_13101")),
 					CityCode:           lo.ToPtr(plateauapi.AreaCode("13101")),
 					TypeID:             "dt_bldg_2",
 					TypeCode:           "bldg",
