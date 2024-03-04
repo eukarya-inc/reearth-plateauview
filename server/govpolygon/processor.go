@@ -3,6 +3,7 @@ package govpolygon
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"os"
 	"path/filepath"
 
@@ -12,30 +13,25 @@ import (
 )
 
 type Processor struct {
-	dirpath  string
-	key1     string
-	key2     string
-	features []*geojson.Feature
+	dirpath string
+	key1    string
+	key2    string
 }
 
 func NewProcessor(dirpath, key1, key2 string) *Processor {
 	return &Processor{dirpath: dirpath, key1: key1, key2: key2}
 }
 
-func (p *Processor) Init() error {
+func (p *Processor) ComputeGeoJSON(ctx context.Context, values []string) ([]byte, error) {
 	features, err := loadFeatures(context.Background(), p.dirpath)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	p.features = features
-	return nil
-}
 
-func (p *Processor) ComputeGeoJSON(ctx context.Context, values []string) ([]byte, error) {
-	if p.features == nil {
-		return nil, nil
+	if features == nil {
+		return nil, fmt.Errorf("no features found")
 	}
-	return computeGeoJSON(p.features, p.key1, p.key2, values)
+	return computeGeoJSON(features, p.key1, p.key2, values)
 }
 
 func computeGeoJSON(features []*geojson.Feature, key1, key2 string, values []string) ([]byte, error) {

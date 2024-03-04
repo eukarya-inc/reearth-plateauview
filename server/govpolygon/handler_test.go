@@ -40,7 +40,6 @@ func TestProcessor(t *testing.T) {
 		key2:    key2,
 	}
 
-	assert.NoError(t, p.Init())
 	ctx := context.Background()
 	values := []string{"東京都千代田区"}
 	geojson, err := p.ComputeGeoJSON(ctx, values)
