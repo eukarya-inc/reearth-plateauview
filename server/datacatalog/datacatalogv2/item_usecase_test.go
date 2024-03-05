@@ -26,7 +26,9 @@ func TestUsecaseItem_DataCatalogs(t *testing.T) {
 		CityName: "city",
 		WardName: "ward",
 		Data: &cms.PublicAsset{
-			URL: "url",
+			Asset: cms.Asset{
+				URL: "url",
+			},
 		},
 		Year:     "2023年度",
 		Category: "aaa",

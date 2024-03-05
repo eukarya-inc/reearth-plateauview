@@ -12,35 +12,23 @@ import (
 func TestBldg(t *testing.T) {
 	// case1: multiple wards
 	i := CMSItem{
-		ID:         "id",
-		Prefecture: "北海道",
-		CityName:   "札幌市",
-		CityGML: &cms.PublicAsset{
-			URL: "https://example.com/01100_sapporo-shi_2020_citygml_op.zip",
-		},
+		ID:              "id",
+		Prefecture:      "北海道",
+		CityName:        "札幌市",
+		CityGML:         urlToA("https://example.com/01100_sapporo-shi_2020_citygml_op.zip"),
 		DescriptionBldg: "説明",
 		OpenDataURL:     "https://example.com",
 		Bldg: []*cms.PublicAsset{
-			{
-				URL: "https://example.com/01100_sapporo-shi_2020_3dtiles_op_bldg_01101_chuo-ku_lod2.zip",
-			},
-			{
-				URL: "https://example.com/01100_sapporo-shi_2020_3dtiles_op_bldg_01101_chuo-ku_lod1.zip",
-			},
-			{
-				URL: "https://example.com/01100_sapporo-shi_2020_3dtiles_op_bldg_01102_kita-ku_lod1.zip",
-			},
-			{
-				URL: "https://example.com/01100_sapporo-shi_2020_3dtiles_op_bldg_01102_kita-ku_lod1_no_texture.zip",
-			},
+			urlToA("https://example.com/01100_sapporo-shi_2020_3dtiles_op_bldg_01101_chuo-ku_lod2.zip"),
+			urlToA("https://example.com/01100_sapporo-shi_2020_3dtiles_op_bldg_01101_chuo-ku_lod1.zip"),
+			urlToA("https://example.com/01100_sapporo-shi_2020_3dtiles_op_bldg_01102_kita-ku_lod1.zip"),
+			urlToA("https://example.com/01100_sapporo-shi_2020_3dtiles_op_bldg_01102_kita-ku_lod1_no_texture.zip"),
 		},
 		SearchIndex: []*cms.PublicAsset{
-			{
-				URL: "https://example.com/01100_sapporo-shi_2020_3dtiles_op_bldg_01101_chuo-ku_index.zip",
-			},
-			{
-				URL: "https://example.com/01100_sapporo-shi_2020_3dtiles_op_bldg_01102_kita-ku_index.zip",
-			},
+
+			urlToA("https://example.com/01100_sapporo-shi_2020_3dtiles_op_bldg_01101_chuo-ku_index.zip"),
+
+			urlToA("https://example.com/01100_sapporo-shi_2020_3dtiles_op_bldg_01102_kita-ku_index.zip"),
 		},
 		Dic: `{"admin":[{"name":"chuo-ku","code":"01101","description":"中央区"},{"name":"kita-ku","code":"01102","description":"北区"}]}`,
 	}
@@ -128,23 +116,19 @@ func TestBldg(t *testing.T) {
 		ID:         "id",
 		Prefecture: "北海道",
 		CityName:   "札幌市",
-		CityGML: &cms.PublicAsset{
-			URL: "https://example.com/01100_sapporo-shi_2020_citygml_op.zip",
-		},
+		CityGML:    urlToA("https://example.com/01100_sapporo-shi_2020_citygml_op.zip"),
+
 		DescriptionBldg: "説明",
 		OpenDataURL:     "https://example.com",
 		Bldg: []*cms.PublicAsset{
-			{
-				URL: "https://example.com/01100_sapporo-shi_2020_3dtiles_op_bldg_lod1.zip",
-			},
-			{
-				URL: "https://example.com/01100_sapporo-shi_2020_3dtiles_op_bldg_lod2.zip",
-			},
+
+			urlToA("https://example.com/01100_sapporo-shi_2020_3dtiles_op_bldg_lod1.zip"),
+
+			urlToA("https://example.com/01100_sapporo-shi_2020_3dtiles_op_bldg_lod2.zip"),
 		},
 		SearchIndex: []*cms.PublicAsset{
-			{
-				URL: "https://example.com/01100_sapporo-shi_2020_3dtiles_op_bldg_index.zip",
-			},
+
+			urlToA("https://example.com/01100_sapporo-shi_2020_3dtiles_op_bldg_index.zip"),
 		},
 	}
 
@@ -192,21 +176,17 @@ func TestTran(t *testing.T) {
 		ID:         "id",
 		Prefecture: "北海道",
 		CityName:   "札幌市",
-		CityGML: &cms.PublicAsset{
-			URL: "https://example.com/01100_sapporo-shi_2020_citygml_op.zip",
-		},
+		CityGML:    urlToA("https://example.com/01100_sapporo-shi_2020_citygml_op.zip"),
+
 		DescriptionTran: "説明",
 		OpenDataURL:     "https://example.com",
 		Tran: []*cms.PublicAsset{
-			{
-				URL: "https://example.com/01100_sapporo-shi_2020_mvt_op_tran_lod1.zip",
-			},
-			{
-				URL: "https://example.com/01100_sapporo-shi_2020_mvt_op_tran_lod2.zip",
-			},
-			{
-				URL: "https://example.com/01100_sapporo-shi_2020_3dtiles_op_tran_lod3.zip",
-			},
+
+			urlToA("https://example.com/01100_sapporo-shi_2020_mvt_op_tran_lod1.zip"),
+
+			urlToA("https://example.com/01100_sapporo-shi_2020_mvt_op_tran_lod2.zip"),
+
+			urlToA("https://example.com/01100_sapporo-shi_2020_3dtiles_op_tran_lod3.zip"),
 		},
 	}
 
@@ -257,15 +237,13 @@ func TestTran(t *testing.T) {
 		ID:         "id",
 		Prefecture: "北海道",
 		CityName:   "札幌市",
-		CityGML: &cms.PublicAsset{
-			URL: "https://example.com/01100_sapporo-shi_2020_citygml_op.zip",
-		},
+		CityGML:    urlToA("https://example.com/01100_sapporo-shi_2020_citygml_op.zip"),
+
 		DescriptionTran: "説明",
 		OpenDataURL:     "https://example.com",
 		Tran: []*cms.PublicAsset{
-			{
-				URL: "https://example.com/01100_sapporo-shi_2020_mvt_op_tran_lod1.zip",
-			},
+
+			urlToA("https://example.com/01100_sapporo-shi_2020_mvt_op_tran_lod1.zip"),
 		},
 	}
 
@@ -309,18 +287,15 @@ func TestFrn(t *testing.T) {
 		ID:         "id",
 		Prefecture: "北海道",
 		CityName:   "札幌市",
-		CityGML: &cms.PublicAsset{
-			URL: "https://example.com/01100_sapporo-shi_2020_citygml_op.zip",
-		},
+		CityGML:    urlToA("https://example.com/01100_sapporo-shi_2020_citygml_op.zip"),
+
 		DescriptionFrn: "説明",
 		OpenDataURL:    "https://example.com",
 		Frn: []*cms.PublicAsset{
-			{
-				URL: "https://example.com/01100_sapporo-shi_2020_3dtiles_op_frn_lod1.zip",
-			},
-			{
-				URL: "https://example.com/01100_sapporo-shi_2020_3dtiles_op_frn_lod3.zip",
-			},
+
+			urlToA("https://example.com/01100_sapporo-shi_2020_3dtiles_op_frn_lod1.zip"),
+
+			urlToA("https://example.com/01100_sapporo-shi_2020_3dtiles_op_frn_lod3.zip"),
 		},
 	}
 
@@ -365,15 +340,13 @@ func TestFrn(t *testing.T) {
 		ID:         "id",
 		Prefecture: "北海道",
 		CityName:   "札幌市",
-		CityGML: &cms.PublicAsset{
-			URL: "https://example.com/01100_sapporo-shi_2020_citygml_op.zip",
-		},
+		CityGML:    urlToA("https://example.com/01100_sapporo-shi_2020_citygml_op.zip"),
+
 		DescriptionFrn: "説明",
 		OpenDataURL:    "https://example.com",
 		Frn: []*cms.PublicAsset{
-			{
-				URL: "https://example.com/01100_sapporo-shi_2020_3dtiles_op_frn.zip",
-			},
+
+			urlToA("https://example.com/01100_sapporo-shi_2020_3dtiles_op_frn.zip"),
 		},
 	}
 
@@ -412,21 +385,16 @@ func TestFrn(t *testing.T) {
 func TestVeg(t *testing.T) {
 	// case1: multiple LODs
 	i := CMSItem{
-		ID:         "id",
-		Prefecture: "北海道",
-		CityName:   "札幌市",
-		CityGML: &cms.PublicAsset{
-			URL: "https://example.com/01100_sapporo-shi_2020_citygml_op.zip",
-		},
+		ID:             "id",
+		Prefecture:     "北海道",
+		CityName:       "札幌市",
+		CityGML:        urlToA("https://example.com/01100_sapporo-shi_2020_citygml_op.zip"),
 		DescriptionVeg: "説明",
 		OpenDataURL:    "https://example.com",
 		Veg: []*cms.PublicAsset{
-			{
-				URL: "https://example.com/01100_sapporo-shi_2020_3dtiles_op_veg_lod1.zip",
-			},
-			{
-				URL: "https://example.com/01100_sapporo-shi_2020_3dtiles_op_veg_lod3.zip",
-			},
+			urlToA("https://example.com/01100_sapporo-shi_2020_3dtiles_op_veg_lod1.zip"),
+
+			urlToA("https://example.com/01100_sapporo-shi_2020_3dtiles_op_veg_lod3.zip"),
 		},
 	}
 
@@ -468,18 +436,14 @@ func TestVeg(t *testing.T) {
 
 	// case2: no LOD
 	i = CMSItem{
-		ID:         "id",
-		Prefecture: "北海道",
-		CityName:   "札幌市",
-		CityGML: &cms.PublicAsset{
-			URL: "https://example.com/01100_sapporo-shi_2020_citygml_op.zip",
-		},
+		ID:             "id",
+		Prefecture:     "北海道",
+		CityName:       "札幌市",
+		CityGML:        urlToA("https://example.com/01100_sapporo-shi_2020_citygml_op.zip"),
 		DescriptionVeg: "説明",
 		OpenDataURL:    "https://example.com",
 		Veg: []*cms.PublicAsset{
-			{
-				URL: "https://example.com/01100_sapporo-shi_2020_3dtiles_op_veg.zip",
-			},
+			urlToA("https://example.com/01100_sapporo-shi_2020_3dtiles_op_veg.zip"),
 		},
 	}
 
@@ -517,18 +481,15 @@ func TestVeg(t *testing.T) {
 
 func TestLuse(t *testing.T) {
 	i := CMSItem{
-		ID:         "id",
-		Prefecture: "北海道",
-		CityName:   "札幌市",
-		CityGML: &cms.PublicAsset{
-			URL: "https://example.com/01100_sapporo-shi_2020_citygml_op.zip",
-		},
+		ID:              "id",
+		Prefecture:      "北海道",
+		CityName:        "札幌市",
+		CityGML:         urlToA("https://example.com/01100_sapporo-shi_2020_citygml_op.zip"),
 		DescriptionLuse: "説明",
 		OpenDataURL:     "https://example.com",
 		Luse: []*cms.PublicAsset{
-			{
-				URL: "https://example.com/01100_sapporo-shi_2020_mvt_op_luse.zip",
-			},
+
+			urlToA("https://example.com/01100_sapporo-shi_2020_mvt_op_luse.zip"),
 		},
 	}
 
@@ -561,15 +522,13 @@ func TestLsld(t *testing.T) {
 		ID:         "id",
 		Prefecture: "北海道",
 		CityName:   "札幌市",
-		CityGML: &cms.PublicAsset{
-			URL: "https://example.com/01100_sapporo-shi_2020_citygml_op.zip",
-		},
+		CityGML:    urlToA("https://example.com/01100_sapporo-shi_2020_citygml_op.zip"),
+
 		DescriptionLsld: "説明",
 		OpenDataURL:     "https://example.com",
 		Lsld: []*cms.PublicAsset{
-			{
-				URL: "https://example.com/01100_sapporo-shi_2020_mvt_op_lsld.zip",
-			},
+
+			urlToA("https://example.com/01100_sapporo-shi_2020_mvt_op_lsld.zip"),
 		},
 	}
 
@@ -602,27 +561,17 @@ func TestUrf(t *testing.T) {
 		ID:         "id",
 		Prefecture: "北海道",
 		CityName:   "札幌市",
-		CityGML: &cms.PublicAsset{
-			URL: "https://example.com/01100_sapporo-shi_2020_citygml_op.zip",
-		},
+		CityGML:    urlToA("https://example.com/01100_sapporo-shi_2020_citygml_op.zip"),
 		DescriptionUrf: []string{
 			"01100_sapporo-shi_2020_mvt_op_urf_QuasiUrbanPlanningArea.zip\n説明1",
 			"01100_sapporo-shi_2020_mvt_op_urf_AreaClassification.zip\n\n説明2",
 		},
 		OpenDataURL: "https://example.com",
 		Urf: []*cms.PublicAsset{
-			{
-				URL: "https://example.com/01100_sapporo-shi_2020_mvt_op_urf_AreaClassification.zip",
-			},
-			{
-				URL: "https://example.com/01100_sapporo-shi_2020_mvt_op_urf_QuasiUrbanPlanningArea.zip",
-			},
-			{
-				URL: "https://example.com/01100_sapporo-shi_2020_mvt_op_urf_DistrictsAndZones.zip",
-			},
-			{
-				URL: "https://example.com/01100_sapporo-shi_2020_mvt_op_urf_XXX.zip",
-			},
+			urlToA("https://example.com/01100_sapporo-shi_2020_mvt_op_urf_AreaClassification.zip"),
+			urlToA("https://example.com/01100_sapporo-shi_2020_mvt_op_urf_QuasiUrbanPlanningArea.zip"),
+			urlToA("https://example.com/01100_sapporo-shi_2020_mvt_op_urf_DistrictsAndZones.zip"),
+			urlToA("https://example.com/01100_sapporo-shi_2020_mvt_op_urf_XXX.zip"),
 		},
 	}
 
@@ -725,36 +674,27 @@ func TestFld(t *testing.T) {
 		ID:         "id",
 		Prefecture: "北海道",
 		CityName:   "札幌市",
-		CityGML: &cms.PublicAsset{
-			URL: "https://example.com/01100_sapporo-shi_2020_citygml_op.zip",
-		},
+		CityGML:    urlToA("https://example.com/01100_sapporo-shi_2020_citygml_op.zip"),
 		DescriptionFld: []string{
 			"01100_sapporo-shi_2020_3dtiles_op_fld_natl_shikarigawa_toyohiragawa_l1\n説明1",
 			"01100_sapporo-shi_2020_3dtiles_op_fld_pref_shinkawa_shinkawa_l1.zip\n\n説明2",
 		},
 		OpenDataURL: "https://example.com",
 		Fld: []*cms.PublicAsset{
-			{
-				URL: "https://example.com/01100_sapporo-shi_2020_3dtiles_op_fld_natl_shinkawa_shinkawa_l2.zip",
-			},
-			{
-				URL: "https://example.com/01100_sapporo-shi_2020_3dtiles_op_fld_pref_shinkawa_shinkawa_l1.zip",
-			},
-			{
-				URL: "https://example.com/01100_sapporo-shi_2020_3dtiles_op_fld_natl_shikarigawa_toyohiragawa_l1.zip",
-			},
-			{
-				URL: "https://example.com/01100_sapporo-shi_2020_3dtiles_op_fld_natl_shinkawa_shinkawa_l1.zip",
-			},
-			{
-				URL: "https://example.com/01100_sapporo-shi_2020_3dtiles_op_fld_natl_shikarigawa_toyohiragawa_l2.zip",
-			},
-			{
-				URL: "https://example.com/01100_sapporo-shi_2020_3dtiles_op_fld_pref_shinkawa_shinkawa_l2.zip",
-			},
-			{
-				URL: "https://example.com/01100_sapporo-shi_2020_3dtiles_op_fld_pref_zfoobar_l2.zip",
-			},
+
+			urlToA("https://example.com/01100_sapporo-shi_2020_3dtiles_op_fld_natl_shinkawa_shinkawa_l2.zip"),
+
+			urlToA("https://example.com/01100_sapporo-shi_2020_3dtiles_op_fld_pref_shinkawa_shinkawa_l1.zip"),
+
+			urlToA("https://example.com/01100_sapporo-shi_2020_3dtiles_op_fld_natl_shikarigawa_toyohiragawa_l1.zip"),
+
+			urlToA("https://example.com/01100_sapporo-shi_2020_3dtiles_op_fld_natl_shinkawa_shinkawa_l1.zip"),
+
+			urlToA("https://example.com/01100_sapporo-shi_2020_3dtiles_op_fld_natl_shikarigawa_toyohiragawa_l2.zip"),
+
+			urlToA("https://example.com/01100_sapporo-shi_2020_3dtiles_op_fld_pref_shinkawa_shinkawa_l2.zip"),
+
+			urlToA("https://example.com/01100_sapporo-shi_2020_3dtiles_op_fld_pref_zfoobar_l2.zip"),
 		},
 		Dic: `{"fld":[
 			{ "name":"shikarigawa_toyohiragawa_l1", "admin": "国", "description":"石狩川水系豊平川", "scale":"計画規模" },
@@ -905,23 +845,15 @@ func TestTnm(t *testing.T) {
 		ID:         "id",
 		Prefecture: "北海道",
 		CityName:   "札幌市",
-		CityGML: &cms.PublicAsset{
-			URL: "https://example.com/01100_sapporo-shi_2020_citygml_op.zip",
-		},
+		CityGML:    urlToA("https://example.com/01100_sapporo-shi_2020_citygml_op.zip"),
 		DescriptionTnm: []string{
 			"01100_sapporo-shi_2020_3dtiles_4_op_tnm_01_1.zip\n説明1",
 		},
 		OpenDataURL: "https://example.com",
 		Tnm: []*cms.PublicAsset{
-			{
-				URL: "https://example.com/01100_sapporo-shi_2020_3dtiles_4_op_tnm_01_1.zip",
-			},
-			{
-				URL: "https://example.com/01100_sapporo-shi_2020_3dtiles_4_op_tnm_02_1.zip",
-			},
-			{
-				URL: "https://example.com/01100_sapporo-shi_2020_3dtiles_4_op_tnm_03_1.zip",
-			},
+			urlToA("https://example.com/01100_sapporo-shi_2020_3dtiles_4_op_tnm_01_1.zip"),
+			urlToA("https://example.com/01100_sapporo-shi_2020_3dtiles_4_op_tnm_02_1.zip"),
+			urlToA("https://example.com/01100_sapporo-shi_2020_3dtiles_4_op_tnm_03_1.zip"),
 		},
 		Dic: `{"tnm":[
 			{ "name":"01_1", "description":"津波1" },
@@ -996,20 +928,14 @@ func TestHtd(t *testing.T) {
 		ID:         "id",
 		Prefecture: "北海道",
 		CityName:   "札幌市",
-		CityGML: &cms.PublicAsset{
-			URL: "https://example.com/01100_sapporo-shi_2020_citygml_op.zip",
-		},
+		CityGML:    urlToA("https://example.com/01100_sapporo-shi_2020_citygml_op.zip"),
 		DescriptionHtd: []string{
 			"01100_sapporo-shi_2020_3dtiles_4_op_htd_01_1.zip\n説明",
 		},
 		OpenDataURL: "https://example.com",
 		Htd: []*cms.PublicAsset{
-			{
-				URL: "https://example.com/01100_sapporo-shi_2020_3dtiles_4_op_htd_01_1.zip",
-			},
-			{
-				URL: "https://example.com/01100_sapporo-shi_2020_3dtiles_4_op_htd_02_1.zip",
-			},
+			urlToA("https://example.com/01100_sapporo-shi_2020_3dtiles_4_op_htd_01_1.zip"),
+			urlToA("https://example.com/01100_sapporo-shi_2020_3dtiles_4_op_htd_02_1.zip"),
 		},
 		Dic: `{"htd":[
 			{ "name":"01_1", "description":"高潮1" }
@@ -1064,20 +990,14 @@ func TestIfld(t *testing.T) {
 		ID:         "id",
 		Prefecture: "北海道",
 		CityName:   "札幌市",
-		CityGML: &cms.PublicAsset{
-			URL: "https://example.com/01100_sapporo-shi_2020_citygml_op.zip",
-		},
+		CityGML:    urlToA("https://example.com/01100_sapporo-shi_2020_citygml_op.zip"),
 		DescriptionIfld: []string{
 			"01100_sapporo-shi_2020_3dtiles_4_op_ifld_01_1.zip\n説明",
 		},
 		OpenDataURL: "https://example.com",
 		Ifld: []*cms.PublicAsset{
-			{
-				URL: "https://example.com/01100_sapporo-shi_2020_3dtiles_4_op_ifld_01_1.zip",
-			},
-			{
-				URL: "https://example.com/01100_sapporo-shi_2020_3dtiles_4_op_ifld_02_1.zip",
-			},
+			urlToA("https://example.com/01100_sapporo-shi_2020_3dtiles_4_op_ifld_01_1.zip"),
+			urlToA("https://example.com/01100_sapporo-shi_2020_3dtiles_4_op_ifld_02_1.zip"),
 		},
 		Dic: `{"ifld":[
 			{ "name":"01_1", "description":"内水1" }
@@ -1132,21 +1052,15 @@ func TestGen(t *testing.T) {
 		ID:         "id",
 		Prefecture: "北海道",
 		CityName:   "札幌市",
-		CityGML: &cms.PublicAsset{
-			URL: "https://example.com/01100_sapporo-shi_2020_citygml_op.zip",
-		},
+		CityGML:    urlToA("https://example.com/01100_sapporo-shi_2020_citygml_op.zip"),
 		DescriptionGen: []string{
 			"01100_sapporo-shi_2020_mvt_4_op_gen_AAA_AAA.zip\n@name: 名称\n@root: true\n@order: 100\n説明1",
 			"01100_sapporo-shi_2020_3dtiles_4_op_gen_BBB_BBB.zip\n説明2",
 		},
 		OpenDataURL: "https://example.com",
 		Gen: []*cms.PublicAsset{
-			{
-				URL: "https://example.com/01100_sapporo-shi_2020_mvt_4_op_gen_AAA_AAA.zip",
-			},
-			{
-				URL: "https://example.com/01100_sapporo-shi_2020_3dtiles_4_op_gen_BBB_BBB.zip",
-			},
+			urlToA("https://example.com/01100_sapporo-shi_2020_mvt_4_op_gen_AAA_AAA.zip"),
+			urlToA("https://example.com/01100_sapporo-shi_2020_3dtiles_4_op_gen_BBB_BBB.zip"),
 		},
 	}
 
@@ -1218,21 +1132,17 @@ func TestGen(t *testing.T) {
 
 func TestBrid(t *testing.T) {
 	i := CMSItem{
-		ID:         "id",
-		Prefecture: "北海道",
-		CityName:   "札幌市",
-		CityGML: &cms.PublicAsset{
-			URL: "https://example.com/01100_sapporo-shi_2020_citygml_op.zip",
-		},
+		ID:              "id",
+		Prefecture:      "北海道",
+		CityName:        "札幌市",
+		CityGML:         urlToA("https://example.com/01100_sapporo-shi_2020_citygml_op.zip"),
 		DescriptionBrid: "説明",
 		OpenDataURL:     "https://example.com",
 		Brid: []*cms.PublicAsset{
-			{
-				URL: "https://example.com/01100_sapporo-shi_2020_mvt_4_op_brid_lod1.zip",
-			},
-			{
-				URL: "https://example.com/01100_sapporo-shi_2020_3dtiles_4_op_brid_lod3.zip",
-			},
+
+			urlToA("https://example.com/01100_sapporo-shi_2020_mvt_4_op_brid_lod1.zip"),
+
+			urlToA("https://example.com/01100_sapporo-shi_2020_3dtiles_4_op_brid_lod3.zip"),
 		},
 	}
 
@@ -1277,21 +1187,17 @@ func TestBrid(t *testing.T) {
 
 func TestRail(t *testing.T) {
 	i := CMSItem{
-		ID:         "id",
-		Prefecture: "北海道",
-		CityName:   "札幌市",
-		CityGML: &cms.PublicAsset{
-			URL: "https://example.com/01100_sapporo-shi_2020_citygml_op.zip",
-		},
+		ID:              "id",
+		Prefecture:      "北海道",
+		CityName:        "札幌市",
+		CityGML:         urlToA("https://example.com/01100_sapporo-shi_2020_citygml_op.zip"),
 		DescriptionRail: "説明",
 		OpenDataURL:     "https://example.com",
 		Rail: []*cms.PublicAsset{
-			{
-				URL: "https://example.com/01100_sapporo-shi_2020_mvt_4_op_rail.zip",
-			},
-			{
-				URL: "https://example.com/01100_sapporo-shi_2020_3dtiles_4_op_rail.zip",
-			},
+
+			urlToA("https://example.com/01100_sapporo-shi_2020_mvt_4_op_rail.zip"),
+
+			urlToA("https://example.com/01100_sapporo-shi_2020_3dtiles_4_op_rail.zip"),
 		},
 	}
 
@@ -1339,9 +1245,7 @@ func TestExtra(t *testing.T) {
 		ID:         "id",
 		Prefecture: "北海道",
 		CityName:   "札幌市",
-		CityGML: &cms.PublicAsset{
-			URL: "https://example.com/01100_sapporo-shi_2020_citygml_op.zip",
-		},
+		CityGML:    urlToA("https://example.com/01100_sapporo-shi_2020_citygml_op.zip"),
 		DescriptionExtra: []string{
 			`01100_sapporo-shi_2020_3dtiles_4_op_ex-port-hogehoge-bldg_lod1.zip
 @name: 名称
@@ -1364,21 +1268,15 @@ func TestExtra(t *testing.T) {
 		},
 		OpenDataURL: "https://example.com",
 		Extra: []*cms.PublicAsset{
-			{ // asset 1
-				URL: "https://example.com/01100_sapporo-shi_2020_3dtiles_4_op_ex-port-hogehoge-bldg_lod1.zip",
-			},
-			{ // asset 2
-				URL: "https://example.com/01100_sapporo-shi_2020_mvt_4_op_ex-port-hogehoge-hoge_lod2.zip",
-			},
-			{ // asset 3
-				URL: "https://example.com/01100_sapporo-shi_2020_mvt_4_op_ex-port-hogehoge-hoge_lod1.zip",
-			},
-			{ // asset 4
-				URL: "https://example.com/01100_sapporo-shi_2020_mvt_4_op_ex-port-hogehoge-hoge_lod2_no_texture.zip",
-			},
-			{ // asset 5
-				URL: "https://example.com/01100_sapporo-shi_2020_3dtiles_4_op_ex-port-hogehoge-hoge_no_texture.zip",
-			},
+			urlToA("https://example.com/01100_sapporo-shi_2020_3dtiles_4_op_ex-port-hogehoge-bldg_lod1.zip"),
+
+			urlToA("https://example.com/01100_sapporo-shi_2020_mvt_4_op_ex-port-hogehoge-hoge_lod2.zip"),
+
+			urlToA("https://example.com/01100_sapporo-shi_2020_mvt_4_op_ex-port-hogehoge-hoge_lod1.zip"),
+
+			urlToA("https://example.com/01100_sapporo-shi_2020_mvt_4_op_ex-port-hogehoge-hoge_lod2_no_texture.zip"),
+
+			urlToA("https://example.com/01100_sapporo-shi_2020_3dtiles_4_op_ex-port-hogehoge-hoge_no_texture.zip"),
 		},
 	}
 
@@ -1459,4 +1357,8 @@ func TestExtra(t *testing.T) {
 			},
 		},
 	}, i.DataCatalogItems(i.IntermediateItem(), "extra"))
+}
+
+func urlToA(url string) *cms.PublicAsset {
+	return &cms.PublicAsset{Asset: cms.Asset{URL: url}}
 }

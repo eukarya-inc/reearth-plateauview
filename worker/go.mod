@@ -7,7 +7,7 @@ require (
 	github.com/joho/godotenv v1.5.1
 	github.com/k0kubun/pp/v3 v3.2.0
 	github.com/kelseyhightower/envconfig v1.4.0
-	github.com/reearth/reearth-cms-api/go v0.0.0-20240305045557-7ae239f57331
+	github.com/reearth/reearth-cms-api/go v0.0.0-20240305061912-75937378828f
 	github.com/reearth/reearthx v0.0.0-20240222072751-402668db71a9
 	github.com/ricochet2200/go-disk-usage/du v0.0.0-20210707232629-ac9918953285
 	github.com/samber/lo v1.39.0

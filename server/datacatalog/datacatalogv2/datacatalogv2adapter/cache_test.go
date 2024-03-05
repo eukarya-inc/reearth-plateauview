@@ -20,11 +20,15 @@ func TestNewCache(t *testing.T) {
 				DescriptionBldg: "bldg_desc",
 				Specification:   "第2.3版",
 				CityGML: &cms.PublicAsset{
-					URL: "https://example.com/13101_tokyo23ku_2022_citygml_op.zip",
+					Asset: cms.Asset{
+						URL: "https://example.com/13101_tokyo23ku_2022_citygml_op.zip",
+					},
 				},
 				Bldg: []*cms.PublicAsset{
 					{
-						URL: "https://example.com/13101_tokyo23ku_2022_3dtiles_0_bldg_lod1.zip",
+						Asset: cms.Asset{
+							URL: "https://example.com/13101_tokyo23ku_2022_3dtiles_0_bldg_lod1.zip",
+						},
 					},
 				},
 			},
