@@ -47,8 +47,8 @@ github.com/perimeterx/marshmallow v1.1.5 h1:a2LALqQ1BlHM8PZblsDdidgv1mWi1DgC2UmX
 github.com/perimeterx/marshmallow v1.1.5/go.mod h1:dsXbUu8CRzfYP5a87xpp0xq9S3u0Vchtcl8we9tYaXw=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
-github.com/reearth/reearth-cms-api/go v0.0.0-20240305061912-75937378828f h1:xdI5gtJ7Lai1cA7SKYbfCU3SDmKAJBF/cS0nwV8ZvO4=
-github.com/reearth/reearth-cms-api/go v0.0.0-20240305061912-75937378828f/go.mod h1:vPQbmPuvx3/FIsdwi3gwrwf3VU4QQgovG2/wwFGltAs=
+github.com/reearth/reearth-cms-api/go v0.0.0-20240305064440-80539dcde579 h1:Qo6Ibg56oqtSp3JsLSSHuhGOAH0SdiV9VzMWdC/zSnw=
+github.com/reearth/reearth-cms-api/go v0.0.0-20240305064440-80539dcde579/go.mod h1:vPQbmPuvx3/FIsdwi3gwrwf3VU4QQgovG2/wwFGltAs=
 github.com/reearth/reearthx v0.0.0-20240222072751-402668db71a9 h1:cjxdkXHqWWZER30P4zF0klV9Edeghx6a/ZP4fHh5ksw=
 github.com/reearth/reearthx v0.0.0-20240222072751-402668db71a9/go.mod h1:8DSD6e+h1KhfhO4TceYDDPpLkhZJH2CLF6nHxyV8hts=
 github.com/ricochet2200/go-disk-usage/du v0.0.0-20210707232629-ac9918953285 h1:d54EL9l+XteliUfUCGsEwwuk65dmmxX85VXF+9T6+50=
