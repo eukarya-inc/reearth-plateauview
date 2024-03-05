@@ -181,7 +181,7 @@ func SetupCityItems(ctx context.Context, s *Services, inp SetupCityItemsInput, o
 
 func getAndParseSetupCSV(ctx context.Context, s *Services, url string, body io.Reader) ([]SetupCSVItem, []string, error) {
 	if body != nil {
-		return parseSetupCSV(ctx, body)
+		return parseSetupCSV(body)
 	}
 
 	r, err := s.GET(ctx, url)
@@ -190,10 +190,10 @@ func getAndParseSetupCSV(ctx context.Context, s *Services, url string, body io.R
 	}
 	defer r.Close()
 
-	return parseSetupCSV(ctx, r)
+	return parseSetupCSV(r)
 }
 
-func parseSetupCSV(ctx context.Context, r io.Reader) ([]SetupCSVItem, []string, error) {
+func parseSetupCSV(r io.Reader) ([]SetupCSVItem, []string, error) {
 	cr := csv.NewReader(r)
 	cr.ReuseRecord = true
 

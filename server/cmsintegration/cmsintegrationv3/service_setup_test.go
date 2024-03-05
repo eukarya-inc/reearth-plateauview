@@ -14,8 +14,6 @@ import (
 )
 
 func TestParseSetupCSV(t *testing.T) {
-	ctx := context.TODO()
-
 	tests := []struct {
 		name             string
 		csvData          string
@@ -74,7 +72,7 @@ func TestParseSetupCSV(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			r := strings.NewReader(tt.csvData)
-			items, features, err := parseSetupCSV(ctx, r)
+			items, features, err := parseSetupCSV(r)
 
 			if tt.err != nil {
 				assert.EqualError(t, err, tt.err.Error())

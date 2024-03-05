@@ -16,6 +16,9 @@ type Seed struct {
 	CityGML              string
 	Plateau              string
 	Related              string
+	CityGMLSize          uint64
+	PlateauSize          uint64
+	RelatedSize          uint64
 	Desc                 string
 	Index                string
 	IndexURL             string
@@ -65,7 +68,7 @@ func getSeed(ctx context.Context, c cms.Interface, cityItem *CityItem, org strin
 	log.Debugfc(ctx, "geospatialjpv3: dataItem: %s", ppp.Sprint(dataItem))
 	log.Debugfc(ctx, "geospatialjpv3: indexItem: %s", ppp.Sprint(indexItem))
 
-	if thumnailURL := valueToAsset(indexItem.Thumbnail); thumnailURL != "" {
+	if thumnailURL := valueToAssetURL(indexItem.Thumbnail); thumnailURL != "" {
 		seed.ThumbnailURL, err = fetchAndGetDataURL(thumnailURL)
 		if err != nil {
 			return seed, fmt.Errorf("サムネイルが取得できませんでした: %w", err)
@@ -74,13 +77,16 @@ func getSeed(ctx context.Context, c cms.Interface, cityItem *CityItem, org strin
 
 	seed.GspatialjpDataItemID = dataItem.ID
 	if dataItem.CityGML != nil {
-		seed.CityGML = valueToAsset(dataItem.CityGML)
+		seed.CityGML = valueToAssetURL(dataItem.CityGML)
+		seed.CityGMLSize = valueToAssetSize(dataItem.CityGML)
 	}
 	if dataItem.Plateau != nil {
-		seed.Plateau = valueToAsset(dataItem.Plateau)
+		seed.Plateau = valueToAssetURL(dataItem.Plateau)
+		seed.PlateauSize = valueToAssetSize(dataItem.Plateau)
 	}
 	if dataItem.Related != nil {
-		seed.Related = valueToAsset(dataItem.Related)
+		seed.Related = valueToAssetURL(dataItem.Related)
+		seed.RelatedSize = valueToAssetSize(dataItem.Related)
 	}
 	if indexItem.Desc != "" {
 		seed.Desc = indexItem.Desc
@@ -90,14 +96,14 @@ func getSeed(ctx context.Context, c cms.Interface, cityItem *CityItem, org strin
 	if seed.Index == "" {
 		seed.Index = dataItem.DescIndex
 	}
-	seed.IndexURL = valueToAsset(indexItem.IndexData)
+	seed.IndexURL = valueToAssetURL(indexItem.IndexData)
 	if seed.Index != "" && seed.IndexURL == "" {
 		seed.IndexURL = dataurl.New([]byte(seed.Index), "text/markdown").String()
 	}
 
-	seed.CityGMLDescription = indexItem.DescCityGML
-	seed.PlateauDescription = indexItem.DescPlateau
-	seed.RelatedDescription = indexItem.DescRelated
+	seed.CityGMLDescription = replaceSize(indexItem.DescCityGML, seed.CityGMLSize)
+	seed.PlateauDescription = replaceSize(indexItem.DescPlateau, seed.PlateauSize)
+	seed.RelatedDescription = replaceSize(indexItem.DescRelated, seed.RelatedSize)
 	seed.Area = indexItem.Region
 	seed.Author = indexItem.Author
 	seed.AuthorEmail = indexItem.AuthorEmail
@@ -112,7 +118,7 @@ func getSeed(ctx context.Context, c cms.Interface, cityItem *CityItem, org strin
 	return seed, nil
 }
 
-func valueToAsset(v map[string]any) string {
+func valueToAssetURL(v map[string]any) string {
 	if v == nil {
 		return ""
 	}
@@ -120,6 +126,16 @@ func valueToAsset(v map[string]any) string {
 		return url
 	}
 	return ""
+}
+
+func valueToAssetSize(v map[string]any) uint64 {
+	if v == nil {
+		return 0
+	}
+	if size, ok := v["totalSize"].(float64); ok {
+		return uint64(size)
+	}
+	return 0
 }
 
 func fetchAndGetDataURL(url string) (string, error) {
