@@ -1,7 +1,6 @@
 package geospatialjpv3
 
 import (
-	"context"
 	"net/http"
 
 	"github.com/eukarya-inc/reearth-plateauview/server/cmsintegration/ckan"
@@ -129,7 +128,7 @@ func (h *handler) Webhook(conf Config) (cmswebhook.Handler, error) {
 
 		log.Debugfc(ctx, "geospatialjpv3 webhook: %s", ppp.Sprint(cityItem))
 
-		if b := getChangedBool(ctx, w, prepareFieldKey); b != nil && *b {
+		if b := getChangedBool(w, prepareFieldKey); b != nil && *b {
 			if err := Prepare(ctx, cityItem.ID, w.ProjectID(), conf); err != nil {
 				log.Errorfc(ctx, "geospatialjpv3 webhook: failed to prepare: %v", err)
 			}
@@ -137,7 +136,7 @@ func (h *handler) Webhook(conf Config) (cmswebhook.Handler, error) {
 			log.Debugfc(ctx, "geospatialjpv3 webhook: prepare field not changed or not true")
 		}
 
-		if b := getChangedBool(ctx, w, publishFieldKey); b != nil && *b {
+		if b := getChangedBool(w, publishFieldKey); b != nil && *b {
 			if err := h.Publish(ctx, cityItem); err != nil {
 				log.Errorfc(ctx, "geospatialjpv3 webhook: failed to publish: %v", err)
 			}
@@ -154,7 +153,7 @@ func (h *handler) Webhook(conf Config) (cmswebhook.Handler, error) {
 	}, nil
 }
 
-func getChangedBool(ctx context.Context, w *cmswebhook.Payload, key string) *bool {
+func getChangedBool(w *cmswebhook.Payload, key string) *bool {
 	// w.ItemData.Item is a metadata item, so we need to use FieldByKey instead of MetadataFieldByKey
 	if f := w.ItemData.Item.FieldByKey(key); f != nil {
 		changed, ok := lo.Find(w.ItemData.Changes, func(c cms.FieldChange) bool {

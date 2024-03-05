@@ -2,6 +2,7 @@ package preparegspatialjp
 
 import (
 	"context"
+	"fmt"
 	"io"
 	"os"
 	"path/filepath"
@@ -124,7 +125,7 @@ func (c *CMSWrapper) UploadFile(ctx context.Context, path string) (string, error
 	}
 
 	defer f.Close()
-	return c.CMS.UploadAssetDirectly(ctx, c.ProjectID, name, f)
+	return c.Upload(ctx, name, f)
 }
 
 func (c *CMSWrapper) Upload(ctx context.Context, name string, body io.Reader) (string, error) {
@@ -133,7 +134,25 @@ func (c *CMSWrapper) Upload(ctx context.Context, name string, body io.Reader) (s
 		return "", nil
 	}
 
-	return c.CMS.UploadAssetDirectly(ctx, c.ProjectID, name, body)
+	upload, err := c.CMS.CreateAssetUpload(ctx, c.ProjectID, name)
+	if err != nil {
+		return "", fmt.Errorf("failed to create upload: %w", err)
+	}
+
+	log.Debugfc(ctx, "cms: uploading %s to %s", name, upload.URL)
+
+	if err := c.CMS.UploadToAssetUpload(ctx, upload, body); err != nil {
+		return "", fmt.Errorf("failed to upload: %w", err)
+	}
+
+	log.Debugfc(ctx, "cms: uploaded %s to %s", name, upload.URL)
+
+	a, err := c.CMS.CreateAssetByToken(ctx, c.ProjectID, upload.Token)
+	if err != nil {
+		return "", fmt.Errorf("failed to create asset: %w", err)
+	}
+
+	return a.ID, nil
 }
 
 func (c *CMSWrapper) Comment(ctx context.Context, comment string) {
