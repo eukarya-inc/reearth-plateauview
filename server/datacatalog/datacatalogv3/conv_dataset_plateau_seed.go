@@ -67,12 +67,16 @@ func plateauDatasetSeedsFrom(i *PlateauFeatureItem, opts ToPlateauDatasetsOption
 		}
 
 		for _, item := range items {
-			seeds, w := plateauDatasetSeedsFromItem(item, opts.DatasetType, dic, cityCode)
+			seed, w := plateauDatasetSeedFromItem(item, opts.DatasetType, dic, cityCode)
 			warning = append(warning, w...)
-			res = append(res, seeds)
+			res = append(res, seed)
 		}
 	}
 
+	// merge seeds with same ID
+	res = mergeDatasetSeeds(res)
+
+	// common
 	for i := range res {
 		res[i].DatasetType = opts.DatasetType
 		res[i].Dic = dic
@@ -97,7 +101,30 @@ func plateauDatasetSeedsFrom(i *PlateauFeatureItem, opts ToPlateauDatasetsOption
 	return
 }
 
-func plateauDatasetSeedsFromItem(item PlateauFeatureItemDatum, dt *plateauapi.PlateauDatasetType, dic Dic, cityCode string) (res plateauDatasetSeed, warning []string) {
+func mergeDatasetSeeds(seeds []plateauDatasetSeed) []plateauDatasetSeed {
+	m := map[string]*plateauDatasetSeed{}
+	res := make([]*plateauDatasetSeed, 0, len(seeds))
+
+	for _, seed := range seeds {
+		seed := seed
+		key := seed.Subcode
+		first := m[key]
+		if key == "" || first == nil {
+			m[key] = &seed
+			res = append(res, &seed)
+			continue
+		}
+
+		first.AssetURLs = append(first.AssetURLs, seed.AssetURLs...)
+		first.Assets = append(first.Assets, seed.Assets...)
+	}
+
+	return lo.Map(res, func(s *plateauDatasetSeed, _ int) plateauDatasetSeed {
+		return *s
+	})
+}
+
+func plateauDatasetSeedFromItem(item PlateauFeatureItemDatum, dt *plateauapi.PlateauDatasetType, dic Dic, cityCode string) (res plateauDatasetSeed, warning []string) {
 	assets := make([]lo.Tuple2[string, *AssetName], 0, len(item.Data))
 	for _, url := range item.Data {
 		n := nameWithoutExt(nameFromURL(url))
@@ -408,7 +435,7 @@ func plateauDatasetItemSeedFromFld(url string, ex *AssetNameExFld, dic Dic, city
 		return
 	}
 
-	key := ex.Key()
+	key := ex.DatasetItemKey()
 	entry, found := dic.FindEntryOrDefault(ex.Type, ex.DicKey())
 	if !found {
 		w = append(w, fmt.Sprintf("plateau %s %s: unknown dic key: %s", cityCode, ex.Type, ex.DicKey()))
