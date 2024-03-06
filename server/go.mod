@@ -18,6 +18,7 @@ require (
 	github.com/reearth/go3dtiles v0.0.0-20230612053146-a6d07c1ab855
 	github.com/reearth/reearth-cms-api/go v0.0.0-20240305064440-80539dcde579
 	github.com/reearth/reearthx v0.0.0-20240222072751-402668db71a9
+	github.com/rubenv/topojson v0.0.0-20220429141232-de429a870e0a
 	github.com/samber/lo v1.39.0
 	github.com/sendgrid/sendgrid-go v3.14.0+incompatible
 	github.com/spf13/afero v1.11.0
@@ -77,6 +78,7 @@ require (
 	github.com/maruel/panicparse/v2 v2.3.1 // indirect
 	github.com/nicksnyder/go-i18n/v2 v2.4.0 // indirect
 	github.com/opentracing/opentracing-go v1.2.0 // indirect
+	github.com/paulmach/go.geo v0.0.0-20180829195134-22b514266d33 // indirect
 	github.com/perimeterx/marshmallow v1.1.5 // indirect
 	github.com/ravilushqa/otelgqlgen v0.15.0 // indirect
 	github.com/richardlehane/mscfb v1.0.4 // indirect
