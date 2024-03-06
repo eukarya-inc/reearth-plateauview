@@ -5,6 +5,7 @@ import (
 
 	"github.com/eukarya-inc/reearth-plateauview/server/cmsintegration"
 	"github.com/eukarya-inc/reearth-plateauview/server/datacatalog"
+	"github.com/eukarya-inc/reearth-plateauview/server/govpolygon"
 	"github.com/eukarya-inc/reearth-plateauview/server/opinion"
 	"github.com/eukarya-inc/reearth-plateauview/server/sdkapi"
 	"github.com/eukarya-inc/reearth-plateauview/server/searchindex"
@@ -28,6 +29,7 @@ var services = [](func(*Config) (*Service, error)){
 	Opinion,
 	Sidebar,
 	DataCatalog,
+	GovPolygon,
 }
 
 func Services(conf *Config) (srv []*Service, _ error) {
@@ -144,5 +146,15 @@ func DataCatalog(conf *Config) (*Service, error) {
 			return datacatalog.Echo(c, g.Group("/datacatalog"))
 		},
 		DisableNoCache: true,
+	}, nil
+}
+
+func GovPolygon(conf *Config) (*Service, error) {
+	return &Service{
+		Name: "govpolygon",
+		Echo: func(g *echo.Group) error {
+			govpolygon.New(fmt.Sprintf("http://[::]:%d/datacatalog/graphql", conf.Port)).Route(g.Group("/govpolygon"))
+			return nil
+		},
 	}, nil
 }

@@ -2,7 +2,6 @@ package govpolygon
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -22,33 +21,20 @@ func NewProcessor(dirpath, key1, key2 string) *Processor {
 	return &Processor{dirpath: dirpath, key1: key1, key2: key2}
 }
 
-func (p *Processor) ComputeGeoJSON(ctx context.Context, values []string) ([]byte, error) {
+func (p *Processor) ComputeGeoJSON(ctx context.Context, values []string, citycodem map[string]string) (*geojson.FeatureCollection, error) {
 	features, err := loadFeatures(context.Background(), p.dirpath)
 	if err != nil {
 		return nil, err
 	}
 
-	if features == nil {
+	if len(features) == 0 {
 		return nil, fmt.Errorf("no features found")
 	}
-	return computeGeoJSON(features, p.key1, p.key2, values)
+
+	return computeGeojsonFeatures(features, p.key1, p.key2, values, citycodem), nil
 }
 
-func computeGeoJSON(features []*geojson.Feature, key1, key2 string, values []string) ([]byte, error) {
-	f := computeGeojsonFeatures(features, key1, key2, values)
-	if f == nil {
-		return nil, nil
-	}
-
-	b, err := json.Marshal(f)
-	if err != nil {
-		return nil, err
-	}
-
-	return b, nil
-}
-
-func computeGeojsonFeatures(features []*geojson.Feature, key1, key2 string, values []string) *geojson.FeatureCollection {
+func computeGeojsonFeatures(features []*geojson.Feature, key1, key2 string, values []string, citycodem map[string]string) *geojson.FeatureCollection {
 	valueSet := map[string]struct{}{}
 	for _, v := range values {
 		valueSet[v] = struct{}{}
@@ -68,6 +54,18 @@ func computeGeojsonFeatures(features []*geojson.Feature, key1, key2 string, valu
 
 		value := v1 + v2
 		if _, ok := valueSet[value]; ok {
+			properties := map[string]any{
+				"pref": v1,
+				"city": v2,
+				"code": citycodem[value],
+			}
+			if citycodem != nil {
+				if code := citycodem[value]; code != "" {
+					properties["code"] = code
+					f.ID = code
+				}
+			}
+			f.Properties = properties
 			result.AddFeature(f)
 		}
 	}

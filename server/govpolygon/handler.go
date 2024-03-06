@@ -10,6 +10,8 @@ import (
 	"sync"
 
 	"github.com/labstack/echo/v4"
+	"github.com/reearth/reearthx/log"
+	"github.com/rubenv/topojson"
 )
 
 const key1 = "N03_001"
@@ -23,6 +25,7 @@ type Handler struct {
 	httpClient  *http.Client
 	lock        sync.RWMutex
 	geojson     []byte
+	topojson    []byte
 }
 
 func New(gqlEndpoint string) *Handler {
@@ -33,7 +36,14 @@ func New(gqlEndpoint string) *Handler {
 	}
 }
 
-func (h *Handler) Get(c echo.Context) error {
+func (h *Handler) Route(g *echo.Group) *Handler {
+	g.GET("/geojson", h.GetGeoJSON)
+	g.GET("/topojson", h.GetTeopoJSON)
+	g.GET("/update", h.Update, errorLogger)
+	return h
+}
+
+func (h *Handler) GetGeoJSON(c echo.Context) error {
 	if h.geojson == nil {
 		return c.JSON(http.StatusNotFound, "not found")
 	}
@@ -43,32 +53,55 @@ func (h *Handler) Get(c echo.Context) error {
 	return c.JSONBlob(http.StatusOK, h.geojson)
 }
 
-func (h *Handler) Update(ctx context.Context) error {
-	values, err := h.getCityNames(ctx)
+func (h *Handler) GetTeopoJSON(c echo.Context) error {
+	if h.geojson == nil {
+		return c.JSON(http.StatusNotFound, "not found")
+	}
+
+	h.lock.RLock()
+	defer h.lock.RUnlock()
+	return c.JSONBlob(http.StatusOK, h.topojson)
+}
+
+func (h *Handler) Update(c echo.Context) error {
+	ctx := c.Request().Context()
+
+	values, citycodem, err := h.getCityNames(ctx)
 	if err != nil {
 		return err
 	}
 
-	g, err := h.processor.ComputeGeoJSON(ctx, values)
+	g, err := h.processor.ComputeGeoJSON(ctx, values, citycodem)
 	if err != nil {
 		return err
+	}
+
+	t := topojson.NewTopology(g, &topojson.TopologyOptions{})
+	geojsonj, err := json.Marshal(g)
+	if err != nil {
+		return fmt.Errorf("failed to marshal geojson: %w", err)
+	}
+	topojsonj, err := json.Marshal(t)
+	if err != nil {
+		return fmt.Errorf("failed to marshal topojson: %w", err)
 	}
 
 	h.lock.Lock()
-	h.geojson = g
+	h.geojson = geojsonj
+	h.topojson = topojsonj
 	h.lock.Unlock()
 
 	return nil
 }
 
-func (h *Handler) getCityNames(ctx context.Context) ([]string, error) {
-
+func (h *Handler) getCityNames(ctx context.Context) ([]string, map[string]string, error) {
 	query := `
 		{
 			areas(input:{
 				areaTypes: [CITY]
 			}) {
 				name
+				code
 				... on City {
 					prefecture {
 						name
@@ -82,33 +115,35 @@ func (h *Handler) getCityNames(ctx context.Context) ([]string, error) {
 		"query": query,
 	})
 	if err != nil {
-		return nil, err
+		return nil, nil, fmt.Errorf("failed to marshal request body: %w", err)
 	}
 
-	req, err := http.NewRequest("POST", h.gqlEndpoint, bytes.NewBuffer(requestBody))
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, h.gqlEndpoint, bytes.NewBuffer(requestBody))
 	if err != nil {
-		return nil, err
+		return nil, nil, fmt.Errorf("failed to create request: %w", err)
 	}
-	req.Header.Set("Content-Type", "application/json")
 
+	req.Header.Set("Content-Type", "application/json")
 	resp, err := h.httpClient.Do(req)
 	if err != nil {
-		return nil, err
+		return nil, nil, fmt.Errorf("failed to send request: %w", err)
 	}
+
 	defer resp.Body.Close()
 	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("unexpected status code: %d", resp.StatusCode)
+		return nil, nil, fmt.Errorf("unexpected status code: %d", resp.StatusCode)
 	}
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return nil, err
+		return nil, nil, fmt.Errorf("failed to read response body: %w", err)
 	}
 
 	var responseData struct {
 		Data struct {
 			Areas []struct {
 				Name       string `json:"name"`
+				Code       string `json:"code"`
 				Prefecture struct {
 					Name string `json:"name"`
 				} `json:"prefecture"`
@@ -117,13 +152,28 @@ func (h *Handler) getCityNames(ctx context.Context) ([]string, error) {
 	}
 
 	if err := json.Unmarshal(body, &responseData); err != nil {
-		return nil, err
+		return nil, nil, fmt.Errorf("failed to unmarshal response body: %w", err)
 	}
 
+	m := map[string]string{}
 	cityNames := make([]string, len(responseData.Data.Areas))
 	for i, city := range responseData.Data.Areas {
 		cityNames[i] = city.Prefecture.Name + city.Name
+		m[cityNames[i]] = city.Code
 	}
 
-	return cityNames, nil
+	return cityNames, m, nil
+}
+
+func errorLogger(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		err := next(c)
+		if err != nil {
+			log.Errorfc(c.Request().Context(), "govpolygon: %v", err)
+			if !c.Response().Committed {
+				return c.JSON(http.StatusInternalServerError, map[string]any{"error": "internal"})
+			}
+		}
+		return nil
+	}
 }

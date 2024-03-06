@@ -4,7 +4,6 @@ import (
 	"context"
 	"net/http"
 	"net/http/httptest"
-	"os"
 	"testing"
 
 	"github.com/labstack/echo/v4"
@@ -12,26 +11,25 @@ import (
 )
 
 func TestHandler(t *testing.T) {
-	url := os.Getenv("PLATEAU_GRAPHQL_ENDPOINT")
+	url := ""
 	if url == "" {
 		t.Skip("skipping test; no URL provided")
 	}
 	h := New(url)
 
-	ctx := context.Background()
-	assert.NoError(t, h.Update(ctx))
-
 	e := echo.New()
-	r := httptest.NewRequest(http.MethodGet, "", nil)
+	r := httptest.NewRequest(http.MethodGet, "/", nil)
 	w := httptest.NewRecorder()
 	c := e.NewContext(r, w)
 
-	geojson := h.Get(c)
+	assert.NoError(t, h.Update(c))
+	assert.NoError(t, h.GetGeoJSON(c))
 
 	assert.Equal(t, http.StatusOK, w.Code)
-	assert.NotEmpty(t, w.Body.String())
+	body := w.Body.String()
+	assert.NotEmpty(t, body)
 
-	t.Log(geojson)
+	t.Log(body)
 }
 
 func TestProcessor(t *testing.T) {
@@ -43,7 +41,7 @@ func TestProcessor(t *testing.T) {
 
 	ctx := context.Background()
 	values := []string{"東京都千代田区"}
-	geojson, err := p.ComputeGeoJSON(ctx, values)
+	geojson, err := p.ComputeGeoJSON(ctx, values, nil)
 	assert.NoError(t, err)
 	assert.NotEmpty(t, geojson)
 }
