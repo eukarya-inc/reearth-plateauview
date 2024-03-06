@@ -46,9 +46,9 @@ func Test_GenericItem_ToDatasets(t *testing.T) {
 			Year:              2023,
 			RegisterationYear: 2023,
 			OpenDataURL:       lo.EmptyableToPtr("https://example.com"),
-			PrefectureID:      lo.ToPtr(plateauapi.NewID("11", plateauapi.TypeArea)),
+			PrefectureID:      lo.ToPtr(plateauapi.NewID("11", plateauapi.TypePrefecture)),
 			PrefectureCode:    lo.ToPtr(plateauapi.AreaCode("11")),
-			CityID:            lo.ToPtr(plateauapi.NewID("11111", plateauapi.TypeArea)),
+			CityID:            lo.ToPtr(plateauapi.NewID("11111", plateauapi.TypeCity)),
 			CityCode:          lo.ToPtr(plateauapi.AreaCode("11111")),
 			TypeID:            plateauapi.NewID("usecase", plateauapi.TypeDatasetType),
 			TypeCode:          "usecase",
@@ -77,9 +77,9 @@ func Test_GenericItem_ToDatasets(t *testing.T) {
 	}
 
 	area := &areaContext{
-		PrefID:   lo.ToPtr(plateauapi.NewID("11", plateauapi.TypeArea)),
+		PrefID:   lo.ToPtr(plateauapi.NewID("11", plateauapi.TypePrefecture)),
 		PrefCode: lo.ToPtr(plateauapi.AreaCode("11")),
-		CityID:   lo.ToPtr(plateauapi.NewID("11111", plateauapi.TypeArea)),
+		CityID:   lo.ToPtr(plateauapi.NewID("11111", plateauapi.TypeCity)),
 		CityCode: lo.ToPtr(plateauapi.AreaCode("11111")),
 		CityItem: &CityItem{
 			ID:   "id",

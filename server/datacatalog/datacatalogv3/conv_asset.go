@@ -41,14 +41,14 @@ func (ex AssetNameEx) IsValid() bool {
 	return ex.Normal != nil || ex.Urf != nil || ex.Fld != nil
 }
 
-func (ex AssetNameEx) Key() string {
+func (ex AssetNameEx) DatasetItemKey() string {
 	switch {
 	case ex.Normal != nil:
-		return ex.Normal.Key()
+		return ex.Normal.DatasetItemKey()
 	case ex.Urf != nil:
-		return ex.Urf.Key()
+		return ex.Urf.DatasetItemKey()
 	case ex.Fld != nil:
-		return ex.Fld.Key()
+		return ex.Fld.DatasetItemKey()
 	}
 	return ""
 }
@@ -86,7 +86,7 @@ type AssetNameExNormal struct {
 	NoTexture bool
 }
 
-func (ex AssetNameExNormal) Key() string {
+func (ex AssetNameExNormal) DatasetItemKey() string {
 	return ""
 }
 
@@ -106,7 +106,7 @@ type AssetNameExUrf struct {
 	NoTexture bool
 }
 
-func (ex AssetNameExUrf) Key() string {
+func (ex AssetNameExUrf) DatasetItemKey() string {
 	return ex.Name
 }
 
@@ -128,22 +128,22 @@ type AssetNameExFld struct {
 	NoTexture bool
 }
 
-func (ex AssetNameExFld) Key() string {
-	return fmt.Sprintf("l%d%s", ex.L, ex.scaleSuffix())
+func (ex AssetNameExFld) DatasetItemKey() string {
+	return fmt.Sprintf("l%d", ex.L)
 }
 
 func (ex AssetNameExFld) DatasetKey() string {
-	return fmt.Sprintf("%s_%s", ex.Admin, ex.River)
+	return fmt.Sprintf("%s_%s%s", ex.Admin, ex.River, ex.suffix("-"))
 }
 
 func (ex AssetNameExFld) DicKey() string {
-	return fmt.Sprintf("%s_l%d%s", ex.River, ex.L, ex.scaleSuffix())
+	return fmt.Sprintf("%s_l%d%s", ex.River, ex.L, ex.suffix("-"))
 }
 
-func (ex AssetNameExFld) scaleSuffix() string {
+func (ex AssetNameExFld) suffix(sep string) string {
 	suffix := ""
 	if ex.Suffix != "" {
-		suffix = "-" + ex.Suffix
+		suffix = sep + ex.Suffix
 	}
 	return suffix
 }

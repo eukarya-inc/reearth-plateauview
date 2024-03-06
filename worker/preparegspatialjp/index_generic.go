@@ -14,7 +14,7 @@ var itemsForOrtho = []*IndexItem{
 	{Name: "**images** (GeoTIFF)"},
 }
 
-func generateGenericdIndexItems(seed *IndexSeed, data []GspatialjpIndexItemGroup) (res []*IndexItem, err error) {
+func generateGenericdIndexItems(data []GspatialjpIndexItemGroup) (res []*IndexItem, err error) {
 	for _, d := range data {
 		u := d.AssetURL()
 		if u == "" {

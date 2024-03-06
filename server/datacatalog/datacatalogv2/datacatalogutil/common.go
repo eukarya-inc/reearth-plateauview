@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/eukarya-inc/jpareacode"
+	"github.com/samber/lo"
 )
 
 const tokyo23ku = "東京都23区"
@@ -74,16 +75,49 @@ func CityCode(code, name string, prefCode int) string {
 	if code == "" {
 		cityName := strings.Split(name, "/")
 		if len(cityName) > 0 {
+			first := cityName[0]
 			last := cityName[len(cityName)-1]
 			if last == tokyo23ku {
 				code = "13100"
 			}
-			if city := jpareacode.CityByName(prefCode, last); city != nil {
-				code = jpareacode.FormatCityCode(city.Code)
+
+			if first == last {
+				city := jpareacode.CityByName(prefCode, last)
+				if city != nil {
+					code = jpareacode.FormatCityCode(city.Code)
+				}
+			} else {
+				_, firstCityIndex, _ := lo.FindIndexOf(jpareacode.Cities, func(c jpareacode.City) bool {
+					return c.PrefCode == prefCode && c.Name == first
+				})
+
+				if firstCityIndex != -1 {
+					i := -1
+					dist := -1
+					for j, c := range jpareacode.Cities {
+						if c.PrefCode == prefCode && c.Name == last {
+							if dist == -1 || dist > abs(firstCityIndex-j) {
+								i = j
+								dist = abs(firstCityIndex - j)
+							}
+						}
+					}
+
+					if i != -1 {
+						code = jpareacode.FormatCityCode(jpareacode.Cities[i].Code)
+					}
+				}
 			}
 		}
 	}
 	return code
+}
+
+func abs(i int) int {
+	if i < 0 {
+		return -i
+	}
+	return i
 }
 
 func IsLayerSupported(format string) bool {

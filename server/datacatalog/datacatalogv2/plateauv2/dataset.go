@@ -50,16 +50,19 @@ func (i DatasetItem) DataCatalogs() []DataCatalogItem {
 	pref, prefCodeInt := datacatalogutil.NormalizePref(i.Prefecture)
 	prefCode := jpareacode.FormatPrefectureCode(prefCodeInt)
 
-	var city, ward string
+	var city, ward, wCode string
 	if i.WardName != "" {
 		city = i.CityName
 		ward = i.WardName
+		wCode = datacatalogutil.CityCode("", fmt.Sprintf("%s/%s", city, ward), prefCodeInt)
 	} else {
 		city, ward, _ = strings.Cut(i.CityName, "/")
+		if ward != "" {
+			wCode = datacatalogutil.CityCode("", i.CityName, prefCodeInt)
+		}
 	}
 
 	cCode := datacatalogutil.CityCode("", city, prefCodeInt)
-	wCode := datacatalogutil.CityCode("", ward, prefCodeInt)
 
 	var c *datacatalogutil.DataCatalogItemConfig
 	_ = json.Unmarshal([]byte(i.Config), &c)

@@ -21,3 +21,20 @@ func TestAssetURLFromFormat(t *testing.T) {
 func TestAssetRootPath(t *testing.T) {
 	assert.Equal(t, "/example.com/1111/a", AssetRootPath("/example.com/1111/a.zip"))
 }
+
+func TestCityCode(t *testing.T) {
+	c := CityCode("xxx", "大阪市", 27)
+	assert.Equal(t, "xxx", c)
+
+	c = CityCode("", "大阪市", 27)
+	assert.Equal(t, "27100", c)
+
+	c = CityCode("", "大阪市/西区", 0)
+	assert.Empty(t, c)
+
+	c = CityCode("", "大阪市/西区", 27)
+	assert.Equal(t, "27106", c)
+
+	c = CityCode("", "堺市/西区", 27)
+	assert.Equal(t, "27144", c)
+}

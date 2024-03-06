@@ -12,7 +12,9 @@ const (
 	TypeDataset     Type = "d"
 	TypeDatasetItem Type = "di"
 	TypeDatasetType Type = "dt"
-	TypeArea        Type = "a"
+	TypePrefecture  Type = "p"
+	TypeCity        Type = "c"
+	TypeWard        Type = "w"
 	TypePlateauSpec Type = "ps"
 	TypeCityGML     Type = "cg"
 )

@@ -90,3 +90,10 @@ func TestExtractVersionFromResourceName(t *testing.T) {
 	version = extractVersionFromResourceName(name)
 	assert.Nil(t, version)
 }
+
+func TestReplaceSize(t *testing.T) {
+	assert.Equal(t, "aaa1 Bbbb", replaceSize("aaa${{SIZE}}bbb", 1))
+	assert.Equal(t, "aaa1 Bbbb", replaceSize("aaa${{HOGE_SIZE}}bbb", 1))
+	assert.Equal(t, "aaa1 Bbbb", replaceSize("aaa${{ HOGE_SIZE }}bbb", 1))
+	assert.Equal(t, "aaa${HOGE_SIZE}bbb", replaceSize("aaa${HOGE_SIZE}bbb", 1))
+}

@@ -3,6 +3,7 @@ package sdkapi
 import (
 	"net/url"
 	"testing"
+	"time"
 
 	cms "github.com/reearth/reearth-cms-api/go"
 	"github.com/samber/lo"
@@ -34,15 +35,21 @@ func TestItems_DatasetResponse(t *testing.T) {
 			CityName:    "千代田区",
 			Description: "description",
 			CityGML: &cms.PublicAsset{
-				ID:                      "citygml",
-				ArchiveExtractionStatus: "done",
-				URL:                     "/10000_hoge-shi_2022_citygml_op.zip",
+				Asset: cms.Asset{
+					ID:                      "citygml",
+					ArchiveExtractionStatus: "done",
+					URL:                     "/10000_hoge-shi_2022_citygml_op.zip",
+				},
 			},
-			Bldg:           []cms.PublicAsset{{}},
-			Tran:           []cms.PublicAsset{{}},
-			Frn:            []cms.PublicAsset{{}},
-			Veg:            []cms.PublicAsset{{}},
-			MaxLOD:         &cms.PublicAsset{URL: "https://example.com/csv"},
+			Bldg: []cms.PublicAsset{{}},
+			Tran: []cms.PublicAsset{{}},
+			Frn:  []cms.PublicAsset{{}},
+			Veg:  []cms.PublicAsset{{}},
+			MaxLOD: &cms.PublicAsset{
+				Asset: cms.Asset{
+					URL: "https://example.com/csv",
+				},
+			},
 			Dem:            "有り",
 			SDKPublication: "公開する",
 		},
@@ -138,6 +145,8 @@ func TestMaxLODMap_Files(t *testing.T) {
 }
 
 func TestItemsFromIntegration(t *testing.T) {
+	ti, _ := time.Parse(time.RFC3339, "2023-03-01T00:00:00.00Z")
+
 	cmsitems := []cms.Item{
 		{
 			ID: "xxx",
@@ -167,7 +176,7 @@ func TestItemsFromIntegration(t *testing.T) {
 							"size":        1000,
 						},
 						"id":          "assetc",
-						"name":        "b.zip",
+						"name":        "c.zip",
 						"previewType": "geo",
 						"projectId":   "prj",
 						"totalSize":   1000,
@@ -225,20 +234,46 @@ func TestItemsFromIntegration(t *testing.T) {
 			CityName:      "city",
 			Description:   "desc",
 			CityGML: &cms.PublicAsset{
-				Type:                    "asset",
-				ID:                      "assetc",
-				URL:                     "https://example.com/c.zip",
-				ContentType:             "application/octet-stream",
-				ArchiveExtractionStatus: "done",
+				Type: "asset",
+				Asset: cms.Asset{
+					ID:                      "assetc",
+					URL:                     "https://example.com/c.zip",
+					ContentType:             "application/octet-stream",
+					ArchiveExtractionStatus: "done",
+					Name:                    "c.zip",
+					PreviewType:             "geo",
+					ProjectID:               "prj",
+					TotalSize:               1000,
+					CreatedAt:               ti,
+					File: &cms.File{
+						Name:        "c.zip",
+						Size:        1000,
+						ContentType: "application/octet-stream",
+						Path:        "/c.zip",
+					},
+				},
 			},
 			MaxLOD: nil,
 			Bldg: []cms.PublicAsset{
 				{
-					Type:                    "asset",
-					ID:                      "asset",
-					URL:                     "https://example.com/b.zip",
-					ContentType:             "application/octet-stream",
-					ArchiveExtractionStatus: "done",
+					Type: "asset",
+					Asset: cms.Asset{
+						ID:                      "asset",
+						URL:                     "https://example.com/b.zip",
+						ContentType:             "application/octet-stream",
+						ArchiveExtractionStatus: "done",
+						Name:                    "b.zip",
+						PreviewType:             "geo",
+						ProjectID:               "prj",
+						TotalSize:               1000,
+						CreatedAt:               ti,
+						File: &cms.File{
+							Name:        "b.zip",
+							Size:        1000,
+							ContentType: "application/octet-stream",
+							Path:        "/b.zip",
+						},
+					},
 				},
 			},
 			Dem:            "有り",
@@ -249,21 +284,25 @@ func TestItemsFromIntegration(t *testing.T) {
 
 func TestCityCode(t *testing.T) {
 	assert.Equal(t, 123, cityCode(&cms.PublicAsset{
-		URL: "https://example.com/aaa/123_aaa.zip",
+		Asset: cms.Asset{
+			URL: "https://example.com/aaa/123_aaa.zip",
+		},
 	}))
 	assert.Equal(t, 0, cityCode(&cms.PublicAsset{
-		URL: "https://example.com/aaa/aaa_aaa.zip",
+		Asset: cms.Asset{
+			URL: "https://example.com/aaa/aaa_aaa.zip",
+		},
 	}))
-	assert.Equal(t, 0, cityCode(&cms.PublicAsset{
-		URL: "",
-	}))
+	assert.Equal(t, 0, cityCode(&cms.PublicAsset{}))
 	assert.Equal(t, 0, cityCode(nil))
 }
 
 func TestItem_Year(t *testing.T) {
 	assert.Equal(t, 2022, Item{
 		CityGML: &cms.PublicAsset{
-			URL: "https://example.com/10000_hoge-shi_2022_citygml_op",
+			Asset: cms.Asset{
+				URL: "https://example.com/10000_hoge-shi_2022_citygml_op",
+			},
 		},
 	}.Year())
 }

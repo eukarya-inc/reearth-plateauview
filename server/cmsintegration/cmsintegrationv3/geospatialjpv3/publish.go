@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/dustin/go-humanize"
 	"github.com/eukarya-inc/reearth-plateauview/server/cmsintegration/ckan"
 	"github.com/reearth/reearthx/log"
 	"github.com/samber/lo"
@@ -110,14 +111,21 @@ func (h *handler) Publish(ctx context.Context, cityItem *CityItem) (err error) {
 			if g.Name == "" || g.Asset == nil {
 				return fmt.Errorf("その他データセットのアセットURLを正しく取得できませんでした。アセットが存在していません。: %v", g)
 			}
-			url, ok := g.Asset["url"].(string)
-			if !ok {
+
+			url := valueToAssetURL(g.Asset)
+			if url == "" {
 				return fmt.Errorf("その他データセットのアセットURLを正しく取得できませんでした。アセットが存在していません。: %v", g)
 			}
+
+			size := valueToAssetSize(g.Asset)
+			if size == 0 {
+				return fmt.Errorf("その他データセットのアセットサイズを正しく取得できませんでした。: %v", g)
+			}
+
 			r, err := h.createOrUpdateResource(ctx, pkg, ResourceInfo{
 				Name:        g.Name,
 				URL:         url,
-				Description: g.Desc,
+				Description: replaceSize(g.Desc, uint64(size)),
 			})
 			if err != nil {
 				return fmt.Errorf("G空間情報センターでリソースの作成に失敗しました（その他データセット）: %w", err)
@@ -184,4 +192,10 @@ func extractVersionFromResourceName(name string) *int {
 	}
 
 	return &i
+}
+
+var reSize = regexp.MustCompile(`\${{.*_?SIZE *}}`)
+
+func replaceSize(s string, size uint64) string {
+	return reSize.ReplaceAllString(s, humanize.Bytes(size))
 }

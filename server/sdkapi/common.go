@@ -12,7 +12,6 @@ import (
 	"strings"
 
 	"github.com/eukarya-inc/jpareacode"
-	"github.com/mitchellh/mapstructure"
 	cms "github.com/reearth/reearth-cms-api/go"
 	"github.com/reearth/reearthx/log"
 	"github.com/reearth/reearthx/util"
@@ -470,16 +469,12 @@ func integrationAssetToAsset(a any) *cms.Asset {
 		return nil
 	}
 
-	m, ok := a.(map[string]any)
-	if !ok {
+	p := cms.PublicAssetFrom(a)
+	if p == nil {
 		return nil
 	}
 
-	pa := &cms.Asset{}
-	if err := mapstructure.Decode(m, pa); err != nil {
-		return nil
-	}
-	return pa
+	return &p.Asset
 }
 
 func ReadMaxLODCSV(b io.Reader) (MaxLODColumns, error) {

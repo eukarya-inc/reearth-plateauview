@@ -67,7 +67,11 @@ func (c *InMemoryRepo) Admin() bool {
 func (c *InMemoryRepo) Node(ctx context.Context, id ID) (Node, error) {
 	ty := id.Type()
 	switch ty {
-	case TypeArea:
+	case TypePrefecture:
+		fallthrough
+	case TypeCity:
+		fallthrough
+	case TypeWard:
 		if a := c.ctx.Areas.Area(id); a != nil {
 			return a, nil
 		}

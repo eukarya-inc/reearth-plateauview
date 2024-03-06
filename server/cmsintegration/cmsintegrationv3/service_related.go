@@ -218,7 +218,7 @@ func packRelatedDataset(ctx context.Context, s *Services, w *cmswebhook.Payload,
 		return nil
 	}
 
-	doMerge := lo.FromPtr(getChangedBool(ctx, w, "merge"))
+	doMerge := lo.FromPtr(getChangedBool(w, "merge"))
 
 	if !doMerge && tagIsNot(item.MergeStatus, ConvertionStatusNotStarted) {
 		log.Debugfc(ctx, "cmsintegrationv3: packRelatedDataset: already merged")
@@ -436,7 +436,7 @@ func parseRelatedAssetName(name string) *relatedAssetName {
 	}
 }
 
-func getChangedBool(ctx context.Context, w *cmswebhook.Payload, key string) *bool {
+func getChangedBool(w *cmswebhook.Payload, key string) *bool {
 	// w.ItemData.Item is a metadata item, so we need to use FieldByKey instead of MetadataFieldByKey
 	if f := w.ItemData.Item.FieldByKey(key); f != nil {
 		changed, ok := lo.Find(w.ItemData.Changes, func(c cms.FieldChange) bool {

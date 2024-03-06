@@ -16,7 +16,7 @@ func (city *CityItem) ToPrefecture() *plateauapi.Prefecture {
 	}
 
 	return &plateauapi.Prefecture{
-		ID:   plateauapi.NewID(prefCode, plateauapi.TypeArea),
+		ID:   plateauapi.NewID(prefCode, plateauapi.TypePrefecture),
 		Name: city.Prefecture,
 		Code: plateauapi.AreaCode(prefCode),
 		Type: plateauapi.AreaTypePrefecture,
@@ -30,11 +30,11 @@ func (city *CityItem) ToCity() *plateauapi.City {
 
 	prefCode := city.CityCode[:2]
 	return &plateauapi.City{
-		ID:                plateauapi.NewID(city.CityCode, plateauapi.TypeArea),
+		ID:                plateauapi.NewID(city.CityCode, plateauapi.TypeCity),
 		Name:              city.CityName,
 		Code:              plateauapi.AreaCode(city.CityCode),
 		Type:              plateauapi.AreaTypeCity,
-		PrefectureID:      plateauapi.NewID(prefCode, plateauapi.TypeArea),
+		PrefectureID:      plateauapi.NewID(prefCode, plateauapi.TypePrefecture),
 		PrefectureCode:    plateauapi.AreaCode(prefCode),
 		PlanarCrsEpsgCode: lo.EmptyableToPtr(city.PlanarCrsEpsgCode()),
 	}
