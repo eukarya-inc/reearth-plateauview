@@ -21,25 +21,27 @@ func NewProcessor(dirpath, key1, key2 string) *Processor {
 	return &Processor{dirpath: dirpath, key1: key1, key2: key2}
 }
 
-func (p *Processor) ComputeGeoJSON(ctx context.Context, values []string, citycodem map[string]string) (*geojson.FeatureCollection, error) {
+func (p *Processor) ComputeGeoJSON(ctx context.Context, values []string, citycodem map[string]string) (*geojson.FeatureCollection, []string, error) {
 	features, err := loadFeatures(context.Background(), p.dirpath)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	if len(features) == 0 {
-		return nil, fmt.Errorf("no features found")
+		return nil, nil, fmt.Errorf("no features found")
 	}
 
-	return computeGeojsonFeatures(features, p.key1, p.key2, values, citycodem), nil
+	res, notfound := computeGeojsonFeatures(features, p.key1, p.key2, values, citycodem)
+	return res, notfound, nil
 }
 
-func computeGeojsonFeatures(features []*geojson.Feature, key1, key2 string, values []string, citycodem map[string]string) *geojson.FeatureCollection {
+func computeGeojsonFeatures(features []*geojson.Feature, key1, key2 string, values []string, citycodem map[string]string) (*geojson.FeatureCollection, []string) {
 	valueSet := map[string]struct{}{}
 	for _, v := range values {
 		valueSet[v] = struct{}{}
 	}
 
+	hit := map[string]struct{}{}
 	result := geojson.NewFeatureCollection()
 	for _, f := range features {
 		v1, ok := f.Properties[key1].(string)
@@ -67,10 +69,18 @@ func computeGeojsonFeatures(features []*geojson.Feature, key1, key2 string, valu
 			}
 			f.Properties = properties
 			result.AddFeature(f)
+			hit[value] = struct{}{}
 		}
 	}
 
-	return result
+	var notfound []string
+	for _, v := range values {
+		if _, ok := hit[v]; !ok {
+			notfound = append(notfound, v)
+		}
+	}
+
+	return result, notfound
 }
 
 func loadFeatures(ctx context.Context, dirpath string) ([]*geojson.Feature, error) {
@@ -105,8 +115,60 @@ func loadFeatures(ctx context.Context, dirpath string) ([]*geojson.Feature, erro
 			continue
 		}
 
-		features = append(features, f.Features...)
+		// fix invalid polygons
+		for _, f := range f.Features {
+			if f.Geometry == nil {
+				continue
+			}
+
+			if f.Geometry.Polygon != nil {
+				p := fixPolygon(f.Geometry.Polygon)
+				if p == nil {
+					continue
+				}
+				f.Geometry.Polygon = p
+			}
+
+			if f.Geometry.MultiPolygon != nil {
+				polygons := make([][][][]float64, 0, len(f.Geometry.MultiPolygon))
+				for _, p := range f.Geometry.MultiPolygon {
+					if p2 := fixPolygon(p); p2 != nil {
+						polygons = append(polygons, p2)
+					}
+				}
+
+				if len(polygons) == 0 {
+					continue
+				}
+
+				f.Geometry.MultiPolygon = polygons
+			}
+
+			features = append(features, f)
+		}
 	}
 
 	return features, nil
+}
+
+func fixPolygon(polygons [][][]float64) [][][]float64 {
+	result := make([][][]float64, 0, len(polygons))
+	invalid := false
+	for _, r := range polygons {
+		if len(r) < 4 {
+			// invalid polygon
+			invalid = true
+			break
+		}
+
+		// TODO: rewind if necessary
+		// https://github.com/mapbox/geojson-rewind/blob/main/index.js
+		result = append(result, r)
+	}
+
+	if invalid {
+		return nil
+	}
+
+	return result
 }

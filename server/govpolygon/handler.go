@@ -8,15 +8,20 @@ import (
 	"io"
 	"net/http"
 	"sync"
+	"time"
 
 	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 	"github.com/reearth/reearthx/log"
+	"github.com/reearth/reearthx/util"
 	"github.com/rubenv/topojson"
 )
 
+const dirpath = "govpolygondata"
 const key1 = "N03_001"
 const key2 = "N03_004"
-const dirPath = "govpolygondata"
+
+var cahceDuration = 24 * time.Hour
 
 type Handler struct {
 	// e.g. "http://[::]:8080"
@@ -27,20 +32,22 @@ type Handler struct {
 	geojson           []byte
 	topojson          []byte
 	updateIfNotExists bool
+	updatedAt         time.Time
 }
 
 func New(gqlEndpoint string, updateIfNotExists bool) *Handler {
 	return &Handler{
 		gqlEndpoint:       gqlEndpoint,
-		processor:         NewProcessor(dirPath, key1, key2),
+		processor:         NewProcessor(dirpath, key1, key2),
 		httpClient:        http.DefaultClient,
 		updateIfNotExists: updateIfNotExists,
 	}
 }
 
 func (h *Handler) Route(g *echo.Group) *Handler {
-	g.GET("/geojson", h.GetGeoJSON)
-	g.GET("/topojson", h.GetTeopoJSON)
+	g.Use(middleware.CORS(), middleware.Gzip())
+	g.GET("/plateaugovs.geojson", h.GetGeoJSON)
+	g.GET("/plateaugovs.topojson", h.GetTeopoJSON)
 	// g.GET("/update", h.Update, errorLogger)
 	return h
 }
@@ -76,6 +83,12 @@ func (h *Handler) GetTeopoJSON(c echo.Context) error {
 }
 
 func (h *Handler) Update(c echo.Context) error {
+	if !h.updatedAt.IsZero() && util.Now().Sub(h.updatedAt) < cahceDuration {
+		return nil
+	}
+
+	log.Infofc(c.Request().Context(), "govpolygon: updating")
+
 	initial := h.geojson == nil
 	if initial {
 		h.lock.Lock()
@@ -91,9 +104,12 @@ func (h *Handler) Update(c echo.Context) error {
 		return err
 	}
 
-	g, err := h.processor.ComputeGeoJSON(ctx, values, citycodem)
+	g, notfound, err := h.processor.ComputeGeoJSON(ctx, values, citycodem)
 	if err != nil {
 		return err
+	}
+	if len(notfound) > 0 {
+		log.Debugfc(context.Background(), "govpolygon: not found polygon: %v", notfound)
 	}
 
 	t := topojson.NewTopology(g, &topojson.TopologyOptions{})
@@ -113,6 +129,7 @@ func (h *Handler) Update(c echo.Context) error {
 
 	h.geojson = geojsonj
 	h.topojson = topojsonj
+	h.updatedAt = util.Now()
 
 	return nil
 }

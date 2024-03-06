@@ -33,14 +33,15 @@ func TestHandler(t *testing.T) {
 
 func TestProcessor(t *testing.T) {
 	p := &Processor{
-		dirpath: "govpolygondata",
+		dirpath: dirpath,
 		key1:    key1,
 		key2:    key2,
 	}
 
 	ctx := context.Background()
 	values := []string{"東京都千代田区"}
-	geojson, err := p.ComputeGeoJSON(ctx, values, nil)
+	geojson, notfound, err := p.ComputeGeoJSON(ctx, values, nil)
 	assert.NoError(t, err)
+	assert.Nil(t, notfound)
 	assert.NotEmpty(t, geojson)
 }
