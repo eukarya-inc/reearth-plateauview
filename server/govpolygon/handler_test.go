@@ -4,6 +4,7 @@ import (
 	"context"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"testing"
 
 	"github.com/labstack/echo/v4"
@@ -11,7 +12,7 @@ import (
 )
 
 func TestHandler(t *testing.T) {
-	url := ""
+	url := os.Getenv("PLATEAU_GRAPHQL_ENDPOINT")
 	if url == "" {
 		t.Skip("skipping test; no URL provided")
 	}
