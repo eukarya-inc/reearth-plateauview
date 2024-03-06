@@ -15,14 +15,13 @@ func TestHandler(t *testing.T) {
 	if url == "" {
 		t.Skip("skipping test; no URL provided")
 	}
-	h := New(url)
+	h := New(url, true)
 
 	e := echo.New()
 	r := httptest.NewRequest(http.MethodGet, "/", nil)
 	w := httptest.NewRecorder()
 	c := e.NewContext(r, w)
 
-	assert.NoError(t, h.Update(c))
 	assert.NoError(t, h.GetGeoJSON(c))
 
 	assert.Equal(t, http.StatusOK, w.Code)

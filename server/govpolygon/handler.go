@@ -20,52 +20,72 @@ const dirPath = "govpolygondata"
 
 type Handler struct {
 	// e.g. "http://[::]:8080"
-	gqlEndpoint string
-	processor   *Processor
-	httpClient  *http.Client
-	lock        sync.RWMutex
-	geojson     []byte
-	topojson    []byte
+	gqlEndpoint       string
+	processor         *Processor
+	httpClient        *http.Client
+	lock              sync.RWMutex
+	geojson           []byte
+	topojson          []byte
+	updateIfNotExists bool
 }
 
-func New(gqlEndpoint string) *Handler {
+func New(gqlEndpoint string, updateIfNotExists bool) *Handler {
 	return &Handler{
-		gqlEndpoint: gqlEndpoint,
-		processor:   NewProcessor(dirPath, key1, key2),
-		httpClient:  &http.Client{},
+		gqlEndpoint:       gqlEndpoint,
+		processor:         NewProcessor(dirPath, key1, key2),
+		httpClient:        http.DefaultClient,
+		updateIfNotExists: updateIfNotExists,
 	}
 }
 
 func (h *Handler) Route(g *echo.Group) *Handler {
 	g.GET("/geojson", h.GetGeoJSON)
 	g.GET("/topojson", h.GetTeopoJSON)
-	g.GET("/update", h.Update, errorLogger)
+	// g.GET("/update", h.Update, errorLogger)
 	return h
 }
 
 func (h *Handler) GetGeoJSON(c echo.Context) error {
-	if h.geojson == nil {
-		return c.JSON(http.StatusNotFound, "not found")
+	if h.updateIfNotExists && h.geojson == nil {
+		if err := h.Update(c); err != nil {
+			log.Errorfc(c.Request().Context(), "govpolygon: fail to init: %v", err)
+		}
 	}
 
 	h.lock.RLock()
 	defer h.lock.RUnlock()
+	if h.geojson == nil {
+		return c.JSON(http.StatusNotFound, "not found")
+	}
 	return c.JSONBlob(http.StatusOK, h.geojson)
 }
 
 func (h *Handler) GetTeopoJSON(c echo.Context) error {
-	if h.geojson == nil {
-		return c.JSON(http.StatusNotFound, "not found")
+	if h.updateIfNotExists && h.topojson == nil {
+		if err := h.Update(c); err != nil {
+			log.Errorfc(c.Request().Context(), "govpolygon: fail to init: %v", err)
+		}
 	}
 
 	h.lock.RLock()
 	defer h.lock.RUnlock()
+	if h.topojson == nil {
+		return c.JSON(http.StatusNotFound, "not found")
+	}
 	return c.JSONBlob(http.StatusOK, h.topojson)
 }
 
 func (h *Handler) Update(c echo.Context) error {
-	ctx := c.Request().Context()
+	initial := h.geojson == nil
+	if initial {
+		h.lock.Lock()
+		defer h.lock.Unlock()
+		if h.geojson != nil {
+			return nil
+		}
+	}
 
+	ctx := c.Request().Context()
 	values, citycodem, err := h.getCityNames(ctx)
 	if err != nil {
 		return err
@@ -86,10 +106,13 @@ func (h *Handler) Update(c echo.Context) error {
 		return fmt.Errorf("failed to marshal topojson: %w", err)
 	}
 
-	h.lock.Lock()
+	if !initial {
+		h.lock.Lock()
+		defer h.lock.Unlock()
+	}
+
 	h.geojson = geojsonj
 	h.topojson = topojsonj
-	h.lock.Unlock()
 
 	return nil
 }
@@ -165,15 +188,15 @@ func (h *Handler) getCityNames(ctx context.Context) ([]string, map[string]string
 	return cityNames, m, nil
 }
 
-func errorLogger(next echo.HandlerFunc) echo.HandlerFunc {
-	return func(c echo.Context) error {
-		err := next(c)
-		if err != nil {
-			log.Errorfc(c.Request().Context(), "govpolygon: %v", err)
-			if !c.Response().Committed {
-				return c.JSON(http.StatusInternalServerError, map[string]any{"error": "internal"})
-			}
-		}
-		return nil
-	}
-}
+// func errorLogger(next echo.HandlerFunc) echo.HandlerFunc {
+// 	return func(c echo.Context) error {
+// 		err := next(c)
+// 		if err != nil {
+// 			log.Errorfc(c.Request().Context(), "govpolygon: %v", err)
+// 			if !c.Response().Committed {
+// 				return c.JSON(http.StatusInternalServerError, map[string]any{"error": "internal"})
+// 			}
+// 		}
+// 		return nil
+// 	}
+// }

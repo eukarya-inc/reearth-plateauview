@@ -153,7 +153,10 @@ func GovPolygon(conf *Config) (*Service, error) {
 	return &Service{
 		Name: "govpolygon",
 		Echo: func(g *echo.Group) error {
-			govpolygon.New(fmt.Sprintf("http://[::]:%d/datacatalog/graphql", conf.Port)).Route(g.Group("/govpolygon"))
+			govpolygon.New(
+				fmt.Sprintf("http://[::]:%d/datacatalog/graphql", conf.Port),
+				true,
+			).Route(g.Group("/govpolygon"))
 			return nil
 		},
 	}, nil

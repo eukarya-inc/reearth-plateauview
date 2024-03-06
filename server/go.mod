@@ -18,6 +18,7 @@ require (
 	github.com/reearth/go3dtiles v0.0.0-20230612053146-a6d07c1ab855
 	github.com/reearth/reearth-cms-api/go v0.0.0-20240305064440-80539dcde579
 	github.com/reearth/reearthx v0.0.0-20240222072751-402668db71a9
+	github.com/rubenv/topojson v0.0.0-20220429141232-de429a870e0a
 	github.com/samber/lo v1.39.0
 	github.com/sendgrid/sendgrid-go v3.14.0+incompatible
 	github.com/spf13/afero v1.11.0
@@ -82,7 +83,6 @@ require (
 	github.com/ravilushqa/otelgqlgen v0.15.0 // indirect
 	github.com/richardlehane/mscfb v1.0.4 // indirect
 	github.com/richardlehane/msoleps v1.0.3 // indirect
-	github.com/rubenv/topojson v0.0.0-20220429141232-de429a870e0a // indirect
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
 	github.com/sosodev/duration v1.2.0 // indirect
 	github.com/tdewolff/minify/v2 v2.20.10 // indirect
