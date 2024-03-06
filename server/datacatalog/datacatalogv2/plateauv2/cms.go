@@ -18,6 +18,9 @@ var citygmlFeatureTypes = []string{
 	"tnm",
 	"htd",
 	"ifld",
+	// "gen",
+	// "brid",
+	// "rail",
 }
 
 type CMSItem struct {
@@ -79,6 +82,10 @@ func (i CMSItem) FeatureTypes() []string {
 
 	if i.Dem != "" && i.Dem != "無し" {
 		res = append(res, "dem")
+	}
+
+	if len(res) == 0 {
+		return nil
 	}
 
 	return res

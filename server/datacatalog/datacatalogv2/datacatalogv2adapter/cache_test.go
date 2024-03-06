@@ -32,7 +32,9 @@ func TestNewCache(t *testing.T) {
 					},
 				},
 				MaxLOD: &cms.PublicAsset{
-					URL: "maxlod",
+					Asset: cms.Asset{
+						URL: "maxlod",
+					},
 				},
 			},
 		},
@@ -113,9 +115,9 @@ func TestNewCache(t *testing.T) {
 				ID:                 "cg_13101",
 				Year:               2022,
 				RegistrationYear:   2022,
-				PrefectureID:       "a_13",
+				PrefectureID:       "p_13",
 				PrefectureCode:     "13",
-				CityID:             "a_13101",
+				CityID:             "c_13101",
 				CityCode:           "13101",
 				PlateauSpecMinorID: "ps_2.3",
 				URL:                "https://example.com/13101_tokyo23ku_2022_citygml_op.zip",

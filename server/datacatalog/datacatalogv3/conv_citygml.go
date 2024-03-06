@@ -50,8 +50,8 @@ func toCityGMLs(all *AllData, regYear int) (map[plateauapi.ID]*plateauapi.CityGM
 		dataMap[city.ID].Year = city.YearInt()
 		dataMap[city.ID].RegistrationYear = regYear
 		dataMap[city.ID].PrefectureCode = plateauapi.AreaCode(plateauapi.AreaCode(city.CityCode).PrefectureCode())
-		dataMap[city.ID].PrefectureID = plateauapi.NewID(dataMap[city.ID].PrefectureCode.String(), plateauapi.TypeArea)
-		dataMap[city.ID].CityID = plateauapi.NewID(city.CityCode, plateauapi.TypeArea)
+		dataMap[city.ID].PrefectureID = plateauapi.NewID(dataMap[city.ID].PrefectureCode.String(), plateauapi.TypePrefecture)
+		dataMap[city.ID].CityID = plateauapi.NewID(city.CityCode, plateauapi.TypeCity)
 		dataMap[city.ID].CityCode = plateauapi.AreaCode(city.CityCode)
 		dataMap[city.ID].FeatureTypes = featureTypesMap[city.ID]
 		dataMap[city.ID].PlateauSpecMinorID = plateauapi.PlateauSpecIDFrom(city.Spec)
