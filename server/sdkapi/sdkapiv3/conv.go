@@ -32,10 +32,9 @@ func (d *DatasetsQuery) ToDatasets() *DatasetsResponse {
 			p.Data = append(p.Data, c)
 		}
 
-		if p.Data == nil {
-			p.Data = []*DatasetCityResponse{}
+		if len(p.Data) > 0 {
+			datasets.Data = append(datasets.Data, p)
 		}
-		datasets.Data = append(datasets.Data, p)
 	}
 
 	return datasets
