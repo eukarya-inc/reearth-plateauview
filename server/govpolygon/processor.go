@@ -152,23 +152,25 @@ func loadFeatures(ctx context.Context, dirpath string) ([]*geojson.Feature, erro
 }
 
 func fixPolygon(polygons [][][]float64) [][][]float64 {
-	result := make([][][]float64, 0, len(polygons))
-	invalid := false
-	for _, r := range polygons {
-		if len(r) < 4 {
-			// invalid polygon
-			invalid = true
-			break
-		}
+	// result := make([][][]float64, 0, len(polygons))
+	// invalid := false
+	// for _, r := range polygons {
+	// 	if len(r) < 4 {
+	// 		// invalid polygon
+	// 		invalid = true
+	// 		break
+	// 	}
 
-		// TODO: rewind if necessary
-		// https://github.com/mapbox/geojson-rewind/blob/main/index.js
-		result = append(result, r)
-	}
+	// 	// TODO: rewind if necessary
+	// 	// https://github.com/mapbox/geojson-rewind/blob/main/index.js
+	// 	result = append(result, r)
+	// }
 
-	if invalid {
-		return nil
-	}
+	// if invalid {
+	// 	return nil
+	// }
 
-	return result
+	// return result
+
+	return polygons
 }
