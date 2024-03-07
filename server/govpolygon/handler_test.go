@@ -2,8 +2,10 @@ package govpolygon
 
 import (
 	"context"
+	"encoding/json"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"testing"
 
 	"github.com/labstack/echo/v4"
@@ -33,15 +35,21 @@ func TestHandler(t *testing.T) {
 
 func TestProcessor(t *testing.T) {
 	p := &Processor{
-		dirpath: dirpath,
-		key1:    key1,
-		key2:    key2,
+		dirpath:           dirpath,
+		key1:              key1,
+		key2:              key2,
+		simplifyTolerance: 0,
 	}
+	write := false
 
 	ctx := context.Background()
-	values := []string{"東京都千代田区"}
-	geojson, notfound, err := p.ComputeGeoJSON(ctx, values, nil)
+	geojson, notfound, err := p.ComputeGeoJSON(ctx, nil, nil)
 	assert.NoError(t, err)
 	assert.Nil(t, notfound)
 	assert.NotEmpty(t, geojson)
+
+	if write {
+		j, _ := json.MarshalIndent(geojson, "", "  ")
+		_ = os.WriteFile("test.geojson", j, 0644)
+	}
 }

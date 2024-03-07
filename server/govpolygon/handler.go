@@ -20,6 +20,10 @@ const dirpath = "govpolygondata"
 const key1 = "N03_001"
 const key2 = "N03_004"
 
+// https://mourner.github.io/simplify-js/
+// const simplifyTolerance = 0.01
+const simplifyTolerance = 0 // disable simplification because no much effect
+
 var cahceDuration = 24 * time.Hour
 
 type Handler struct {
@@ -36,7 +40,7 @@ type Handler struct {
 func New(gqlEndpoint string, updateIfNotExists bool) *Handler {
 	return &Handler{
 		gqlEndpoint:       gqlEndpoint,
-		processor:         NewProcessor(dirpath, key1, key2),
+		processor:         NewProcessor(dirpath, key1, key2, simplifyTolerance),
 		httpClient:        http.DefaultClient,
 		updateIfNotExists: updateIfNotExists,
 	}

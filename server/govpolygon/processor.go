@@ -9,20 +9,22 @@ import (
 	geojson "github.com/paulmach/go.geojson"
 	"github.com/reearth/reearthx/log"
 	"github.com/rubenv/topojson"
+	simplify "github.com/yrsh/simplify-go"
 )
 
 type Processor struct {
-	dirpath string
-	key1    string
-	key2    string
+	dirpath           string
+	key1              string
+	key2              string
+	simplifyTolerance float64
 }
 
-func NewProcessor(dirpath, key1, key2 string) *Processor {
+func NewProcessor(dirpath, key1, key2 string, simplifyTolerance float64) *Processor {
 	return &Processor{dirpath: dirpath, key1: key1, key2: key2}
 }
 
 func (p *Processor) ComputeGeoJSON(ctx context.Context, values []string, citycodem map[string]string) (*geojson.FeatureCollection, []string, error) {
-	features, err := loadFeatures(context.Background(), p.dirpath)
+	features, err := loadFeatures(context.Background(), p.dirpath, p.simplifyTolerance)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -55,7 +57,14 @@ func computeGeojsonFeatures(features []*geojson.Feature, key1, key2 string, valu
 		}
 
 		value := v1 + v2
-		if _, ok := valueSet[value]; ok {
+
+		if len(valueSet) > 0 {
+			_, ok = valueSet[value]
+		} else {
+			ok = true
+		}
+
+		if ok {
 			properties := map[string]any{
 				"pref": v1,
 				"city": v2,
@@ -83,7 +92,7 @@ func computeGeojsonFeatures(features []*geojson.Feature, key1, key2 string, valu
 	return result, notfound
 }
 
-func loadFeatures(ctx context.Context, dirpath string) ([]*geojson.Feature, error) {
+func loadFeatures(ctx context.Context, dirpath string, simplifyTolerance float64) ([]*geojson.Feature, error) {
 	files, err := os.ReadDir(dirpath)
 	if err != nil {
 		return nil, err
@@ -122,7 +131,7 @@ func loadFeatures(ctx context.Context, dirpath string) ([]*geojson.Feature, erro
 			}
 
 			if f.Geometry.Polygon != nil {
-				p := fixPolygon(f.Geometry.Polygon)
+				p := fixPolygon(f.Geometry.Polygon, simplifyTolerance)
 				if p == nil {
 					continue
 				}
@@ -132,7 +141,7 @@ func loadFeatures(ctx context.Context, dirpath string) ([]*geojson.Feature, erro
 			if f.Geometry.MultiPolygon != nil {
 				polygons := make([][][][]float64, 0, len(f.Geometry.MultiPolygon))
 				for _, p := range f.Geometry.MultiPolygon {
-					if p2 := fixPolygon(p); p2 != nil {
+					if p2 := fixPolygon(p, simplifyTolerance); p2 != nil {
 						polygons = append(polygons, p2)
 					}
 				}
@@ -151,26 +160,30 @@ func loadFeatures(ctx context.Context, dirpath string) ([]*geojson.Feature, erro
 	return features, nil
 }
 
-func fixPolygon(polygons [][][]float64) [][][]float64 {
-	// result := make([][][]float64, 0, len(polygons))
-	// invalid := false
-	// for _, r := range polygons {
-	// 	if len(r) < 4 {
-	// 		// invalid polygon
-	// 		invalid = true
-	// 		break
-	// 	}
+func fixPolygon(polygons [][][]float64, simplifyTolerance float64) [][][]float64 {
+	result := make([][][]float64, 0, len(polygons))
+	invalid := false
+	for _, r := range polygons {
+		// if len(r) < 4 {
+		// 	// invalid polygon
+		// 	invalid = true
+		// 	break
+		// }
 
-	// 	// TODO: rewind if necessary
-	// 	// https://github.com/mapbox/geojson-rewind/blob/main/index.js
-	// 	result = append(result, r)
-	// }
+		// simplify
+		if simplifyTolerance > 0 {
+			r = simplify.Simplify(r, simplifyTolerance, false)
+		}
 
-	// if invalid {
-	// 	return nil
-	// }
+		// TODO: rewind if necessary
+		// https://github.com/mapbox/geojson-rewind/blob/main/index.js
 
-	// return result
+		result = append(result, r)
+	}
 
-	return polygons
+	if invalid {
+		return nil
+	}
+
+	return result
 }

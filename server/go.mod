@@ -28,6 +28,7 @@ require (
 	github.com/thanhpk/randstr v1.0.6
 	github.com/vektah/gqlparser/v2 v2.5.11
 	github.com/vincent-petithory/dataurl v1.0.0
+	github.com/yrsh/simplify-go v0.0.0-20141205144220-b78647bd27f7
 	golang.org/x/net v0.22.0
 	golang.org/x/sync v0.6.0
 	gonum.org/v1/gonum v0.14.0
