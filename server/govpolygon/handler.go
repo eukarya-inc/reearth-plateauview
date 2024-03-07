@@ -14,7 +14,6 @@ import (
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/reearth/reearthx/log"
 	"github.com/reearth/reearthx/util"
-	"github.com/rubenv/topojson"
 )
 
 const dirpath = "govpolygondata"
@@ -30,7 +29,6 @@ type Handler struct {
 	httpClient        *http.Client
 	lock              sync.RWMutex
 	geojson           []byte
-	topojson          []byte
 	updateIfNotExists bool
 	updatedAt         time.Time
 }
@@ -47,7 +45,6 @@ func New(gqlEndpoint string, updateIfNotExists bool) *Handler {
 func (h *Handler) Route(g *echo.Group) *Handler {
 	g.Use(middleware.CORS(), middleware.Gzip())
 	g.GET("/plateaugovs.geojson", h.GetGeoJSON)
-	g.GET("/plateaugovs.topojson", h.GetTeopoJSON)
 	// g.GET("/update", h.Update, errorLogger)
 	return h
 }
@@ -65,21 +62,6 @@ func (h *Handler) GetGeoJSON(c echo.Context) error {
 		return c.JSON(http.StatusNotFound, "not found")
 	}
 	return c.JSONBlob(http.StatusOK, h.geojson)
-}
-
-func (h *Handler) GetTeopoJSON(c echo.Context) error {
-	if h.updateIfNotExists && h.topojson == nil {
-		if err := h.Update(c); err != nil {
-			log.Errorfc(c.Request().Context(), "govpolygon: fail to init: %v", err)
-		}
-	}
-
-	h.lock.RLock()
-	defer h.lock.RUnlock()
-	if h.topojson == nil {
-		return c.JSON(http.StatusNotFound, "not found")
-	}
-	return c.JSONBlob(http.StatusOK, h.topojson)
 }
 
 func (h *Handler) Update(c echo.Context) error {
@@ -112,14 +94,9 @@ func (h *Handler) Update(c echo.Context) error {
 		log.Debugfc(context.Background(), "govpolygon: not found polygon: %v", notfound)
 	}
 
-	t := topojson.NewTopology(g, &topojson.TopologyOptions{})
 	geojsonj, err := json.Marshal(g)
 	if err != nil {
 		return fmt.Errorf("failed to marshal geojson: %w", err)
-	}
-	topojsonj, err := json.Marshal(t)
-	if err != nil {
-		return fmt.Errorf("failed to marshal topojson: %w", err)
 	}
 
 	if !initial {
@@ -128,7 +105,6 @@ func (h *Handler) Update(c echo.Context) error {
 	}
 
 	h.geojson = geojsonj
-	h.topojson = topojsonj
 	h.updatedAt = util.Now()
 
 	return nil
