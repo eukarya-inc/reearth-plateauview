@@ -7,6 +7,7 @@ import (
 	"github.com/eukarya-inc/reearth-plateauview/server/datacatalog"
 	"github.com/eukarya-inc/reearth-plateauview/server/govpolygon"
 	"github.com/eukarya-inc/reearth-plateauview/server/opinion"
+	"github.com/eukarya-inc/reearth-plateauview/server/putil"
 	"github.com/eukarya-inc/reearth-plateauview/server/sdkapi"
 	"github.com/eukarya-inc/reearth-plateauview/server/searchindex"
 	"github.com/eukarya-inc/reearth-plateauview/server/sidebar"
@@ -30,6 +31,7 @@ var services = [](func(*Config) (*Service, error)){
 	Sidebar,
 	DataCatalog,
 	GovPolygon,
+	Embed,
 }
 
 func Services(conf *Config) (srv []*Service, _ error) {
@@ -157,6 +159,16 @@ func GovPolygon(conf *Config) (*Service, error) {
 				fmt.Sprintf("http://[::]:%d/datacatalog/graphql", conf.Port),
 				true,
 			).Route(g.Group("/govpolygon"))
+			return nil
+		},
+	}, nil
+}
+
+func Embed(conf *Config) (*Service, error) {
+	return &Service{
+		Name: "embed",
+		Echo: func(g *echo.Group) error {
+			_ = putil.DeliverFile(g, "PlateauView3.js", "text/javascript")
 			return nil
 		},
 	}, nil
