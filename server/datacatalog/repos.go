@@ -199,7 +199,7 @@ func (h *reposHandler) prepareAndGetMergedRepo(ctx context.Context, admin bool, 
 
 	repos := make([]plateauapi.Repo, 0, len(mds))
 	for _, s := range mds {
-		if r := h.getRepo(ctx, admin, s); r != nil {
+		if r := h.getRepo(admin, s); r != nil {
 			repos = append(repos, r)
 		}
 	}
@@ -221,7 +221,7 @@ func (h *reposHandler) prepareAndGetMergedRepo(ctx context.Context, admin bool, 
 	return merged
 }
 
-func (h *reposHandler) getRepo(ctx context.Context, admin bool, md plateaucms.Metadata) (repo plateauapi.Repo) {
+func (h *reposHandler) getRepo(admin bool, md plateaucms.Metadata) (repo plateauapi.Repo) {
 	if md.DataCatalogProjectAlias == "" {
 		return
 	}

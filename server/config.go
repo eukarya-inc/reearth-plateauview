@@ -75,6 +75,7 @@ type Config struct {
 	DataCatalog_PlaygroundEndpoint     string   `pp:",omitempty"`
 	DataCatalog_CacheTTL               int      `pp:",omitempty"`
 	DataCatalog_GQL_MaxComplexity      int      `pp:",omitempty"`
+	DataCatalog_PanicOnInit            bool     `pp:",omitempty"`
 	SDKAPI_DisableCache                bool     `pp:",omitempty"`
 	SDKAPI_CacheTTL                    int      `pp:",omitempty"`
 	GCParcent                          int      `pp:",omitempty"`
@@ -189,6 +190,7 @@ func (c *Config) DataCatalog() datacatalog.Config {
 		GraphqlMaxComplexity: c.DataCatalog_GQL_MaxComplexity,
 		DisableCache:         c.DataCatalog_DisableCache,
 		CacheTTL:             c.DataCatalog_CacheTTL,
+		ErrorOnInit:          c.DataCatalog_PanicOnInit,
 	}
 }
 

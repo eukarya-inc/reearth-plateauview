@@ -7,6 +7,7 @@ import (
 	"github.com/eukarya-inc/reearth-plateauview/server/datacatalog/datacatalogv2"
 	"github.com/eukarya-inc/reearth-plateauview/server/plateaucms"
 	"github.com/labstack/echo/v4"
+	"github.com/reearth/reearthx/log"
 )
 
 type Config struct {
@@ -15,6 +16,7 @@ type Config struct {
 	CacheUpdateKey       string
 	PlaygroundEndpoint   string
 	GraphqlMaxComplexity int
+	ErrorOnInit          bool
 	// v2
 	DisableCache bool
 	CacheTTL     int
@@ -38,5 +40,13 @@ func Echo(conf Config, g *echo.Group) error {
 	}
 
 	// first cache update
-	return updateCache(context.Background())
+	if err := updateCache(context.Background()); err != nil {
+		if conf.ErrorOnInit {
+			return err
+		} else {
+			log.Errorf("datacatalog: failed to update cache: %v", err)
+		}
+	}
+
+	return nil
 }
