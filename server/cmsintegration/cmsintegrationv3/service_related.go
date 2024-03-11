@@ -342,11 +342,19 @@ func packRelatedDatasetTarget(ctx context.Context, target string, assets []strin
 
 		an := parseRelatedAssetName(asset.URL)
 		if an == nil {
-			return 0, fmt.Errorf("(%s/%d/%s): ファイル名が命名規則に沿っていません。 `[市区町村コード5桁]_[市区町村名英名]_[提供事業者名(city等)]_[整備年度4桁]_[landmark,shelterなど].geojson` としてください。", target, i+1, path.Base(asset.URL))
+			return 0, fmt.Errorf("(%s/%d/%s): ファイル名が命名規則に沿っていません。 `[市町村コード5桁]_[市町村名英名]_[提供事業者名(city等)]_[整備年度4桁]_([区コード5桁]_[区英名]_)[landmark,shelterなど].geojson` としてください。", target, i+1, path.Base(asset.URL))
 		}
 
-		if !noNeedToWriteAssets && an.CityCode == cityCode {
-			return 0, fmt.Errorf("(%s/%d/%s): アセット名の区コードが全体の市区町村コードと同じです。区ごとに登録する場合はファイル名中のコードを各区のコードにしてください。", target, i+1, path.Base(asset.URL))
+		if an.CityCode != cityCode {
+			return 0, fmt.Errorf("(%s/%d/%s): ファイル名中の市町村コードが紐づけられた都市と異なります。", target, i+1, path.Base(asset.URL))
+		}
+
+		if an.WardCode != "" && an.WardName == "" || an.WardCode == "" && an.WardName != "" {
+			return 0, fmt.Errorf("(%s/%d/%s): ファイル名で区コードまたは区英名が不足しています。", target, i+1, path.Base(asset.URL))
+		}
+
+		if !noNeedToWriteAssets && (an.WardCode == cityCode || an.WardName == cityNameEn) {
+			return 0, fmt.Errorf("(%s/%d/%s): アセット名の区コードまたは区名が紐づいた都市と同じです。区ごとに登録する場合は、ファイル名中の区コードや区名を各区ごとに正しく入れてください。", target, i+1, path.Base(asset.URL))
 		}
 
 		if assetName == nil {
@@ -411,11 +419,13 @@ type relatedAssetName struct {
 	CityName string
 	Provider string
 	Year     int
+	WardCode string
+	WardName string
 	Type     string
 	Ext      string
 }
 
-var reRelatedAssetName = regexp.MustCompile(`^([0-9]{5})_([^_]+)_([^_]+)_([0-9]+)_(.+)\.(.+)$`)
+var reRelatedAssetName = regexp.MustCompile(`^([0-9]+)_([^_]+)_([^_]+)_([0-9]+)_(?:([0-9]+)_([^_]+)_)?([a-z_]+)\.(.+)$`)
 
 func parseRelatedAssetName(name string) *relatedAssetName {
 	name = path.Base(name)
@@ -431,8 +441,10 @@ func parseRelatedAssetName(name string) *relatedAssetName {
 		CityName: m[2],
 		Provider: m[3],
 		Year:     y,
-		Type:     m[5],
-		Ext:      m[6],
+		WardCode: m[5],
+		WardName: m[6],
+		Type:     m[7],
+		Ext:      m[8],
 	}
 }
 

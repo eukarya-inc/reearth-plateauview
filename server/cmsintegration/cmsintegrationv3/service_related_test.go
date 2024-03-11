@@ -173,7 +173,7 @@ func TestPackRelatedDataset(t *testing.T) {
 		City: "city",
 		Items: map[string]RelatedItemDatum{
 			"shelter":         {Asset: []string{"00000_hoge_city_2023_shelter"}},
-			"landmark":        {Asset: []string{"00001_hoge_city_2023_landmark", "00002_hoge_city_2023_landmark"}},
+			"landmark":        {Asset: []string{"00000_hoge_city_2023_00001_foo_landmark", "00000_hoge_city_2023_00002_bar_landmark"}},
 			"station":         {Asset: []string{"00000_hoge_city_2023_station"}},
 			"park":            {Asset: []string{"00000_hoge_city_2023_park"}},
 			"railway":         {Asset: []string{"00000_hoge_city_2023_railway"}},
@@ -226,8 +226,8 @@ func TestPackRelatedDataset(t *testing.T) {
 		assert.Equal(t, []string{
 			"00000_hoge_city_2023_shelter.geojson",
 			"00000_hoge_city_2023_park.geojson",
-			"00001_hoge_city_2023_landmark.geojson",
-			"00002_hoge_city_2023_landmark.geojson",
+			"00000_hoge_city_2023_00001_foo_landmark.geojson",
+			"00000_hoge_city_2023_00002_bar_landmark.geojson",
 			"00000_hoge_city_2023_landmark.geojson",
 			"00000_hoge_city_2023_station.geojson",
 			"00000_hoge_city_2023_railway.geojson",
@@ -237,11 +237,11 @@ func TestPackRelatedDataset(t *testing.T) {
 			return f.Name
 		}))
 
-		// assert 00001_hoge_city_2023_landmark.geojson
-		zf := lo.Must(zr.Open("00001_hoge_city_2023_landmark.geojson"))
+		// assert 00000_hoge_city_2023_00001_foo_landmark.geojson
+		zf := lo.Must(zr.Open("00000_hoge_city_2023_00001_foo_landmark.geojson"))
 		var ge map[string]any
 		_ = json.NewDecoder(zf).Decode(&ge)
-		assert.Equal(t, mockGeoJSON("00001_hoge_city_2023_landmark"), ge)
+		assert.Equal(t, mockGeoJSON("00000_hoge_city_2023_00001_foo_landmark"), ge)
 
 		// assert 00000_hoge_city_2023_landmark.geojson
 		zf = lo.Must(zr.Open("00000_hoge_city_2023_landmark.geojson"))
@@ -253,12 +253,12 @@ func TestPackRelatedDataset(t *testing.T) {
 			"features": []any{
 				map[string]any{
 					"type":       "Feature",
-					"properties": map[string]any{"name": "00001_hoge_city_2023_landmark"},
+					"properties": map[string]any{"name": "00000_hoge_city_2023_00001_foo_landmark"},
 					"geometry":   map[string]any{"type": "Point", "coordinates": []any{0.0, 0.0}},
 				},
 				map[string]any{
 					"type":       "Feature",
-					"properties": map[string]any{"name": "00002_hoge_city_2023_landmark"},
+					"properties": map[string]any{"name": "00000_hoge_city_2023_00002_bar_landmark"},
 					"geometry":   map[string]any{"type": "Point", "coordinates": []any{0.0, 0.0}},
 				},
 			},
@@ -275,5 +275,26 @@ func TestParseRelatedAssetName(t *testing.T) {
 		Type:     "landmark",
 		Ext:      "geojson",
 	}, parseRelatedAssetName("https://example.com/00000_hoge_city_2023_landmark.geojson"))
-	assert.Nil(t, parseRelatedAssetName("https://example.com/0000_hoge_city_2023_landmark.geojson"))
+
+	assert.Equal(t, &relatedAssetName{
+		CityCode: "27100",
+		CityName: "osaka-shi",
+		Provider: "city",
+		Year:     2022,
+		WardCode: "27103",
+		WardName: "fukushima-ku",
+		Type:     "shelter",
+		Ext:      "geojson",
+	}, parseRelatedAssetName("27100_osaka-shi_city_2022_27103_fukushima-ku_shelter.geojson"))
+
+	assert.Equal(t, &relatedAssetName{
+		CityCode: "27100",
+		CityName: "osaka-shi",
+		Provider: "city",
+		Year:     2022,
+		Type:     "emergency_route",
+		Ext:      "geojson",
+	}, parseRelatedAssetName("27100_osaka-shi_city_2022_emergency_route.geojson"))
+
+	assert.Nil(t, parseRelatedAssetName("https://example.com/0000hoge_city_2023_landmark.geojson"))
 }
