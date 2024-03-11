@@ -9,6 +9,8 @@ import (
 )
 
 func TestCatalogFile(t *testing.T) {
+	writeResult := false
+
 	f, err := os.Open("testdata/xxxxx_xxx_catalog.xlsx")
 	assert.NoError(t, err)
 
@@ -55,6 +57,11 @@ func TestCatalogFile(t *testing.T) {
 	assert.NoError(t, c.MustDeleteSheet())
 	buf, err := c.File().WriteToBuffer()
 	assert.NoError(t, err)
+
+	// save file
+	if writeResult {
+		_ = os.WriteFile("testdata/xxxxx_xxx_catalog2.xlsx", buf.Bytes(), 0644)
+	}
 
 	xf2, err := excelize.OpenReader(buf)
 	assert.NoError(t, err)
