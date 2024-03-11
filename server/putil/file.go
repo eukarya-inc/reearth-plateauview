@@ -4,6 +4,7 @@ import (
 	"os"
 
 	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 	"github.com/reearth/reearthx/rerror"
 )
 
@@ -25,7 +26,7 @@ func DeliverFile(g *echo.Group, path, contentType string) bool {
 
 		defer f.Close()
 		return c.Stream(200, contentType, f)
-	})
+	}, middleware.CORS(), middleware.Gzip())
 
 	return true
 }

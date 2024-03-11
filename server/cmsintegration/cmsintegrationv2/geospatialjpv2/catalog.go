@@ -166,7 +166,7 @@ func (c *CatalogFile) getSheet() string {
 	return "G空間登録用メタデータ "
 }
 
-func (c *CatalogFile) getCellValue(sheet, name, _axis string, errs []error) (string, []error) {
+func (c *CatalogFile) getCellValue(sheet, name string, _ string, errs []error) (string, []error) {
 	pos, errs := c.findCell(sheet, name, errs)
 	if pos != "" {
 		cp, err := ParseCellPos(pos)
