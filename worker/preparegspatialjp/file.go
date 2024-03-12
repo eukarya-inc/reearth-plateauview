@@ -109,6 +109,7 @@ func normalizeZipFilePath(p string) string {
 	if strings.HasPrefix(p, "__MACOSX/") ||
 		strings.HasSuffix(p, "/.DS_Store") ||
 		strings.HasSuffix(p, "/Thumb.db") ||
+		strings.HasSuffix(p, "/Thumbs.db") ||
 		p == ".DS_Store" || p == "Thumbs.db" {
 		return ""
 	}
