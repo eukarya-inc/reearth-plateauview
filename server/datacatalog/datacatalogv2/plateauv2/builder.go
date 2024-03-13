@@ -295,18 +295,23 @@ func (b *DataCatalogItemBuilder) dataCatalogItem(a asset, g assetGroup, desc str
 		return nil
 	}
 
+	prefCode := jpareacode.PrefectureCodeInt(b.IntermediateItem.Prefecture)
+	cityName := b.IntermediateItem.City
+	cityCode := datacatalogutil.CityCode(b.IntermediateItem.CityCode, b.IntermediateItem.City, "", prefCode)
 	wardName := b.IntermediateItem.Dic.WardName(a.Name.WardCode)
 	if wardName == "" && a.Name.WardCode != "" {
 		wardName = a.Name.WardEn
+	}
+
+	var wardCode string
+	if wardName != "" {
+		wardCode = datacatalogutil.CityCode(a.Name.WardCode, cityName, wardName, prefCode)
 	}
 
 	cityOrWardName := b.IntermediateItem.City
 	if wardName != "" {
 		cityOrWardName = wardName
 	}
-
-	prefCode := jpareacode.PrefectureCodeInt(b.IntermediateItem.Prefecture)
-	wardCode := datacatalogutil.CityCode(a.Name.WardCode, wardName, prefCode)
 
 	// name
 	var subname string
@@ -359,7 +364,7 @@ func (b *DataCatalogItemBuilder) dataCatalogItem(a asset, g assetGroup, desc str
 		PrefCode:    jpareacode.FormatPrefectureCode(prefCode),
 		City:        b.IntermediateItem.City,
 		CityEn:      b.IntermediateItem.CityEn,
-		CityCode:    datacatalogutil.CityCode(b.IntermediateItem.CityCode, b.IntermediateItem.City, prefCode),
+		CityCode:    cityCode,
 		Ward:        wardName,
 		WardEn:      a.Name.WardEn,
 		WardCode:    wardCode,

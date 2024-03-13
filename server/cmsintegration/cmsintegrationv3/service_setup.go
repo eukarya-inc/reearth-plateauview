@@ -251,12 +251,12 @@ func parseSetupCSV(r io.Reader) ([]SetupCSVItem, []string, error) {
 		var code string
 		if codeIndex == -1 || row[codeIndex] == "" {
 			pref := jpareacode.PrefectureCodeInt(row[prefectureIndex])
-			city := jpareacode.CityByName(pref, row[nameIndex])
+			city := jpareacode.CityByName(pref, row[nameIndex], "")
 			if city == nil {
 				return nil, nil, fmt.Errorf("invalid pref or city name: %s", row[nameIndex])
 			}
 
-			code = jpareacode.FormatCityCode(city.Code)
+			code = jpareacode.FormatCityCode(city.Code())
 		} else {
 			code = row[codeIndex]
 		}

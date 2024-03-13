@@ -12,6 +12,47 @@ import (
 func TestDatasetItem_DataCatalogs(t *testing.T) {
 	assert.Equal(t, []DataCatalogItem{{
 		ID:          "id",
+		Name:        "公園情報（北九州市）",
+		Type:        "公園情報",
+		TypeEn:      "park",
+		Pref:        "福岡県",
+		PrefCode:    "40",
+		City:        "北九州市",
+		CityCode:    "40100",
+		Format:      "3dtiles",
+		Layers:      []string{"layers", "layers2"},
+		URL:         "https://example.com/aaaaa/tileset.json",
+		Description: "desc",
+		Year:        2021,
+		Family:      "related",
+		Edition:     "2022",
+		Config: &datacatalogutil.DataCatalogItemConfig{
+			Data: []datacatalogutil.DataCatalogItemConfigItem{{
+				Name: "name",
+				URL:  "url",
+				Type: "type",
+			}},
+		},
+		OpenDataURL: "https://example.com",
+		Order:       lo.ToPtr(100),
+	}}, DatasetItem{
+		ID:          "id",
+		Name:        "name",
+		Type:        "公園",
+		Prefecture:  "福岡県",
+		CityName:    "北九州市",
+		OpenDataURL: "https://example.com",
+		Description: "desc",
+		Year:        "令和3年度以前",
+		DataFormat:  "3D Tiles",
+		DataLayers:  "layers, layers2",
+		DataURL:     "https://example.com/aaaaa.zip",
+		Config:      `{"data":[{"name":"name","url":"url","type":"type"}]}`,
+		Order:       lo.ToPtr(100),
+	}.DataCatalogs())
+
+	assert.Equal(t, []DataCatalogItem{{
+		ID:          "id",
 		Name:        "公園情報（北区）",
 		Type:        "公園情報",
 		TypeEn:      "park",

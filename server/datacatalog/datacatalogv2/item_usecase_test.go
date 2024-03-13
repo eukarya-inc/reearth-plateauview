@@ -76,7 +76,7 @@ func TestUsecaseItem_DataCatalogs(t *testing.T) {
 		City:     "大阪市",
 		CityCode: "27100",
 		Ward:     "北区",
-		WardCode: "27146",
+		WardCode: "27127",
 		Family:   "generic",
 		Edition:  "2022",
 	}}, UsecaseItem{

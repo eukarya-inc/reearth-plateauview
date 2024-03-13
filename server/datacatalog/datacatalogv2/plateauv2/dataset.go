@@ -50,19 +50,19 @@ func (i DatasetItem) DataCatalogs() []DataCatalogItem {
 	pref, prefCodeInt := datacatalogutil.NormalizePref(i.Prefecture)
 	prefCode := jpareacode.FormatPrefectureCode(prefCodeInt)
 
-	var city, ward, wCode string
-	if i.WardName != "" {
-		city = i.CityName
-		ward = i.WardName
-		wCode = datacatalogutil.CityCode("", fmt.Sprintf("%s/%s", city, ward), prefCodeInt)
-	} else {
-		city, ward, _ = strings.Cut(i.CityName, "/")
-		if ward != "" {
-			wCode = datacatalogutil.CityCode("", i.CityName, prefCodeInt)
-		}
+	cityName := i.CityName
+	wardName := i.WardName
+
+	if s := strings.Split(i.CityName, "/"); len(s) > 1 {
+		cityName = s[0]
+		wardName = s[1]
 	}
 
-	cCode := datacatalogutil.CityCode("", city, prefCodeInt)
+	cCode := datacatalogutil.CityCode("", cityName, "", prefCodeInt)
+	var wCode string
+	if wardName != "" {
+		wCode = datacatalogutil.CityCode("", cityName, wardName, prefCodeInt)
+	}
 
 	var c *datacatalogutil.DataCatalogItemConfig
 	_ = json.Unmarshal([]byte(i.Config), &c)
@@ -95,9 +95,9 @@ func (i DatasetItem) DataCatalogs() []DataCatalogItem {
 
 	name := i.Name
 	if t != "" {
-		cityOrWard := city
-		if ward != "" {
-			cityOrWard = ward
+		cityOrWard := cityName
+		if wardName != "" {
+			cityOrWard = wardName
 		}
 		name = fmt.Sprintf("%s（%s）", t, cityOrWard)
 	}
@@ -109,9 +109,9 @@ func (i DatasetItem) DataCatalogs() []DataCatalogItem {
 		TypeEn:         datasetTypes[i.Type],
 		Pref:           pref,
 		PrefCode:       prefCode,
-		City:           city,
+		City:           cityName,
 		CityCode:       cCode,
-		Ward:           ward,
+		Ward:           wardName,
 		WardCode:       wCode,
 		Format:         f,
 		URL:            datacatalogutil.AssetURLFromFormat(u, f),

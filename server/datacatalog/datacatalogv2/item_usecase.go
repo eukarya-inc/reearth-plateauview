@@ -51,8 +51,11 @@ func (i UsecaseItem) DataCatalogs() []DataCatalogItem {
 		city, ward, _ = strings.Cut(i.CityName, "/")
 	}
 
-	cCode := datacatalogutil.CityCode("", city, prefCodeInt)
-	wCode := datacatalogutil.CityCode("", ward, prefCodeInt)
+	cCode := datacatalogutil.CityCode("", city, "", prefCodeInt)
+	var wCode string
+	if ward != "" {
+		wCode = datacatalogutil.CityCode("", city, ward, prefCodeInt)
+	}
 
 	if i.DataFormat == folder {
 		return []DataCatalogItem{{
