@@ -14,6 +14,7 @@ type APIClient struct {
 	client   *graphql.Client
 	http     *http.Client
 	filesURL string
+	token    string
 }
 
 func NewAPIClient(conf Config) (*APIClient, error) {
@@ -29,13 +30,16 @@ func NewAPIClient(conf Config) (*APIClient, error) {
 
 	hc := http.DefaultClient
 	c := graphql.NewClient(u, hc).WithRequestModifier(func(req *http.Request) {
-		req.Header.Set("Authorization", "Bearer "+conf.GQLToken)
+		if conf.DataCatalogAPIToken != "" {
+			req.Header.Set("Authorization", "Bearer "+conf.DataCatalogAPIToken)
+		}
 	})
 
 	return &APIClient{
 		client:   c,
 		http:     hc,
 		filesURL: u2,
+		token:    conf.DataCatalogAPIToken,
 	}, nil
 }
 
@@ -51,24 +55,30 @@ func (c *APIClient) QueryDatasets(ctx context.Context) (DatasetsQuery, error) {
 }
 
 func (c *APIClient) QueryDatasetFiles(ctx context.Context, id string) (DatasetFilesResponse, error) {
-	var q DatasetFilesResponse
+	q := struct {
+		Files DatasetFilesResponse `json:"files"`
+	}{}
 
 	u := fmt.Sprintf("%s/%s", c.filesURL, id)
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, u, nil)
 	if err != nil {
-		return q, fmt.Errorf("error creating request: %w", err)
+		return nil, fmt.Errorf("error creating request: %w", err)
+	}
+
+	if c.token != "" {
+		req.Header.Set("Authorization", "Bearer "+c.token)
 	}
 
 	resp, err := c.http.Do(req)
 	if err != nil {
-		return q, fmt.Errorf("error making request: %w", err)
+		return nil, fmt.Errorf("error making request: %w", err)
 	}
 
 	defer resp.Body.Close()
 
 	if err := json.NewDecoder(resp.Body).Decode(&q); err != nil {
-		return q, fmt.Errorf("error decoding response: %w", err)
+		return nil, fmt.Errorf("error decoding response: %w", err)
 	}
 
-	return q, nil
+	return q.Files, nil
 }

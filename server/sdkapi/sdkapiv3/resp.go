@@ -21,6 +21,6 @@ type DatasetFilesResponse map[string][]DatasetFilesResponseItem
 
 type DatasetFilesResponseItem struct {
 	Code   string `json:"code"`
-	URL    string `json:"url"`
 	MaxLod int    `json:"maxLod"`
+	URL    string `json:"url"`
 }

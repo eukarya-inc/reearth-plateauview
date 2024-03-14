@@ -26,8 +26,14 @@ func echov3(conf Config, g *echo.Group) (func(ctx context.Context) error, error)
 	// GraphQL playground (all)
 	plateauapig.GET("/graphql", gqlPlaygroundHandler(conf.PlaygroundEndpoint, false))
 
+	// CityGML files API
+	plateauapig.GET("/citygml/:citygmlid", h.CityGMLFiles(false))
+
 	// GraphQL playground (all, admin)
 	plateauapig.GET("/admin/graphql", gqlPlaygroundHandler(conf.PlaygroundEndpoint, true))
+
+	// CityGML files API (admin)
+	plateauapig.GET("/admin/citygml/:citygmlid", h.CityGMLFiles(true))
 
 	// GraphQL playground (project)
 	plateauapig.GET("/:pid/graphql", gqlPlaygroundHandler(conf.PlaygroundEndpoint, false))
@@ -44,8 +50,14 @@ func echov3(conf Config, g *echo.Group) (func(ctx context.Context) error, error)
 	// GraphQL API (project)
 	plateauapig.POST("/:pid/graphql", h.Handler(false))
 
+	// CityGML files API
+	plateauapig.GET("/:pid/citygml/:citygmlid", h.CityGMLFiles(false))
+
 	// GraphQL API (project, admin)
 	plateauapig.POST("/:pid/admin/graphql", h.Handler(true))
+
+	// CityGML files API (admin)
+	plateauapig.GET("/:pid/admin/citygml/:citygmlid", h.CityGMLFiles(true))
 
 	// warning API
 	plateauapig.GET("/:pid/warnings", h.WarningHandler)

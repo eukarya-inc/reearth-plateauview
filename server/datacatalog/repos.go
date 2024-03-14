@@ -26,6 +26,7 @@ type reposHandler struct {
 }
 
 const pidParamName = "pid"
+const citygmlIDParamName = "citygmlid"
 const gqlComplexityLimit = 1000
 const cmsSchemaVersion = "v3"
 const cmsSchemaVersionV2 = "v2"
@@ -70,6 +71,28 @@ func (h *reposHandler) Handler(admin bool) echo.HandlerFunc {
 		srv := plateauapi.NewService(merged, plateauapi.FixedComplexityLimit(h.gqlComplexityLimit))
 		srv.ServeHTTP(c.Response(), c.Request())
 		return nil
+	}
+}
+
+func (h *reposHandler) CityGMLFiles(admin bool) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		ctx := c.Request().Context()
+		cid := c.Param(citygmlIDParamName)
+		if cid == "" {
+			return echo.NewHTTPError(http.StatusNotFound, "not found")
+		}
+
+		merged, err := h.prepareMergedRepo(c, admin)
+		if err != nil {
+			return err
+		}
+
+		maxlod, err := fetchCityGMLFiles(ctx, merged, cid)
+		if err != nil {
+			return err
+		}
+
+		return c.JSON(http.StatusOK, maxlod)
 	}
 }
 

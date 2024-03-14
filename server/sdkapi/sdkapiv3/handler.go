@@ -11,9 +11,9 @@ import (
 )
 
 type Config struct {
-	DataCatagloAPIURL string
-	GQLToken          string
-	Token             string
+	DataCatagloAPIURL   string
+	DataCatalogAPIToken string
+	Token               string
 }
 
 func Handler(conf Config, g *echo.Group) (bool, error) {
