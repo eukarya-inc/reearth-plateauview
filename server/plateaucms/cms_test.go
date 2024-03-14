@@ -32,9 +32,10 @@ func TestHandler_AuthMiddleware(t *testing.T) {
 	h := newHandler()
 	e := echo.New()
 
-	// normal project
 	t.Run("normal project", func(t *testing.T) {
-		m := h.AuthMiddleware("", HTTPMethodsAll, false, "")
+		m := h.AuthMiddleware(AuthMiddlewareConfig{
+			AuthMethods: HTTPMethodsAll,
+		})
 		handler := m(func(c echo.Context) error {
 			return nil
 		})
@@ -61,9 +62,11 @@ func TestHandler_AuthMiddleware(t *testing.T) {
 		}, GetCMSMetadataFromContext(c.Request().Context()))
 	})
 
-	// default project
-	t.Run("normal project", func(t *testing.T) {
-		m := h.AuthMiddleware("", HTTPMethodsAll, false, "prjprj")
+	t.Run("default project", func(t *testing.T) {
+		m := h.AuthMiddleware(AuthMiddlewareConfig{
+			AuthMethods:    HTTPMethodsAll,
+			DefaultProject: "prjprj",
+		})
 		handler := m(func(c echo.Context) error {
 			return nil
 		})
@@ -87,9 +90,10 @@ func TestHandler_AuthMiddleware(t *testing.T) {
 		}, GetCMSMetadataFromContext(c.Request().Context()))
 	})
 
-	// normal project with invalid token
 	t.Run("normal project with invalid token", func(t *testing.T) {
-		m := h.AuthMiddleware("", HTTPMethodsAll, false, "")
+		m := h.AuthMiddleware(AuthMiddlewareConfig{
+			AuthMethods: HTTPMethodsAll,
+		})
 		handler := m(func(c echo.Context) error {
 			return nil
 		})
@@ -108,9 +112,8 @@ func TestHandler_AuthMiddleware(t *testing.T) {
 		assert.Empty(t, GetCMSMetadataFromContext(c.Request().Context()))
 	})
 
-	// normal project with invalid token and without auth
 	t.Run("normal project with invalid token and skipAuth", func(t *testing.T) {
-		m := h.AuthMiddleware("", nil, false, "")
+		m := h.AuthMiddleware(AuthMiddlewareConfig{})
 		handler := m(func(c echo.Context) error {
 			return nil
 		})
@@ -137,9 +140,10 @@ func TestHandler_AuthMiddleware(t *testing.T) {
 		}, GetCMSMetadataFromContext(c.Request().Context()))
 	})
 
-	// invalid project
 	t.Run("invalid project", func(t *testing.T) {
-		m := h.AuthMiddleware("", HTTPMethodsAll, false, "")
+		m := h.AuthMiddleware(AuthMiddlewareConfig{
+			AuthMethods: HTTPMethodsAll,
+		})
 		handler := m(func(c echo.Context) error {
 			return nil
 		})
@@ -181,7 +185,7 @@ func TestHandler_Metadata(t *testing.T) {
 		},
 	}
 
-	md, all, err := h.Metadata(context.Background(), "prjprj", false)
+	md, all, err := h.Metadata(context.Background(), "prjprj", false, false)
 	assert.NoError(t, err)
 	assert.Equal(t, Metadata{
 		ProjectAlias:             "prjprj",
@@ -193,12 +197,12 @@ func TestHandler_Metadata(t *testing.T) {
 	}, md)
 	assert.Equal(t, expectedAll, all)
 
-	md, all, err = h.Metadata(context.Background(), "prjprjprj", false)
+	md, all, err = h.Metadata(context.Background(), "prjprjprj", false, false)
 	assert.Equal(t, rerror.ErrNotFound, err)
 	assert.Equal(t, expectedAll, all)
 	assert.Empty(t, md)
 
-	md, all, err = h.Metadata(context.Background(), "prjprjprj", true)
+	md, all, err = h.Metadata(context.Background(), "prjprjprj", true, false)
 	assert.NoError(t, err)
 	assert.Equal(t, expectedAll, all)
 	assert.Equal(t, Metadata{

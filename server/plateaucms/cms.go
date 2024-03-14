@@ -93,7 +93,21 @@ func (h *CMS) Clone() *CMS {
 	}
 }
 
-func (h *CMS) AuthMiddleware(key string, authMethods []string, findDataCatalog bool, defaultProject string) echo.MiddlewareFunc {
+type AuthMiddlewareConfig struct {
+	Key             string
+	AuthMethods     []string
+	FindDataCatalog bool
+	DefaultProject  string
+	UseDefault      bool
+}
+
+func (h *CMS) AuthMiddleware(conf AuthMiddlewareConfig) echo.MiddlewareFunc {
+	key := conf.Key
+	authMethods := conf.AuthMethods
+	findDataCatalog := conf.FindDataCatalog
+	defaultProject := conf.DefaultProject
+	useDefault := conf.UseDefault
+
 	if key == "" {
 		key = ProjectNameParam
 	}
@@ -107,7 +121,7 @@ func (h *CMS) AuthMiddleware(key string, authMethods []string, findDataCatalog b
 				prj = defaultProject
 			}
 
-			md, all, err := h.Metadata(ctx, prj, findDataCatalog)
+			md, all, err := h.Metadata(ctx, prj, findDataCatalog, useDefault)
 			if len(all) > 0 {
 				ctx = context.WithValue(ctx, cmsAllMetadataContextKey{}, all)
 			}
@@ -123,7 +137,7 @@ func (h *CMS) AuthMiddleware(key string, authMethods []string, findDataCatalog b
 
 			cmsh, err := cms.New(h.cmsbase, md.CMSAPIKey)
 			if err != nil {
-				return rerror.ErrInternalBy(fmt.Errorf("sidebar: failed to create cms for %s: %w", prj, err))
+				return rerror.ErrInternalBy(fmt.Errorf("plateaucms: failed to create cms for %s: %w", prj, err))
 			}
 
 			// auth
@@ -179,7 +193,7 @@ type Metadata struct {
 	CMSBaseURL string `json:"-" cms:"-"`
 }
 
-func (h *CMS) Metadata(ctx context.Context, prj string, findDataCatalog bool) (Metadata, MetadataList, error) {
+func (h *CMS) Metadata(ctx context.Context, prj string, findDataCatalog, useDefault bool) (Metadata, MetadataList, error) {
 	// compat
 	if h.cmsMainProject != "" && prj == h.cmsMainProject {
 		return Metadata{
@@ -195,9 +209,7 @@ func (h *CMS) Metadata(ctx context.Context, prj string, findDataCatalog bool) (M
 		return Metadata{}, nil, err
 	}
 
-	md, ok := lo.Find(all, func(i Metadata) bool {
-		return findDataCatalog && i.DataCatalogProjectAlias == prj || i.ProjectAlias == prj
-	})
+	md, ok := all.FindMetadata(prj, findDataCatalog, useDefault)
 	if !ok {
 		return Metadata{}, all, rerror.ErrNotFound
 	}
@@ -312,6 +324,26 @@ func (l MetadataList) FindDataCatalog(project string) (Metadata, bool) {
 	})
 }
 
+func (l MetadataList) FindMetadata(prj string, findDataCatalog, useDefault bool) (Metadata, bool) {
+	if prj == "" && useDefault {
+		m := l.Default()
+		if m == nil {
+			return Metadata{}, false
+		}
+		return *m, true
+	}
+
+	md, ok := lo.Find(l, func(i Metadata) bool {
+		return findDataCatalog && i.DataCatalogProjectAlias == prj || i.ProjectAlias == prj
+	})
+
+	if !ok {
+		return Metadata{}, false
+	}
+
+	return md, true
+}
+
 func (l MetadataList) FindDataCatalogAndSub(project string) (res MetadataList) {
 	m, ok := l.FindDataCatalog(project)
 	if !ok {
@@ -333,4 +365,12 @@ func (l MetadataList) FindDataCatalogAndSub(project string) (res MetadataList) {
 	}
 
 	return append(res, sub)
+}
+
+func (metadata MetadataList) Default() *Metadata {
+	p := metadata.PlateauProjects()
+	if len(p) == 0 {
+		return nil
+	}
+	return &p[0]
 }

@@ -53,26 +53,19 @@ func newReposHandler(conf Config) (*reposHandler, error) {
 }
 
 func (h *reposHandler) Middleware() echo.MiddlewareFunc {
-	return h.pcms.AuthMiddleware(pidParamName, nil, true, "")
+	return h.pcms.AuthMiddleware(plateaucms.AuthMiddlewareConfig{
+		Key:             pidParamName,
+		FindDataCatalog: true,
+		UseDefault:      true,
+	})
 }
 
 func (h *reposHandler) Handler(admin bool) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		ctx := c.Request().Context()
-		pid := c.Param(pidParamName)
-		token := strings.TrimPrefix(c.Request().Header.Get("Authorization"), "Bearer ")
-		metadata := plateaucms.GetAllCMSMetadataFromContext(ctx)
-
-		if err := h.auth(ctx, admin, metadata, pid, token); err != nil {
+		merged, err := h.prepareMergedRepo(c, admin)
+		if err != nil {
 			return err
 		}
-
-		merged := h.prepareAndGetMergedRepo(ctx, admin, pid, metadata)
-		if merged == nil {
-			return echo.NewHTTPError(http.StatusNotFound, "not found")
-		}
-
-		log.Debugfc(ctx, "datacatalogv3: use repo for %s: %s", pid, merged.Name())
 
 		srv := plateauapi.NewService(merged, plateauapi.FixedComplexityLimit(h.gqlComplexityLimit))
 		srv.ServeHTTP(c.Response(), c.Request())
@@ -154,33 +147,22 @@ func (h *reposHandler) Init(ctx context.Context) error {
 	return nil
 }
 
-func (*reposHandler) auth(ctx context.Context, admin bool, metadata plateaucms.MetadataList, pid, token string) error {
-	if !admin {
-		return nil
+func (h *reposHandler) prepareMergedRepo(c echo.Context, admin bool) (plateauapi.Repo, error) {
+	ctx := c.Request().Context()
+	md := plateaucms.GetCMSMetadataFromContext(ctx)
+	if admin && !md.Auth {
+		return nil, echo.NewHTTPError(http.StatusUnauthorized, "unauthorized")
 	}
 
-	if pid == "" {
-		plateauMetadata := metadata.PlateauProjects()
-		if len(plateauMetadata) == 0 {
-			return echo.NewHTTPError(http.StatusNotFound, "not found")
-		}
-
-		if token == "" || !plateauMetadata[0].IsValidToken(token) {
-			log.Debugfc(ctx, "datacatalogv3: unauthorized access: input_token=%s, project=%s", token, plateauMetadata[0].DataCatalogProjectAlias)
-			return echo.NewHTTPError(http.StatusUnauthorized, "unauthorized")
-		}
-	} else {
-		md := plateaucms.GetCMSMetadataFromContext(ctx)
-		if md.DataCatalogProjectAlias != pid || !isV3(md) {
-			return echo.NewHTTPError(http.StatusNotFound, "not found")
-		}
-
-		if !md.Auth {
-			return echo.NewHTTPError(http.StatusUnauthorized, "unauthorized")
-		}
+	pid := c.Param(pidParamName)
+	mds := plateaucms.GetAllCMSMetadataFromContext(ctx)
+	merged := h.prepareAndGetMergedRepo(ctx, admin, pid, mds)
+	if merged == nil {
+		return nil, echo.NewHTTPError(http.StatusNotFound, "not found")
 	}
 
-	return nil
+	log.Debugfc(ctx, "datacatalogv3: use repo for %s: %s", pid, merged.Name())
+	return merged, nil
 }
 
 func (h *reposHandler) prepareAndGetMergedRepo(ctx context.Context, admin bool, project string, metadata plateaucms.MetadataList) plateauapi.Repo {

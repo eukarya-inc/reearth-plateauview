@@ -36,7 +36,10 @@ func Echo(conf Config, g *echo.Group) error {
 			TTL:          time.Duration(conf.CacheTTL) * time.Second,
 			CacheControl: true,
 		}).Middleware(),
-		pcms.AuthMiddleware("pid", nil, true, ""),
+		pcms.AuthMiddleware(plateaucms.AuthMiddlewareConfig{
+			Key:             "pid",
+			FindDataCatalog: true,
+		}),
 	)
 
 	g.GET("/:pid", func(c echo.Context) error {

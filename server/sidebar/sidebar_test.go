@@ -50,7 +50,10 @@ func TestHandler(t *testing.T) {
 			CMSTokenProject: tokenProject,
 		},
 	}))
-	handler := h.cms.AuthMiddleware("pid", authMethods, false, "")(h.fetchRoot())
+	handler := h.cms.AuthMiddleware(plateaucms.AuthMiddlewareConfig{
+		Key:         "pid",
+		AuthMethods: authMethods,
+	})(h.fetchRoot())
 	assert.NoError(t, handler(ctx))
 	assert.Equal(t, http.StatusOK, rec.Result().StatusCode)
 	assert.Equal(t, "", rec.Body.String())
@@ -79,7 +82,10 @@ func TestHandler_getDataHandler(t *testing.T) {
 	}
 	httpmock.RegisterResponder("GET", lo.Must(url.JoinPath(testCMSHost, "api", "items", itemID)), responder)
 	h := newHandler()
-	handler := h.cms.AuthMiddleware("pid", authMethods, false, "")(h.getDataHandler())
+	handler := h.cms.AuthMiddleware(plateaucms.AuthMiddlewareConfig{
+		Key:         "pid",
+		AuthMethods: authMethods,
+	})(h.getDataHandler())
 
 	p := path.Join("/", testCMSProject, "data", itemID)
 	req := httptest.NewRequest(http.MethodGet, p, nil)
@@ -125,7 +131,10 @@ func TestHandler_getDataHandler2(t *testing.T) {
 	}
 	httpmock.RegisterResponder("GET", lo.Must(url.JoinPath(testCMSHost, "api", "items", itemID)), responder)
 	h := newHandler()
-	handler := h.cms.AuthMiddleware("pid", authMethods, false, "")(h.getDataHandler())
+	handler := h.cms.AuthMiddleware(plateaucms.AuthMiddlewareConfig{
+		Key:         "pid",
+		AuthMethods: authMethods,
+	})(h.getDataHandler())
 
 	p := path.Join("/", "prjprj", "data", itemID)
 	req := httptest.NewRequest(http.MethodGet, p, nil)
@@ -183,7 +192,10 @@ func TestHandler_getAllDataHandler(t *testing.T) {
 	)
 
 	h := newHandler()
-	handler := h.cms.AuthMiddleware("pid", authMethods, false, "")(h.getAllDataHandler())
+	handler := h.cms.AuthMiddleware(plateaucms.AuthMiddlewareConfig{
+		Key:         "pid",
+		AuthMethods: authMethods,
+	})(h.getAllDataHandler())
 
 	req := httptest.NewRequest(http.MethodGet, path.Join("/", testCMSProject, "data"), nil)
 	req.Header.Set("Content-Type", "application/json")
@@ -221,7 +233,10 @@ func TestHandler_createDataHandler(t *testing.T) {
 	httpmock.RegisterResponder("POST", lo.Must(url.JoinPath(testCMSHost, "api", "projects", testCMSProject, "models", dataModelKey, "items")), responder)
 
 	h := newHandler()
-	handler := h.cms.AuthMiddleware("pid", authMethods, false, "")(h.createDataHandler())
+	handler := h.cms.AuthMiddleware(plateaucms.AuthMiddlewareConfig{
+		Key:         "pid",
+		AuthMethods: authMethods,
+	})(h.createDataHandler())
 
 	req := httptest.NewRequest(http.MethodPost, path.Join("/", testCMSProject, "data"), strings.NewReader(`{"hoge":"foo"}`))
 	req.Header.Set("Content-Type", "application/json")
@@ -278,7 +293,10 @@ func TestHandler_updateDataHandler(t *testing.T) {
 	rec := httptest.NewRecorder()
 
 	h := newHandler()
-	handler := h.cms.AuthMiddleware("pid", authMethods, false, "")(h.updateDataHandler())
+	handler := h.cms.AuthMiddleware(plateaucms.AuthMiddlewareConfig{
+		Key:         "pid",
+		AuthMethods: authMethods,
+	})(h.updateDataHandler())
 
 	ctx := echo.New().NewContext(req, rec)
 	ctx.SetParamNames("pid", "iid")
@@ -304,7 +322,10 @@ func TestHandler_deleteDataHandler(t *testing.T) {
 	rec := httptest.NewRecorder()
 
 	h := newHandler()
-	handler := h.cms.AuthMiddleware("pid", authMethods, false, "")(h.deleteDataHandler())
+	handler := h.cms.AuthMiddleware(plateaucms.AuthMiddlewareConfig{
+		Key:         "pid",
+		AuthMethods: authMethods,
+	})(h.deleteDataHandler())
 
 	ctx := echo.New().NewContext(req, rec)
 	ctx.SetParamNames("pid", "iid")
@@ -346,7 +367,10 @@ func TestHandler_fetchTemplatesHandler(t *testing.T) {
 	)
 
 	h := newHandler()
-	handler := h.cms.AuthMiddleware("pid", authMethods, false, "")(h.fetchTemplatesHandler())
+	handler := h.cms.AuthMiddleware(plateaucms.AuthMiddlewareConfig{
+		Key:         "pid",
+		AuthMethods: authMethods,
+	})(h.fetchTemplatesHandler())
 
 	req := httptest.NewRequest(http.MethodGet, path.Join("/", testCMSProject, "templates"), nil)
 	req.Header.Set("Content-Type", "application/json")
@@ -381,7 +405,10 @@ func TestHandler_fetchTemplateHandler(t *testing.T) {
 	rec := httptest.NewRecorder()
 
 	h := newHandler()
-	handler := h.cms.AuthMiddleware("pid", authMethods, false, "")(h.fetchTemplateHandler())
+	handler := h.cms.AuthMiddleware(plateaucms.AuthMiddlewareConfig{
+		Key:         "pid",
+		AuthMethods: authMethods,
+	})(h.fetchTemplateHandler())
 
 	ctx := echo.New().NewContext(req, rec)
 	ctx.SetParamNames("pid", "tid")
@@ -413,7 +440,10 @@ func TestHandler_createTemplateHandler(t *testing.T) {
 	httpmock.RegisterResponder("POST", lo.Must(url.JoinPath(testCMSHost, "api", "projects", testCMSProject, "models", templateModelKey, "items")), responder)
 
 	h := newHandler()
-	handler := h.cms.AuthMiddleware("pid", authMethods, false, "")(h.createTemplateHandler())
+	handler := h.cms.AuthMiddleware(plateaucms.AuthMiddlewareConfig{
+		Key:         "pid",
+		AuthMethods: authMethods,
+	})(h.createTemplateHandler())
 
 	req := httptest.NewRequest(http.MethodGet, path.Join("/", testCMSProject, "templates"), strings.NewReader(`{"hoge":"hoge"}`))
 	req.Header.Set("Content-Type", "application/json")
@@ -449,7 +479,10 @@ func TestHandler_updateTemplateHandler(t *testing.T) {
 	httpmock.RegisterResponder("PATCH", lo.Must(url.JoinPath(testCMSHost, "api", "items", itemID)), responder)
 
 	h := newHandler()
-	handler := h.cms.AuthMiddleware("pid", authMethods, false, "")(h.updateTemplateHandler())
+	handler := h.cms.AuthMiddleware(plateaucms.AuthMiddlewareConfig{
+		Key:         "pid",
+		AuthMethods: authMethods,
+	})(h.updateTemplateHandler())
 
 	p := path.Join("/", testCMSProject, "templates", itemID)
 	req := httptest.NewRequest(http.MethodGet, p, strings.NewReader(`{"hoge":"hoge"}`))
@@ -474,7 +507,10 @@ func TestHandler_deleteTemplateHandler(t *testing.T) {
 	httpmock.RegisterResponder("DELETE", lo.Must(url.JoinPath(testCMSHost, "api", "items", itemID)), httpmock.NewBytesResponder(http.StatusNoContent, nil))
 
 	h := newHandler()
-	handler := h.cms.AuthMiddleware("pid", authMethods, false, "")(h.deleteTemplateHandler())
+	handler := h.cms.AuthMiddleware(plateaucms.AuthMiddlewareConfig{
+		Key:         "pid",
+		AuthMethods: authMethods,
+	})(h.deleteTemplateHandler())
 
 	req := httptest.NewRequest(http.MethodGet, path.Join("/", testCMSProject, "templates", itemID), nil)
 	req.Header.Set("Content-Type", "application/json")

@@ -35,7 +35,10 @@ func Echo(g *echo.Group, c Config) error {
 	g.Use(
 		middleware.CORS(),
 		middleware.BodyLimit("5M"),
-		h.cms.AuthMiddleware("pid", authMethods, false, ""),
+		h.cms.AuthMiddleware(plateaucms.AuthMiddlewareConfig{
+			Key:         "pid",
+			AuthMethods: authMethods,
+		}),
 	)
 
 	g.GET("/:pid", h.fetchRoot())
