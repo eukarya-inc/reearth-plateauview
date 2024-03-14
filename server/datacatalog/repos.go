@@ -311,7 +311,7 @@ func (h *reposHandler) updateV2(ctx context.Context, prj string) error {
 }
 
 func (h *reposHandler) updateV3(ctx context.Context, prj string) error {
-	if err := h.reposv3.Update(ctx, prj); err != nil {
+	if _, err := h.reposv3.Update(ctx, prj); err != nil {
 		return fmt.Errorf("datacatalogv3: failed to update repo %s: %w", prj, err)
 	}
 	return nil

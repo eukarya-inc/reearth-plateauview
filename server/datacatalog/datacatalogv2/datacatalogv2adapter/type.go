@@ -496,7 +496,7 @@ func cityFrom(d datacatalogv2.DataCatalogItem) *plateauapi.City {
 
 func citygmlFrom(d datacatalogv2.DataCatalogItem) *plateauapi.CityGMLDataset {
 	id, code := cityIDFrom(d), cityCodeFrom(d)
-	if id == nil || code == nil || d.CityGMLURL == "" || d.Spec == "" || len(d.CityGMLFeatureTypes) == 0 {
+	if id == nil || code == nil || d.CityGMLURL == "" || d.MaxLODURL == "" || d.Spec == "" || len(d.CityGMLFeatureTypes) == 0 {
 		return nil
 	}
 
@@ -514,7 +514,6 @@ func citygmlFrom(d datacatalogv2.DataCatalogItem) *plateauapi.CityGMLDataset {
 		Admin: map[string]any{
 			"maxlod": d.MaxLODURL,
 		},
-		// Items: items,
 	}
 }
 

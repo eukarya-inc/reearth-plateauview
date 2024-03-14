@@ -5,7 +5,7 @@ go 1.21
 require (
 	github.com/99designs/gqlgen v0.17.43
 	github.com/dustin/go-humanize v1.0.1
-	github.com/eukarya-inc/jpareacode v1.0.1-0.20240313051948-672368075753
+	github.com/eukarya-inc/jpareacode v1.0.1-0.20240314080116-ae89cfd85c6a
 	github.com/go-playground/validator/v10 v10.16.0
 	github.com/hasura/go-graphql-client v0.12.1
 	github.com/jarcoal/httpmock v1.3.1
