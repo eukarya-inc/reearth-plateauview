@@ -189,8 +189,7 @@ func FindSpecMinorByName(specs []PlateauSpec, name string) *PlateauSpecMinor {
 	return nil
 }
 
-func stageFrom(ds Dataset) string {
-	admin := ds.GetAdmin()
+func stageFrom(admin any) string {
 	if admin == nil {
 		return ""
 	}
@@ -213,6 +212,15 @@ func stageFrom(ds Dataset) string {
 	return s
 }
 
+func stageFromCityGMLDataset(ds *CityGMLDataset) string {
+	admin := ds.Admin
+	if admin == nil {
+		return ""
+	}
+
+	return stageFrom(admin)
+}
+
 func (d PlateauDatasetType) GetYear() int {
 	return d.Year
 }
@@ -231,6 +239,10 @@ var _ YearNode = (*PlateauSpecMinor)(nil)
 
 func IsLayerSupported(format DatasetFormat) bool {
 	return datacatalogutil.IsLayerSupported(strings.ToLower(string(format)))
+}
+
+func CityGMLDatasetIDFrom(areaCode AreaCode) ID {
+	return NewID(areaCode.String(), TypeCityGML)
 }
 
 type VagueID interface {

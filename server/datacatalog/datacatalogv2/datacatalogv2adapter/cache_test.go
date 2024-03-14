@@ -21,19 +21,26 @@ func TestNewCache(t *testing.T) {
 				Specification:   "第2.3版",
 				CityGML: &cms.PublicAsset{
 					Asset: cms.Asset{
-						URL: "https://example.com/13100_tokyo23ku_2022_citygml_op.zip",
+						URL: "https://example.com/13101_tokyo23ku_2022_citygml_op.zip",
 					},
 				},
 				Bldg: []*cms.PublicAsset{
 					{
 						Asset: cms.Asset{
-							URL: "https://example.com/13100_tokyo23ku_2022_3dtiles_0_bldg_lod1.zip",
+							URL: "https://example.com/13101_tokyo23ku_2022_3dtiles_0_bldg_lod1.zip",
 						},
+					},
+				},
+				MaxLOD: &cms.PublicAsset{
+					Asset: cms.Asset{
+						URL: "maxlod",
 					},
 				},
 			},
 		},
 	}
+
+	all := r.All()
 
 	expectedCache := &plateauapi.InMemoryRepoContext{
 		Areas: plateauapi.Areas{
@@ -48,9 +55,9 @@ func TestNewCache(t *testing.T) {
 			plateauapi.AreaTypeCity: []plateauapi.Area{
 				plateauapi.City{
 					Type:           plateauapi.AreaTypeCity,
-					ID:             "c_13100",
+					ID:             "c_13101",
 					Name:           "東京都23区",
-					Code:           plateauapi.AreaCode("13100"),
+					Code:           plateauapi.AreaCode("13101"),
 					PrefectureID:   plateauapi.ID("p_13"),
 					PrefectureCode: plateauapi.AreaCode("13"),
 				},
@@ -73,30 +80,47 @@ func TestNewCache(t *testing.T) {
 		Datasets: plateauapi.Datasets{
 			plateauapi.DatasetTypeCategoryPlateau: []plateauapi.Dataset{
 				&plateauapi.PlateauDataset{
-					ID:                 "d_13100_bldg",
+					ID:                 "d_13101_bldg",
 					Name:               "建築物モデル（東京都23区）",
 					Year:               2022,
 					RegisterationYear:  2022,
-					OpenDataURL:        lo.ToPtr("https://www.geospatial.jp/ckan/dataset/plateau-13100-tokyo23ku-2022"),
+					OpenDataURL:        lo.ToPtr("https://www.geospatial.jp/ckan/dataset/plateau-13101-tokyo23ku-2022"),
 					Description:        lo.ToPtr("bldg_desc"),
 					PrefectureID:       lo.ToPtr(plateauapi.ID("p_13")),
 					PrefectureCode:     lo.ToPtr(plateauapi.AreaCode("13")),
-					CityID:             lo.ToPtr(plateauapi.ID("c_13100")),
-					CityCode:           lo.ToPtr(plateauapi.AreaCode("13100")),
+					CityID:             lo.ToPtr(plateauapi.ID("c_13101")),
+					CityCode:           lo.ToPtr(plateauapi.AreaCode("13101")),
 					TypeID:             "dt_bldg_2",
 					TypeCode:           "bldg",
 					PlateauSpecMinorID: "ps_2.3",
 					Items: []*plateauapi.PlateauDatasetItem{
 						{
-							ID:       "di_13100_bldg_LOD1",
-							URL:      "https://example.com/13100_tokyo23ku_2022_3dtiles_0_bldg_lod1/tileset.json",
+							ID:       "di_13101_bldg_LOD1",
+							URL:      "https://example.com/13101_tokyo23ku_2022_3dtiles_0_bldg_lod1/tileset.json",
 							Format:   plateauapi.DatasetFormatCesium3dtiles,
 							Name:     "LOD1",
-							ParentID: "d_13100_bldg",
+							ParentID: "d_13101_bldg",
 							Lod:      lo.ToPtr(1),
 							Texture:  lo.ToPtr(plateauapi.TextureTexture),
 						},
 					},
+				},
+			},
+		},
+		CityGML: map[plateauapi.ID]*plateauapi.CityGMLDataset{
+			"cg_13101": {
+				ID:                 "cg_13101",
+				Year:               2022,
+				RegistrationYear:   2022,
+				PrefectureID:       "p_13",
+				PrefectureCode:     "13",
+				CityID:             "c_13101",
+				CityCode:           "13101",
+				PlateauSpecMinorID: "ps_2.3",
+				URL:                "https://example.com/13101_tokyo23ku_2022_citygml_op.zip",
+				FeatureTypes:       []string{"bldg"},
+				Admin: map[string]any{
+					"maxlod": "maxlod",
 				},
 			},
 		},
@@ -106,6 +130,6 @@ func TestNewCache(t *testing.T) {
 		PlateauSpecs: plateauSpecs,
 	}
 
-	cache := newCache(r)
+	cache := newCache(all)
 	assert.Equal(t, expectedCache, cache)
 }

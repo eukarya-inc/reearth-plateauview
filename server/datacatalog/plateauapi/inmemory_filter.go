@@ -33,7 +33,7 @@ func filterDataset(d Dataset, input DatasetsInput, stages []string) bool {
 		return false
 	}
 
-	if s := stageFrom(d); s != "" && (len(stages) == 0 || !slices.Contains(stages, s)) {
+	if s := stageFrom(d.GetAdmin()); s != "" && (len(stages) == 0 || !slices.Contains(stages, s)) {
 		return false
 	}
 
@@ -306,6 +306,18 @@ func filterDatasetType(ty DatasetType, input DatasetTypesInput) bool {
 	}
 
 	if input.PlateauSpec != nil && (spec == "" || !filterByPlateauSpec(input.PlateauSpec, spec)) {
+		return false
+	}
+
+	return true
+}
+
+func filterCityGMLDataset(d *CityGMLDataset, stages []string) bool {
+	if d == nil {
+		return false
+	}
+
+	if s := stageFromCityGMLDataset(d); s != "" && (len(stages) == 0 || !slices.Contains(stages, s)) {
 		return false
 	}
 

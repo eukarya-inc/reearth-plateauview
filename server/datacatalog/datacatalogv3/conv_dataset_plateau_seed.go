@@ -84,7 +84,7 @@ func plateauDatasetSeedsFrom(i *PlateauFeatureItem, opts ToPlateauDatasetsOption
 		res[i].Pref = opts.Area.Pref
 		res[i].City = opts.Area.City
 		res[i].Spec = opts.Spec
-		res[i].Admin = newAdmin(opts.Area.CityItem.ID, opts.Area.CityItem.plateauStage(opts.DatasetType.Code), opts.CMSURL)
+		res[i].Admin = newAdmin(opts.Area.CityItem.ID, opts.Area.CityItem.plateauStage(opts.DatasetType.Code), opts.CMSURL, nil)
 		res[i].LayerNames = opts.LayerNames
 		res[i].Year = year
 		res[i].OpenDataURL = opts.Area.CityItem.GetOpenDataURL()

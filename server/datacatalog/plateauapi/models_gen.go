@@ -203,6 +203,42 @@ func (City) IsNode() {}
 
 // オブジェクトのID
 
+// PLATEAU標準製品仕様書に基づくCityGMLのデータセット。
+type CityGMLDataset struct {
+	ID ID `json:"id"`
+	// データセットの整備年度（西暦）。
+	Year int `json:"year"`
+	// データセットの登録年度（西暦）。
+	RegistrationYear int `json:"registrationYear"`
+	// データセットが属する都道府県のID。
+	PrefectureID ID `json:"prefectureId"`
+	// データセットが属する都道府県コード。2桁の数字から成る文字列です。
+	PrefectureCode AreaCode `json:"prefectureCode"`
+	// データセットが属する市のID。
+	CityID ID `json:"cityId"`
+	// データセットが属する市コード。先頭に都道府県コードを含む5桁の数字から成る文字列です。
+	CityCode AreaCode `json:"cityCode"`
+	// データセットが準拠するPLATEAU都市モデルの仕様のマイナーバージョンへのID。
+	PlateauSpecMinorID ID `json:"plateauSpecMinorId"`
+	// CityGMLのzip形式のファイルのURL。
+	URL string `json:"url"`
+	// データセットが属する都道府県。
+	Prefecture *Prefecture `json:"prefecture"`
+	// データセットが属する市。
+	City *City `json:"city"`
+	// データセットが準拠するPLATEAU都市モデルの仕様。
+	PlateauSpecMinor *PlateauSpecMinor `json:"plateauSpecMinor"`
+	// CityGMLが含む地物型コードのリスト。
+	FeatureTypes []string `json:"featureTypes"`
+	// 管理者用
+	Admin interface{} `json:"admin,omitempty"`
+}
+
+func (CityGMLDataset) IsNode() {}
+
+// オブジェクトのID
+func (this CityGMLDataset) GetID() ID { return this.ID }
+
 // データセットの種類を検索するためのクエリ。
 type DatasetTypesInput struct {
 	// データセットの種類のカテゴリ。

@@ -1049,6 +1049,65 @@ type GenericDatasetType implements DatasetType & Node {
   datasets(input: DatasetsInput): [GenericDataset!]!
 }
 
+"""
+PLATEAU標準製品仕様書に基づくCityGMLのデータセット。
+"""
+type CityGMLDataset implements Node {
+  id: ID!
+  """
+  データセットの整備年度（西暦）。
+  """
+  year: Int!
+  """
+  データセットの登録年度（西暦）。
+  """
+  registrationYear: Int!
+  """
+  データセットが属する都道府県のID。
+  """
+  prefectureId: ID!
+  """
+  データセットが属する都道府県コード。2桁の数字から成る文字列です。
+  """
+  prefectureCode: AreaCode!
+  """
+  データセットが属する市のID。
+  """
+  cityId: ID!
+  """
+  データセットが属する市コード。先頭に都道府県コードを含む5桁の数字から成る文字列です。
+  """
+  cityCode: AreaCode!
+  """
+  データセットが準拠するPLATEAU都市モデルの仕様のマイナーバージョンへのID。
+  """
+  plateauSpecMinorId: ID!
+  """
+  CityGMLのzip形式のファイルのURL。
+  """
+  url: String!
+  """
+  データセットが属する都道府県。
+  """
+  prefecture: Prefecture!
+  """
+  データセットが属する市。
+  """
+  city: City!
+  """
+  データセットが準拠するPLATEAU都市モデルの仕様。
+  """
+  plateauSpecMinor: PlateauSpecMinor!
+  """
+  CityGMLが含む地物型コードのリスト。
+  """
+  featureTypes: [String!]!
+  """
+  管理者用
+  """
+  admin: Any
+}
+
 # Queries
 
 """

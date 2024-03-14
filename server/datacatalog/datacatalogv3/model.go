@@ -3,15 +3,35 @@ package datacatalogv3
 import "github.com/eukarya-inc/reearth-plateauview/server/datacatalog/plateauapi"
 
 type AllData struct {
-	Name         string
-	Year         int
-	PlateauSpecs []plateauapi.PlateauSpecSimple
-	FeatureTypes FeatureTypes
-	City         []*CityItem
-	Related      []*RelatedItem
-	Generic      []*GenericItem
-	Plateau      map[string][]*PlateauFeatureItem
-	CMSInfo      CMSInfo
+	Name                  string
+	Year                  int
+	PlateauSpecs          []plateauapi.PlateauSpecSimple
+	FeatureTypes          FeatureTypes
+	City                  []*CityItem
+	Related               []*RelatedItem
+	Generic               []*GenericItem
+	Plateau               map[string][]*PlateauFeatureItem
+	GeospatialjpDataItems []*GeospatialjpDataItem
+	CMSInfo               CMSInfo
+}
+
+func (d *AllData) FindPlateauFeatureItemByCityID(ft, cityID string) *PlateauFeatureItem {
+	for _, f := range d.Plateau[ft] {
+		if f != nil && f.City == cityID {
+			return f
+		}
+	}
+	return nil
+}
+
+func (all *AllData) FeatureTypesOf(cityID string) (res []string) {
+	for _, ft := range all.FeatureTypes.Plateau {
+		if dem := all.FindPlateauFeatureItemByCityID(ft.Code, cityID); dem != nil && dem.CityGML != "" {
+			res = append(res, ft.Code)
+		}
+	}
+
+	return res
 }
 
 type FeatureTypes struct {

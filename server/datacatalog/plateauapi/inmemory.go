@@ -16,6 +16,7 @@ type InMemoryRepoContext struct {
 	Datasets     Datasets
 	PlateauSpecs []PlateauSpec
 	Years        []int
+	CityGML      map[ID]*CityGMLDataset
 }
 
 // InMemoryRepo is a repository that stores all data in memory.
@@ -101,6 +102,10 @@ func (c *InMemoryRepo) Node(ctx context.Context, id ID) (Node, error) {
 				return m, nil
 			}
 			return &p, nil
+		}
+	case TypeCityGML:
+		if d := c.ctx.CityGML[id]; d != nil && filterCityGMLDataset(d, c.includedStages) {
+			return removeAdminFromCityGMLDataset(d, c.admin), nil
 		}
 	}
 
@@ -253,5 +258,14 @@ func removeAdminFromDataset(d Dataset, admin bool) Dataset {
 		e.Admin = nil
 		return e
 	}
+	return d
+}
+
+func removeAdminFromCityGMLDataset(d *CityGMLDataset, admin bool) *CityGMLDataset {
+	if admin {
+		return d
+	}
+
+	d.Admin = nil
 	return d
 }

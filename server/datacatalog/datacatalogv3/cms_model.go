@@ -15,6 +15,7 @@ const modelPrefix = "plateau-"
 const cityModel = "city"
 const relatedModel = "related"
 const genericModel = "generic"
+const geospatialjpDataModel = "geospatialjp-data"
 const defaultSpec = "第3.2版"
 
 type ManagementStatus string
@@ -55,11 +56,12 @@ type CityItem struct {
 	PRCS           cmsintegrationcommon.PRCS `json:"prcs,omitempty" cms:"prcs,select"`
 	OpenDataURL    string                    `json:"open_data_url,omitempty" cms:"open_data_url,text"`
 	// meatadata
-	PlateauDataStatus *cms.Tag        `json:"plateau_data_status,omitempty" cms:"plateau_data_status,select,metadata"`
-	RelatedDataStatus *cms.Tag        `json:"related_data_status,omitempty" cms:"related_data_status,select,metadata"`
-	SDKPublic         bool            `json:"sdk_public,omitempty" cms:"sdk_public,bool,metadata"`
-	RelatedPublic     bool            `json:"related_public,omitempty" cms:"related_public,bool,metadata"`
-	Public            map[string]bool `json:"public,omitempty" cms:"-"`
+	PlateauDataStatus   *cms.Tag        `json:"plateau_data_status,omitempty" cms:"plateau_data_status,select,metadata"`
+	RelatedDataStatus   *cms.Tag        `json:"related_data_status,omitempty" cms:"related_data_status,select,metadata"`
+	SDKPublic           bool            `json:"sdk_public,omitempty" cms:"sdk_public,bool,metadata"`
+	RelatedPublic       bool            `json:"related_public,omitempty" cms:"related_public,bool,metadata"`
+	Public              map[string]bool `json:"public,omitempty" cms:"-"`
+	GeospatialjpPublish bool            `json:"geospatialjp_publish,omitempty" cms:"geospatialjp_publish,bool,metadata"`
 }
 
 func CityItemFrom(item *cms.Item, featureTypes []FeatureType) (i *CityItem) {
@@ -114,6 +116,13 @@ func (i *CityItem) plateauStage(ft string) stage {
 		return stageBeta
 	}
 	return stageAlpha
+}
+
+func (i *CityItem) sdkStage() stage {
+	if i.SDKPublic {
+		return stageGA
+	}
+	return stageBeta
 }
 
 type PlateauFeatureItem struct {
@@ -403,4 +412,34 @@ func geospatialjpURL(cityCode string, cityName string, year int) string {
 		return ""
 	}
 	return fmt.Sprintf("%splateau-%s-%s-%d", gespatialjpDatasetURL, cityCode, cityName, year)
+}
+
+type GeospatialjpDataItem struct {
+	ID            string     `json:"id,omitempty" cms:"id"`
+	City          string     `json:"city,omitempty" cms:"city,reference"`
+	CityGML       string     `json:"citygml,omitempty" cms:"citygml,asset"`
+	MaxLOD        string     `json:"maxlod,omitempty" cms:"maxlod,asset"`
+	MaxLODContent [][]string `json:"maxlod_content,omitempty" cms:"-"`
+}
+
+func GeospatialjpDataItemFrom(item *cms.Item) *GeospatialjpDataItem {
+	type itemType struct {
+		ID      string `json:"id,omitempty" cms:"id"`
+		City    string `json:"city,omitempty" cms:"city,reference"`
+		CityGML any    `json:"citygml,omitempty" cms:"citygml,asset"`
+		MaxLOD  any    `json:"maxlod,omitempty" cms:"maxlod,asset"`
+	}
+
+	it := itemType{}
+	item.Unmarshal(&it)
+
+	citygml := anyToAssetURL(it.CityGML)
+	maxlod := anyToAssetURL(it.MaxLOD)
+
+	return &GeospatialjpDataItem{
+		ID:      it.ID,
+		City:    it.City,
+		CityGML: citygml,
+		MaxLOD:  maxlod,
+	}
 }

@@ -138,7 +138,7 @@ func layerNamesFrom(layer string) []string {
 	})
 }
 
-func newAdmin(id string, stage stage, cmsurl string) any {
+func newAdmin(id string, stage stage, cmsurl string, extra any) any {
 	a := map[string]any{}
 
 	if cmsurl != "" && id != "" {
@@ -154,6 +154,12 @@ func newAdmin(id string, stage stage, cmsurl string) any {
 
 	if len(a) == 0 {
 		return nil
+	}
+
+	if extra, ok := extra.(map[string]any); ok && extra != nil {
+		for k, v := range extra {
+			a[k] = v
+		}
 	}
 
 	return a

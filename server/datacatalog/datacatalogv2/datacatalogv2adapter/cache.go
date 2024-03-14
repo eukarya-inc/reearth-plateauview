@@ -40,15 +40,15 @@ func fetchAndCreateCache(ctx context.Context, project string, fetcher datacatalo
 		return nil, fmt.Errorf("failed to update datacatalog cache: %w", err)
 	}
 
-	return plateauapi.NewInMemoryRepo(newCache(r)), nil
+	all := r.All()
+	return plateauapi.NewInMemoryRepo(newCache(all)), nil
 }
 
-func newCache(r datacatalogv2.ResponseAll) *plateauapi.InMemoryRepoContext {
+func newCache(items []datacatalogv2.DataCatalogItem) *plateauapi.InMemoryRepoContext {
 	cache := &plateauapi.InMemoryRepoContext{
 		PlateauSpecs: plateauSpecs,
 	}
 
-	items := r.All()
 	areas := make(map[plateauapi.AreaCode]struct{})
 
 	for _, d := range items {
@@ -136,6 +136,17 @@ func newCache(r datacatalogv2.ResponseAll) *plateauapi.InMemoryRepoContext {
 		}
 		if !slices.Contains(cache.Years, d.Year) {
 			cache.Years = append(cache.Years, d.Year)
+		}
+
+		if citygml := citygmlFrom(d); citygml != nil {
+			if cache.CityGML == nil {
+				cache.CityGML = map[plateauapi.ID]*plateauapi.CityGMLDataset{}
+			}
+
+			cg := cache.CityGML[citygml.ID]
+			if cg == nil || cg.Year < citygml.Year {
+				cache.CityGML[citygml.ID] = citygml
+			}
 		}
 	}
 

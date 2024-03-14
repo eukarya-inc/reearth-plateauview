@@ -51,6 +51,10 @@ func (c *CMS) GetAll(ctx context.Context, project string) (*AllData, error) {
 		return c.GetGenericItems(ctx, project)
 	})
 
+	geospatialjpDataItemsChan := lo.Async2(func() ([]*GeospatialjpDataItem, error) {
+		return c.GetGeospatialjpDataItems(ctx, project)
+	})
+
 	featureItemsChans := make([]<-chan lo.Tuple3[string, []*PlateauFeatureItem, error], 0, len(all.FeatureTypes.Plateau))
 	for _, featureType := range all.FeatureTypes.Plateau {
 		featureType := featureType
@@ -77,6 +81,12 @@ func (c *CMS) GetAll(ctx context.Context, project string) (*AllData, error) {
 		return nil, fmt.Errorf("failed to get generic items: %w", res.B)
 	} else {
 		all.Generic = res.A
+	}
+
+	if res := <-geospatialjpDataItemsChan; res.B != nil {
+		return nil, fmt.Errorf("failed to get geospatialjp data items: %w", res.B)
+	} else {
+		all.GeospatialjpDataItems = res.A
 	}
 
 	all.Plateau = make(map[string][]*PlateauFeatureItem)
@@ -160,6 +170,42 @@ func (c *CMS) GetGenericItems(ctx context.Context, project string) ([]*GenericIt
 	return items, err
 }
 
+func (c *CMS) GetGeospatialjpDataItems(ctx context.Context, project string) ([]*GeospatialjpDataItem, error) {
+	items, err := getItemsAndConv[GeospatialjpDataItem](
+		c.cms, ctx, project, modelPrefix+geospatialjpDataModel,
+		func(i cms.Item) *GeospatialjpDataItem {
+			return GeospatialjpDataItemFrom(&i)
+		},
+	)
+
+	return items, err
+}
+
+// func (c *CMS) GetGeospatialjpDataItemsWithMaxLODContent(ctx context.Context, project string) ([]*GeospatialjpDataItem, error) {
+// 	items, err := c.GetGeospatialjpDataItems(ctx, project)
+// 	if err != nil {
+// 		return nil, err
+// 	}
+
+// 	urls := lo.Map(items, func(i *GeospatialjpDataItem, _ int) string {
+// 		return i.MaxLOD
+// 	})
+
+// 	maxlods, err := fetchMaxLODContents(ctx, urls)
+// 	if err != nil {
+// 		return nil, err
+// 	}
+
+// 	for i, m := range maxlods {
+// 		if m == nil {
+// 			continue
+// 		}
+// 		items[i].MaxLODContent = m
+// 	}
+
+// 	return items, nil
+// }
+
 func getItemsAndConv[T any](cms cms.Interface, ctx context.Context, project, model string, conv func(cms.Item) *T) ([]*T, error) {
 	items, err := cms.GetItemsByKeyInParallel(ctx, project, model, true, 100)
 	if err != nil {
@@ -171,8 +217,56 @@ func getItemsAndConv[T any](cms cms.Interface, ctx context.Context, project, mod
 
 	res := make([]*T, 0, len(items.Items))
 	for _, item := range items.Items {
-		res = append(res, conv(item))
+		if c := conv(item); c != nil {
+			res = append(res, c)
+		}
 	}
 
 	return res, nil
 }
+
+// func fetchMaxLODContents(ctx context.Context, urls []string) ([][][]string, error) {
+// 	res := make([][][]string, len(urls))
+// 	eg, ctx := errgroup.WithContext(ctx)
+// 	eg.SetLimit(10)
+
+// 	for i := 0; i < len(urls); i++ {
+// 		i := i
+// 		url := urls[i]
+// 		if url == "" {
+// 			continue
+// 		}
+
+// 		eg.Go(func() error {
+// 			req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
+// 			if err != nil {
+// 				return fmt.Errorf("items[%d]: failed to create request: %w", i, err)
+// 			}
+
+// 			resp, err := http.DefaultClient.Do(req)
+// 			if err != nil {
+// 				return fmt.Errorf("items[%d]: failed to get max LOD content: %w", i, err)
+// 			}
+
+// 			defer resp.Body.Close()
+// 			if resp.StatusCode != http.StatusOK {
+// 				return fmt.Errorf("items[%d]: failed to get max LOD content: status code %d", i, resp.StatusCode)
+// 			}
+
+// 			c := csv.NewReader(resp.Body)
+// 			records, err := c.ReadAll()
+// 			if err != nil {
+// 				return fmt.Errorf("items[%d]: failed to read max LOD content: %w", i, err)
+// 			}
+
+// 			res[i] = records
+// 			return nil
+// 		})
+// 	}
+
+// 	if err := eg.Wait(); err != nil {
+// 		return nil, err
+// 	}
+
+// 	return res, nil
+// }

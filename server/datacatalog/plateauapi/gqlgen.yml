@@ -170,3 +170,11 @@ models:
         resolver: true
       datasets:
         resolver: true
+  CityGMLDataset:
+    fields:
+      prefecture:
+        resolver: true
+      city:
+        resolver: true
+      plateauSpecMinor:
+        resolver: true

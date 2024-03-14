@@ -61,7 +61,7 @@ func (i *GenericItem) toDatasets(area *areaContext, dts []plateauapi.DatasetType
 		CityCode:          area.CityCode,
 		TypeID:            dt.GetID(),
 		TypeCode:          dt.GetCode(),
-		Admin:             newAdmin(i.ID, i.Stage(), cmsurl),
+		Admin:             newAdmin(i.ID, i.Stage(), cmsurl, nil),
 		Items:             items,
 	}
 

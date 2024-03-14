@@ -494,6 +494,30 @@ func cityFrom(d datacatalogv2.DataCatalogItem) *plateauapi.City {
 	}
 }
 
+func citygmlFrom(d datacatalogv2.DataCatalogItem) *plateauapi.CityGMLDataset {
+	id, code := cityIDFrom(d), cityCodeFrom(d)
+	if id == nil || code == nil || d.CityGMLURL == "" || d.Spec == "" || len(d.CityGMLFeatureTypes) == 0 {
+		return nil
+	}
+
+	return &plateauapi.CityGMLDataset{
+		ID:                 plateauapi.CityGMLDatasetIDFrom(plateauapi.AreaCode(d.CityCode)),
+		Year:               d.Year,
+		RegistrationYear:   registrationYear,
+		PrefectureID:       *prefectureIDFrom(d),
+		PrefectureCode:     *prefectureCodeFrom(d),
+		CityID:             *id,
+		CityCode:           *code,
+		PlateauSpecMinorID: plateauSpecIDFrom(d.Spec),
+		URL:                d.CityGMLURL,
+		FeatureTypes:       d.CityGMLFeatureTypes,
+		Admin: map[string]any{
+			"maxlod": d.MaxLODURL,
+		},
+		// Items: items,
+	}
+}
+
 func wardFrom(d datacatalogv2.DataCatalogItem) *plateauapi.Ward {
 	id, code := wardIDFrom(d), wardCodeFrom(d)
 	if id == nil || code == nil {
