@@ -249,6 +249,7 @@ type PlateauIntermediateItem struct {
 	Year                int
 	Spec                string
 	CityGMLURL          string
+	CityGMLAssetID      string
 	CityGMLFeatureTypes []string
 	MaxLODURL           string
 	SDKPublic           bool
@@ -281,6 +282,11 @@ func (i CMSItem) IntermediateItem() PlateauIntermediateItem {
 		maxlodURL = i.MaxLOD.URL
 	}
 
+	citygmlAssetID := ""
+	if i.CityGML != nil {
+		citygmlAssetID = i.CityGML.ID
+	}
+
 	return PlateauIntermediateItem{
 		ID:                  i.ID,
 		Prefecture:          i.Prefecture,
@@ -293,6 +299,7 @@ func (i CMSItem) IntermediateItem() PlateauIntermediateItem {
 		Spec:                i.Specification,
 		CityGMLURL:          citygmlURL,
 		CityGMLFeatureTypes: i.FeatureTypes(),
+		CityGMLAssetID:      citygmlAssetID,
 		MaxLODURL:           maxlodURL,
 		SDKPublic:           i.IsSDKPublic(),
 	}
@@ -403,6 +410,7 @@ func (b *DataCatalogItemBuilder) dataCatalogItem(a asset, g assetGroup, desc str
 		Family:              "plateau",
 		Edition:             "2022",
 		CityGMLURL:          b.IntermediateItem.CityGMLURL,
+		CityGMLAssetID:      b.IntermediateItem.CityGMLAssetID,
 		CityGMLFeatureTypes: b.IntermediateItem.CityGMLFeatureTypes,
 		MaxLODURL:           b.IntermediateItem.MaxLODURL,
 		SDKPublic:           b.IntermediateItem.SDKPublic,

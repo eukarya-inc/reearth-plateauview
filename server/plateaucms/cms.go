@@ -24,6 +24,7 @@ const (
 	plateauProjectModel          = "plateau-projects"
 	projectAliasField            = "project_alias"
 	datacatalogProjectAliasField = "datacatalog_project_alias"
+	plateauPrefix                = "plateau-"
 )
 
 var HTTPMethodsAll = []string{
@@ -274,11 +275,11 @@ func (m Metadata) CMS() (*cms.CMS, error) {
 }
 
 func (m Metadata) PlateauYear() int {
-	if !strings.HasPrefix(m.DataCatalogProjectAlias, "plateau-") {
+	if !strings.HasPrefix(m.DataCatalogProjectAlias, plateauPrefix) {
 		return 0
 	}
 
-	name := strings.TrimPrefix(m.DataCatalogProjectAlias, "plateau-")
+	name := strings.TrimPrefix(m.DataCatalogProjectAlias, plateauPrefix)
 	if len(name) < 4 {
 		return 0
 	}
@@ -373,4 +374,17 @@ func (metadata MetadataList) Default() *Metadata {
 		return nil
 	}
 	return &p[0]
+}
+
+func (metadata MetadataList) FindByYear(year int) *Metadata {
+	if year <= 0 {
+		return nil
+	}
+
+	for _, m := range metadata {
+		if y := m.PlateauYear(); y > 0 && y == year {
+			return &m
+		}
+	}
+	return nil
 }

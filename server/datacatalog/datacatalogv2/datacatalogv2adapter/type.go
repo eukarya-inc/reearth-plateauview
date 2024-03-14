@@ -512,7 +512,8 @@ func citygmlFrom(d datacatalogv2.DataCatalogItem) *plateauapi.CityGMLDataset {
 		URL:                d.CityGMLURL,
 		FeatureTypes:       d.CityGMLFeatureTypes,
 		Admin: map[string]any{
-			"maxlod": d.MaxLODURL,
+			"maxlod":         d.MaxLODURL,
+			"citygmlAssetId": d.CityGMLAssetID,
 		},
 	}
 }

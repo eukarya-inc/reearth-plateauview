@@ -46,6 +46,7 @@ type DataCatalogItem struct {
 	Family              string   `json:"-"`
 	Edition             string   `json:"-"`
 	CityGMLURL          string   `json:"-"`
+	CityGMLAssetID      string   `json:"-"`
 	CityGMLFeatureTypes []string `json:"-"`
 	MaxLODURL           string   `json:"-"`
 	SDKPublic           bool     `json:"-"`
