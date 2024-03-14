@@ -108,8 +108,8 @@ func (c *CityItem) GetOpenDataURL() string {
 	return geospatialjpURL(c.CityCode, c.CityNameEn, c.YearInt())
 }
 
-func (i *CityItem) plateauStage(ft string) stage {
-	if i.Public[ft] {
+func (i *CityItem) PlateauStage(ft string) stage {
+	if ft != "" && i.Public[ft] {
 		return stageGA
 	}
 	if i.PlateauDataStatus != nil && i.PlateauDataStatus.Name == string(ManagementStatusReady) {
@@ -118,11 +118,23 @@ func (i *CityItem) plateauStage(ft string) stage {
 	return stageAlpha
 }
 
-func (i *CityItem) sdkStage() stage {
+func (i *CityItem) SDKStage() stage {
 	if i.SDKPublic {
 		return stageGA
 	}
-	return stageBeta
+	return i.PlateauStage("")
+}
+
+func (i *CityItem) IsPublicOrBeta() bool {
+	if s := i.SDKStage(); s == stageGA || s == stageBeta {
+		return true
+	}
+	for _, p := range i.Public {
+		if p {
+			return true
+		}
+	}
+	return false
 }
 
 type PlateauFeatureItem struct {

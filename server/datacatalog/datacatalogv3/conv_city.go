@@ -6,7 +6,7 @@ import (
 )
 
 func (city *CityItem) ToPrefecture() *plateauapi.Prefecture {
-	if city == nil || len(city.CityCode) < 2 {
+	if city == nil || len(city.CityCode) < 2 || !city.IsPublicOrBeta() {
 		return nil
 	}
 
@@ -24,7 +24,7 @@ func (city *CityItem) ToPrefecture() *plateauapi.Prefecture {
 }
 
 func (city *CityItem) ToCity() *plateauapi.City {
-	if city == nil || city.CityName == "" || len(city.CityCode) < 2 {
+	if city == nil || city.CityName == "" || len(city.CityCode) < 2 || !city.IsPublicOrBeta() {
 		return nil
 	}
 

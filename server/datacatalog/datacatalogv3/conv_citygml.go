@@ -38,7 +38,7 @@ func toCityGMLs(all *AllData, regYear int) (map[plateauapi.ID]*plateauapi.CityGM
 		dataMap[city.ID].CityCode = plateauapi.AreaCode(city.CityCode)
 		dataMap[city.ID].FeatureTypes = all.FeatureTypesOf(city.ID)
 		dataMap[city.ID].PlateauSpecMinorID = plateauapi.PlateauSpecIDFrom(city.Spec)
-		dataMap[city.ID].Admin = newAdmin(city.ID, city.sdkStage(), cmsurl, dataMap[city.ID].Admin)
+		dataMap[city.ID].Admin = newAdmin(city.ID, city.SDKStage(), cmsurl, dataMap[city.ID].Admin)
 	}
 
 	res := make(map[plateauapi.ID]*plateauapi.CityGMLDataset)
