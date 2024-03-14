@@ -87,15 +87,13 @@ func SearchIndex(conf *Config) (*Service, error) {
 
 func SDKAPI(conf *Config) (*Service, error) {
 	c := conf.SDKAPI()
-	if c.CMSBaseURL == "" || c.Project == "" {
-		return nil, nil
-	}
 
 	return &Service{
 		Name:           "sdkapi",
 		DisableNoCache: true,
 		Echo: func(g *echo.Group) error {
-			return sdkapi.Handler(c, g.Group("/sdk"))
+			_, err := sdkapi.Handler(c, g.Group("/sdk"))
+			return err
 		},
 	}, nil
 }
@@ -156,7 +154,7 @@ func GovPolygon(conf *Config) (*Service, error) {
 		Name: "govpolygon",
 		Echo: func(g *echo.Group) error {
 			govpolygon.New(
-				fmt.Sprintf("http://[::]:%d/datacatalog/graphql", conf.Port),
+				conf.LocalURL("/datacatalog/graphql"),
 				true,
 			).Route(g.Group("/govpolygon"))
 			return nil

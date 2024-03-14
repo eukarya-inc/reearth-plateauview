@@ -7,6 +7,7 @@ require (
 	github.com/dustin/go-humanize v1.0.1
 	github.com/eukarya-inc/jpareacode v1.0.1-0.20240313051948-672368075753
 	github.com/go-playground/validator/v10 v10.16.0
+	github.com/hasura/go-graphql-client v0.12.1
 	github.com/jarcoal/httpmock v1.3.1
 	github.com/joho/godotenv v1.5.1
 	github.com/k0kubun/pp/v3 v3.2.0
@@ -115,6 +116,7 @@ require (
 	google.golang.org/protobuf v1.32.0 // indirect
 	gopkg.in/go-jose/go-jose.v2 v2.6.2 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
+	nhooyr.io/websocket v1.8.10 // indirect
 	star-tex.org/x/tex v0.4.0 // indirect
 )
 

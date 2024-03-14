@@ -1,4 +1,4 @@
-package sdkapi
+package sdkapiv2
 
 import (
 	"context"

@@ -1,4 +1,4 @@
-package sdkapi
+package sdkapiv2
 
 import (
 	"context"
@@ -16,21 +16,27 @@ import (
 	"github.com/reearth/reearthx/log"
 )
 
-func Handler(conf Config, g *echo.Group) error {
+func Handler(conf Config, g *echo.Group) (bool, error) {
 	conf.Default()
+
+	if conf.CMSBaseURL == "" || conf.Project == "" {
+		return false, nil
+	}
 
 	icl, err := cms.New(conf.CMSBaseURL, conf.CMSToken)
 	if err != nil {
-		return err
+		return false, err
 	}
 
 	// cl, err := cms.NewPublicAPIClient[Item](nil, conf.CMSBaseURL)
 	// if err != nil {
-	// 	return err
+	// 	return false, err
 	// }
 
 	cms := NewCMS(icl, nil, conf.Project, false)
-	return handler(conf, g, cms)
+
+	log.Infof("sdkapiv2: initialized")
+	return true, handler(conf, g, cms)
 }
 
 func handler(conf Config, g *echo.Group, cms *CMS) error {

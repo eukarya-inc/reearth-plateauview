@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/eukarya-inc/reearth-plateauview/server/cmsintegration"
@@ -8,6 +9,8 @@ import (
 	"github.com/eukarya-inc/reearth-plateauview/server/opinion"
 	"github.com/eukarya-inc/reearth-plateauview/server/plateaucms"
 	"github.com/eukarya-inc/reearth-plateauview/server/sdkapi"
+	"github.com/eukarya-inc/reearth-plateauview/server/sdkapi/sdkapiv2"
+	"github.com/eukarya-inc/reearth-plateauview/server/sdkapi/sdkapiv3"
 	"github.com/eukarya-inc/reearth-plateauview/server/searchindex"
 	"github.com/eukarya-inc/reearth-plateauview/server/sidebar"
 	"github.com/joho/godotenv"
@@ -98,6 +101,10 @@ func (c *Config) Print() string {
 	return noColorPP.Sprint(c)
 }
 
+func (c *Config) LocalURL(path string) string {
+	return fmt.Sprintf("http://[::]:%d%s", c.Port, path)
+}
+
 func (c *Config) CMSIntegration() cmsintegration.Config {
 	cloudBuildProject := c.Geospatialjp_CloudBuildProject
 	if cloudBuildProject == "" {
@@ -155,13 +162,19 @@ func (c *Config) SearchIndex() searchindex.Config {
 
 func (c *Config) SDKAPI() sdkapi.Config {
 	return sdkapi.Config{
-		CMSBaseURL: c.CMS_BaseURL,
-		CMSToken:   c.CMS_Token,
-		Project:    c.CMS_PlateauProject,
-		// Model:      c.CMS_SDKModel,
-		Token:        c.SDK_Token,
-		DisableCache: c.SDKAPI_DisableCache,
-		CacheTTL:     c.SDKAPI_CacheTTL,
+		V2: sdkapiv2.Config{
+			CMSBaseURL:   c.CMS_BaseURL,
+			CMSToken:     c.CMS_Token,
+			Project:      c.CMS_PlateauProject,
+			Token:        c.SDK_Token,
+			DisableCache: c.SDKAPI_DisableCache,
+			CacheTTL:     c.SDKAPI_CacheTTL,
+		},
+		V3: sdkapiv3.Config{
+			DataCatagloAPIURL: c.LocalURL("/datacatalog"),
+			Token:             c.SDK_Token,
+		},
+		UseV2: true,
 	}
 }
 
