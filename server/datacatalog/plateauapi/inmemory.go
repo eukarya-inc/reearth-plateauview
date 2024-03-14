@@ -24,8 +24,6 @@ type InMemoryRepoContext struct {
 type InMemoryRepo struct {
 	ctx               *InMemoryRepoContext
 	areasForDataTypes map[string]map[AreaCode]bool
-	admin             bool
-	includedStages    []string
 }
 
 var _ Repo = (*InMemoryRepo)(nil)
@@ -43,34 +41,9 @@ func (c *InMemoryRepo) Name() string {
 	return fmt.Sprintf("inmemory(%s)", c.ctx.Name)
 }
 
-func (c *InMemoryRepo) Clone() *InMemoryRepo {
-	return &InMemoryRepo{
-		ctx:               c.ctx,
-		areasForDataTypes: c.areasForDataTypes,
-		admin:             c.admin,
-		includedStages:    slices.Clone(c.includedStages),
-	}
-}
-
 func (c *InMemoryRepo) SetContext(ctx *InMemoryRepoContext) {
 	c.ctx = ctx
 	c.areasForDataTypes = areasForDatasetTypes(ctx.Datasets.All())
-}
-
-func (c *InMemoryRepo) SetIncludedStages(stages ...string) {
-	c.includedStages = stages
-}
-
-func (c *InMemoryRepo) IncludedStages() []string {
-	return slices.Clone(c.includedStages)
-}
-
-func (c *InMemoryRepo) SetAdmin(admin bool) {
-	c.admin = admin
-}
-
-func (c *InMemoryRepo) Admin() bool {
-	return c.admin
 }
 
 func (c *InMemoryRepo) Node(ctx context.Context, id ID) (Node, error) {
@@ -90,8 +63,9 @@ func (c *InMemoryRepo) Node(ctx context.Context, id ID) (Node, error) {
 		}
 	case TypeDataset:
 		if d := c.ctx.Datasets.Dataset(id); d != nil {
-			if filterDataset(d, DatasetsInput{}, c.includedStages) {
-				return removeAdminFromDataset(d, c.admin), nil
+			stages := allowAdminStages(ctx)
+			if filterDataset(d, DatasetsInput{}, stages) {
+				return removeAdminFromDataset(ctx, d, false), nil
 			}
 		}
 	case TypeDatasetItem:
@@ -113,8 +87,9 @@ func (c *InMemoryRepo) Node(ctx context.Context, id ID) (Node, error) {
 			return &p, nil
 		}
 	case TypeCityGML:
-		if d := c.ctx.CityGML[id]; d != nil && filterCityGMLDataset(d, c.includedStages) {
-			return removeAdminFromCityGMLDataset(d, c.admin), nil
+		stages := allowAdminStages(ctx)
+		if d := c.ctx.CityGML[id]; d != nil && filterCityGMLDataset(d, stages) {
+			return removeAdminFromCityGMLDataset(ctx, d), nil
 		}
 	}
 
@@ -174,9 +149,10 @@ func (c *InMemoryRepo) Datasets(ctx context.Context, input *DatasetsInput) (res 
 		input = &DatasetsInput{}
 	}
 
-	return removeAdminFromDatasets(c.ctx.Datasets.Filter(func(t Dataset) bool {
-		return filterDataset(t, *input, c.includedStages)
-	}), c.admin), nil
+	stages := allowAdminStages(ctx)
+	return removeAdminFromDatasets(ctx, c.ctx.Datasets.Filter(func(t Dataset) bool {
+		return filterDataset(t, *input, stages)
+	})), nil
 }
 
 func (c *InMemoryRepo) PlateauSpecs(ctx context.Context) ([]*PlateauSpec, error) {
@@ -229,18 +205,18 @@ func areasForDatasetTypes(ds []Dataset) map[string]map[AreaCode]bool {
 	return res
 }
 
-func removeAdminFromDatasets(ds []Dataset, admin bool) []Dataset {
-	if admin {
+func removeAdminFromDatasets(ctx context.Context, ds []Dataset) []Dataset {
+	if bypassAdminRemoval(ctx) {
 		return ds
 	}
 
 	return lo.Map(ds, func(d Dataset, _ int) Dataset {
-		return removeAdminFromDataset(d, admin)
+		return removeAdminFromDataset(ctx, d, true)
 	})
 }
 
-func removeAdminFromDataset(d Dataset, admin bool) Dataset {
-	if admin {
+func removeAdminFromDataset(ctx context.Context, d Dataset, force bool) Dataset {
+	if !force && (bypassAdminRemoval(ctx)) {
 		return d
 	}
 
@@ -270,8 +246,8 @@ func removeAdminFromDataset(d Dataset, admin bool) Dataset {
 	return d
 }
 
-func removeAdminFromCityGMLDataset(d *CityGMLDataset, admin bool) *CityGMLDataset {
-	if admin {
+func removeAdminFromCityGMLDataset(ctx context.Context, d *CityGMLDataset) *CityGMLDataset {
+	if bypassAdminRemoval(ctx) {
 		return d
 	}
 

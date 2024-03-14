@@ -17,29 +17,26 @@ const cacheUpdateDuration = 10 * time.Second
 type ReposUpdater = func(ctx context.Context, project string) (*ReposUpdateResult, error)
 
 type ReposUpdateResult struct {
-	Repo      Repo
-	AdminRepo Repo
-	Warnings  []string
+	Repo     Repo
+	Warnings []string
 }
 
 type Repos struct {
-	updater    ReposUpdater
-	locks      util.LockMap[string]
-	repos      map[string]*RepoWrapper
-	adminRepos map[string]*RepoWrapper
-	warnings   map[string][]string
-	updatedAt  map[string]time.Time
-	now        func() time.Time
+	updater   ReposUpdater
+	locks     util.LockMap[string]
+	repos     map[string]*RepoWrapper
+	warnings  map[string][]string
+	updatedAt map[string]time.Time
+	now       func() time.Time
 }
 
 func NewRepos(u ReposUpdater) *Repos {
 	return &Repos{
-		updater:    u,
-		locks:      util.LockMap[string]{},
-		repos:      map[string]*RepoWrapper{},
-		adminRepos: map[string]*RepoWrapper{},
-		warnings:   map[string][]string{},
-		updatedAt:  map[string]time.Time{},
+		updater:   u,
+		locks:     util.LockMap[string]{},
+		repos:     map[string]*RepoWrapper{},
+		warnings:  map[string][]string{},
+		updatedAt: map[string]time.Time{},
 	}
 }
 
@@ -48,10 +45,7 @@ func (r *Repos) Prepare(ctx context.Context, project string, year int, cms cms.I
 	return err
 }
 
-func (r *Repos) Repo(project string, admin bool) *RepoWrapper {
-	if admin {
-		return r.adminRepos[project]
-	}
+func (r *Repos) Repo(project string) *RepoWrapper {
 	return r.repos[project]
 }
 
@@ -91,19 +85,6 @@ func (r *Repos) Update(ctx context.Context, project string) (bool, error) {
 
 	u := false
 	if ur != nil {
-		if ur.AdminRepo != nil {
-			adminRepoWrapper := r.adminRepos[project]
-			if adminRepoWrapper == nil {
-				adminRepoWrapper = NewRepoWrapper(ur.AdminRepo, nil)
-				adminRepoWrapper.SetName(fmt.Sprintf("%s(admin)", project))
-				r.adminRepos[project] = adminRepoWrapper
-			} else {
-				adminRepoWrapper.SetRepo(ur.AdminRepo)
-			}
-
-			u = true
-		}
-
 		if ur.Repo != nil {
 			repoWrapper := r.repos[project]
 			if repoWrapper == nil {

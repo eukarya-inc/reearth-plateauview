@@ -1,6 +1,7 @@
 package plateauapi
 
 import (
+	"context"
 	"strings"
 
 	"github.com/reearth/reearthx/util"
@@ -322,4 +323,26 @@ func filterCityGMLDataset(d *CityGMLDataset, stages []string) bool {
 	}
 
 	return true
+}
+
+type bypassAdminRemovalKey struct{}
+
+func BypassAdminRemoval(ctx context.Context, b bool) context.Context {
+	return context.WithValue(ctx, bypassAdminRemovalKey{}, b)
+}
+
+func bypassAdminRemoval(ctx context.Context) bool {
+	b, _ := ctx.Value(bypassAdminRemovalKey{}).(bool)
+	return b
+}
+
+type allowedAdminStagesKey struct{}
+
+func AllowAdminStages(ctx context.Context, stages []string) context.Context {
+	return context.WithValue(ctx, allowedAdminStagesKey{}, stages)
+}
+
+func allowAdminStages(ctx context.Context) []string {
+	b, _ := ctx.Value(allowedAdminStagesKey{}).([]string)
+	return b
 }

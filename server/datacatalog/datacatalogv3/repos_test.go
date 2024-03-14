@@ -25,7 +25,7 @@ func TestRepos(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Nil(t, repos.Warnings("prj"))
 
-	assertRes := func(t *testing.T, r plateauapi.Repo, cityName, cityCode string, stage *string, isPref, found bool) {
+	assertRes := func(t *testing.T, ctx context.Context, r plateauapi.Repo, cityName, cityCode string, admin bool, stage *string, isPref, found bool) {
 		t.Helper()
 
 		prefCode := cityCode[:2]
@@ -55,10 +55,10 @@ func TestRepos(t *testing.T) {
 		})
 		assert.NoError(t, err)
 
-		var admin any
-		if stage != nil {
-			admin = map[string]any{
-				"stage": string(*stage),
+		var adminData any
+		if admin && stage != nil {
+			adminData = map[string]any{
+				"stage": *stage,
 			}
 		}
 
@@ -94,7 +94,7 @@ func TestRepos(t *testing.T) {
 							Texture:  lo.ToPtr(plateauapi.TextureTexture),
 						},
 					},
-					Admin: admin,
+					Admin: adminData,
 				},
 			}, dataset)
 		} else {
@@ -102,15 +102,15 @@ func TestRepos(t *testing.T) {
 		}
 	}
 
-	radmin := repos.Repo("prj", true)
-	assertRes(t, radmin, "PREF", "00", lo.ToPtr(string(stageBeta)), true, true)
-	assertRes(t, radmin, "foo", "00001", nil, false, true)
-	assertRes(t, radmin, "bar", "00002", nil, false, false)
+	repo := repos.Repo("prj")
+	assertRes(t, ctx, repo, "PREF", "00", false, nil, true, false)
+	assertRes(t, ctx, repo, "foo", "00001", false, nil, false, true)
+	assertRes(t, ctx, repo, "bar", "00002", false, nil, false, false)
 
-	rpublic := repos.Repo("prj", false)
-	assertRes(t, rpublic, "PREF", "00", nil, true, false)
-	assertRes(t, rpublic, "foo", "00001", nil, false, true)
-	assertRes(t, rpublic, "bar", "00002", nil, false, false)
+	ctx2 := AdminContext(ctx, true, true)
+	assertRes(t, ctx2, repo, "PREF", "00", true, lo.ToPtr(string(stageBeta)), true, true)
+	assertRes(t, ctx2, repo, "foo", "00001", true, nil, false, true)
+	assertRes(t, ctx2, repo, "bar", "00002", true, nil, false, false)
 
 	assert.NoError(t, repos.UpdateAll(ctx))
 }

@@ -12,6 +12,7 @@ import (
 	"strings"
 
 	"github.com/eukarya-inc/reearth-plateauview/server/datacatalog/plateauapi"
+	"github.com/spkg/bom"
 )
 
 type CityGMLFilesResponse struct {
@@ -90,11 +91,43 @@ func fetchCityGMLFiles(ctx context.Context, r plateauapi.Repo, id string) (*City
 	}, nil
 }
 
+func fetchCSV(ctx context.Context, url string) (records [][]string, _ error) {
+	res, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create request: %w", err)
+	}
+
+	resp, err := http.DefaultClient.Do(res)
+	if err != nil {
+		return nil, fmt.Errorf("failed to request: %w", err)
+	}
+
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("failed to request: %w", err)
+	}
+
+	c := csv.NewReader(bom.NewReader(resp.Body))
+	for {
+		record, err := c.Read()
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			return nil, fmt.Errorf("failed to read csv: %w", err)
+		}
+		records = append(records, record)
+	}
+
+	return
+}
+
 func csvToCityGMLFilesResponse(data [][]string, citygmlURL string) CityGMLFiles {
 	res := make(CityGMLFiles)
 
 	for _, record := range data {
-		if len(record) < 4 || record[0] == "" {
+		if len(record) < 3 || record[0] == "" {
 			continue
 		}
 
@@ -103,14 +136,16 @@ func csvToCityGMLFilesResponse(data [][]string, citygmlURL string) CityGMLFiles 
 			continue
 		}
 
-		// code,type,maxLod,file
+		// code,type,maxLod(,path)
 		meshCode := record[0]
 		featureType := record[1]
 		maxlod, _ := strconv.Atoi(record[2])
-		url := citygmlItemURLFrom(citygmlURL, record[3], record[1])
-
-		if url == "" {
-			continue
+		url := ""
+		if len(record) > 3 {
+			url = citygmlItemURLFrom(citygmlURL, record[3], featureType)
+			if url == "" {
+				continue
+			}
 		}
 
 		item := CityGMLFile{
@@ -134,38 +169,6 @@ func citygmlItemURLFrom(base, p, typeCode string) string {
 	base = strings.TrimSuffix(base, b)
 	u, _ := url.JoinPath(base, nameWithoutExt(b), "udx", typeCode, p)
 	return u
-}
-
-func fetchCSV(ctx context.Context, url string) (records [][]string, _ error) {
-	res, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
-	if err != nil {
-		return nil, fmt.Errorf("failed to create request: %w", err)
-	}
-
-	resp, err := http.DefaultClient.Do(res)
-	if err != nil {
-		return nil, fmt.Errorf("failed to request: %w", err)
-	}
-
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("failed to request: %w", err)
-	}
-
-	c := csv.NewReader(resp.Body)
-	for {
-		record, err := c.Read()
-		if err == io.EOF {
-			break
-		}
-		if err != nil {
-			return nil, fmt.Errorf("failed to read csv: %w", err)
-		}
-		records = append(records, record)
-	}
-
-	return
 }
 
 func isNumeric(r rune) bool {

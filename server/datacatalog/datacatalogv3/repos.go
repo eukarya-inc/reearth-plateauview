@@ -12,7 +12,15 @@ import (
 	"github.com/reearth/reearthx/util"
 )
 
-var stagesForAdmin = []string{string(stageBeta)}
+func AdminContext(ctx context.Context, bypassAdminRemoval, includeBeta bool) context.Context {
+	if bypassAdminRemoval {
+		ctx = plateauapi.BypassAdminRemoval(ctx, true)
+	}
+	if includeBeta {
+		ctx = plateauapi.AllowAdminStages(ctx, []string{string(stageBeta)})
+	}
+	return ctx
+}
 
 type Repos struct {
 	cms *util.SyncMap[string, *CMS]
@@ -57,19 +65,13 @@ func (r *Repos) update(ctx context.Context, project string) (*plateauapi.ReposUp
 
 	c, warning := data.Into()
 	sort.Strings(warning)
-
 	repo := plateauapi.NewInMemoryRepo(c)
-
-	adminRepo := plateauapi.NewInMemoryRepo(c)
-	adminRepo.SetAdmin(true)
-	adminRepo.SetIncludedStages(stagesForAdmin...)
 
 	log.Debugfc(ctx, "datacatalogv3: updated repo %s", project)
 
 	return &plateauapi.ReposUpdateResult{
-		Repo:      repo,
-		AdminRepo: adminRepo,
-		Warnings:  warning,
+		Repo:     repo,
+		Warnings: warning,
 	}, nil
 }
 

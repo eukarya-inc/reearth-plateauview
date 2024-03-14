@@ -69,6 +69,8 @@ func (h *reposHandler) Handler(admin bool) echo.HandlerFunc {
 		}
 
 		srv := plateauapi.NewService(merged, plateauapi.FixedComplexityLimit(h.gqlComplexityLimit))
+
+		adminContext(c, admin, admin)
 		srv.ServeHTTP(c.Response(), c.Request())
 		return nil
 	}
@@ -76,7 +78,6 @@ func (h *reposHandler) Handler(admin bool) echo.HandlerFunc {
 
 func (h *reposHandler) CityGMLFiles(admin bool) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		ctx := c.Request().Context()
 		cid := c.Param(citygmlIDParamName)
 		if cid == "" {
 			return echo.NewHTTPError(http.StatusNotFound, "not found")
@@ -87,9 +88,15 @@ func (h *reposHandler) CityGMLFiles(admin bool) echo.HandlerFunc {
 			return err
 		}
 
+		adminContext(c, true, admin)
+		ctx := c.Request().Context()
 		maxlod, err := fetchCityGMLFiles(ctx, merged, cid)
 		if err != nil {
 			return err
+		}
+
+		if maxlod == nil {
+			return echo.NewHTTPError(http.StatusNotFound, "not found")
 		}
 
 		return c.JSON(http.StatusOK, maxlod)
@@ -170,16 +177,16 @@ func (h *reposHandler) Init(ctx context.Context) error {
 	return nil
 }
 
-func (h *reposHandler) prepareMergedRepo(c echo.Context, admin bool) (plateauapi.Repo, error) {
+func (h *reposHandler) prepareMergedRepo(c echo.Context, auth bool) (plateauapi.Repo, error) {
 	ctx := c.Request().Context()
 	md := plateaucms.GetCMSMetadataFromContext(ctx)
-	if admin && !md.Auth {
+	if auth && !md.Auth {
 		return nil, echo.NewHTTPError(http.StatusUnauthorized, "unauthorized")
 	}
 
 	pid := c.Param(pidParamName)
 	mds := plateaucms.GetAllCMSMetadataFromContext(ctx)
-	merged := h.prepareAndGetMergedRepo(ctx, admin, pid, mds)
+	merged := h.prepareAndGetMergedRepo(ctx, pid, mds)
 	if merged == nil {
 		return nil, echo.NewHTTPError(http.StatusNotFound, "not found")
 	}
@@ -188,7 +195,7 @@ func (h *reposHandler) prepareMergedRepo(c echo.Context, admin bool) (plateauapi
 	return merged, nil
 }
 
-func (h *reposHandler) prepareAndGetMergedRepo(ctx context.Context, admin bool, project string, metadata plateaucms.MetadataList) plateauapi.Repo {
+func (h *reposHandler) prepareAndGetMergedRepo(ctx context.Context, project string, metadata plateaucms.MetadataList) plateauapi.Repo {
 	var mds plateaucms.MetadataList
 	if project == "" {
 		mds = metadata.PlateauProjects()
@@ -202,7 +209,7 @@ func (h *reposHandler) prepareAndGetMergedRepo(ctx context.Context, admin bool, 
 
 	repos := make([]plateauapi.Repo, 0, len(mds))
 	for _, s := range mds {
-		if r := h.getRepo(admin, s); r != nil {
+		if r := h.getRepo(s); r != nil {
 			repos = append(repos, r)
 		}
 	}
@@ -224,15 +231,15 @@ func (h *reposHandler) prepareAndGetMergedRepo(ctx context.Context, admin bool, 
 	return merged
 }
 
-func (h *reposHandler) getRepo(admin bool, md plateaucms.Metadata) (repo plateauapi.Repo) {
+func (h *reposHandler) getRepo(md plateaucms.Metadata) (repo plateauapi.Repo) {
 	if md.DataCatalogProjectAlias == "" {
 		return
 	}
 
 	if isV2(md) {
-		repo = h.reposv2.Repo(md.DataCatalogProjectAlias, admin)
+		repo = h.reposv2.Repo(md.DataCatalogProjectAlias)
 	} else if isV3(md) {
-		repo = h.reposv3.Repo(md.DataCatalogProjectAlias, admin)
+		repo = h.reposv3.Repo(md.DataCatalogProjectAlias)
 	}
 	return
 }
@@ -313,4 +320,10 @@ func isV2(md plateaucms.Metadata) bool {
 
 func isV3(md plateaucms.Metadata) bool {
 	return md.DataCatalogSchemaVersion == cmsSchemaVersion
+}
+
+func adminContext(c echo.Context, bypassAdminRemoval, includeBeta bool) {
+	ctx := c.Request().Context()
+	ctx = datacatalogv3.AdminContext(ctx, bypassAdminRemoval, includeBeta)
+	c.SetRequest(c.Request().WithContext(ctx))
 }

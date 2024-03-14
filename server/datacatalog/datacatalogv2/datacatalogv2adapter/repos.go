@@ -52,14 +52,10 @@ func (r *Repos) update(ctx context.Context, project string) (*plateauapi.ReposUp
 		return nil, err
 	}
 
-	adminRepo := repo.Clone()
-	adminRepo.SetAdmin(true)
-
 	log.Debugfc(ctx, "datacatalogv2: updated repo %s", project)
 
 	return &plateauapi.ReposUpdateResult{
-		Repo:      repo,
-		AdminRepo: adminRepo,
+		Repo: repo,
 	}, nil
 }
 
