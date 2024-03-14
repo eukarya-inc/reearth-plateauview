@@ -4,23 +4,22 @@ import (
 	"context"
 	"fmt"
 	"net/http"
-	"sort"
 	"strings"
 	"time"
 
+	"github.com/eukarya-inc/reearth-plateauview/server/datacatalog/datacatalogv2"
 	"github.com/eukarya-inc/reearth-plateauview/server/datacatalog/datacatalogv2/datacatalogv2adapter"
 	"github.com/eukarya-inc/reearth-plateauview/server/datacatalog/datacatalogv3"
 	"github.com/eukarya-inc/reearth-plateauview/server/datacatalog/plateauapi"
 	"github.com/eukarya-inc/reearth-plateauview/server/plateaucms"
 	"github.com/labstack/echo/v4"
 	"github.com/reearth/reearthx/log"
-	"github.com/samber/lo"
 	"golang.org/x/sync/errgroup"
 )
 
 type reposHandler struct {
 	reposv3            *datacatalogv3.Repos
-	reposv2            map[string]*plateauapi.RepoWrapper
+	reposv2            *datacatalogv2adapter.Repos
 	pcms               *plateaucms.CMS
 	gqlComplexityLimit int
 	cacheUpdateKey     string
@@ -38,6 +37,7 @@ func newReposHandler(conf Config) (*reposHandler, error) {
 	}
 
 	reposv3 := datacatalogv3.NewRepos()
+	reposv2 := datacatalogv2adapter.NewRepos()
 
 	if conf.GraphqlMaxComplexity <= 0 {
 		conf.GraphqlMaxComplexity = gqlComplexityLimit
@@ -45,7 +45,7 @@ func newReposHandler(conf Config) (*reposHandler, error) {
 
 	return &reposHandler{
 		reposv3:            reposv3,
-		reposv2:            map[string]*plateauapi.RepoWrapper{},
+		reposv2:            reposv2,
 		pcms:               pcms,
 		gqlComplexityLimit: conf.GraphqlMaxComplexity,
 		cacheUpdateKey:     conf.CacheUpdateKey,
@@ -130,12 +130,10 @@ func (h *reposHandler) UpdateCache(ctx context.Context) error {
 		})
 	}
 
-	v2prj := lo.Keys(h.reposv2)
-	sort.Strings(v2prj)
-	for _, prj := range v2prj {
-		prj := prj
+	for _, p := range h.reposv2.Projects() {
+		p := p
 		g.Go(func() error {
-			return h.updateV2(ctx, prj)
+			return h.updateV2(ctx, p)
 		})
 	}
 
@@ -227,7 +225,7 @@ func (h *reposHandler) getRepo(admin bool, md plateaucms.Metadata) (repo plateau
 	}
 
 	if isV2(md) {
-		repo = h.reposv2[md.DataCatalogProjectAlias]
+		repo = h.reposv2.Repo(md.DataCatalogProjectAlias, admin)
 	} else if isV3(md) {
 		repo = h.reposv3.Repo(md.DataCatalogProjectAlias, admin)
 	}
@@ -261,17 +259,16 @@ func (h *reposHandler) prepareV2(ctx context.Context, md plateaucms.Metadata) er
 		return nil
 	}
 
-	if _, ok := h.reposv2[md.DataCatalogProjectAlias]; ok {
-		return nil
-	}
-
-	r, err := datacatalogv2adapter.New(md.CMSBaseURL, md.DataCatalogProjectAlias)
+	fetcher, err := datacatalogv2.NewFetcher(md.CMSBaseURL)
 	if err != nil {
-		return fmt.Errorf("datacatalogv3: failed to create repo(v2) %s: %w", md.DataCatalogProjectAlias, err)
+		return fmt.Errorf("datacatalogv2: failed to create fetcher %s: %w", md.DataCatalogProjectAlias, err)
 	}
 
-	h.reposv2[md.DataCatalogProjectAlias] = r
-	return h.updateV2(ctx, md.DataCatalogProjectAlias)
+	if err := h.reposv2.Prepare(ctx, md.DataCatalogProjectAlias, fetcher); err != nil {
+		return fmt.Errorf("datacatalogv2: failed to prepare repo for %s: %w", md.DataCatalogProjectAlias, err)
+	}
+
+	return nil
 }
 
 func (h *reposHandler) prepareV3(ctx context.Context, md plateaucms.Metadata) error {
@@ -292,21 +289,9 @@ func (h *reposHandler) prepareV3(ctx context.Context, md plateaucms.Metadata) er
 }
 
 func (h *reposHandler) updateV2(ctx context.Context, prj string) error {
-	r := h.reposv2[prj]
-	if r == nil {
-		return nil
+	if _, err := h.reposv2.Update(ctx, prj); err != nil {
+		return fmt.Errorf("datacatalogv2: failed to update repo %s: %w", prj, err)
 	}
-
-	log.Infofc(ctx, "datacatalogv3: updating repo(v2) %s", prj)
-
-	if updated, err := r.Update(ctx); err != nil {
-		return fmt.Errorf("datacatalogv3: failed to update repo(v2) %s: %w", prj, err)
-	} else if !updated {
-		log.Infofc(ctx, "datacatalogv3: skip updating repo(v2) %s", prj)
-		return nil
-	}
-
-	log.Infofc(ctx, "datacatalogv3: updated repo(v2) %s", prj)
 	return nil
 }
 

@@ -43,6 +43,15 @@ func (c *InMemoryRepo) Name() string {
 	return fmt.Sprintf("inmemory(%s)", c.ctx.Name)
 }
 
+func (c *InMemoryRepo) Clone() *InMemoryRepo {
+	return &InMemoryRepo{
+		ctx:               c.ctx,
+		areasForDataTypes: c.areasForDataTypes,
+		admin:             c.admin,
+		includedStages:    slices.Clone(c.includedStages),
+	}
+}
+
 func (c *InMemoryRepo) SetContext(ctx *InMemoryRepoContext) {
 	c.ctx = ctx
 	c.areasForDataTypes = areasForDatasetTypes(ctx.Datasets.All())

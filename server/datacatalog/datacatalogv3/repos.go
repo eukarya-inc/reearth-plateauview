@@ -48,7 +48,7 @@ func (r *Repos) update(ctx context.Context, project string) (*plateauapi.ReposUp
 	if !updated.IsZero() {
 		updatedStr = updated.Format(time.RFC3339)
 	}
-	log.Infofc(ctx, "datacatalogv3: updating repo %s: last_update=%s", project, updatedStr)
+	log.Debugfc(ctx, "datacatalogv3: updating repo %s: last_update=%s", project, updatedStr)
 
 	data, err := cms.GetAll(ctx, project)
 	if err != nil {
@@ -63,6 +63,8 @@ func (r *Repos) update(ctx context.Context, project string) (*plateauapi.ReposUp
 	adminRepo := plateauapi.NewInMemoryRepo(c)
 	adminRepo.SetAdmin(true)
 	adminRepo.SetIncludedStages(stagesForAdmin...)
+
+	log.Debugfc(ctx, "datacatalogv3: updated repo %s", project)
 
 	return &plateauapi.ReposUpdateResult{
 		Repo:      repo,
