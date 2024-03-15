@@ -28,16 +28,15 @@ func getAllFeatureItems(ctx context.Context, c *cms.CMS, cityItem *CityItem) (ma
 			return nil, fmt.Errorf("failed to get item: %w", err)
 		}
 
-		fi := FeatureItemFrom(item)
-		items[key] = fi
+		if fi, ok := FeatureItemFrom(item); ok {
+			items[key] = fi
+		}
 	}
 
 	return items, nil
 }
 
-func FeatureItemFrom(item *cms.Item) FeatureItem {
-	res := FeatureItem{}
-
+func FeatureItemFrom(item *cms.Item) (res FeatureItem, ok bool) {
 	type internalGroup struct {
 		Data []any `cms:"data"`
 	}
@@ -49,10 +48,15 @@ func FeatureItemFrom(item *cms.Item) FeatureItem {
 		Items   []internalGroup `cms:"items,group"`
 		MaxLOD  any             `cms:"maxlod"`
 		Dic     string          `cms:"dic"`
+		Sample  bool            `cms:"sample,bool,metadata"`
 	}
 
 	fi := internalItem{}
 	item.Unmarshal(&fi)
+
+	if fi.Sample {
+		return
+	}
 
 	res.ID = fi.ID
 	res.Dic = fi.Dic
@@ -95,7 +99,8 @@ func FeatureItemFrom(item *cms.Item) FeatureItem {
 		}
 	}
 
-	return res
+	ok = true
+	return
 }
 
 func mergeDics(dics ...string) (res map[string]string) {

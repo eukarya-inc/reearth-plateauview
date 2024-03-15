@@ -149,6 +149,7 @@ type PlateauFeatureItem struct {
 	MaxLOD  string                    `json:"maxlod,omitempty" cms:"maxlod,-"`
 	// metadata
 	Status *cms.Tag `json:"status,omitempty" cms:"status,select,metadata"`
+	Sample bool     `json:"sample,omitempty" cms:"sample,bool,metadata"`
 }
 
 func (c PlateauFeatureItem) IsPublicForAdmin() bool {
