@@ -46,7 +46,7 @@ func TestNewCache(t *testing.T) {
 	expectedCache := &plateauapi.InMemoryRepoContext{
 		Areas: plateauapi.Areas{
 			plateauapi.AreaTypePrefecture: []plateauapi.Area{
-				plateauapi.Prefecture{
+				&plateauapi.Prefecture{
 					Type: plateauapi.AreaTypePrefecture,
 					ID:   "p_13",
 					Name: "東京都",
@@ -54,7 +54,7 @@ func TestNewCache(t *testing.T) {
 				},
 			},
 			plateauapi.AreaTypeCity: []plateauapi.Area{
-				plateauapi.City{
+				&plateauapi.City{
 					Type:           plateauapi.AreaTypeCity,
 					ID:             "c_13101",
 					Name:           "東京都23区",

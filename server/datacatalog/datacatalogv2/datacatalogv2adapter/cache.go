@@ -33,7 +33,7 @@ func newCache(items []datacatalogv2.DataCatalogItem) *plateauapi.InMemoryRepoCon
 				if cache.Areas == nil {
 					cache.Areas = make(plateauapi.Areas)
 				}
-				cache.Areas.Append(plateauapi.AreaTypePrefecture, []plateauapi.Area{*p})
+				cache.Areas.Append(plateauapi.AreaTypePrefecture, []plateauapi.Area{p})
 				areas[prefCode] = struct{}{}
 			}
 		}
@@ -45,7 +45,7 @@ func newCache(items []datacatalogv2.DataCatalogItem) *plateauapi.InMemoryRepoCon
 					if cache.Areas == nil {
 						cache.Areas = make(plateauapi.Areas)
 					}
-					cache.Areas.Append(plateauapi.AreaTypeCity, []plateauapi.Area{*c})
+					cache.Areas.Append(plateauapi.AreaTypeCity, []plateauapi.Area{c})
 					areas[areaCode] = struct{}{}
 				}
 			}
@@ -58,7 +58,7 @@ func newCache(items []datacatalogv2.DataCatalogItem) *plateauapi.InMemoryRepoCon
 					if cache.Areas == nil {
 						cache.Areas = make(plateauapi.Areas)
 					}
-					cache.Areas.Append(plateauapi.AreaTypeWard, []plateauapi.Area{*w})
+					cache.Areas.Append(plateauapi.AreaTypeWard, []plateauapi.Area{w})
 					areas[areaCode] = struct{}{}
 				}
 			}
