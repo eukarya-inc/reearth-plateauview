@@ -82,6 +82,7 @@ type Config struct {
 	SDKAPI_DisableCache                bool     `pp:",omitempty"`
 	SDKAPI_CacheTTL                    int      `pp:",omitempty"`
 	SDKAPI_V3                          bool     `pp:",omitempty"`
+	GCParcent                          int      `pp:",omitempty"`
 }
 
 func NewConfig() (*Config, error) {
