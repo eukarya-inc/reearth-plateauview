@@ -58,6 +58,7 @@ type CityItem struct {
 	// meatadata
 	PlateauDataStatus   *cms.Tag        `json:"plateau_data_status,omitempty" cms:"plateau_data_status,select,metadata"`
 	RelatedDataStatus   *cms.Tag        `json:"related_data_status,omitempty" cms:"related_data_status,select,metadata"`
+	CityPublic          bool            `json:"city_public,omitempty" cms:"city_public,bool,metadata"`
 	SDKPublic           bool            `json:"sdk_public,omitempty" cms:"sdk_public,bool,metadata"`
 	RelatedPublic       bool            `json:"related_public,omitempty" cms:"related_public,bool,metadata"`
 	Public              map[string]bool `json:"public,omitempty" cms:"-"`
@@ -109,7 +110,7 @@ func (c *CityItem) GetOpenDataURL() string {
 }
 
 func (i *CityItem) PlateauStage(ft string) stage {
-	if ft != "" && i.Public[ft] {
+	if i.CityPublic || ft != "" && i.Public[ft] {
 		return stageGA
 	}
 	if i.PlateauDataStatus != nil && i.PlateauDataStatus.Name == string(ManagementStatusReady) {
