@@ -79,6 +79,11 @@ func (all *AllData) Into() (res *plateauapi.InMemoryRepoContext, warning []strin
 		res.Datasets.Append(plateauapi.DatasetTypeCategoryGeneric, datasets)
 	}
 
+	// move plateau sample data to generic
+	sampleType, _ := res.DatasetTypes.FindByCode(
+		"sample", plateauapi.DatasetTypeCategoryGeneric).(*plateauapi.GenericDatasetType)
+	movePlateauSampleDataToGeneric(res.Datasets, sampleType)
+
 	// citygml
 	{
 		var w []string

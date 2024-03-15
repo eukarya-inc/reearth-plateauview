@@ -76,6 +76,8 @@ func plateauDatasetSeedsFrom(i *PlateauFeatureItem, opts ToPlateauDatasetsOption
 	// merge seeds with same ID
 	res = mergeDatasetSeeds(res)
 
+	adminExtra := sampleAdmin(i.Sample)
+
 	// common
 	for i := range res {
 		res[i].DatasetType = opts.DatasetType
@@ -88,7 +90,7 @@ func plateauDatasetSeedsFrom(i *PlateauFeatureItem, opts ToPlateauDatasetsOption
 			opts.Area.CityItem.ID,
 			opts.Area.CityItem.PlateauStage(opts.DatasetType.Code),
 			opts.CMSURL,
-			nil,
+			adminExtra,
 		)
 		res[i].LayerNames = opts.LayerNames
 		res[i].Year = year

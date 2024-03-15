@@ -144,6 +144,13 @@ func (d DatasetTypes) All() []DatasetType {
 	})
 }
 
+func (d DatasetTypes) DatasetTypesByCategory(cat DatasetTypeCategory) []DatasetType {
+	if cat == "" {
+		return d.All()
+	}
+	return d[cat]
+}
+
 func (d DatasetTypes) DatasetTypesByCategories(categories []DatasetTypeCategory) (res []DatasetType) {
 	for _, cat := range categories {
 		res = append(res, d[cat]...)
@@ -169,6 +176,14 @@ func (d *DatasetTypes) DatasetType(id ID) DatasetType {
 		}
 	}
 	return nil
+}
+
+func (d DatasetTypes) FindByCode(code string, cat DatasetTypeCategory) DatasetType {
+	types := d.DatasetTypesByCategory(cat)
+	t, _ := lo.Find(types, func(d DatasetType) bool {
+		return d.GetCode() == code
+	})
+	return t
 }
 
 func (s *PlateauSpec) Minor(name string) *PlateauSpecMinor {
@@ -258,4 +273,42 @@ func getVagueID(n any) string {
 		return v.VagueID()
 	}
 	return ""
+}
+
+func PlateauDatasetToGenericDataset(p *PlateauDataset, typeID ID, typeCode string, newID ID) *GenericDataset {
+	if newID == "" {
+		newID = p.ID
+	}
+
+	items := make([]*GenericDatasetItem, 0, len(p.Items))
+	for _, item := range p.Items {
+		items = append(items, &GenericDatasetItem{
+			ID:       item.ID,
+			Format:   item.Format,
+			Name:     item.Name,
+			URL:      item.URL,
+			Layers:   item.Layers,
+			ParentID: newID,
+		})
+	}
+
+	return &GenericDataset{
+		ID:                newID,
+		Name:              p.Name,
+		Description:       p.Description,
+		Year:              p.Year,
+		Admin:             p.Admin,
+		RegisterationYear: p.RegisterationYear,
+		Groups:            p.Groups,
+		OpenDataURL:       p.OpenDataURL,
+		PrefectureID:      p.PrefectureID,
+		PrefectureCode:    p.PrefectureCode,
+		CityID:            p.CityID,
+		CityCode:          p.CityCode,
+		WardID:            p.WardID,
+		WardCode:          p.WardCode,
+		TypeID:            typeID,
+		TypeCode:          typeCode,
+		Items:             items,
+	}
 }

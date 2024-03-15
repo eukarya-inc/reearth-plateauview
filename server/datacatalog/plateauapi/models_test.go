@@ -378,3 +378,43 @@ func TestDatasetTypes_DatasetType(t *testing.T) {
 
 	assert.Equal(t, expected, result)
 }
+
+func TestPlateauDatasetToGenericDataset(t *testing.T) {
+	d := &PlateauDataset{
+		ID:       "d_1",
+		Admin:    map[string]any{"sample": true},
+		TypeID:   "dt_bldg",
+		TypeCode: "bldg",
+		Items: []*PlateauDatasetItem{
+			{
+				ID:       "11",
+				Format:   DatasetFormatCesium3dtiles,
+				Name:     "LOD1",
+				URL:      "hoge",
+				Layers:   []string{"layer"},
+				ParentID: "d_1",
+			},
+		},
+	}
+
+	expected := &GenericDataset{
+		ID:       "d_1_",
+		Admin:    map[string]any{"sample": true},
+		TypeID:   "dt_sample",
+		TypeCode: "sample",
+		Items: []*GenericDatasetItem{
+			{
+				ID:       "11",
+				Format:   DatasetFormatCesium3dtiles,
+				Name:     "LOD1",
+				URL:      "hoge",
+				Layers:   []string{"layer"},
+				ParentID: "d_1_",
+			},
+		},
+	}
+
+	actual := PlateauDatasetToGenericDataset(d, "dt_sample", "sample", "d_1_")
+
+	assert.Equal(t, expected, actual)
+}
