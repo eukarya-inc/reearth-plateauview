@@ -81,7 +81,7 @@ type Config struct {
 	DataCatalog_PanicOnInit            bool     `pp:",omitempty"`
 	SDKAPI_DisableCache                bool     `pp:",omitempty"`
 	SDKAPI_CacheTTL                    int      `pp:",omitempty"`
-	GCParcent                          int      `pp:",omitempty"`
+	SDKAPI_V3                          bool     `pp:",omitempty"`
 }
 
 func NewConfig() (*Config, error) {
@@ -174,7 +174,7 @@ func (c *Config) SDKAPI() sdkapi.Config {
 			DataCatagloAPIURL: c.LocalURL("/datacatalog"),
 			Token:             c.SDK_Token,
 		},
-		UseV2: false,
+		UseV2: !c.SDKAPI_V3,
 	}
 }
 
