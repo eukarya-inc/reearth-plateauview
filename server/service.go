@@ -8,7 +8,7 @@ import (
 	"github.com/eukarya-inc/reearth-plateauview/server/govpolygon"
 	"github.com/eukarya-inc/reearth-plateauview/server/opinion"
 	"github.com/eukarya-inc/reearth-plateauview/server/putil"
-	"github.com/eukarya-inc/reearth-plateauview/server/sdkapi"
+	"github.com/eukarya-inc/reearth-plateauview/server/sdkapi/sdkapiv3"
 	"github.com/eukarya-inc/reearth-plateauview/server/searchindex"
 	"github.com/eukarya-inc/reearth-plateauview/server/sidebar"
 	"github.com/labstack/echo/v4"
@@ -92,7 +92,7 @@ func SDKAPI(conf *Config) (*Service, error) {
 		Name:           "sdkapi",
 		DisableNoCache: true,
 		Echo: func(g *echo.Group) error {
-			_, err := sdkapi.Handler(c, g.Group("/sdk"))
+			_, err := sdkapiv3.Handler(c, g.Group("/sdk"))
 			return err
 		},
 	}, nil

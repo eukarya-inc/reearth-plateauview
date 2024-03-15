@@ -8,8 +8,6 @@ import (
 	"github.com/eukarya-inc/reearth-plateauview/server/datacatalog"
 	"github.com/eukarya-inc/reearth-plateauview/server/opinion"
 	"github.com/eukarya-inc/reearth-plateauview/server/plateaucms"
-	"github.com/eukarya-inc/reearth-plateauview/server/sdkapi"
-	"github.com/eukarya-inc/reearth-plateauview/server/sdkapi/sdkapiv2"
 	"github.com/eukarya-inc/reearth-plateauview/server/sdkapi/sdkapiv3"
 	"github.com/eukarya-inc/reearth-plateauview/server/searchindex"
 	"github.com/eukarya-inc/reearth-plateauview/server/sidebar"
@@ -79,9 +77,6 @@ type Config struct {
 	DataCatalog_CacheTTL               int      `pp:",omitempty"`
 	DataCatalog_GQL_MaxComplexity      int      `pp:",omitempty"`
 	DataCatalog_PanicOnInit            bool     `pp:",omitempty"`
-	SDKAPI_DisableCache                bool     `pp:",omitempty"`
-	SDKAPI_CacheTTL                    int      `pp:",omitempty"`
-	SDKAPI_V3                          bool     `pp:",omitempty"`
 	GCParcent                          int      `pp:",omitempty"`
 }
 
@@ -161,21 +156,10 @@ func (c *Config) SearchIndex() searchindex.Config {
 	}
 }
 
-func (c *Config) SDKAPI() sdkapi.Config {
-	return sdkapi.Config{
-		V2: sdkapiv2.Config{
-			CMSBaseURL:   c.CMS_BaseURL,
-			CMSToken:     c.CMS_Token,
-			Project:      c.CMS_PlateauProject,
-			Token:        c.SDK_Token,
-			DisableCache: c.SDKAPI_DisableCache,
-			CacheTTL:     c.SDKAPI_CacheTTL,
-		},
-		V3: sdkapiv3.Config{
-			DataCatagloAPIURL: c.LocalURL("/datacatalog"),
-			Token:             c.SDK_Token,
-		},
-		UseV2: !c.SDKAPI_V3,
+func (c *Config) SDKAPI() sdkapiv3.Config {
+	return sdkapiv3.Config{
+		DataCatagloAPIURL: c.LocalURL("/datacatalog"),
+		Token:             c.SDK_Token,
 	}
 }
 
