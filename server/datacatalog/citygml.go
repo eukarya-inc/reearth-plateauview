@@ -2,10 +2,7 @@ package datacatalog
 
 import (
 	"context"
-	"encoding/csv"
 	"fmt"
-	"io"
-	"net/http"
 	"net/url"
 	"path"
 	"slices"
@@ -16,7 +13,6 @@ import (
 	"github.com/eukarya-inc/reearth-plateauview/server/plateaucms"
 	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
-	"github.com/spkg/bom"
 )
 
 type CityGMLFilesResponse struct {
@@ -73,8 +69,13 @@ func fetchCityGMLFiles(ctx context.Context, r plateauapi.Repo, id string) (*City
 		return nil, nil
 	}
 
-	maxlodURL := admin["maxlod"].(string)
-	if maxlodURL == "" {
+	maxlodURLs, ok := admin["maxlod"].([]string)
+	if !ok {
+		return nil, nil
+	}
+
+	citygmlURLs, ok := admin["citygmlUrl"].([]string)
+	if !ok {
 		return nil, nil
 	}
 
@@ -106,12 +107,12 @@ func fetchCityGMLFiles(ctx context.Context, r plateauapi.Repo, id string) (*City
 		gurls = gmlURLs(asset.File.Paths(), assetBase)
 	}
 
-	data, err := fetchCSV(ctx, maxlodURL)
+	data, err := fetchCSVs(ctx, maxlodURLs, citygmlURLs)
 	if err != nil {
 		return nil, err
 	}
 
-	files := csvToCityGMLFilesResponse(data, citygml.URL, gurls)
+	files := csvToCityGMLFilesResponse(data, gurls)
 	return &CityGMLFilesResponse{
 		CityCode:         string(citygml.CityCode),
 		CityName:         city.Name,
@@ -123,59 +124,28 @@ func fetchCityGMLFiles(ctx context.Context, r plateauapi.Repo, id string) (*City
 	}, nil
 }
 
-func fetchCSV(ctx context.Context, url string) (records [][]string, _ error) {
-	res, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
-	if err != nil {
-		return nil, fmt.Errorf("failed to create request: %w", err)
-	}
-
-	resp, err := http.DefaultClient.Do(res)
-	if err != nil {
-		return nil, fmt.Errorf("failed to request: %w", err)
-	}
-
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("failed to request: %w", err)
-	}
-
-	c := csv.NewReader(bom.NewReader(resp.Body))
-	for {
-		record, err := c.Read()
-		if err == io.EOF {
-			break
-		}
-		if err != nil {
-			return nil, fmt.Errorf("failed to read csv: %w", err)
-		}
-		records = append(records, record)
-	}
-
-	return
-}
-
-func csvToCityGMLFilesResponse(data [][]string, base string, gmlURLs []*url.URL) CityGMLFiles {
+func csvToCityGMLFilesResponse(data [][]string, gmlURLs []*url.URL) CityGMLFiles {
 	res := make(CityGMLFiles)
 
 	for _, record := range data {
-		if len(record) < 3 || record[0] == "" {
+		if len(record) < 3 || record[0] == "" || record[1] == "" {
 			continue
 		}
 
-		if !isNumeric(rune(record[0][0])) {
-			// it's a header
-			continue
+		if !isNumeric(rune(record[1][0])) {
+			continue // skip header
 		}
 
-		// code,type,maxLod(,path)
-		meshCode := record[0]
-		featureType := record[1]
-		maxlod, _ := strconv.Atoi(record[2])
+		// base,code,type,maxLod(,path)
+		base := record[0]
+		meshCode := record[1]
+		featureType := record[2]
+		maxlod, _ := strconv.Atoi(record[3])
 		citygmlURL := ""
+		gmlPath := record[4]
 
-		if len(record) > 3 && gmlURLs == nil {
-			citygmlURL = citygmlItemURLFrom(base, record[3], featureType)
+		if len(record) > 4 && gmlURLs == nil {
+			citygmlURL = citygmlItemURLFrom(base, gmlPath, featureType)
 		} else {
 			// compat for datacatalogv2
 			prefix := fmt.Sprintf("%s_%s_", meshCode, featureType)

@@ -133,7 +133,8 @@ func TestNewCache(t *testing.T) {
 				URL:                "https://example.com/13101_tokyo23ku_2022_citygml_op_2.zip",
 				FeatureTypes:       []string{"bldg", "dem"},
 				Admin: map[string]any{
-					"maxlod":         "maxlod2",
+					"citygmlUrl":     []string{"https://example.com/13101_tokyo23ku_2022_citygml_op_2.zip"},
+					"maxlod":         []string{"maxlod2"},
 					"citygmlAssetId": "assetid2",
 				},
 			},

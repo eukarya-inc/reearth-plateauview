@@ -517,7 +517,8 @@ func citygmlFrom(d datacatalogv2.DataCatalogItem, i *fetcherPlateauItem2) *plate
 		URL:                i.CityGMLURL,
 		FeatureTypes:       i.FeatureTypes,
 		Admin: map[string]any{
-			"maxlod":         i.MaxLODURL,
+			"maxlod":         []string{i.MaxLODURL},
+			"citygmlUrl":     []string{i.CityGMLURL},
 			"citygmlAssetId": i.CityGMLAssetID,
 		},
 	}

@@ -152,14 +152,14 @@ func newAdmin(id string, stage stage, cmsurl string, extra any) any {
 		a["stage"] = string(stage)
 	}
 
-	if len(a) == 0 {
-		return nil
-	}
-
 	if extra, ok := extra.(map[string]any); ok && extra != nil {
 		for k, v := range extra {
 			a[k] = v
 		}
+	}
+
+	if len(a) == 0 {
+		return nil
 	}
 
 	return a

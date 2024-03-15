@@ -77,6 +77,9 @@ func (c *APIClient) QueryDatasetFiles(ctx context.Context, id string) (DatasetFi
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
+		if resp.StatusCode == http.StatusNotFound {
+			return nil, nil
+		}
 		return nil, fmt.Errorf("error response: %s", resp.Status)
 	}
 

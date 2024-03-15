@@ -123,6 +123,9 @@ func (i *CityItem) SDKStage() stage {
 	if i.SDKPublic {
 		return stageGA
 	}
+	if i.PlateauStage("") == stageBeta {
+		return stageBeta
+	}
 	return stageAlpha
 }
 
@@ -151,12 +154,7 @@ type PlateauFeatureItem struct {
 	Dic     string                    `json:"dic,omitempty" cms:"dic,textarea"`
 	MaxLOD  string                    `json:"maxlod,omitempty" cms:"maxlod,-"`
 	// metadata
-	Status *cms.Tag `json:"status,omitempty" cms:"status,select,metadata"`
-	Sample bool     `json:"sample,omitempty" cms:"sample,bool,metadata"`
-}
-
-func (c PlateauFeatureItem) IsPublicForAdmin() bool {
-	return c.Status != nil && c.Status.Name == string(ManagementStatusReady)
+	Sample bool `json:"sample,omitempty" cms:"sample,bool,metadata"`
 }
 
 func (c PlateauFeatureItem) ReadDic() (d Dic, _ error) {
@@ -432,11 +430,10 @@ func geospatialjpURL(cityCode string, cityName string, year int) string {
 }
 
 type GeospatialjpDataItem struct {
-	ID            string     `json:"id,omitempty" cms:"id"`
-	City          string     `json:"city,omitempty" cms:"city,reference"`
-	CityGML       string     `json:"citygml,omitempty" cms:"citygml,asset"`
-	MaxLOD        string     `json:"maxlod,omitempty" cms:"maxlod,asset"`
-	MaxLODContent [][]string `json:"maxlod_content,omitempty" cms:"-"`
+	ID      string `json:"id,omitempty" cms:"id"`
+	City    string `json:"city,omitempty" cms:"city,reference"`
+	CityGML string `json:"citygml,omitempty" cms:"citygml,asset"`
+	MaxLOD  string `json:"maxlod,omitempty" cms:"maxlod,asset"`
 }
 
 func GeospatialjpDataItemFrom(item *cms.Item) *GeospatialjpDataItem {

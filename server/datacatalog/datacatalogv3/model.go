@@ -26,7 +26,7 @@ func (d *AllData) FindPlateauFeatureItemByCityID(ft, cityID string) *PlateauFeat
 
 func (all *AllData) FeatureTypesOf(cityID string) (res []string) {
 	for _, ft := range all.FeatureTypes.Plateau {
-		if dem := all.FindPlateauFeatureItemByCityID(ft.Code, cityID); dem != nil && dem.CityGML != "" {
+		if p := all.FindPlateauFeatureItemByCityID(ft.Code, cityID); p != nil && p.CityGML != "" {
 			res = append(res, ft.Code)
 		}
 	}
