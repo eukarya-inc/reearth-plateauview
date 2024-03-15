@@ -271,12 +271,12 @@ func (h *reposHandler) prepareV2(ctx context.Context, md plateaucms.Metadata) er
 		return nil
 	}
 
-	fetcher, err := datacatalogv2.NewFetcher(md.CMSBaseURL)
+	f, err := newFetcherV2(md)
 	if err != nil {
-		return fmt.Errorf("datacatalogv2: failed to create fetcher %s: %w", md.DataCatalogProjectAlias, err)
+		return err
 	}
 
-	if err := h.reposv2.Prepare(ctx, md.DataCatalogProjectAlias, fetcher); err != nil {
+	if err := h.reposv2.Prepare(ctx, f); err != nil {
 		return fmt.Errorf("datacatalogv2: failed to prepare repo for %s: %w", md.DataCatalogProjectAlias, err)
 	}
 
@@ -326,4 +326,26 @@ func adminContext(c echo.Context, bypassAdminRemoval, includeBeta bool) {
 	ctx := c.Request().Context()
 	ctx = datacatalogv3.AdminContext(ctx, bypassAdminRemoval, includeBeta)
 	c.SetRequest(c.Request().WithContext(ctx))
+}
+
+func newFetcherV2(md plateaucms.Metadata) (*datacatalogv2adapter.Fetcher, error) {
+	c, err := md.CMS()
+	if err != nil {
+		return nil, fmt.Errorf("datacatalogv2: failed to create cms for %s: %w", md.DataCatalogProjectAlias, err)
+	}
+
+	baseFetcher, err := datacatalogv2.NewFetcher(md.CMSBaseURL)
+	if err != nil {
+		return nil, fmt.Errorf("datacatalogv2: failed to create fetcher %s: %w", md.DataCatalogProjectAlias, err)
+	}
+
+	opts := datacatalogv2.FetcherDoOptions{}
+	// if md.Name != "" {
+	// 	opts.Subproject = md.SubPorjectAlias
+	// 	opts.CityName = md.Name
+	// }
+
+	fetcher := datacatalogv2adapter.NewFetcher(baseFetcher, c, md.DataCatalogProjectAlias, opts)
+
+	return fetcher, nil
 }

@@ -43,6 +43,17 @@ func TestNewCache(t *testing.T) {
 
 	all := r.All()
 
+	items := map[string]*fetcherPlateauItem2{
+		"plateau1": {
+			ID:             "plateau1",
+			CityGMLURL:     "https://example.com/13101_tokyo23ku_2022_citygml_op_2.zip",
+			CityGMLAssetID: "assetid2",
+			MaxLODURL:      "maxlod2",
+			FeatureTypes:   []string{"bldg", "dem"},
+			SDKPublic:      true,
+		},
+	}
+
 	expectedCache := &plateauapi.InMemoryRepoContext{
 		Areas: plateauapi.Areas{
 			plateauapi.AreaTypePrefecture: []plateauapi.Area{
@@ -119,11 +130,11 @@ func TestNewCache(t *testing.T) {
 				CityID:             "c_13101",
 				CityCode:           "13101",
 				PlateauSpecMinorID: "ps_2.3",
-				URL:                "https://example.com/13101_tokyo23ku_2022_citygml_op.zip",
-				FeatureTypes:       []string{"bldg"},
+				URL:                "https://example.com/13101_tokyo23ku_2022_citygml_op_2.zip",
+				FeatureTypes:       []string{"bldg", "dem"},
 				Admin: map[string]any{
-					"maxlod":         "maxlod",
-					"citygmlAssetId": "assetid",
+					"maxlod":         "maxlod2",
+					"citygmlAssetId": "assetid2",
 				},
 			},
 		},
@@ -133,6 +144,6 @@ func TestNewCache(t *testing.T) {
 		PlateauSpecs: plateauSpecs,
 	}
 
-	cache := newCache(all)
+	cache := newCache(all, items)
 	assert.Equal(t, expectedCache, cache)
 }

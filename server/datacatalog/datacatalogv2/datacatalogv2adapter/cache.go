@@ -9,17 +9,17 @@ import (
 	"golang.org/x/exp/slices"
 )
 
-func fetchAndCreateCache(ctx context.Context, project string, fetcher datacatalogv2.Fetchable, opts datacatalogv2.FetcherDoOptions) (*plateauapi.InMemoryRepo, error) {
-	r, err := fetcher.Do(ctx, project, opts)
+func fetchAndCreateCache(ctx context.Context, fetcher *Fetcher) (*plateauapi.InMemoryRepo, error) {
+	r, err := fetcher.Fetch(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("failed to update datacatalog cache: %w", err)
 	}
 
-	all := r.All()
-	return plateauapi.NewInMemoryRepo(newCache(all)), nil
+	all := r.Base.All()
+	return plateauapi.NewInMemoryRepo(newCache(all, r.PlateauItems)), nil
 }
 
-func newCache(items []datacatalogv2.DataCatalogItem) *plateauapi.InMemoryRepoContext {
+func newCache(items []datacatalogv2.DataCatalogItem, m map[string]*fetcherPlateauItem2) *plateauapi.InMemoryRepoContext {
 	cache := &plateauapi.InMemoryRepoContext{
 		PlateauSpecs: plateauSpecs,
 	}
@@ -113,7 +113,7 @@ func newCache(items []datacatalogv2.DataCatalogItem) *plateauapi.InMemoryRepoCon
 			cache.Years = append(cache.Years, d.Year)
 		}
 
-		if citygml := citygmlFrom(d); citygml != nil {
+		if citygml := citygmlFrom(d, m[d.ItemID]); citygml != nil {
 			if cache.CityGML == nil {
 				cache.CityGML = map[plateauapi.ID]*plateauapi.CityGMLDataset{}
 			}
