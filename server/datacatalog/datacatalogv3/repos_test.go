@@ -23,23 +23,27 @@ func TestRepos(t *testing.T) {
 	repos := NewRepos()
 	err := repos.Prepare(ctx, "prj", 2023, cms)
 	assert.NoError(t, err)
-	assert.Nil(t, repos.Warnings("prj"))
+	assert.Equal(t, []string{"plateau bldg2 bldg: invalid city: city2", "plateau bldg2: city not found: city2"}, repos.Warnings("prj"))
 
-	assertRes := func(t *testing.T, ctx context.Context, r plateauapi.Repo, cityName, cityCode string, admin bool, stage *string, isPref, found bool) {
+	assertRes := func(t *testing.T, ctx context.Context, r plateauapi.Repo, cityName, cityCode string, admin bool, stage *string, isPref, found, noCity bool) {
 		t.Helper()
 
 		prefCode := cityCode[:2]
 		area, err := r.Area(ctx, plateauapi.AreaCode(cityCode))
 		assert.NoError(t, err)
 		if !isPref {
-			assert.Equal(t, &plateauapi.City{
-				ID:             plateauapi.ID("c_" + cityCode),
-				Type:           plateauapi.AreaTypeCity,
-				Code:           plateauapi.AreaCode(cityCode),
-				Name:           cityName,
-				PrefectureID:   plateauapi.ID("p_" + prefCode),
-				PrefectureCode: plateauapi.AreaCode(prefCode),
-			}, area)
+			if !noCity {
+				assert.Equal(t, &plateauapi.City{
+					ID:             plateauapi.ID("c_" + cityCode),
+					Type:           plateauapi.AreaTypeCity,
+					Code:           plateauapi.AreaCode(cityCode),
+					Name:           cityName,
+					PrefectureID:   plateauapi.ID("p_" + prefCode),
+					PrefectureCode: plateauapi.AreaCode(prefCode),
+				}, area)
+			} else {
+				assert.Nil(t, area)
+			}
 		} else {
 			assert.Equal(t, &plateauapi.Prefecture{
 				ID:   plateauapi.ID("p_" + cityCode),
@@ -103,14 +107,14 @@ func TestRepos(t *testing.T) {
 	}
 
 	repo := repos.Repo("prj")
-	assertRes(t, ctx, repo, "PREF", "00", false, nil, true, false)
-	assertRes(t, ctx, repo, "foo", "00001", false, nil, false, true)
-	assertRes(t, ctx, repo, "bar", "00002", false, nil, false, false)
+	assertRes(t, ctx, repo, "PREF", "00", false, nil, true, false, false)
+	assertRes(t, ctx, repo, "foo", "00001", false, nil, false, true, false)
+	assertRes(t, ctx, repo, "bar", "00002", false, nil, false, false, true)
 
 	ctx2 := AdminContext(ctx, true, true)
-	assertRes(t, ctx2, repo, "PREF", "00", true, lo.ToPtr(string(stageBeta)), true, true)
-	assertRes(t, ctx2, repo, "foo", "00001", true, nil, false, true)
-	assertRes(t, ctx2, repo, "bar", "00002", true, nil, false, false)
+	assertRes(t, ctx2, repo, "PREF", "00", true, lo.ToPtr(string(stageBeta)), true, true, false)
+	assertRes(t, ctx2, repo, "foo", "00001", true, nil, false, true, false)
+	assertRes(t, ctx2, repo, "bar", "00002", true, nil, false, false, true)
 
 	assert.NoError(t, repos.UpdateAll(ctx))
 }

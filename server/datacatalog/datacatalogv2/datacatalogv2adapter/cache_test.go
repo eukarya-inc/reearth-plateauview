@@ -21,6 +21,7 @@ func TestNewCache(t *testing.T) {
 				Specification:   "第2.3版",
 				CityGML: &cms.PublicAsset{
 					Asset: cms.Asset{
+						ID:  "assetid",
 						URL: "https://example.com/13101_tokyo23ku_2022_citygml_op.zip",
 					},
 				},
@@ -120,7 +121,8 @@ func TestNewCache(t *testing.T) {
 				URL:                "https://example.com/13101_tokyo23ku_2022_citygml_op.zip",
 				FeatureTypes:       []string{"bldg"},
 				Admin: map[string]any{
-					"maxlod": "maxlod",
+					"maxlod":         "maxlod",
+					"citygmlAssetId": "assetid",
 				},
 			},
 		},
