@@ -76,6 +76,10 @@ func (c *APIClient) QueryDatasetFiles(ctx context.Context, id string) (DatasetFi
 
 	defer resp.Body.Close()
 
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("error response: %s", resp.Status)
+	}
+
 	if err := json.NewDecoder(resp.Body).Decode(&q); err != nil {
 		return nil, fmt.Errorf("error decoding response: %w", err)
 	}

@@ -165,6 +165,10 @@ type City struct {
 	Parent *Prefecture `json:"parent"`
 	// 平面直角座標系のEPSGコード。例えば、東京都の場合は "6677" です。
 	PlanarCrsEpsgCode *string `json:"planarCrsEpsgCode,omitempty"`
+	// CityGMLデータセットのID。
+	CitygmlID *ID `json:"citygmlId,omitempty"`
+	// CityGMLデータセット。
+	Citygml *CityGMLDataset `json:"citygml,omitempty"`
 }
 
 func (City) IsArea()        {}

@@ -123,10 +123,13 @@ func (i *CityItem) SDKStage() stage {
 	if i.SDKPublic {
 		return stageGA
 	}
-	return i.PlateauStage("")
+	return stageAlpha
 }
 
 func (i *CityItem) IsPublicOrBeta() bool {
+	if s := i.PlateauStage(""); s == stageGA || s == stageBeta {
+		return true
+	}
 	if s := i.SDKStage(); s == stageGA || s == stageBeta {
 		return true
 	}

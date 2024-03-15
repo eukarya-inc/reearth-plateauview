@@ -174,7 +174,7 @@ func csvToCityGMLFilesResponse(data [][]string, base string, gmlURLs []*url.URL)
 		maxlod, _ := strconv.Atoi(record[2])
 		citygmlURL := ""
 
-		if len(record) > 3 {
+		if len(record) > 3 && gmlURLs == nil {
 			citygmlURL = citygmlItemURLFrom(base, record[3], featureType)
 		} else {
 			// compat for datacatalogv2

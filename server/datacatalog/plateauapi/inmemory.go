@@ -251,6 +251,7 @@ func removeAdminFromCityGMLDataset(ctx context.Context, d *CityGMLDataset) *City
 		return d
 	}
 
-	d.Admin = nil
-	return d
+	d2 := *d
+	d2.Admin = nil
+	return &d2
 }

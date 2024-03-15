@@ -491,12 +491,17 @@ func cityFrom(d datacatalogv2.DataCatalogItem) *plateauapi.City {
 		PrefectureID:      *prefectureIDFrom(d),
 		PrefectureCode:    *prefectureCodeFrom(d),
 		PlanarCrsEpsgCode: lo.EmptyableToPtr(d.PRCS.EPSGCode()),
+		CitygmlID:         lo.ToPtr(plateauapi.CityGMLDatasetIDFrom(plateauapi.AreaCode(d.CityCode))),
 	}
 }
 
-func citygmlFrom(d datacatalogv2.DataCatalogItem) *plateauapi.CityGMLDataset {
+func citygmlFrom(d datacatalogv2.DataCatalogItem, i *fetcherPlateauItem2) *plateauapi.CityGMLDataset {
+	if i == nil || d.Spec == "" || !i.SDKPublic || i.CityGMLURL == "" || i.MaxLODURL == "" || len(i.FeatureTypes) == 0 {
+		return nil
+	}
+
 	id, code := cityIDFrom(d), cityCodeFrom(d)
-	if id == nil || code == nil || d.CityGMLURL == "" || d.MaxLODURL == "" || d.Spec == "" || len(d.CityGMLFeatureTypes) == 0 {
+	if id == nil || code == nil {
 		return nil
 	}
 
@@ -509,11 +514,11 @@ func citygmlFrom(d datacatalogv2.DataCatalogItem) *plateauapi.CityGMLDataset {
 		CityID:             *id,
 		CityCode:           *code,
 		PlateauSpecMinorID: plateauSpecIDFrom(d.Spec),
-		URL:                d.CityGMLURL,
-		FeatureTypes:       d.CityGMLFeatureTypes,
+		URL:                i.CityGMLURL,
+		FeatureTypes:       i.FeatureTypes,
 		Admin: map[string]any{
-			"maxlod":         d.MaxLODURL,
-			"citygmlAssetId": d.CityGMLAssetID,
+			"maxlod":         i.MaxLODURL,
+			"citygmlAssetId": i.CityGMLAssetID,
 		},
 	}
 }
