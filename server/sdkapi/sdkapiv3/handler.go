@@ -39,7 +39,12 @@ func Handler(conf Config, g *echo.Group) (bool, error) {
 			return c.JSON(http.StatusBadGateway, map[string]any{"error": "bad gateway"})
 		}
 
-		return c.JSON(http.StatusOK, res.ToDatasets())
+		res2 := res.ToDatasets()
+		if res2 == nil {
+			return c.JSON(http.StatusNotFound, map[string]any{"error": "not found"})
+		}
+
+		return c.JSON(http.StatusOK, res2)
 	})
 
 	g.GET("/datasets/:id/files", func(c echo.Context) error {
@@ -49,6 +54,10 @@ func Handler(conf Config, g *echo.Group) (bool, error) {
 		if err != nil {
 			log.Errorfc(ctx, "sdkapiv3: error querying dataset files: %v", err)
 			return c.JSON(http.StatusBadGateway, map[string]any{"error": "bad gateway"})
+		}
+
+		if res == nil {
+			return c.JSON(http.StatusNotFound, map[string]any{"error": "not found"})
 		}
 
 		return c.JSON(http.StatusOK, res)

@@ -77,7 +77,7 @@ func fetcherPlateauItem2From(i *fetcherPlateauItem) *fetcherPlateauItem2 {
 
 	for _, ft := range featureTypes {
 		a := i.CityGMLAsset(ft)
-		if a == nil {
+		if len(a) == 0 {
 			continue
 		}
 
