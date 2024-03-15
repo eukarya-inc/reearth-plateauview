@@ -123,8 +123,9 @@ var plateauFeatureTypes = []FeatureType{
 		MVTLayerName: []string{"OtherConstruction"},
 	},
 	{
-		Code: "frn",
-		Name: "都市設備モデル",
+		Code:         "frn",
+		Name:         "都市設備モデル",
+		MVTLayerName: []string{"CityFurniture"},
 	},
 	{
 		Code: "unf",

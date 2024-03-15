@@ -297,6 +297,26 @@ func TestParseAssetName(t *testing.T) {
 			},
 		},
 		{
+			name: "frn dm_geometric_attributes",
+			args: "15202_nagaoka-shi_city_2023_citygml_1_op_frn_dm_geometric_attributes",
+			want: &AssetName{
+				CityCode:    "15202",
+				CityName:    "nagaoka-shi",
+				Provider:    "city",
+				Year:        2023,
+				Format:      "citygml",
+				UpdateCount: 1,
+				Ex: AssetNameEx{
+					Normal: &AssetNameExNormal{
+						Type:   "frn",
+						Format: "mvt",
+						LOD:    0,
+					},
+					Ex: "frn_dm_geometric_attributes",
+				},
+			},
+		},
+		{
 			name: "veg",
 			args: "11111_bar-shi_city_2023_citygml_1_op_veg_PlantCover_3dtiles_lod3",
 			want: &AssetName{

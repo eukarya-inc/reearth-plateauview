@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"regexp"
 	"strconv"
+	"strings"
 
 	"github.com/samber/lo"
 )
@@ -192,6 +193,7 @@ func ParseAssetNameEx(name string) (ex AssetNameEx) {
 }
 
 var reAasetNameExNormal = regexp.MustCompile(`^([a-z]+)_(mvt|3dtiles)(?:_(\d+)_([a-z0-9-]+))?(_lod\d+)?(_no_texture)?$`)
+var reAasetNameExNormalDM = regexp.MustCompile(`^([a-z]+)_dm_geometric_attributes$`)
 
 func ParseAssetNameExNormal(name string) *AssetNameExNormal {
 	if name == "" {
@@ -200,12 +202,17 @@ func ParseAssetNameExNormal(name string) *AssetNameExNormal {
 
 	m := reAasetNameExNormal.FindStringSubmatch(name)
 	if len(m) == 0 {
-		return nil
+		m = reAasetNameExNormalDM.FindStringSubmatch(name)
+		if len(m) == 0 {
+			return nil
+		}
+
+		m = []string{m[0], m[1], "mvt", "", "", "0", ""}
 	}
 
 	lod := 0
 	if m[5] != "" {
-		lod, _ = strconv.Atoi(m[5][4:])
+		lod, _ = strconv.Atoi(strings.TrimPrefix(m[5], "_lod"))
 	}
 
 	return &AssetNameExNormal{
