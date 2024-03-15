@@ -37,5 +37,6 @@ func (city *CityItem) ToCity() *plateauapi.City {
 		PrefectureID:      plateauapi.NewID(prefCode, plateauapi.TypePrefecture),
 		PrefectureCode:    plateauapi.AreaCode(prefCode),
 		PlanarCrsEpsgCode: lo.EmptyableToPtr(city.PlanarCrsEpsgCode()),
+		CitygmlID:         lo.ToPtr(plateauapi.CityGMLDatasetIDFrom(plateauapi.AreaCode(city.CityCode))),
 	}
 }

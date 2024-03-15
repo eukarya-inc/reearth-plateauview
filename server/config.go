@@ -174,7 +174,7 @@ func (c *Config) SDKAPI() sdkapi.Config {
 			DataCatagloAPIURL: c.LocalURL("/datacatalog"),
 			Token:             c.SDK_Token,
 		},
-		UseV2: true,
+		UseV2: false,
 	}
 }
 

@@ -40,6 +40,7 @@ func TestRepos(t *testing.T) {
 					Name:           cityName,
 					PrefectureID:   plateauapi.ID("p_" + prefCode),
 					PrefectureCode: plateauapi.AreaCode(prefCode),
+					CitygmlID:      lo.ToPtr(plateauapi.ID("cg_" + cityCode)),
 				}, area)
 			} else {
 				assert.Nil(t, area)

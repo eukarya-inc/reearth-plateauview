@@ -491,6 +491,7 @@ func cityFrom(d datacatalogv2.DataCatalogItem) *plateauapi.City {
 		PrefectureID:      *prefectureIDFrom(d),
 		PrefectureCode:    *prefectureCodeFrom(d),
 		PlanarCrsEpsgCode: lo.EmptyableToPtr(d.PRCS.EPSGCode()),
+		CitygmlID:         lo.ToPtr(plateauapi.CityGMLDatasetIDFrom(plateauapi.AreaCode(d.CityCode))),
 	}
 }
 

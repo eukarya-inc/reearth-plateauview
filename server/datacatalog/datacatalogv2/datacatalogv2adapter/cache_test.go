@@ -61,6 +61,7 @@ func TestNewCache(t *testing.T) {
 					Code:           plateauapi.AreaCode("13101"),
 					PrefectureID:   plateauapi.ID("p_13"),
 					PrefectureCode: plateauapi.AreaCode("13"),
+					CitygmlID:      lo.ToPtr(plateauapi.ID("cg_13101")),
 				},
 			},
 		},

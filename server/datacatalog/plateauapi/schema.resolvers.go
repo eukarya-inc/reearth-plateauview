@@ -47,6 +47,14 @@ func (r *cityResolver) Parent(ctx context.Context, obj *City) (*Prefecture, erro
 	return r.Prefecture(ctx, obj)
 }
 
+// Citygml is the resolver for the citygml field.
+func (r *cityResolver) Citygml(ctx context.Context, obj *City) (*CityGMLDataset, error) {
+	if obj.CitygmlID == nil {
+		return nil, nil
+	}
+	return to[*CityGMLDataset](r.Repo.Node(ctx, *obj.CitygmlID))
+}
+
 // Prefecture is the resolver for the prefecture field.
 func (r *cityGMLDatasetResolver) Prefecture(ctx context.Context, obj *CityGMLDataset) (*Prefecture, error) {
 	return to[*Prefecture](r.Repo.Node(ctx, obj.PrefectureID))

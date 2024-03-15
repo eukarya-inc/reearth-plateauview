@@ -153,6 +153,14 @@ type City implements Area & Node {
   平面直角座標系のEPSGコード。例えば、東京都の場合は "6677" です。
   """
   planarCrsEpsgCode: String
+  """
+  CityGMLデータセットのID。
+  """
+  citygmlId: ID
+  """
+  CityGMLデータセット。
+  """
+  citygml: CityGMLDataset
 }
 
 """
