@@ -11,6 +11,7 @@ type DatasetsQuery struct {
 type QueryArea struct {
 	ID         graphql.String
 	Name       graphql.String
+	Code       graphql.String
 	Prefecture QueryPrefecture `graphql:"... on Prefecture"`
 }
 

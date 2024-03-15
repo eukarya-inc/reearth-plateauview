@@ -5,6 +5,7 @@ type DatasetsResponse struct {
 }
 
 type DatasetPrefectureResponse struct {
+	ID    string                 `json:"id"`
 	Title string                 `json:"title"`
 	Data  []*DatasetCityResponse `json:"data"`
 }

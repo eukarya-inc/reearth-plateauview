@@ -10,6 +10,7 @@ func (d *DatasetsQuery) ToDatasets() *DatasetsResponse {
 
 	for _, prefecture := range d.Areas {
 		p := &DatasetPrefectureResponse{
+			ID:    string(prefecture.Code),
 			Title: string(prefecture.Name),
 		}
 
